@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"esModuleInterop": true,
+		"allowJs": true,
+		"noEmit": true,
+		"target": "ES2020",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"experimentalDecorators": true
+	}
+}

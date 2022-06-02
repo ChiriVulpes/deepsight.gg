@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "ES2021",
+		"lib": ["ES2021", "DOM", "DOM.Iterable"],
+		"moduleResolution": "node",
+		"outFile": "../docs/index.js",
+		"module": "AMD",
+		"baseUrl": ".",
+        "incremental": true,
+        "noImplicitOverride": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "noUnusedLocals": true,
+		"paths": {
+		}
+	}
+}
