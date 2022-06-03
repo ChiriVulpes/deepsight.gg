@@ -1,0 +1,83 @@
+.app-nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	box-sizing: border-box;
+	display: flex;
+    z-index: 9999999;
+	user-select: none;
+	
+	$delay: .02s;
+	
+	@at-root .app-nav-logo, .app-nav-title, .app-nav-destination {
+		@include transition(.2s, transform);
+		transition-timing-function: cubic-bezier(0,0,.4,1);
+	}
+	
+	&.hidden {
+		:where(.app-nav-logo, .app-nav-title, .app-nav-destination) {
+			@include transition(.4s);
+			transform: translateY(-50px);
+		}
+	}
+	
+	&-logo {
+		margin: 10px;
+		pointer-events: none;
+	}
+	
+	&-title {
+		font-size: 16pt;
+		height: fit-content;
+		align-self: center;
+		margin-right: 30px;
+		transition-delay: $delay;
+	}
+	
+	&-destinations {
+		flex-grow: 1;
+		display: flex;
+		// justify-content: flex-end;
+		margin-right: 10px;
+	}
+	
+	&-destination {
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: color(foreground-2);
+		font-weight: 500;
+		margin-right: 30px;
+		
+		@for $i from 1 through 20 {
+			&:nth-child(#{$i}) {
+				transition-delay: $delay + $delay * $i;
+			}
+		}
+		
+		&::before {
+			box-shadow: none;
+			top: auto;
+			bottom: -4px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 0%;
+			height: 4px;
+			background: currentColor;
+			@include transition(out, width);
+		}
+		
+		&:where(:hover, :active, .active, :focus-visible) {
+			color: color(foreground-0);
+		}
+		
+		&.active {
+			&::before {
+				width: 100%;
+				@include transition(in);
+			}
+		}
+	}
+}

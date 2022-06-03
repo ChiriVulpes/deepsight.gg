@@ -1,3 +1,5 @@
+import { EventManager } from "utility/EventManager";
+
 export interface IURLParams {
 	update (): void;
 
@@ -14,7 +16,30 @@ function updateURL () {
 	history.replaceState(null, "", `${location.origin}${location.pathname}${queryString}${location.hash}`);
 }
 
+export interface IURLEvents {
+	navigate: Event;
+}
+
+let poppingState = false;
+window.addEventListener("popstate", () => {
+	poppingState = true;
+	URL.event.emit("navigate");
+	poppingState = false;
+});
+
 export default class URL {
+
+	public static readonly event = EventManager.make<IURLEvents>();
+
+	public static get hash () {
+		return location.hash.slice(1);
+	}
+
+	public static set hash (value: string) {
+		if (!poppingState)
+			history.pushState(null, "", `${location.origin}${location.pathname}${location.search}#${value}`);
+	}
+
 	public static get params () {
 		return params ??= new Proxy(query ??= new URLSearchParams(location.search), {
 			has (params, key) {

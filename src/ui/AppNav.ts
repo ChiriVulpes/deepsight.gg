@@ -1,0 +1,60 @@
+import { APP_ACRONYM, APP_ACRONYM_FAKE_MEANINGS } from "Constants";
+import Button from "ui/Button";
+import { Classes } from "ui/Classes";
+import Component from "ui/Component";
+import View from "ui/View";
+import ViewManager from "ui/ViewManager";
+
+export enum ClassesAppNav {
+	Main = "app-nav",
+	Logo = "app-nav-logo",
+	Title = "app-nav-title",
+	Destinations = "app-nav-destinations",
+	Destination = "app-nav-destination",
+}
+
+export default class AppNav extends Component<HTMLElement, [typeof ViewManager]> {
+	protected static override defaultType = "nav";
+
+	private destinationButtons!: Record<string, Button>;
+
+	protected override onMake (viewManager: typeof ViewManager): void {
+		this.destinationButtons = {};
+
+		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
+
+		Component.create()
+			.classes.add(ClassesAppNav.Logo, Classes.Logo)
+			.appendTo(this);
+
+		Component.create()
+			.classes.add(ClassesAppNav.Title)
+			.text.set(APP_ACRONYM)
+			.attributes.set("title", APP_ACRONYM_FAKE_MEANINGS[Math.floor(Math.random() * APP_ACRONYM_FAKE_MEANINGS.length)])
+			.appendTo(this);
+
+		const destinationsWrapper = Component.create()
+			.classes.add(ClassesAppNav.Destinations)
+			.appendTo(this);
+
+		for (const destinationViewClass of Object.values(viewManager.registry)) {
+			if (!destinationViewClass.destinationName)
+				continue;
+
+			this.destinationButtons[destinationViewClass.id] = Button.create()
+				.classes.add(ClassesAppNav.Destination)
+				.text.set(destinationViewClass.destinationName)
+				.event.subscribe("click", () => destinationViewClass.show())
+				.appendTo(destinationsWrapper);
+		}
+	}
+
+	public showing (view: View) {
+		for (const button of Object.values(this.destinationButtons))
+			button.classes.remove(Classes.Active);
+
+		this.destinationButtons[view.id]?.classes.add(Classes.Active);
+		this.classes.toggle(!view.shouldDisplayNav(), Classes.Hidden);
+		this.attributes.toggle(!view.shouldDisplayNav(), "inert");
+	}
+}

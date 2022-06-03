@@ -2,21 +2,38 @@ import { EventManager } from "utility/EventManager";
 
 declare global {
 	interface Element {
-		component?: WeakRef<Component<this>>;
+		component?: WeakRef<Component<this, any[]>>;
 	}
 }
 
-export default class Component<ELEMENT extends Element = HTMLElement> {
+export type ComponentClass<COMPONENT extends Component<Element, any[]> = Component<Element, any[]>> = {
+	prototype: COMPONENT,
+	create: (typeof Component)["create"];
+	get: (typeof Component)["get"];
+};
+
+export type ComponentArgs<COMPONENT extends Component<Element, any[]>> = COMPONENT["_args"];
+
+export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends any[] = []> {
+
+	public readonly _args!: ARGS;
 
 	protected static defaultType = "div";
 
-	public static create<THIS extends { prototype: Component<Element> }> (this: THIS): THIS["prototype"];
-	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME]> }> (this: THIS, type: TYPE_NAME): THIS["prototype"];
-	public static create (type?: keyof HTMLElementTagNameMap) {
+	public static create<THIS extends { prototype: Component<Element, []> }> (this: THIS): THIS["prototype"];
+	public static create<THIS extends { prototype: Component<Element, any[]> }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create (type?: keyof HTMLElementTagNameMap | any[], args?: any[]) {
+		if (typeof type === "object") {
+			args = type;
+			type = undefined;
+		}
+
 		const component = new Component(document.createElement(type ?? this.defaultType));
 
 		if (this !== Component)
-			component.make(this as any);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			component.make(this as any, ...args ?? []);
 
 		return component;
 	}
@@ -48,8 +65,8 @@ export default class Component<ELEMENT extends Element = HTMLElement> {
 		return classes as any;
 	}
 
-	public get attributes (): ClassManager<this & Component<HTMLElement>> {
-		const attributes = new ClassManager(this as any as Component<HTMLElement>);
+	public get attributes (): AttributeManager<this & Component<HTMLElement>> {
+		const attributes = new AttributeManager(this as any as Component<HTMLElement>);
 		Object.defineProperty(this, "attributes", {
 			value: attributes,
 		});
@@ -90,14 +107,14 @@ export default class Component<ELEMENT extends Element = HTMLElement> {
 		element.component = new WeakRef(this);
 	}
 
-	public as<COMPONENT_CLASS extends new () => Component> (cls: COMPONENT_CLASS): InstanceType<COMPONENT_CLASS> | undefined {
-		return this instanceof cls ? this as InstanceType<COMPONENT_CLASS> : undefined;
+	public as<COMPONENT_CLASS extends ComponentClass> (cls: COMPONENT_CLASS): COMPONENT_CLASS["prototype"] | undefined {
+		return this instanceof (cls as any) ? this as COMPONENT_CLASS["prototype"] : undefined;
 	}
 
-	public make<COMPONENT_CLASS extends new () => Component> (cls: COMPONENT_CLASS): InstanceType<COMPONENT_CLASS> {
+	public make<COMPONENT_CLASS extends ComponentClass> (cls: COMPONENT_CLASS, ...args: ComponentArgs<COMPONENT_CLASS["prototype"]>): COMPONENT_CLASS["prototype"] {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		Object.setPrototypeOf(this, cls.prototype);
-		this.onMake();
+		(this as COMPONENT_CLASS["prototype"]).onMake(...args);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return this as any;
 	}
@@ -108,15 +125,15 @@ export default class Component<ELEMENT extends Element = HTMLElement> {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	protected onMake () { }
+	protected onMake (...args: ARGS) { }
 
-	public append (...elements: (Component<Element> | Node)[]) {
+	public append (...elements: (Component<Element, any[]> | Node)[]) {
 		this.element.append(...elements.map(element =>
-			element instanceof Component<Element> ? element.element : element));
+			element instanceof Component<Element, any[]> ? element.element : element));
 		return this;
 	}
 
-	public appendTo (componentOrParentNode: ParentNode | Component<Element>) {
+	public appendTo (componentOrParentNode: ParentNode | Component<Element, any[]>) {
 		if (componentOrParentNode instanceof Component<Element>)
 			componentOrParentNode = componentOrParentNode.element;
 
@@ -154,7 +171,7 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 		return host as HOST;
 	}
 
-	public set (present: boolean, ...classes: string[]) {
+	public toggle (present: boolean, ...classes: string[]) {
 		const host = this.host.deref();
 		if (present)
 			host?.element.classList.add(...classes);
@@ -230,9 +247,24 @@ export class AttributeManager<HOST extends Component<HTMLElement>> {
 		return host as HOST;
 	}
 
+	public toggle (present: boolean, name: string) {
+		const host = this.host.deref();
+		if (present)
+			host?.element.setAttribute(name, "");
+		else
+			host?.element.removeAttribute(name);
+		return host as HOST;
+	}
+
 	public set (name: string, value: string) {
 		const host = this.host.deref();
 		host?.element.setAttribute(name, value);
+		return host as HOST;
+	}
+
+	public remove (name: string) {
+		const host = this.host.deref();
+		host?.element.removeAttribute(name);
 		return host as HOST;
 	}
 }

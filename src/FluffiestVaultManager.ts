@@ -1,16 +1,11 @@
-import Component from "ui/Component";
 import AuthView from "ui/view/AuthView";
+import InventoryOverviewView from "ui/view/InventoryOverviewView";
 import ViewManager from "ui/ViewManager";
 import Bungie from "utility/Bungie";
-import GetMembershipsForCurrentUser from "utility/bungie/endpoint/user/GetMembershipsForCurrentUser";
 import Env from "utility/Env";
+import URL from "utility/URL";
 
 export default class FluffiestVaultManager {
-
-	public get title () { return document.title; }
-	public set title (title: string) { document.title = title; }
-
-	public readonly views = new ViewManager();
 
 	public constructor () {
 		void this.main();
@@ -26,21 +21,21 @@ export default class FluffiestVaultManager {
 		});
 
 		Bungie.event.subscribe("resetAuthentication", _ => {
-			this.views.show(AuthView.create());
+			AuthView.show();
 		});
 
 		await Bungie.authenticate("complete");
 
 		if (Bungie.authenticated) {
-			Component.create()
-				.text.set("you're logged in uwu")
-				.appendTo(document.body);
+			ViewManager.showById(URL.hash);
+			if (!ViewManager.hasView())
+				InventoryOverviewView.show();
 
-			const memberships = await GetMembershipsForCurrentUser.query();
-			console.log(memberships);
+			// const memberships = await GetMembershipsForCurrentUser.query();
+			// console.log(memberships);
 
 		} else {
-			this.views.show(AuthView.create());
+			AuthView.show();
 		}
 	}
 }

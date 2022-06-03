@@ -8,6 +8,7 @@
 	background: color(button-background);
 	border: 1px solid color(button-border);
 	color: color(button-foreground);
+	outline: none;
 	transform: translateY(0);
 	@include transition(out, background, border, color, transform);
 	
@@ -21,17 +22,19 @@
 		@include transition(out, inset, box-shadow);
 	}
 	
-	&::after {
-		content: "";
-		display: block;
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
-		background-size: 600% 600%;
-		animation: flash 3s linear infinite;
+	&-attention {
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
+			background-size: 600% 600%;
+			animation: flash 3s linear infinite;
+		}
 	}
 	
-	&:hover, &:active, &:focus-visible {
+	&:where(:hover, :active, :focus-visible) {
 		background: color(button-background-hover);
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
@@ -50,8 +53,11 @@
 	
 	&:active {
 		transform: translateY(2px);
-		background: color(button-background-active);
 		@include transition(0s);
+	}
+	
+	&:where(:active) {
+		background: color(button-background-active);
 	}
 }
 
