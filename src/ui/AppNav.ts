@@ -17,6 +17,7 @@ export enum ClassesAppNav {
 	IdentityCode = "app-nav-identity-code",
 	Destinations = "app-nav-destinations",
 	Destination = "app-nav-destination",
+	DocumentHasAppNav = "has-app-nav",
 }
 
 export default class AppNav extends Component<HTMLElement, [typeof ViewManager]> {
@@ -74,6 +75,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			button.classes.remove(Classes.Active);
 
 		this.destinationButtons[view.id]?.classes.add(Classes.Active);
+		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, view.shouldDisplayNav());
 		this.classes.toggle(!view.shouldDisplayNav(), Classes.Hidden);
 		this.attributes.toggle(!view.shouldDisplayNav(), "inert");
 	}

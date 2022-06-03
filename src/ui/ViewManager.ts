@@ -3,6 +3,7 @@ import View, { ClassesView, ViewClass } from "ui/View";
 import AuthView from "ui/view/AuthView";
 import InventoryKineticView from "ui/view/InventoryKineticView";
 import InventoryOverviewView from "ui/view/InventoryOverviewView";
+import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
 import URL from "utility/URL";
@@ -11,6 +12,7 @@ const registry = Object.fromEntries([
 	AuthView,
 	InventoryOverviewView,
 	InventoryKineticView,
+	SettingsView,
 ].map((cls: ViewClass) => [cls.id, cls] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));

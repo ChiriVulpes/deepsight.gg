@@ -88,7 +88,7 @@ export class BungieAPI {
 		}
 	}
 
-	private resetAuthentication () {
+	public resetAuthentication () {
 		delete URL.params.code;
 		delete URL.params.state;
 		delete Store.items.bungieAuthCode;
