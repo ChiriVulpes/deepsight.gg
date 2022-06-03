@@ -46,6 +46,7 @@
 			position: relative;
 			display: flex;
 			margin-right: 30px;
+			transition-delay: $delay * 2;
 		}
 		
 		font-weight: 500;
@@ -79,7 +80,7 @@
 		
 		@for $i from 1 through 20 {
 			&:nth-child(#{$i}) {
-				transition-delay: $delay + $delay * $i;
+				transition-delay: $delay * 2 + $delay * $i;
 			}
 		}
 		
