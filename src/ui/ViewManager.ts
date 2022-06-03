@@ -1,5 +1,4 @@
 import { APP_NAME } from "Constants";
-import AppNav from "ui/AppNav";
 import View, { ClassesView, ViewClass } from "ui/View";
 import AuthView from "ui/view/AuthView";
 import InventoryKineticView from "ui/view/InventoryKineticView";
@@ -27,9 +26,6 @@ export interface IViewManagerEvents {
 export default class ViewManager {
 
 	public static readonly event = EventManager.make<IViewManagerEvents>();
-
-	public static readonly nav = AppNav.create([this])
-		.appendTo(document.body);
 
 	public static get registry () {
 		return registry;
@@ -63,7 +59,6 @@ export default class ViewManager {
 		this.view = view;
 		view.appendTo(document.body);
 		this.event.emit("show", { view });
-		this.nav.showing(view);
 		document.title = `${view.getName()} | ${APP_NAME}`;
 	}
 }

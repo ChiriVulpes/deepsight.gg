@@ -3,7 +3,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Label from "ui/Label";
 import View from "ui/View";
-import Bungie from "utility/Bungie";
+import Bungie from "utility/bungie/Bungie";
 
 export enum AuthViewClasses {
 	Content = "view-auth-content",

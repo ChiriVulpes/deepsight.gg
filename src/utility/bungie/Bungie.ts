@@ -12,6 +12,15 @@ export interface IBungieApiEvents {
 
 export class BungieAPI {
 
+	public get lastDailyReset () {
+		return new Date().setUTCHours(17, 0, 0);
+	}
+
+	public get lastWeeklyReset () {
+		const day = (new Date().getUTCDay() + 5) % 7;
+		return this.lastDailyReset - day * 24 * 60 * 60 * 1000;
+	}
+
 	public event = new EventManager<this, IBungieApiEvents>(this)
 		.pipe("error", BungieEndpoint.event);
 

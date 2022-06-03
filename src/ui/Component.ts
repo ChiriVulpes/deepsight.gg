@@ -20,9 +20,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	protected static defaultType = "div";
 
+	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap> (this: typeof Component, type: TYPE_NAME): Component<HTMLElementTagNameMap[TYPE_NAME], []>;
+	public static create (this: typeof Component): Component<HTMLElement, []>;
 	public static create<THIS extends { prototype: Component<Element, []> }> (this: THIS): THIS["prototype"];
 	public static create<THIS extends { prototype: Component<Element, any[]> }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
-	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME], any[]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
 	public static create (type?: keyof HTMLElementTagNameMap | any[], args?: any[]) {
 		if (typeof type === "object") {
 			args = type;

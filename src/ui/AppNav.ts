@@ -1,7 +1,9 @@
 import { APP_ACRONYM, APP_ACRONYM_FAKE_MEANINGS } from "Constants";
+import Memberships from "model/Memberships";
 import Button from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Loadable from "ui/Loadable";
 import View from "ui/View";
 import ViewManager from "ui/ViewManager";
 
@@ -9,6 +11,10 @@ export enum ClassesAppNav {
 	Main = "app-nav",
 	Logo = "app-nav-logo",
 	Title = "app-nav-title",
+	IdentityContainer = "app-nav-identity-container",
+	Identity = "app-nav-identity",
+	IdentityUsername = "app-nav-identity-username",
+	IdentityCode = "app-nav-identity-code",
 	Destinations = "app-nav-destinations",
 	Destination = "app-nav-destination",
 }
@@ -33,6 +39,18 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.attributes.set("title", APP_ACRONYM_FAKE_MEANINGS[Math.floor(Math.random() * APP_ACRONYM_FAKE_MEANINGS.length)])
 			.appendTo(this);
 
+		Loadable.create(Memberships)
+			.onReady(memberships => Component.create()
+				.classes.add(ClassesAppNav.Identity)
+				.append(Component.create()
+					.classes.add(ClassesAppNav.IdentityUsername)
+					.text.set(memberships.bungieNetUser.cachedBungieGlobalDisplayName))
+				.append(Component.create()
+					.classes.add(ClassesAppNav.IdentityCode)
+					.text.set(`#${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode}`)))
+			.classes.add(ClassesAppNav.IdentityContainer)
+			.appendTo(this);
+
 		const destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
 			.appendTo(this);
@@ -47,6 +65,8 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.event.subscribe("click", () => destinationViewClass.show())
 				.appendTo(destinationsWrapper);
 		}
+
+		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
 	}
 
 	public showing (view: View) {

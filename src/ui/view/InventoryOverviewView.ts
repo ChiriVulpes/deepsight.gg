@@ -1,3 +1,6 @@
+import Profile from "model/Profile";
+import Component from "ui/Component";
+import Loadable from "ui/Loadable";
 import View from "ui/View";
 
 export default class InventoryOverviewView extends View {
@@ -10,5 +13,9 @@ export default class InventoryOverviewView extends View {
 	}
 
 	protected onMakeView (): void {
+
+		Loadable.create(Profile)
+			.onReady(() => Component.create())
+			.appendTo(this.content);
 	}
 }

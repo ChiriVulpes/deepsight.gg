@@ -1,5 +1,5 @@
 import BungieEndpoint from "utility/bungie/BungieEndpoint";
-import { ISO } from "utility/Time";
+import Time from "utility/Time";
 
 export interface IBungieUserMembershipData {
 	bungieNetUser: {
@@ -8,9 +8,9 @@ export interface IBungieUserMembershipData {
 		cachedBungieGlobalDisplayNameCode: number;
 		context: { isFollowing: boolean; ignoreStatus: { isIgnored: boolean; ignoreFlags: number } };
 		displayName: string;
-		firstAccess: ISO;
+		firstAccess: Time.ISO;
 		isDeleted: boolean;
-		lastUpdate: ISO;
+		lastUpdate: Time.ISO;
 		locale: string;
 		localeInheritDefault: boolean;
 		membershipId: string;
@@ -20,7 +20,7 @@ export interface IBungieUserMembershipData {
 		profileThemeName: string;
 		showActivity: boolean;
 		showGroupMessaging: boolean;
-		statusDate: ISO;
+		statusDate: Time.ISO;
 		statusText: string;
 		steamDisplayName: string;
 		successMessageFlags: string;
