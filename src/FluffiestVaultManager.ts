@@ -1,5 +1,6 @@
-import Button from "ui/Button";
 import Component from "ui/Component";
+import AuthView from "ui/view/AuthView";
+import ViewManager from "ui/ViewManager";
 import Bungie from "utility/Bungie";
 import GetMembershipsForCurrentUser from "utility/bungie/endpoint/user/GetMembershipsForCurrentUser";
 import Env from "utility/Env";
@@ -8,6 +9,8 @@ export default class FluffiestVaultManager {
 
 	public get title () { return document.title; }
 	public set title (title: string) { document.title = title; }
+
+	public readonly views = new ViewManager();
 
 	public constructor () {
 		void this.main();
@@ -22,8 +25,8 @@ export default class FluffiestVaultManager {
 			iframe.contentDocument?.write(event.responseText);
 		});
 
-		Bungie.event.subscribe("resetAuthentication", event => {
-			console.log(event);
+		Bungie.event.subscribe("resetAuthentication", _ => {
+			this.views.show(AuthView.create());
 		});
 
 		await Bungie.authenticate("complete");
@@ -37,11 +40,7 @@ export default class FluffiestVaultManager {
 			console.log(memberships);
 
 		} else {
-			Button.create()
-				.text.set("owo!!!!! you're not logged in!!!! click here to do so")
-				.event.subscribe("click", () =>
-					void Bungie.authenticate("start").catch(err => console.error(err)))
-				.appendTo(document.body);
+			this.views.show(AuthView.create());
 		}
 	}
 }

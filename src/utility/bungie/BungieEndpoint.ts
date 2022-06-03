@@ -1,5 +1,5 @@
 import Env from "utility/Env";
-import { EventManipulator } from "utility/EventManipulator";
+import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
 
 interface Request extends Omit<RequestInit, "headers" | "body"> {
@@ -27,7 +27,14 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint
 			body,
 			headers: Object.fromEntries(Object.entries(this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
 		})
-			.then(response => response.text())
+			.then(response => {
+				if (response.status === 401) {
+					BungieEndpoint.event.emit("authenticationFailed");
+					throw new Error("Not authenticated");
+				}
+
+				return response.text();
+			})
 			.then(text => {
 				try {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -83,7 +90,7 @@ namespace BungieEndpoint {
 		error: { error: Error; responseText: string };
 	}
 
-	export const event = EventManipulator.make<IEvents>();
+	export const event = EventManager.make<IEvents>();
 }
 
 export default BungieEndpoint;

@@ -1,94 +1,56 @@
-$vars: (
-	--background-drawer: #1b1b27,
-	--background-code: var(--background-drawer),
-	--background: #223,
-	--background-2: #272c45,
-	--background-3: #2c3250,
-	--background-4: #333b5f,
-	--background-5: #3d4774,
-	--background-6: #424e81,
-	--color: #cdf,
-	--color-2: #8d9cbe, // #8796b6;
-	--color-3: #46587c,
-	--color-active: #fff,
-	--color-price: #44b235, // #3ea130;
-	--color-length: #af87f8, // #9573d3;
-	--color-date: #bda51e,
-	--color-tag: #cb66b6,
-	--color-tag-active: #f58ee0,
-	--link: #3196ff, // #387eff;
-	--link-active: #5db4ff,
-	--image-border: var(--background),
+$colors: (
+	background: var(--background-1),
+	background-0: #201c1c #fff,
+	background-1: #2e2929 #fff,
+	background-2: #3f3a3a #f3f7ff,
+	background-3: #494444 #e1ebff,
+	background-4: #555050 #d4e1fb,
+	background-5: #747171 #cdf,
+	background-6: #858080 #c3d6fc,
+	
+	foreground: var(--foreground-1),
+	foreground-0: #fff #000,
+	foreground-1: #f7f3f3 #223,
+	foreground-2: #bdb7b7 #676783,
+	foreground-3: #7c7474 #a3a3dd,
+	
+	accent-0: #3196ff #1465fd,
+	accent-0-active: #5db4ff,
+	
+	background-drawer: var(--background-0) var(--background-2),
+	
+	button-background: var(--background-3),
+	button-background-hover: var(--background-6),
+	button-background-active: var(--background-2),
+	button-border: var(--foreground-2),
+	button-border-hover: var(--foreground-0),
+	button-foreground: var(--foreground-1),
+	button-foreground-hover: var(--foreground-0),
 );
 
 @mixin rootVars {
 	:root {
 		color-scheme: dark;
 		
-		@each $var, $val in $vars {
-			#{$var}: $val;
+		@each $var, $val in $colors {
+			--#{$var}: #{nth($val, 1)};
 		}
 		
 		@media (prefers-color-scheme: light) {
 			color-scheme: light;
-			--background-drawer: var(--background-2);
-			--background: #fff;
-			--background-2: #f3f7ff;
-			--background-3: #e1ebff;
-			--background-4: #d4e1fb;
-			--background-5: #cdf;
-			--background-6: #c3d6fc;
-			--color: #223;
-			--color-2: #676783; // #8d8db3;
-			--color-3: #a3a3dd;
-			--color-date: #9f5800; // #a88f00;
-			--color-active: #000;
-			--link: #1465fd;
-			--link-active: #69a9fd;
-			--color-length: #7f3ef0;
-			--color-price: #0f7b00;
-			--color-tag: #be47a5;
-			// --link-active: #4586ff;
+			@each $var, $val in $colors {
+				@if length($val) > 1 {
+					--#{$var}: #{nth($val, 2)};
+				}
+			}
 		}
 	}
 }
 
-@mixin resolve($property, $value) {
-	@if type-of($value) == "list" {
-		$value: unquote("#{$value}");
+@function color($name) {
+	@if map-has-key($colors, $name) {
+		@return var(--#{$name});
 	}
 	
-	$novar-value: "";
-	$fixed-value: "";
-	$skip-till: 0;
-	@for $i from 1 through str-length($value) {
-		@if $i > $skip-till {
-			@if str-slice($value, $i, $i + 3) == "var(" {
-				$break: false;
-				$variable-name: "";
-				@for $j from $i + 4 through str-length($value) {
-					@if $break == false {
-						$char: str-slice($value, $j, $j);
-						@if $char == ")" {
-							$novar-value: $novar-value + map-get($vars, $variable-name);
-							$fixed-value: $fixed-value + "var(" + $variable-name + "," + map-get($vars, $variable-name) + ")";
-							$break: true;
-							$skip-till: $j;
-						} @else {
-							$variable-name: $variable-name + $char;
-						}
-					}
-				}
-			} @else {
-				$novar-value: $novar-value + str-slice($value, $i, $i);
-				$fixed-value: $fixed-value + str-slice($value, $i, $i);
-			}
-		}
-	}
-	
-	@if unquote($novar-value) != $value {
-		#{$property}: unquote($novar-value);
-	}
-	
-	#{$property}: unquote($fixed-value);
+	@error "Unknown color '#{$name}'";
 }

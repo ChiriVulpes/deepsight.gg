@@ -1,8 +1,8 @@
 
-export class EventManipulator<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
+export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
 
 	public static make<EVENTS> () {
-		return new EventManipulator<{}, EVENTS>({});
+		return new EventManager<{}, EVENTS>({});
 	}
 
 	private readonly host: WeakRef<HOST>;
@@ -81,9 +81,9 @@ export class EventManipulator<HOST extends object, EVENTS = {}, TARGET extends E
 		return this.host.deref() as HOST;
 	}
 
-	private pipes = new Map<string, WeakRef<EventManipulator<any, any>>[]>();
+	private pipes = new Map<string, WeakRef<EventManager<any, any>>[]>();
 
-	public pipe<TYPE extends keyof EVENTS> (type: TYPE, on: EventManipulator<any, { [key in TYPE]: EVENTS[TYPE] }, any>) {
+	public pipe<TYPE extends keyof EVENTS> (type: TYPE, on: EventManager<any, { [key in TYPE]: EVENTS[TYPE] }, any>) {
 		const typeName = type as string;
 
 		on.insertPipe(typeName, this._target instanceof WeakRef ? this._target : new WeakRef(this._target));
@@ -107,7 +107,7 @@ export class EventManipulator<HOST extends object, EVENTS = {}, TARGET extends E
 			this.pipeTargets.set(type, pipeTargets);
 		}
 
-		pipeTargets.push();
+		pipeTargets.push(target);
 
 		const pipes = this.pipes.get(type);
 		if (pipes) {

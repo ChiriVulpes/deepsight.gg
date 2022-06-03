@@ -1,0 +1,71 @@
+.button {
+	border-radius: 0;
+	position: relative;
+	margin: 8px 0;
+	padding: 4px 8px;
+	cursor: pointer;
+	user-select: none;
+	background: color(button-background);
+	border: 1px solid color(button-border);
+	color: color(button-foreground);
+	transform: translateY(0);
+	@include transition(out, background, border, color, transform);
+	
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: -6px;
+		box-shadow: 0 0 0 2px transparent;
+		pointer-events: none;
+		@include transition(out, inset, box-shadow);
+	}
+	
+	&::after {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
+		background-size: 600% 600%;
+		animation: flash 3s linear infinite;
+	}
+	
+	&:hover, &:active, &:focus-visible {
+		background: color(button-background-hover);
+		border-color: color(button-border-hover);
+		color: color(button-foreground-hover);
+		@include transition(in);
+		
+		&::before {
+			inset: -3px;
+			box-shadow: 0 0 0 2px color(button-border-hover);
+			@include transition(in);
+		}
+		
+		&::after {
+			animation-iteration-count: 1;
+		}
+	}
+	
+	&:active {
+		transform: translateY(2px);
+		background: color(button-background-active);
+		@include transition(0s);
+	}
+}
+
+@keyframes flash {
+	0% {
+		background-position-x: 0%;
+	}
+	20% {
+		background-position-x: 0%;
+	}
+	60% {
+		background-position-x: 100%;
+	}
+	100% {
+		background-position-x: 100%;
+	}
+}

@@ -1,7 +1,7 @@
 import BungieEndpoint from "utility/bungie/BungieEndpoint";
 import RequestOAuthToken from "utility/bungie/endpoint/RequestOAuthToken";
 import Env from "utility/Env";
-import { EventManipulator } from "utility/EventManipulator";
+import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
 import URL from "utility/URL";
 
@@ -12,8 +12,13 @@ export interface IBungieApiEvents {
 
 export class BungieAPI {
 
-	public event = new EventManipulator<this, IBungieApiEvents>(this)
+	public event = new EventManager<this, IBungieApiEvents>(this)
 		.pipe("error", BungieEndpoint.event);
+
+	public constructor () {
+		BungieEndpoint.event.subscribe("authenticationFailed", () =>
+			this.resetAuthentication());
+	}
 
 	public get authenticated () {
 		return !!(Store.items.bungieAuthCode && Store.items.bungieAccessToken);

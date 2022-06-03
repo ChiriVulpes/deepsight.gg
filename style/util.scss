@@ -1,11 +1,24 @@
 @mixin transition($duration, $transition-properties...) {
+    $timing-function: ease-in-out;
+    
+    @if $duration == in {
+        $duration: .1s;
+        $timing-function: ease-in;
+    } @else if $duration == out {
+        $duration: .3s;
+        $timing-function: ease-out;
+    } @else if type-of($duration) != number {
+        @error "Unknown duration value '#{$duration}'";
+    }
+    
 	@if (length($transition-properties) > 0) {
-		transition: all $duration ease-out;
+		transition: all $duration $timing-function;
 		transition-property: $transition-properties;
 	}
 
 	@else {
 		transition-duration: $duration;
+        transition-timing-function: $timing-function;
 	}
 }
 

@@ -1,4 +1,11 @@
+@import "font/fonts";
+
 @import "util";
 @import "vars";
 @include rootVars;
 @import "shared";
+
+@import "component/Button";
+@import "component/Label";
+
+@import "view/Views";

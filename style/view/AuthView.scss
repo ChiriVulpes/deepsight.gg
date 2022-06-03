@@ -1,0 +1,42 @@
+.view-auth {
+	&-content {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		max-width: 40vw;
+		
+		width: fit-content;
+		height: fit-content;
+		
+		> * {
+			width: fit-content;
+			grid-column: 2;
+		}
+	}
+	
+	&-header {
+		display: contents;
+		pointer-events: none;
+		user-select: none;
+	}
+	
+	&-title {
+		font-size: 48pt;
+		text-transform: uppercase;
+		line-height: 1em;
+		margin-bottom: 30px;
+		white-space: pre;
+		margin-left: -3px;
+	}
+	
+	&-logo {
+		grid-column: 1;
+		background: url("/image/logo.png");
+		width: 128px;
+		max-width: 10vw;
+		aspect-ratio: 1/1;
+		background-size: cover;
+		margin-top: -2px;
+		margin-right: 20px;
+	}
+	
+}
