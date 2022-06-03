@@ -1,0 +1,18 @@
+$animation-duration-global: null;
+$animation-delay-global: null;
+
+@mixin animate-multi($classes, $delay: .2s, $duration: .3s) {
+	$animation-duration-global: $duration !global;
+	$i: 0;
+	@each $class in $classes {
+		.#{$class} {
+			$animation-delay-global: $delay * $i !global;
+			@content;
+			$animation-delay-global: null !global;
+		}
+		$i: $i + 1;
+	}
+	$animation-duration-global: null !global;
+}
+
+@import "swipe-up";

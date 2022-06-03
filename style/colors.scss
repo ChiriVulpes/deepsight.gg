@@ -28,20 +28,18 @@ $colors: (
 	button-foreground-hover: var(--foreground-0),
 );
 
-@mixin rootVars {
-	:root {
-		color-scheme: dark;
-		
+:root {
+	color-scheme: dark;
+	
+	@each $var, $val in $colors {
+		--#{$var}: #{nth($val, 1)};
+	}
+	
+	@media (prefers-color-scheme: light) {
+		color-scheme: light;
 		@each $var, $val in $colors {
-			--#{$var}: #{nth($val, 1)};
-		}
-		
-		@media (prefers-color-scheme: light) {
-			color-scheme: light;
-			@each $var, $val in $colors {
-				@if length($val) > 1 {
-					--#{$var}: #{nth($val, 2)};
-				}
+			@if length($val) > 1 {
+				--#{$var}: #{nth($val, 2)};
 			}
 		}
 	}

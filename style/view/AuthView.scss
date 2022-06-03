@@ -3,6 +3,7 @@
 		display: grid;
 		grid-template-columns: auto 1fr;
 		max-width: 40vw;
+		overflow-y: visible;
 		
 		width: fit-content;
 		height: fit-content;
@@ -19,15 +20,6 @@
 		user-select: none;
 	}
 	
-	&-title {
-		font-size: 48pt;
-		text-transform: uppercase;
-		line-height: 1em;
-		margin-bottom: 30px;
-		white-space: pre;
-		margin-left: -3px;
-	}
-	
 	&-logo {
 		grid-column: 1;
 		background: url("/image/logo.png");
@@ -39,4 +31,16 @@
 		margin-right: 20px;
 	}
 	
+	&-title {
+		font-size: 48pt;
+		text-transform: uppercase;
+		line-height: 1em;
+		margin-bottom: 30px;
+		white-space: pre;
+		margin-left: -3px;
+	}
+	
+	@include animate-multi(view-auth-logo view-auth-title view-auth-state view-auth-button-auth, $duration: .6s, $delay: .1s) {
+		@include animation-swipe-up-in;
+	}
 }

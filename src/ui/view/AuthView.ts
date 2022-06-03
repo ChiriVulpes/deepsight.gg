@@ -10,6 +10,8 @@ export enum AuthViewClasses {
 	Logo = "view-auth-logo",
 	Header = "view-auth-header",
 	Title = "view-auth-title",
+	State = "view-auth-state",
+	AuthButton = "view-auth-button-auth",
 }
 
 export default class AuthView extends View {
@@ -31,11 +33,13 @@ export default class AuthView extends View {
 			.appendTo(this.content);
 
 		Label.create()
+			.classes.add(AuthViewClasses.State)
 			.tweak(_ => _.label.text.set("Account"))
 			.tweak(_ => _.content.text.set("Not Authenticated"))
 			.appendTo(this.content);
 
 		Button.create()
+			.classes.add(AuthViewClasses.AuthButton)
 			.text.set("Authenticate with Bungie")
 			.event.subscribe("click", () =>
 				void Bungie.authenticate("start").catch(err => console.error(err)))

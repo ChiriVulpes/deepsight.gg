@@ -1,9 +1,9 @@
 @import "font/fonts";
 
 @import "util";
-@import "vars";
-@include rootVars;
+@import "colors";
 @import "shared";
+@import "animation/animations";
 
 @import "component/Button";
 @import "component/Label";
