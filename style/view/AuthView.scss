@@ -2,7 +2,6 @@
 	&-content {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		max-width: 40vw;
 		overflow-y: visible;
 		
 		width: fit-content;
@@ -24,9 +23,16 @@
 	&-logo {
 		grid-column: 1;
 		width: 128px;
-		max-width: 10vw;
 		margin-top: -2px;
 		margin-right: 20px;
+		
+		@media (max-width: 800px) {
+			width: 108px;
+		}
+		
+		@media (max-width: 580px) {
+			width: 88px;
+		}
 	}
 	
 	&-title {
@@ -36,6 +42,14 @@
 		margin-bottom: 30px;
 		white-space: pre;
 		margin-left: -3px;
+		
+		@media (max-width: 800px) {
+			font-size: 40pt;
+		}
+		
+		@media (max-width: 580px) {
+			font-size: 32pt;
+		}
 	}
 	
 	@include animate-multi(view-auth-logo view-auth-title view-auth-state view-auth-button-auth, $duration: .6s, $delay: .1s) {

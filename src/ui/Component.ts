@@ -173,12 +173,24 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 		return host as HOST;
 	}
 
-	public toggle (present: boolean, ...classes: string[]) {
+	public toggle (...classes: string[]): HOST;
+	public toggle (present: boolean, ...classes: string[]): HOST;
+	public toggle (present: boolean | string, ...classes: string[]) {
 		const host = this.host.deref();
-		if (present)
-			host?.element.classList.add(...classes);
-		else
-			host?.element.classList.remove(...classes);
+
+		const element = host?.element;
+		if (element) {
+			if (typeof present === "string") {
+				classes.unshift(present);
+				for (const cls of classes)
+					element.classList.toggle(cls);
+
+			} else if (present)
+				element.classList.add(...classes);
+			else
+				element.classList.remove(...classes);
+		}
+
 		return host as HOST;
 	}
 

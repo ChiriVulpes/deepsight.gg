@@ -16,6 +16,7 @@ export enum ClassesAppNav {
 	IdentityUsername = "app-nav-identity-username",
 	IdentityCode = "app-nav-identity-code",
 	Destinations = "app-nav-destinations",
+	DestinationsToggle = "app-nav-destinations-toggle",
 	Destination = "app-nav-destination",
 	DocumentHasAppNav = "has-app-nav",
 }
@@ -55,6 +56,11 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		const destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
 			.appendTo(this);
+
+		Button.create()
+			.classes.add(ClassesAppNav.DestinationsToggle)
+			.event.subscribe("click", () => destinationsWrapper.classes.toggle(Classes.Active))
+			.appendTo(destinationsWrapper);
 
 		for (const destinationViewClass of Object.values(viewManager.registry)) {
 			if (!destinationViewClass.destinationName)
