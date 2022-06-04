@@ -28,7 +28,9 @@ namespace Task {
 				options = {};
 			}
 
-			const childProcess = spawn(path.resolve(`node_modules/.bin/${command!}` + ext), [...args],
+			command = command!;
+			command = command.startsWith("PATH:") ? command.slice(5) : path.resolve(`node_modules/.bin/${command}`);
+			const childProcess = spawn(command + ext, [...args],
 				{ stdio: [process.stdin, options.stdout ? "pipe" : process.stdout, process.stderr], cwd: options.cwd });
 
 			if (options.stdout)

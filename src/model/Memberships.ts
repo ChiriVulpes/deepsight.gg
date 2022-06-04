@@ -1,7 +1,7 @@
 import Model from "model/Model";
-import GetMembershipsForCurrentUser, { IBungieUserMembershipData } from "utility/bungie/endpoint/user/GetMembershipsForCurrentUser";
+import GetMembershipsForCurrentUser from "utility/bungie/endpoint/user/GetMembershipsForCurrentUser";
 
-export default new Model<IBungieUserMembershipData>("memberships", {
+export default new Model("memberships", {
 	resetTime: "Daily",
 	generate: () => GetMembershipsForCurrentUser.query(),
 });

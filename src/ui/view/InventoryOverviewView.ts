@@ -1,3 +1,4 @@
+import DestinyEnums from "model/DestinyEnums";
 import Profile from "model/Profile";
 import Component from "ui/Component";
 import Loadable from "ui/Loadable";
@@ -13,9 +14,15 @@ export default class InventoryOverviewView extends View {
 	}
 
 	protected onMakeView (): void {
-
-		Loadable.create(Profile)
-			.onReady(() => Component.create())
+		Loadable.create(DestinyEnums, Profile)
+			.onReady((enums, profile) => {
+				console.log(enums);
+				console.log(profile);
+				for (const item of profile.profileInventory.data?.items ?? []) {
+					console.log(enums.BucketHashes.byHash(item.bucketHash));
+				}
+				return Component.create();
+			})
 			.appendTo(this.content);
 	}
 }

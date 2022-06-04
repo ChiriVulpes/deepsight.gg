@@ -5,13 +5,15 @@ import Store from "utility/Store";
 interface Request extends Omit<RequestInit, "headers" | "body"> {
 	headers?: Record<string, string | undefined>;
 	body?: string | object;
+	search?: string | object;
 }
 
 export type BungieEndpointURL = `/${string}/`;
+export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL | ((...args: ARGS) => BungieEndpointURL);
 
 class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint<ARGS, RESPONSE> {
 
-	public constructor (private readonly path: BungieEndpointURL, private readonly builder?: (...args: ARGS) => Request) {
+	public constructor (private readonly path: BungieEndpointURLResolvable<ARGS>, private readonly builder?: (...args: ARGS) => Request) {
 	}
 
 	public async query (...args: ARGS) {
@@ -21,7 +23,16 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint
 		if (typeof request.body === "object")
 			body = new URLSearchParams(Object.entries(request.body)).toString();
 
-		return fetch(`https://www.bungie.net/Platform${this.path}`, {
+		let search = "";
+		if (request.search) {
+			search = "?";
+			if (typeof request.search === "object")
+				search += new URLSearchParams(Object.entries(request.search)).toString();
+			else
+				search += request.search;
+		}
+
+		return fetch(`https://www.bungie.net/Platform${typeof this.path === "string" ? this.path : this.path(...args)}${search}`, {
 			credentials: "include",
 			...request,
 			body,
@@ -69,12 +80,12 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	query (...args: ARGS): Promise<RESPONSE>;
 }
 
-function BungieEndpoint (url: BungieEndpointURL) {
+function BungieEndpoint<ARGS extends any[] = any[]> (url: BungieEndpointURLResolvable<ARGS>) {
 	return {
-		request<ARGS extends any[], REQUEST extends Request> (builder: (...args: ARGS) => REQUEST) {
+		request<ARGS2 extends ARGS, REQUEST extends Request> (builder: (...args: ARGS2) => REQUEST) {
 			return {
-				returning<RESPONSE> (): BungieEndpoint<ARGS, RESPONSE> {
-					return new BungieEndpointImpl<ARGS, RESPONSE>(url, builder);
+				returning<RESPONSE> (): BungieEndpoint<ARGS2, RESPONSE> {
+					return new BungieEndpointImpl<ARGS2, RESPONSE>(url, builder);
 				},
 			};
 		},

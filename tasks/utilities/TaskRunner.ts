@@ -24,6 +24,8 @@ interface IDebouncedTask {
 
 const debouncedTasks = new Map<TaskFunction<any>, IDebouncedTask>();
 
+const loggedErrors = new Set<Error>();
+
 const taskApi: ITaskApi = {
 	lastError: undefined,
 	async series (...tasks) {
@@ -52,9 +54,12 @@ const taskApi: ITaskApi = {
 
 		function logResult () {
 			const time = watch.time();
-			if (err)
-				Log.error(`Task ${taskName ?? ansi.cyan("<anonymous>")} errored after ${time}:`, err);
-			else if (task.name)
+			if (err) {
+				if (!loggedErrors.has(err)) {
+					loggedErrors.add(err);
+					Log.error(`Task ${taskName ?? ansi.cyan("<anonymous>")} errored after ${time}:`, err);
+				}
+			} else if (task.name)
 				Log.info(`Finished ${taskName} in ${time}`);
 		}
 
@@ -67,10 +72,14 @@ const taskApi: ITaskApi = {
 					this.lastError = caught;
 					err = caught;
 					logResult();
+					throw err;
 				});
 		} else {
 			logResult();
 		}
+
+		if (err)
+			throw err;
 
 		return result;
 	},
@@ -112,8 +121,10 @@ void (async () => {
 			await taskApi.run(taskFunction);
 
 		} catch (err) {
-			Log.error(err);
+			if (!loggedErrors.has(err as Error))
+				Log.error(err);
 			errors = true;
+			break;
 		}
 	}
 

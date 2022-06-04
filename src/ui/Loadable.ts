@@ -10,16 +10,18 @@ namespace Loadable {
 		Content = "loadable-content",
 	}
 
-	export type Initialiser<T> = (value: T) => BaseComponent<Element, any[]>;
-	export class Component<T> extends BaseComponent<HTMLElement, [Model<T>, Initialiser<T>]> {
+	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: { [KEY in keyof MODELS]: MODELS[KEY] extends Model<any, infer R> ? R : never }) => BaseComponent<Element, any[]>;
+	export class Component<MODELS extends Model<any, any>[]> extends BaseComponent<HTMLElement, [MODELS, Initialiser<MODELS>]> {
 
-		// private model!: Model<T>;
-		private initialiser!: Initialiser<T>;
+		private initialiser!: Initialiser<MODELS>;
 		private loading!: BaseComponent;
+		private models!: MODELS;
+		private currentlyLoading!: Set<Model<any, any>>;
 
-		protected override onMake (model: Model<T>, initialiser: Initialiser<T>): void {
-			// this.model = model;
+		protected override onMake (models: MODELS, initialiser: Initialiser<MODELS>): void {
+			this.models = models;
 			this.initialiser = initialiser;
+			this.currentlyLoading = new Set();
 
 			this.classes.add(Classes.Main);
 			this.loading = BaseComponent.create()
@@ -28,29 +30,48 @@ namespace Loadable {
 				.append(BaseComponent.create())
 				.appendTo(this);
 
-			model.event.subscribe("loading", () => this.onLoading());
-			model.event.subscribe("loaded", event => this.onLoaded(event.value));
+			for (const model of models)
+				this.currentlyLoading.add(model);
 
-			model.get();
-		}
+			for (const model of models) {
+				model.event.subscribe("loading", _ => this.onLoading(model));
+				model.event.subscribe("loaded", _ => this.onLoaded(model));
 
-		private onLoading () {
-			this.loading.classes.remove(BaseClasses.Hidden);
-			while (this.element.children.length > 1) {
-				this.element.lastElementChild!.remove();
+				model.get();
 			}
 		}
 
-		private onLoaded (value: T) {
+		private onLoading (model: Model<any, any>) {
+			if (this.currentlyLoading.has(model))
+				return;
+
+			if (!this.currentlyLoading.size) {
+				this.loading.classes.remove(BaseClasses.Hidden);
+				while (this.element.children.length > 1)
+					this.element.lastElementChild!.remove();
+			}
+
+			this.currentlyLoading.add(model);
+		}
+
+		private onLoaded (model: Model<any, any>) {
+			if (!this.currentlyLoading.delete(model))
+				return;
+
+			if (this.currentlyLoading.size)
+				return; // still other models loading
+
 			this.loading.classes.add(BaseClasses.Hidden);
-			this.initialiser(value)
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+			this.initialiser(...this.models.map(model => model.get()) as any)
 				.appendTo(this);
 		}
 	}
 
-	export function create<T> (model: Model<T>) {
+	export function create<MODELS extends Model<any, any>[]> (...model: MODELS) {
 		return {
-			onReady (initialiser: Initialiser<T>) {
+			onReady (initialiser: Initialiser<MODELS>) {
 				return Component.create([model, initialiser]);
 			},
 		};
