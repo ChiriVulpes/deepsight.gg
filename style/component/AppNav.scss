@@ -10,6 +10,10 @@
     z-index: 9999999;
 	user-select: none;
 	
+	&.hidden {
+		display: none;
+	}
+	
 	@at-root .has-app-nav {
 		--nav-height: #{$height};
 	}
