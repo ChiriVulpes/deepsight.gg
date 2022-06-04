@@ -12,6 +12,14 @@
 			width: fit-content;
 			grid-column: 2;
 		}
+		
+		@media (max-width: 540px) {
+			grid-template-columns: 1fr;
+			
+			> * {
+				grid-column: 1;
+			}
+		}
 	}
 	
 	&-header {
@@ -32,6 +40,11 @@
 		
 		@media (max-width: 580px) {
 			width: 88px;
+		}
+		
+		@media (max-width: 540px) {
+			width: 128px;
+			align-self: center;	
 		}
 	}
 	
