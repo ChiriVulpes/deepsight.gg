@@ -2,6 +2,7 @@
 export interface IEnvironment {
 	FVM_BUNGIE_CLIENT_ID: string;
 	FVM_BUNGIE_API_KEY: string;
+	FVM_BUNGIE_API_SECRET: string;
 }
 
 class Dummy { }

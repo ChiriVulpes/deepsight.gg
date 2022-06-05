@@ -44,6 +44,9 @@ export default class FluffiestVaultManager {
 			AppNav.create([ViewManager])
 				.appendTo(document.body);
 
+			if (URL.hash === AuthView.id)
+				URL.hash = "";
+
 			ViewManager.showById(URL.hash);
 			if (!ViewManager.hasView())
 				InventoryOverviewView.show();

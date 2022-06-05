@@ -27,6 +27,8 @@ export class BungieAPI {
 	public constructor () {
 		BungieEndpoint.event.subscribe("authenticationFailed", () =>
 			this.resetAuthentication());
+		BungieEndpoint.event.subscribe("validateAuthorisation", () =>
+			this.validateAuthorisation())
 	}
 
 	public get authenticated () {
@@ -34,7 +36,7 @@ export class BungieAPI {
 	}
 
 	public async authenticate (type: "start" | "complete"): Promise<void> {
-		if (!Store.items.bungieAuthCode && (!URL.params.code || !URL.params.state)) {
+		if (!Store.items.bungieAuthCode && !URL.params.code) {
 			if (type !== "start") {
 				// the user didn't approve of starting auth yet
 				return;
@@ -46,45 +48,23 @@ export class BungieAPI {
 			if (!clientId)
 				throw new Error("Cannot authenticate with Bungie, no client ID in environment");
 
-			const state = this.generateState();
-			Store.items.bungieAuthState = state;
-			location.href = `https://www.bungie.net/en/oauth/authorize?client_id=${clientId}&response_type=code&state=${state}`;
+			location.href = `https://www.bungie.net/en/oauth/authorize?client_id=${clientId}&response_type=code`; // &state=${state}`;
 			return;
 		}
 
 		if (!Store.items.bungieAuthCode) {
 			// step 2: receive auth code from bungie oauth
 
-			const state = Store.items.bungieAuthState;
-			if (state !== URL.params.state) {
-				this.resetAuthentication();
-				throw new Error("Invalid state");
-			}
-
 			// received auth code
 			Store.items.bungieAuthCode = URL.params.code!;
 		}
 
 		delete URL.params.code;
-		delete URL.params.state;
+		// delete URL.params.state;
 
 		if (!Store.items.bungieAccessToken) {
 			// step 3: get an access token
-
-			const result = await RequestOAuthToken.query();
-
-			if ("error" in result) {
-				if (result.error === "invalid_grant") {
-					this.resetAuthentication();
-					throw Object.assign(new Error(result.error_description as string | undefined ?? "Invalid grant"), result);
-				}
-
-				return;
-			}
-
-			Store.items.bungieAccessToken = result.access_token;
-			Store.items.bungieAccessTokenExpiresIn = result.expires_in;
-			Store.items.bungieAccessTokenMembershipId = result.membership_id;
+			await this.requestToken();
 		}
 	}
 
@@ -92,15 +72,38 @@ export class BungieAPI {
 		delete URL.params.code;
 		delete URL.params.state;
 		delete Store.items.bungieAuthCode;
-		delete Store.items.bungieAuthState;
 		delete Store.items.bungieAccessToken;
-		delete Store.items.bungieAccessTokenExpiresIn;
+		delete Store.items.bungieAccessTokenExpireTime;
 		delete Store.items.bungieAccessTokenMembershipId;
+		delete Store.items.bungieAccessTokenRefreshExpireTime;
+		delete Store.items.bungieAccessTokenRefreshToken;
 		this.event.emit("resetAuthentication");
 	}
 
-	private generateState () {
-		return (Math.random().toString().slice(2) + Math.random().toString().slice(2) + Math.random().toString().slice(2)).slice(0, 30);
+	private async validateAuthorisation () {
+		if ((Store.items.bungieAccessTokenExpireTime ?? 0) > Date.now())
+			return; // authorisation valid
+
+		await this.requestToken();
+	}
+
+	private async requestToken () {
+		const result = await RequestOAuthToken.query();
+
+		if ("error" in result) {
+			if (result.error === "invalid_grant") {
+				this.resetAuthentication();
+				throw Object.assign(new Error(result.error_description as string | undefined ?? "Invalid grant"), result);
+			}
+
+			return;
+		}
+
+		Store.items.bungieAccessToken = result.access_token;
+		Store.items.bungieAccessTokenExpireTime = Date.now() + result.expires_in * 1000;
+		Store.items.bungieAccessTokenMembershipId = result.membership_id;
+		Store.items.bungieAccessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
+		Store.items.bungieAccessTokenRefreshToken = result.refresh_token;
 	}
 }
 

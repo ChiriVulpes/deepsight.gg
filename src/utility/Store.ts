@@ -1,9 +1,10 @@
 export interface ILocalStorage {
 	bungieAuthCode?: string;
-	bungieAuthState?: string;
 	bungieAccessToken?: string;
-	bungieAccessTokenExpiresIn?: number;
+	bungieAccessTokenExpireTime?: number;
 	bungieAccessTokenMembershipId?: string;
+	bungieAccessTokenRefreshExpireTime?: number;
+	bungieAccessTokenRefreshToken?: string;
 }
 
 let storage: ILocalStorage | undefined;

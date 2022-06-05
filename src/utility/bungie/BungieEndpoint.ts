@@ -36,7 +36,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint
 			credentials: "include",
 			...request,
 			body,
-			headers: Object.fromEntries(Object.entries(this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
+			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
 		})
 			.then(response => {
 				if (response.status === 401) {
@@ -67,12 +67,19 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint
 			});
 	}
 
-	private getHeaders (headers?: Record<string, string | undefined>) {
+	private async getHeaders (headers?: Record<string, string | undefined>) {
 		return {
-			"Authorization": Store.items.bungieAccessToken ? `Bearer ${Store.items.bungieAccessToken}` : undefined,
+			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(),
 			"X-API-Key": Env.FVM_BUNGIE_API_KEY,
 			...headers,
 		};
+	}
+
+	private async getAuthorisation () {
+		let authorisationPromise: Promise<void> | undefined;
+		BungieEndpoint.event.emit("validateAuthorisation", { setAuthorisationPromise: promise => void (authorisationPromise = promise) });
+		await authorisationPromise;
+		return Store.items.bungieAccessToken ? `Bearer ${Store.items.bungieAccessToken}` : undefined;
 	}
 }
 
@@ -97,6 +104,7 @@ function BungieEndpoint<ARGS extends any[] = any[]> (url: BungieEndpointURLResol
 
 namespace BungieEndpoint {
 	export interface IEvents {
+		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; };
 		authenticationFailed: Event;
 		error: { error: Error; responseText: string };
 	}

@@ -14,6 +14,7 @@ export default Task("env", _ => {
 	environment ??= {
 		FVM_BUNGIE_CLIENT_ID: env("FVM_BUNGIE_CLIENT_ID"),
 		FVM_BUNGIE_API_KEY: env("FVM_BUNGIE_API_KEY"),
+		FVM_BUNGIE_API_SECRET: env("FVM_BUNGIE_API_SECRET"),
 	};
 
 	return fs.writeFile("docs/env.json", JSON.stringify(environment));
