@@ -29,8 +29,8 @@ export class BungieAPI {
 	public constructor () {
 		BungieEndpoint.event.subscribe("authenticationFailed", () =>
 			this.resetAuthentication());
-		BungieEndpoint.event.subscribe("validateAuthorisation", () =>
-			this.validateAuthorisation())
+		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise }) =>
+			setAuthorisationPromise(this.validateAuthorisation()));
 	}
 
 	public get authenticated () {

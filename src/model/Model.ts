@@ -11,6 +11,7 @@ export interface IModelEvents<R> {
 }
 
 export interface IModel<T, R> {
+	noCache?: true;
 	resetTime: "Daily" | "Weekly" | number;
 	generate (): Promise<T>;
 	filter?(value: T): R;
@@ -31,12 +32,40 @@ export default class Model<T, R = T> {
 	public readonly event = new EventManager<this, IModelEvents<R>>(this);
 
 	private value?: R | Promise<R>;
+	private cacheTime?: number;
 
 	public get loading () {
-		return this.value === undefined || this.value instanceof Promise;
+		return this.value === undefined
+			|| this.value instanceof Promise
+			|| !this.isCacheTimeValid();
 	}
 
 	public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
+
+	public isCacheTimeValid (cacheTime = this.cacheTime) {
+		if (cacheTime === undefined)
+			return false;
+
+		const resetTime = this.model.resetTime;
+		return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
+	}
+
+	public async resolveCache () {
+		const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
+		if (!cached)
+			return undefined;
+
+		if (this.isCacheTimeValid(cached.cacheTime)) {
+			// this cached value is valid
+			console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
+			this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
+			this.event.emit("loaded", { value: this.value });
+			return this.value;
+		}
+
+		console.info(`Purging expired cache data for '${this.name}'`);
+		await Model.cacheDB.delete("models", this.name);
+	}
 
 	public async reset () {
 		await Model.cacheDB.delete("models", this.name);
@@ -48,20 +77,10 @@ export default class Model<T, R = T> {
 
 			// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 			this.value = new Promise<R>(async resolve => {
-				const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
-				if (cached) {
-					const resetTime = this.model.resetTime;
-					if (cached.cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`])) {
-						// this cached value is valid
-						console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
-						this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
-						this.event.emit("loaded", { value: this.value });
-						resolve(this.value);
-						return;
-					}
-
-					console.info(`Purging expired cache data for '${this.name}'`);
-					await Model.cacheDB.delete("models", this.name);
+				if (!this.model.noCache) {
+					const cached = await this.resolveCache();
+					if (cached)
+						return cached;
 				}
 
 				const generated = this.model.generate();
@@ -72,12 +91,8 @@ export default class Model<T, R = T> {
 				});
 
 				void generated.then(async value => {
-					this.value = (this.model.filter?.(value) ?? value) as R;
-					const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
-					await Model.cacheDB.set("models", this.name, cached);
-					this.event.emit("loaded", { value: this.value });
-					console.info(`Cached data for '${this.name}'`);
-					resolve(this.value);
+					await this.set(value);
+					resolve(this.value!);
 				});
 			});
 
@@ -88,6 +103,19 @@ export default class Model<T, R = T> {
 			return undefined;
 
 		return this.value;
+	}
+
+	protected async set (value: T) {
+		this.value = (this.model.filter?.(value) ?? value) as R;
+
+		if (!this.model.noCache) {
+			const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
+			this.cacheTime = cached.cacheTime;
+			await Model.cacheDB.set("models", this.name, cached);
+		}
+
+		this.event.emit("loaded", { value: this.value });
+		console.info(`${this.model.noCache ? "Loaded" : "Cached"} data for '${this.name}'`);
 	}
 
 	public async await () {

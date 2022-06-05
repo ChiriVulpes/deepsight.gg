@@ -1,17 +1,177 @@
+import { DestinyComponentType, DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Memberships from "model/models/Memberships";
 import GetProfile from "utility/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 
-export default new Model("profile", {
-	resetTime: Time.minutes(1),
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	generate: async () => {
-		const membership = await Memberships.await();
-		const destinyMembership = membership.destinyMemberships[0];
-		if (!destinyMembership)
-			throw new Error("No Destiny membership");
+function makeProfileResponseComponentMap<MAP extends { [KEY in keyof DestinyProfileResponse]: DestinyComponentType | readonly DestinyComponentType[] | undefined }> (map: MAP) {
+	return map;
+}
 
-		return GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId);
-	},
+const profileResponseComponentMap = makeProfileResponseComponentMap({
+	vendorReceipts: DestinyComponentType.VendorReceipts as const,
+	profileInventory: DestinyComponentType.ProfileInventories as const,
+	profileCurrencies: DestinyComponentType.ProfileCurrencies as const,
+	profile: DestinyComponentType.Profiles as const,
+	platformSilver: DestinyComponentType.PlatformSilver as const,
+	profileKiosks: DestinyComponentType.Kiosks as const,
+	profilePlugSets: DestinyComponentType.ItemSockets as const,
+	profileProgression: DestinyComponentType.ProfileProgression as const,
+	profilePresentationNodes: DestinyComponentType.PresentationNodes as const,
+	profileRecords: DestinyComponentType.Records as const,
+	profileCollectibles: DestinyComponentType.Collectibles as const,
+	profileTransitoryData: DestinyComponentType.Transitory as const,
+	metrics: DestinyComponentType.Metrics as const,
+	profileStringVariables: DestinyComponentType.StringVariables as const,
+	characters: DestinyComponentType.Characters as const,
+	characterInventories: DestinyComponentType.CharacterInventories as const,
+	characterProgressions: DestinyComponentType.CharacterProgressions as const,
+	characterRenderData: DestinyComponentType.CharacterRenderData as const,
+	characterActivities: DestinyComponentType.CharacterActivities as const,
+	characterEquipment: DestinyComponentType.CharacterEquipment as const,
+	characterKiosks: DestinyComponentType.Kiosks as const,
+	characterPlugSets: DestinyComponentType.ItemSockets as const,
+	characterUninstancedItemComponents: undefined,
+	characterPresentationNodes: DestinyComponentType.PresentationNodes as const,
+	characterRecords: DestinyComponentType.Records as const,
+	characterCollectibles: DestinyComponentType.Collectibles as const,
+	characterStringVariables: DestinyComponentType.StringVariables as const,
+	characterCraftables: DestinyComponentType.Craftables as const,
+	itemComponents: [
+		DestinyComponentType.ItemInstances,
+		DestinyComponentType.ItemRenderData,
+		DestinyComponentType.ItemStats,
+		DestinyComponentType.ItemSockets,
+		DestinyComponentType.ItemReusablePlugs,
+		DestinyComponentType.ItemPlugObjectives,
+		DestinyComponentType.ItemTalentGrids,
+		DestinyComponentType.ItemPlugStates,
+		DestinyComponentType.ItemObjectives,
+		DestinyComponentType.ItemPerks,
+	] as const,
+	characterCurrencyLookups: DestinyComponentType.CurrencyLookups as const,
 });
+
+type Writable<T> = { -readonly [P in keyof T]: T[P] };
+
+class ComponentModel extends Model<DestinyProfileResponse> {
+	public readonly applicableKeys: (keyof DestinyProfileResponse)[];
+
+	public constructor (public readonly type: DestinyComponentType) {
+		const applicableKeys: (keyof DestinyProfileResponse)[] = [];
+		for (const [key, applicableComponents] of Object.entries(profileResponseComponentMap)) {
+			if (applicableComponents === undefined)
+				continue;
+
+			const applicable = typeof applicableComponents === "number" ? applicableComponents === type
+				: (applicableComponents as readonly DestinyComponentType[]).includes(type);
+
+			if (applicable)
+				applicableKeys.push(key as keyof DestinyProfileResponse);
+		}
+
+		super(`profile [${applicableKeys.join(",")}]`, {
+			resetTime: Time.minutes(1),
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			generate: undefined as any,
+		});
+
+		this.applicableKeys = applicableKeys;
+	}
+
+	public async update (response: DestinyProfileResponse) {
+		const newData = {} as Writable<DestinyProfileResponse>;
+		let hasNewData = false;
+		for (const key of this.applicableKeys) {
+			if (response[key] !== undefined) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				newData[key] = response[key] as any;
+				hasNewData = true;
+			}
+		}
+
+		if (hasNewData)
+			await this.set(newData);
+	}
+}
+
+const models: Partial<Record<DestinyComponentType, ComponentModel | undefined>> = {};
+let lastOperation: Promise<void> | undefined;
+
+function mergeProfile (profileInto: DestinyProfileResponse, profileFrom: DestinyProfileResponse) {
+	for (const key of new Set([...Object.keys(profileInto), ...Object.keys(profileFrom)] as (keyof DestinyProfileResponse)[])) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		(profileInto as Writable<DestinyProfileResponse>)[key] = mergeProfileKey(key, profileInto[key], profileFrom[key]);
+	}
+}
+
+function mergeProfileKey (key: keyof DestinyProfileResponse, value1: any, value2: any): any {
+	if (value1 && value2) {
+		if (Array.isArray(profileResponseComponentMap[key]))
+			return { ...value1, ...value2 };
+
+		// overwrite if this is only a single component
+		return value2;
+	}
+
+	return value1 ?? value2;
+}
+
+export default function <COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in keyof DestinyProfileResponse as (
+	((typeof profileResponseComponentMap)[PROFILE_RESPONSE_KEY] extends infer COMPONENTS ?
+		COMPONENTS extends readonly DestinyComponentType[] ? COMPONENTS[number] : COMPONENTS
+		: never
+	) extends infer COMPONENTS_FOR_RESPONSE ?
+	[(
+		Extract<keyof { [KEY in Exclude<keyof COMPONENTS, "length"> as COMPONENTS[KEY] extends COMPONENTS_FOR_RESPONSE ? KEY : never]: COMPONENTS[KEY] }, string>
+	)] extends [never] ? never : PROFILE_RESPONSE_KEY
+	: never
+)]: DestinyProfileResponse[PROFILE_RESPONSE_KEY] }> {
+	components.sort();
+
+	for (const component of components)
+		models[component] ??= new ComponentModel(component);
+
+	const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
+
+	return new Model<DestinyProfileResponse>(name, {
+		noCache: true,
+		resetTime: 0,
+		generate: async () => {
+			const result = {} as DestinyProfileResponse;
+
+			// only allow one profile query at a time
+			await lastOperation;
+
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+			lastOperation = (async () => {
+				const missingComponents: DestinyComponentType[] = [];
+				for (const component of components) {
+					const cached = await models[component]?.resolveCache();
+					if (cached)
+						mergeProfile(result, cached);
+					else
+						missingComponents.push(component);
+				}
+
+				const membership = await Memberships.await();
+				const destinyMembership = membership.destinyMemberships[0];
+				if (!destinyMembership)
+					throw new Error("No Destiny membership");
+
+				if (!missingComponents.length)
+					// all components cached, no need to make a request to bungie
+					return;
+
+				const newData = await GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId, missingComponents);
+				mergeProfile(result, newData);
+
+				for (const component of components)
+					await models[component]!.update(newData);
+			})();
+
+			await lastOperation;
+			return result;
+		},
+	});
+}

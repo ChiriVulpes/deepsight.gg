@@ -1,3 +1,4 @@
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
@@ -15,7 +16,7 @@ export default class InventoryOverviewView extends View {
 	}
 
 	protected onMakeView (): void {
-		Loadable.create(DestinyEnums, Profile, Manifest)
+		Loadable.create(DestinyEnums, Profile(DestinyComponentType.ProfileInventories, DestinyComponentType.CharacterInventories, DestinyComponentType.ItemSockets, DestinyComponentType.ItemStats), Manifest)
 			.onReady((enums, profile, manifest) => {
 				console.log(enums);
 				console.log(profile);
