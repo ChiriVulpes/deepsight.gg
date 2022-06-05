@@ -24,8 +24,9 @@ jobs:
         
       - name: Build
         env:
-          FVM_BUNGIE_API_KEY: ${{ secrets.FVM_BUNGIE_API_KEY }}
           FVM_BUNGIE_CLIENT_ID: ${{ secrets.FVM_BUNGIE_CLIENT_ID }}
+          FVM_BUNGIE_API_KEY: ${{ secrets.FVM_BUNGIE_API_KEY }}
+          FVM_BUNGIE_API_SECRET: ${{ secrets.FVM_BUNGIE_API_SECRET }}
         run: npm run build
       
       - name: Deploy to GitHub Pages
