@@ -1,5 +1,5 @@
 import { APP_ACRONYM, APP_ACRONYM_FAKE_MEANINGS } from "Constants";
-import Memberships from "model/Memberships";
+import Memberships from "model/models/Memberships";
 import Button from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";

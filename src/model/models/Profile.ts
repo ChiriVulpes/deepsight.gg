@@ -1,5 +1,5 @@
-import Memberships from "model/Memberships";
 import Model from "model/Model";
+import Memberships from "model/models/Memberships";
 import GetProfile from "utility/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 

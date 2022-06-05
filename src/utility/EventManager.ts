@@ -38,10 +38,11 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		return this.host.deref() as HOST;
 	}
 
-	public async waitFor<TYPE extends keyof HTMLElementEventMap> (type: string): Promise<HTMLElementEventMap[TYPE]>;
+	public async waitFor<TYPE extends keyof EVENTS> (type: TYPE): Promise<EVENTS[TYPE]>;
 	public async waitFor (type: string): Promise<Event>;
 	public async waitFor (type: string) {
-		return new Promise<Event>(resolve =>
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return new Promise<any>(resolve =>
 			this.target?.addEventListener(type, resolve, { once: true }));
 	}
 

@@ -1,11 +1,8 @@
+import ModelCacheDatabase, { ICachedModel } from "model/ModelCacheDatabase";
 import Bungie from "utility/bungie/Bungie";
+import Database from "utility/Database";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
-
-interface ICachedModel<T> {
-	cacheTime: number;
-	value: T;
-}
 
 export interface IModelEvents<R> {
 	loading: Event;
@@ -21,21 +18,17 @@ export interface IModel<T, R> {
 
 export default class Model<T, R = T> {
 
-	public static clearCache () {
+	private static cacheDB = new Database(ModelCacheDatabase);
+
+	public static async clearCache () {
 		console.warn("Clearing cache...");
-		for (const key of Object.keys(localStorage)) {
-			if (key.startsWith("modelCache/")) {
-				console.info("Uncached", key);
-				localStorage.removeItem(key);
-			}
-		}
+		if (!this.cacheDB)
+			return;
+
+		await this.cacheDB.clear("models");
 	}
 
 	public readonly event = new EventManager<this, IModelEvents<R>>(this);
-
-	private get id () {
-		return `modelCache/${this.name}`;
-	}
 
 	private value?: R | Promise<R>;
 
@@ -45,46 +38,48 @@ export default class Model<T, R = T> {
 
 	public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
 
-	public reset () {
-		const id = `modelCache/${this.name}`;
-		localStorage.removeItem(id);
+	public async reset () {
+		await Model.cacheDB.delete("models", this.name);
 	}
 
 	public get () {
 		if (this.value === undefined) {
 			this.event.emit("loading");
 
-			const cachedString = localStorage.getItem(this.id);
-			if (cachedString) {
-				const cached = JSON.parse(cachedString) as ICachedModel<T>;
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+			this.value = new Promise<R>(async resolve => {
+				const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
+				if (cached) {
+					const resetTime = this.model.resetTime;
+					if (cached.cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`])) {
+						// this cached value is valid
+						console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
+						this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
+						this.event.emit("loaded", { value: this.value });
+						resolve(this.value);
+						return;
+					}
 
-				const resetTime = this.model.resetTime;
-				if (cached.cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`])) {
-					// this cached value is valid
-					console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
-					this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
-					this.event.emit("loaded", { value: this.value });
-					return;
+					console.info(`Purging expired cache data for '${this.name}'`);
+					await Model.cacheDB.delete("models", this.name);
 				}
 
-				localStorage.removeItem(this.id);
-			}
+				const generated = this.model.generate();
 
-			const generated = this.model.generate();
+				void generated.catch(error => {
+					console.error(`Model '${this.name}' failed to load:`, error);
+					this.event.emit("errored", { error: error as Error });
+				});
 
-			void generated.catch(error => {
-				console.error(`Model '${this.name}' failed to load:`, error);
-				this.event.emit("errored", { error: error as Error });
+				void generated.then(async value => {
+					this.value = (this.model.filter?.(value) ?? value) as R;
+					const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
+					await Model.cacheDB.set("models", this.name, cached);
+					this.event.emit("loaded", { value: this.value });
+					console.info(`Cached data for '${this.name}'`);
+					resolve(this.value);
+				});
 			});
-
-			void generated.then(value => {
-				this.value = (this.model.filter?.(value) ?? value) as R;
-				const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
-				localStorage.setItem(this.id, JSON.stringify(cached));
-				this.event.emit("loaded", { value: this.value });
-			});
-
-			this.value = generated.then(() => this.value!);
 
 			return undefined;
 		}

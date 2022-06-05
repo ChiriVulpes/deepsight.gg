@@ -3,6 +3,7 @@ import RequestOAuthToken from "utility/bungie/endpoint/RequestOAuthToken";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
+import Time from "utility/Time";
 import URL from "utility/URL";
 
 export interface IBungieApiEvents {
@@ -13,12 +14,13 @@ export interface IBungieApiEvents {
 export class BungieAPI {
 
 	public get lastDailyReset () {
-		return new Date().setUTCHours(17, 0, 0);
+		const time = new Date().setUTCHours(17, 0, 0);
+		return time > Date.now() ? time - Time.days(1) : time;
 	}
 
 	public get lastWeeklyReset () {
 		const day = (new Date().getUTCDay() + 5) % 7;
-		return this.lastDailyReset - day * 24 * 60 * 60 * 1000;
+		return this.lastDailyReset - day * Time.days(1);
 	}
 
 	public event = new EventManager<this, IBungieApiEvents>(this)

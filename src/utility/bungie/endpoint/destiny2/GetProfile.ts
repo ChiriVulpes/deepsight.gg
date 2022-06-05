@@ -5,7 +5,7 @@ export default BungieEndpoint((membershipType: BungieMembershipType, destinyMemb
 	`/Destiny2/${membershipType}/Profile/${destinyMembershipId}/`)
 	.request(() => ({
 		search: {
-			components: [DestinyComponentType.ProfileInventories].join(","),
+			components: [DestinyComponentType.ProfileInventories, DestinyComponentType.CharacterInventories].join(","),
 		},
 	}))
 	.returning<DestinyProfileResponse>();
