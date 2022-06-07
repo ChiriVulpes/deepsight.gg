@@ -29,14 +29,17 @@ namespace Loadable {
 				.appendTo(this);
 
 			for (const model of models) {
-				model.event.subscribe("loading", _ => this.onLoading(model));
-				model.event.subscribe("loaded", _ => this.onLoaded(model));
+				model.event.subscribe("loading", _ => this.onLoading());
+				model.event.subscribe("loaded", _ => this.onLoaded());
 
 				model.get();
 			}
+
+			if (models.every(model => !model.loading))
+				this.onLoaded();
 		}
 
-		private onLoading (model: Model<any, any>) {
+		private onLoading () {
 			if (this.loading.classes.has(BaseClasses.Hidden)) {
 				// start loading
 				this.loading.classes.remove(BaseClasses.Hidden);
@@ -45,7 +48,7 @@ namespace Loadable {
 			}
 		}
 
-		private onLoaded (model: Model<any, any>) {
+		private onLoaded () {
 			for (const model of this.models)
 				if (model.loading)
 					return; // not loaded yet
