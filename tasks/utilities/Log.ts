@@ -40,21 +40,21 @@ class LogImplementation implements ILog {
 
 	public info (...what: any[]) {
 		if (this.source !== undefined)
-			console.info(timestamp(), this.source, ...what);
+			console.log(timestamp(), this.source, ...what);
 		else
-			console.info(timestamp(), ...what);
+			console.log(timestamp(), ...what);
 	}
 
 	public warn (...what: any[]) {
 		if (this.source !== undefined)
-			console.info(timestamp("yellow"), this.source, ...what);
+			console.log(timestamp("yellow"), this.source, ...what);
 		else
 			console.warn(timestamp("yellow"), ...what);
 	}
 
 	public error (...what: any[]) {
 		if (this.source !== undefined)
-			console.info(timestamp("red"), this.source, ...what);
+			console.log(timestamp("red"), this.source, ...what);
 		else
 			console.error(timestamp("red"), ...what);
 	}

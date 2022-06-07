@@ -1,30 +1,31 @@
+import { DestinyGeneratedEnums } from "bungie-api-ts/generated-enums";
 import Model from "model/Model";
-import GetGeneratedEnums, { DestinyGeneratedEnums } from "utility/d2ai/endpoint/GetGeneratedEnums";
+import GetGeneratedEnums from "utility/d2ai/endpoint/GetGeneratedEnums";
 import Time from "utility/Time";
 
-export type IDestinyEnums = { [KEY in keyof DestinyGeneratedEnums]: DestinyEnums };
+export type IDestinyEnums = { [KEY in keyof DestinyGeneratedEnums]: DestinyEnums<DestinyGeneratedEnums[KEY]> };
 
-export class DestinyEnums {
+export class DestinyEnums<ENUM> {
 
 	public static init (enums: DestinyGeneratedEnums) {
 		return Object.fromEntries(Object.entries(enums)
 			.map(([enumName, enumData]) => [enumName, new DestinyEnums(enumData as Record<string, number>)])) as IDestinyEnums;
 	}
 
-	private readonly _byName: Record<string, number>;
+	private readonly _byName: Record<keyof ENUM, number>;
 	private readonly _byHash: Record<number, string>;
 
-	public constructor (byName: Record<string, number>) {
+	public constructor (byName: Record<keyof ENUM, number>) {
 		this._byName = byName;
-		this._byHash = Object.fromEntries(Object.entries(byName).map(([key, value]) => [value, key]));
+		this._byHash = Object.fromEntries(Object.entries(byName).map(([key, value]) => [value as number, key]));
 	}
 
-	public byName (name: string): number | undefined {
+	public byName (name: keyof ENUM): number {
 		return this._byName[name];
 	}
 
-	public byHash (hash: number): string | undefined {
-		return this._byHash[hash];
+	public byHash (hash: number) {
+		return this._byHash[hash] as keyof ENUM | undefined;
 	}
 }
 

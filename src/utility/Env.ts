@@ -5,9 +5,9 @@ export interface IEnvironment {
 	FVM_BUNGIE_API_SECRET: string;
 }
 
-class Dummy { }
-
-class Env extends (Dummy as new () => Readonly<IEnvironment>) {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Env extends Readonly<IEnvironment> { }
+class Env {
 	public async load () {
 		Object.assign(this, await fetch("/env.json").then(response => response.json()));
 	}

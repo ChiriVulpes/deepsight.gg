@@ -21,10 +21,16 @@ declare module "model/ModelCacheDatabase" {
 }
 
 class ManifestItem<COMPONENT_NAME extends keyof AllDestinyManifestComponents> {
+
+	private memoryCache: Record<string, AllDestinyManifestComponents[COMPONENT_NAME][number] | Promise<AllDestinyManifestComponents[COMPONENT_NAME][number] | undefined> | undefined> = {};
+
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
-	public async get (key: string | number) {
-		return Model.cacheDB.get(this.componentName, `${key}`);
+	public get (key: string | number) {
+		if (this.memoryCache[key])
+			return this.memoryCache[key];
+
+		return this.memoryCache[key] = Model.cacheDB.get(this.componentName, `${key}`);
 	}
 }
 
@@ -40,6 +46,10 @@ function elapsed (elapsed: number) {
 
 	return `${+(elapsed / 60_000).toFixed(2)} m`;
 }
+
+export type Manifest = {
+	[COMPONENT_NAME in keyof AllDestinyManifestComponents]: ManifestItem<COMPONENT_NAME>;
+};
 
 export default Model.create("manifest", {
 	cache: "Session",
@@ -80,9 +90,7 @@ export default Model.create("manifest", {
 		return componentNames;
 	},
 	filter: componentNames => Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as ({
-			[COMPONENT_NAME in keyof AllDestinyManifestComponents]: ManifestItem<COMPONENT_NAME>;
-		}),
+		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as Manifest,
 	reset: async componentNames => {
 		if (componentNames)
 			for (const componentName of componentNames)
