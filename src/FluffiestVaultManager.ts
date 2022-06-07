@@ -34,7 +34,7 @@ export default class FluffiestVaultManager {
 		});
 
 		Bungie.event.subscribe("resetAuthentication", _ => {
-			Model.clearCache();
+			void Model.clearCache();
 			AuthView.show();
 		});
 
@@ -50,9 +50,6 @@ export default class FluffiestVaultManager {
 			ViewManager.showById(URL.hash);
 			if (!ViewManager.hasView())
 				InventoryOverviewView.show();
-
-			// const memberships = await GetMembershipsForCurrentUser.query();
-			// console.log(memberships);
 
 		} else {
 			AuthView.show();

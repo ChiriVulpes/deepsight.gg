@@ -16,12 +16,10 @@ namespace Loadable {
 		private initialiser!: Initialiser<MODELS>;
 		private loading!: BaseComponent;
 		private models!: MODELS;
-		private currentlyLoading!: Set<Model<any, any>>;
 
 		protected override onMake (models: MODELS, initialiser: Initialiser<MODELS>): void {
 			this.models = models;
 			this.initialiser = initialiser;
-			this.currentlyLoading = new Set();
 
 			this.classes.add(Classes.Main);
 			this.loading = BaseComponent.create()
@@ -29,9 +27,6 @@ namespace Loadable {
 				.append(BaseComponent.create())
 				.append(BaseComponent.create())
 				.appendTo(this);
-
-			for (const model of models)
-				this.currentlyLoading.add(model);
 
 			for (const model of models) {
 				model.event.subscribe("loading", _ => this.onLoading(model));
@@ -42,24 +37,18 @@ namespace Loadable {
 		}
 
 		private onLoading (model: Model<any, any>) {
-			if (this.currentlyLoading.has(model))
-				return;
-
-			if (!this.currentlyLoading.size) {
+			if (this.loading.classes.has(BaseClasses.Hidden)) {
+				// start loading
 				this.loading.classes.remove(BaseClasses.Hidden);
 				while (this.element.children.length > 1)
 					this.element.lastElementChild!.remove();
 			}
-
-			this.currentlyLoading.add(model);
 		}
 
 		private onLoaded (model: Model<any, any>) {
-			if (!this.currentlyLoading.delete(model))
-				return;
-
-			if (this.currentlyLoading.size)
-				return; // still other models loading
+			for (const model of this.models)
+				if (model.loading)
+					return; // not loaded yet
 
 			this.loading.classes.add(BaseClasses.Hidden);
 

@@ -54,7 +54,7 @@ const profileResponseComponentMap = makeProfileResponseComponentMap({
 
 type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
-class ComponentModel extends Model<DestinyProfileResponse> {
+class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 	public readonly applicableKeys: (keyof DestinyProfileResponse)[];
 
 	public constructor (public readonly type: DestinyComponentType) {
@@ -71,6 +71,7 @@ class ComponentModel extends Model<DestinyProfileResponse> {
 		}
 
 		super(`profile [${applicableKeys.join(",")}]`, {
+			cache: false,
 			resetTime: Time.minutes(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
@@ -132,46 +133,44 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 	for (const component of components)
 		models[component] ??= new ComponentModel(component);
 
-	const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
+	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return new Model<DestinyProfileResponse>(name, {
-		noCache: true,
-		resetTime: 0,
-		generate: async () => {
-			const result = {} as DestinyProfileResponse;
+	return Model.createTemporary<DestinyProfileResponse>(async () => {
+		const result = {} as DestinyProfileResponse;
 
-			// only allow one profile query at a time
-			await lastOperation;
+		// only allow one profile query at a time
+		await lastOperation;
 
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-			lastOperation = (async () => {
-				const missingComponents: DestinyComponentType[] = [];
-				for (const component of components) {
-					const cached = await models[component]?.resolveCache();
-					if (cached)
-						mergeProfile(result, cached);
-					else
-						missingComponents.push(component);
-				}
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+		lastOperation = (async () => {
+			const missingComponents: DestinyComponentType[] = [];
+			for (const component of components) {
+				const cached = await models[component]?.resolveCache();
+				if (cached)
+					mergeProfile(result, cached);
+				else
+					missingComponents.push(component);
+			}
 
-				const membership = await Memberships.await();
-				const destinyMembership = membership.destinyMemberships[0];
-				if (!destinyMembership)
-					throw new Error("No Destiny membership");
+			if (!missingComponents.length)
+				// all components cached, no need to make a request to bungie
+				return;
 
-				if (!missingComponents.length)
-					// all components cached, no need to make a request to bungie
-					return;
+			const membership = await Memberships.await();
+			const destinyMembership = membership.destinyMemberships[0];
+			if (!destinyMembership)
+				throw new Error("No Destiny membership");
 
-				const newData = await GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId, missingComponents);
-				mergeProfile(result, newData);
+			const newData = await GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId, missingComponents);
+			mergeProfile(result, newData);
 
-				for (const component of components)
-					await models[component]!.update(newData);
-			})();
+			for (const component of components)
+				await models[component]!.update(newData);
+		})();
 
-			await lastOperation;
-			return result;
-		},
+		await lastOperation;
+		lastOperation = undefined;
+
+		return result;
 	});
 }

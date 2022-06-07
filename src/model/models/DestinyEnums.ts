@@ -28,7 +28,8 @@ export class DestinyEnums {
 	}
 }
 
-export default new Model("destiny-enums", {
+export default Model.create("destiny-enums", {
+	cache: "Session",
 	resetTime: Time.hours(1),
 	generate: async () => await GetGeneratedEnums.query(),
 	filter: (value) => DestinyEnums.init(value),

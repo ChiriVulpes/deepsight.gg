@@ -11,114 +11,168 @@ export interface IModelEvents<R> {
 }
 
 export interface IModel<T, R> {
-	noCache?: true;
-	resetTime: "Daily" | "Weekly" | number;
-	generate (): Promise<T>;
+	cache: /*"Global" |*/ "Session" | false;
+	resetTime?: "Daily" | "Weekly" | number;
+	generate?(): Promise<T>;
 	filter?(value: T): R;
+	reset?(value?: T): any;
 }
 
-export default class Model<T, R = T> {
+type Model<T, R = T> = Model.Impl<T, R>;
 
-	private static cacheDB = new Database(ModelCacheDatabase);
+namespace Model {
+	export const cacheDB = new Database(ModelCacheDatabase);
 
-	public static async clearCache () {
+	export async function clearCache () {
 		console.warn("Clearing cache...");
-		if (!this.cacheDB)
-			return;
+		// if (!cacheDB)
+		// 	return;
 
-		await this.cacheDB.clear("models");
+		await cacheDB.clear("models");
 	}
 
-	public readonly event = new EventManager<this, IModelEvents<R>>(this);
-
-	private value?: R | Promise<R>;
-	private cacheTime?: number;
-
-	public get loading () {
-		return this.value === undefined
-			|| this.value instanceof Promise
-			|| !this.isCacheTimeValid();
+	export function create<T, R = T> (name: string, model: IModel<T, R>) {
+		return new Impl(name, model);
 	}
 
-	public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
-
-	public isCacheTimeValid (cacheTime = this.cacheTime) {
-		if (cacheTime === undefined)
-			return false;
-
-		const resetTime = this.model.resetTime;
-		return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
+	export function createTemporary<T> (generate: IModel<T, T>["generate"]) {
+		return new Impl("", {
+			cache: false,
+			generate,
+		});
 	}
 
-	public async resolveCache () {
-		const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
-		if (!cached)
+	export function createDynamic<T> (resetTime: Exclude<IModel<T, T>["resetTime"], undefined>, generate: IModel<T, T>["generate"]) {
+		return new Impl("", {
+			cache: false,
+			resetTime,
+			generate,
+		});
+	}
+
+	export class Impl<T, R = T> {
+
+		public readonly event = new EventManager<this, IModelEvents<R>>(this);
+
+		private value?: R | Promise<R>;
+		private cacheTime?: number;
+
+		public get loading () {
+			return this.value === undefined
+				|| this.value instanceof Promise
+				|| !this.isCacheTimeValid();
+		}
+
+		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
+
+		public isCacheTimeValid (cacheTime = this.cacheTime) {
+			if (this.model.cache !== "Session")
+				return true;
+
+			if (cacheTime === undefined)
+				return false;
+
+			const resetTime = this.model.resetTime ?? 0;
+			return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
+		}
+
+		public async resolveCache () {
+			if (this.model.cache !== "Session")
+				return undefined;
+
+			const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
+			if (!cached)
+				return undefined;
+
+			if (this.isCacheTimeValid(cached.cacheTime)) {
+				// this cached value is valid
+				console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
+				this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
+				this.cacheTime = cached.cacheTime;
+				this.event.emit("loaded", { value: this.value });
+				return this.value;
+			}
+
+			console.info(`Purging expired cache data for '${this.name}'`);
+			await this.reset();
 			return undefined;
+		}
 
-		if (this.isCacheTimeValid(cached.cacheTime)) {
-			// this cached value is valid
-			console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
-			this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
-			this.event.emit("loaded", { value: this.value });
+		public async reset (value?: T) {
+			if (!value) {
+				const cached = await Model.cacheDB.get("models", this.name);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				value = cached?.value;
+			}
+			await this.model.reset?.(value);
+			await Model.cacheDB.delete("models", this.name);
+		}
+
+		public get () {
+			if (this.value === undefined) {
+				if (this.name)
+					console.info(`No value in memory for '${this.name}'`);
+
+				this.event.emit("loading");
+
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+				const promise = new Promise<R>(async resolve => {
+					if (this.model.cache === "Session") {
+						const cached = await this.resolveCache();
+						if (cached)
+							return resolve(cached);
+					}
+
+					if (!this.model.generate)
+						// this model can't be generated on its own, it must be initialised instead
+						// in this case, wait for the loaded event and return the new value
+						return resolve(this.event.waitFor("loaded")
+							.then(({ value }) => value));
+
+					const generated = this.model.generate?.();
+
+					void generated.catch(error => {
+						console.error(`Model '${this.name}' failed to load:`, error);
+						this.event.emit("errored", { error: error as Error });
+					});
+
+					void generated.then(async value => {
+						resolve(await this.set(value));
+					});
+				});
+
+				this.value = promise;
+
+				return undefined;
+			}
+
+			if (this.value instanceof Promise)
+				return undefined;
+
 			return this.value;
 		}
 
-		console.info(`Purging expired cache data for '${this.name}'`);
-		await Model.cacheDB.delete("models", this.name);
-	}
+		protected async set (value: T) {
+			const filtered = (this.model.filter?.(value) ?? value) as R;
+			this.value = filtered;
 
-	public async reset () {
-		await Model.cacheDB.delete("models", this.name);
-	}
+			if (this.model.cache === "Session") {
+				const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
+				this.cacheTime = cached.cacheTime;
+				await Model.cacheDB.set("models", this.name, cached);
+			}
 
-	public get () {
-		if (this.value === undefined) {
-			this.event.emit("loading");
+			this.event.emit("loaded", { value: filtered });
+			if (this.name)
+				console.info(`${this.model.cache === "Session" ? "Cached" : "Loaded"} data for '${this.name}'`);
 
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-			this.value = new Promise<R>(async resolve => {
-				if (!this.model.noCache) {
-					const cached = await this.resolveCache();
-					if (cached)
-						return cached;
-				}
-
-				const generated = this.model.generate();
-
-				void generated.catch(error => {
-					console.error(`Model '${this.name}' failed to load:`, error);
-					this.event.emit("errored", { error: error as Error });
-				});
-
-				void generated.then(async value => {
-					await this.set(value);
-					resolve(this.value!);
-				});
-			});
-
-			return undefined;
+			return filtered;
 		}
 
-		if (this.value instanceof Promise)
-			return undefined;
-
-		return this.value;
-	}
-
-	protected async set (value: T) {
-		this.value = (this.model.filter?.(value) ?? value) as R;
-
-		if (!this.model.noCache) {
-			const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
-			this.cacheTime = cached.cacheTime;
-			await Model.cacheDB.set("models", this.name, cached);
+		public async await () {
+			return this.get() ?? this.value as R | Promise<R>;
 		}
-
-		this.event.emit("loaded", { value: this.value });
-		console.info(`${this.model.noCache ? "Loaded" : "Cached"} data for '${this.name}'`);
-	}
-
-	public async await () {
-		return this.get() ?? this.value as R | Promise<R>;
 	}
 }
+
+export default Model;
