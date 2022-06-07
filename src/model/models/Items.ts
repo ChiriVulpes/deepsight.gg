@@ -12,7 +12,6 @@ export interface IItem {
 	definition: DestinyInventoryItemDefinition;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Item extends IItem { }
 export class Item {
 

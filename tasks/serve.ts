@@ -35,7 +35,6 @@ export default Task("serve", () => {
 	return new Promise<void>(resolve => {
 
 		// remove console.info function to skip the log that https-localhost has
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		console.info = () => { };
 
 		app.listen(port, "0.0.0.0", function () {
@@ -65,7 +64,7 @@ function serveStaticFixer (root: string): NextHandleFunction {
 
 		const originalUrl = parseUrl.original(req)!;
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		let file = parseUrl(req)?.pathname!;
+		let file = parseUrl(req)?.pathname;
 
 		// make sure redirect occurs at mount
 		if (file === "/" && originalUrl?.pathname?.substr(-1) !== "/")
@@ -99,7 +98,7 @@ function serveStaticFixer (root: string): NextHandleFunction {
 			return;
 		}
 
-		if (await hasHTMLFile(path.resolve(path.join(root, file)))) {
+		if (await hasHTMLFile(path.resolve(path.join(root, file ?? "")))) {
 			if (req.url)
 				req.url += ".html";
 			if (req.originalUrl)

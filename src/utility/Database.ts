@@ -210,7 +210,6 @@ namespace Database {
 			return this.do(() =>
 				this.transaction.objectStore(name as string)
 					.put(value, key))
-				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				.then(() => { });
 		}
 

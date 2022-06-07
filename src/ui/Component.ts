@@ -126,7 +126,6 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	protected onMake (...args: ARGS) { }
 
 	public append (...elements: (Component<Element, any[]> | Node)[]) {

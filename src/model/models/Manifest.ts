@@ -16,7 +16,6 @@ type IModelCacheManifestComponents =
 		AllDestinyManifestComponents[COMPONENT_NAME][number] };
 
 declare module "model/ModelCacheDatabase" {
-	// eslint-disable-next-line @typescript-eslint/no-empty-interface
 	interface IModelCache extends IModelCacheManifestComponents { }
 }
 

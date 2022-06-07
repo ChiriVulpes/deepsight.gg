@@ -6,7 +6,6 @@ import { stopwatch } from "./Time";
 
 try {
 	dotenv.config();
-	// eslint-disable-next-line no-empty
 } catch { }
 
 export interface ITaskApi {

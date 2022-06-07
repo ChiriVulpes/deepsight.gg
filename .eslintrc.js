@@ -1,4 +1,4 @@
-module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typescript-eslint/experimental-utils").TSESLint.Linter.Config} */ ({
+module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typescript-eslint/utils").TSESLint.Linter.Config} */ ({
 	root: true,
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
@@ -21,6 +21,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		"comma-dangle": ["warn", "always-multiline"],
 		"quotes": ["warn", "double", { avoidEscape: true }],
 		"no-constant-condition": ["warn", { checkLoops: false }], // allows `while (true)`
+		"no-empty": ["warn", { allowEmptyCatch: true }],
 
 		// typescript-eslint
 		"@typescript-eslint/no-unused-vars": ["off"], // literally just what typescript already has, no thanks
@@ -34,5 +35,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		// "@typescript-eslint/no-misused-promises": ["warn", { "checksVoidReturn": false }], // this prevents hanging promises
 		// "@typescript-eslint/unbound-method": ["warn", { "ignoreStatic": true }],
 		"@typescript-eslint/unbound-method": ["off"], // we have @Bound for this purpose
+		"@typescript-eslint/no-empty-interface": ["off"], // not useful
+		"@typescript-eslint/no-empty-function": ["off"], // not useful
 	},
 });
