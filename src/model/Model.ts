@@ -21,6 +21,9 @@ export interface IModel<T, R> {
 type Model<T, R = T> = Model.Impl<T, R>;
 
 namespace Model {
+
+	export type Resolve<MODELS extends readonly Model<any, any>[]> = { [KEY in keyof MODELS]: MODELS[KEY] extends Model<any, infer R> ? R : never };
+
 	export const cacheDB = new Database(ModelCacheDatabase);
 
 	export async function clearCache () {

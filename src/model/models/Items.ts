@@ -30,10 +30,6 @@ export class Bucket {
 	}
 }
 
-export class Items {
-
-}
-
 export default Model.createDynamic(Time.seconds(30), async () => {
 	const { DestinyInventoryItemDefinition, DestinyItemCategoryDefinition, DestinyInventoryBucketDefinition } = await Manifest.await();
 	const { BucketHashes, ItemCategoryHashes } = await DestinyEnums.await();

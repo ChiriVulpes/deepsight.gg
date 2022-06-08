@@ -10,7 +10,7 @@ namespace Loadable {
 		Content = "loadable-content",
 	}
 
-	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: { [KEY in keyof MODELS]: MODELS[KEY] extends Model<any, infer R> ? R : never }) => BaseComponent<Element, any[]>;
+	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: Model.Resolve<MODELS>) => BaseComponent<Element, any[]>;
 	export class Component<MODELS extends Model<any, any>[]> extends BaseComponent<HTMLElement, [MODELS, Initialiser<MODELS>]> {
 
 		private initialiser!: Initialiser<MODELS>;

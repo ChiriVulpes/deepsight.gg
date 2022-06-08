@@ -1,14 +1,12 @@
-import View from "ui/View";
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
+import Profile from "model/models/Profile";
+import InventorySlotView from "ui/view/InventorySlotView";
 
-export default class InventoryKineticView extends View {
+export default InventorySlotView.create({
+	id: "kinetic",
+	name: "Kinetic",
+	models: [Profile(DestinyComponentType.CharacterActivities)] as const,
+	initialise: (component, items, profile) => {
 
-	public static readonly id = "kinetic";
-	public static readonly destinationName = "Kinetic";
-
-	public getName () {
-		return InventoryKineticView.destinationName;
-	}
-
-	protected onMakeView (): void {
-	}
-}
+	},
+});

@@ -121,8 +121,8 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this as any;
 	}
 
-	public tweak (tweaker?: (self: this) => any) {
-		tweaker?.(this);
+	public tweak<ARGS extends any[]> (tweaker?: (self: this, ...args: ARGS) => any, ...args: ARGS) {
+		tweaker?.(this, ...args);
 		return this;
 	}
 

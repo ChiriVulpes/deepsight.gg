@@ -1,7 +1,7 @@
 import Model from "model/Model";
 import AppNav from "ui/AppNav";
 import AuthView from "ui/view/AuthView";
-import InventoryOverviewView from "ui/view/InventoryOverviewView";
+import InventoryKineticView from "ui/view/InventoryKineticView";
 import ViewManager from "ui/ViewManager";
 import Bungie from "utility/bungie/Bungie";
 import Env from "utility/Env";
@@ -49,7 +49,7 @@ export default class FluffiestVaultManager {
 
 			ViewManager.showById(URL.hash);
 			if (!ViewManager.hasView())
-				InventoryOverviewView.show();
+				InventoryKineticView.show();
 
 		} else {
 			AuthView.show();

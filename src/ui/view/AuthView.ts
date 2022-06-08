@@ -14,41 +14,29 @@ export enum AuthViewClasses {
 	AuthButton = "view-auth-button-auth",
 }
 
-export default class AuthView extends View {
+export default View.create({
+	id: "auth",
+	name: "Authentication",
+	noNav: true,
+	initialise: view => view
+		.classes.add(AuthViewClasses.Content)
 
-	public static readonly id = "auth";
-
-	public getName () {
-		return "Authentication";
-	}
-
-	public override shouldDisplayNav () {
-		return false;
-	}
-
-	protected override onMakeView () {
-		this.content.classes.add(AuthViewClasses.Content);
-
-		Component.create()
+		.append(Component.create()
 			.classes.add(AuthViewClasses.Header)
 			.append(Component.create()
 				.classes.add(AuthViewClasses.Logo, Classes.Logo))
 			.append(Component.create()
 				.classes.add(AuthViewClasses.Title)
-				.text.set("Fluffiest Vault\nManager"))
-			.appendTo(this.content);
+				.text.set("Fluffiest Vault\nManager")))
 
-		Label.create()
+		.append(Label.create()
 			.classes.add(AuthViewClasses.State)
 			.tweak(_ => _.label.text.set("Account"))
-			.tweak(_ => _.content.text.set("Not Authenticated"))
-			.appendTo(this.content);
+			.tweak(_ => _.content.text.set("Not Authenticated")))
 
-		Button.create()
+		.append(Button.create()
 			.classes.add(AuthViewClasses.AuthButton, ClassesButton.Attention)
 			.text.set("Authenticate with Bungie")
 			.event.subscribe("click", () =>
-				void Bungie.authenticate("start").catch(err => console.error(err)))
-			.appendTo(this.content);
-	}
-}
+				void Bungie.authenticate("start").catch(err => console.error(err)))),
+});

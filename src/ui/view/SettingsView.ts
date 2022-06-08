@@ -2,19 +2,11 @@ import Button from "ui/Button";
 import View from "ui/View";
 import Bungie from "utility/bungie/Bungie";
 
-export default class SettingsView extends View {
-
-	public static readonly id = "settings";
-	public static readonly destinationName = "Settings";
-
-	public getName () {
-		return SettingsView.destinationName;
-	}
-
-	protected onMakeView (): void {
-		Button.create()
+export default View.create({
+	id: "settings",
+	name: "Settings",
+	initialise: view => view
+		.append(Button.create()
 			.text.set("Sign Out")
-			.event.subscribe("click", () => Bungie.resetAuthentication())
-			.appendTo(this.content);
-	}
-}
+			.event.subscribe("click", () => Bungie.resetAuthentication())),
+});

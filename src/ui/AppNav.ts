@@ -49,7 +49,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 					.text.set(memberships.bungieNetUser.cachedBungieGlobalDisplayName))
 				.append(Component.create()
 					.classes.add(ClassesAppNav.IdentityCode)
-					.text.set(`#${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode}`)))
+					.text.set(`#${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode ?? "????"}`)))
 			.classes.add(ClassesAppNav.IdentityContainer)
 			.appendTo(this);
 
@@ -62,27 +62,27 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.event.subscribe("click", () => destinationsWrapper.classes.toggle(Classes.Active))
 			.appendTo(destinationsWrapper);
 
-		for (const destinationViewClass of Object.values(viewManager.registry)) {
-			if (!destinationViewClass.destinationName)
+		for (const destinationViewHandler of Object.values(viewManager.registry)) {
+			if (destinationViewHandler.noNav)
 				continue;
 
-			this.destinationButtons[destinationViewClass.id] = Button.create()
+			this.destinationButtons[destinationViewHandler.id] = Button.create()
 				.classes.add(ClassesAppNav.Destination)
-				.text.set(destinationViewClass.destinationName)
-				.event.subscribe("click", () => destinationViewClass.show())
+				.text.set(destinationViewHandler.name)
+				.event.subscribe("click", () => destinationViewHandler.show())
 				.appendTo(destinationsWrapper);
 		}
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
 	}
 
-	public showing (view: View) {
+	public showing (view: View.Component) {
 		for (const button of Object.values(this.destinationButtons))
 			button.classes.remove(Classes.Active);
 
-		this.destinationButtons[view.id]?.classes.add(Classes.Active);
-		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, view.shouldDisplayNav());
-		this.classes.toggle(!view.shouldDisplayNav(), Classes.Hidden);
-		this.attributes.toggle(!view.shouldDisplayNav(), "inert");
+		this.destinationButtons[view.definition.id]?.classes.add(Classes.Active);
+		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, !view.definition.noNav);
+		this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
+		this.attributes.toggle(!!view.definition.noNav, "inert");
 	}
 }
