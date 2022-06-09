@@ -128,9 +128,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	protected onMake (...args: ARGS) { }
 
-	public append (...elements: (Component<Element, any[]> | Node)[]) {
+	public append (...elements: (Component<Element, any[]> | Node | undefined)[]) {
 		this.element.append(...elements.map(element =>
-			element instanceof Component<Element, any[]> ? element.element : element));
+			element instanceof Component<Element, any[]> ? element.element : element)
+			.filter((element): element is Element | Node => element !== undefined));
 		return this;
 	}
 

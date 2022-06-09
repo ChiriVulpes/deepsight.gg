@@ -16,10 +16,11 @@
 		height: 100%;
 		box-sizing: border-box;
 		padding: 20px;
-		padding-top: var(--nav-height, 0px);
+		padding-top: calc(var(--nav-height, 0px) + 20px);
 		overflow-y: auto;
 		align-self: center;
 	}
 }
 
 @import "AuthView";
+@import "InventorySlotView";

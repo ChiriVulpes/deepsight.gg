@@ -1,0 +1,71 @@
+.view-inventory-slot {
+	display: grid;
+	grid-template-columns: auto 1fr;
+}
+
+.view-inventory-slot-character-bucket {
+	// &s {
+		
+	// }
+	
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	position: relative;
+	z-index: 1;
+	
+	&-header {
+		display: contents;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			width: 100%;
+			height: 50%;
+			background: var(--background);
+			background-size: cover;
+			-webkit-mask-image: linear-gradient(to bottom, black, transparent);
+			mask-image: linear-gradient(to bottom, black, transparent);
+			z-index: -1;
+		}
+	}
+	
+	&-title {
+		grid-column: 1/5;
+		padding: 4px 12px;
+		backdrop-filter: blur(5px) brightness(1.3);
+		box-shadow: inset 0 0 0 1px rgba(255 255 255 / .03);
+		position: relative;
+		padding-left: 40px;
+	}
+	
+	&-class-icon {
+		position: absolute;
+		height: calc(100% - 12px);
+		top: 6px;
+		left: 10px;
+		aspect-ratio: 1/1;
+		background: var(--icon);
+		background-size: contain;
+		background: currentColor;
+		-webkit-mask-image: var(--icon);
+		mask-image: var(--icon);
+	}
+	
+	&-emblem {
+		&::before {
+			content: "";
+			display: block;
+			width: 100%;
+			height: 100%;
+			background: var(--emblem);
+			background-size: contain;
+		}
+	}
+	
+	&-inventory {
+		grid-column: 2/5;
+		grid-row: 2/5;
+		aspect-ratio: 1/1;
+	}
+}

@@ -1,4 +1,5 @@
 :root {
+	--slot-size: 70px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 300;
 }
@@ -19,4 +20,11 @@ button {
 
 .hidden {
 	display: none;
+}
+
+.slot {
+	display: flex;
+	padding: 6px;
+	width: var(--slot-size);
+	height: var(--slot-size);
 }
