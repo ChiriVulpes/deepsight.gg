@@ -1,15 +1,15 @@
-import { DestinyGeneratedEnums } from "bungie-api-ts/generated-enums";
+import type { DestinyGeneratedEnums } from "bungie-api-ts/generated-enums";
 import Model from "model/Model";
 import GetGeneratedEnums from "utility/d2ai/endpoint/GetGeneratedEnums";
 import Time from "utility/Time";
 
-export type IDestinyEnums = { [KEY in keyof DestinyGeneratedEnums]: DestinyEnums<DestinyGeneratedEnums[KEY]> };
+export type IDestinyEnums = { [KEY in keyof DestinyGeneratedEnums]: DestinyEnumHelper<DestinyGeneratedEnums[KEY]> };
 
-export class DestinyEnums<ENUM> {
+export class DestinyEnumHelper<ENUM> {
 
 	public static init (enums: DestinyGeneratedEnums) {
 		return Object.fromEntries(Object.entries(enums)
-			.map(([enumName, enumData]) => [enumName, new DestinyEnums(enumData as Record<string, number>)])) as IDestinyEnums;
+			.map(([enumName, enumData]) => [enumName, new DestinyEnumHelper(enumData as Record<string, number>)])) as IDestinyEnums;
 	}
 
 	private readonly _byName: Record<keyof ENUM, number>;
@@ -33,5 +33,5 @@ export default Model.create("destiny-enums", {
 	cache: "Session",
 	resetTime: Time.hours(1),
 	generate: async () => await GetGeneratedEnums.query(),
-	filter: (value) => DestinyEnums.init(value),
+	filter: (value) => DestinyEnumHelper.init(value),
 });

@@ -2,19 +2,19 @@ import { EventManager } from "utility/EventManager";
 
 declare global {
 	interface Element {
-		component?: WeakRef<Component<this, any[]>>;
+		component?: WeakRef<Component<this, readonly any[]>>;
 	}
 }
 
-export type ComponentClass<COMPONENT extends Component<Element, any[]> = Component<Element, any[]>> = {
+export type ComponentClass<COMPONENT extends Component<Element, readonly any[]> = Component<Element, readonly any[]>> = {
 	prototype: COMPONENT,
 	create: (typeof Component)["create"];
 	get: (typeof Component)["get"];
 };
 
-export type ComponentArgs<COMPONENT extends Component<Element, any[]>> = COMPONENT["_args"];
+export type ComponentArgs<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["_args"];
 
-export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends any[] = []> {
+export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
 
 	public readonly _args!: ARGS;
 
@@ -23,8 +23,8 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap> (this: typeof Component, type: TYPE_NAME): Component<HTMLElementTagNameMap[TYPE_NAME], []>;
 	public static create (this: typeof Component): Component<HTMLElement, []>;
 	public static create<THIS extends { prototype: Component<Element, []> }> (this: THIS): THIS["prototype"];
-	public static create<THIS extends { prototype: Component<Element, any[]> }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
-	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME], any[]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create<THIS extends { prototype: Component<Element, readonly any[]> }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME], readonly any[]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
 	public static create (type?: keyof HTMLElementTagNameMap | any[], args?: any[]) {
 		if (typeof type === "object") {
 			args = type;
@@ -121,7 +121,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this as any;
 	}
 
-	public tweak<ARGS extends any[]> (tweaker?: (self: this, ...args: ARGS) => any, ...args: ARGS) {
+	public tweak<ARGS extends readonly any[]> (tweaker?: (self: this, ...args: ARGS) => any, ...args: ARGS) {
 		tweaker?.(this, ...args);
 		return this;
 	}

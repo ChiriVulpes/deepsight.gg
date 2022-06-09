@@ -1,4 +1,5 @@
-import { DestinyComponentType, DestinyInventoryItemDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";

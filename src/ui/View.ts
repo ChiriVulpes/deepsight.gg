@@ -1,53 +1,85 @@
-import Model from "model/Model";
-import BaseComponent from "ui/Component";
+import type Model from "model/Model";
+import Component from "ui/Component";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
 
 namespace View {
 
-	export interface IView<MODELS extends readonly Model<any, any>[] = []> {
+	export type Initialiser<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase> = (component: ContentComponent<MODELS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
+
+	export interface IViewBase {
 		id: string;
 		name: string;
 		noNav?: true;
-		models?: MODELS;
-		initialise: (view: BaseComponent, ...requirements: Model.Resolve<MODELS>) => any;
 	}
 
-	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = []> {
+	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase> = DEFINITION & {
+		models?: MODELS;
+		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], DEFINITION>;
+	};
+
+	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, HELPER = {}> {
 		private readonly otherModels = [] as any as OTHER_MODELS;
 		public using<ADDITIONAL_MODELS extends readonly Model<any, any>[]> (...models: ADDITIONAL_MODELS) {
 			(this.otherModels as any as Model<any, any>[]).push(...models);
-			return this as any as Factory<[...OTHER_MODELS, ...ADDITIONAL_MODELS]>;
+			return this as any as Factory<[...OTHER_MODELS, ...ADDITIONAL_MODELS], DEFINITION, HELPER>;
 		}
 
-		public create<MODELS extends readonly Model<any, any>[]> (definition: { models?: MODELS } & Omit<IView<[...OTHER_MODELS, ...MODELS]>, "models">): Handler<[...OTHER_MODELS, ...MODELS]> {
-			return create({
+		private readonly initialisers: Initialiser<OTHER_MODELS, DEFINITION>[] = [];
+		public initialise (initialiser: Initialiser<OTHER_MODELS, DEFINITION>) {
+			this.initialisers.push(initialiser);
+			return this;
+		}
+
+		protected readonly definition!: DEFINITION;
+		public define<EXTENDED_DEFINITION> () {
+			return this as any as Factory<OTHER_MODELS, EXTENDED_DEFINITION & DEFINITION, HELPER>;
+		}
+
+		public helper<NEW_HELPER> (helper: NEW_HELPER) {
+			Object.assign(this, helper);
+			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
+		}
+
+		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION>) {
+			return new Handler<[...OTHER_MODELS, ...MODELS], DEFINITION>({
 				...definition,
 				models: [...this.otherModels, ...(definition.models ?? []) as MODELS],
+				initialise: async (component, ...requirements) => {
+					for (const initialiser of [...this.initialisers, definition.initialise]) {
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+						await initialiser?.(component as any, ...requirements);
+					}
+				},
 			});
 		}
 	}
 
-	export function create<MODELS extends Model<any, any>[]> (definition: IView<MODELS>) {
+	export function create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS>) {
 		return new Handler(definition);
 	}
 
-	export interface Handler<MODELS extends Model<any, any>[]> extends IView<MODELS> { }
-	export class Handler<MODELS extends Model<any, any>[]> {
+	export interface Handler<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends IView<MODELS> { }
+	export class Handler<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> {
 
-		public constructor (definition: IView<MODELS>) {
+		public constructor (definition: IView<MODELS, [], DEFINITION>) {
 			Object.assign(this, definition);
 		}
 
+		public get definition () {
+			return this as this & IView<MODELS, [], DEFINITION>;
+		}
+
 		public show () {
-			const view = Component.create([this as IView<MODELS>]);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			const view = WrapperComponent.create([this as any]);
 			View.event.emit("show", { view });
-			return view as Component<MODELS>;
+			return view as WrapperComponent<MODELS, DEFINITION>;
 		}
 	}
 
 	export interface IEvents {
-		show: { view: Component };
+		show: { view: WrapperComponent };
 	}
 
 	export const event = EventManager.make<IEvents>();
@@ -58,21 +90,31 @@ namespace View {
 		Hidden = "view-hidden",
 	}
 
-	export class Component<MODELS extends Model<any, any>[] = Model<any, any>[]> extends BaseComponent<HTMLElement, [IView<MODELS>]> {
+	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
+
+		public definition!: IView<MODELS, [], DEFINITION>;
+
+		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
+			this.definition = definition;
+			this.classes.add(Classes.Content, `view-${this.definition.id}-content`);
+		}
+	}
+
+	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
 
 		private static index = 0;
 
-		public content!: BaseComponent;
-		public definition!: IView<MODELS>;
+		public content!: ContentComponent<MODELS, DEFINITION>;
+		public definition!: IView<MODELS, [], DEFINITION>;
 
-		protected override onMake (definition: IView<MODELS>): void {
+		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
 			this.definition = definition;
 			this.classes.add(Classes.Main, `view-${this.definition.id}`);
 
-			this.style.set("--index", `${Component.index++}`);
+			this.style.set("--index", `${WrapperComponent.index++}`);
 
-			this.content = BaseComponent.create()
-				.classes.add(Classes.Content)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+			this.content = ContentComponent.create([definition as any])
 				.appendTo(this);
 
 			if (this.definition.models)
@@ -81,7 +123,7 @@ namespace View {
 					.appendTo(this);
 
 			else
-				(this.definition.initialise as any as (component: BaseComponent) => any)?.(this.content);
+				(this.definition.initialise as any as (component: ContentComponent<MODELS, DEFINITION>) => any)?.(this.content);
 		}
 	}
 

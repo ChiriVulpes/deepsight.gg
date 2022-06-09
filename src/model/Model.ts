@@ -1,4 +1,5 @@
-import ModelCacheDatabase, { ICachedModel } from "model/ModelCacheDatabase";
+import type { ICachedModel } from "model/ModelCacheDatabase";
+import ModelCacheDatabase from "model/ModelCacheDatabase";
 import Bungie from "utility/bungie/Bungie";
 import Database from "utility/Database";
 import { EventManager } from "utility/EventManager";

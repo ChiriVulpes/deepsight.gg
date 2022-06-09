@@ -37,5 +37,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		"@typescript-eslint/unbound-method": ["off"], // we have @Bound for this purpose
 		"@typescript-eslint/no-empty-interface": ["off"], // not useful
 		"@typescript-eslint/no-empty-function": ["off"], // not useful
+
+		"@typescript-eslint/consistent-type-imports": ["warn"],
 	},
 });

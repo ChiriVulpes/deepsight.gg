@@ -1,5 +1,5 @@
 import { APP_NAME } from "Constants";
-import Model from "model/Model";
+import type Model from "model/Model";
 import View from "ui/View";
 import AuthView from "ui/view/AuthView";
 import InventoryKineticView from "ui/view/InventoryKineticView";
@@ -13,7 +13,7 @@ const registry = Object.fromEntries([
 	// InventoryOverviewView,
 	InventoryKineticView,
 	SettingsView,
-].map((view: View.Handler<Model<any, any>[]>) => [view.id, view] as const));
+].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
 URL.event.subscribe("navigate", () => {
@@ -21,8 +21,8 @@ URL.event.subscribe("navigate", () => {
 });
 
 export interface IViewManagerEvents {
-	hide: { view: View.Component };
-	show: { view: View.Component };
+	hide: { view: View.WrapperComponent };
+	show: { view: View.WrapperComponent };
 }
 
 export default class ViewManager {
@@ -33,7 +33,7 @@ export default class ViewManager {
 		return registry;
 	}
 
-	private static view?: View.Component;
+	private static view?: View.WrapperComponent;
 
 	public static hasView () {
 		return !!this.view;
@@ -52,7 +52,7 @@ export default class ViewManager {
 		this.show(view.show());
 	}
 
-	public static show (view: View.Component) {
+	public static show (view: View.WrapperComponent) {
 		if (this.view === view)
 			return;
 

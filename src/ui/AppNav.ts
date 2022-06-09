@@ -76,7 +76,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
 	}
 
-	public showing (view: View.Component) {
+	public showing (view: View.WrapperComponent) {
 		for (const button of Object.values(this.destinationButtons))
 			button.classes.remove(Classes.Active);
 
