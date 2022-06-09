@@ -7,18 +7,16 @@ import type { BucketId } from "model/models/Items";
 import Items from "model/models/Items";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
-import { Classes } from "ui/Classes";
+import { InventoryClasses } from "ui/Classes";
 import Component from "ui/Component";
+import Bucket from "ui/inventory/Bucket";
 import View from "ui/View";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
 	CharacterBuckets = "view-inventory-slot-character-buckets",
 	CharacterBucket = "view-inventory-slot-character-bucket",
-	CharacterBucketHeader = "view-inventory-slot-character-bucket-header",
-	CharacterBucketTitle = "view-inventory-slot-character-bucket-title",
 	CharacterBucketEmblem = "view-inventory-slot-character-bucket-emblem",
-	CharacterBucketClassIcon = "view-inventory-slot-character-bucket-class-icon",
 	CharacterBucketEquipped = "view-inventory-slot-character-bucket-equipped",
 	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
 	VaultBucket = "view-inventory-slot-vault-bucket",
@@ -26,8 +24,7 @@ export enum InventorySlotViewClasses {
 
 interface ICharacterBucket {
 	character: DestinyCharacterComponent;
-	bucketComponent: Component;
-	titleComponent: Component;
+	bucketComponent: Bucket;
 	equippedComponent: Component;
 	inventoryComponent: Component;
 }
@@ -53,29 +50,24 @@ export default new View.Factory()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
 			.appendTo(component);
 
-		const vaultBucket = Component.create()
+		const vaultBucket = Bucket.create()
 			.classes.add(InventorySlotViewClasses.VaultBucket)
+			.tweak(vault => vault.icon.style.set("--icon",
+				"url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")"))
+			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(component);
 
 		function initialiseCharacterComponent (character: DestinyCharacterComponent): ICharacterBucket {
-			const bucketComponent = Component.create()
+			const bucketComponent = Bucket.create()
 				.classes.add(InventorySlotViewClasses.CharacterBucket)
 				.appendTo(characterBuckets); // this has to be before any awaits or else they won't be sorted correctly
 
-			const headerComponent = Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketHeader)
-				.appendTo(bucketComponent);
-
-			const titleComponent = Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketTitle)
-				.appendTo(headerComponent);
-
 			Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, Classes.Slot)
-				.appendTo(headerComponent);
+				.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
+				.appendTo(bucketComponent.header);
 
 			const equippedComponent = Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, Classes.Slot)
+				.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
 				.appendTo(bucketComponent);
 
 			const inventoryComponent = Component.create()
@@ -85,7 +77,6 @@ export default new View.Factory()
 			return {
 				character,
 				bucketComponent,
-				titleComponent,
 				equippedComponent,
 				inventoryComponent,
 			};
@@ -115,10 +106,10 @@ export default new View.Factory()
 			const cls = await DestinyClassDefinition.get(character.character.classHash);
 			const className = cls?.displayProperties.name ?? "Unknown";
 			console.log(cls, await DestinyInventoryItemDefinition.get(character.character.classHash));
-			character.titleComponent
-				.append(Component.create()
-					.classes.add(InventorySlotViewClasses.CharacterBucketClassIcon)
-					.style.set("--icon", `url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`))
+			character.bucketComponent.icon
+				.style.set("--icon", `url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
+
+			character.bucketComponent.title
 				.text.add(className);
 
 			const emblem = await DestinyInventoryItemDefinition.get(character.character.emblemHash);
