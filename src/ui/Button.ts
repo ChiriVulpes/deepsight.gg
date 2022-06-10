@@ -5,11 +5,11 @@ export enum ClassesButton {
 	Attention = "button-attention",
 }
 
-export default class Button extends Component<HTMLButtonElement> {
+export default class Button<ARGS extends any[] = []> extends Component<HTMLButtonElement, ARGS> {
 
 	protected static override defaultType = "button";
 
-	protected override onMake (): void {
+	protected override onMake (...args: ARGS) {
 		this.classes.add(ClassesButton.Main);
 	}
 }

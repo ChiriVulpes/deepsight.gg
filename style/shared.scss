@@ -1,5 +1,5 @@
 :root {
-	--slot-size: 70px;
+	--slot-size: 80px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 300;
 }
@@ -27,4 +27,5 @@ button {
 	padding: 6px;
 	width: var(--slot-size);
 	height: var(--slot-size);
+	box-sizing: border-box;
 }

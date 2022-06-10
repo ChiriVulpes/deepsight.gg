@@ -2,7 +2,14 @@ import { APP_NAME } from "Constants";
 import type Model from "model/Model";
 import View from "ui/View";
 import AuthView from "ui/view/AuthView";
+import InventoryArmsView from "ui/view/InventoryArmsView";
+import InventoryChestView from "ui/view/InventoryChestView";
+import InventoryClassItemView from "ui/view/InventoryClassItemView";
+import InventoryEnergyView from "ui/view/InventoryEnergyView";
+import InventoryHelmetView from "ui/view/InventoryHelmetView";
 import InventoryKineticView from "ui/view/InventoryKineticView";
+import InventoryLegsView from "ui/view/InventoryLegsView";
+import InventoryPowerView from "ui/view/InventoryPowerView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
@@ -12,6 +19,13 @@ const registry = Object.fromEntries([
 	AuthView,
 	// InventoryOverviewView,
 	InventoryKineticView,
+	InventoryEnergyView,
+	InventoryPowerView,
+	InventoryHelmetView,
+	InventoryArmsView,
+	InventoryChestView,
+	InventoryLegsView,
+	InventoryClassItemView,
 	SettingsView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 

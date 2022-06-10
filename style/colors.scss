@@ -18,28 +18,48 @@ $colors: (
 	accent-0-active: #8adcff,
 	
 	background-drawer: var(--background-0) var(--background-2),
-	
-	button-background: var(--background-3),
-	button-background-hover: var(--background-6),
-	button-background-active: var(--background-2),
-	button-border: var(--foreground-2),
-	button-border-hover: var(--foreground-0),
-	button-foreground: var(--foreground-1),
-	button-foreground-hover: var(--foreground-0),
+	button-background: color(--background-3),
+	button-background-hover: color(--background-6),
+	button-background-hover-overlay: rgba(var(--foreground-2-rgb), .3),
+	button-background-active: color(--background-2),
+	button-border: color(--foreground-2),
+	button-border-hover: color(--foreground-0),
+	button-foreground: color(--foreground-1),
+	button-foreground-hover: color(--foreground-0),
 );
 
 :root {
 	color-scheme: dark;
 	
 	@each $var, $val in $colors {
-		--#{$var}: #{nth($val, 1)};
+		$color: nth($val, 1);
+		@if type-of($color) == color {
+			--#{$var}: #{$color};
+			--#{$var}-rgb: #{red($color), green($color), blue($color)};
+		} @else if str-starts-with($color, "color(") {
+			$referenced-var: str-slice($color, 9, str-length($color) - 1);
+			--#{$var}: var(--#{$referenced-var});
+			--#{$var}-rgb: var(--#{$referenced-var}-rgb);
+		} @else {
+			--#{$var}: #{$color};
+		}
 	}
 	
 	@media (prefers-color-scheme: light) {
 		color-scheme: light;
 		@each $var, $val in $colors {
 			@if length($val) > 1 {
-				--#{$var}: #{nth($val, 2)};
+				$color: nth($val, 2);
+				@if type-of($color) == color {
+					--#{$var}: #{$color};
+					--#{$var}-rgb: #{red($color), green($color), blue($color)};
+				} @else if str-starts-with($color, "color(") {
+					$referenced-var: str-slice($color, 9, str-length($color) - 1);
+					--#{$var}: var(--#{$referenced-var});
+					--#{$var}-rgb: var(--#{$referenced-var}-rgb);
+				} @else {
+					--#{$var}: #{$color};
+				}
 			}
 		}
 	}

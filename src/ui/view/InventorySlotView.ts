@@ -3,13 +3,13 @@ import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { DestinyGeneratedEnums, ItemCategoryHashes } from "bungie-api-ts/generated-enums";
 import type { DestinyEnumHelper } from "model/models/DestinyEnums";
 import DestinyEnums from "model/models/DestinyEnums";
-import type { BucketId } from "model/models/Items";
+import type { Bucket, BucketId } from "model/models/Items";
 import Items from "model/models/Items";
-import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import { InventoryClasses } from "ui/Classes";
 import Component from "ui/Component";
-import Bucket from "ui/inventory/Bucket";
+import BucketComponent from "ui/inventory/Bucket";
+import ItemComponent from "ui/inventory/Item";
 import View from "ui/View";
 
 export enum InventorySlotViewClasses {
@@ -24,15 +24,37 @@ export enum InventorySlotViewClasses {
 
 interface ICharacterBucket {
 	character: DestinyCharacterComponent;
-	bucketComponent: Bucket;
+	bucketComponent: BucketComponent;
 	equippedComponent: Component;
-	inventoryComponent: Component;
+}
+
+function initialiseCharacterComponent (character: DestinyCharacterComponent): ICharacterBucket {
+	const bucketComponent = BucketComponent.create()
+		.classes.add(InventorySlotViewClasses.CharacterBucket);
+
+	Component.create()
+		.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
+		.appendTo(bucketComponent.header);
+
+	const equippedComponent = Component.create()
+		.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
+		.appendTo(bucketComponent);
+
+	bucketComponent.inventory.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
+
+	void bucketComponent.initialiseFromCharacter(character);
+
+	return {
+		character,
+		bucketComponent,
+		equippedComponent,
+	};
 }
 
 export default new View.Factory()
 	.using(Items)
 	.define<{ slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes }>()
-	.initialise(async (component, items) => {
+	.initialise(async (component, buckets) => {
 		const { characters: characterData } = await Profile(DestinyComponentType.Characters).await();
 		if (!characterData.data || !Object.keys(characterData.data).length) {
 			console.warn("No characters");
@@ -41,7 +63,6 @@ export default new View.Factory()
 
 		component.classes.add(InventorySlotViewClasses.Main);
 
-		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = await Manifest.await();
 		const { ItemCategoryHashes } = await DestinyEnums.await();
 		const slot = component.definition.slot(ItemCategoryHashes);
 		console.log(slot, ItemCategoryHashes.byHash(slot));
@@ -50,71 +71,56 @@ export default new View.Factory()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
 			.appendTo(component);
 
-		const vaultBucket = Bucket.create()
+		const vaultBucket = BucketComponent.create()
 			.classes.add(InventorySlotViewClasses.VaultBucket)
 			.tweak(vault => vault.icon.style.set("--icon",
 				"url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")"))
 			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(component);
 
-		function initialiseCharacterComponent (character: DestinyCharacterComponent): ICharacterBucket {
-			const bucketComponent = Bucket.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucket)
-				.appendTo(characterBuckets); // this has to be before any awaits or else they won't be sorted correctly
-
-			Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
-				.appendTo(bucketComponent.header);
-
-			const equippedComponent = Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
-				.appendTo(bucketComponent);
-
-			const inventoryComponent = Component.create()
-				.classes.add(InventorySlotViewClasses.CharacterBucketInventory)
-				.appendTo(bucketComponent);
-
-			return {
-				character,
-				bucketComponent,
-				equippedComponent,
-				inventoryComponent,
-			};
-		}
-
-		const characters: Partial<Record<string, ICharacterBucket>> = Object.fromEntries(Object.entries(characterData.data)
-			.sort(([, { dateLastPlayed: dateLastPlayedA }], [, { dateLastPlayed: dateLastPlayedB }]) =>
+		const characterBucketsSorted = Object.values(characterData.data)
+			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
-			.map(([id, character]) => [id, initialiseCharacterComponent(character)] as const));
+			.map(initialiseCharacterComponent);
 
-		for (const bucketId of Object.keys(items) as BucketId[]) {
+		characterBuckets.append(...characterBucketsSorted.map(bucket => bucket.bucketComponent));
+
+		const characters = Object.fromEntries(characterBucketsSorted.map(bucket => [
+			bucket.character.characterId,
+			bucket,
+		]));
+
+		// const { DestinyItemCategoryDefinition } = await Manifest.await();
+		for (const [bucketId, bucket] of Object.entries(buckets) as [BucketId, Bucket][]) {
 			if (bucketId === "inventory")
 				continue;
 
+			let bucketComponent: BucketComponent;
 			if (bucketId === "vault")
-				continue;
+				bucketComponent = vaultBucket;
+			else {
+				const character = characters[bucketId];
+				if (!character) {
+					console.warn(`Unknown character '${bucketId}'`);
+					continue;
+				}
 
-			const character = characters[bucketId];
-			if (!character) {
-				console.warn(`Unknown character '${bucketId}'`);
-				continue;
+				bucketComponent = character.bucketComponent;
 			}
 
-			console.log(await DestinyInventoryItemDefinition.get(character.character.emblemHash));
-			console.log(character.character);
+			for (const item of bucket.items) {
+				const categories = item.definition.itemCategoryHashes ?? []
+				// (await Promise.all((item.definition.itemCategoryHashes ?? [])
+				// .map(category => DestinyItemCategoryDefinition.get(category))))
+				// .filter((category): category is DestinyItemCategoryDefinition => category !== undefined);
 
-			const cls = await DestinyClassDefinition.get(character.character.classHash);
-			const className = cls?.displayProperties.name ?? "Unknown";
-			console.log(cls, await DestinyInventoryItemDefinition.get(character.character.classHash));
-			character.bucketComponent.icon
-				.style.set("--icon", `url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
+				if (!categories.includes(component.definition.slot(ItemCategoryHashes)))
+					continue;
 
-			character.bucketComponent.title
-				.text.add(className);
-
-			const emblem = await DestinyInventoryItemDefinition.get(character.character.emblemHash);
-			character.bucketComponent
-				.style.set("--background", `url("https://www.bungie.net${emblem?.secondarySpecial ?? character.character.emblemBackgroundPath}")`)
-				.style.set("--emblem", `url("https://www.bungie.net${emblem?.secondaryOverlay ?? character.character.emblemPath}")`);
+				ItemComponent.create([item])
+					.appendTo(Component.create()
+						.classes.add(InventoryClasses.Slot)
+						.appendTo(bucketComponent.inventory));
+			}
 		}
 	});

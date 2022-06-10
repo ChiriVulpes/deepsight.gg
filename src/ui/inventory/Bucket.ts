@@ -1,3 +1,5 @@
+import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
+import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 
 export enum BucketClasses {
@@ -5,13 +7,15 @@ export enum BucketClasses {
 	Header = "bucket-header",
 	Title = "bucket-title",
 	Icon = "bucket-icon",
+	Inventory = "bucket-inventory",
 }
 
-export default class Bucket extends Component {
+export default class BucketComponent extends Component {
 
 	public header!: Component;
 	public title!: Component;
 	public icon!: Component;
+	public inventory!: Component;
 
 	protected override onMake () {
 		this.classes.add(BucketClasses.Main);
@@ -27,5 +31,25 @@ export default class Bucket extends Component {
 		this.icon = Component.create()
 			.classes.add(BucketClasses.Icon)
 			.appendTo(this.title);
+
+		this.inventory = Component.create()
+			.classes.add(BucketClasses.Inventory)
+			.appendTo(this);
+	}
+
+	public async initialiseFromCharacter (character: DestinyCharacterComponent) {
+		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = await Manifest.await();
+
+		const cls = await DestinyClassDefinition.get(character.classHash);
+		const className = cls?.displayProperties.name ?? "Unknown";
+		console.log(cls, await DestinyInventoryItemDefinition.get(character.classHash));
+		this.icon.style.set("--icon",
+			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
+
+		this.title.text.add(className);
+
+		const emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
+		this.style.set("--background", `url("https://www.bungie.net${emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
+			.style.set("--emblem", `url("https://www.bungie.net${emblem?.secondaryOverlay ?? character.emblemPath}")`);
 	}
 }

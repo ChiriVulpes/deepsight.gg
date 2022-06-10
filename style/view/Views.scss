@@ -9,6 +9,10 @@
 	justify-content: center;
 	background: color(background-0);
 	
+	&-loadable {
+		display: contents;
+	}
+	
 	&-content {
 		max-width: 100%;
 		max-height: 100%;

@@ -88,6 +88,7 @@ namespace View {
 		Main = "view",
 		Content = "view-content",
 		Hidden = "view-hidden",
+		Loadable = "view-loadable",
 	}
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
@@ -120,6 +121,7 @@ namespace View {
 			if (this.definition.models)
 				Loadable.create(...this.definition.models)
 					.onReady((...results) => this.content.tweak(this.definition.initialise, ...results))
+					.classes.add(Classes.Loadable)
 					.appendTo(this);
 
 			else

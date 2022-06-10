@@ -1,0 +1,48 @@
+.item {
+    width: 100%;
+    height: 100%;
+	position: relative;
+	border: none;
+	margin: 0;
+	padding: 0;
+	
+	&::after {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		box-shadow: inset 0 0 0 1px var(--border-color);
+		@include transition(out, background, box-shadow);
+	}
+	
+	&:where(:hover, :active, :focus-visible) {
+		&::after {
+			background: color(button-background-hover-overlay);
+			@include transition(in);
+		}
+	}
+	
+	&-icon {
+		background: var(--icon);
+		background-size: contain;
+		width: 100%;
+		height: 100%;
+	}
+	
+	$tiers: (
+		common: #ddd #eee,
+		uncommon: #5fa16d #9ccaa6,
+		rare: #7eaadf #c0dafa,
+		legendary: #774493 #b791cc,
+		exotic: #f5dc56 #fff4b5,
+	);
+	
+	@each $tier, $colors in $tiers {
+		&-tier-#{$tier} {
+			--border-color: #{nth($colors, 1)};
+			&:where(:hover, :active, :focus-visible) {
+				--border-color: #{nth($colors, 2)};
+			}
+		}
+	}
+}

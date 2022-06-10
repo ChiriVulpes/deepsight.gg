@@ -1,4 +1,4 @@
-import { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
+import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import GetManifest from "utility/bungie/endpoint/destiny2/GetManifest";
 
@@ -25,11 +25,15 @@ class ManifestItem<COMPONENT_NAME extends keyof AllDestinyManifestComponents> {
 
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
-	public get (key: string | number) {
+	public get (key?: string | number) {
+		if (key === undefined)
+			return undefined;
+
 		if (this.memoryCache[key])
 			return this.memoryCache[key];
 
-		return this.memoryCache[key] = Model.cacheDB.get(this.componentName, `${key}`);
+		return this.memoryCache[key] = Model.cacheDB.get(this.componentName, `${key}`)
+			.then(value => this.memoryCache[key] = value);
 	}
 }
 
