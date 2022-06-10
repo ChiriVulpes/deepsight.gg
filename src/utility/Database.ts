@@ -1,4 +1,5 @@
 import { EventManager } from "utility/EventManager";
+import Store from "utility/Store";
 
 type Version = [major: number, minor: number];
 namespace Version {
@@ -97,8 +98,9 @@ class Database<SCHEMA> {
 		});
 	}
 
-	private async getVersion () {
-		const databaseInfo = (await indexedDB.databases()).find(({ name }) => name === this.schema.id);
+	private getVersion () {
+		// const databaseInfo = (await indexedDB.databases()).find(({ name }) => name === this.schema.id);
+		const databaseInfo = Store.items.databases?.find(({ name }) => name === this.schema.id);
 		return databaseInfo?.version ? Version.decode(databaseInfo.version) : undefined;
 	}
 
@@ -126,10 +128,29 @@ class Database<SCHEMA> {
 
 				await upgrade?.(database, transaction);
 				transaction.commit();
+
+				const databaseInfo = Store.items.databases?.find(({ name }) => name === this.schema.id);
+				if (!databaseInfo) {
+					const databases = Store.items.databases ?? [];
+					databases.push({ name: this.schema.id, version: newVersion });
+					Store.items.databases = databases;
+				} else {
+					databaseInfo.version = newVersion;
+				}
 			});
 
-			request.addEventListener("error", () =>
-				reject(new Error(`Cannot create database '${this.schema.id}', error: ${request.error?.message ?? "Unknown error"}`)));
+			request.addEventListener("error", () => {
+				if (request.error?.message.includes("version")) {
+					console.info(`Database '${this.schema.id}' is from the future and must be disposed`);
+					delete this.database;
+					void this.dispose().then(() => {
+						resolve(this.open(versionMinor, upgrade));
+					});
+					return;
+				}
+
+				reject(new Error(`Cannot create database '${this.schema.id}', error: ${request.error?.message ?? "Unknown error"}`))
+			});
 
 			request.addEventListener("success", () =>
 				resolve(request.result));
