@@ -9,6 +9,11 @@
 	display: flex;
     z-index: 9999999;
 	user-select: none;
+	background: color(background-0);
+	
+	@media (max-width: 600px) {
+		width: calc(100% - 17px);
+	}
 	
 	&.hidden {
 		display: none;
