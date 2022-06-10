@@ -46,11 +46,15 @@
 		}
 	}
 	
-	&-masterwork, &-shaped, &-deepsight {
+	&-masterwork, &-shaped, &-deepsight, &-source-watermark {
 		position: absolute;
 		inset: 0;
 		background-size: cover;
 		z-index: 1;
+	}
+	
+	&-source-watermark {
+		background-image: var(--watermark);
 	}
 	
 	&-masterwork {
