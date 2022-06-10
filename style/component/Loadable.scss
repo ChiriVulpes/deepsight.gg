@@ -11,8 +11,7 @@
 		aspect-ratio: 1/1;
 		@include transition(in, opacity);
 		
-		&.hidden {
-			display: block;
+		&-hidden {
 			opacity: 0;
 			@include transition(out);
 		}

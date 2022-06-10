@@ -1,6 +1,7 @@
 import type Model from "model/Model";
 import { Classes as BaseClasses } from "ui/Classes";
 import BaseComponent from "ui/Component";
+import Async from "utility/Async";
 
 namespace Loadable {
 
@@ -11,6 +12,7 @@ namespace Loadable {
 		LoadingInfo = "loadable-loading-info",
 		LoadingBar = "loadable-loading-bar",
 		LoadingMessage = "loadable-loading-message",
+		LoadingHidden = "loadable-loading-hidden",
 		Content = "loadable-content",
 	}
 
@@ -61,9 +63,10 @@ namespace Loadable {
 		}
 
 		private onLoading () {
-			if (this.loading.classes.has(BaseClasses.Hidden)) {
+			if (this.loading.classes.some(BaseClasses.Hidden, Classes.LoadingHidden)) {
 				// start loading
-				this.loading.classes.remove(BaseClasses.Hidden);
+				this.updateLoadingInfo();
+				this.loading.classes.remove(BaseClasses.Hidden, Classes.LoadingHidden);
 				while (this.element.children.length > 2)
 					this.element.lastElementChild!.remove();
 			}
@@ -75,7 +78,14 @@ namespace Loadable {
 				if (model.loading)
 					return; // not loaded yet
 
-			this.loading.classes.add(BaseClasses.Hidden);
+			this.loading.classes.add(Classes.LoadingHidden);
+			void Async.sleep(400).then(() => {
+				for (const model of this.models)
+					if (model.loading)
+						return; // not loaded yet
+
+				this.loading.classes.add(BaseClasses.Hidden);
+			});
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
 			this.initialiser(...this.models.map(model => model.get()) as any)
