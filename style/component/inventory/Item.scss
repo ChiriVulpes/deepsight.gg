@@ -45,4 +45,61 @@
 			}
 		}
 	}
+	
+	&-masterwork, &-shaped, &-deepsight {
+		position: absolute;
+		inset: 0;
+		background-size: cover;
+		z-index: 1;
+	}
+	
+	&-masterwork {
+		background-image: url("/image/masterwork.png");
+	}
+	
+	&-shaped {
+		background-image: url("/image/shaped.png");
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			bottom: 6%;
+			left: 6%;
+			width: 20%;
+			height: 20%;
+			background: #FF8D5C;
+			-webkit-mask-image: url("https://gist.githubusercontent.com/ChiriVulpes/fd6cb4d8bc8178b20a272778be541d0b/raw/2d41126d4d588a3979ef82e2b202bac1e45af011/item-shaped.svg");
+			-webkit-mask-size: contain;
+			mask-image: url("https://gist.githubusercontent.com/ChiriVulpes/fd6cb4d8bc8178b20a272778be541d0b/raw/2d41126d4d588a3979ef82e2b202bac1e45af011/item-shaped.svg");
+			mask-size: contain;
+		}
+	}
+	
+	&-deepsight {
+		$deepsight: #D2513B;
+		box-shadow: inset 0 0 0 2px $deepsight;
+		
+		&-attuned {
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				border-bottom: calc(var(--slot-size) * .45) solid $deepsight;
+				border-left: calc(var(--slot-size) * .45) solid transparent;
+			}
+			&::after {
+				content: "!";
+				display: block;
+				position: absolute;
+				bottom: 3px;
+				right: 0;
+				font-size: 1.2em;
+				width: 33%;
+				height: 33%;
+				font-weight: 500;
+			}
+		}
+	}
 }

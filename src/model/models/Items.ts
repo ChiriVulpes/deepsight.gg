@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
 import { DestinyComponentType, ItemLocation } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
@@ -12,6 +12,7 @@ export interface IItem {
 	equipped?: true;
 	instance: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
+	objectives?: Record<string, DestinyObjectiveProgress[]>;
 }
 
 export interface Item extends IItem { }
@@ -36,6 +37,12 @@ export default Model.createDynamic(Time.seconds(30), async (update) => {
 	Manifest.event.subscribe("loadUpdate", ({ progress, message }) => update(progress, message));
 	const { DestinyInventoryItemDefinition } = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
+
+	const profile = await Profile(
+		DestinyComponentType.CharacterInventories,
+		DestinyComponentType.CharacterEquipment,
+		DestinyComponentType.ProfileInventories,
+	).await();
 
 	const initialisedItems = new Set<string>();
 
@@ -78,7 +85,6 @@ export default Model.createDynamic(Time.seconds(30), async (update) => {
 		return new Bucket(id, items);
 	}
 
-	const profile = await Profile(DestinyComponentType.CharacterInventories, DestinyComponentType.CharacterEquipment, DestinyComponentType.ProfileInventories).await();
 	const profileItems = profile.profileInventory.data?.items ?? [];
 
 	const buckets = {} as Record<BucketId, Bucket>;
