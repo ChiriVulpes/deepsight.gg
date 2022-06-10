@@ -2,6 +2,7 @@ import Database from "utility/Database";
 
 export interface ICachedModel<T> {
 	cacheTime: number;
+	persist?: true;
 	value: T;
 }
 

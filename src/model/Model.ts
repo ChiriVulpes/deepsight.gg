@@ -1,4 +1,4 @@
-import type { ICachedModel } from "model/ModelCacheDatabase";
+import type { ICachedModel, IModelCache } from "model/ModelCacheDatabase";
 import ModelCacheDatabase from "model/ModelCacheDatabase";
 import Bungie from "utility/bungie/Bungie";
 import Database from "utility/Database";
@@ -12,7 +12,7 @@ export interface IModelEvents<R> {
 }
 
 export interface IModel<T, R> {
-	cache: /*"Global" |*/ "Session" | false;
+	cache: "Global" | "Session" | false;
 	resetTime?: "Daily" | "Weekly" | number;
 	generate?(): Promise<T>;
 	filter?(value: T): R;
@@ -32,7 +32,19 @@ namespace Model {
 		// if (!cacheDB)
 		// 	return;
 
-		await cacheDB.clear("models");
+		for (const store of (await cacheDB.stores()) as Iterable<keyof IModelCache>) {
+			if (store === "models") {
+				for (const key of await cacheDB.keys("models")) {
+					const cached = await cacheDB.get("models", key);
+					if (cached?.persist)
+						continue;
+
+					await cacheDB.delete("models", key);
+				}
+			} else {
+				// await cacheDB.clear(store);
+			}
+		}
 	}
 
 	export function create<T, R = T> (name: string, model: IModel<T, R>) {
@@ -70,7 +82,7 @@ namespace Model {
 		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
 
 		public isCacheTimeValid (cacheTime = this.cacheTime) {
-			if (this.model.cache !== "Session")
+			if (!this.model.cache)
 				return true;
 
 			if (cacheTime === undefined)
@@ -81,7 +93,7 @@ namespace Model {
 		}
 
 		public async resolveCache () {
-			if (this.model.cache !== "Session")
+			if (!this.model.cache)
 				return undefined;
 
 			const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
@@ -121,7 +133,7 @@ namespace Model {
 
 				// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 				const promise = new Promise<R>(async resolve => {
-					if (this.model.cache === "Session") {
+					if (this.model.cache) {
 						const cached = await this.resolveCache();
 						if (cached)
 							return resolve(cached);
@@ -160,15 +172,17 @@ namespace Model {
 			const filtered = (this.model.filter?.(value) ?? value) as R;
 			this.value = filtered;
 
-			if (this.model.cache === "Session") {
+			if (this.model.cache) {
 				const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
+				if (this.model.cache === "Global")
+					cached.persist = true;
 				this.cacheTime = cached.cacheTime;
 				await Model.cacheDB.set("models", this.name, cached);
 			}
 
 			this.event.emit("loaded", { value: filtered });
 			if (this.name)
-				console.info(`${this.model.cache === "Session" ? "Cached" : "Loaded"} data for '${this.name}'`);
+				console.info(`${!this.model.cache ? "Loaded" : "Cached"} data for '${this.name}'`);
 
 			return filtered;
 		}

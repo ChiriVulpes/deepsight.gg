@@ -55,7 +55,7 @@ export type Manifest = {
 };
 
 export default Model.create("manifest", {
-	cache: "Session",
+	cache: "Global",
 	resetTime: "Daily",
 	async generate () {
 		const manifest = await GetManifest.query();

@@ -72,6 +72,11 @@ class Database<SCHEMA> {
 		await this.open((databaseVersionMinor ?? 0) + 1, upgrade);
 	}
 
+	public async stores () {
+		const database = await this.getDatabase();
+		return database.objectStoreNames;
+	}
+
 	public async hasStore (...stores: (keyof SCHEMA)[]) {
 		const database = await this.getDatabase();
 		return stores.every(store => database.objectStoreNames.contains(store as string));
@@ -129,14 +134,14 @@ class Database<SCHEMA> {
 				await upgrade?.(database, transaction);
 				transaction.commit();
 
-				const databaseInfo = Store.items.databases?.find(({ name }) => name === this.schema.id);
-				if (!databaseInfo) {
-					const databases = Store.items.databases ?? [];
-					databases.push({ name: this.schema.id, version: newVersion });
-					Store.items.databases = databases;
-				} else {
+				const databases = Store.items.databases ?? [];
+				const databaseInfo = databases.find(({ name }) => name === this.schema.id);
+				if (databaseInfo)
 					databaseInfo.version = newVersion;
-				}
+				else
+					databases.push({ name: this.schema.id, version: newVersion });
+
+				Store.items.databases = databases;
 			});
 
 			request.addEventListener("error", () => {
