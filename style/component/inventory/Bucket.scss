@@ -56,4 +56,12 @@
     	// justify-content: center;
 		padding: 4px;
 	}
+		
+	@media (max-width: 600px) {
+		overflow: initial;
+		
+		&-inventory {
+			overflow: initial;
+		}
+	}
 }

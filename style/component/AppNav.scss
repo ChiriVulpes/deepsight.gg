@@ -154,5 +154,9 @@
 				display: none;
 			}
 		}
+			
+		@media (max-width: 600px) {
+			right: 17px;
+		}
 	}
 }

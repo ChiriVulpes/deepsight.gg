@@ -2,6 +2,14 @@
 	--slot-size: 80px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 300;
+	
+	@media (max-width: 1000px) {
+		--slot-size: 70px;
+	}
+	
+	@media (max-width: 600px) {
+		--slot-size: 60px;
+	}
 }
 
 html {

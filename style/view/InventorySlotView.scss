@@ -2,10 +2,19 @@
 	display: grid;
 	grid-template-columns: auto 1fr;
 	gap: 20px;
+	
+	@media (min-width: 1000px) {
+		overflow: hidden;
+	}
+	
+	@media (max-width: 600px) {
+		display: flex;
+		flex-direction: column;
+	}
 }
 
 .view-inventory-slot-character-bucket {
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: auto auto 1fr;
 	grid-template-rows: unset;
 	
 	&:not(:last-child) {
@@ -28,6 +37,7 @@
 		grid-row: 2/5;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
+		width: fit-content;
 	}
 	
 	&-equipped {
