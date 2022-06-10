@@ -20,3 +20,26 @@
 		opacity: 1;
 	}
 }
+
+@mixin animation-swipe-down-out($duration: $animation-duration-global, $delay: $animation-delay-global) {
+	transform: translateY(0);
+	opacity: 1;
+	@if $duration == null {
+		$duration: .3s;
+	}
+	@if $delay == null {
+		$delay: 0s;
+	}
+	animation: animation-swipe-down-out $duration cubic-bezier(0,0,.4,1) $delay forwards;
+}
+
+@keyframes animation-swipe-down-out {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateY(30px);
+		opacity: 0;
+	}
+}

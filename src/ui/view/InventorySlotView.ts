@@ -64,8 +64,6 @@ export default new View.Factory()
 		component.classes.add(InventorySlotViewClasses.Main);
 
 		const { ItemCategoryHashes } = await DestinyEnums.await();
-		const slot = component.definition.slot(ItemCategoryHashes);
-		console.log(slot, ItemCategoryHashes.byHash(slot));
 
 		const characterBuckets = Component.create()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)

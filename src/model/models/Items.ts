@@ -48,12 +48,12 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 			const itemId = item.itemInstanceId ?? `item:${item.itemHash}`;
 			if (initialisedItems.has(itemId)) {
-				console.info(`Skipping "${itemDef.displayProperties.name}", already initialised in another bucket`);
+				console.debug(`Skipping "${itemDef.displayProperties.name}", already initialised in another bucket`);
 				continue; // already initialised in another bucket
 			}
 
 			if (itemDef.nonTransferrable) {
-				console.info(`Skipping "${itemDef.displayProperties.name}", non-transferrable`);
+				console.debug(`Skipping "${itemDef.displayProperties.name}", non-transferrable`);
 				continue;
 			}
 
@@ -64,15 +64,12 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 				instance: item,
 				definition: itemDef,
 			}));
-
-			console.log(BucketHashes.byHash(item.bucketHash), id);
 		}
 
 		return new Bucket(id, items);
 	}
 
 	const profile = await Profile(DestinyComponentType.CharacterInventories, DestinyComponentType.ProfileInventories).await();
-	console.log(profile);
 	const buckets = {} as Record<BucketId, Bucket>;
 	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {})) {
 		const bucketId = characterId as BucketId;

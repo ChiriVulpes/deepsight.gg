@@ -25,3 +25,13 @@
 		grid-template-columns: repeat(3, 1fr);
 	}
 }
+	
+@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
+	@include animation-swipe-up-in;
+}
+
+.view-hidden {
+	@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
+		@include animation-swipe-down-out;
+	}
+}

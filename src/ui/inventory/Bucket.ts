@@ -42,7 +42,6 @@ export default class BucketComponent extends Component {
 
 		const cls = await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
-		console.log(cls, await DestinyInventoryItemDefinition.get(character.classHash));
 		this.icon.style.set("--icon",
 			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
 
