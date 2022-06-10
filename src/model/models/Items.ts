@@ -32,7 +32,8 @@ export class Bucket {
 	}
 }
 
-export default Model.createDynamic(Time.seconds(30), async () => {
+export default Model.createDynamic(Time.seconds(30), async (update) => {
+	Manifest.event.subscribe("loadUpdate", ({ progress, message }) => update(progress, message));
 	const { DestinyInventoryItemDefinition } = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
 

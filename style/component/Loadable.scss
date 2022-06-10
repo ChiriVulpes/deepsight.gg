@@ -1,6 +1,7 @@
 .loadable {
 	
 	&-loading {
+		color: color(foreground-2);
 		position: absolute;
 		top: 50%;
 		left: 50%;
@@ -8,48 +9,223 @@
 		height: 100%;
 		max-height: 100%;
 		aspect-ratio: 1/1;
-		perspective: 1000px;
+		@include transition(in, opacity);
 		
-		> :nth-child(1) {
+		&.hidden {
+			display: block;
+			opacity: 0;
+			@include transition(out);
+		}
+		
+		&-spinny {
 			position: absolute;
-			inset: 30%;
-			overflow: hidden;
-			animation: loading-triangle 2s linear infinite;
-			&::before {
+			width: 100%;
+			height: 100%;
+			perspective: 1000px;
+			> :nth-child(1) {
+				position: absolute;
+				inset: 30%;
+				overflow: hidden;
+				animation: loading-triangle 6s linear infinite;
+				&::before {
+					content: "";
+					display: block;
+					position: absolute;
+					inset: 0;
+					background: color(foreground-3);
+					transform: translateY(100%) scaleY(200%) rotate(45deg);
+				}
+			}
+			> :nth-child(2) {
+				position: absolute;
+				inset: 30%;
+				animation: loading-circle 6s linear infinite;
+				transform: rotateY(0deg);
+				&::before {
+					content: "";
+					display: block;
+					position: absolute;
+					border-radius: 10000px;
+					inset: 0;
+					background: color(foreground-3);
+				}
+			}
+		}
+		
+		&-info {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			top: 75%;
+			font-size: 20pt;
+			font-weight: 200;
+		}
+		
+		&-message {
+			width: fit-content;
+		}
+		
+		&-bar {
+			position: relative;
+			margin-left: -50px;
+			width: calc(100% + 100px);
+			height: 1em;
+			border: 2px solid currentColor;
+			margin-bottom: 20px;
+			min-width: 300px;
+			
+			.loadable-loading.hidden & {
+				--progress: 1;
+			}
+			
+			&::before, &::after {
 				content: "";
 				display: block;
 				position: absolute;
-				inset: 0;
-				background: color(foreground-3);
-				transform: translateY(100%) scaleY(200%) rotate(45deg);
+				height: calc(100% - 4px);
+				width: calc((100% * var(--progress)) - 4px);
+				left: 2px;
+				top: 2px;
+				background: currentColor;
+				transition: width .3s ease-out;
+			}
+			
+			&::after {
+				background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
+				background-size: 600% 600%;
+				animation: flash 3s linear infinite;
 			}
 		}
 	}
 }
 
+// @keyframes loading-triangle {
+// 	0% {
+// 		transform: rotateX(90deg);
+// 		opacity: 0;
+// 	}
+// 	25% {
+// 		transform: rotateX(90deg);
+// 		filter: brightness(0.5);
+// 		opacity: 0;
+// 	}
+// 	25.01% {
+// 		opacity: 1;
+// 	}
+// 	50% {
+// 		transform: rotateX(270deg);
+// 		filter: brightness(1);
+// 		opacity: 1;
+// 	}
+// 	50.01% {
+// 		opacity: 0;
+// 	}
+// 	75% {
+// 		transform: rotateX(-90deg);
+// 		filter: brightness(0.5);
+// 		opacity: 0;
+// 	}
+// 	75.01% {
+// 		opacity: 1;
+// 	}
+// 	99.99% {
+// 		opacity: 1;
+// 	}
+// 	100% {
+// 		transform: rotateX(90deg);
+// 		filter: brightness(1);
+// 		opacity: 0;
+// 	}
+// }
+
+// @keyframes loading-circle {
+// 	0% {
+// 		transform: rotateY(90deg);
+// 		opacity: 0;
+// 	}
+// 	0.01% {
+// 		opacity: 1;
+// 	}
+// 	25% {
+// 		transform: rotateY(270deg);
+// 		opacity: 1;
+// 	}
+// 	25.01% {
+// 		opacity: 0;
+// 	}
+// 	50% {
+// 		transform: rotateY(-90deg);
+// 		opacity: 0;
+// 	}
+// 	50.01% {
+// 		opacity: 1;
+// 	}
+// 	75% {
+// 		transform: rotateY(90deg);
+// 		opacity: 1;
+// 	}
+// 	75.01% {
+// 		opacity: 0;
+// 	}
+// 	100% {
+// 		opacity: 0;
+// 	}
+// }
+
 @keyframes loading-triangle {
 	0% {
-		transform: rotateX(0deg);
-		filter: brightness(1);
+		transform: rotateX(-90deg);
+		filter: brightness(0.5);
+		opacity: 1;
 	}
 	25% {
+		transform: rotateX(90deg);
 		filter: brightness(1);
 	}
-	25.1% {
-		// filter: brightness(0.5);
+	25.01% {
+		filter: brightness(0.5);
 	}
 	50% {
-		transform: rotateX(180deg);
+		transform: rotateX(270deg);
 		filter: brightness(1);
+		opacity: 1;
 	}
-	75% {
-		filter: brightness(1);
-	}
-	75.1% {
-		// filter: brightness(0.5);
+	50.01% {
+		opacity: 0;
 	}
 	100% {
-		transform: rotateX(360deg);
+		opacity: 0;
+	}
+}
+
+@keyframes loading-circle {
+	0% {
+		transform: rotateZ(-15deg) rotateY(-90deg);
+		filter: brightness(0.5);
+		opacity: 0;
+	}
+	50% {
+		transform: rotateZ(-15deg) rotateY(-90deg);
+		filter: brightness(0.5);
+		opacity: 0;
+	}
+	50.01% {
+		opacity: 1;
+	}
+	75% {
+		transform: rotateZ(-15deg) rotateY(90deg);
 		filter: brightness(1);
+	}
+	75.01% {
+		transform: rotateZ(-15deg) rotateY(90deg);
+		filter: brightness(0.5);
+	}
+	99.99% {
+		opacity: 1;
+	}
+	100% {
+		transform: rotateZ(-15deg) rotateY(270deg);
+		filter: brightness(1);
+		opacity: 0;
 	}
 }

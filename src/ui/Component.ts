@@ -327,4 +327,13 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 			host.element.appendChild(document.createTextNode(text));
 		return host as HOST;
 	}
+
+	public remove () {
+		const host = this.host.deref();
+		if (host)
+			for (const child of [...host.element.childNodes])
+				if (child.nodeType === Node.TEXT_NODE)
+					child.remove();
+		return host as HOST;
+	}
 }

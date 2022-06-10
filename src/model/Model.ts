@@ -9,12 +9,13 @@ export interface IModelEvents<R> {
 	loading: Event;
 	loaded: { value: R };
 	errored: { error: Error };
+	loadUpdate: { progress: number, message?: string };
 }
 
 export interface IModel<T, R> {
 	cache: "Global" | "Session" | false;
 	resetTime?: "Daily" | "Weekly" | number;
-	generate?(): Promise<T>;
+	generate?(progress: (progress: number, message?: string) => void): Promise<T>;
 	filter?(value: T): R;
 	reset?(value?: T): any;
 }
@@ -72,11 +73,16 @@ namespace Model {
 
 		private value?: R | Promise<R>;
 		private cacheTime?: number;
+		private _loadingInfo?: { progress: number, message?: string };
 
 		public get loading () {
 			return this.value === undefined
 				|| this.value instanceof Promise
 				|| !this.isCacheTimeValid();
+		}
+
+		public get loadingInfo () {
+			return this._loadingInfo;
 		}
 
 		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
@@ -145,7 +151,10 @@ namespace Model {
 						return resolve(this.event.waitFor("loaded")
 							.then(({ value }) => value));
 
-					const generated = this.model.generate?.();
+					const generated = this.model.generate?.((progress, message) => {
+						this._loadingInfo = { progress, message };
+						this.event.emit("loadUpdate", { progress, message });
+					});
 
 					void generated.catch(error => {
 						console.error(`Model '${this.name}' failed to load:`, error);

@@ -4,8 +4,8 @@ import Button from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Loadable from "ui/Loadable";
-import View from "ui/View";
-import ViewManager from "ui/ViewManager";
+import type View from "ui/View";
+import type ViewManager from "ui/ViewManager";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
@@ -50,6 +50,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.append(Component.create()
 					.classes.add(ClassesAppNav.IdentityCode)
 					.text.set(`#${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode ?? "????"}`)))
+			.setSimple()
 			.classes.add(ClassesAppNav.IdentityContainer)
 			.appendTo(this);
 
