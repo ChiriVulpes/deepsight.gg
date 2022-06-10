@@ -90,10 +90,11 @@ export default new View.Factory()
 
 		// const { DestinyItemCategoryDefinition } = await Manifest.await();
 		for (const [bucketId, bucket] of Object.entries(buckets) as [BucketId, Bucket][]) {
-			if (bucketId === "inventory")
+			if (bucketId === "inventory" || bucketId === "postmaster")
 				continue;
 
 			let bucketComponent: BucketComponent;
+			let equippedComponent: Component | undefined;
 			if (bucketId === "vault")
 				bucketComponent = vaultBucket;
 			else {
@@ -104,6 +105,7 @@ export default new View.Factory()
 				}
 
 				bucketComponent = character.bucketComponent;
+				equippedComponent = character.equippedComponent;
 			}
 
 			for (const item of bucket.items) {
@@ -116,7 +118,7 @@ export default new View.Factory()
 					continue;
 
 				ItemComponent.create([item])
-					.appendTo(Component.create()
+					.appendTo(item.equipped ? equippedComponent! : Component.create()
 						.classes.add(InventoryClasses.Slot)
 						.appendTo(bucketComponent.inventory));
 			}

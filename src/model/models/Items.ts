@@ -1,14 +1,15 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
+import { DestinyComponentType, ItemLocation } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import Time from "utility/Time";
 
-export type BucketId = `${bigint}` | "vault" | "inventory";
+export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
 export interface IItem {
 	location: BucketId;
+	equipped?: true;
 	instance: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
 }
@@ -37,46 +38,69 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 	const initialisedItems = new Set<string>();
 
+	async function resolveItemComponent (itemComponent: DestinyItemComponent) {
+		const itemDef = await DestinyInventoryItemDefinition.get(itemComponent.itemHash);
+		if (!itemDef) {
+			console.warn("No item definition for ", itemComponent.itemHash);
+			return undefined;
+		}
+
+		const itemId = itemComponent.itemInstanceId ?? `item:${itemComponent.itemHash}`;
+		if (initialisedItems.has(itemId)) {
+			console.debug(`Skipping "${itemDef.displayProperties.name}", already initialised in another bucket`);
+			return undefined; // already initialised in another bucket
+		}
+
+		if (itemDef.nonTransferrable) {
+			console.debug(`Skipping "${itemDef.displayProperties.name}", non-transferrable`);
+			return undefined;
+		}
+
+		initialisedItems.add(itemId);
+
+		return { definition: itemDef, instance: itemComponent };
+	}
+
 	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {
 		const items: Item[] = [];
-		for (const item of itemComponents) {
-			const itemDef = await DestinyInventoryItemDefinition.get(item.itemHash);
-			if (!itemDef) {
-				console.warn("No item definition for ", item.itemHash);
+		for (const itemComponent of itemComponents) {
+			const item = await resolveItemComponent(itemComponent);
+			if (!item)
 				continue;
-			}
-
-			const itemId = item.itemInstanceId ?? `item:${item.itemHash}`;
-			if (initialisedItems.has(itemId)) {
-				console.debug(`Skipping "${itemDef.displayProperties.name}", already initialised in another bucket`);
-				continue; // already initialised in another bucket
-			}
-
-			if (itemDef.nonTransferrable) {
-				console.debug(`Skipping "${itemDef.displayProperties.name}", non-transferrable`);
-				continue;
-			}
-
-			initialisedItems.add(itemId);
 
 			items.push(new Item({
 				location: id,
-				instance: item,
-				definition: itemDef,
+				...item,
 			}));
 		}
 
 		return new Bucket(id, items);
 	}
 
-	const profile = await Profile(DestinyComponentType.CharacterInventories, DestinyComponentType.ProfileInventories).await();
+	const profile = await Profile(DestinyComponentType.CharacterInventories, DestinyComponentType.CharacterEquipment, DestinyComponentType.ProfileInventories).await();
+	const profileItems = profile.profileInventory.data?.items ?? [];
+
 	const buckets = {} as Record<BucketId, Bucket>;
+	buckets.postmaster = await createBucket("postmaster", profileItems
+		.filter(item => item.location === ItemLocation.Postmaster));
+
 	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {})) {
 		const bucketId = characterId as BucketId;
-		buckets[bucketId] = await createBucket(bucketId, character.items);
+		const bucket = buckets[bucketId] = await createBucket(bucketId, character.items);
+
+		for (const itemComponent of (profile.characterEquipment.data?.[bucketId].items ?? [])) {
+			const item = await resolveItemComponent(itemComponent);
+			if (!item)
+				continue;
+
+			bucket["_items"].push(new Item({
+				location: bucketId,
+				equipped: true,
+				...item,
+			}));
+		}
 	}
 
-	const profileItems = profile.profileInventory.data?.items ?? [];
 	buckets.inventory = await createBucket("inventory", profileItems
 		.filter(item => item.bucketHash === BucketHashes.byName("Modifications") || item.bucketHash === BucketHashes.byName("Consumables")));
 	buckets.vault = await createBucket("vault", profileItems);

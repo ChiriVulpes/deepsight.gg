@@ -6,6 +6,11 @@
 
 .view-inventory-slot-character-bucket {
 	grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: unset;
+	
+	&:not(:last-child) {
+		margin-bottom: 4px;
+	}
 	
 	&-emblem {
 		&::before {
@@ -23,6 +28,22 @@
 		grid-row: 2/5;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
+	}
+	
+	&-equipped {
+		margin-top: 4px;
+		position: relative;
+		
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			top: 6px;
+			right: -5px;
+			width: 3px;
+			height: calc(var(--slot-size) - 12px);
+			background: color(background-3);
+		}
 	}
 }
 	
