@@ -338,10 +338,14 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 		return this.host.deref()?.element.textContent;
 	}
 
-	public set (text: string) {
+	public set (text?: string) {
 		const host = this.host.deref();
-		if (host)
-			host.element.textContent = text;
+		if (host) {
+			if (text === undefined)
+				this.remove();
+			else
+				host.element.textContent = text;
+		}
 		return host as HOST;
 	}
 
