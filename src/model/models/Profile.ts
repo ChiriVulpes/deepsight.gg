@@ -136,7 +136,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return Model.createTemporary<DestinyProfileResponse>(async (progress) => {
+	return Model.createTemporary<DestinyProfileResponse>(async api => {
 		const result = {} as DestinyProfileResponse;
 
 		// only allow one profile query at a time
@@ -145,7 +145,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 		lastOperation = (async () => {
-			progress(0, "Fetching profile");
+			api.emitProgress(0, "Fetching profile");
 			const missingComponents: DestinyComponentType[] = [];
 			for (const component of components) {
 				const cached = await models[component]?.resolveCache();
@@ -159,7 +159,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				// all components cached, no need to make a request to bungie
 				return;
 
-			progress(1 / 3, "Fetching profile");
+			api.emitProgress(1 / 3, "Fetching profile");
 			const membership = await Memberships.await();
 			const destinyMembership = membership.destinyMemberships[0];
 			if (!destinyMembership)
@@ -170,7 +170,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 
 			for (let i = 0; i < components.length; i++) {
 				const component = components[i];
-				progress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
+				api.emitProgress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
 				await models[component]!.update(newData);
 			}
 		})();

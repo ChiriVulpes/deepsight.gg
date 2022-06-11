@@ -12,10 +12,15 @@ export interface IModelEvents<R> {
 	loadUpdate: { progress: number, message?: string };
 }
 
+export interface IModelGenerationApi {
+	emitProgress (progress: number, message?: string): void;
+	subscribeProgress (model: Model<any>, amount: number, from?: number): this;
+}
+
 export interface IModel<T, R> {
 	cache: "Global" | "Session" | false;
 	resetTime?: "Daily" | "Weekly" | number;
-	generate?(progress: (progress: number, message?: string) => void): Promise<T>;
+	generate?(api: IModelGenerationApi): Promise<T>;
 	filter?(value: T): R;
 	reset?(value?: T): any;
 }
@@ -131,7 +136,7 @@ namespace Model {
 		}
 
 		public get () {
-			if (this.value !== undefined)
+			if (this.value !== undefined && !(this.value instanceof Promise))
 				if (!this.isCacheTimeValid())
 					delete this.value;
 
@@ -155,10 +160,25 @@ namespace Model {
 						return resolve(this.event.waitFor("loaded")
 							.then(({ value }) => value));
 
-					const generated = this.model.generate?.((progress, message) => {
-						this._loadingInfo = { progress, message };
-						this.event.emit("loadUpdate", { progress, message });
-					});
+					const api: IModelGenerationApi = {
+						emitProgress: (progress, message) => {
+							this._loadingInfo = { progress, message };
+							this.event.emit("loadUpdate", { progress, message });
+						},
+						subscribeProgress: (model, amount, from = 0) => {
+							if (model.loading) {
+								const handleSubUpdate = ({ progress: subAmount, message }: IModelEvents<any>["loadUpdate"]) =>
+									api.emitProgress(from + subAmount * amount, message);
+								model.event.subscribe("loadUpdate", handleSubUpdate);
+								model.event.subscribe("loaded", () =>
+									model.event.unsubscribe("loadUpdate", handleSubUpdate));
+							}
+
+							return api;
+						},
+					};
+
+					const generated = this.model.generate?.(api);
 
 					void generated.catch(error => {
 						console.error(`Model '${this.name}' failed to load:`, error);

@@ -57,8 +57,8 @@ export type Manifest = {
 export default Model.create("manifest", {
 	cache: "Global",
 	resetTime: "Daily",
-	async generate (progress) {
-		progress(0, "Downloading manifest");
+	async generate (api) {
+		api.emitProgress(0, "Downloading manifest");
 
 		const manifest = await GetManifest.query();
 		const components = await fetch(`https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`)
@@ -67,7 +67,7 @@ export default Model.create("manifest", {
 		const componentNames = Object.keys(components) as (keyof AllDestinyManifestComponents)[];
 		const totalLoad = componentNames.length + 1;
 
-		progress(1 / totalLoad, "Allocating stores for manifest");
+		api.emitProgress(1 / totalLoad, "Allocating stores for manifest");
 		const cacheKeys = componentNames.map(CacheComponentKey.get);
 		if (!await Model.cacheDB.hasStore(...cacheKeys)) {
 			await Model.cacheDB.upgrade(upgrade => {
@@ -84,7 +84,7 @@ export default Model.create("manifest", {
 
 				const startTime = performance.now();
 				console.info(`Caching objects from ${cacheKey}`);
-				progress((1 + i) / totalLoad, "Storing manifest");
+				api.emitProgress((1 + i) / totalLoad, "Storing manifest");
 
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				for (const [itemId, itemValue] of Object.entries(components[componentName])) {

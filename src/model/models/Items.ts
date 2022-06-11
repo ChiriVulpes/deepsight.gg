@@ -33,8 +33,8 @@ export class Bucket {
 	}
 }
 
-export default Model.createDynamic(Time.seconds(30), async (progress) => {
-	Manifest.event.subscribe("loadUpdate", ({ progress: amount, message }) => progress(amount, message));
+export default Model.createDynamic(Time.seconds(30), async api => {
+	api.subscribeProgress(Manifest, 1 / 3);
 	const { DestinyInventoryItemDefinition } = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
 
@@ -44,13 +44,13 @@ export default Model.createDynamic(Time.seconds(30), async (progress) => {
 		DestinyComponentType.ProfileInventories,
 	);
 
-	ProfileQuery.event.subscribe("loadUpdate", ({ progress: amount, message }) => progress(amount, message));
+	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
 	const profile = await ProfileQuery.await();
 
 	const initialisedItems = new Set<string>();
 
 	async function resolveItemComponent (itemComponent: DestinyItemComponent) {
-		progress(initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1), "Loading items");
+		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
 		const itemDef = await DestinyInventoryItemDefinition.get(itemComponent.itemHash);
 		if (!itemDef) {
 			console.warn("No item definition for ", itemComponent.itemHash);

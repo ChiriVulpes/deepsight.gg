@@ -13,7 +13,7 @@
 		
 		&-hidden {
 			opacity: 0;
-			@include transition(out);
+			@include transition(.4s);
 		}
 		
 		&-spinny {
