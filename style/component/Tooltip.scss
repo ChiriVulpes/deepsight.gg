@@ -1,0 +1,129 @@
+////////////////////////////////////
+// APPEARANCE
+
+.tooltip {
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		backdrop-filter: blur(5px) brightness(1.5);
+		background: #fff4;
+		z-index: -1;
+	}
+	
+	&-header {
+		background: color(background-2);
+		padding: 8px 12px;
+	}
+	
+	&-title {
+		padding-top: 4px;
+		margin: 0;
+		font-weight: 400;
+		text-transform: uppercase;
+		line-height: 1em;
+	}
+	
+	&-subtitle {
+		color: color(foreground-1);
+	}
+	
+	&-content {
+		background: color(tooltip-background);
+	}
+}
+
+////////////////////////////////////
+// POSITIONING
+
+.tooltip {
+	&-storage {
+		display: none;
+	}
+	
+	&-surface {
+		position: fixed;
+		width: 100vw;
+		height: 100vh;
+		top: 0;
+		left: 0;
+		z-index: 99999999999;
+		&::before {
+			content: "";
+			grid-row: 1;
+			grid-column: 1;
+			width: 100vw;
+			height: 100vh;
+		}
+		&::after {
+			content: "";
+			grid-row: 3;
+			grid-column: 3;
+			width: 100vw;
+			height: 100vh;
+		}
+		overflow: scroll;
+		pointer-events: none;
+		display: grid;
+		grid-template-columns: repeat(3, 100vw);
+		grid-template-rows: repeat(3, 100vh);
+		justify-content: center;
+		
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	grid-row: 3;
+	grid-column: 3;
+	width: fit-content;
+	height: fit-content;
+	margin-left: 20px;
+	align-self: flex-start;
+	justify-self: flex-start;
+	
+	.tooltip-reversed & {
+		grid-column: 2;
+		justify-self: flex-end;
+		margin-left: 0;
+		margin-right: 20px;
+	}
+	
+	position: sticky;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	animation: tooltip-show .2s ease-out;
+	
+	&.hidden {
+		display: block;
+		animation: tooltip-hide .2s ease-in forwards;
+	}
+}
+
+@keyframes tooltip-show {
+	from {
+		transform: translateY(10px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes tooltip-hide {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateY(10px);
+		opacity: 0;
+	}
+}
+
+@import "inventory/ItemTooltip";

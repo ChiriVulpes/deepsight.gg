@@ -1,5 +1,6 @@
 import type Model from "model/Model";
 import { Classes as BaseClasses } from "ui/Classes";
+import type { AnyComponent } from "ui/Component";
 import BaseComponent from "ui/Component";
 import Async from "utility/Async";
 
@@ -16,7 +17,7 @@ namespace Loadable {
 		Content = "loadable-content",
 	}
 
-	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: Model.Resolve<MODELS>) => BaseComponent<Element, any[]>;
+	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: Model.Resolve<MODELS>) => AnyComponent;
 	export class Component<MODELS extends Model<any, any>[]> extends BaseComponent<HTMLElement, [MODELS, Initialiser<MODELS>]> {
 
 		private initialiser!: Initialiser<MODELS>;

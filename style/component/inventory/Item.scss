@@ -28,20 +28,12 @@
 		width: 100%;
 		height: 100%;
 	}
-	
-	$tiers: (
-		common: #ddd #eee,
-		uncommon: #5fa16d #9ccaa6,
-		rare: #7eaadf #c0dafa,
-		legendary: #774493 #b791cc,
-		exotic: #f5dc56 #fff4b5,
-	);
-	
-	@each $tier, $colors in $tiers {
+		
+	@each $tier in $tiers {
 		&-tier-#{$tier} {
-			--border-color: #{nth($colors, 1)};
+			--border-color: #{color(tier-#{$tier})};
 			&:where(:hover, :active, :focus-visible) {
-				--border-color: #{nth($colors, 2)};
+				--border-color: #{color(tier-#{$tier}-active)};
 			}
 		}
 	}

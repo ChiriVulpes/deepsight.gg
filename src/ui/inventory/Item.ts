@@ -4,6 +4,7 @@ import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import Button from "ui/Button";
 import Component from "ui/Component";
+import ItemTooltip from "ui/inventory/ItemTooltip";
 
 const AttunementProgressHash = 1162857131;
 
@@ -76,5 +77,7 @@ export default class ItemComponent extends Button<[Item]> {
 		}
 
 		// this.text.set(item.definition.displayProperties.name);
+		this.setTooltip(ItemTooltip, tooltip => tooltip
+			.setItem(item));
 	}
 }

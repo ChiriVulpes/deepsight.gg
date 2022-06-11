@@ -1,3 +1,5 @@
+$tiers: common, uncommon, rare, legendary, exotic;
+
 $colors: (
 	background: var(--background-1),
 	background-0: #201c1c #fff,
@@ -17,6 +19,22 @@ $colors: (
 	accent-0: #58CCFF #3792b9,
 	accent-0-active: #8adcff,
 	
+	tier-common-background: #C2BCB4,
+	tier-common: #ddd,
+	tier-common-active: #eee,
+	tier-uncommon-background: #366F42,
+	tier-uncommon: #5fa16d,
+	tier-uncommon-active: #9ccaa6,
+	tier-rare-background: #5076A3,
+	tier-rare: #7eaadf,
+	tier-rare-active: #c0dafa,
+	tier-legendary-background: #522F65,
+	tier-legendary: #774493,
+	tier-legendary-active: #b791cc,
+	tier-exotic-background: #CEAE33,
+	tier-exotic: #f5dc56,
+	tier-exotic-active: #fff4b5,
+	
 	background-drawer: var(--background-0) var(--background-2),
 	button-background: color(--background-3),
 	button-background-hover: color(--background-6),
@@ -26,6 +44,8 @@ $colors: (
 	button-border-hover: color(--foreground-0),
 	button-foreground: color(--foreground-1),
 	button-foreground-hover: color(--foreground-0),
+	
+	tooltip-background: rgba(var(--background), .9),
 );
 
 :root {
@@ -65,9 +85,14 @@ $colors: (
 	}
 }
 
-@function color($name) {
+@function color($name, $opacity: null) {
 	@if map-has-key($colors, $name) {
-		@return var(--#{$name});
+		@if $opacity == null {
+			@return var(--#{$name});
+		}
+		@else {
+			@return rgba(var(--#{$name}-rgb), $opacity);
+		}
 	}
 	
 	@error "Unknown color '#{$name}'";

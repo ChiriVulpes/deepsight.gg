@@ -1,3 +1,4 @@
+import type { Tooltip } from "ui/TooltipManager";
 import { EventManager } from "utility/EventManager";
 
 declare global {
@@ -14,7 +15,15 @@ export type ComponentClass<COMPONENT extends Component<Element, readonly any[]> 
 
 export type ComponentArgs<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["_args"];
 
+export interface IComponentsEvents {
+	setTooltip: { component: AnyComponent; tooltip: Tooltip; initialiser (tooltip: Tooltip): any };
+}
+
+export type AnyComponent = Component<Element, any[]>;
+
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
+
+	public static readonly event = EventManager.make<IComponentsEvents>();
 
 	public readonly _args!: ARGS;
 
@@ -128,14 +137,14 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	protected onMake (...args: ARGS) { }
 
-	public append (...elements: (Component<Element, any[]> | Node | undefined)[]) {
+	public append (...elements: (AnyComponent | Node | undefined)[]) {
 		this.element.append(...elements.map(element =>
-			element instanceof Component<Element, any[]> ? element.element : element)
+			element instanceof Component ? element.element : element)
 			.filter((element): element is Element | Node => element !== undefined));
 		return this;
 	}
 
-	public appendTo (componentOrParentNode: ParentNode | Component<Element, any[]>) {
+	public appendTo (componentOrParentNode: ParentNode | AnyComponent) {
 		if (componentOrParentNode instanceof Component<Element>)
 			componentOrParentNode = componentOrParentNode.element;
 
@@ -145,6 +154,16 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	public remove () {
 		this.element.remove();
+	}
+
+	public removeContents () {
+		while (this.element.lastChild)
+			this.element.lastChild.remove();
+	}
+
+	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TOOLTIP, initialiser: (tooltip: TOOLTIP) => any) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		Component.event.emit("setTooltip", { component: this as any, tooltip, initialiser: initialiser as (tooltip: Tooltip) => any });
 	}
 }
 
@@ -159,6 +178,11 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 
 	public constructor (host: HOST) {
 		this.host = new WeakRef(host);
+	}
+
+	public all () {
+		const host = this.host.deref();
+		return [...host?.element.classList ?? []];
 	}
 
 	public add (...classes: string[]) {
@@ -337,3 +361,6 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 		return host as HOST;
 	}
 }
+
+export { Component as ComponentDeclaration };
+
