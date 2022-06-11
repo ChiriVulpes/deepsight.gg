@@ -52,11 +52,10 @@ function initialiseCharacterComponent (character: DestinyCharacterComponent): IC
 }
 
 export default new View.Factory()
-	.using(Items)
+	.using(Items, Profile(DestinyComponentType.Characters))
 	.define<{ slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes }>()
-	.initialise(async (component, buckets) => {
-		const { characters: characterData } = await Profile(DestinyComponentType.Characters).await();
-		if (!characterData.data || !Object.keys(characterData.data).length) {
+	.initialise(async (component, buckets, profile) => {
+		if (!profile.characters.data || !Object.keys(profile.characters.data).length) {
 			console.warn("No characters");
 			return;
 		}
@@ -76,7 +75,7 @@ export default new View.Factory()
 			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(component);
 
-		const characterBucketsSorted = Object.values(characterData.data)
+		const characterBucketsSorted = Object.values(profile.characters.data)
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
 			.map(initialiseCharacterComponent);

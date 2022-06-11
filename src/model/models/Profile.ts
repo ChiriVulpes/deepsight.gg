@@ -1,4 +1,5 @@
-import { DestinyComponentType, DestinyProfileResponse } from "bungie-api-ts/destiny2";
+import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Memberships from "model/models/Memberships";
 import GetProfile from "utility/bungie/endpoint/destiny2/GetProfile";
@@ -71,7 +72,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 		}
 
 		super(`profile [${applicableKeys.join(",")}]`, {
-			cache: false,
+			cache: "Session",
 			resetTime: Time.minutes(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
@@ -135,14 +136,16 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return Model.createTemporary<DestinyProfileResponse>(async () => {
+	return Model.createTemporary<DestinyProfileResponse>(async (progress) => {
 		const result = {} as DestinyProfileResponse;
 
 		// only allow one profile query at a time
-		await lastOperation;
+		while (lastOperation)
+			await lastOperation;
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 		lastOperation = (async () => {
+			progress(0, "Fetching profile");
 			const missingComponents: DestinyComponentType[] = [];
 			for (const component of components) {
 				const cached = await models[component]?.resolveCache();
@@ -156,6 +159,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				// all components cached, no need to make a request to bungie
 				return;
 
+			progress(1 / 3, "Fetching profile");
 			const membership = await Memberships.await();
 			const destinyMembership = membership.destinyMemberships[0];
 			if (!destinyMembership)
@@ -164,8 +168,11 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 			const newData = await GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
-			for (const component of components)
+			for (let i = 0; i < components.length; i++) {
+				const component = components[i];
+				progress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
 				await models[component]!.update(newData);
+			}
 		})();
 
 		await lastOperation;

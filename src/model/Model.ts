@@ -88,11 +88,11 @@ namespace Model {
 		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
 
 		public isCacheTimeValid (cacheTime = this.cacheTime) {
-			if (!this.model.cache)
-				return true;
-
 			if (cacheTime === undefined)
 				return false;
+
+			if (this.model.resetTime === undefined)
+				return true;
 
 			const resetTime = this.model.resetTime ?? 0;
 			return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
@@ -131,6 +131,10 @@ namespace Model {
 		}
 
 		public get () {
+			if (this.value !== undefined)
+				if (!this.isCacheTimeValid())
+					delete this.value;
+
 			if (this.value === undefined) {
 				if (this.name)
 					console.info(`No value in memory for '${this.name}'`);
@@ -180,12 +184,12 @@ namespace Model {
 		protected async set (value: T) {
 			const filtered = (this.model.filter?.(value) ?? value) as R;
 			this.value = filtered;
+			this.cacheTime = Date.now();
 
 			if (this.model.cache) {
-				const cached: ICachedModel<T> = { cacheTime: Date.now(), value };
+				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value };
 				if (this.model.cache === "Global")
 					cached.persist = true;
-				this.cacheTime = cached.cacheTime;
 				await Model.cacheDB.set("models", this.name, cached);
 			}
 
