@@ -68,7 +68,7 @@ namespace Loadable {
 				// start loading
 				this.updateLoadingInfo();
 				this.loading.classes.remove(BaseClasses.Hidden, Classes.LoadingHidden);
-				while (this.element.children.length > 2)
+				while (this.element.children.length > 1)
 					this.element.lastElementChild!.remove();
 			}
 		}
@@ -78,6 +78,9 @@ namespace Loadable {
 			for (const model of this.models)
 				if (model.loading)
 					return; // not loaded yet
+
+			if (this.loading.classes.has(Classes.LoadingHidden))
+				return; // already loaded
 
 			this.loading.classes.add(Classes.LoadingHidden);
 			void Async.sleep(400).then(() => {
