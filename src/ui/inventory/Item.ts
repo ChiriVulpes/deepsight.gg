@@ -36,6 +36,11 @@ export default class ItemComponent extends Button<[Item]> {
 			.style.set("--icon", `url("https://www.bungie.net${item.definition.displayProperties.icon}")`)
 			.appendTo(this);
 
+		if (item.instance.state & ItemState.Crafted)
+			Component.create()
+				.classes.add(ItemClasses.Shaped)
+				.appendTo(this);
+
 		let watermark: string | undefined;
 		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion].powerCapHash);
 		if ((powerCap?.powerCap ?? 0) < 900000)
@@ -51,11 +56,6 @@ export default class ItemComponent extends Button<[Item]> {
 			Component.create()
 				.classes.add(ItemClasses.SourceWatermark)
 				.style.set("--watermark", `url("https://www.bungie.net${watermark}")`)
-				.appendTo(this);
-
-		if (item.instance.state & ItemState.Crafted)
-			Component.create()
-				.classes.add(ItemClasses.Shaped)
 				.appendTo(this);
 
 		if (item.instance.state & ItemState.Masterwork)
