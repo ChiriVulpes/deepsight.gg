@@ -1,5 +1,5 @@
-import BungieEndpoint from "utility/bungie/BungieEndpoint";
-import RequestOAuthToken from "utility/bungie/endpoint/RequestOAuthToken";
+import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
+import RequestOAuthToken from "utility/endpoint/bungie/endpoint/RequestOAuthToken";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";

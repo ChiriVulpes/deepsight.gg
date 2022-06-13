@@ -4,6 +4,7 @@ import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
+import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import Time from "utility/Time";
 
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
@@ -12,6 +13,7 @@ export interface IItem {
 	equipped?: true;
 	instance: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
+	source?: DestinySourceDefinition;
 	objectives?: Record<string, DestinyObjectiveProgress[]>;
 }
 
@@ -35,7 +37,7 @@ export class Bucket {
 
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 3);
-	const { DestinyInventoryItemDefinition } = await Manifest.await();
+	const { DestinyInventoryItemDefinition, DestinySourceDefinition } = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
 
 	const ProfileQuery = Profile(
@@ -70,7 +72,9 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 		initialisedItems.add(itemId);
 
-		return { definition: itemDef, instance: itemComponent };
+		const source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${itemDef.iconWatermark}`);
+
+		return { definition: itemDef, instance: itemComponent, source };
 	}
 
 	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {

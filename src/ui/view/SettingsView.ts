@@ -1,6 +1,6 @@
 import Button from "ui/Button";
 import View from "ui/View";
-import Bungie from "utility/bungie/Bungie";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 export default View.create({
 	id: "settings",

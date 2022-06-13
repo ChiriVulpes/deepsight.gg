@@ -3,7 +3,7 @@ import AppNav from "ui/AppNav";
 import AuthView from "ui/view/AuthView";
 import InventoryKineticView from "ui/view/InventoryKineticView";
 import ViewManager from "ui/ViewManager";
-import Bungie from "utility/bungie/Bungie";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
 import URL from "utility/URL";
 

@@ -1,7 +1,7 @@
 import type { ICachedModel, IModelCache } from "model/ModelCacheDatabase";
 import ModelCacheDatabase from "model/ModelCacheDatabase";
-import Bungie from "utility/bungie/Bungie";
 import Database from "utility/Database";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 

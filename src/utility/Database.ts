@@ -27,8 +27,8 @@ class Database<SCHEMA> {
 
 	public constructor (private readonly schema: Database.Schema<SCHEMA>) { }
 
-	public async get<KEY extends keyof SCHEMA> (store: KEY, key: string): Promise<SCHEMA[KEY] | undefined> {
-		return this.transaction([store], "readonly", transaction => transaction.get(store, key));
+	public async get<KEY extends keyof SCHEMA> (store: KEY, key: string, index?: string): Promise<SCHEMA[KEY] | undefined> {
+		return this.transaction([store], "readonly", transaction => transaction.get(store, key, index));
 	}
 
 	public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {
@@ -119,6 +119,10 @@ class Database<SCHEMA> {
 			const newVersion = Version.encode(this.schema.versions.length, versionMinor ?? databaseVersionMinor ?? 0);
 			const request = indexedDB.open(this.schema.id, newVersion);
 
+			request.addEventListener("blocked", () => {
+				console.log("blocked");
+			});
+
 			// eslint-disable-next-line @typescript-eslint/no-misused-promises
 			request.addEventListener("upgradeneeded", async (event: IDBVersionChangeEvent) => {
 				const transaction = request.transaction;
@@ -132,7 +136,6 @@ class Database<SCHEMA> {
 					await this.schema.versions[i](database, transaction);
 
 				await upgrade?.(database, transaction);
-				transaction.commit();
 
 				const databases = Store.items.databases ?? [];
 				const databaseInfo = databases.find(({ name }) => name === this.schema.id);
@@ -145,6 +148,7 @@ class Database<SCHEMA> {
 			});
 
 			request.addEventListener("error", () => {
+				console.log("aaaaaaaaaaaaaaaaaaaa");
 				if (request.error?.message.includes("version")) {
 					console.info(`Database '${this.schema.id}' is from the future and must be disposed`);
 					delete this.database;
@@ -225,11 +229,17 @@ namespace Database {
 			});
 		}
 
-		public async get<KEY extends keyof SCHEMA> (name: KEY, key: string) {
-			return this.do<SCHEMA[KEY] | undefined>(() =>
+		public async get<KEY extends keyof SCHEMA> (name: KEY, key: string, index?: string) {
+			return this.do<SCHEMA[KEY] | undefined>(() => {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-				this.transaction.objectStore(name as string)
-					.get(key));
+				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
+
+				if (index !== undefined)
+					store = store.index(index);
+
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return store.get(key);
+			});
 		}
 
 		public async set<KEY extends keyof SCHEMA> (name: KEY, key: string, value: SCHEMA[KEY]) {

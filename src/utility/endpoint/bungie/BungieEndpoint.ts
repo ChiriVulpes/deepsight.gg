@@ -1,43 +1,20 @@
+import type { EndpointRequest } from "utility/endpoint/Endpoint";
+import Endpoint from "utility/endpoint/Endpoint";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
 
-interface Request extends Omit<RequestInit, "headers" | "body"> {
-	headers?: Record<string, string | undefined>;
-	body?: string | object;
-	search?: string | object;
-}
-
 export type BungieEndpointURL = `/${string}/`;
 export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL | ((...args: ARGS) => BungieEndpointURL);
 
-class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint<ARGS, RESPONSE> {
+class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
 
-	public constructor (private readonly path: BungieEndpointURLResolvable<ARGS>, private readonly builder?: (...args: ARGS) => Request) {
+	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest) {
+		super(path, builder);
 	}
 
-	public async query (...args: ARGS) {
-		const request = this.builder?.(...args) ?? {};
-
-		let body: string | undefined;
-		if (typeof request.body === "object")
-			body = new URLSearchParams(Object.entries(request.body)).toString();
-
-		let search = "";
-		if (request.search) {
-			search = "?";
-			if (typeof request.search === "object")
-				search += new URLSearchParams(Object.entries(request.search)).toString();
-			else
-				search += request.search;
-		}
-
-		return fetch(`https://www.bungie.net/Platform${typeof this.path === "string" ? this.path : this.path(...args)}${search}`, {
-			credentials: "include",
-			...request,
-			body,
-			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
-		})
+	public override async query (...args: ARGS) {
+		return this.fetch(undefined, ...args)
 			.then(response => {
 				if (response.status === 401) {
 					BungieEndpoint.event.emit("authenticationFailed");
@@ -67,7 +44,17 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> implements BungieEndpoint
 			});
 	}
 
-	private async getHeaders (headers?: Record<string, string | undefined>) {
+	protected override resolvePath (...args: ARGS): string {
+		return `https://www.bungie.net/Platform${super.resolvePath(...args)}`;
+	}
+
+	protected override getDefaultRequest (): EndpointRequest {
+		return {
+			credentials: "include",
+		};
+	}
+
+	protected override async getHeaders (headers?: Record<string, string | undefined>) {
 		return {
 			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(),
 			"X-API-Key": Env.FVM_BUNGIE_API_KEY,
@@ -87,21 +74,6 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	query (...args: ARGS): Promise<RESPONSE>;
 }
 
-function BungieEndpoint<ARGS extends any[] = any[]> (url: BungieEndpointURLResolvable<ARGS>) {
-	return {
-		request<ARGS2 extends ARGS, REQUEST extends Request> (builder: (...args: ARGS2) => REQUEST) {
-			return {
-				returning<RESPONSE> (): BungieEndpoint<ARGS2, RESPONSE> {
-					return new BungieEndpointImpl<ARGS2, RESPONSE>(url, builder);
-				},
-			};
-		},
-		returning<RESPONSE> (): BungieEndpoint<[], RESPONSE> {
-			return new BungieEndpointImpl<[], RESPONSE>(url);
-		},
-	};
-}
-
 namespace BungieEndpoint {
 	export interface IEvents {
 		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; };
@@ -110,6 +82,21 @@ namespace BungieEndpoint {
 	}
 
 	export const event = EventManager.make<IEvents>();
+
+	export function at<ARGS extends any[] = any[]> (url: BungieEndpointURLResolvable<ARGS>) {
+		return {
+			request<ARGS2 extends ARGS, REQUEST extends EndpointRequest> (builder: (...args: ARGS2) => REQUEST) {
+				return {
+					returning<RESPONSE> (): BungieEndpoint<ARGS2, RESPONSE> {
+						return new BungieEndpointImpl<ARGS2, RESPONSE>(url, builder);
+					},
+				};
+			},
+			returning<RESPONSE> (): BungieEndpoint<[], RESPONSE> {
+				return new BungieEndpointImpl<[], RESPONSE>(url);
+			},
+		};
+	}
 }
 
 export default BungieEndpoint;

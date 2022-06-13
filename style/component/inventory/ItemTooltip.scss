@@ -7,4 +7,30 @@
 			background: color(tier-#{$tier}-background, .85);
 		}
 	}
+	
+	&-source-watermark {
+		position: absolute;
+		top: 0;
+		right: 0;
+		border-right: 44px solid color(background-0, .5);
+		border-bottom: 44px solid transparent;
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			left: 21px;
+			top: 4px;
+			background: currentColor;
+			-webkit-mask-image: var(--icon);
+			-webkit-mask-size: contain;
+			-webkit-mask-position: center;
+			-webkit-mask-repeat: no-repeat;
+			mask-image: var(--icon);
+			mask-size: contain;
+			mask-position: center;
+			mask-repeat: no-repeat;
+		}
+	}
 }

@@ -1,4 +1,4 @@
-import BungieEndpoint from "utility/bungie/BungieEndpoint";
+import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import Env from "utility/Env";
 import Store from "utility/Store";
 
@@ -16,7 +16,8 @@ export interface IBungieRequestOAuthTokenResult {
 	token_type: "Bearer";
 }
 
-export default BungieEndpoint("/app/oauth/token/")
+export default BungieEndpoint
+	.at("/app/oauth/token/")
 	.request(() => ({
 		method: "POST",
 		headers: {

@@ -1,6 +1,6 @@
 import type { DestinyGeneratedEnums } from "bungie-api-ts/generated-enums";
 import Model from "model/Model";
-import GetGeneratedEnums from "utility/d2ai/endpoint/GetGeneratedEnums";
+import GetGeneratedEnums from "utility/endpoint/d2ai/endpoint/GetGeneratedEnums";
 import Time from "utility/Time";
 
 export type IDestinyEnums = { [KEY in keyof DestinyGeneratedEnums]: DestinyEnumHelper<DestinyGeneratedEnums[KEY]> };

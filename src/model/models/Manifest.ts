@@ -1,39 +1,57 @@
 import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import GetManifest from "utility/bungie/endpoint/destiny2/GetManifest";
+import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
+import type { AllCustomManifestComponents } from "utility/endpoint/fvm/endpoint/GetCustomManifest";
+import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
 
-type ComponentKey<COMPONENT_NAME extends keyof AllDestinyManifestComponents = keyof AllDestinyManifestComponents> =
+type Indices<COMPONENT_NAME extends AllComponentNames> =
+	{
+		DestinySourceDefinition: "iconWatermark" | "id";
+	} extends infer ALL_INDICES ?
+	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
+	: never;
+
+type AllComponentNames = keyof AllDestinyManifestComponents | keyof AllCustomManifestComponents;
+type Component<COMPONENT_NAME extends AllComponentNames> =
+	(AllDestinyManifestComponents & AllCustomManifestComponents)[COMPONENT_NAME][number];
+
+type ComponentKey<COMPONENT_NAME extends AllComponentNames = AllComponentNames> =
 	`manifest [${COMPONENT_NAME}]`;
 
 namespace CacheComponentKey {
-	export function get<COMPONENT_NAME extends keyof AllDestinyManifestComponents> (componentName: COMPONENT_NAME) {
+	export function get<COMPONENT_NAME extends AllComponentNames> (componentName: COMPONENT_NAME) {
 		return `manifest [${componentName}]` as const;
 	}
 }
 
 type IModelCacheManifestComponents =
-	{ [COMPONENT_NAME in keyof AllDestinyManifestComponents as ComponentKey<COMPONENT_NAME>]:
-		AllDestinyManifestComponents[COMPONENT_NAME][number] };
+	{ [COMPONENT_NAME in AllComponentNames as ComponentKey<COMPONENT_NAME>]: Component<COMPONENT_NAME> };
 
 declare module "model/ModelCacheDatabase" {
 	interface IModelCache extends IModelCacheManifestComponents { }
 }
 
-class ManifestItem<COMPONENT_NAME extends keyof AllDestinyManifestComponents> {
+class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
-	private memoryCache: Record<string, AllDestinyManifestComponents[COMPONENT_NAME][number] | Promise<AllDestinyManifestComponents[COMPONENT_NAME][number] | undefined> | undefined> = {};
+	private memoryCache: Record<string, Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME> | undefined> | undefined> = {};
 
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
-	public get (key?: string | number) {
+	public get (key?: string | number): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index: Indices<COMPONENT_NAME>, key: string | number): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index?: string | number, key?: string | number) {
+		if (key === undefined)
+			key = index, index = undefined;
+
 		if (key === undefined)
 			return undefined;
 
-		if (this.memoryCache[key])
-			return this.memoryCache[key];
+		const memoryCacheKey = `${index ?? "/"}:${key}`;
+		if (this.memoryCache[memoryCacheKey])
+			return this.memoryCache[memoryCacheKey];
 
-		return this.memoryCache[key] = Model.cacheDB.get(this.componentName, `${key}`)
-			.then(value => this.memoryCache[key] = value);
+		return this.memoryCache[memoryCacheKey] = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
+			.then(value => this.memoryCache[memoryCacheKey] = value);
 	}
 }
 
@@ -51,7 +69,7 @@ function elapsed (elapsed: number) {
 }
 
 export type Manifest = {
-	[COMPONENT_NAME in keyof AllDestinyManifestComponents]: ManifestItem<COMPONENT_NAME>;
+	[COMPONENT_NAME in AllComponentNames]: ManifestItem<COMPONENT_NAME>;
 };
 
 export default Model.create("manifest", {
@@ -61,23 +79,37 @@ export default Model.create("manifest", {
 		api.emitProgress(0, "Downloading manifest");
 
 		const manifest = await GetManifest.query();
-		const components = await fetch(`https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`)
+		const destinyComponents = await fetch(`https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`)
 			.then(response => response.json() as Promise<AllDestinyManifestComponents>);
 
-		const componentNames = Object.keys(components) as (keyof AllDestinyManifestComponents)[];
+		const customComponents = await GetCustomManifest.query();
+
+		const components = { ...destinyComponents, ...customComponents };
+
+		const componentNames = Object.keys(components) as AllComponentNames[];
 		const totalLoad = componentNames.length + 1;
 
 		api.emitProgress(1 / totalLoad, "Allocating stores for manifest");
 		const cacheKeys = componentNames.map(CacheComponentKey.get);
-		if (!await Model.cacheDB.hasStore(...cacheKeys)) {
-			await Model.cacheDB.upgrade(upgrade => {
-				for (const cacheKey of cacheKeys) {
-					upgrade.createObjectStore(cacheKey);
+
+		await Model.cacheDB.upgrade((database, transaction) => {
+			for (const cacheKey of cacheKeys) {
+				database.deleteObjectStore(cacheKey);
+				const store = database.createObjectStore(cacheKey);
+
+				switch (cacheKey) {
+					case "manifest [DestinySourceDefinition]":
+						if (!store.indexNames.contains("iconWatermark"))
+							store.createIndex("iconWatermark", "iconWatermark");
+						if (!store.indexNames.contains("id"))
+							store.createIndex("id", "id", { unique: true });
+						break;
 				}
-			});
-		}
+			}
+		});
 
 		await Model.cacheDB.transaction(componentNames.map(CacheComponentKey.get), async transaction => {
+
 			for (let i = 0; i < componentNames.length; i++) {
 				const componentName = componentNames[i];
 				const cacheKey = CacheComponentKey.get(componentName);
@@ -86,10 +118,12 @@ export default Model.create("manifest", {
 				console.info(`Caching objects from ${cacheKey}`);
 				api.emitProgress((1 + i) / totalLoad, "Storing manifest");
 
+				await transaction.clear(cacheKey);
+
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				for (const [itemId, itemValue] of Object.entries(components[componentName])) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					await transaction.set(cacheKey, itemId, itemValue as any);
+					await transaction.set(cacheKey, itemId, itemValue);
 				}
 
 				console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);

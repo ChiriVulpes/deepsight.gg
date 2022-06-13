@@ -2,7 +2,7 @@ import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Memberships from "model/models/Memberships";
-import GetProfile from "utility/bungie/endpoint/destiny2/GetProfile";
+import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 
 function makeProfileResponseComponentMap<MAP extends { [KEY in keyof DestinyProfileResponse]: DestinyComponentType | readonly DestinyComponentType[] | undefined }> (map: MAP) {
