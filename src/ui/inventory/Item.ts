@@ -12,6 +12,7 @@ export enum ItemClasses {
 	Main = "item",
 	Icon = "item-icon",
 	SourceWatermark = "item-source-watermark",
+	SourceWatermarkCustom = "item-source-watermark-custom",
 	Masterwork = "item-masterwork",
 	Shaped = "item-shaped",
 	Deepsight = "item-deepsight",
@@ -53,11 +54,17 @@ export default class ItemComponent extends Button<[Item]> {
 		// DIM shows all of these ones with the red war icon.
 		// TODO... figure out how, if necessary?
 
-		if (watermark)
+		if (watermark) {
 			Component.create()
 				.classes.add(ItemClasses.SourceWatermark)
 				.style.set("--watermark", `url("https://www.bungie.net${watermark}")`)
 				.appendTo(this);
+		} else if (item.source?.displayProperties.icon) {
+			Component.create()
+				.classes.add(ItemClasses.SourceWatermark, ItemClasses.SourceWatermarkCustom)
+				.style.set("--icon", `url("${item.source.displayProperties.icon}")`)
+				.appendTo(this);
+		}
 
 		if (item.instance.state & ItemState.Masterwork)
 			Component.create()

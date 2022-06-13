@@ -12,7 +12,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		border-right: 44px solid color(background-0, .5);
+		border-right: 44px solid #0000006c;
 		border-bottom: 44px solid transparent;
 		&::before {
 			content: "";
@@ -21,7 +21,7 @@
 			width: 20px;
 			height: 20px;
 			left: 21px;
-			top: 4px;
+			top: 3px;
 			background: currentColor;
 			-webkit-mask-image: var(--icon);
 			-webkit-mask-size: contain;

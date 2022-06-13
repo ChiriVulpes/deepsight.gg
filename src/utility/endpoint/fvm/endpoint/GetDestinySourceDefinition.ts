@@ -11,6 +11,7 @@ export interface DestinySourceDefinition {
 	season?: number;
 	year?: number;
 	seasonHash?: number;
+	itemHashes?: number[];
 }
 
 export default new FVMEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json");

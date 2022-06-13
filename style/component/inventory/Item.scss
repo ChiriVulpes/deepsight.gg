@@ -99,4 +99,29 @@
 			}
 		}
 	}
+	
+	&-source-watermark-custom {
+		width: 0;
+		height: 0;
+		border-left: calc(var(--slot-size) * .49) solid #0000006a;
+		border-bottom: calc(var(--slot-size) * .49) solid transparent;
+		&::before {
+			content: "";
+			background: white;
+			display: block;
+			position: absolute;
+			top: calc(var(--slot-size) * .04);
+			left: calc(var(--slot-size) * -.44);
+			width: calc(var(--slot-size) * .20);
+			height: calc(var(--slot-size) * .20);
+			-webkit-mask-image: var(--icon);
+			-webkit-mask-size: contain;
+			-webkit-mask-repeat: no-repeat;
+			-webkit-mask-position: center;
+			mask-image: var(--icon);
+			mask-size: contain;
+			mask-repeat: no-repeat;
+			mask-position: center;
+		}
+	}
 }

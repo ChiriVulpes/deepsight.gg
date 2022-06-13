@@ -9,7 +9,6 @@ import Time from "utility/Time";
 
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
 export interface IItem {
-	location: BucketId;
 	equipped?: true;
 	instance: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
@@ -72,9 +71,20 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 		initialisedItems.add(itemId);
 
-		const source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${itemDef.iconWatermark}`);
+		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${itemDef.iconWatermark}`);
+		const result: IItem = { definition: itemDef, instance: itemComponent };
 
-		return { definition: itemDef, instance: itemComponent, source };
+		if (!source) {
+			source = await DestinySourceDefinition.get("id", "redwar");
+			if (!source?.itemHashes?.includes(itemDef.hash)) {
+				source = undefined;
+				console.warn(`Unable to determine source of '${itemDef.displayProperties.name}' (${itemDef.hash})`, result);
+			}
+		}
+
+		result.source = source;
+
+		return result;
 	}
 
 	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {
@@ -85,7 +95,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				continue;
 
 			items.push(new Item({
-				location: id,
 				...item,
 			}));
 		}
@@ -109,7 +118,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				continue;
 
 			bucket["_items"].push(new Item({
-				location: bucketId,
 				equipped: true,
 				...item,
 			}));
