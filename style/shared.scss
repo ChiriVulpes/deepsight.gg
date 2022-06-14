@@ -1,5 +1,5 @@
 :root {
-	--slot-size: min(108px, (100vh
+	--slot-size: min(106px, (100vh
 		- 50px /* nav */
 		- 33px * 3 /* bucket titles */
 		- 4px * 2 /* bucket gap */
@@ -38,7 +38,7 @@ button {
 
 .slot {
 	display: flex;
-	padding: 6px;
+	padding: 5px;
 	width: var(--slot-size);
 	height: var(--slot-size);
 	box-sizing: border-box;
