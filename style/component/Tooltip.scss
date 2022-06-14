@@ -93,6 +93,7 @@
 	margin-left: 20px;
 	align-self: flex-start;
 	justify-self: flex-start;
+	transform: translateY(-50%);
 	--tooltip-hidden-translation: 10px;
 	
 	.tooltip-reversed & {
@@ -118,22 +119,22 @@
 
 @keyframes tooltip-show {
 	from {
-		transform: translateX(var(--tooltip-hidden-translation));
+		transform: translateY(-50%) translateX(var(--tooltip-hidden-translation));
 		opacity: 0;
 	}
 	to {
-		transform: translateX(0);
+		transform: translateY(-50%) translateX(0);
 		opacity: 1;
 	}
 }
 
 @keyframes tooltip-hide {
 	from {
-		transform: translateX(0);
+		transform: translateY(-50%) translateX(0);
 		opacity: 1;
 	}
 	to {
-		transform: translateX(var(--tooltip-hidden-translation));
+		transform: translateY(-50%) translateX(var(--tooltip-hidden-translation));
 		opacity: 0;
 	}
 }
