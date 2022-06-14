@@ -51,7 +51,10 @@
 			animation: flash 2s linear infinite reverse;
 			-webkit-mask-image: 
 				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
-				url("/image/masterworktooltip.png?1");
+				url("/image/masterworktooltip.png");
+			mask-image: 
+				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+				url("/image/masterworktooltip.png");
 		}
 	}
 }
