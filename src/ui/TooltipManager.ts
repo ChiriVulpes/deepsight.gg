@@ -131,7 +131,7 @@ namespace TooltipManager {
 	document.body.addEventListener("mousemove", event => {
 		tooltipSurface.classes.toggle(window.innerWidth - event.clientX < 500, TooltipClasses.Reversed);
 		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - window.innerWidth - event.clientX;
-		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - event.clientY;
+		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - window.innerHeight / 2 - event.clientY;
 	});
 }
 

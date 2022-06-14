@@ -86,14 +86,13 @@
 		}
 	}
 
-	grid-row: 3;
+	grid-row: 2;
 	grid-column: 3;
 	width: fit-content;
 	height: fit-content;
 	margin-left: 20px;
-	align-self: flex-start;
+	align-self: center;
 	justify-self: flex-start;
-	transform: translateY(-50%);
 	--tooltip-hidden-translation: 10px;
 	
 	.tooltip-reversed & {
@@ -119,22 +118,22 @@
 
 @keyframes tooltip-show {
 	from {
-		transform: translateY(-50%) translateX(var(--tooltip-hidden-translation));
+		transform: translateX(var(--tooltip-hidden-translation));
 		opacity: 0;
 	}
 	to {
-		transform: translateY(-50%) translateX(0);
+		transform: translateX(0);
 		opacity: 1;
 	}
 }
 
 @keyframes tooltip-hide {
 	from {
-		transform: translateY(-50%) translateX(0);
+		transform: translateX(0);
 		opacity: 1;
 	}
 	to {
-		transform: translateY(-50%) translateX(var(--tooltip-hidden-translation));
+		transform: translateX(var(--tooltip-hidden-translation));
 		opacity: 0;
 	}
 }
