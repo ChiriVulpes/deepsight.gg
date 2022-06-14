@@ -1,5 +1,11 @@
 :root {
-	--slot-size: 80px;
+	--slot-size: calc((100vh
+		- 50px /* nav */
+		- 33px * 3 /* bucket titles */
+		- 4px * 2 /* bucket gap */
+		- 22px /* view padding */
+		- 8px * 3 /* bucket inventory padding */
+		) / 9);
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 300;
 	

@@ -166,7 +166,8 @@
 		display: grid;
 		grid-template-rows: repeat(3, 1fr);
 		justify-content: flex-end;
-		padding: 0 5px;
+    	padding: 0 calc(var(--slot-size) * .05);
+    	font-size: calc(var(--slot-size) * .2);
 		font-weight: 400;
 		text-shadow: 0 1px 1px black;
 		
