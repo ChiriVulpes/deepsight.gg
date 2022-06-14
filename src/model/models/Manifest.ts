@@ -94,7 +94,9 @@ export default Model.create("manifest", {
 
 		await Model.cacheDB.upgrade((database, transaction) => {
 			for (const cacheKey of cacheKeys) {
-				database.deleteObjectStore(cacheKey);
+				if (database.objectStoreNames.contains(cacheKey))
+					database.deleteObjectStore(cacheKey);
+
 				const store = database.createObjectStore(cacheKey);
 
 				switch (cacheKey) {
