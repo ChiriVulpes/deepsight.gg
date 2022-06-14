@@ -1,5 +1,5 @@
 :root {
-	--slot-size: calc((100vh
+	--slot-size: min(108px, (100vh
 		- 50px /* nav */
 		- 33px * 3 /* bucket titles */
 		- 4px * 2 /* bucket gap */
