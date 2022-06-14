@@ -69,7 +69,7 @@ export default class ItemComponent extends Button<[Item]> {
 				.appendTo(this);
 		}
 
-		if (item.reference.state & ItemState.Masterwork)
+		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
 				.append(Component.create()

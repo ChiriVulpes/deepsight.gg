@@ -6,8 +6,8 @@ import TooltipManager, { Tooltip } from "ui/TooltipManager";
 
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
-	Tag = "item-tooltip-tag",
 	SourceWatermark = "item-tooltip-source-watermark",
+	Masterwork = "item-tooltip-masterwork",
 }
 
 class ItemTooltip extends Tooltip {
@@ -26,6 +26,7 @@ class ItemTooltip extends Tooltip {
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.remove(...this.classes.all().filter(cls => cls.startsWith("item-tooltip-tier-")));
 		this.classes.add(`item-tooltip-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
+		this.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork)
 
 		this.title.text.set(item.definition.displayProperties.name);
 		this.subtitle.removeContents();

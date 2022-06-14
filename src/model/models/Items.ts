@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
-import { DestinyComponentType, ItemLocation } from "bungie-api-ts/destiny2";
+import { DestinyComponentType, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
@@ -22,6 +22,10 @@ export class Item {
 
 	public constructor (item: IItem) {
 		Object.assign(this, item);
+	}
+
+	public isMasterwork () {
+		return !!(this.reference.state & ItemState.Masterwork);
 	}
 }
 

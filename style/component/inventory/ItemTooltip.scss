@@ -11,7 +11,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		border-right: 44px solid #0000006c;
+		border-right: 44px solid #0008;
 		border-bottom: 44px solid transparent;
 		&::before {
 			content: "";
@@ -30,6 +30,28 @@
 			mask-size: contain;
 			mask-position: center;
 			mask-repeat: no-repeat;
+		}
+	}
+	
+	.tooltip-header {
+		> * {
+			z-index: 1;
+		}
+	}
+	
+	&-masterwork .tooltip-header {
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			max-height: 69px;
+			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #D4B73C;
+			background-size: 400% 400%;
+			animation: flash 2s linear infinite reverse;
+			-webkit-mask-image: 
+				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+				url("/image/masterworktooltip.png?1");
 		}
 	}
 }
