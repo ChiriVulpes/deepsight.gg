@@ -14,6 +14,7 @@ export enum ItemClasses {
 	SourceWatermark = "item-source-watermark",
 	SourceWatermarkCustom = "item-source-watermark-custom",
 	Masterwork = "item-masterwork",
+	MasterworkSpinny = "item-masterwork-spinny",
 	Shaped = "item-shaped",
 	Deepsight = "item-deepsight",
 	DeepsightAttuned = "item-deepsight-attuned",
@@ -71,6 +72,8 @@ export default class ItemComponent extends Button<[Item]> {
 		if (item.reference.state & ItemState.Masterwork)
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
+				.append(Component.create()
+					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
 		if (item.reference.state & ItemState.HighlightedObjective) {

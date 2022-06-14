@@ -51,7 +51,40 @@
 	}
 	
 	&-masterwork {
-		background-image: url("/image/masterwork.png");
+		box-shadow: inset 0 0 0 2px #CBAF3C, inset 0 0 0 4px #CBAF3C88;
+		overflow: hidden;
+		
+		&-spinny {
+			position: absolute;
+			inset: 0;
+			
+			-webkit-mask:
+				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68"><polygon points="2,2 2,66 66,66 66,2" fill="black"/></svg>'),
+				linear-gradient(#fff,#fff);
+			-webkit-mask-composite: destination-out;
+			mask:
+				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68"><polygon points="2,2 2,66 66,66 66,2" fill="black"/></svg>'),
+				linear-gradient(#fff,#fff);
+			mask-composite: exclude;
+			
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: -100%;
+				background: linear-gradient(to bottom, transparent 30%, #fff 50%, transparent 70%);
+				animation: masterwork-rotate 6s linear infinite;
+				
+				@keyframes masterwork-rotate {
+					from { transform: rotate(0deg); }
+					to { transform: rotate(360deg); }
+				}
+			}
+			
+			.performance-mode & {
+				display: none;
+			}
+		}
 	}
 	
 	&-shaped {
