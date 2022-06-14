@@ -71,7 +71,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 				applicableKeys.push(key as keyof DestinyProfileResponse);
 		}
 
-		super(`profile [${applicableKeys.join(",")}]`, {
+		super(`profile#${type} [${applicableKeys.join(",")}]`, {
 			cache: "Session",
 			resetTime: Time.minutes(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

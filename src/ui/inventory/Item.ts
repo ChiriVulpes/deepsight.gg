@@ -17,6 +17,8 @@ export enum ItemClasses {
 	Shaped = "item-shaped",
 	Deepsight = "item-deepsight",
 	DeepsightAttuned = "item-deepsight-attuned",
+	Extra = "item-extra",
+	PowerLevel = "item-power-level",
 }
 
 export default class ItemComponent extends Button<[Item]> {
@@ -38,7 +40,7 @@ export default class ItemComponent extends Button<[Item]> {
 			.style.set("--icon", `url("https://www.bungie.net${item.definition.displayProperties.icon}")`)
 			.appendTo(this);
 
-		if (item.instance.state & ItemState.Crafted)
+		if (item.reference.state & ItemState.Crafted)
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
 				.appendTo(this);
@@ -66,14 +68,14 @@ export default class ItemComponent extends Button<[Item]> {
 				.appendTo(this);
 		}
 
-		if (item.instance.state & ItemState.Masterwork)
+		if (item.reference.state & ItemState.Masterwork)
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
 				.appendTo(this);
 
-		if (item.instance.state & ItemState.HighlightedObjective) {
+		if (item.reference.state & ItemState.HighlightedObjective) {
 			const { itemComponents: { plugObjectives } } = await Profile(DestinyComponentType.ProfileInventories, DestinyComponentType.ItemPlugObjectives).await();
-			const objectives = plugObjectives.data?.[item.instance.itemInstanceId!]?.objectivesPerPlug;
+			const objectives = plugObjectives.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug;
 			const attunement = Object.values(objectives ?? {}).flat()
 				.find(progress => progress.objectiveHash === AttunementProgressHash);
 
@@ -86,5 +88,15 @@ export default class ItemComponent extends Button<[Item]> {
 		// this.text.set(item.definition.displayProperties.name);
 		this.setTooltip(ItemTooltip, tooltip => tooltip
 			.setItem(item));
+
+		const extra = Component.create()
+			.classes.add(ItemClasses.Extra)
+			.appendTo(this);
+
+		if (item.instance?.primaryStat)
+			Component.create()
+				.classes.add(ItemClasses.PowerLevel)
+				.text.set(`${item.instance.primaryStat.value}`)
+				.appendTo(extra);
 	}
 }

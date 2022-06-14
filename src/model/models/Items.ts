@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
 import { DestinyComponentType, ItemLocation } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
@@ -10,7 +10,8 @@ import Time from "utility/Time";
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
 export interface IItem {
 	equipped?: true;
-	instance: DestinyItemComponent;
+	reference: DestinyItemComponent;
+	instance?: DestinyItemInstanceComponent;
 	definition: DestinyInventoryItemDefinition;
 	source?: DestinySourceDefinition;
 	objectives?: Record<string, DestinyObjectiveProgress[]>;
@@ -43,6 +44,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyComponentType.CharacterInventories,
 		DestinyComponentType.CharacterEquipment,
 		DestinyComponentType.ProfileInventories,
+		DestinyComponentType.ItemInstances,
+		DestinyComponentType.ProfileProgression,
 	);
 
 	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
@@ -72,7 +75,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		initialisedItems.add(itemId);
 
 		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${itemDef.iconWatermark}`);
-		const result: IItem = { definition: itemDef, instance: itemComponent };
+		const result: IItem = { definition: itemDef, reference: itemComponent, instance: profile.itemComponents.instances.data?.[itemComponent.itemInstanceId!] };
 
 		if (!source) {
 			source = await DestinySourceDefinition.get("id", "redwar");

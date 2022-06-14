@@ -38,7 +38,7 @@
 		}
 	}
 	
-	&-masterwork, &-shaped, &-deepsight, &-source-watermark {
+	&-masterwork, &-shaped, &-deepsight, &-source-watermark, &-extra {
 		position: absolute;
 		inset: 0;
 		background-size: cover;
@@ -122,6 +122,32 @@
 			mask-size: contain;
 			mask-repeat: no-repeat;
 			mask-position: center;
+		}
+	}
+	
+	&-extra {
+		:root:not(.show-extra-info) & {
+			display: none;
+		}
+		
+		display: grid;
+		grid-template-rows: repeat(3, 1fr);
+		justify-content: flex-end;
+		padding: 0 5px;
+		font-weight: 400;
+		text-shadow: 0 1px 1px black;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			background-image: url("/image/extra.png?6");
+			background-size: cover;
+			z-index: -1;
+			inset: 1px;
+			:where(.item-masterwork, .item-deepsight) ~ & {
+				inset: 2px
+			}
 		}
 	}
 }
