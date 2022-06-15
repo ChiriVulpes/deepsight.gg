@@ -9,6 +9,7 @@
 		) / 9);
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 400;
+	letter-spacing: .02em;
 	
 	@media (max-width: 1000px) {
 		--slot-size: 70px;

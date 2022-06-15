@@ -2,7 +2,7 @@
 	border-radius: 0;
 	position: relative;
 	margin: 8px 0;
-	padding: 4px 8px;
+	padding: 4px 8px 6px;
 	cursor: pointer;
 	user-select: none;
 	background: color(button-background);
@@ -10,6 +10,9 @@
 	color: color(button-foreground);
 	outline: none;
 	transform: translateY(0);
+	font-size: 1.2em;
+	letter-spacing: .02em;
+	font-weight: 300;
 	@include transition(out, background, border, color, transform);
 	
 	&::before {
