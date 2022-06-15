@@ -63,14 +63,15 @@
 		grid-template-columns: auto 1fr;
 		font-size: 1.1em;
 		line-height: 1em;
+		padding: 4px 0;
 	}
 		
 	&-primary-stat {
 		font-size: 32pt;
 		font-weight: 600;
-		line-height: 1;
+		line-height: .7em;
 		letter-spacing: -.04em;
-		display: inline-block;
+		display: inline-flex;
 		
 		&-damage {
 			display: flex;
@@ -88,10 +89,11 @@
 		
 		&::after {
 			content: "";
-			display: inline-block;
+			display: block;
 			width: 2px;
-			height: 70%;
-			margin: auto calc(32pt * .3);
+			height: 90%;
+			align-self: center;
+			margin: 0 calc(32pt * .3);
 			background: white;
 			opacity: 0.3;
 		}
@@ -148,7 +150,7 @@
 			font-size: 1.6em;
 			font-weight: 600;
 			margin-right: .25em;
-			transform: translateY(.05em);
+			transform: translateY(.03em);
 			align-items: center;
 			
 			&::before {
@@ -160,7 +162,7 @@
 				width: .6em;
 				height: .6em;
 				margin-right: .05em;
-				transform: translateY(-.1em);
+				transform: translateY(-.03em);
 			}
 		}
 	}

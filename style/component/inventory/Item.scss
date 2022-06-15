@@ -128,7 +128,7 @@
 				font-size: 1.2em;
 				width: 33%;
 				height: 33%;
-				font-weight: 500;
+				font-weight: 600;
 			}
 		}
 	}
@@ -168,7 +168,7 @@
 		justify-content: flex-end;
     	padding: 0 calc(var(--slot-size) * .05);
     	font-size: calc(var(--slot-size) * .2);
-		font-weight: 400;
+		font-weight: 500;
 		text-shadow: 0 1px 1px black;
 		
 		&::before {

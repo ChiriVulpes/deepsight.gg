@@ -43,7 +43,10 @@
 	}
 	
 	&-title {
-		font-size: 16pt;
+		font-size: 17pt;
+		line-height: .9em;
+		letter-spacing: .08em;
+		font-weight: 300;
 		height: fit-content;
 		align-self: center;
 		margin-right: 30px;
@@ -58,7 +61,7 @@
 			transition-delay: $delay * 2;
 		}
 		
-		font-weight: 500;
+		font-weight: 600;
 		user-select: all;
 		height: fit-content;
 		align-self: center;
@@ -83,7 +86,7 @@
 			border: none;
 			box-shadow: none;
 			color: color(foreground-2);
-			font-weight: 500;
+			font-weight: 600;
 			margin-right: 30px;
 			
 			@for $i from 1 through 20 {
