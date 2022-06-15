@@ -78,6 +78,7 @@
 		}
 		overflow: scroll;
 		pointer-events: none;
+		user-select: none;
 		display: grid;
 		grid-template-columns: repeat(3, 100vw);
 		grid-template-rows: repeat(3, 100vh);
