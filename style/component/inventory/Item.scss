@@ -88,20 +88,25 @@
 	}
 	
 	&-shaped {
-		background-image: url("/image/shaped.png");
-		&::before {
-			content: "";
-			display: block;
+		background-image: url("/image/shaped.png?1");
+		> * {
 			position: absolute;
-			bottom: 6%;
-			left: 6%;
-			width: 20%;
-			height: 20%;
-			background: #FF8D5C;
-			-webkit-mask-image: url("https://gist.githubusercontent.com/ChiriVulpes/fd6cb4d8bc8178b20a272778be541d0b/raw/2d41126d4d588a3979ef82e2b202bac1e45af011/item-shaped.svg");
-			-webkit-mask-size: contain;
-			mask-image: url("https://gist.githubusercontent.com/ChiriVulpes/fd6cb4d8bc8178b20a272778be541d0b/raw/2d41126d4d588a3979ef82e2b202bac1e45af011/item-shaped.svg");
-			mask-size: contain;
+			inset: 0;
+			filter: drop-shadow(0 1px 0 #0006);
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				bottom: 6%;
+				left: 6%;
+				width: 20%;
+				height: 20%;
+				background: #FF8D5C;
+				-webkit-mask-image: url("/image/svg/shaped.svg");
+				-webkit-mask-size: contain;
+				mask-image: url("/image/svg/shaped.svg");
+				mask-size: contain;
+			}
 		}
 	}
 	

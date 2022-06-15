@@ -44,6 +44,7 @@ export default class ItemComponent extends Button<[Item]> {
 		if (item.reference.state & ItemState.Crafted)
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
+				.append(Component.create())
 				.appendTo(this);
 
 		let watermark: string | undefined;
