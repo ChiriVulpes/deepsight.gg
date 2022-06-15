@@ -2,6 +2,7 @@
 	display: grid;
 	grid-template-columns: auto 1fr;
 	gap: 20px;
+	--padding-x: 12px;
 	
 	@media (min-width: 1000px) {
 		overflow: hidden;

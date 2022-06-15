@@ -6,6 +6,7 @@ export default View.create({
 	id: "settings",
 	name: "Settings",
 	initialise: view => view
+		.setTitle(title => title.text.set("Settings"))
 		.append(Button.create()
 			.text.set("Sign Out")
 			.event.subscribe("click", () => Bungie.resetAuthentication())),

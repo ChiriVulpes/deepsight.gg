@@ -1,4 +1,5 @@
 import type Model from "model/Model";
+import { Classes as BaseClasses } from "ui/Classes";
 import Component from "ui/Component";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
@@ -89,15 +90,37 @@ namespace View {
 		Content = "view-content",
 		Hidden = "view-hidden",
 		Loadable = "view-loadable",
+		Title = "view-title",
+		Subtitle = "view-subtitle",
 	}
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
 
 		public definition!: IView<MODELS, [], DEFINITION>;
+		public title!: Component;
+		public subtitle!: Component;
 
 		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
 			this.definition = definition;
 			this.classes.add(Classes.Content, `view-${this.definition.id}-content`);
+
+			this.title = Component.create()
+				.classes.add(Classes.Title, BaseClasses.Hidden)
+				.appendTo(this);
+
+			this.subtitle = Component.create()
+				.classes.add(Classes.Subtitle, BaseClasses.Hidden)
+				.appendTo(this);
+		}
+
+		public setTitle (tweak?: (component: Component) => any) {
+			this.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			return this;
+		}
+
+		public setSubtitle (tweak?: (component: Component) => any) {
+			this.subtitle.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			return this;
 		}
 	}
 
