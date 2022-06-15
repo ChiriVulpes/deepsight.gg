@@ -15,6 +15,7 @@ export interface IItem {
 	definition: DestinyInventoryItemDefinition;
 	source?: DestinySourceDefinition;
 	objectives?: Record<string, DestinyObjectiveProgress[]>;
+	deepsight?: IDeepsight;
 }
 
 export interface IDeepsight {
@@ -35,50 +36,6 @@ export class Item {
 	public isMasterwork () {
 		return !!(this.reference.state & ItemState.Masterwork);
 	}
-
-	public async deepsight () {
-		if (!(this.reference.state & ItemState.HighlightedObjective))
-			return undefined;
-
-		const { DestinyRecordDefinition, DestinyCollectibleDefinition, DestinyObjectiveDefinition } = await Manifest.await();
-		const { itemComponents: { plugObjectives }, profileRecords } = await Profile(DestinyComponentType.CharacterEquipment, DestinyComponentType.ProfileInventories, DestinyComponentType.CharacterInventories, DestinyComponentType.ItemPlugObjectives, DestinyComponentType.Records).await();
-
-		const objectives = Object.values(plugObjectives.data?.[this.reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat();
-		let attunement: DestinyObjectiveProgress | undefined;
-		for (const objective of objectives) {
-			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
-			if (definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted) {
-				attunement = objective;
-				break;
-			}
-		}
-
-		if (!attunement)
-			return undefined;
-
-		const result: IDeepsight = { attunement };
-
-		const collectible = await DestinyCollectibleDefinition.get(this.definition.collectibleHash);
-		const record = await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null);
-
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const progress = profileRecords.data?.records[record?.hash!];
-		console.log("result", result, "\n", "collectible", collectible, "\n", "record", record, "\n", "progress", progress);
-		if (!progress)
-			return result;
-
-		if (progress.objectives.length !== 1) {
-			console.warn(`Incomprehensible pattern record for '${this.definition.displayProperties.name}'`, progress);
-			return result;
-		}
-
-		result.pattern = {
-			record: record!,
-			progress: progress.objectives[0],
-		};
-
-		return result;
-	}
 }
 
 export class Bucket {
@@ -93,7 +50,7 @@ export class Bucket {
 
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 3);
-	const { DestinyInventoryItemDefinition, DestinySourceDefinition } = await Manifest.await();
+	const { DestinyInventoryItemDefinition, DestinySourceDefinition, DestinyRecordDefinition, DestinyCollectibleDefinition, DestinyObjectiveDefinition } = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
 
 	const ProfileQuery = Profile(
@@ -102,12 +59,54 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyComponentType.ProfileInventories,
 		DestinyComponentType.ItemInstances,
 		DestinyComponentType.ProfileProgression,
+		DestinyComponentType.ItemPlugObjectives,
+		DestinyComponentType.Records,
 	);
 
 	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
 	const profile = await ProfileQuery.await();
 
 	const initialisedItems = new Set<string>();
+
+	async function resolveDeepsight (reference: DestinyItemComponent, definition: DestinyInventoryItemDefinition) {
+		if (!(reference.state & ItemState.HighlightedObjective))
+			return undefined;
+
+		const objectives = Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat();
+		let attunement: DestinyObjectiveProgress | undefined;
+		for (const objective of objectives) {
+			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
+			if (definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted) {
+				attunement = objective;
+				break;
+			}
+		}
+
+		if (!attunement)
+			return undefined;
+
+		const result: IDeepsight = { attunement };
+
+		const collectible = await DestinyCollectibleDefinition.get(definition.collectibleHash);
+		const record = await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null);
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		const progress = profile.profileRecords.data?.records[record?.hash!];
+		if (!progress)
+			return result;
+
+		if (progress.objectives.length !== 1) {
+			console.warn(`Incomprehensible pattern record for '${definition.displayProperties.name}'`, progress);
+			return result;
+		}
+
+		result.pattern = {
+			record: record!,
+			progress: progress.objectives[0],
+		};
+
+		return result;
+	}
 
 	async function resolveItemComponent (itemComponent: DestinyItemComponent) {
 		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
@@ -142,6 +141,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		}
 
 		result.source = source;
+		result.deepsight = await resolveDeepsight(itemComponent, itemDef);
 
 		return result;
 	}

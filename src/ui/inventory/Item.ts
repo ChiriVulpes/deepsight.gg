@@ -76,14 +76,13 @@ export default class ItemComponent extends Button<[Item]> {
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
-		const deepsight = await item.deepsight();
-		if (deepsight) {
+		if (item.deepsight) {
 			const container = Component.create()
 				.classes.add(ItemClasses.Deepsight)
-				.classes.toggle(deepsight.attunement?.complete ?? false, ItemClasses.DeepsightAttuned)
+				.classes.toggle(item.deepsight.attunement?.complete ?? false, ItemClasses.DeepsightAttuned)
 				.appendTo(this);
 
-			if (deepsight.pattern && !deepsight.pattern.progress.complete)
+			if (item.deepsight.pattern && !item.deepsight.pattern.progress.complete)
 				Component.create()
 					.classes.add(ItemClasses.DeepsightPattern)
 					.appendTo(container
