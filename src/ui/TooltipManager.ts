@@ -94,7 +94,9 @@ namespace TooltipManager {
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		const hideLock = (tooltip as any).TOOLTIP_HIDE_LOCK = Math.random();
-		tooltip.classes.add(Classes.Hidden);
+		const persistTooltips = document.documentElement.classList.contains("persist-tooltips");
+		if (!persistTooltips)
+			tooltip.classes.add(Classes.Hidden);
 		void Async.sleep(500).then(() => {
 			if (!tooltip.classes.has(Classes.Hidden))
 				// tooltip has been shown again, don't touch
@@ -105,7 +107,8 @@ namespace TooltipManager {
 				// a different call of this method is responsible for hiding the tooltip now
 				return;
 
-			tooltip.appendTo(tooltipStorage);
+			if (!persistTooltips)
+				tooltip.appendTo(tooltipStorage);
 		});
 	}
 

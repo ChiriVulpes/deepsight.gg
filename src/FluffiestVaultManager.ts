@@ -25,6 +25,10 @@ export default class FluffiestVaultManager {
 					}
 					break;
 				}
+				case "F4": {
+					document.documentElement.classList.toggle("persist-tooltips");
+					break;
+				}
 				case "e": {
 					document.documentElement.classList.add("show-extra-info");
 					break;
