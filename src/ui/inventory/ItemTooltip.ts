@@ -7,6 +7,7 @@ import TooltipManager, { Tooltip } from "ui/TooltipManager";
 
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
+	Content = "item-tooltip-content",
 	SourceWatermark = "item-tooltip-source-watermark",
 	Masterwork = "item-tooltip-masterwork",
 	PrimaryInfo = "item-tooltip-primary-info",
@@ -18,6 +19,13 @@ enum ItemTooltipClasses {
 	AmmoHeavy = "item-tooltip-ammo-type-heavy",
 	Energy = "item-tooltip-energy",
 	EnergyValue = "item-tooltip-energy-value",
+	Deepsight = "item-tooltip-deepsight",
+	DeepsightPattern = "item-tooltip-deepsight-pattern",
+	DeepsightPatternNumber = "item-tooltip-deepsight-pattern-number",
+	DeepsightPatternOutOf = "item-tooltip-deepsight-pattern-out-of",
+	DeepsightPatternRequired = "item-tooltip-deepsight-pattern-required",
+	DeepsightProgressBar = "item-tooltip-deepsight-progress-bar",
+	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
 }
 
 class ItemTooltip extends Tooltip {
@@ -28,9 +36,16 @@ class ItemTooltip extends Tooltip {
 	public ammoType!: Component;
 	public energy!: Component;
 	public energyValue!: Component;
+	public deepsight!: Component;
+	public deepsightPattern!: Component;
+	public deepsightPatternNumber!: Component;
+	public deepsightPatternRequired!: Component;
+	public deepsightProgressBar!: Component;
+	public deepsightProgressValue!: Component;
 
 	protected override onMake () {
 		this.classes.add(ItemTooltipClasses.Main);
+		this.content.classes.add(ItemTooltipClasses.Content);
 
 		this.source = Component.create()
 			.classes.add(ItemTooltipClasses.SourceWatermark, Classes.Hidden)
@@ -57,10 +72,35 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.energy);
 
 		this.energy.text.add("Energy");
+
+		this.deepsight = Component.create()
+			.classes.add(ItemTooltipClasses.Deepsight)
+			.appendTo(this.content);
+
+		this.deepsightPattern = Component.create()
+			.classes.add(ItemTooltipClasses.DeepsightPattern)
+			.text.add("Attune to extract pattern")
+			.append(this.deepsightPatternNumber = Component.create()
+				.classes.add(ItemTooltipClasses.DeepsightPatternNumber))
+			.append(Component.create()
+				.classes.add(ItemTooltipClasses.DeepsightPatternOutOf)
+				.text.add(" / ")
+				.append(this.deepsightPatternRequired = Component.create()
+					.classes.add(ItemTooltipClasses.DeepsightPatternRequired)))
+			.appendTo(this.deepsight);
+
+		this.deepsightProgressBar = Component.create()
+			.classes.add(ItemTooltipClasses.DeepsightProgressBar)
+			.text.add("Attunement Progress")
+			.appendTo(this.deepsight);
+
+		this.deepsightProgressValue = Component.create()
+			.classes.add(ItemTooltipClasses.DeepsightProgressValue)
+			.appendTo(this.deepsightProgressBar);
 	}
 
 	public async setItem (item: Item) {
-		console.log(item);
+		console.log(item.definition.displayProperties.name, item);
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
@@ -114,6 +154,20 @@ class ItemTooltip extends Tooltip {
 				.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
 				.classes.add(`item-tooltip-energy-type-${(energyType?.displayProperties.name ?? "Unknown").toLowerCase()}`)
 				.style.set("--icon", `url("https://www.bungie.net${energyType?.displayProperties.icon ?? ""}")`);
+		}
+
+		this.deepsight.classes.toggle(!item.deepsight, Classes.Hidden);
+		if (item.deepsight) {
+			const progress = (item.deepsight.attunement.progress ?? 0) / item.deepsight.attunement.completionValue;
+			this.deepsightProgressBar.style.set("--progress", `${progress}`);
+			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
+
+			const showPattern = item.deepsight.pattern && !item.deepsight.pattern.progress.complete;
+			this.deepsightPattern.classes.toggle(!showPattern, Classes.Hidden);
+			if (showPattern) {
+				this.deepsightPatternNumber.text.set(`${(item.deepsight.pattern!.progress.progress ?? 0) + 1}`);
+				this.deepsightPatternRequired.text.set(`${item.deepsight.pattern!.progress.completionValue}`);
+			}
 		}
 	}
 }

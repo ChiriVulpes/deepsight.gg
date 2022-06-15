@@ -9,7 +9,7 @@
 	display: flex;
     z-index: 9999999;
 	user-select: none;
-	background: color(background-0);
+	background: color(background-1);
 	
 	@media (max-width: 600px) {
 		width: calc(100% - 17px);
@@ -135,7 +135,7 @@
 			flex-direction: column;
 			
 			&.active {
-				background: color(background-2);
+				background: color(background-3);
 			}
 			
 			&-toggle {

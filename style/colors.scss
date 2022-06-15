@@ -1,14 +1,15 @@
 $tiers: common, uncommon, rare, legendary, exotic;
 
 $colors: (
-	background: var(--background-1),
-	background-0: #201c1c #fff,
-	background-1: #2e2929 #fff,
-	background-2: #3f3a3a #f3f7ff,
-	background-3: #494444 #e1ebff,
-	background-4: #555050 #d4e1fb,
-	background-5: #747171 #cdf,
-	background-6: #858080 #c3d6fc,
+	background: var(--background-2),
+	background-0: #0f0d0d #fff,
+	background-1: #201c1c #fff,
+	background-2: #2e2929 #fff,
+	background-3: #3f3a3a #f3f7ff,
+	background-4: #494444 #e1ebff,
+	background-5: #555050 #d4e1fb,
+	background-6: #747171 #cdf,
+	background-7: #858080 #c3d6fc,
 	
 	foreground: var(--foreground-1),
 	foreground-0: #fff #000,
@@ -35,17 +36,17 @@ $colors: (
 	tier-exotic: #f5dc56,
 	tier-exotic-active: #fff4b5,
 	
-	background-drawer: var(--background-0) var(--background-2),
-	button-background: color(--background-3),
-	button-background-hover: color(--background-6),
+	background-drawer: var(--background-1) var(--background-3),
+	button-background: color(--background-4),
+	button-background-hover: color(--background-7),
 	button-background-hover-overlay: rgba(var(--foreground-2-rgb), .3),
-	button-background-active: color(--background-2),
+	button-background-active: color(--background-3),
 	button-border: color(--foreground-2),
 	button-border-hover: color(--foreground-0),
 	button-foreground: color(--foreground-1),
 	button-foreground-hover: color(--foreground-0),
 	
-	tooltip-header-background: rgba(var(--background-2-rgb), .85),
+	tooltip-header-background: rgba(var(--background-3-rgb), .85),
 	tooltip-background: rgba(var(--background-0-rgb), .85),
 	tooltip-footer-background: #000,
 );
