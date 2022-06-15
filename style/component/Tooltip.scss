@@ -15,9 +15,11 @@
 		z-index: -1;
 	}
 	
+	--tooltip-padding: 8px 12px;
+	
 	&-header {
-		background: color(background-2);
-		padding: 8px 12px;
+		background: color(background-2, .85);
+		padding: var(--tooltip-padding);
 		display: grid;
 		grid-template-columns: 1fr auto;
 	}
@@ -41,6 +43,7 @@
 	
 	&-content {
 		background: color(tooltip-background);
+		padding: var(--tooltip-padding);
 	}
 }
 

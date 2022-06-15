@@ -159,6 +159,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	public removeContents () {
 		while (this.element.lastChild)
 			this.element.lastChild.remove();
+		return this;
 	}
 
 	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TOOLTIP, initialiser: (tooltip: TOOLTIP) => any) {
@@ -194,6 +195,12 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 	public remove (...classes: string[]) {
 		const host = this.host.deref();
 		host?.element.classList.remove(...classes);
+		return host as HOST;
+	}
+
+	public removeWhere (filter: (cls: string) => any) {
+		const host = this.host.deref();
+		host?.element.classList.remove(...[...host.element.classList].filter(filter));
 		return host as HOST;
 	}
 
@@ -322,6 +329,12 @@ export class StyleManager<HOST extends Component<HTMLElement>> {
 	public set (name: string, value: string) {
 		const host = this.host.deref();
 		host?.element.style.setProperty(name, value);
+		return host as HOST;
+	}
+
+	public remove (name: string) {
+		const host = this.host.deref();
+		host?.element.style.removeProperty(name);
 		return host as HOST;
 	}
 }

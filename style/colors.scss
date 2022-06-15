@@ -45,7 +45,9 @@ $colors: (
 	button-foreground: color(--foreground-1),
 	button-foreground-hover: color(--foreground-0),
 	
-	tooltip-background: rgba(var(--background), .9),
+	tooltip-header-background: rgba(var(--background-2-rgb), .85),
+	tooltip-background: rgba(var(--background-0-rgb), .85),
+	tooltip-footer-background: #000,
 );
 
 :root {

@@ -57,4 +57,111 @@
 				url("/image/masterworktooltip.png");
 		}
 	}
+	
+	&-primary-info {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		font-size: 1.1em;
+		line-height: 1em;
+	}
+		
+	&-primary-stat {
+		font-size: 32pt;
+		font-weight: 600;
+		line-height: 1;
+		letter-spacing: -.04em;
+		display: inline-block;
+		
+		&-damage {
+			display: flex;
+			&::before {
+				content: "";
+				display: inline-block;
+				width: .75em;
+				height: .75em;
+				align-self: center;
+				background: var(--icon);
+				background-size: contain;
+				margin-right: .15em;
+			}
+		}
+		
+		&::after {
+			content: "";
+			display: inline-block;
+			width: 2px;
+			height: 70%;
+			margin: auto calc(32pt * .3);
+			background: white;
+			opacity: 0.3;
+		}
+	}
+	
+	&-energy-type-void {
+		color: #b185df;
+	}
+	&-energy-type-solar {
+		color: #f0631e;
+	}
+	&-energy-type-arc {
+		color: #7aecf3;
+	}
+	&-energy-type-stasis {
+		color: #4d88ff;
+	}
+	
+	&-ammo-type {
+		display: flex;
+		text-transform: uppercase;
+		align-items: center;
+		
+		&::before {
+			content: "";
+			display: inline-block;
+			height: calc(32pt * .75);
+			aspect-ratio: 1312 / 937;
+			align-self: center;
+			background: var(--icon);
+			background-size: contain;
+			background-repeat: no-repeat;
+			margin-right: calc(32pt * .2);
+		}
+		
+		&-primary {
+			--icon: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/ammo-primary.svg");
+		}
+		&-special {
+			--icon: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/ammo-special.svg");
+		}
+		&-heavy {
+			--icon: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/ammo-heavy.svg");
+		}
+	}
+	
+	&-energy {
+		display: flex;
+		text-transform: uppercase;
+		align-items: center;
+		
+		&-value {
+			display: flex;
+			font-size: 1.6em;
+			font-weight: 600;
+			margin-right: .25em;
+			transform: translateY(.05em);
+			align-items: center;
+			
+			&::before {
+				content: "";
+				display: block;
+				background: var(--icon);
+				background-size: contain;
+				background-repeat: no-repeat;
+				width: .6em;
+				height: .6em;
+				margin-right: .05em;
+				transform: translateY(-.1em);
+			}
+		}
+	}
 }
