@@ -1,12 +1,9 @@
-import { DestinyComponentType, ItemState } from "bungie-api-ts/destiny2";
+import { ItemState } from "bungie-api-ts/destiny2";
 import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
-import Profile from "model/models/Profile";
 import Button from "ui/Button";
 import Component from "ui/Component";
 import ItemTooltip from "ui/inventory/ItemTooltip";
-
-const AttunementProgressHash = 1162857131;
 
 export enum ItemClasses {
 	Main = "item",
@@ -17,6 +14,8 @@ export enum ItemClasses {
 	MasterworkSpinny = "item-masterwork-spinny",
 	Shaped = "item-shaped",
 	Deepsight = "item-deepsight",
+	DeepsightHasPattern = "item-deepsight-has-pattern",
+	DeepsightPattern = "item-deepsight-pattern",
 	DeepsightAttuned = "item-deepsight-attuned",
 	Extra = "item-extra",
 	PowerLevel = "item-power-level",
@@ -77,16 +76,18 @@ export default class ItemComponent extends Button<[Item]> {
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
-		if (item.reference.state & ItemState.HighlightedObjective) {
-			const { itemComponents: { plugObjectives } } = await Profile(DestinyComponentType.ProfileInventories, DestinyComponentType.ItemPlugObjectives).await();
-			const objectives = plugObjectives.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug;
-			const attunement = Object.values(objectives ?? {}).flat()
-				.find(progress => progress.objectiveHash === AttunementProgressHash);
-
-			Component.create()
+		const deepsight = await item.deepsight();
+		if (deepsight) {
+			const container = Component.create()
 				.classes.add(ItemClasses.Deepsight)
-				.classes.toggle(attunement?.complete ?? false, ItemClasses.DeepsightAttuned)
+				.classes.toggle(deepsight.attunement?.complete ?? false, ItemClasses.DeepsightAttuned)
 				.appendTo(this);
+
+			if (deepsight.pattern && !deepsight.pattern.progress.complete)
+				Component.create()
+					.classes.add(ItemClasses.DeepsightPattern)
+					.appendTo(container
+						.classes.add(ItemClasses.DeepsightHasPattern));
 		}
 
 		// this.text.set(item.definition.displayProperties.name);

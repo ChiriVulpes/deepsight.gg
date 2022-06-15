@@ -159,6 +159,16 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				// all components cached, no need to make a request to bungie
 				return;
 
+			if (missingComponents.some(component => (profileResponseComponentMap.itemComponents as readonly DestinyComponentType[]).includes(component)))
+				if (!missingComponents.includes(DestinyComponentType.ProfileInventories) && !missingComponents.includes(DestinyComponentType.CharacterInventories) && !missingComponents.includes(DestinyComponentType.CharacterEquipment)) {
+					if (components.includes(DestinyComponentType.CharacterInventories))
+						missingComponents.push(DestinyComponentType.CharacterInventories);
+					if (components.includes(DestinyComponentType.CharacterEquipment))
+						missingComponents.push(DestinyComponentType.CharacterEquipment);
+					if (components.includes(DestinyComponentType.ProfileInventories || (!missingComponents.includes(DestinyComponentType.CharacterInventories) && !missingComponents.includes(DestinyComponentType.CharacterEquipment))))
+						missingComponents.push(DestinyComponentType.ProfileInventories);
+				}
+
 			api.emitProgress(1 / 3, "Fetching profile");
 			const membership = await Memberships.await();
 			const destinyMembership = membership.destinyMemberships[0];

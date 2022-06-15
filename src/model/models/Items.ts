@@ -1,5 +1,5 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
-import { DestinyComponentType, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress, DestinyRecordDefinition } from "bungie-api-ts/destiny2";
+import { DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
@@ -17,6 +17,14 @@ export interface IItem {
 	objectives?: Record<string, DestinyObjectiveProgress[]>;
 }
 
+export interface IDeepsight {
+	attunement: DestinyObjectiveProgress;
+	pattern?: {
+		record: DestinyRecordDefinition;
+		progress: DestinyObjectiveProgress;
+	}
+}
+
 export interface Item extends IItem { }
 export class Item {
 
@@ -26,6 +34,50 @@ export class Item {
 
 	public isMasterwork () {
 		return !!(this.reference.state & ItemState.Masterwork);
+	}
+
+	public async deepsight () {
+		if (!(this.reference.state & ItemState.HighlightedObjective))
+			return undefined;
+
+		const { DestinyRecordDefinition, DestinyCollectibleDefinition, DestinyObjectiveDefinition } = await Manifest.await();
+		const { itemComponents: { plugObjectives }, profileRecords } = await Profile(DestinyComponentType.CharacterEquipment, DestinyComponentType.ProfileInventories, DestinyComponentType.CharacterInventories, DestinyComponentType.ItemPlugObjectives, DestinyComponentType.Records).await();
+
+		const objectives = Object.values(plugObjectives.data?.[this.reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat();
+		let attunement: DestinyObjectiveProgress | undefined;
+		for (const objective of objectives) {
+			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
+			if (definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted) {
+				attunement = objective;
+				break;
+			}
+		}
+
+		if (!attunement)
+			return undefined;
+
+		const result: IDeepsight = { attunement };
+
+		const collectible = await DestinyCollectibleDefinition.get(this.definition.collectibleHash);
+		const record = await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null);
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		const progress = profileRecords.data?.records[record?.hash!];
+		console.log("result", result, "\n", "collectible", collectible, "\n", "record", record, "\n", "progress", progress);
+		if (!progress)
+			return result;
+
+		if (progress.objectives.length !== 1) {
+			console.warn(`Incomprehensible pattern record for '${this.definition.displayProperties.name}'`, progress);
+			return result;
+		}
+
+		result.pattern = {
+			record: record!,
+			progress: progress.objectives[0],
+		};
+
+		return result;
 	}
 }
 

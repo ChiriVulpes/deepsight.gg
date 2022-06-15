@@ -87,26 +87,30 @@
 		}
 	}
 	
-	&-shaped {
-		background-image: url("/image/shaped.png?1");
-		> * {
+	@mixin pattern-icon($background) {
+		position: absolute;
+		inset: 0;
+		filter: drop-shadow(0 1px 0 #0006);
+		&::before {
+			content: "";
+			display: block;
 			position: absolute;
-			inset: 0;
-			filter: drop-shadow(0 1px 0 #0006);
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				bottom: 6%;
-				left: 6%;
-				width: 20%;
-				height: 20%;
-				background: #FF8D5C;
-				-webkit-mask-image: url("/image/svg/shaped.svg");
-				-webkit-mask-size: contain;
-				mask-image: url("/image/svg/shaped.svg");
-				mask-size: contain;
-			}
+			bottom: 6%;
+			left: 6%;
+			width: 20%;
+			height: 20%;
+			background: $background;
+			-webkit-mask-image: url("/image/svg/shaped.svg");
+			-webkit-mask-size: contain;
+			mask-image: url("/image/svg/shaped.svg");
+			mask-size: contain;
+		}
+	}
+	
+	&-shaped {
+		background-image: url("/image/shaped.png");
+		> * {
+			@include pattern-icon(#FF8D5C);
 		}
 	}
 	
@@ -135,6 +139,14 @@
 				height: 33%;
 				font-weight: 600;
 			}
+		}
+		
+		&-has-pattern {
+			background-image: url("/image/deepsight.png");
+		}
+		
+		&-pattern {
+			@include pattern-icon(color(foreground));
 		}
 	}
 	

@@ -7,6 +7,7 @@ import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
 type Indices<COMPONENT_NAME extends AllComponentNames> =
 	{
 		DestinySourceDefinition: "iconWatermark" | "id";
+		DestinyRecordDefinition: "icon";
 	} extends infer ALL_INDICES ?
 	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
 	: never;
@@ -37,13 +38,13 @@ class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
-	public get (key?: string | number): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index: Indices<COMPONENT_NAME>, key: string | number): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index?: string | number, key?: string | number) {
+	public get (key?: string | number | null): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index: Indices<COMPONENT_NAME>, key: string | number | null): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index?: string | number | null, key?: string | number | null) {
 		if (key === undefined)
 			key = index, index = undefined;
 
-		if (key === undefined)
+		if (key === undefined || key === null)
 			return undefined;
 
 		const memoryCacheKey = `${index ?? "/"}:${key}`;
@@ -105,6 +106,10 @@ export default Model.create("manifest", {
 							store.createIndex("iconWatermark", "iconWatermark");
 						if (!store.indexNames.contains("id"))
 							store.createIndex("id", "id", { unique: true });
+						break;
+					case "manifest [DestinyRecordDefinition]":
+						if (!store.indexNames.contains("icon"))
+							store.createIndex("icon", "displayProperties.icon");
 						break;
 				}
 			}
