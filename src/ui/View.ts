@@ -1,4 +1,5 @@
 import type Model from "model/Model";
+import type Button from "ui/Button";
 import { Classes as BaseClasses } from "ui/Classes";
 import Component from "ui/Component";
 import Loadable from "ui/Loadable";
@@ -11,6 +12,7 @@ namespace View {
 	export interface IViewBase {
 		id: string;
 		name: string;
+		initialiseButton?: (button: Button) => any;
 		noNav?: true;
 	}
 
