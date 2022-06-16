@@ -123,6 +123,8 @@
 			}
 			
 			&-settings {
+				margin-left: auto;
+				margin-right: 0;
 				&::after {
 					content: "";
 					display: block;
