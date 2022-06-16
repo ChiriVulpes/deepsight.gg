@@ -1,7 +1,8 @@
 :root {
 	--slot-size: min(106px, (100vh
 		- 50px /* nav */
-		- 33px * 3 /* bucket titles */
+		- 50px /* footer */
+		- 27px * 3 /* bucket titles */
 		- 4px * 2 /* bucket gap */
 		- 22px /* view padding */
 		- 8px * 3 /* bucket inventory padding */
@@ -40,7 +41,7 @@ html .hidden {
 
 .slot {
 	display: flex;
-	padding: 5px;
+	padding: 3px;
 	width: var(--slot-size);
 	height: var(--slot-size);
 	box-sizing: border-box;

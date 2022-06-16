@@ -1,0 +1,123 @@
+.item-sort {
+	&-button {
+		background: none;
+		border: none;
+		font: inherit;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		@include transition(out, transform);
+				
+		&:active {
+			transform: translateY(2px);
+			@include transition(in);
+		}
+		
+		&-icon {
+			position: relative;
+			color: color(foreground-2);
+			width: 1.5em;
+			height: 1.5em;
+			border-radius: 1em;
+			background: color(background-5);
+			border: 2px solid currentColor;
+			margin: 0 .8em 0 .5em;
+			@include transition(out, background, color, transform);
+			
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: .2em;
+				background: currentColor;
+				-webkit-mask-image: url("/image/svg/sort.svg");
+				-webkit-mask-size: contain;
+				-webkit-mask-repeat: no-repeat;
+				-webkit-mask-position: center;
+				mask-image: url("/image/svg/sort.svg");
+				mask-size: contain;
+				mask-repeat: no-repeat;
+				mask-position: center;
+			}
+			
+			> * {
+				position: absolute;
+				inset: 0;
+				opacity: 0;
+				transform: scale(0.5);
+				@include transition(out, transform, opacity);
+				
+				&::before, &::after {
+					content: "";
+					display: block;
+					position: absolute;
+					width: .2em;
+					height: .2em;
+					border-radius: .2em;
+					background: currentColor;
+				}
+				
+				$position: -4px;
+				$position-2: calc(100% + 2px);
+				$duration: .2s;
+				&:nth-child(1)::before {
+					top: $position;
+					left: $position;
+					animation: top-left-to-bottom-right $duration linear;
+					@keyframes top-left-to-bottom-right {
+						to { top: $position-2; left: $position-2 }
+					}
+				}
+				&:nth-child(1)::after {
+					top: $position;
+					right: $position;
+					animation: top-right-to-bottom-left $duration linear;
+					@keyframes top-right-to-bottom-left {
+						50% { top: $position-2; right: $position }
+						100% { top: $position-2; right: $position-2 }
+					}
+				}
+				&:nth-child(2)::before {
+					bottom: $position;
+					right: $position;
+					animation: bottom-right-to-top-left $duration linear;
+					@keyframes bottom-right-to-top-left {
+						to { bottom: $position-2; right: $position-2 }
+					}
+				}
+				&:nth-child(2)::after {
+					bottom: $position;
+					left: $position;
+					animation: bottom-left-to-top-right $duration linear;
+					@keyframes bottom-left-to-top-right {
+						50% { bottom: $position-2; left: $position }
+						100% { bottom: $position-2; left: $position-2 }
+					}
+				}
+			}
+			
+			.item-sort-button:where(:hover, :focus-visible, :active) & {
+				color: color(foreground-0);
+				background: color(background-6);
+				transform: scale(1.25);
+				@include transition(in);
+				
+				> * {
+					transform: scale(1);
+					opacity: 1;
+					@include transition(in);
+				}
+			}
+			
+			.item-sort-button:active & {
+				transform: scale(1.25);
+				background: color(background-5);
+				> * {
+					&::before, &::after {
+						animation: none;
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,6 +1,6 @@
 import Component from "ui/Component";
 
-export enum ClassesButton {
+export enum ButtonClasses {
 	Main = "button",
 	Attention = "button-attention",
 }
@@ -10,6 +10,6 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 	protected static override defaultType = "button";
 
 	protected override onMake (...args: ARGS) {
-		this.classes.add(ClassesButton.Main);
+		this.classes.add(ButtonClasses.Main);
 	}
 }

@@ -13,6 +13,7 @@ export type ComponentClass<COMPONENT extends Component<Element, readonly any[]> 
 	get: (typeof Component)["get"];
 };
 
+export type ComponentElement<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["element"];
 export type ComponentArgs<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["_args"];
 
 export interface IComponentsEvents {
@@ -20,6 +21,12 @@ export interface IComponentsEvents {
 }
 
 export type AnyComponent = Component<Element, any[]>;
+
+export type ComponentEventManager<HOST extends Component<Element, any[]>, EVENTS> =
+	EventManager<HOST, EVENTS, ComponentElement<HOST>>;
+
+export type ComponentEvents<CLASS extends { prototype: Component<Element, any[]> }> =
+	CLASS["prototype"]["event"] extends EventManager<any, infer SUPER_EVENTS, any> ? SUPER_EVENTS : never;
 
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
 
@@ -103,19 +110,23 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return text as any;
 	}
 
-	public get event (): EventManager<this & Component<HTMLElement>, HTMLElementEventMap, ELEMENT> {
-		const event = new EventManager(this as any as Component<HTMLElement>, new WeakRef(this.element));
-		Object.defineProperty(this, "event", {
-			value: event,
-		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return event as any;
-	}
+	public readonly event!: EventManager<this & Component<HTMLElement>, HTMLElementEventMap, ELEMENT>;
 
 	protected constructor (public readonly element: ELEMENT) {
 		if (this.constructor !== Component)
 			throw new Error("Custom components may not provide a constructor. Use onMake");
 		element.component = new WeakRef(this);
+		Object.defineProperty(this, "event", {
+			configurable: true,
+			get: () => {
+				const event = new EventManager(this as any as Component<HTMLElement>, new WeakRef(this.element));
+				Object.defineProperty(this, "event", {
+					value: event,
+				});
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return event as any;
+			},
+		});
 	}
 
 	public as<COMPONENT_CLASS extends ComponentClass> (cls: COMPONENT_CLASS): COMPONENT_CLASS["prototype"] | undefined {

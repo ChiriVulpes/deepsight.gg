@@ -6,6 +6,7 @@
 	height: 100%;
 	display: grid;
 	grid-template-columns: 1fr;
+	grid-template-rows: 1fr auto;
 	justify-content: center;
 	background: color(background-1);
 	
@@ -30,6 +31,12 @@
 		text-transform: uppercase;
 		line-height: 1em;
 		margin-bottom: .2em;
+	}
+	
+	&-footer {
+		height: 50px;
+		display: grid;
+		align-items: center;
 	}
 }
 

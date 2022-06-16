@@ -7,12 +7,13 @@ import { EventManager } from "utility/EventManager";
 
 namespace View {
 
-	export type Initialiser<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase> = (component: ContentComponent<MODELS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
+	export type Initialiser<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase> =
+		(api: WrapperComponent<MODELS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
 
 	export interface IViewBase {
 		id: string;
 		name: string;
-		initialiseButton?: (button: Button) => any;
+		initialiseDestinationButton?: (button: Button) => any;
 		noNav?: true;
 	}
 
@@ -34,7 +35,6 @@ namespace View {
 			return this;
 		}
 
-		protected readonly definition!: DEFINITION;
 		public define<EXTENDED_DEFINITION> () {
 			return this as any as Factory<OTHER_MODELS, EXTENDED_DEFINITION & DEFINITION, HELPER>;
 		}
@@ -44,8 +44,15 @@ namespace View {
 			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
 		}
 
+		protected readonly definition = {} as DEFINITION;
+		public configure (definition: IView<[], [], DEFINITION>) {
+			Object.assign(this.definition, definition);
+			return this;
+		}
+
 		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION>) {
 			return new Handler<[...OTHER_MODELS, ...MODELS], DEFINITION>({
+				...this.definition,
 				...definition,
 				models: [...this.otherModels, ...(definition.models ?? []) as MODELS],
 				initialise: async (component, ...requirements) => {
@@ -90,6 +97,7 @@ namespace View {
 	export enum Classes {
 		Main = "view",
 		Content = "view-content",
+		Footer = "view-footer",
 		Hidden = "view-hidden",
 		Loadable = "view-loadable",
 		Title = "view-title",
@@ -131,6 +139,16 @@ namespace View {
 		private static index = 0;
 
 		public content!: ContentComponent<MODELS, DEFINITION>;
+
+		public get footer () {
+			const footer = Component.create()
+				.classes.add(Classes.Footer)
+				.appendTo(this);
+
+			Object.defineProperty(this, "footer", { value: footer });
+			return footer;
+		}
+
 		public definition!: IView<MODELS, [], DEFINITION>;
 
 		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
@@ -145,12 +163,17 @@ namespace View {
 
 			if (this.definition.models)
 				Loadable.create(...this.definition.models)
-					.onReady((...results) => this.content.tweak(this.definition.initialise, ...results))
+					.onReady((...results) => this.initialise?.(...results))
 					.classes.add(Classes.Loadable)
 					.appendTo(this);
 
 			else
-				(this.definition.initialise as any as (component: ContentComponent<MODELS, DEFINITION>) => any)?.(this.content);
+				this.initialise(...[] as any as Model.Resolve<MODELS>);
+		}
+
+		private initialise (...args: Model.Resolve<MODELS>) {
+			this.definition.initialise?.(this, ...args);
+			return this.content;
 		}
 	}
 

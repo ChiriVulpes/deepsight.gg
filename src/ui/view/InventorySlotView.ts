@@ -10,10 +10,12 @@ import { InventoryClasses } from "ui/Classes";
 import Component from "ui/Component";
 import BucketComponent from "ui/inventory/Bucket";
 import ItemComponent from "ui/inventory/Item";
+import ItemSort from "ui/inventory/ItemSort";
 import View from "ui/View";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
+	Footer = "view-inventory-slot-footer",
 	CharacterBuckets = "view-inventory-slot-character-buckets",
 	CharacterBucket = "view-inventory-slot-character-bucket",
 	CharacterBucketEmblem = "view-inventory-slot-character-bucket-emblem",
@@ -54,26 +56,26 @@ function initialiseCharacterComponent (character: DestinyCharacterComponent): IC
 export default new View.Factory()
 	.using(Items, Profile(DestinyComponentType.Characters))
 	.define<{ slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes }>()
-	.initialise(async (component, buckets, profile) => {
+	.initialise(async (view, buckets, profile) => {
 		if (!profile.characters.data || !Object.keys(profile.characters.data).length) {
 			console.warn("No characters");
 			return;
 		}
 
-		component.classes.add(InventorySlotViewClasses.Main);
+		view.content.classes.add(InventorySlotViewClasses.Main);
 
 		const { ItemCategoryHashes } = await DestinyEnums.await();
 
 		const characterBuckets = Component.create()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
-			.appendTo(component);
+			.appendTo(view.content);
 
 		const vaultBucket = BucketComponent.create()
 			.classes.add(InventorySlotViewClasses.VaultBucket)
 			.tweak(vault => vault.icon.style.set("--icon",
 				"url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")"))
 			.tweak(vault => vault.title.text.add("Vault"))
-			.appendTo(component);
+			.appendTo(view.content);
 
 		const characterBucketsSorted = Object.values(profile.characters.data)
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
@@ -113,7 +115,7 @@ export default new View.Factory()
 				// .map(category => DestinyItemCategoryDefinition.get(category))))
 				// .filter((category): category is DestinyItemCategoryDefinition => category !== undefined);
 
-				if (!categories.includes(component.definition.slot(ItemCategoryHashes)))
+				if (!categories.includes(view.definition.slot(ItemCategoryHashes)))
 					continue;
 
 				ItemComponent.create([item])
@@ -122,4 +124,10 @@ export default new View.Factory()
 						.appendTo(bucketComponent.inventory));
 			}
 		}
+
+		view.footer.classes.add(InventorySlotViewClasses.Footer);
+
+		ItemSort.create()
+			.event.subscribe("sort", () => { })
+			.appendTo(view.footer);
 	});

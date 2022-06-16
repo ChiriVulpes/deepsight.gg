@@ -1,4 +1,4 @@
-import Button, { ClassesButton } from "ui/Button";
+import Button, { ButtonClasses } from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Label from "ui/Label";
@@ -18,7 +18,7 @@ export default View.create({
 	id: "auth",
 	name: "Authentication",
 	noNav: true,
-	initialise: view => view
+	initialise: view => view.content
 		.classes.add(AuthViewClasses.Content)
 
 		.append(Component.create()
@@ -35,7 +35,7 @@ export default View.create({
 			.tweak(_ => _.content.text.set("Not Authenticated")))
 
 		.append(Button.create()
-			.classes.add(AuthViewClasses.AuthButton, ClassesButton.Attention)
+			.classes.add(AuthViewClasses.AuthButton, ButtonClasses.Attention)
 			.text.set("Authenticate with Bungie")
 			.event.subscribe("click", () =>
 				void Bungie.authenticate("start").catch(err => console.error(err)))),

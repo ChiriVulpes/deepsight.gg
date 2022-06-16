@@ -111,7 +111,7 @@ namespace Loadable {
 
 			progress /= this.models.length;
 
-			this.loadingBar.style.set("--progress", `${progress}`);
+			this.loadingBar.style.set("--progress", `${Math.min(1, progress)}`);
 
 			if (message)
 				this.loadingMessage.text.set(`${message}...`);
