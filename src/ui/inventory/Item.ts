@@ -1,4 +1,3 @@
-import { ItemState } from "bungie-api-ts/destiny2";
 import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
 import Button from "ui/Button";
@@ -16,6 +15,7 @@ export enum ItemClasses {
 	Deepsight = "item-deepsight",
 	DeepsightHasPattern = "item-deepsight-has-pattern",
 	DeepsightPattern = "item-deepsight-pattern",
+	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
 	DeepsightAttuned = "item-deepsight-attuned",
 	Extra = "item-extra",
 	PowerLevel = "item-power-level",
@@ -40,7 +40,7 @@ export default class ItemComponent extends Button<[Item]> {
 			.style.set("--icon", `url("https://www.bungie.net${item.definition.displayProperties.icon}")`)
 			.appendTo(this);
 
-		if (item.reference.state & ItemState.Crafted)
+		if (item.shaped)
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
 				.append(Component.create())
@@ -76,17 +76,20 @@ export default class ItemComponent extends Button<[Item]> {
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
-		if (item.deepsight) {
-			const container = Component.create()
-				.classes.add(ItemClasses.Deepsight)
-				.classes.toggle(item.deepsight.attunement?.complete ?? false, ItemClasses.DeepsightAttuned)
-				.appendTo(this);
+		if (!item.shaped) {
+			if (item.deepsight?.attunement)
+				Component.create()
+					.classes.add(ItemClasses.Deepsight)
+					.classes.toggle(item.deepsight.attunement?.objective.complete ?? false, ItemClasses.DeepsightAttuned)
+					.appendTo(this);
 
-			if (item.deepsight.pattern && !item.deepsight.pattern.progress.complete)
+			if (item.deepsight?.pattern)
 				Component.create()
 					.classes.add(ItemClasses.DeepsightPattern)
-					.appendTo(container
-						.classes.add(ItemClasses.DeepsightHasPattern));
+					.classes.toggle(item.deepsight.pattern.progress.complete, ItemClasses.DeepsightPatternUnlocked)
+					.appendTo(Component.create()
+						.classes.add(ItemClasses.DeepsightHasPattern)
+						.appendTo(this));
 		}
 
 		// this.text.set(item.definition.displayProperties.name);

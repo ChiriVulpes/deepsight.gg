@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress, DestinyRecordDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition } from "bungie-api-ts/destiny2";
 import { DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
@@ -14,16 +14,29 @@ export interface IItem {
 	instance?: DestinyItemInstanceComponent;
 	definition: DestinyInventoryItemDefinition;
 	source?: DestinySourceDefinition;
-	objectives?: Record<string, DestinyObjectiveProgress[]>;
+	objectives: DestinyObjectiveProgress[];
 	deepsight?: IDeepsight;
+	shaped?: IWeaponShaped;
+}
+
+export interface IWeaponShaped {
+	level?: IObjective;
+	progress?: IObjective;
+}
+
+export interface IDeepsightPattern {
+	record: DestinyRecordDefinition;
+	progress: DestinyObjectiveProgress;
 }
 
 export interface IDeepsight {
-	attunement: DestinyObjectiveProgress;
-	pattern?: {
-		record: DestinyRecordDefinition;
-		progress: DestinyObjectiveProgress;
-	}
+	attunement?: IObjective;
+	pattern?: IDeepsightPattern;
+}
+
+export interface IObjective {
+	objective: DestinyObjectiveProgress;
+	definition: DestinyObjectiveDefinition;
 }
 
 export interface Item extends IItem { }
@@ -68,82 +81,98 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	const initialisedItems = new Set<string>();
 
-	async function resolveDeepsight (reference: DestinyItemComponent, definition: DestinyInventoryItemDefinition) {
-		if (!(reference.state & ItemState.HighlightedObjective))
-			return undefined;
-
-		const objectives = Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat();
-		let attunement: DestinyObjectiveProgress | undefined;
-		for (const objective of objectives) {
+	async function findObjective (item: Item, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
+		for (const objective of item.objectives) {
 			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
-			if (definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted) {
-				attunement = objective;
-				break;
-			}
+			if (!definition)
+				continue;
+
+			if (predicate(objective, definition))
+				return { objective: objective, definition };
 		}
 
-		if (!attunement)
+		return undefined;
+	}
+
+	async function resolveDeepsightAttunement (item: Item) {
+		if (!(item.reference.state & ItemState.HighlightedObjective))
 			return undefined;
 
-		const result: IDeepsight = { attunement };
+		return findObjective(item, (objective, definition) => definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted);
+	}
 
-		const collectible = await DestinyCollectibleDefinition.get(definition.collectibleHash);
+	async function resolveDeepsightPattern (item: Item): Promise<IDeepsightPattern | undefined> {
+
+		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
 		const record = await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null);
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const progress = profile.profileRecords.data?.records[record?.hash!];
 		if (!progress)
-			return result;
+			return undefined;
 
 		if (progress.objectives.length !== 1) {
-			console.warn(`Incomprehensible pattern record for '${definition.displayProperties.name}'`, progress);
-			return result;
-		}
-
-		result.pattern = {
-			record: record!,
-			progress: progress.objectives[0],
-		};
-
-		return result;
-	}
-
-	async function resolveItemComponent (itemComponent: DestinyItemComponent) {
-		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
-		const itemDef = await DestinyInventoryItemDefinition.get(itemComponent.itemHash);
-		if (!itemDef) {
-			console.warn("No item definition for ", itemComponent.itemHash);
+			console.warn(`Incomprehensible pattern record for '${item.definition.displayProperties.name}'`, progress);
 			return undefined;
 		}
 
-		const itemId = itemComponent.itemInstanceId ?? `item:${itemComponent.itemHash}`;
+		return {
+			record: record!,
+			progress: progress.objectives[0],
+		};
+	}
+
+	async function resolveDeepsight (item: Item): Promise<IDeepsight> {
+		return { attunement: await resolveDeepsightAttunement(item), pattern: await resolveDeepsightPattern(item) };
+	}
+
+	async function resolveItemComponent (reference: DestinyItemComponent) {
+		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
+		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
+		if (!definition) {
+			console.warn("No item definition for ", reference.itemHash);
+			return undefined;
+		}
+
+		const itemId = reference.itemInstanceId ?? `item:${reference.itemHash}`;
 		if (initialisedItems.has(itemId)) {
-			console.debug(`Skipping "${itemDef.displayProperties.name}", already initialised in another bucket`);
+			console.debug(`Skipping "${definition.displayProperties.name}", already initialised in another bucket`);
 			return undefined; // already initialised in another bucket
 		}
 
-		if (itemDef.nonTransferrable) {
-			console.debug(`Skipping "${itemDef.displayProperties.name}", non-transferrable`);
+		if (definition.nonTransferrable) {
+			console.debug(`Skipping "${definition.displayProperties.name}", non-transferrable`);
 			return undefined;
 		}
 
 		initialisedItems.add(itemId);
 
-		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${itemDef.iconWatermark}`);
-		const result: IItem = { definition: itemDef, reference: itemComponent, instance: profile.itemComponents.instances.data?.[itemComponent.itemInstanceId!] };
+		const item = new Item({
+			definition: definition,
+			reference: reference,
+			instance: profile.itemComponents.instances.data?.[reference.itemInstanceId!],
+			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
+		});
 
+		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${definition.iconWatermark}`);
 		if (!source) {
 			source = await DestinySourceDefinition.get("id", "redwar");
-			if (!source?.itemHashes?.includes(itemDef.hash)) {
+			if (!source?.itemHashes?.includes(definition.hash)) {
 				source = undefined;
-				console.warn(`Unable to determine source of '${itemDef.displayProperties.name}' (${itemDef.hash})`, result);
+				console.warn(`Unable to determine source of '${definition.displayProperties.name}' (${definition.hash})`, item);
 			}
 		}
 
-		result.source = source;
-		result.deepsight = await resolveDeepsight(itemComponent, itemDef);
+		item.source = source;
+		item.deepsight = await resolveDeepsight(item);
+		if (item.reference.state & ItemState.Crafted) {
+			item.shaped = {
+				level: await findObjective(item, (objective, definition) => definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevel),
+				progress: await findObjective(item, (objective, definition) => definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevelProgress),
+			};
+		}
 
-		return result;
+		return item;
 	}
 
 	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {
@@ -153,9 +182,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			if (!item)
 				continue;
 
-			items.push(new Item({
-				...item,
-			}));
+			items.push(item);
 		}
 
 		return new Bucket(id, items);
@@ -176,10 +203,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			if (!item)
 				continue;
 
-			bucket["_items"].push(new Item({
-				equipped: true,
-				...item,
-			}));
+			item.equipped = true;
+			bucket["_items"].push(item);
 		}
 	}
 

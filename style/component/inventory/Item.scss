@@ -142,11 +142,17 @@
 		}
 		
 		&-has-pattern {
+			position: absolute;
+			inset: 0;
 			background-image: url("/image/deepsight.png");
 		}
 		
-		&-pattern {
+		&-pattern:not(&-pattern-unlocked) {
 			@include pattern-icon(color(foreground));
+		}
+			
+		&-pattern-unlocked {
+			@include pattern-icon(color(background-2));
 		}
 	}
 	

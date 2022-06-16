@@ -8,6 +8,7 @@ import TooltipManager, { Tooltip } from "ui/TooltipManager";
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
 	Content = "item-tooltip-content",
+	ProgressBar = "item-tooltip-progress-bar",
 	SourceWatermark = "item-tooltip-source-watermark",
 	Masterwork = "item-tooltip-masterwork",
 	PrimaryInfo = "item-tooltip-primary-info",
@@ -19,11 +20,16 @@ enum ItemTooltipClasses {
 	AmmoHeavy = "item-tooltip-ammo-type-heavy",
 	Energy = "item-tooltip-energy",
 	EnergyValue = "item-tooltip-energy-value",
+	WeaponLevel = "item-tooltip-weapon-level",
+	WeaponLevelLabel = "item-tooltip-weapon-level-label",
+	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPattern = "item-tooltip-deepsight-pattern",
+	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
 	DeepsightPatternNumber = "item-tooltip-deepsight-pattern-number",
 	DeepsightPatternOutOf = "item-tooltip-deepsight-pattern-out-of",
 	DeepsightPatternRequired = "item-tooltip-deepsight-pattern-required",
+	DeepsightPatternRequiredUnit = "item-tooltip-deepsight-pattern-required-unit",
 	DeepsightProgressBar = "item-tooltip-deepsight-progress-bar",
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
 }
@@ -36,10 +42,16 @@ class ItemTooltip extends Tooltip {
 	public ammoType!: Component;
 	public energy!: Component;
 	public energyValue!: Component;
+	public weaponLevel!: Component;
+	public weaponLevelLabel!: Component;
+	public weaponLevelProgress!: Component;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
+	public deepsightPatternLabel!: Component;
 	public deepsightPatternNumber!: Component;
+	public deepsightPatternOutOf!: Component;
 	public deepsightPatternRequired!: Component;
+	public deepsightPatternRequiredUnit!: Component;
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
 
@@ -73,24 +85,35 @@ class ItemTooltip extends Tooltip {
 
 		this.energy.text.add("Energy");
 
+		this.weaponLevel = Component.create()
+			.classes.add(ItemTooltipClasses.WeaponLevel, ItemTooltipClasses.ProgressBar)
+			.append(this.weaponLevelLabel = Component.create()
+				.classes.add(ItemTooltipClasses.WeaponLevelLabel))
+			.append(this.weaponLevelProgress = Component.create()
+				.classes.add(ItemTooltipClasses.WeaponLevelProgress))
+			.appendTo(this.primaryInfo);
+
 		this.deepsight = Component.create()
 			.classes.add(ItemTooltipClasses.Deepsight)
 			.appendTo(this.content);
 
 		this.deepsightPattern = Component.create()
 			.classes.add(ItemTooltipClasses.DeepsightPattern)
-			.text.add("Attune to extract pattern")
+			.append(this.deepsightPatternLabel = Component.create()
+				.classes.add(ItemTooltipClasses.DeepsightPatternLabel))
 			.append(this.deepsightPatternNumber = Component.create()
 				.classes.add(ItemTooltipClasses.DeepsightPatternNumber))
-			.append(Component.create()
+			.append(this.deepsightPatternOutOf = Component.create()
 				.classes.add(ItemTooltipClasses.DeepsightPatternOutOf)
 				.text.add(" / ")
 				.append(this.deepsightPatternRequired = Component.create()
-					.classes.add(ItemTooltipClasses.DeepsightPatternRequired)))
+					.classes.add(ItemTooltipClasses.DeepsightPatternRequired))
+				.append(this.deepsightPatternRequiredUnit = Component.create()
+					.classes.add(ItemTooltipClasses.DeepsightPatternRequiredUnit)))
 			.appendTo(this.deepsight);
 
 		this.deepsightProgressBar = Component.create()
-			.classes.add(ItemTooltipClasses.DeepsightProgressBar)
+			.classes.add(ItemTooltipClasses.DeepsightProgressBar, ItemTooltipClasses.ProgressBar)
 			.text.add("Attunement Progress")
 			.appendTo(this.deepsight);
 
@@ -156,18 +179,37 @@ class ItemTooltip extends Tooltip {
 				.style.set("--icon", `url("https://www.bungie.net${energyType?.displayProperties.icon ?? ""}")`);
 		}
 
-		this.deepsight.classes.toggle(!item.deepsight, Classes.Hidden);
-		if (item.deepsight) {
-			const progress = (item.deepsight.attunement.progress ?? 0) / item.deepsight.attunement.completionValue;
+		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);
+		if (item.shaped) {
+			const progressObjective = item.shaped.progress?.objective;
+			const progress = (progressObjective?.progress ?? 0) / (progressObjective?.completionValue ?? 1);
+			this.weaponLevel.style.set("--progress", `${progress}`);
+			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.objective.progress ?? 0}`);
+			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
+		}
+
+		const showPattern = item.deepsight?.pattern && !item.shaped;
+		this.deepsight.classes.toggle(!item.deepsight?.attunement && !showPattern, Classes.Hidden);
+
+		this.deepsightPattern.classes.toggle(!showPattern, Classes.Hidden);
+		if (showPattern) {
+			const complete = !!item.deepsight?.pattern?.progress.complete;
+			this.deepsightPatternLabel
+				.text.set(complete ? "This weapon's Pattern is unlocked."
+					: !item.deepsight?.attunement ? "This weapon can be shaped." : "Attune to extract the Pattern.");
+			this.deepsightPatternNumber.classes.toggle(complete, Classes.Hidden);
+			this.deepsightPatternOutOf.classes.toggle(complete, Classes.Hidden);
+			this.deepsightPatternNumber.text.set(`${item.deepsight!.pattern!.progress.progress ?? 0}`);
+			this.deepsightPatternRequired.text.set(`${item.deepsight!.pattern!.progress.completionValue}`);
+			this.deepsightPatternRequiredUnit.classes.toggle(complete, Classes.Hidden);
+			this.deepsightPatternRequiredUnit.text.set("extractions");
+		}
+
+		this.deepsightProgressBar.classes.toggle(!item.deepsight?.attunement, Classes.Hidden);
+		if (item.deepsight?.attunement) {
+			const progress = (item.deepsight.attunement.objective.progress ?? 0) / item.deepsight.attunement.objective.completionValue;
 			this.deepsightProgressBar.style.set("--progress", `${progress}`);
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
-
-			const showPattern = item.deepsight.pattern && !item.deepsight.pattern.progress.complete;
-			this.deepsightPattern.classes.toggle(!showPattern, Classes.Hidden);
-			if (showPattern) {
-				this.deepsightPatternNumber.text.set(`${(item.deepsight.pattern!.progress.progress ?? 0) + 1}`);
-				this.deepsightPatternRequired.text.set(`${item.deepsight.pattern!.progress.completionValue}`);
-			}
 		}
 	}
 }

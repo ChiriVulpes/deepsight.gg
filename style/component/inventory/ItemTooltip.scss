@@ -66,8 +66,7 @@
 	&-primary-info {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		font-size: 1.1em;
-		line-height: 1em;
+		row-gap: .5em;
 		padding: var(--tooltip-padding);
 		background: color(tooltip-background);
 	}
@@ -117,6 +116,11 @@
 	}
 	&-energy-type-stasis {
 		color: #4d88ff;
+	}
+	
+	&-ammo-type, &-energy-type {
+		font-size: 1.1em;
+		line-height: 1em;
 	}
 	
 	&-ammo-type {
@@ -175,6 +179,9 @@
 	}
 	
 	&-deepsight {
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
 		background: rgba(#5a2e18, .85);
 		border: 2px solid #f0631e;
 		border-left: none;
@@ -185,17 +192,20 @@
 			display: flex;
 			gap: .5em;
 			align-items: center;
-			padding: 0 2px 8px;
+			padding: 0 2px 2px;
+			font-size: .9em;
 			&::before {
 				content: "";
 				display: block;
-				width: 1em;
-				height: 1em;
+				width: .85em;
+				height: .85em;
 				background: currentColor;
 				-webkit-mask-image: url("/image/svg/shaped.svg");
 				-webkit-mask-size: contain;
 				mask-image: url("/image/svg/shaped.svg");
 				mask-size: contain;
+				position: relative;
+				top: 1px;
 			}
 			
 			&-number {
@@ -204,28 +214,35 @@
 			
 			&-out-of {
 				display: flex;
+				align-items: center;
 				gap: .5em;
 				opacity: .5;
 			}
 		}
+	}
 		
-		&-progress-bar {
-			color: color(foreground-0);
-			background: color(background-1, .85);
-			display: grid;
-			grid-template-columns: 1fr auto;
-			position: relative;
-			padding: 2px 4px 2px 8px;
-			z-index: 1;
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				inset: 0;
-				right: calc(100% * (1 - var(--progress)));
-				background: #5da569;
-				z-index: -1;
-			}
+	&-progress-bar {
+		color: color(foreground-0);
+		background: color(background-0, .55);
+		display: grid;
+		grid-template-columns: 1fr auto;
+		position: relative;
+		padding: 2px 4px 2px 6px;
+		z-index: 1;
+		grid-column: 1/5;
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			right: calc(100% * (1 - var(--progress)));
+			background: var(--progress-bar-background, #5da569);
+			z-index: -1;
 		}
+	}
+	
+	&-weapon-level {
+		--progress-bar-background: #d35137;
+		text-shadow: 1px 2px .05em #0008;
 	}
 }
