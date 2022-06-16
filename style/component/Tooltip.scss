@@ -18,6 +18,7 @@
 	--tooltip-padding: 8px 12px;
 	
 	&-header {
+		position: relative;
 		background: color(background-3, .85);
 		padding: var(--tooltip-padding);
 		display: grid;
