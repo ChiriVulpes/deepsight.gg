@@ -3,7 +3,7 @@ import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { DestinyGeneratedEnums, ItemCategoryHashes } from "bungie-api-ts/generated-enums";
 import type { DestinyEnumHelper } from "model/models/DestinyEnums";
 import DestinyEnums from "model/models/DestinyEnums";
-import type { Bucket, BucketId } from "model/models/Items";
+import type { Bucket, BucketId, Item } from "model/models/Items";
 import Items from "model/models/Items";
 import Profile from "model/models/Profile";
 import { InventoryClasses } from "ui/Classes";
@@ -11,6 +11,8 @@ import Component from "ui/Component";
 import BucketComponent from "ui/inventory/Bucket";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/ItemSort";
+import type Sort from "ui/inventory/sort/Sort";
+import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
 
 export enum InventorySlotViewClasses {
@@ -56,7 +58,11 @@ function initialiseCharacterComponent (character: DestinyCharacterComponent): IC
 
 export default new View.Factory()
 	.using(Items, Profile(DestinyComponentType.Characters))
-	.define<{ slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes }>()
+	.define<{
+		sort: SortManager;
+		inapplicableSorts?: readonly Sort[];
+		slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
+	}>()
 	.initialise(async (view, buckets, profile) => {
 		if (!profile.characters.data || !Object.keys(profile.characters.data).length) {
 			console.warn("No characters");
@@ -91,45 +97,61 @@ export default new View.Factory()
 			bucket,
 		]));
 
-		// const { DestinyItemCategoryDefinition } = await Manifest.await();
-		for (const [bucketId, bucket] of Object.entries(buckets) as [BucketId, Bucket][]) {
+		const itemMap = new Map<Item, ItemComponent>();
+
+		const bucketEntries = Object.entries(buckets) as [BucketId, Bucket][];
+		for (const [bucketId, bucket] of bucketEntries) {
 			if (bucketId === "inventory" || bucketId === "postmaster")
 				continue;
 
-			let bucketComponent: BucketComponent;
-			let equippedComponent: Component | undefined;
-			if (bucketId === "vault")
-				bucketComponent = vaultBucket;
-			else {
-				const character = characters[bucketId];
-				if (!character) {
-					console.warn(`Unknown character '${bucketId}'`);
-					continue;
-				}
-
-				bucketComponent = character.bucketComponent;
-				equippedComponent = character.equippedComponent;
-			}
-
-			for (const item of bucket.items) {
-				const categories = item.definition.itemCategoryHashes ?? []
-				// (await Promise.all((item.definition.itemCategoryHashes ?? [])
-				// .map(category => DestinyItemCategoryDefinition.get(category))))
-				// .filter((category): category is DestinyItemCategoryDefinition => category !== undefined);
-
+			for (const item of view.definition.sort.sort(bucket.items)) {
+				const categories = item.definition.itemCategoryHashes ?? [];
 				if (!categories.includes(view.definition.slot(ItemCategoryHashes)))
 					continue;
 
-				ItemComponent.create([item])
-					.appendTo(item.equipped ? equippedComponent! : Component.create()
-						.classes.add(InventoryClasses.Slot)
-						.appendTo(bucketComponent.inventory));
+				itemMap.set(item, ItemComponent.create([item]));
 			}
 		}
 
+		function sort () {
+			for (const [bucketId, bucket] of bucketEntries) {
+				if (bucketId === "inventory" || bucketId === "postmaster")
+					continue;
+
+				let bucketComponent: BucketComponent;
+				let equippedComponent: Component | undefined;
+				if (bucketId === "vault")
+					bucketComponent = vaultBucket;
+				else {
+					const character = characters[bucketId];
+					if (!character) {
+						console.warn(`Unknown character '${bucketId}'`);
+						continue;
+					}
+
+					bucketComponent = character.bucketComponent;
+					equippedComponent = character.equippedComponent;
+				}
+
+				for (const item of view.definition.sort.sort(bucket.items))
+					itemMap.get(item)
+						?.setSortedBy(view.definition.sort)
+						.appendTo(item.equipped ? equippedComponent! : Component.create()
+							.classes.add(InventoryClasses.Slot)
+							.appendTo(bucketComponent.inventory));
+
+				// clean up old slots
+				for (const slot of [...bucketComponent.inventory.children()])
+					if (!slot.hasContents())
+						slot.remove();
+			}
+		}
+
+		sort();
+
 		view.footer.classes.add(InventorySlotViewClasses.Footer);
 
-		ItemSort.create()
-			.event.subscribe("sort", () => { })
+		ItemSort.create([view.definition.sort])
+			.event.subscribe("sort", sort)
 			.appendTo(view.footer);
 	});

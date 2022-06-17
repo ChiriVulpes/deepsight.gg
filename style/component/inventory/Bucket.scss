@@ -23,8 +23,7 @@
 			-webkit-mask-image: linear-gradient(to bottom, black, transparent);
 			mask-image: linear-gradient(to bottom, black, transparent);
 			z-index: -1;
-			--height: calc(1.5em + 8px);
-			margin-bottom: calc((150px - var(--height)) * -1);
+			margin-bottom: calc((150px - var(--bucket-title-height)) * -1);
 			pointer-events: none;
 		}
 		
@@ -32,8 +31,8 @@
 			position: sticky;
 			top: -10px;
 			z-index: 1;
-			-webkit-mask-image: linear-gradient(to bottom, black var(--height), transparent calc(var(--height) + 1px));
-			mask-image: linear-gradient(to bottom, black var(--height), transparent calc(var(--height) + 1px));
+			-webkit-mask-image: linear-gradient(to bottom, black var(--bucket-title-height), transparent calc(var(--bucket-title-height) + 1px));
+			mask-image: linear-gradient(to bottom, black var(--bucket-title-height), transparent calc(var(--bucket-title-height) + 1px));
 		}
 	}
 	

@@ -17,12 +17,15 @@ namespace View {
 		noNav?: true;
 	}
 
-	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase> = DEFINITION & {
+	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =
+		Omit<FROM, keyof PROVIDED> & Partial<Pick<FROM, Extract<keyof PROVIDED, keyof FROM>>>;
+
+	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
 		models?: MODELS;
 		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], DEFINITION>;
 	};
 
-	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, HELPER = {}> {
+	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> {
 		private readonly otherModels = [] as any as OTHER_MODELS;
 		public using<ADDITIONAL_MODELS extends readonly Model<any, any>[]> (...models: ADDITIONAL_MODELS) {
 			(this.otherModels as any as Model<any, any>[]).push(...models);
@@ -36,7 +39,7 @@ namespace View {
 		}
 
 		public define<EXTENDED_DEFINITION> () {
-			return this as any as Factory<OTHER_MODELS, EXTENDED_DEFINITION & DEFINITION, HELPER>;
+			return this as any as Factory<OTHER_MODELS, EXTENDED_DEFINITION & DEFINITION, HELPER> & HELPER;
 		}
 
 		public helper<NEW_HELPER> (helper: NEW_HELPER) {
@@ -45,12 +48,12 @@ namespace View {
 		}
 
 		protected readonly definition = {} as DEFINITION;
-		public configure (definition: IView<[], [], DEFINITION>) {
+		public configure<PROVIDED extends Partial<DEFINITION>> (definition: PROVIDED) {
 			Object.assign(this.definition, definition);
-			return this;
+			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER, PROVIDED_DEFINITION & PROVIDED> & HELPER;
 		}
 
-		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION>) {
+		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION, PROVIDED_DEFINITION>) {
 			return new Handler<[...OTHER_MODELS, ...MODELS], DEFINITION>({
 				...this.definition,
 				...definition,

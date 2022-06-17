@@ -2,6 +2,7 @@ import Button, { ButtonClasses } from "ui/Button";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import type SortManager from "ui/inventory/SortManager";
 
 export enum ItemSortClasses {
 	Main = "item-sort",
@@ -16,21 +17,23 @@ export interface ItemSortEvents extends ComponentEvents<typeof Component> {
 	sort: Event;
 }
 
-export default class ItemSort extends Component {
+export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 	public override readonly event!: ComponentEventManager<this, ItemSortEvents>;
 
-	protected override onMake (): void {
+	public drawer!: Component;
+
+	protected override onMake (sort: SortManager): void {
 		this.classes.add(ItemSortClasses.Main);
 
-		const drawer = Component.create()
+		this.drawer = Component.create()
 			.classes.add(ItemSortClasses.Drawer, Classes.Hidden)
 			.appendTo(this);
 
 		const sortButton = Button.create()
 			.classes.remove(ButtonClasses.Main)
 			.classes.add(ItemSortClasses.Button)
-			.event.subscribe("click", () => drawer.classes.toggle(Classes.Hidden))
+			.event.subscribe("click", () => this.drawer.classes.toggle(Classes.Hidden))
 			.appendTo(this);
 
 		Component.create()
@@ -41,19 +44,25 @@ export default class ItemSort extends Component {
 
 		Component.create()
 			.classes.add(ItemSortClasses.ButtonLabel)
-			.text.set("Sort")
+			.text.set(`Sort ${sort.name}`)
 			.appendTo(sortButton);
 
 		const sortText = Component.create()
 			.classes.add(ItemSortClasses.ButtonSortText)
-			.text.set("Power, Name")
+			.text.set(sort.get().map(sort => sort.name).join(", "))
 			.appendTo(sortButton);
 
-		document.body.addEventListener("click", event => {
-			if ((event.target as HTMLElement).closest(`.${ItemSortClasses.Main}`))
-				return;
+		this.onClick = this.onClick.bind(this);
+		document.body.addEventListener("click", this.onClick);
+	}
 
-			drawer.classes.add(Classes.Hidden);
-		});
+	private onClick (event: Event): void {
+		if (!this.exists())
+			return document.body.removeEventListener("click", this.onClick);
+
+		if ((event.target as HTMLElement).closest(`.${ItemSortClasses.Main}`))
+			return;
+
+		this.drawer.classes.add(Classes.Hidden);
 	}
 }

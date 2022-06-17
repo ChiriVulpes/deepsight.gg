@@ -21,7 +21,7 @@
 			position: relative;
 			--sort-width: calc(
 				var(--slot-size) * 4
-				+ var(--bucket-inventory-padding) * 2
+				+ var(--bucket-inventory-padding) * 3
 				+ var(--bucket-gap-x) / 2
 				+ var(--view-padding-x)
 			);
@@ -41,7 +41,7 @@
 					+ var(--slot-size) * 6
 					+ var(--bucket-title-height) * 2
 					+ var(--bucket-inventory-padding) * 4
-					+ var(--bucket-gap-y)
+					+ var(--bucket-gap-y) * 2
 					+ var(--view-padding-bottom)
 					+ var(--slot-size-optimisation)
 				);
@@ -87,6 +87,7 @@
 	
 	&-equipped {
 		margin-top: 4px;
+		margin-left: var(--bucket-inventory-padding);
 		position: relative;
 		
 		&::after {

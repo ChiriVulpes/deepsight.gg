@@ -110,7 +110,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return text as any;
 	}
 
-	public readonly event!: EventManager<this & Component<HTMLElement>, HTMLElementEventMap, ELEMENT>;
+	public readonly event!: EventManager<this & Component<HTMLElement, ARGS>, HTMLElementEventMap, ELEMENT>;
 
 	protected constructor (public readonly element: ELEMENT) {
 		if (this.constructor !== Component)
@@ -148,6 +148,19 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	protected onMake (...args: ARGS) { }
 
+	public parent (): AnyComponent | undefined {
+		return Component.get(this.element.parentElement ?? undefined);
+	}
+
+	public hasContents () {
+		return this.element.childNodes.length > 0;
+	}
+
+	public *children () {
+		for (const child of this.element.children)
+			yield Component.get(child);
+	}
+
 	public append (...elements: (AnyComponent | Node | undefined)[]) {
 		this.element.append(...elements.map(element =>
 			element instanceof Component ? element.element : element)
@@ -176,6 +189,19 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TOOLTIP, initialiser: (tooltip: TOOLTIP) => any) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		Component.event.emit("setTooltip", { component: this as any, tooltip, initialiser: initialiser as (tooltip: Tooltip) => any });
+	}
+
+	public exists () {
+		return document.contains(this.element);
+	}
+
+	public index () {
+		const siblings = this.parent()?.element.children ?? [];
+		for (let i = 0; i < siblings.length; i++)
+			if (siblings[i] === this.element)
+				return i;
+
+		return -1;
 	}
 }
 

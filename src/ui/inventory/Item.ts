@@ -3,6 +3,7 @@ import Manifest from "model/models/Manifest";
 import Button from "ui/Button";
 import Component from "ui/Component";
 import ItemTooltip from "ui/inventory/ItemTooltip";
+import type SortManager from "ui/inventory/SortManager";
 
 export enum ItemClasses {
 	Main = "item",
@@ -18,19 +19,21 @@ export enum ItemClasses {
 	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
 	DeepsightAttuned = "item-deepsight-attuned",
 	Extra = "item-extra",
-	PowerLevel = "item-power-level",
 }
 
 export default class ItemComponent extends Button<[Item]> {
 
 	public item!: Item;
+	public extra!: Component;
 
 	protected override async onMake (item: Item) {
 		super.onMake(item);
 
 		this.item = item;
-
 		this.classes.add(ItemClasses.Main);
+		this.extra = Component.create()
+			.classes.add(ItemClasses.Extra);
+
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.add(`item-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
@@ -96,14 +99,29 @@ export default class ItemComponent extends Button<[Item]> {
 		this.setTooltip(ItemTooltip, tooltip => tooltip
 			.setItem(item));
 
-		const extra = Component.create()
-			.classes.add(ItemClasses.Extra)
-			.appendTo(this);
+		this.extra.appendTo(this);
+	}
 
-		if (item.instance?.primaryStat)
-			Component.create()
-				.classes.add(ItemClasses.PowerLevel)
-				.text.set(`${item.instance.primaryStat.value}`)
-				.appendTo(extra);
+	public setSortedBy (sorter: SortManager) {
+		void this.rerenderExtra(sorter);
+		return this;
+	}
+
+	private rerenderId?: number;
+	private async rerenderExtra (sorter: SortManager) {
+		const rerenderId = this.rerenderId = Math.random();
+		this.extra.removeContents();
+
+		for (const sort of sorter.get()) {
+			if (!sort.render)
+				continue;
+
+			const rendered = await sort.render(this.item);
+			if (this.rerenderId !== rerenderId)
+				// something else is causing this to rerender
+				return;
+
+			this.extra.append(rendered);
+		}
 	}
 }
