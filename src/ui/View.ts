@@ -26,13 +26,13 @@ namespace View {
 	};
 
 	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> {
-		private readonly otherModels = [] as any as OTHER_MODELS;
+		private otherModels = [] as any as OTHER_MODELS;
 		public using<ADDITIONAL_MODELS extends readonly Model<any, any>[]> (...models: ADDITIONAL_MODELS) {
 			(this.otherModels as any as Model<any, any>[]).push(...models);
 			return this as any as Factory<[...OTHER_MODELS, ...ADDITIONAL_MODELS], DEFINITION, HELPER>;
 		}
 
-		private readonly initialisers: Initialiser<OTHER_MODELS, DEFINITION>[] = [];
+		private initialisers: Initialiser<OTHER_MODELS, DEFINITION>[] = [];
 		public initialise (initialiser: Initialiser<OTHER_MODELS, DEFINITION>) {
 			this.initialisers.push(initialiser);
 			return this;
@@ -47,10 +47,19 @@ namespace View {
 			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
 		}
 
-		protected readonly definition = {} as DEFINITION;
+		protected definition = {} as DEFINITION;
 		public configure<PROVIDED extends Partial<DEFINITION>> (definition: PROVIDED) {
 			Object.assign(this.definition, definition);
 			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER, PROVIDED_DEFINITION & PROVIDED> & HELPER;
+		}
+
+		public clone () {
+			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, DEFINITION, HELPER, PROVIDED_DEFINITION> & HELPER;
+			this.definition = { ...this.definition };
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			this.otherModels = [...this.otherModels] as any;
+			this.initialisers = [...this.initialisers];
+			return clone;
 		}
 
 		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION, PROVIDED_DEFINITION>) {

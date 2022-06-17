@@ -7,6 +7,8 @@ enum Sort {
 	Energy,
 	Deepsight,
 	Pattern,
+	Masterwork,
+	Rarity,
 }
 
 export default Sort;

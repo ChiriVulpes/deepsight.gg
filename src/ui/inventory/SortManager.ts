@@ -3,9 +3,11 @@ import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortDeepsight from "ui/inventory/sort/SortDeepsight";
 import SortEnergy from "ui/inventory/sort/SortEnergy";
+import SortMasterwork from "ui/inventory/sort/SortMasterwork";
 import SortName from "ui/inventory/sort/SortName";
 import SortPattern from "ui/inventory/sort/SortPattern";
 import SortPower from "ui/inventory/sort/SortPower";
+import SortRarity from "ui/inventory/sort/SortRarity";
 import Store from "utility/Store";
 
 const sortMap: Record<Sort, ISort> = {
@@ -14,6 +16,8 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Energy]: SortEnergy,
 	[Sort.Deepsight]: SortDeepsight,
 	[Sort.Pattern]: SortPattern,
+	[Sort.Masterwork]: SortMasterwork,
+	[Sort.Rarity]: SortRarity,
 };
 
 export interface ISortManagerConfiguration {
