@@ -15,6 +15,7 @@ import View from "ui/View";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
+	Content = "view-inventory-slot-content",
 	Footer = "view-inventory-slot-footer",
 	CharacterBuckets = "view-inventory-slot-character-buckets",
 	CharacterBucket = "view-inventory-slot-character-bucket",
@@ -62,7 +63,8 @@ export default new View.Factory()
 			return;
 		}
 
-		view.content.classes.add(InventorySlotViewClasses.Main);
+		view.classes.add(InventorySlotViewClasses.Main);
+		view.content.classes.add(InventorySlotViewClasses.Content);
 
 		const { ItemCategoryHashes } = await DestinyEnums.await();
 

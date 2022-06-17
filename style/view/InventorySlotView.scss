@@ -1,16 +1,60 @@
 .view-inventory-slot {
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: 20px;
-	--padding-x: 12px;
+	--view-padding-x: 12px;
 	
-	@media (min-width: 1000px) {
-		overflow: hidden;
+	&-content {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: var(--bucket-gap-x);
+		
+		@media (min-width: 1000px) {
+			overflow: hidden;
+		}
+		
+		@media (max-width: 600px) {
+			display: flex;
+			flex-direction: column;
+		}
 	}
 	
-	@media (max-width: 600px) {
-		display: flex;
-		flex-direction: column;
+	&-footer {
+		.item-sort {
+			position: relative;
+			--sort-width: calc(
+				var(--slot-size) * 4
+				+ var(--bucket-inventory-padding) * 2
+				+ var(--bucket-gap-x) / 2
+				+ var(--view-padding-x)
+			);
+			width: var(--sort-width);
+			
+			&-drawer, &-button {
+				width: var(--sort-width);
+			}
+			
+			&-drawer {
+				position: fixed;
+				display: block;
+				left: 0;
+				bottom: 0;
+				height: calc(
+					var(--footer-height)
+					+ var(--slot-size) * 6
+					+ var(--bucket-title-height) * 2
+					+ var(--bucket-inventory-padding) * 4
+					+ var(--bucket-gap-y)
+					+ var(--view-padding-bottom)
+					+ var(--slot-size-optimisation)
+				);
+				transform: translateY(0);
+				@include transition(in, transform);
+				
+				&.hidden {
+					transform: translateY(100%);
+					@include transition(out);
+					transition-timing-function: ease-in;
+				}
+			}
+		}
 	}
 }
 
@@ -19,7 +63,7 @@
 	grid-template-rows: unset;
 	
 	&:not(:last-child) {
-		margin-bottom: 4px;
+		margin-bottom: var(--bucket-gap-y);
 	}
 	
 	&-emblem {
@@ -50,8 +94,8 @@
 			display: block;
 			position: absolute;
 			top: 6px;
-			right: -5px;
-			width: 3px;
+			right: -3px;
+			width: 2px;
 			height: calc(var(--slot-size) - 12px);
 			background: color(background-4);
 			z-index: -1;

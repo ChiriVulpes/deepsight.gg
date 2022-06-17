@@ -8,6 +8,7 @@ export enum ItemSortClasses {
 	Button = "item-sort-button",
 	ButtonIcon = "item-sort-button-icon",
 	ButtonLabel = "item-sort-button-label",
+	ButtonSortText = "item-sort-button-sort-text",
 	Drawer = "item-sort-drawer",
 }
 
@@ -38,10 +39,14 @@ export default class ItemSort extends Component {
 			.append(Component.create())
 			.appendTo(sortButton);
 
-		sortButton.text.add("Sort:");
-
-		const sortLabel = Component.create()
+		Component.create()
 			.classes.add(ItemSortClasses.ButtonLabel)
+			.text.set("Sort")
+			.appendTo(sortButton);
+
+		const sortText = Component.create()
+			.classes.add(ItemSortClasses.ButtonSortText)
+			.text.set("Power, Name")
 			.appendTo(sortButton);
 
 		document.body.addEventListener("click", event => {

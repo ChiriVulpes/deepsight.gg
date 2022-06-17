@@ -1,12 +1,22 @@
 :root {
+	--nav-height: 50px;
+	--footer-height: 50px;
+	--view-padding-top: 10px;
+	--view-padding-bottom: 12px;
+	--view-padding-x: 48px;
+	--bucket-title-height: 27px;
+	--bucket-gap-x: 20px;
+	--bucket-gap-y: 4px;
+	--bucket-inventory-padding: 4px;
+	--slot-size-optimisation: 13px;
 	--slot-size: min(106px, (100vh
-		- 50px /* nav */
-		- 50px /* footer */
-		- 27px * 3 /* bucket titles */
-		- 4px * 2 /* bucket gap */
-		- 22px /* view padding */
-		- 8px * 3 /* bucket inventory padding */
-		- 13px /* optimise for chrome with bookmarks bar on 1080p */
+		- var(--nav-height) /* nav */
+		- var(--footer-height) /* footer */
+		- var(--bucket-title-height) * 3 /* bucket titles */
+		- var(--bucket-gap-y) * 2 /* bucket gap */
+		- (var(--view-padding-top) + var(--view-padding-bottom)) /* view padding */
+		- var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */
+		- var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
 		) / 9);
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 400;

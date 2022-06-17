@@ -9,6 +9,7 @@
 	grid-template-rows: 1fr auto;
 	justify-content: center;
 	background: color(background-1);
+	overflow: hidden;
 	
 	&-loadable {
 		display: contents;
@@ -20,7 +21,7 @@
 		width: 100%;
 		height: 100%;
 		box-sizing: border-box;
-		padding: calc(var(--nav-height, 0px) + 10px) var(--padding-x, 48px) var(--padding-y, 12px);
+		padding: calc(var(--current-nav-height, 0px) + var(--view-padding-top)) var(--view-padding-x) var(--padding-y, var(--view-padding-bottom));
 		overflow-y: auto;
 		align-self: center;
 	}
@@ -34,9 +35,10 @@
 	}
 	
 	&-footer {
-		height: 50px;
+		height: var(--footer-height);
 		display: grid;
 		align-items: center;
+		z-index: 1;
 	}
 }
 

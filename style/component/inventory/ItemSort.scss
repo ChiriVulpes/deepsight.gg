@@ -1,11 +1,16 @@
 .item-sort {
 	&-button {
+		position: relative;
 		background: none;
 		border: none;
 		font: inherit;
 		cursor: pointer;
-		display: flex;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-rows: auto 1fr;
 		align-items: center;
+		z-index: 2;
+		text-align: left;
 		@include transition(out, transform);
 				
 		&:active {
@@ -14,6 +19,7 @@
 		}
 		
 		&-icon {
+			grid-row: 1/3;
 			position: relative;
 			color: color(foreground-2);
 			width: 1.5em;
@@ -118,6 +124,30 @@
 					}
 				}
 			}
+		}
+		
+		&-label {
+			text-transform: uppercase;
+			font-size: .7em;
+			font-weight: 500;
+			letter-spacing: .1em;
+			line-height: 1em;
+			margin-top: .1em;
+		}
+	}
+	
+	&-drawer {
+		position: absolute;
+		background: color(background-1);
+		@supports(backdrop-filter: blur(5px) brightness(1.5)) {
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: 0;
+				backdrop-filter: blur(5px) brightness(1.5);
+			}
+			background: color(background-0, .9);
 		}
 	}
 }
