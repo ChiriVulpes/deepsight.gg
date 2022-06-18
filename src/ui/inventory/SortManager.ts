@@ -20,10 +20,15 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Rarity]: SortRarity,
 };
 
+for (const [type, sort] of Object.entries(sortMap))
+	if (+type !== sort.id)
+		throw new Error(`Sort ${Sort[+type as Sort]} implementation miscategorised`);
+
 export interface ISortManagerConfiguration {
 	id: string;
 	name: string;
 	readonly default: readonly Sort[];
+	readonly inapplicable: readonly Sort[];
 }
 
 interface SortManager extends ISortManagerConfiguration { }
@@ -40,6 +45,12 @@ class SortManager {
 		return this.current;
 	}
 
+	public getDisabled () {
+		return Object.values(sortMap)
+			.filter(sort => !this.current.includes(sort) && !this.inapplicable.includes(sort.id))
+			.sort((a, b) => a.id - b.id);
+	}
+
 	public set (sort: ISort[]) {
 		this.current.splice(0, Infinity, ...sort);
 		Store.set(`sort-${this.id}`, this.current.map(sort => sort.id));
@@ -53,7 +64,12 @@ class SortManager {
 					return result;
 			}
 
-			return 0;
+			const hasInstanceDifference = Number(!!itemB.reference.itemInstanceId) - Number(!!itemA.reference.itemInstanceId);
+			if (hasInstanceDifference)
+				// sort things with an instance id before things without an instance id
+				return hasInstanceDifference;
+
+			return (itemA.reference.itemInstanceId ?? `${itemA.reference.itemHash}`)?.localeCompare(itemB.reference.itemInstanceId ?? `${itemB.reference.itemHash}`);
 		});
 	}
 }

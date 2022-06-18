@@ -57,7 +57,9 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public static get<ELEMENT extends Element> (element: ELEMENT): Component<ELEMENT>;
+	public static get<COMPONENT extends AnyComponent> (element: COMPONENT["element"]): COMPONENT;
 	public static get<ELEMENT extends Element> (element?: ELEMENT): Component<ELEMENT> | undefined;
+	public static get<COMPONENT extends AnyComponent> (element?: COMPONENT["element"]): COMPONENT | undefined;
 	public static get<ELEMENT extends Element> (element?: ELEMENT) {
 		if (!element)
 			return undefined;
@@ -156,9 +158,9 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this.element.childNodes.length > 0;
 	}
 
-	public *children () {
+	public *children<CHILD extends AnyComponent> () {
 		for (const child of this.element.children)
-			yield Component.get(child);
+			yield Component.get<CHILD>(child);
 	}
 
 	public append (...elements: (AnyComponent | Node | undefined)[]) {

@@ -1,7 +1,7 @@
 import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
-import Button from "ui/Button";
 import Component from "ui/Component";
+import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/SortManager";
 

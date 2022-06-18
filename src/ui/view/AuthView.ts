@@ -1,6 +1,6 @@
-import Button, { ButtonClasses } from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Button, { ButtonClasses } from "ui/form/Button";
 import Label from "ui/Label";
 import View from "ui/View";
 import Bungie from "utility/endpoint/bungie/Bungie";

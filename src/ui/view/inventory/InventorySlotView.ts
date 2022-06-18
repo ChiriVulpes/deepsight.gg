@@ -11,7 +11,6 @@ import Component from "ui/Component";
 import BucketComponent from "ui/inventory/Bucket";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/ItemSort";
-import type Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
 
@@ -60,7 +59,6 @@ export default new View.Factory()
 	.using(Items, Profile(DestinyComponentType.Characters))
 	.define<{
 		sort: SortManager;
-		inapplicableSorts?: readonly Sort[];
 		slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
 	}>()
 	.initialise(async (view, buckets, profile) => {

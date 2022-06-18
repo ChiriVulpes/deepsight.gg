@@ -1,7 +1,7 @@
 import type Model from "model/Model";
-import type Button from "ui/Button";
 import { Classes as BaseClasses } from "ui/Classes";
 import Component from "ui/Component";
+import type Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
 

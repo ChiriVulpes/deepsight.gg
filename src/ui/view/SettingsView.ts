@@ -1,4 +1,4 @@
-import Button from "ui/Button";
+import Button from "ui/form/Button";
 import View from "ui/View";
 import Bungie from "utility/endpoint/bungie/Bungie";
 

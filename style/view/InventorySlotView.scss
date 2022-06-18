@@ -48,10 +48,19 @@
 				transform: translateY(0);
 				@include transition(in, transform);
 				
+				> * {
+					@include transition(in, opacity);
+				}
+				
 				&.hidden {
 					transform: translateY(100%);
 					@include transition(out);
 					transition-timing-function: ease-in;
+					
+					> * {
+						opacity: 0;
+						@include transition(out);
+					}
 				}
 			}
 		}

@@ -1,8 +1,8 @@
 import { APP_ACRONYM, APP_ACRONYM_FAKE_MEANINGS } from "Constants";
 import Memberships from "model/models/Memberships";
-import Button from "ui/Button";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";

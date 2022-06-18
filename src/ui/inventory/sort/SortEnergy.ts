@@ -3,7 +3,7 @@ import Component from "ui/Component";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({
-	id: Sort.Power,
+	id: Sort.Energy,
 	name: "Energy",
 	sort: (a, b) => (b.instance?.energy?.energyCapacity ?? 0) - (a.instance?.energy?.energyCapacity ?? 0),
 	render: async item => {
