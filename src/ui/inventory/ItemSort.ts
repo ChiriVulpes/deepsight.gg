@@ -80,6 +80,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		// Drawer
 		this.drawer = Component.create()
 			.classes.add(ItemSortClasses.Drawer, Classes.Hidden)
+			.attributes.add("inert")
 			.appendTo(this);
 
 		Component.create()
@@ -128,6 +129,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.drawer.classes.add(Classes.Hidden);
 		ExtraInfoManager.hide(ItemSortClasses.Main);
+		this.drawer.attributes.add("inert");
 	}
 
 	private onCommitSort () {
