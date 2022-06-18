@@ -41,9 +41,26 @@
 		margin-right: 1em;
 	}
 	
+	&::before {
+		content: "";
+		display: block;
+		margin-right: 1em;
+		width: 1em;
+		height: .2em;
+		border: 1px solid currentColor;
+		border-left: none;
+		border-right: none;
+		@include transition(out, transform);
+	}
+	
 	&:hover, &:focus-visible {
 		i {
 			opacity: 0.5;
+		}
+		
+		&::before {
+			transform: translateX(.3em);
+			@include transition(in);
 		}
 	}
 	

@@ -177,11 +177,24 @@
 				margin-top: 1.5em;
 				padding: 3px 1em;
 				border: none;
+				&::before {
+					content: none;
+				}
 			}
 		}
 		
-		&-sorts-heading ~ &-sort {
-			opacity: 0.5;
+		&-sort {
+			@include transition(in, opacity);
+			
+			&s-heading ~ & {
+				opacity: 0.5;
+				@include transition(out);
+			}
+			
+			&:is(:hover, :active, :focus-visible, .sortable-moving) {
+				opacity: 1;
+				@include transition(in);
+			}
 		}
 	}
 }
