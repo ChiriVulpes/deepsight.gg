@@ -6,6 +6,8 @@ import Button, { ButtonClasses } from "ui/form/Button";
 import Sortable from "ui/form/Sortable";
 import type { ISort } from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/SortManager";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 
 export enum ItemSortClasses {
 	Main = "item-sort",
@@ -53,12 +55,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		const sortButton = Button.create()
 			.classes.remove(ButtonClasses.Main)
 			.classes.add(ItemSortClasses.Button)
-			.event.subscribe("click", () => {
-				this.drawer.classes.toggle(Classes.Hidden);
-				const hidden = this.drawer.classes.has(Classes.Hidden);
-				ExtraInfoManager.toggle(ItemSortClasses.Main, !hidden);
-				this.drawer.attributes.toggle(hidden, "inert");
-			})
+			.event.subscribe("click", this.toggleDrawer.bind(this))
 			.appendTo(this);
 
 		Component.create()
@@ -118,6 +115,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.onClick = this.onClick.bind(this);
 		document.body.addEventListener("click", this.onClick);
+
+		this.onKeydown = this.onKeydown.bind(this);
+		UiEventBus.subscribe("keydown", this.onKeydown);
+		this.onKeyup = this.onKeyup.bind(this);
+		UiEventBus.subscribe("keyup", this.onKeyup);
 	}
 
 	private onClick (event: Event): void {
@@ -127,9 +129,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		if ((event.target as HTMLElement).closest(`.${ItemSortClasses.Main}`))
 			return;
 
-		this.drawer.classes.add(Classes.Hidden);
-		ExtraInfoManager.hide(ItemSortClasses.Main);
-		this.drawer.attributes.add("inert");
+		this.closeDrawer();
 	}
 
 	private onCommitSort () {
@@ -145,5 +145,52 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.sortText.text.set(this.sorter.get()
 			.map(sort => sort.name)
 			.join(", "));
+	}
+
+	private onKeydown (event: IKeyEvent) {
+		if (!document.contains(this.element)) {
+			UiEventBus.unsubscribe("keydown", this.onKeydown);
+			return;
+		}
+
+		if (event.use("s", "ctrl"))
+			this.openDrawer();
+
+		if (!this.drawer.classes.has(Classes.Hidden) && event.use("Escape"))
+			this.closeDrawer();
+	}
+
+	private onKeyup () {
+		if (!document.contains(this.element)) {
+			UiEventBus.unsubscribe("keyup", this.onKeyup);
+			return;
+		}
+
+		if (!this.element.contains(document.activeElement))
+			this.closeDrawer();
+	}
+
+	private toggleDrawer () {
+		if (this.drawer.classes.has(Classes.Hidden))
+			this.openDrawer();
+		else
+			this.closeDrawer();
+	}
+
+	private openDrawer () {
+		if (!this.drawer.classes.has(Classes.Hidden))
+			return;
+
+		this.drawer.classes.remove(Classes.Hidden);
+		ExtraInfoManager.show(ItemSortClasses.Main);
+		this.drawer.attributes.remove("inert");
+		const [firstSort] = this.sortsList.children<SortableSort>();
+		firstSort.element.focus();
+	}
+
+	private closeDrawer () {
+		this.drawer.classes.add(Classes.Hidden);
+		ExtraInfoManager.hide(ItemSortClasses.Main);
+		this.drawer.attributes.add("inert");
 	}
 }

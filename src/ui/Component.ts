@@ -158,7 +158,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this.element.childNodes.length > 0;
 	}
 
-	public *children<CHILD extends AnyComponent> () {
+	public *children<CHILD extends AnyComponent> (): Generator<CHILD, void, unknown> {
 		for (const child of this.element.children)
 			yield Component.get<CHILD>(child);
 	}
