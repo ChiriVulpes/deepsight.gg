@@ -1,6 +1,7 @@
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import ExtraInfoManager from "ui/ExtraInfoManager";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Sortable from "ui/form/Sortable";
 import type { ISort } from "ui/inventory/sort/Sort";
@@ -47,6 +48,36 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.sorter = sorter;
 		this.classes.add(ItemSortClasses.Main);
 
+		////////////////////////////////////
+		// Button
+		const sortButton = Button.create()
+			.classes.remove(ButtonClasses.Main)
+			.classes.add(ItemSortClasses.Button)
+			.event.subscribe("click", () => {
+				this.drawer.classes.toggle(Classes.Hidden);
+				const hidden = this.drawer.classes.has(Classes.Hidden);
+				ExtraInfoManager.toggle(ItemSortClasses.Main, !hidden);
+				this.drawer.attributes.toggle(hidden, "inert");
+			})
+			.appendTo(this);
+
+		Component.create()
+			.classes.add(ItemSortClasses.ButtonIcon)
+			.append(Component.create())
+			.append(Component.create())
+			.appendTo(sortButton);
+
+		Component.create()
+			.classes.add(ItemSortClasses.ButtonLabel)
+			.text.set(`Sort ${sorter.name}`)
+			.appendTo(sortButton);
+
+		this.sortText = Component.create()
+			.classes.add(ItemSortClasses.ButtonSortText)
+			.appendTo(sortButton);
+
+		////////////////////////////////////
+		// Drawer
 		this.drawer = Component.create()
 			.classes.add(ItemSortClasses.Drawer, Classes.Hidden)
 			.appendTo(this);
@@ -78,27 +109,10 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		new Sortable(this.sortsList.element)
 			.event.subscribe("commit", this.onCommitSort);
 
-		const sortButton = Button.create()
-			.classes.remove(ButtonClasses.Main)
-			.classes.add(ItemSortClasses.Button)
-			.event.subscribe("click", () => this.drawer.classes.toggle(Classes.Hidden))
-			.appendTo(this);
+		this.sortsDisabledHeading.attributes.remove("tabindex");
 
-		Component.create()
-			.classes.add(ItemSortClasses.ButtonIcon)
-			.append(Component.create())
-			.append(Component.create())
-			.appendTo(sortButton);
-
-		Component.create()
-			.classes.add(ItemSortClasses.ButtonLabel)
-			.text.set(`Sort ${sorter.name}`)
-			.appendTo(sortButton);
-
-		this.sortText = Component.create()
-			.classes.add(ItemSortClasses.ButtonSortText)
-			.appendTo(sortButton);
-
+		////////////////////////////////////
+		// Setup
 		this.updateSortDisplay();
 
 		this.onClick = this.onClick.bind(this);
@@ -113,6 +127,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			return;
 
 		this.drawer.classes.add(Classes.Hidden);
+		ExtraInfoManager.hide(ItemSortClasses.Main);
 	}
 
 	private onCommitSort () {

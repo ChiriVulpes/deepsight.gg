@@ -1,5 +1,6 @@
 import Model from "model/Model";
 import AppNav from "ui/AppNav";
+import UiEventBus from "ui/UiEventBus";
 import AuthView from "ui/view/AuthView";
 import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
 import ViewManager from "ui/ViewManager";
@@ -15,33 +16,20 @@ export default class FluffiestVaultManager {
 
 	private async main () {
 
-		document.addEventListener("keydown", event => {
-			switch (event.key) {
-				case "F6": {
-					for (const stylesheet of document.querySelectorAll("link[rel=stylesheet]")) {
-						const href = stylesheet.getAttribute("href")!;
-						const newHref = `${href.slice(0, Math.max(0, href.indexOf("?")) || Infinity)}?${Math.random().toString().slice(2)}`;
-						stylesheet.setAttribute("href", newHref);
-					}
-					break;
+		UiEventBus.subscribe("keydown", event => {
+			if (event.use("F6"))
+				for (const stylesheet of document.querySelectorAll("link[rel=stylesheet]")) {
+					const href = stylesheet.getAttribute("href")!;
+					const newHref = `${href.slice(0, Math.max(0, href.indexOf("?")) || Infinity)}?${Math.random().toString().slice(2)}`;
+					stylesheet.setAttribute("href", newHref);
 				}
-				case "F4": {
-					document.documentElement.classList.toggle("persist-tooltips");
-					break;
-				}
-				case "e": {
-					document.documentElement.classList.add("show-extra-info");
-					break;
-				}
-			}
+
+			if (event.use("F4"))
+				document.documentElement.classList.add("persist-tooltips");
 		});
-		document.addEventListener("keyup", event => {
-			switch (event.key) {
-				case "e": {
-					document.documentElement.classList.remove("show-extra-info");
-					break;
-				}
-			}
+		UiEventBus.subscribe("keyup", event => {
+			if (event.use("F4"))
+				document.documentElement.classList.remove("persist-tooltips");
 		});
 
 		await Env.load();

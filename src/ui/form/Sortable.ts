@@ -1,4 +1,6 @@
 import Draggable, { IVector2 } from "ui/form/Draggable";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 import { EventManager } from "utility/EventManager";
 
 export enum SortableClasses {
@@ -33,7 +35,7 @@ export default class Sortable {
 			child.addEventListener("moveEnd", this.onItemMoveEnd);
 		}
 
-		window.addEventListener("keydown", this.onKeydown);
+		UiEventBus.subscribe("keydown", this.onKeydown);
 	}
 
 	public dispose () {
@@ -43,7 +45,7 @@ export default class Sortable {
 			child.removeEventListener("moveEnd", this.onItemMoveEnd);
 		}
 
-		window.removeEventListener("keydown", this.onKeydown);
+		UiEventBus.unsubscribe("keydown", this.onKeydown);
 	}
 
 	private sortDelay = 0;
@@ -170,7 +172,7 @@ export default class Sortable {
 		this.commit();
 	}
 
-	private onKeydown (event: KeyboardEvent) {
+	private onKeydown (event: IKeyEvent) {
 		if (!document.contains(this.host)) {
 			this.dispose();
 			return;
@@ -195,7 +197,7 @@ export default class Sortable {
 				return;
 		}
 
-		event.preventDefault();
+		event.use(event.key);
 		item.focus();
 	}
 
