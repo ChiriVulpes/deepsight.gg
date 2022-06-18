@@ -24,6 +24,8 @@
 		padding: calc(var(--current-nav-height, 0px) + var(--view-padding-top)) var(--view-padding-x) var(--padding-y, var(--view-padding-bottom));
 		overflow-y: auto;
 		align-self: center;
+		grid-row: 1;
+		z-index: 1;
 	}
 	
 	&-title {
@@ -38,7 +40,8 @@
 		height: var(--footer-height);
 		display: grid;
 		align-items: center;
-		z-index: 1;
+		z-index: 2;
+		grid-row: 2;
 	}
 }
 

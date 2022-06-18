@@ -178,6 +178,14 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
+	public prependTo (componentOrParentNode: ParentNode | AnyComponent) {
+		if (componentOrParentNode instanceof Component<Element>)
+			componentOrParentNode = componentOrParentNode.element;
+
+		componentOrParentNode.insertBefore(this.element, componentOrParentNode.firstChild);
+		return this;
+	}
+
 	public remove () {
 		this.element.remove();
 	}

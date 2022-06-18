@@ -155,7 +155,7 @@ namespace View {
 		public get footer () {
 			const footer = Component.create()
 				.classes.add(Classes.Footer)
-				.appendTo(this);
+				.prependTo(this);
 
 			Object.defineProperty(this, "footer", { value: footer });
 			return footer;
