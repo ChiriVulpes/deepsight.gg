@@ -5,13 +5,14 @@
 @import "shared";
 @import "animation/animations";
 
-@import "component/Button";
+// form
+@import "component/form/Button";
+@import "component/form/Sortable";
+// misc
 @import "component/Label";
 @import "component/AppNav";
 @import "component/Loadable";
 @import "component/Tooltip";
-// form
-@import "component/form/Sortable";
 // inventory
 @import "component/inventory/Bucket";
 @import "component/inventory/Item";
