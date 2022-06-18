@@ -92,6 +92,10 @@
 			text-transform: uppercase;
 			padding-bottom: 4px;
 			
+			&:focus-visible {
+				outline: auto;
+			}
+			
 			@for $i from 1 through 20 {
 				&:nth-child(#{$i}) {
 					transition-delay: $delay * 2 + $delay * $i;
