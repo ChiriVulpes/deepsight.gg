@@ -78,6 +78,8 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.drawer = Component.create()
 			.classes.add(ItemSortClasses.Drawer, Classes.Hidden)
 			.attributes.add("inert")
+			.attributes.set("tabindex", "0")
+			.event.subscribe("focus", this.focusDrawer.bind(this))
 			.appendTo(this);
 
 		Component.create()
@@ -184,13 +186,17 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.drawer.classes.remove(Classes.Hidden);
 		ExtraInfoManager.show(ItemSortClasses.Main);
 		this.drawer.attributes.remove("inert");
-		const [firstSort] = this.sortsList.children<SortableSort>();
-		firstSort.element.focus();
+		this.focusDrawer();
 	}
 
 	private closeDrawer () {
 		this.drawer.classes.add(Classes.Hidden);
 		ExtraInfoManager.hide(ItemSortClasses.Main);
 		this.drawer.attributes.add("inert");
+	}
+
+	private focusDrawer () {
+		const [firstSort] = this.sortsList.children<SortableSort>();
+		firstSort.element.focus();
 	}
 }
