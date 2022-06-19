@@ -3,6 +3,7 @@ import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import ItemTooltipStat from "ui/inventory/tooltip/ItemTooltipStat";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
 
 enum ItemTooltipClasses {
@@ -23,6 +24,10 @@ enum ItemTooltipClasses {
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
+	Stats = "item-tooltip-stats",
+	Stat = "item-tooltip-stat",
+	StatLabel = "item-tooltip-stat-label",
+	StatBar = "item-tooltip-stat-bar",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPattern = "item-tooltip-deepsight-pattern",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
@@ -54,6 +59,7 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternRequiredUnit!: Component;
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
+	public stats!: ItemTooltipStat.Wrapper;
 
 	protected override onMake () {
 		this.classes.add(ItemTooltipClasses.Main);
@@ -92,6 +98,9 @@ class ItemTooltip extends Tooltip {
 			.append(this.weaponLevelProgress = Component.create()
 				.classes.add(ItemTooltipClasses.WeaponLevelProgress))
 			.appendTo(this.primaryInfo);
+
+		this.stats = ItemTooltipStat.Wrapper.create()
+			.appendTo(this.content);
 
 		this.deepsight = Component.create()
 			.classes.add(ItemTooltipClasses.Deepsight)
@@ -187,6 +196,8 @@ class ItemTooltip extends Tooltip {
 			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.objective.progress ?? 0}`);
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
 		}
+
+		this.stats.setItem(item);
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
 		this.deepsight.classes.toggle(!item.deepsight?.attunement && !showPattern, Classes.Hidden);

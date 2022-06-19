@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemSocketState, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat } from "bungie-api-ts/destiny2";
 import { DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
@@ -17,6 +17,8 @@ export interface IItem {
 	objectives: DestinyObjectiveProgress[];
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
+	stats?: Partial<Record<number, IStat>>;
+	sockets?: ISocket[];
 }
 
 export interface IWeaponShaped {
@@ -37,6 +39,18 @@ export interface IDeepsight {
 export interface IObjective {
 	objective: DestinyObjectiveProgress;
 	definition: DestinyObjectiveDefinition;
+}
+
+export interface ISocket {
+	reference: DestinyItemSocketState;
+	definition: DestinyInventoryItemDefinition;
+}
+
+export interface IStat {
+	value: number;
+	intrinsic?: number;
+	masterwork?: number;
+	mod?: number;
 }
 
 export interface Item extends IItem { }
@@ -63,7 +77,14 @@ export class Bucket {
 
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 3);
-	const { DestinyInventoryItemDefinition, DestinySourceDefinition, DestinyRecordDefinition, DestinyCollectibleDefinition, DestinyObjectiveDefinition } = await Manifest.await();
+	const {
+		DestinyInventoryItemDefinition,
+		DestinySourceDefinition,
+		DestinyRecordDefinition,
+		DestinyCollectibleDefinition,
+		DestinyObjectiveDefinition,
+		DestinyStatDefinition,
+	} = await Manifest.await();
 	const { BucketHashes } = await DestinyEnums.await();
 
 	const ProfileQuery = Profile(
@@ -73,11 +94,15 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyComponentType.ItemInstances,
 		DestinyComponentType.ProfileProgression,
 		DestinyComponentType.ItemPlugObjectives,
+		DestinyComponentType.ItemStats,
 		DestinyComponentType.Records,
+		DestinyComponentType.ItemSockets,
 	);
 
 	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
 	const profile = await ProfileQuery.await();
+
+	console.log(profile.itemComponents.sockets);
 
 	const initialisedItems = new Set<string>();
 
@@ -126,6 +151,55 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		return { attunement: await resolveDeepsightAttunement(item), pattern: await resolveDeepsightPattern(item) };
 	}
 
+	async function resolveSockets (sockets?: DestinyItemSocketState[]): Promise<ISocket[]> {
+		const result = await Promise.all(sockets
+			?.map(async (socket): Promise<ISocket | undefined> => {
+				const definition = await DestinyInventoryItemDefinition.get(socket.plugHash);
+				return !definition ? undefined : {
+					reference: socket,
+					definition,
+				};
+			}) ?? []);
+		return result.filter((socket): socket is ISocket => !!socket);
+	}
+
+	async function resolveStats (stats: Record<number, DestinyStat> | undefined, sockets: ISocket[]) {
+		const intrinsicStats = sockets.filter(socket => socket.definition.plug?.plugCategoryIdentifier === "intrinsics")
+			.flatMap(plug => plug.definition.investmentStats);
+
+		const masterworkStats = sockets.find(socket => socket.definition.plug?.uiPlugLabel === "masterwork")
+			?.definition.investmentStats ?? [];
+
+		const modStats = sockets.filter(socket => socket.definition.plug?.plugCategoryIdentifier !== "intrinsics" && socket.definition.plug?.uiPlugLabel !== "masterwork")
+			.flatMap(plug => plug.definition.investmentStats);
+
+		const result: Record<number, IStat> = {};
+
+		for (const [hash, { value }] of Object.entries(stats ?? {})) {
+			const definition = await DestinyStatDefinition.get(hash);
+			if (!definition) {
+				console.warn("Unknown stat", hash, "value", value);
+				continue;
+			}
+
+			const stat: IStat = result[+hash] = { value };
+
+			for (const intrinsic of intrinsicStats)
+				if (+hash === intrinsic.statTypeHash)
+					stat.intrinsic = (stat.intrinsic ?? 0) + intrinsic.value;
+
+			for (const masterwork of masterworkStats)
+				if (+hash === masterwork.statTypeHash)
+					stat.masterwork = (stat.masterwork ?? 0) + masterwork.value;
+
+			for (const mod of modStats)
+				if (+hash === mod.statTypeHash)
+					stat.mod = (stat.mod ?? 0) + mod.value;
+		}
+
+		return result;
+	}
+
 	async function resolveItemComponent (reference: DestinyItemComponent) {
 		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
@@ -147,11 +221,17 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 		initialisedItems.add(itemId);
 
+		const sockets = await resolveSockets(profile.itemComponents.sockets.data?.[reference.itemInstanceId!]?.sockets);
+
+		const stats = await resolveStats(profile.itemComponents.stats.data?.[reference.itemInstanceId!]?.stats, sockets);
+
 		const item = new Item({
 			definition: definition,
 			reference: reference,
 			instance: profile.itemComponents.instances.data?.[reference.itemInstanceId!],
 			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
+			sockets,
+			stats,
 		});
 
 		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${definition.iconWatermark}`);

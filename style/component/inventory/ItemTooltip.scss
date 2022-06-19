@@ -245,4 +245,74 @@
 		--progress-bar-background: #d35137;
 		text-shadow: 1px 2px .05em #0008;
 	}
+	
+	&-stat {
+		&-wrapper {
+			padding: var(--tooltip-padding);
+			padding-right: 1.5em;
+			padding-left: 1.5em;
+			background: color(tooltip-background);
+			border: 2px solid rgba(white, .3);
+			border-left: none;
+			border-right: none;
+			display: grid;
+			grid-template-columns: auto 1fr auto;
+			column-gap: .5em;
+			row-gap: .1em;
+			align-items: center;
+		}
+		
+		display: contents;
+		
+		&-label {
+			text-align: right;
+			color: color(foreground-2);
+		}
+		
+		&-bar {
+			background: #fff1;
+			height: 1.1em;
+			position: relative;
+			top: 1px;
+			display: flex;
+			overflow: hidden;
+			&-block {
+				height: 100%;
+				width: calc(100% * var(--value));
+				background: currentColor;
+				flex-shrink: 0;
+			}
+		}
+		
+		&-value {
+			width: fit-content;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: .2em;
+			text-align: right;
+			
+			:root:not(.show-extra-info) & {
+				grid-template-columns: 1fr;
+				&-component {
+					display: none;
+				}
+			}
+		}
+		
+		&-bar ~ &-value {
+			width: auto;
+		}
+			
+		:root.show-extra-info &-combined {
+			display: none;
+		}
+		
+		&-masterwork {
+			color: #ceae32;
+		}
+		
+		&-mod {
+			color: #58a6ff;
+		}
+	}
 }
