@@ -8,8 +8,10 @@ import type SortManager from "ui/inventory/SortManager";
 export enum ItemClasses {
 	Main = "item",
 	Icon = "item-icon",
+	UniversalArmourOrnament = "item-universal-armour-ornament",
 	SourceWatermark = "item-source-watermark",
 	SourceWatermarkCustom = "item-source-watermark-custom",
+	IsMasterwork = "item-is-masterwork",
 	Masterwork = "item-masterwork",
 	MasterworkSpinny = "item-masterwork-spinny",
 	Shaped = "item-shaped",
@@ -30,7 +32,9 @@ export default class ItemComponent extends Button<[Item]> {
 		super.onMake(item);
 
 		this.item = item;
-		this.classes.add(ItemClasses.Main);
+		this.classes.add(ItemClasses.Main)
+			.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
+
 		this.extra = Component.create()
 			.classes.add(ItemClasses.Extra);
 
@@ -38,9 +42,18 @@ export default class ItemComponent extends Button<[Item]> {
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.add(`item-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
+		const ornament = item.sockets?.find(socket => socket.definition.traitIds?.includes("item_type.ornament.armor")
+			|| socket.definition.traitIds?.includes("item_type.armor")
+			|| socket.definition.traitIds?.includes("item_type.ornament.weapon"));
+
+		const hasUniversalOrnament = !!ornament
+			&& tier?.displayProperties.name === "Legendary"
+			&& item.definition.traitIds.includes("item_type.armor");
+
 		Component.create()
 			.classes.add(ItemClasses.Icon)
-			.style.set("--icon", `url("https://www.bungie.net${item.definition.displayProperties.icon}")`)
+			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
+			.style.set("--icon", `url("https://www.bungie.net${ornament?.definition.displayProperties.icon ?? item.definition.displayProperties.icon}")`)
 			.appendTo(this);
 
 		if (item.shaped)
