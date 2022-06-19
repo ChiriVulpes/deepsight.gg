@@ -125,6 +125,7 @@ export default class ItemComponent extends Button<[Item]> {
 		const rerenderId = this.rerenderId = Math.random();
 		this.extra.removeContents();
 
+		let extra = 0;
 		for (const sort of sorter.get()) {
 			if (!sort.render)
 				continue;
@@ -135,6 +136,8 @@ export default class ItemComponent extends Button<[Item]> {
 				return;
 
 			this.extra.append(rendered);
+			if (++extra === 3)
+				return;
 		}
 	}
 }
