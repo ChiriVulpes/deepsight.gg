@@ -9,6 +9,7 @@ enum Sort {
 	Pattern,
 	Masterwork,
 	Rarity,
+	StatTotal,
 }
 
 export default Sort;

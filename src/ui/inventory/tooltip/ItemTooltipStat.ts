@@ -17,7 +17,7 @@ export enum Stat {
 	Distribution = -2,
 }
 
-const armourStats = [Stat.Mobility, Stat.Resilience, Stat.Recovery, Stat.Discipline, Stat.Intellect, Stat.Strength];
+export const ARMOUR_STATS = [Stat.Mobility, Stat.Resilience, Stat.Recovery, Stat.Discipline, Stat.Intellect, Stat.Strength];
 
 interface IStatDisplayCalculator {
 	(item: Item, stat?: IStat): Omit<IStat, "definition"> | undefined;
@@ -41,11 +41,11 @@ const statDisplays: Record<Stat, IStatDisplayDefinition> = {
 	[Stat.Total]: {
 		name: "Total",
 		calculate: item => {
-			const totalIntrinsic = armourStats.map(stat => item.stats?.[stat]?.intrinsic ?? 0)
+			const totalIntrinsic = ARMOUR_STATS.map(stat => item.stats?.[stat]?.intrinsic ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMasterwork = armourStats.map(stat => item.stats?.[stat]?.masterwork ?? 0)
+			const totalMasterwork = ARMOUR_STATS.map(stat => item.stats?.[stat]?.masterwork ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMod = armourStats.map(stat => item.stats?.[stat]?.mod ?? 0)
+			const totalMod = ARMOUR_STATS.map(stat => item.stats?.[stat]?.mod ?? 0)
 				.reduce((a, b) => a + b, 0);
 			if (totalIntrinsic + totalMasterwork + totalMod === 0)
 				return undefined; // this item doesn't have armour stats
@@ -204,7 +204,7 @@ namespace ItemTooltipStat {
 			this.map = {} as any;
 
 			this.classes.add(ItemTooltipStatClasses.Wrapper)
-				.append(...armourStats.map(stat => this.map[stat] = ItemTooltipStat.create([stat])))
+				.append(...ARMOUR_STATS.map(stat => this.map[stat] = ItemTooltipStat.create([stat])))
 				.append(this.map[Stat.Total] = ItemTooltipStat.create([Stat.Total]))
 				.append(this.map[Stat.Distribution] = ItemTooltipStat.create([Stat.Distribution]));
 		}
