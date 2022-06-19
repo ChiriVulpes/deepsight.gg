@@ -256,7 +256,7 @@
 			border-left: none;
 			border-right: none;
 			display: grid;
-			grid-template-columns: auto 1fr auto;
+			grid-template-columns: auto 1fr repeat(3, auto);
 			column-gap: .5em;
 			row-gap: .1em;
 			align-items: center;
@@ -267,9 +267,11 @@
 		&-label {
 			text-align: right;
 			color: color(foreground-2);
+			grid-column: 1;
 		}
 		
 		&-bar {
+			grid-column: 2;
 			background: #fff1;
 			height: 1.1em;
 			position: relative;
@@ -281,30 +283,23 @@
 				width: calc(100% * var(--value));
 				background: currentColor;
 				flex-shrink: 0;
-			}
-		}
-		
-		&-value {
-			width: fit-content;
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: .2em;
-			text-align: right;
-			
-			:root:not(.show-extra-info) & {
-				grid-template-columns: 1fr;
-				&-component {
-					display: none;
+				&-negative {
+					display: contents;
+					&::before, &::after {
+						position: relative;
+						content: "";
+						height: 50%;
+						top: 50%;
+						width: calc(100% * var(--value) * -1);
+						margin-left: calc(100% * var(--value));
+						background: #983232;
+						flex-shrink: 0;
+					}
+					&::after {
+						transform: translateX(calc(100% / (var(--value) * -1)));
+					}
 				}
 			}
-		}
-		
-		&-bar ~ &-value {
-			width: auto;
-		}
-			
-		:root.show-extra-info &-combined {
-			display: none;
 		}
 		
 		&-masterwork {
@@ -313,6 +308,31 @@
 		
 		&-mod {
 			color: #58a6ff;
+		}
+		
+		&-value {
+			display: flex;
+			gap: .5em;
+			text-align: right;
+			
+			:root:not(.show-extra-info) & {
+				&-component {
+					display: none;
+				}
+			}
+			
+			&-component-negative {
+				color: #983232;
+				font-weight: 600;
+			}
+		}
+		
+		&-bar ~ &-value {
+			display: contents;
+		}
+			
+		:root.show-extra-info &-combined {
+			display: none;
 		}
 	}
 }

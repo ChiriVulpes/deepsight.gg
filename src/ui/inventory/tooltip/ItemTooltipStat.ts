@@ -41,13 +41,20 @@ const statDisplays: Record<Stat, IStatDisplayDefinition> = {
 	[Stat.Total]: {
 		name: "Total",
 		calculate: item => {
-			const total = armourStats.map(stat => item.stats?.[stat]?.value ?? 0)
+			const totalIntrinsic = armourStats.map(stat => item.stats?.[stat]?.intrinsic ?? 0)
 				.reduce((a, b) => a + b, 0);
-			if (total === 0)
+			const totalMasterwork = armourStats.map(stat => item.stats?.[stat]?.masterwork ?? 0)
+				.reduce((a, b) => a + b, 0);
+			const totalMod = armourStats.map(stat => item.stats?.[stat]?.mod ?? 0)
+				.reduce((a, b) => a + b, 0);
+			if (totalIntrinsic + totalMasterwork + totalMod === 0)
 				return undefined; // this item doesn't have armour stats
 
 			return {
-				value: total,
+				value: totalIntrinsic + totalMasterwork + totalMod,
+				intrinsic: totalIntrinsic,
+				masterwork: totalMasterwork,
+				mod: totalMod,
 			};
 		},
 	},
@@ -63,8 +70,10 @@ export enum ItemTooltipStatClasses {
 	Label = "item-tooltip-stat-label",
 	Bar = "item-tooltip-stat-bar",
 	BarBlock = "item-tooltip-stat-bar-block",
+	BarBlockNegative = "item-tooltip-stat-bar-block-negative",
 	Value = "item-tooltip-stat-value",
 	ValueComponent = "item-tooltip-stat-value-component",
+	ValueComponentNegative = "item-tooltip-stat-value-component-negative",
 	Combined = "item-tooltip-stat-combined",
 	Intrinsic = "item-tooltip-stat-intrinsic",
 	Masterwork = "item-tooltip-stat-masterwork",
@@ -147,7 +156,8 @@ class ItemTooltipStat extends Component<HTMLElement, [Stat]> {
 			this.combinedText.text.set(render?.text);
 			this.intrinsicText.text.set(render?.text);
 			if (this.display.bar)
-				this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`);
+				this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`)
+					.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
 			return true;
 		}
 
@@ -165,9 +175,11 @@ class ItemTooltipStat extends Component<HTMLElement, [Stat]> {
 			this.masterworkBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`);
 
 		render = this.render(display.mod, !render);
-		this.modText.text.set(render?.text);
+		this.modText.text.set(render?.text)
+			.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.ValueComponentNegative);
 		if (this.display.bar)
-			this.modBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`);
+			this.modBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`)
+				.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
 
 		return true;
 	}
