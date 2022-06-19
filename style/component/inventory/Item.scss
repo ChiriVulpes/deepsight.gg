@@ -261,4 +261,56 @@
 			color: #4d88ff;
 		}
 	}
+	
+	&-power-level {
+		display: flex;
+		width: fit-content;
+		justify-self: flex-end;
+		&-icon {
+			filter: drop-shadow(0 1px 1px #000) drop-shadow(0 0 2px #000a);
+			&::before {
+				content: "";
+				display: block;
+				width: .6em;
+				height: .6em;
+				position: relative;
+				top: .3em;
+				background: currentColor;
+				-webkit-mask-image: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/power2.svg");
+				-webkit-mask-size: contain;
+				-webkit-mask-position: center;
+				-webkit-mask-repeat: no-repeat;
+				mask-image: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/power2.svg");
+				mask-size: contain;
+				mask-position: center;
+				mask-repeat: no-repeat;
+			}
+		}
+	}
+	
+	&-stat-total {
+		position: relative;
+		padding-left: 1em;
+		width: fit-content;
+		justify-self: flex-end;
+		
+		&::before, &::after {
+			content: "";
+			display: block;
+			position: absolute;
+			height: .2em;
+			left: 0;
+			background: currentColor;
+			box-shadow: 0 1px 1px #000a;
+		}
+		
+		&::before {
+			top: .4em;
+			width: .8em;
+		}
+		&::after {
+			bottom: .4em;
+			width: .5em;
+		}
+	}
 }
