@@ -81,10 +81,14 @@ export default class Sortable {
 	}
 
 	private savedPosition?: IVector2;
+	private mouseOffset?: IVector2;
 	private onItemMoveStart (e: Event) {
 		const event = e as any as { detail: IVector2, target: HTMLElement };
 		const item = event.target;
 		const position = event.detail;
+		const itemBox = item.getBoundingClientRect();
+		const centre = { x: itemBox.left + itemBox.width / 2, y: itemBox.top + itemBox.height / 2 };
+		this.mouseOffset = { x: event.detail.x - centre.x, y: event.detail.y - centre.y };
 		const hostBox = this.host.getBoundingClientRect();
 		this.savedPosition = { x: position.x - hostBox.left, y: position.y - hostBox.top };
 		item.classList.add(SortableClasses.Moving);
@@ -99,10 +103,10 @@ export default class Sortable {
 		const event = e as any as { detail: IVector2, target: HTMLElement };
 		const item = event.target;
 		const change = event.detail;
-		const position = { x: (this.savedPosition?.x ?? 0) + change.x, y: (this.savedPosition?.y ?? 0) + change.y };
 		const box = item.getBoundingClientRect();
-		item.style.left = `${position.x - box.width / 2}px`;
-		item.style.top = `${position.y - box.height / 2}px`;
+		const position = { x: (this.savedPosition?.x ?? 0) + change.x, y: (this.savedPosition?.y ?? 0) + change.y };
+		item.style.left = `${position.x - box.width / 2 - (this.mouseOffset?.x ?? 0)}px`;
+		item.style.top = `${position.y - box.height / 2 - (this.mouseOffset?.y ?? 0)}px`;
 
 		const before = this.findItemBefore(item, position, [...this.host.children] as HTMLElement[]);
 		this.host.insertBefore(this.slot!, !before ? this.host.firstElementChild : before.nextElementSibling);
