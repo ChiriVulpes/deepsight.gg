@@ -62,6 +62,30 @@
 	&:where(:active) {
 		background: color(button-background-active);
 	}
+	
+	&-icon {
+		height: 1em;
+		width: 1em;
+		margin: 0;
+		padding: 0;
+		border: none;
+		background: color(button-icon-foreground);
+		&:where(:hover, :focus-within) {
+			background: color(button-icon-foreground-hover);
+		}
+		&:active {
+			background: color(button-icon-foreground-active);
+		}
+		-webkit-mask-size: contain;
+		-webkit-mask-position: center;
+		-webkit-mask-repeat: no-repeat;
+		mask-size: contain;
+		mask-position: center;
+		mask-repeat: no-repeat;
+		&::before {
+			content: none;
+		}
+	}
 }
 
 @keyframes flash {

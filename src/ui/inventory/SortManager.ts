@@ -8,6 +8,7 @@ import SortName from "ui/inventory/sort/SortName";
 import SortPattern from "ui/inventory/sort/SortPattern";
 import SortPower from "ui/inventory/sort/SortPower";
 import SortRarity from "ui/inventory/sort/SortRarity";
+import SortStatDistribution from "ui/inventory/sort/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/SortStatTotal";
 import Store from "utility/Store";
 
@@ -20,6 +21,7 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Masterwork]: SortMasterwork,
 	[Sort.Rarity]: SortRarity,
 	[Sort.StatTotal]: SortStatTotal,
+	[Sort.StatDistribution]: SortStatDistribution,
 };
 
 for (const [type, sort] of Object.entries(sortMap))

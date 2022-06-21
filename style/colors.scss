@@ -45,6 +45,9 @@ $colors: (
 	button-border-hover: color(--foreground-0),
 	button-foreground: color(--foreground-1),
 	button-foreground-hover: color(--foreground-0),
+	button-icon-foreground: color(--foreground-2),
+	button-icon-foreground-hover: color(--foreground-1),
+	button-icon-foreground-active: color(--foreground-3),
 	
 	tooltip-header-background: rgba(var(--background-3-rgb), .85),
 	tooltip-background: rgba(var(--background-0-rgb), .85),

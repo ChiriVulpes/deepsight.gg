@@ -101,9 +101,12 @@ export default class Draggable {
 
 	private getMousePosition (event: Partial<MouseEvent> & Partial<TouchEvent>) {
 		const touch = event.touches?.[0];
-		if (event.button !== 0 && !touch) {
+		if (event.button !== 0 && !touch)
 			return undefined;
-		}
+
+		const element = event.target as HTMLElement;
+		if (element.closest("button"))
+			return undefined;
 
 		return touch ?? event;
 	}

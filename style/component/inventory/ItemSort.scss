@@ -195,6 +195,23 @@
 				opacity: 1;
 				@include transition(in);
 			}
+			
+			&-options {
+				-webkit-mask-image: url("/image/svg/gear.svg");
+				mask-image: url("/image/svg/gear.svg");
+			}
+		}
+		
+		&-panel {
+			position: absolute;
+			inset: 0;
+			@include transition(out, opacity, transform);
+			&.hidden {
+				display: block;
+				opacity: 0;
+				transform: translateY(10px);
+				pointer-events: none;
+			}
 		}
 	}
 }

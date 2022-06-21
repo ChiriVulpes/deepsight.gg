@@ -2,6 +2,7 @@ import Component from "ui/Component";
 
 export enum ButtonClasses {
 	Main = "button",
+	Icon = "button-icon",
 	Attention = "button-attention",
 }
 

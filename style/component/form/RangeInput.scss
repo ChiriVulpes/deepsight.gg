@@ -1,0 +1,51 @@
+.range-input {
+	position: relative;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 1.5em;
+	background: transparent;
+	cursor: pointer;
+	outline: none;
+	--value: 0;
+	
+	&::-webkit-slider-runnable-track {
+		// align-self: flex-start;
+		height: 1.2em;
+		background: linear-gradient(to right, color(foreground-0) calc(var(--value) * 100%), #fff1 calc(var(--value) * 100% + 1px))
+	}
+	
+	&::-webkit-slider-thumb {
+		cursor: ew-resize;
+		-webkit-appearance: none;
+		height: 1.5em;
+		width: 1px;
+		margin-top: -.15em;
+		margin-left: calc(-.2em + .5em * var(--value));
+		background: color(foreground-2);
+		box-sizing: content-box;
+		background-clip: content-box;
+		border: .375em solid transparent;
+		border-bottom-color: white;
+		border-top: none;
+		@include transition(out, border, height, filter);
+		filter: drop-shadow(-1px 0 0 color(background-1)) drop-shadow(-2px 0 0 color(background-1)) drop-shadow(3px 0 0 color(background-1));
+	}
+	
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: -6px;
+		box-shadow: 0 0 0 2px transparent;
+		pointer-events: none;
+		@include transition(out, inset, box-shadow);
+	}
+	
+	&:where(:hover, :active, :focus-visible) {
+		&::before {
+			inset: -1px -3px;
+			box-shadow: 0 0 0 2px color(button-border-hover);
+			@include transition(in);
+		}
+	}
+}

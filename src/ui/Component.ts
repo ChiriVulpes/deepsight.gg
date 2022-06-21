@@ -76,6 +76,12 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return component;
 	}
 
+	public static byClassName<COMPONENT extends AnyComponent> (className: string): COMPONENT[] {
+		return [...document.getElementsByClassName(className)]
+			.map(element => element.component?.deref())
+			.filter((component): component is COMPONENT => !!component);
+	}
+
 	public get classes (): ClassManager<this & Component<HTMLElement>> {
 		const classes = new ClassManager(this as any as Component<HTMLElement>);
 		Object.defineProperty(this, "classes", {

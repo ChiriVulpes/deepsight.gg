@@ -5,6 +5,7 @@ import ExtraInfoManager from "ui/ExtraInfoManager";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Sortable from "ui/form/Sortable";
 import type { ISort } from "ui/inventory/sort/Sort";
+import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -16,8 +17,10 @@ export enum ItemSortClasses {
 	ButtonLabel = "item-sort-button-label",
 	ButtonSortText = "item-sort-button-sort-text",
 	Drawer = "item-sort-drawer",
+	DrawerPanel = "item-sort-drawer-panel",
 	Sorts = "item-sort-drawer-sorts",
 	Sort = "item-sort-drawer-sort",
+	SortOptions = "item-sort-drawer-sort-options",
 	SortsHeading = "item-sort-drawer-sorts-heading",
 }
 
@@ -25,13 +28,33 @@ export interface ItemSortEvents extends ComponentEvents<typeof Component> {
 	sort: Event;
 }
 
-class SortableSort extends Component<HTMLElement, [ISort]> {
+export interface SortableSortEvents extends ComponentEvents<typeof Component> {
+	configure: { sort: ISort };
+}
+
+export class SortableSort extends Component<HTMLElement, [ISort]> {
+
+	public override event!: ComponentEventManager<this, SortableSortEvents>;
+
 	public sort!: ISort;
 
 	protected override onMake (sort: ISort): void {
 		this.sort = sort;
-		this.classes.add(ItemSortClasses.Sort)
+		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${Sort[sort.id].toLowerCase()}`)
 			.text.set(sort.name);
+
+		sort.renderSortable?.(this);
+
+		this.onClick = this.onClick.bind(this);
+		if (sort.renderSortableOptions)
+			Button.create()
+				.classes.add(ButtonClasses.Icon, ItemSortClasses.SortOptions)
+				.event.subscribe("click", this.onClick)
+				.appendTo(this);
+	}
+
+	private onClick () {
+		this.event.emit("configure", { sort: this.sort });
 	}
 }
 
@@ -45,10 +68,16 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	public sortsList!: Component;
 	public sortsDisabledHeading!: Component;
 	public sortText!: Component;
+	public mainPanel!: Component;
+	public configurePanel!: Component;
+	public configureTitle!: Component;
+	public configureWrapper!: Component;
 
 	protected override onMake (sorter: SortManager): void {
 		this.sorter = sorter;
 		this.classes.add(ItemSortClasses.Main);
+
+		this.configureSort = this.configureSort.bind(this);
 
 		////////////////////////////////////
 		// Button
@@ -82,19 +111,34 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.event.subscribe("focus", this.focusDrawer.bind(this))
 			.appendTo(this);
 
+		this.mainPanel = Component.create()
+			.classes.add(ItemSortClasses.DrawerPanel)
+			.appendTo(this.drawer);
+
 		Component.create()
 			.classes.add(ItemSortClasses.SortsHeading)
 			.text.set("Sort By")
-			.appendTo(this.drawer);
+			.appendTo(this.mainPanel);
 
 		this.sortsList = Component.create()
 			.classes.add(ItemSortClasses.Sorts)
+			.appendTo(this.mainPanel);
+
+		this.configurePanel = Component.create()
+			.classes.add(ItemSortClasses.DrawerPanel)
 			.appendTo(this.drawer);
+
+		this.configureTitle = Component.create()
+			.classes.add(ItemSortClasses.SortsHeading)
+			.text.set("Configure Sort")
+			.appendTo(this.configurePanel);
+
+		this.configureWrapper = Component.create()
+			.appendTo(this.configurePanel);
 
 		this.sorts = [];
 		for (const sort of sorter.get())
-			this.sorts.push(SortableSort.create([sort])
-				.appendTo(this.sortsList));
+			this.createSortableSort(sort);
 
 		this.sortsDisabledHeading = Component.create()
 			.classes.add(ItemSortClasses.SortsHeading)
@@ -124,6 +168,19 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		UiEventBus.subscribe("keyup", this.onKeyup);
 	}
 
+	private createSortableSort (sort: ISort) {
+		this.sorts.push(SortableSort.create([sort])
+			.event.subscribe("configure", this.configureSort)
+			.appendTo(this.sortsList));
+	}
+
+	private configureSort ({ sort }: { sort: ISort }) {
+		this.configureTitle.text.set(`Configure ${sort.name}`);
+		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions);
+		this.configurePanel.classes.remove(Classes.Hidden);
+		this.mainPanel.classes.add(Classes.Hidden);
+	}
+
 	private onClick (event: Event): void {
 		if (!this.exists())
 			return document.body.removeEventListener("click", this.onClick);
@@ -145,7 +202,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 	private updateSortDisplay () {
 		this.sortText.text.set(this.sorter.get()
-			.map(sort => sort.name)
+			.map(sort => sort.shortName ?? sort.name)
 			.join(", "));
 	}
 
@@ -183,6 +240,8 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		if (!this.drawer.classes.has(Classes.Hidden))
 			return;
 
+		this.configurePanel.classes.add(Classes.Hidden);
+		this.mainPanel.classes.remove(Classes.Hidden);
 		this.drawer.classes.remove(Classes.Hidden);
 		ExtraInfoManager.show(ItemSortClasses.Main);
 		this.drawer.attributes.remove("inert");

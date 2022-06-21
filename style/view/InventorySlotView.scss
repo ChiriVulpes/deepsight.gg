@@ -48,10 +48,6 @@
 				transform: translateY(0);
 				@include transition(in, transform);
 				
-				> * {
-					@include transition(in, opacity);
-				}
-				
 				&.hidden {
 					transform: translateY(100%);
 					@include transition(out);
@@ -59,7 +55,6 @@
 					
 					> * {
 						opacity: 0;
-						@include transition(out);
 					}
 				}
 			}
@@ -120,5 +115,29 @@
 .view-hidden {
 	@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
 		@include animation-swipe-down-out;
+	}
+}
+
+.stat-distribution {
+	&-configuration {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		column-gap: 0.5em;
+		row-gap: 0.5em;
+		padding: 0.5em 1em;
+	}
+	
+	&-stat {
+		display: contents;
+		
+		&-label {
+			color: color(foreground-2);
+			text-align: right;
+		}
+		
+		&-value {
+			min-width: 1.5em;
+			text-align: right;
+		}
 	}
 }

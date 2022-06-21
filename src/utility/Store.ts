@@ -33,7 +33,7 @@ export default class Store {
 		return localStorage.getItem(key) !== null;
 	}
 
-	public static get (key: string) {
+	public static get<T> (key: string): T | null {
 		const value = localStorage.getItem(key);
 		try {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
