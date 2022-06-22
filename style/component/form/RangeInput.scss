@@ -7,11 +7,16 @@
 	cursor: pointer;
 	outline: none;
 	--value: 0;
+	--visual-min: 0;
 	
 	&::-webkit-slider-runnable-track {
 		// align-self: flex-start;
 		height: 1.2em;
-		background: linear-gradient(to right, color(foreground-0) calc(var(--value) * 100%), #fff1 calc(var(--value) * 100% + 1px))
+		$position: calc(var(--visual-min) * 100% + var(--value) * (100% * (1 - var(--visual-min))));
+		background: linear-gradient(to right, 
+			color(foreground-0) $position, 
+			#fff1 calc(#{$position} + 1px),
+		);
 	}
 	
 	&::-webkit-slider-thumb {
@@ -20,7 +25,7 @@
 		height: 1.5em;
 		width: 1px;
 		margin-top: -.15em;
-		margin-left: calc(-.2em + .5em * var(--value));
+		margin-left: calc(-.2em + .5em * var(--value) + var(--visual-min) * (100% * (1 - var(--value))));
 		background: color(foreground-2);
 		box-sizing: content-box;
 		background-clip: content-box;

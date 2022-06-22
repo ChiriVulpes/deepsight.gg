@@ -58,6 +58,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 		this.update = this.update.bind(this);
 		this.input = RangeInput.create([{ min: STAT_MIN, max: STAT_MAX }])
 			.classes.add(StatDistributionClasses.Range)
+			.style.set("--visual-min", `${STAT_MIN / STAT_MAX}`)
 			.event.subscribe("input", this.update)
 			.appendTo(this);
 
