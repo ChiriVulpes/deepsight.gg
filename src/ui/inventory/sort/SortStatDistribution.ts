@@ -4,18 +4,9 @@ import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import RangeInput from "ui/form/RangeInput";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
-import { Stat } from "ui/inventory/tooltip/ItemTooltipStat";
+import type { Stat } from "ui/inventory/Stat";
+import { ARMOUR_GROUP_STATS_MAX, ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, ARMOUR_STAT_MIN, IStatDistribution } from "ui/inventory/Stat";
 import { EventManager } from "utility/EventManager";
-import Store from "utility/Store";
-
-export const STAT_GROUPS: [Stat, Stat, Stat][] = [
-	[Stat.Mobility, Stat.Resilience, Stat.Recovery],
-	[Stat.Discipline, Stat.Intellect, Stat.Strength],
-];
-
-export const STAT_MIN = 2;
-export const STAT_MAX = 30;
-export const STATS_MAX = 34;
 
 export enum StatDistributionClasses {
 	Main = "stat-distribution-configuration",
@@ -56,9 +47,9 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 			.appendTo(this);
 
 		this.update = this.update.bind(this);
-		this.input = RangeInput.create([{ min: STAT_MIN, max: STAT_MAX }])
+		this.input = RangeInput.create([{ min: ARMOUR_STAT_MIN, max: ARMOUR_STAT_MAX }])
 			.classes.add(StatDistributionClasses.Range)
-			.style.set("--visual-min", `${STAT_MIN / STAT_MAX}`)
+			.style.set("--visual-min", `${ARMOUR_STAT_MIN / ARMOUR_STAT_MAX}`)
 			.event.subscribe("input", this.update)
 			.appendTo(this);
 
@@ -66,8 +57,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 			.classes.add(StatDistributionClasses.Value)
 			.appendTo(this);
 
-		const preferredValue = Store.get<number>(`preferredStatDistribution.${Stat[stat]}`);
-		this.value = preferredValue ?? STAT_MIN;
+		this.value = IStatDistribution.getPreferredValue(stat);
 
 		this.update();
 
@@ -84,7 +74,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 
 		const oldValue = this.oldValue;
 		this.oldValue = this.input.value;
-		Store.set(`preferredStatDistribution.${Stat[this.stat]}`, this.input.value);
+		IStatDistribution.setPreferredValue(this.stat, this.input.value);
 
 		if (event || force)
 			this.event.emit("update", { value: this.input.value, oldValue });
@@ -101,16 +91,22 @@ const displayEvents = EventManager.make<IStatDistributionDisplayEvents>();
 
 enum StatDistributionDisplayClasses {
 	Main = "item-stat-distribution",
+	Value = "item-stat-distribution-value",
 }
 
 class StatDistributionDisplay extends Component<HTMLElement, [Item]> {
 
 	public item!: Item;
+	public value!: Component;
 	private contained = false;
 
 	protected override onMake (item: Item): void {
 		this.item = item;
 		this.classes.add(StatDistributionDisplayClasses.Main);
+
+		this.value = Component.create()
+			.classes.add(StatDistributionDisplayClasses.Value)
+			.appendTo(this);
 
 		this.update = this.update.bind(this);
 		displayEvents.subscribe("update", this.update);
@@ -125,14 +121,10 @@ class StatDistributionDisplay extends Component<HTMLElement, [Item]> {
 
 		this.contained = true;
 
-		const distribution = getStatDistribution(this.item);
-		this.style.set("--value", `${distribution}`)
-			.text.set(`${Math.floor(distribution * 100)}%`)
+		const distribution = IStatDistribution.get(this.item);
+		this.style.set("--value", `${distribution.overall}`);
+		this.value.text.set(`${Math.floor(distribution.overall * 100)}%`)
 	}
-}
-
-function getStatDistribution (item: Item) {
-	return 0;
 }
 
 export default ISort.create({
@@ -144,7 +136,7 @@ export default ISort.create({
 			.classes.add(StatDistributionClasses.Main)
 			.appendTo(wrapper);
 
-		for (const group of STAT_GROUPS) {
+		for (const group of ARMOUR_STAT_GROUPS) {
 			const statRows = {} as Record<Stat, StatRow>;
 			for (const stat of group) {
 				statRows[stat] = StatRow.create([stat])
@@ -163,8 +155,8 @@ export default ISort.create({
 
 						// ensure stats are the right amount
 						const total = modificationOrder.reduce((previous, current) => previous + current.value, 0);
-						if (total !== STATS_MAX) {
-							let difference = STATS_MAX - total;
+						if (total !== ARMOUR_GROUP_STATS_MAX) {
+							let difference = ARMOUR_GROUP_STATS_MAX - total;
 							for (const otherRow of modificationOrder) {
 								if (otherRow.stat === stat)
 									continue;
@@ -184,6 +176,6 @@ export default ISort.create({
 				statRows[stat].update(true, true);
 		}
 	},
-	sort: (a, b) => getStatDistribution(b) - getStatDistribution(a),
+	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,
 	render: item => StatDistributionDisplay.create([item]),
 });

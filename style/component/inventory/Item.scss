@@ -316,4 +316,18 @@
 			width: .5em;
 		}
 	}
+	
+	&-stat-distribution {
+		&-value {
+			background: linear-gradient(to right, #9e4949, #e04d4d 50%, #ff0 75%, #4eff13 100%);
+			background-size: 100vw 1px;
+			background-position: calc(var(--value) * -100vw + 3em);
+			background-clip: text;
+			-webkit-background-clip: text;
+			color: transparent;
+			text-shadow: none;
+			font-weight: 700;
+		}
+		filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 1px #000);
+	}
 }

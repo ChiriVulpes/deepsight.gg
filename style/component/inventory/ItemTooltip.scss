@@ -315,6 +315,12 @@
 			gap: .5em;
 			text-align: right;
 			
+			&-component {
+				&:empty {
+					display: none;
+				}
+			}
+			
 			:root:not(.show-extra-info) & {
 				&-component {
 					display: none;
@@ -333,6 +339,24 @@
 			
 		:root.show-extra-info &-combined {
 			display: none;
+		}
+		
+		&-formula {
+			display: flex;
+			gap: .5em;
+		}
+		
+		&-distribution {
+			&-component, & .item-tooltip-stat-combined {
+				background: linear-gradient(to right, #9e4949, #e04d4d 50%, #ff0 75%, #4eff13 100%);
+				background-size: 100vw 1px;
+				background-position: calc(var(--value) * -100vw + 3em);
+				background-clip: text;
+				-webkit-background-clip: text;
+				color: transparent;
+				text-shadow: none;
+				font-weight: 600;
+			}
 		}
 	}
 }

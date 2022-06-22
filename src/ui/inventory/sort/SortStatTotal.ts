@@ -1,7 +1,7 @@
 import type { Item } from "model/models/Items";
 import Component from "ui/Component";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
-import { ARMOUR_STATS } from "ui/inventory/tooltip/ItemTooltipStat";
+import { ARMOUR_STAT_GROUPS } from "ui/inventory/Stat";
 
 export default ISort.create({
 	id: Sort.StatTotal,
@@ -13,6 +13,6 @@ export default ISort.create({
 });
 
 function getStatTotal (item: Item) {
-	return ARMOUR_STATS.map(stat => item.stats?.[stat]?.intrinsic ?? 0)
+	return ARMOUR_STAT_GROUPS.flat().map(stat => item.stats?.[stat]?.intrinsic ?? 0)
 		.reduce((a, b) => a + b, 0);
 }
