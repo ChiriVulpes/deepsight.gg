@@ -1,7 +1,7 @@
 import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import Memberships from "model/models/Memberships";
+import { DestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 
@@ -170,12 +170,8 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				}
 
 			api.emitProgress(1 / 3, "Fetching profile");
-			const membership = await Memberships.await();
-			const destinyMembership = membership.destinyMemberships[0];
-			if (!destinyMembership)
-				throw new Error("No Destiny membership");
-
-			const newData = await GetProfile.query(destinyMembership.membershipType, destinyMembership.membershipId, missingComponents);
+			const membership = await DestinyMembership.await();
+			const newData = await GetProfile.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
 			for (let i = 0; i < components.length; i++) {

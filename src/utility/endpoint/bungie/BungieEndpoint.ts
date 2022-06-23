@@ -9,7 +9,7 @@ export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL 
 
 class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
 
-	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest) {
+	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
 		super(path, builder);
 	}
 
@@ -85,7 +85,7 @@ namespace BungieEndpoint {
 
 	export function at<ARGS extends any[] = any[]> (url: BungieEndpointURLResolvable<ARGS>) {
 		return {
-			request<ARGS2 extends ARGS, REQUEST extends EndpointRequest> (builder: (...args: ARGS2) => REQUEST) {
+			request<ARGS2 extends ARGS, REQUEST extends EndpointRequest> (builder: (...args: ARGS2) => REQUEST | Promise<REQUEST>) {
 				return {
 					returning<RESPONSE> (): BungieEndpoint<ARGS2, RESPONSE> {
 						return new BungieEndpointImpl<ARGS2, RESPONSE>(url, builder);

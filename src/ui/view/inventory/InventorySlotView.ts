@@ -13,6 +13,7 @@ import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/ItemSort";
 import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
+import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -107,7 +108,16 @@ export default new View.Factory()
 				if (!categories.includes(view.definition.slot(ItemCategoryHashes)))
 					continue;
 
-				itemMap.set(item, ItemComponent.create([item]));
+				const itemComponent = ItemComponent.create([item]);
+				itemMap.set(item, itemComponent);
+
+				itemComponent.event.subscribe("click", () => {
+					if (bucketId === "vault") {
+						void TransferItem.query(item, characterBucketsSorted[0].character.characterId as `${bigint}`);
+					} else {
+						void TransferItem.query(item, "vault");
+					}
+				});
 			}
 		}
 

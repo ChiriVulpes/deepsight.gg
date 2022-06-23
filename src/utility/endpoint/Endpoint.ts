@@ -7,7 +7,7 @@ export interface EndpointRequest extends Omit<RequestInit, "headers" | "body"> {
 }
 
 export default class Endpoint<T, ARGS extends any[] = []> {
-	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => EndpointRequest) { }
+	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) { }
 
 	public async query (...args: ARGS): Promise<T> {
 		const path = this.resolvePath(...args);
@@ -29,12 +29,18 @@ export default class Endpoint<T, ARGS extends any[] = []> {
 
 		const request = {
 			...this.getDefaultRequest(...args),
-			...this.builder?.(...args) ?? {},
+			...await this.builder?.(...args) ?? {},
 		};
 
 		let body: string | undefined;
-		if (typeof request.body === "object")
-			body = new URLSearchParams(Object.entries(request.body)).toString();
+		if (typeof request.body === "object") {
+			if (request.headers?.["Content-Type"] === "application/x-www-form-urlencoded")
+				body = new URLSearchParams(Object.entries(request.body)).toString();
+			else if (request.headers?.["Content-Type"] === "application/json")
+				body = JSON.stringify(request.body);
+			else
+				throw new Error("Unknown content type for object body");
+		}
 
 		let search = "";
 		if (request.search) {
