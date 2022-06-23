@@ -157,6 +157,10 @@
 			text-align: right;
 		}
 		
+		&-range, &-value {
+			@include transition(in, opacity);
+		}
+		
 		&:not(&-enabled) :where(&-range, &-value) {
 			opacity: .3;
 		}
