@@ -43,7 +43,7 @@ export namespace IStatDistribution {
 	}
 
 	export function get (item: Item): IStatDistribution {
-		if (!item.stats)
+		if (!item.stats || !ARMOUR_STAT_GROUPS.flat().some(stat => item.stats?.[stat]?.intrinsic))
 			return { overall: 0, groups: ARMOUR_STAT_GROUPS.map(_ => 0) };
 
 		const result: IStatDistribution = { overall: 0, groups: [] };
@@ -80,7 +80,7 @@ export namespace IStatDistribution {
 			groups++;
 		}
 
-		result.overall = groups ? total / groups : 1;
+		result.overall = total / groups;
 		return result;
 	}
 }

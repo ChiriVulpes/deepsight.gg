@@ -78,6 +78,9 @@ const statDisplays: Record<Stat | CustomStat, IStatDisplayDefinition> = {
 		name: "Distribution",
 		calculate: item => {
 			const distribution = IStatDistribution.get(item);
+			if (!distribution.overall)
+				return undefined; // this item doesn't have armour stats
+
 			return {
 				value: distribution.overall,
 				combinedValue: distribution.overall,
