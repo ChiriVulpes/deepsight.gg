@@ -146,8 +146,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.appendTo(this.sortsList);
 
 		for (const sort of sorter.getDisabled())
-			this.sorts.push(SortableSort.create([sort])
-				.appendTo(this.sortsList));
+			this.createSortableSort(sort);
 
 		this.onCommitSort = this.onCommitSort.bind(this);
 		new Sortable(this.sortsList.element)
