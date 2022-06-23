@@ -2,6 +2,7 @@ import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import Checkbox from "ui/form/Checkbox";
 import RangeInput from "ui/form/RangeInput";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 import type { Stat } from "ui/inventory/Stat";
@@ -14,10 +15,12 @@ export enum StatDistributionClasses {
 	Label = "stat-distribution-stat-label",
 	Range = "stat-distribution-stat-range",
 	Value = "stat-distribution-stat-value",
+	Enabled = "stat-distribution-stat-enabled",
 }
 
-export interface IStatRowEvents extends ComponentEvents<typeof Component> {
+export interface IStatRowEvents extends ComponentEvents {
 	update: { value: number; oldValue: number };
+	done: Event;
 }
 
 class StatRow extends Component<HTMLElement, [Stat]> {
@@ -25,6 +28,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 	public override event!: ComponentEventManager<this, IStatRowEvents>;
 
 	public stat!: Stat;
+	public checkbox!: Checkbox;
 	public input!: RangeInput;
 	public valueText!: Component;
 
@@ -42,15 +46,26 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 		this.stat = stat;
 		this.classes.add(StatDistributionClasses.Row);
 
-		const label = Component.create()
+		const enabled = IStatDistribution.isEnabled(stat);
+		this.classes.toggle(enabled, StatDistributionClasses.Enabled);
+
+		this.checkbox = Checkbox.create([enabled])
 			.classes.add(StatDistributionClasses.Label)
+			.event.subscribe("update", ({ checked }) => {
+				IStatDistribution.setIsEnabled(stat, checked);
+				this.update(false, true);
+				this.input.attributes.set("tabindex", checked ? undefined : "-1");
+				this.classes.toggle(checked, StatDistributionClasses.Enabled);
+			})
 			.appendTo(this);
 
 		this.update = this.update.bind(this);
 		this.input = RangeInput.create([{ min: ARMOUR_STAT_MIN, max: ARMOUR_STAT_MAX }])
 			.classes.add(StatDistributionClasses.Range)
 			.style.set("--visual-min", `${ARMOUR_STAT_MIN / ARMOUR_STAT_MAX}`)
+			.attributes.set("tabindex", enabled ? undefined : "-1")
 			.event.subscribe("input", this.update)
+			.event.subscribe("change", () => this.event.emit("done"))
 			.appendTo(this);
 
 		this.valueText = Component.create()
@@ -63,7 +78,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 
 		const { DestinyStatDefinition } = await Manifest.await();
 		const definition = await DestinyStatDefinition.get(stat);
-		label.text.set(definition?.displayProperties.name ?? "Unknown")
+		this.checkbox.label.text.set(definition?.displayProperties.name ?? "Unknown")
 	}
 
 	public update (event?: any, force = false) {
@@ -75,6 +90,9 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 		const oldValue = this.oldValue;
 		this.oldValue = this.input.value;
 		IStatDistribution.setPreferredValue(this.stat, this.input.value);
+
+		// if (event)
+		// 	this.checkbox.checked = true;
 
 		if (event || force)
 			this.event.emit("update", { value: this.input.value, oldValue });
@@ -131,7 +149,7 @@ export default ISort.create({
 	id: Sort.StatDistribution,
 	name: "Stat Distribution",
 	shortName: "Stats",
-	renderSortableOptions: wrapper => {
+	renderSortableOptions: (wrapper, update) => {
 		const configuration = Component.create()
 			.classes.add(StatDistributionClasses.Main)
 			.appendTo(wrapper);
@@ -169,11 +187,12 @@ export default ISort.create({
 
 						displayEvents.emit("update");
 					})
+					.event.subscribe("done", update)
 					.appendTo(configuration);
 			}
 
 			for (const stat of group)
-				statRows[stat].update(true, true);
+				statRows[stat].update(false, true);
 		}
 	},
 	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,

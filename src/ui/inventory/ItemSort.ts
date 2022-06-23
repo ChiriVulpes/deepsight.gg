@@ -24,11 +24,11 @@ export enum ItemSortClasses {
 	SortsHeading = "item-sort-drawer-sorts-heading",
 }
 
-export interface ItemSortEvents extends ComponentEvents<typeof Component> {
+export interface ItemSortEvents extends ComponentEvents {
 	sort: Event;
 }
 
-export interface SortableSortEvents extends ComponentEvents<typeof Component> {
+export interface SortableSortEvents extends ComponentEvents {
 	configure: { sort: ISort };
 }
 
@@ -176,9 +176,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 	private configureSort ({ sort }: { sort: ISort }) {
 		this.configureTitle.text.set(`Configure ${sort.name}`);
-		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions);
+		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions, this.onCommitSort);
 		this.configurePanel.classes.remove(Classes.Hidden);
+		this.configurePanel.attributes.remove("inert");
 		this.mainPanel.classes.add(Classes.Hidden);
+		this.mainPanel.attributes.add("inert");
 	}
 
 	private onClick (event: Event): void {
@@ -240,7 +242,9 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		if (!this.drawer.classes.has(Classes.Hidden))
 			return;
 
+		this.configurePanel.attributes.add("inert");
 		this.configurePanel.classes.add(Classes.Hidden);
+		this.mainPanel.attributes.remove("inert");
 		this.mainPanel.classes.remove(Classes.Hidden);
 		this.drawer.classes.remove(Classes.Hidden);
 		ExtraInfoManager.show(ItemSortClasses.Main);

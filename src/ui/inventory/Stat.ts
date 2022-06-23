@@ -26,6 +26,14 @@ export interface IStatDistribution {
 }
 
 export namespace IStatDistribution {
+
+	export function isEnabled (stat: Stat) {
+		return Store.get<boolean>(`preferredStatDistribution.${Stat[stat]}.enabled`) ?? true;
+	}
+	export function setIsEnabled (stat: Stat, enabled: boolean) {
+		Store.set(`preferredStatDistribution.${Stat[stat]}.enabled`, enabled);
+	}
+
 	export function getPreferredValue (stat: Stat) {
 		return Store.get<number>(`preferredStatDistribution.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
 	}
@@ -41,21 +49,38 @@ export namespace IStatDistribution {
 		const result: IStatDistribution = { overall: 0, groups: [] };
 
 		let total = 0;
+		let groups = 0;
 		for (const group of ARMOUR_STAT_GROUPS) {
-			let groupTotal = 0;
+			let groupEnabledNearnessTotal = 0;
+			let groupDisabledTotal = 0;
+			let disabledStatsMax = ARMOUR_GROUP_STATS_MAX;
 			let stats = 0;
 			for (const stat of group) {
-				const nearness = 1 - Math.abs(getPreferredValue(stat) - (item.stats[stat]?.intrinsic ?? 0)) / ARMOUR_STAT_MAX;
-				groupTotal += nearness;
+				const statValue = item.stats[stat]?.intrinsic ?? 0;
+				if (!isEnabled(stat)) {
+					groupDisabledTotal += statValue;
+					continue;
+				}
+
+				disabledStatsMax -= statValue;
+				const nearness = 1 - Math.abs(getPreferredValue(stat) - statValue) / ARMOUR_STAT_MAX;
+				groupEnabledNearnessTotal += nearness;
 				stats++;
 			}
 
-			const groupDistribution = groupTotal / stats;
+			if (groupDisabledTotal) {
+				const qualityOfDisabledStats = groupDisabledTotal / disabledStatsMax;
+				groupEnabledNearnessTotal += qualityOfDisabledStats;
+				stats++;
+			}
+
+			const groupDistribution = groupEnabledNearnessTotal / stats;
 			result.groups.push(groupDistribution);
 			total += groupDistribution;
+			groups++;
 		}
 
-		result.overall = total / ARMOUR_STAT_GROUPS.length;
+		result.overall = groups ? total / groups : 1;
 		return result;
 	}
 }

@@ -121,7 +121,8 @@
 .stat-distribution {
 	&-configuration {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: auto auto 1fr auto;
+    	grid-auto-flow: dense;
 		column-gap: 0.5em;
 		row-gap: 0.5em;
 		padding: 0.5em 1em;
@@ -131,13 +132,33 @@
 		display: contents;
 		
 		&-label {
+			display: contents;
 			color: color(foreground-2);
 			text-align: right;
+			> * {
+				position: relative;
+				top: -1px;
+			}
+			
+			.checkbox {
+				&-checkbox {
+					grid-column: 1;
+					order: unset;
+				}
+				
+				&-label {
+					grid-column: 2;
+				}
+			}
 		}
 		
 		&-value {
 			min-width: 1.5em;
 			text-align: right;
+		}
+		
+		&:not(&-enabled) :where(&-range, &-value) {
+			opacity: .3;
 		}
 	}
 }

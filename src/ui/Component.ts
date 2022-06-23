@@ -25,7 +25,7 @@ export type AnyComponent = Component<Element, any[]>;
 export type ComponentEventManager<HOST extends Component<Element, any[]>, EVENTS> =
 	EventManager<HOST, EVENTS, ComponentElement<HOST>>;
 
-export type ComponentEvents<CLASS extends { prototype: Component<Element, any[]> }> =
+export type ComponentEvents<CLASS extends { prototype: Component<Element, any[]> } = typeof Component> =
 	CLASS["prototype"]["event"] extends EventManager<any, infer SUPER_EVENTS, any> ? SUPER_EVENTS : never;
 
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
@@ -354,9 +354,12 @@ export class AttributeManager<HOST extends Component<HTMLElement>> {
 		return host as HOST;
 	}
 
-	public set (name: string, value: string) {
+	public set (name: string, value?: string) {
 		const host = this.host.deref();
-		host?.element.setAttribute(name, value);
+		if (value === undefined)
+			host?.element.removeAttribute(name);
+		else
+			host?.element.setAttribute(name, value);
 		return host as HOST;
 	}
 
