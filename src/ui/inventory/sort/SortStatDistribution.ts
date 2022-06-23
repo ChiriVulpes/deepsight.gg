@@ -54,6 +54,7 @@ class StatRow extends Component<HTMLElement, [Stat]> {
 			.event.subscribe("update", ({ checked }) => {
 				IStatDistribution.setIsEnabled(stat, checked);
 				this.update(false, true);
+				this.event.emit("done");
 				this.input.attributes.set("tabindex", checked ? undefined : "-1");
 				this.classes.toggle(checked, StatDistributionClasses.Enabled);
 			})
