@@ -1,6 +1,8 @@
 
 export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
 
+	public static readonly global = EventManager.make<GlobalEventHandlersEventMap>();
+
 	public static make<EVENTS> () {
 		return new EventManager<{}, EVENTS>({});
 	}

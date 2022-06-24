@@ -21,7 +21,7 @@ export interface IURLEvents {
 }
 
 let poppingState = false;
-window.addEventListener("popstate", () => {
+EventManager.global.subscribe("popstate", () => {
 	poppingState = true;
 	URL.event.emit("navigate");
 	poppingState = false;
