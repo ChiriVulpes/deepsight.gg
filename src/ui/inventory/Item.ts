@@ -1,9 +1,11 @@
 import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/SortManager";
+import Loadable from "ui/Loadable";
 
 export enum ItemClasses {
 	Main = "item",
@@ -21,6 +23,7 @@ export enum ItemClasses {
 	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
 	DeepsightAttuned = "item-deepsight-attuned",
 	Extra = "item-extra",
+	Loading = "item-loading",
 }
 
 export default class ItemComponent extends Button<[Item]> {
@@ -110,10 +113,21 @@ export default class ItemComponent extends Button<[Item]> {
 
 		this.extra.appendTo(this);
 
-		// this.loadable = Component.create()
-		// 	.classes.add(Loadable.Classes.LoadingSpinny)
-		// 	.append(Component.create())
-		// 	.append(Component.create());
+		const loadingSpinny = Component.create()
+			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
+			.classes.toggle(!item.moving, Classes.Hidden)
+			.append(Component.create())
+			.append(Component.create())
+			.appendTo(this);
+
+		const onMoving = ({ moving }: { moving: boolean }) => {
+			if (!document.contains(this.element)) {
+				item.event.unsubscribe("movingStateChange", onMoving);
+			}
+			loadingSpinny.classes.toggle(!moving, Classes.Hidden);
+		};
+
+		item.event.subscribe("movingStateChange", onMoving);
 	}
 
 	public setSortedBy (sorter: SortManager) {

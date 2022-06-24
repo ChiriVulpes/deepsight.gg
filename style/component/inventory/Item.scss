@@ -330,4 +330,9 @@
 		}
 		filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 1px #000);
 	}
+	
+	&-loading {
+		z-index: 1;
+		background: color(background-0, .8);
+	}
 }

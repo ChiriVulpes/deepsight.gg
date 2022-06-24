@@ -5,6 +5,7 @@ import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
+import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
@@ -53,10 +54,26 @@ export interface IStat {
 	mod?: number;
 }
 
+export interface IItemEvents {
+	movingStateChange: { moving: boolean };
+}
+
 export interface Item extends IItem { }
 export class Item {
 
-	public moving = false;
+	public readonly event = new EventManager<this, IItemEvents>(this);
+
+	private _moving = false;
+	public get moving () {
+		return this._moving;
+	}
+	public set moving (moving: boolean) {
+		if (this._moving === moving)
+			return;
+
+		this._moving = moving;
+		this.event.emit("movingStateChange", { moving });
+	}
 
 	public constructor (item: IItem) {
 		Object.assign(this, item);
