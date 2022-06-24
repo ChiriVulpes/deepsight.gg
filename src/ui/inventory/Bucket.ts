@@ -10,14 +10,14 @@ export enum BucketClasses {
 	Inventory = "bucket-inventory",
 }
 
-export default class BucketComponent extends Component {
+export default class BucketComponent<ARGS extends readonly any[] = readonly any[]> extends Component<HTMLElement, ARGS> {
 
 	public header!: Component;
 	public title!: Component;
 	public icon!: Component;
 	public inventory!: Component;
 
-	protected override onMake () {
+	protected override onMake (...args: ARGS) {
 		this.classes.add(BucketClasses.Main);
 
 		this.header = Component.create()

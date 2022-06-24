@@ -7,25 +7,25 @@ declare global {
 	}
 }
 
-export type ComponentClass<COMPONENT extends Component<Element, readonly any[]> = Component<Element, readonly any[]>> = {
+export type ComponentClass<COMPONENT extends AnyComponent = AnyComponent> = {
 	prototype: COMPONENT,
 	create: (typeof Component)["create"];
 	get: (typeof Component)["get"];
 };
 
-export type ComponentElement<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["element"];
-export type ComponentArgs<COMPONENT extends Component<Element, readonly any[]>> = COMPONENT["_args"];
+export type ComponentElement<COMPONENT extends AnyComponent> = COMPONENT["element"];
+export type ComponentArgs<COMPONENT extends AnyComponent> = COMPONENT["_args"];
 
 export interface IComponentsEvents {
 	setTooltip: { component: AnyComponent; tooltip: Tooltip; initialiser (tooltip: Tooltip): any };
 }
 
-export type AnyComponent = Component<Element, any[]>;
+export type AnyComponent = Component<Element, readonly any[]>;
 
-export type ComponentEventManager<HOST extends Component<Element, any[]>, EVENTS> =
+export type ComponentEventManager<HOST extends AnyComponent, EVENTS> =
 	EventManager<HOST, EVENTS, ComponentElement<HOST>>;
 
-export type ComponentEvents<CLASS extends { prototype: Component<Element, any[]> } = typeof Component> =
+export type ComponentEvents<CLASS extends { prototype: AnyComponent } = typeof Component> =
 	CLASS["prototype"]["event"] extends EventManager<any, infer SUPER_EVENTS, any> ? SUPER_EVENTS : never;
 
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
@@ -39,7 +39,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap> (this: typeof Component, type: TYPE_NAME): Component<HTMLElementTagNameMap[TYPE_NAME], []>;
 	public static create (this: typeof Component): Component<HTMLElement, []>;
 	public static create<THIS extends { prototype: Component<Element, []> }> (this: THIS): THIS["prototype"];
-	public static create<THIS extends { prototype: Component<Element, readonly any[]> }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
+	public static create<THIS extends { prototype: AnyComponent }> (this: THIS, args: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
 	public static create<TYPE_NAME extends keyof HTMLElementTagNameMap, THIS extends { prototype: Component<HTMLElementTagNameMap[TYPE_NAME], readonly any[]> }> (this: THIS, type: TYPE_NAME, args?: ComponentArgs<THIS["prototype"]>): THIS["prototype"];
 	public static create (type?: keyof HTMLElementTagNameMap | any[], args?: any[]) {
 		if (typeof type === "object") {

@@ -15,6 +15,7 @@ import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
+import { EventManager } from "utility/EventManager";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -27,35 +28,32 @@ export enum InventorySlotViewClasses {
 	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
 	VaultBucket = "view-inventory-slot-vault-bucket",
 	SlotPendingRemoval = "view-inventory-slot-pending-removal",
+	HighestPower = "view-inventory-slot-highest-power",
 }
 
-interface ICharacterBucket {
-	character: DestinyCharacterComponent;
-	bucketComponent: BucketComponent;
-	equippedComponent: Component;
-}
+class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
 
-function initialiseCharacterComponent (character: DestinyCharacterComponent): ICharacterBucket {
-	const bucketComponent = BucketComponent.create()
-		.classes.add(InventorySlotViewClasses.CharacterBucket);
+	public character!: DestinyCharacterComponent;
+	public equippedSlot!: Component;
 
-	Component.create()
-		.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
-		.appendTo(bucketComponent.header);
+	protected override onMake (character: DestinyCharacterComponent): void {
+		super.onMake(character);
+		this.classes.add(InventorySlotViewClasses.CharacterBucket);
 
-	const equippedComponent = Component.create()
-		.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
-		.appendTo(bucketComponent);
+		this.character = character;
 
-	bucketComponent.inventory.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
+		Component.create()
+			.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
+			.appendTo(this.header);
 
-	void bucketComponent.initialiseFromCharacter(character);
+		this.equippedSlot = Component.create()
+			.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
+			.appendTo(this);
 
-	return {
-		character,
-		bucketComponent,
-		equippedComponent,
-	};
+		this.inventory.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
+
+		void this.initialiseFromCharacter(character);
+	}
 }
 
 export default new View.Factory()
@@ -89,9 +87,9 @@ export default new View.Factory()
 		const characterBucketsSorted = Object.values(profile.characters.data)
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
-			.map(initialiseCharacterComponent);
+			.map(character => CharacterBucket.create([character]));
 
-		characterBuckets.append(...characterBucketsSorted.map(bucket => bucket.bucketComponent));
+		characterBuckets.append(...characterBucketsSorted);
 
 		const characters = Object.fromEntries(characterBucketsSorted.map(bucket => [
 			bucket.character.characterId,
@@ -154,6 +152,8 @@ export default new View.Factory()
 		}
 
 		function sort () {
+			const highestPowerSlot: Component[] = [];
+			let highestPower = 0;
 			for (const [bucketId, bucket] of bucketEntries) {
 				if (bucketId === "inventory" || bucketId === "postmaster")
 					continue;
@@ -163,15 +163,17 @@ export default new View.Factory()
 				if (bucketId === "vault")
 					bucketComponent = vaultBucket;
 				else {
-					const character = characters[bucketId];
-					if (!character) {
+					const characterBucket = characters[bucketId];
+					if (!characterBucket) {
 						console.warn(`Unknown character '${bucketId}'`);
 						continue;
 					}
 
-					bucketComponent = character.bucketComponent;
-					equippedComponent = character.equippedComponent;
+					bucketComponent = characterBucket;
+					equippedComponent = characterBucket.equippedSlot;
 				}
+
+				equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
 
 				for (const slot of [...bucketComponent.inventory.children()])
 					slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
@@ -181,11 +183,25 @@ export default new View.Factory()
 					if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
 						itemComponent = movingItemMap.get(item);
 
+					if (!itemComponent)
+						// item not included in view
+						continue;
+
+					const slot = item.equipped ? equippedComponent! : Component.create()
+						.classes.add(InventoryClasses.Slot)
+						.appendTo(bucketComponent.inventory);
+
 					itemComponent
-						?.setSortedBy(view.definition.sort)
-						.appendTo(item.equipped ? equippedComponent! : Component.create()
-							.classes.add(InventoryClasses.Slot)
-							.appendTo(bucketComponent.inventory));
+						.setSortedBy(view.definition.sort)
+						.appendTo(slot);
+
+					const power = item.instance?.primaryStat?.value ?? 0;
+					if (power > highestPower) {
+						highestPower = power;
+						highestPowerSlot.splice(0, Infinity, slot);
+					} else if (power === highestPower) {
+						highestPowerSlot.push(slot);
+					}
 				}
 
 				// clean up old slots
@@ -201,6 +217,10 @@ export default new View.Factory()
 					movingItemMap.delete(item);
 				}
 			}
+
+			if (highestPowerSlot.length < 3)
+				for (const slot of highestPowerSlot)
+					slot.classes.add(InventorySlotViewClasses.HighestPower);
 		}
 
 		sort();
