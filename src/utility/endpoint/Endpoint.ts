@@ -36,10 +36,11 @@ export default class Endpoint<T, ARGS extends any[] = []> {
 		if (typeof request.body === "object") {
 			if (request.headers?.["Content-Type"] === "application/x-www-form-urlencoded")
 				body = new URLSearchParams(Object.entries(request.body)).toString();
-			else if (request.headers?.["Content-Type"] === "application/json")
+			else if (request.headers?.["Content-Type"] === undefined || request.headers?.["Content-Type"] === "application/json") {
+				request.headers ??= {};
+				request.headers["Content-Type"] = "application/json";
 				body = JSON.stringify(request.body);
-			else
-				throw new Error("Unknown content type for object body");
+			}
 		}
 
 		let search = "";

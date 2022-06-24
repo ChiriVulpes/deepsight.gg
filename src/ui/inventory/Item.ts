@@ -69,10 +69,6 @@ export default class ItemComponent extends Button<[Item]> {
 		else
 			watermark = item.definition.iconWatermark ?? item.definition.iconWatermarkShelved;
 
-		// Note: For some reason there's no watermarks on really old exotics.
-		// DIM shows all of these ones with the red war icon.
-		// TODO... figure out how, if necessary?
-
 		if (watermark) {
 			Component.create()
 				.classes.add(ItemClasses.SourceWatermark)
@@ -113,6 +109,11 @@ export default class ItemComponent extends Button<[Item]> {
 			.setItem(item));
 
 		this.extra.appendTo(this);
+
+		// this.loadable = Component.create()
+		// 	.classes.add(Loadable.Classes.LoadingSpinny)
+		// 	.append(Component.create())
+		// 	.append(Component.create());
 	}
 
 	public setSortedBy (sorter: SortManager) {

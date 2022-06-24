@@ -56,6 +56,8 @@ export interface IStat {
 export interface Item extends IItem { }
 export class Item {
 
+	public moving = false;
+
 	public constructor (item: IItem) {
 		Object.assign(this, item);
 	}
@@ -67,11 +69,7 @@ export class Item {
 
 export class Bucket {
 
-	public get items (): readonly Item[] {
-		return this._items;
-	}
-
-	public constructor (public readonly id: BucketId, private _items: Item[]) {
+	public constructor (public readonly id: BucketId, public readonly items: Item[]) {
 	}
 }
 
@@ -284,7 +282,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				continue;
 
 			item.equipped = true;
-			bucket["_items"].push(item);
+			bucket.items.push(item);
 		}
 	}
 

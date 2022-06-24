@@ -16,7 +16,7 @@ export interface Response {
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/TransferItem/")
-	.request(async (item: Item, destination: "vault" | `${bigint}`) => {
+	.request(async (item: Item, character: `${bigint}`, destination: "vault" | `${bigint}` = character) => {
 		if (!item.reference.itemInstanceId)
 			throw new Error("Item has no instance ID");
 
@@ -24,15 +24,12 @@ export default BungieEndpoint
 
 		return {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
 			body: {
 				itemReferenceHash: item.definition.hash,
 				stackSize: item.reference.quantity,
 				transferToVault: destination === "vault",
 				itemId: item.reference.itemInstanceId,
-				characterId: destination,
+				characterId: character,
 				membershipType: membership.membershipType,
 			},
 		} as EndpointRequest;

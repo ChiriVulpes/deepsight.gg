@@ -13,6 +13,7 @@ import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/ItemSort";
 import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
+import Arrays from "utility/Arrays";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 
 export enum InventorySlotViewClasses {
@@ -25,6 +26,7 @@ export enum InventorySlotViewClasses {
 	CharacterBucketEquipped = "view-inventory-slot-character-bucket-equipped",
 	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
 	VaultBucket = "view-inventory-slot-vault-bucket",
+	SlotPendingRemoval = "view-inventory-slot-pending-removal",
 }
 
 interface ICharacterBucket {
@@ -97,6 +99,7 @@ export default new View.Factory()
 		]));
 
 		const itemMap = new Map<Item, ItemComponent>();
+		const movingItemMap = new Map<Item, ItemComponent>();
 
 		const bucketEntries = Object.entries(buckets) as [BucketId, Bucket][];
 		for (const [bucketId, bucket] of bucketEntries) {
@@ -108,17 +111,46 @@ export default new View.Factory()
 				if (!categories.includes(view.definition.slot(ItemCategoryHashes)))
 					continue;
 
-				const itemComponent = ItemComponent.create([item]);
-				itemMap.set(item, itemComponent);
-
-				itemComponent.event.subscribe("click", () => {
-					if (bucketId === "vault") {
-						void TransferItem.query(item, characterBucketsSorted[0].character.characterId as `${bigint}`);
-					} else {
-						void TransferItem.query(item, "vault");
-					}
-				});
+				itemMap.set(item, createItemComponent(item, bucketId));
 			}
+		}
+
+		function createItemComponent (item: Item, bucketId: "vault" | `${bigint}`) {
+			return ItemComponent.create([item])
+				.event.subscribe("click", async () => {
+					if (item.equipped)
+						// items can't be unequipped with fvm
+						return;
+
+					if (item.moving)
+						// item is already moving
+						return;
+
+					let characterId: `${bigint}`;
+					let destination: "vault" | `${bigint}`;
+					if (bucketId === "vault") {
+						destination = characterId = characterBucketsSorted[0].character.characterId as `${bigint}`;
+					} else {
+						characterId = bucketId;
+						destination = "vault";
+					}
+
+					movingItemMap.set(item, createItemComponent(item, destination));
+					item.moving = true;
+					buckets[destination].items.push(item);
+					sort();
+
+					const success = await TransferItem.query(item, characterId, destination)
+						.then(() => true)
+						.catch(err => { console.log(err); return false });
+
+					item.moving = false;
+					// remove item from old bucket if move successful, remove temp item from destination otherwise
+					Arrays.remove(buckets[success ? bucketId : destination].items, item);
+					// update this item component's bucket so future clicks transfer to the right place
+					bucketId = destination;
+					sort();
+				});
 		}
 
 		function sort () {
@@ -141,17 +173,33 @@ export default new View.Factory()
 					equippedComponent = character.equippedComponent;
 				}
 
-				for (const item of view.definition.sort.sort(bucket.items))
-					itemMap.get(item)
+				for (const slot of [...bucketComponent.inventory.children()])
+					slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
+
+				for (const item of view.definition.sort.sort(bucket.items)) {
+					let itemComponent = itemMap.get(item);
+					if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+						itemComponent = movingItemMap.get(item);
+
+					itemComponent
 						?.setSortedBy(view.definition.sort)
 						.appendTo(item.equipped ? equippedComponent! : Component.create()
 							.classes.add(InventoryClasses.Slot)
 							.appendTo(bucketComponent.inventory));
+				}
 
 				// clean up old slots
 				for (const slot of [...bucketComponent.inventory.children()])
-					if (!slot.hasContents())
+					if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
 						slot.remove();
+			}
+
+			for (const [item, newComponent] of [...movingItemMap]) {
+				const existing = itemMap.get(item);
+				if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
+					itemMap.set(item, newComponent);
+					movingItemMap.delete(item);
+				}
 			}
 		}
 
