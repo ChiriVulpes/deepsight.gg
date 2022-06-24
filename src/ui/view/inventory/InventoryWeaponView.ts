@@ -7,6 +7,6 @@ export default InventorySlotView.clone().configure({
 		id: "weapons",
 		name: "Weapons",
 		default: [Sort.Pattern, Sort.Power, Sort.Name],
-		inapplicable: [Sort.Energy, Sort.StatTotal],
+		inapplicable: [Sort.Energy, Sort.StatTotal, Sort.StatDistribution],
 	}),
 });
