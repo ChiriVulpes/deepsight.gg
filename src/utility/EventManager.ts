@@ -7,6 +7,19 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		return new EventManager<{}, EVENTS>({});
 	}
 
+	public static emit (target: EventTarget | undefined, event: Event | string, init?: ((event: Event) => any) | object) {
+		if (typeof event === "string")
+			event = new Event(event);
+
+		if (typeof init === "function")
+			init?.(event);
+		else if (init)
+			Object.assign(event, init);
+
+		target?.dispatchEvent(event);
+		return event;
+	}
+
 	private readonly host: WeakRef<HOST>;
 	private readonly _target: TARGET | WeakRef<TARGET>;
 
@@ -57,13 +70,7 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	public emit<EVENT extends EVENTS[keyof EVENTS]> (event: EVENT, initializer?: (event: EVENT) => any): void;
 	public emit<EVENT extends Event> (event: EVENT, initializer: (event: EVENT) => EVENTS[keyof EVENTS]): void;
 	public emit (event: Event | string, init?: ((event: any) => any) | object) {
-		if (typeof event === "string")
-			event = new Event(event);
-
-		if (typeof init === "function")
-			init?.(event);
-		else if (init)
-			Object.assign(event, init);
+		event = EventManager.emit(this.target, event, init);
 
 		const pipeTargets = this.pipeTargets.get(event.type);
 		if (pipeTargets) {
@@ -78,8 +85,6 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 			if (!pipeTargets.length)
 				this.pipeTargets.delete(event.type);
 		}
-
-		this.target?.dispatchEvent(event);
 
 		return this.host.deref() as HOST;
 	}

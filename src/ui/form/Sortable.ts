@@ -1,7 +1,8 @@
-import Draggable, { IVector2 } from "ui/form/Draggable";
+import Draggable from "ui/form/Draggable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import { EventManager } from "utility/EventManager";
+import { IVector2 } from "utility/maths/Vector2";
 
 export enum SortableClasses {
 	Item = "sortable-item",
@@ -28,7 +29,7 @@ export default class Sortable {
 		for (const child of host.children as Iterable<HTMLElement>) {
 			child.classList.add(SortableClasses.Item);
 			child.setAttribute("tabindex", "0");
-			this.draggables.set(child, new Draggable(child).setDelay(this.sortDelay));
+			this.draggables.set(child, new Draggable(child).setStickyDistance(this.sortStickyDistance));
 
 			child.addEventListener("moveStart", this.onItemMoveStart);
 			child.addEventListener("move", this.onItemMove);
@@ -48,12 +49,11 @@ export default class Sortable {
 		UiEventBus.unsubscribe("keydown", this.onKeydown);
 	}
 
-	private sortDelay = 0;
-	public setSortDelay (delay: number) {
-		this.sortDelay = delay;
-		for (const item of this.host.children as Iterable<HTMLElement>) {
-			this.draggables.get(item)?.setDelay(delay);
-		}
+	private sortStickyDistance = 0;
+	public setSortStickyDistance (stickyDistance: number) {
+		this.sortStickyDistance = stickyDistance;
+		for (const item of this.host.children as Iterable<HTMLElement>)
+			this.draggables.get(item)?.setStickyDistance(stickyDistance);
 
 		return this;
 	}
@@ -83,26 +83,26 @@ export default class Sortable {
 	private savedPosition?: IVector2;
 	private mouseOffset?: IVector2;
 	private onItemMoveStart (e: Event) {
-		const event = e as any as { detail: IVector2, target: HTMLElement };
+		const event = e as any as { offset: IVector2, target: HTMLElement };
 		const item = event.target;
-		const position = event.detail;
+		const position = event.offset;
 		const itemBox = item.getBoundingClientRect();
 		const centre = { x: itemBox.left + itemBox.width / 2, y: itemBox.top + itemBox.height / 2 };
-		this.mouseOffset = { x: event.detail.x - centre.x, y: event.detail.y - centre.y };
+		this.mouseOffset = { x: event.offset.x - centre.x, y: event.offset.y - centre.y };
 		const hostBox = this.host.getBoundingClientRect();
 		this.savedPosition = { x: position.x - hostBox.left, y: position.y - hostBox.top };
 		item.classList.add(SortableClasses.Moving);
 		this.slot ??= document.createElement("div");
 		this.slot.classList.add(SortableClasses.Slot);
 		this.host.insertBefore(this.slot, item);
-		this.onItemMove({ target: item, detail: IVector2.ZERO() });
+		this.onItemMove({ target: item, offset: IVector2.ZERO() });
 	}
 
 	private slot?: HTMLElement;
-	private onItemMove (e: Event | { detail: IVector2, target: HTMLElement }) {
-		const event = e as any as { detail: IVector2, target: HTMLElement };
+	private onItemMove (e: Event | { offset: IVector2, target: HTMLElement }) {
+		const event = e as any as { offset: IVector2, target: HTMLElement };
 		const item = event.target;
-		const change = event.detail;
+		const change = event.offset;
 		const box = item.getBoundingClientRect();
 		const position = { x: (this.savedPosition?.x ?? 0) + change.x, y: (this.savedPosition?.y ?? 0) + change.y };
 		item.style.left = `${position.x - box.width / 2 - (this.mouseOffset?.x ?? 0)}px`;

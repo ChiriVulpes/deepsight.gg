@@ -1,4 +1,5 @@
-import Async from "utility/Async";
+import { EventManager } from "utility/EventManager";
+import { IVector2 } from "utility/maths/Vector2";
 
 enum DragStage {
 	None,
@@ -6,20 +7,15 @@ enum DragStage {
 	Dragging,
 }
 
-export interface IVector2 {
-	x: number;
-	y: number;
-}
-
-export namespace IVector2 {
-	export function ZERO (): IVector2 {
-		return { x: 0, y: 0 };
-	}
+export interface IDraggableEvents {
+	moveStart: { offset: IVector2 };
+	move: { offset: IVector2 };
+	moveEnd: Event;
 }
 
 export default class Draggable {
 
-	private lastMousePosition?: IVector2;
+	private mouseStartPosition?: IVector2;
 	private dragStage = DragStage.None;
 
 	public constructor (protected readonly host: HTMLElement) {
@@ -27,57 +23,54 @@ export default class Draggable {
 		this.dragStart = this.dragStart.bind(this);
 		this.dragEnd = this.dragEnd.bind(this);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		host.addEventListener("mousedown", this.dragStart, { passive: true });
+		host.addEventListener("mousedown", this.dragStart);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		host.addEventListener("touchstart", this.dragStart, { passive: true });
+		host.addEventListener("touchstart", this.dragStart);
 	}
 
-	private delay = 0;
-	public setDelay (delay: number) {
-		this.delay = delay;
+	private stickyDistance = 20;
+	public setStickyDistance (stickyDistance: number) {
+		this.stickyDistance = stickyDistance;
 		return this;
 	}
 
-	private async dragStart (event: Partial<MouseEvent> & Partial<TouchEvent>) {
+	private dragStart (event: Partial<MouseEvent> & Partial<TouchEvent>) {
 		const position = this.getMousePosition(event);
-		if (!position) {
+		if (!position)
 			return;
-		}
 
-		this.lastMousePosition = { x: position.clientX!, y: position.clientY! };
+		this.mouseStartPosition = { x: position.clientX!, y: position.clientY! };
 		this.dragStage = DragStage.Starting;
 
 		if (event.type === "mousedown") {
 			window.addEventListener("mousemove", this.drag, { passive: true });
-			window.addEventListener("mouseup", this.dragEnd, { passive: true });
+			window.addEventListener("mouseup", this.dragEnd);
 
 		} else {
 			window.addEventListener("touchmove", this.drag, { passive: true });
-			window.addEventListener("touchend", this.dragEnd, { passive: true });
+			window.addEventListener("touchend", this.dragEnd);
 		}
-
-		await Async.sleep(this.delay);
-
-		if (this.dragStage !== DragStage.Starting) {
-			return;
-		}
-
-		// disable tooltips while dragging handles
-		this.host.dispatchEvent(new CustomEvent("moveStart", { detail: this.lastMousePosition }));
-		this.dragStage = DragStage.Dragging;
 	}
 
 	private drag (event: Partial<MouseEvent> & Partial<TouchEvent>) {
-		if (this.dragStage !== DragStage.Dragging) {
-			return;
-		}
-
 		const position = this.getMousePosition(event);
-		if (!position) {
+		if (!position)
 			return;
+
+		const offset: IVector2 = {
+			x: position.clientX! - this.mouseStartPosition!.x,
+			y: position.clientY! - this.mouseStartPosition!.y,
+		};
+
+		if (this.dragStage === DragStage.Starting && !IVector2.distanceWithin(IVector2.ZERO(), offset, this.stickyDistance)) {
+			EventManager.emit(this.host, "moveStart", { offset: this.mouseStartPosition });
+			this.dragStage = DragStage.Dragging;
 		}
 
-		this.host.dispatchEvent(new CustomEvent("move", { detail: { x: position.clientX! - this.lastMousePosition!.x, y: position.clientY! - this.lastMousePosition!.y } }));
+		if (this.dragStage !== DragStage.Dragging)
+			return;
+
+		EventManager.emit(this.host, "move", { offset });
 	}
 
 	private dragEnd (event: Partial<MouseEvent> & Partial<TouchEvent>) {
@@ -88,15 +81,14 @@ export default class Draggable {
 
 		if (this.dragStage === DragStage.Dragging) {
 			const position = this.getMousePosition(event);
-			if (position) {
+			if (position)
 				this.drag(event);
-			}
 
-			this.host.dispatchEvent(new CustomEvent("moveEnd"));
+			EventManager.emit(this.host, "moveEnd");
 		}
 
 		this.dragStage = DragStage.None;
-		this.lastMousePosition = undefined;
+		this.mouseStartPosition = undefined;
 	}
 
 	private getMousePosition (event: Partial<MouseEvent> & Partial<TouchEvent>) {
