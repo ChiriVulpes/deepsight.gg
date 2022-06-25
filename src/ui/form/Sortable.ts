@@ -81,16 +81,12 @@ export default class Sortable {
 	}
 
 	private savedPosition?: IVector2;
-	private mouseOffset?: IVector2;
 	private onItemMoveStart (e: Event) {
 		const event = e as any as { offset: IVector2, target: HTMLElement };
 		const item = event.target;
-		const position = event.offset;
 		const itemBox = item.getBoundingClientRect();
-		const centre = { x: itemBox.left + itemBox.width / 2, y: itemBox.top + itemBox.height / 2 };
-		this.mouseOffset = { x: event.offset.x - centre.x, y: event.offset.y - centre.y };
 		const hostBox = this.host.getBoundingClientRect();
-		this.savedPosition = { x: position.x - hostBox.left, y: position.y - hostBox.top };
+		this.savedPosition = { x: itemBox.left - hostBox.left, y: itemBox.top - hostBox.top };
 		item.classList.add(SortableClasses.Moving);
 		this.slot ??= document.createElement("div");
 		this.slot.classList.add(SortableClasses.Slot);
@@ -103,10 +99,9 @@ export default class Sortable {
 		const event = e as any as { offset: IVector2, target: HTMLElement };
 		const item = event.target;
 		const change = event.offset;
-		const box = item.getBoundingClientRect();
 		const position = { x: (this.savedPosition?.x ?? 0) + change.x, y: (this.savedPosition?.y ?? 0) + change.y };
-		item.style.left = `${position.x - box.width / 2 - (this.mouseOffset?.x ?? 0)}px`;
-		item.style.top = `${position.y - box.height / 2 - (this.mouseOffset?.y ?? 0)}px`;
+		item.style.left = `${position.x}px`;
+		item.style.top = `${position.y}px`;
 
 		const before = this.findItemBefore(item, position, [...this.host.children] as HTMLElement[]);
 		this.host.insertBefore(this.slot!, !before ? this.host.firstElementChild : before.nextElementSibling);
@@ -125,8 +120,8 @@ export default class Sortable {
 
 			let { left, top, width, height } = child.getBoundingClientRect();
 			// adjust child position by the position of the host in the document
-			left -= thisLeft - width / 2;
-			top -= thisTop - height / 2;
+			left -= thisLeft;
+			top -= thisTop;
 
 			// if this is the first item
 			if (i === (children[0] === item ? 1 : 0)) {
