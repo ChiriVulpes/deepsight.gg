@@ -73,6 +73,7 @@
 			z-index: -1;
 			animation: highest-power-pulse 4s linear infinite;
 	
+			// TODO clean this up with scss magic
 			@keyframes highest-power-pulse {
 				5% {
 					box-shadow: 0 0 0 5px transparent, 0 0 0 5px transparent, 0 0 0 5px transparent, 0 0 0 5px var(--background-1), 0 0 0 6px white;
