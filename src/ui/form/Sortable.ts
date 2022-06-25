@@ -1,3 +1,4 @@
+import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -82,7 +83,7 @@ export default class Sortable {
 
 	private savedPosition?: IVector2;
 	private onItemMoveStart (e: Event) {
-		const event = e as any as { offset: IVector2, target: HTMLElement };
+		const event = e as any as { target: HTMLElement } & IDraggableEvents["moveStart"];
 		const item = event.target;
 		const itemBox = item.getBoundingClientRect();
 		const hostBox = this.host.getBoundingClientRect();
@@ -95,8 +96,8 @@ export default class Sortable {
 	}
 
 	private slot?: HTMLElement;
-	private onItemMove (e: Event | { offset: IVector2, target: HTMLElement }) {
-		const event = e as any as { offset: IVector2, target: HTMLElement };
+	private onItemMove (e: Event | { target: HTMLElement } & IDraggableEvents["move"]) {
+		const event = e as any as { target: HTMLElement } & IDraggableEvents["move"];
 		const item = event.target;
 		const change = event.offset;
 		const position = { x: (this.savedPosition?.x ?? 0) + change.x, y: (this.savedPosition?.y ?? 0) + change.y };
@@ -162,7 +163,7 @@ export default class Sortable {
 	}
 
 	private onItemMoveEnd (e: Event) {
-		const event = e as any as { detail: IVector2, target: HTMLElement };
+		const event = e as any as { target: HTMLElement };
 		event.target.classList.remove(SortableClasses.Moving);
 		event.target.style.removeProperty("left");
 		event.target.style.removeProperty("top");

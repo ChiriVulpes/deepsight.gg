@@ -8,7 +8,7 @@ enum DragStage {
 }
 
 export interface IDraggableEvents {
-	moveStart: { offset: IVector2 };
+	moveStart: { mouse: IVector2 };
 	move: { offset: IVector2 };
 	moveEnd: Event;
 }
