@@ -82,6 +82,22 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			.filter((component): component is COMPONENT => !!component);
 	}
 
+	public static makeable<ELEMENT extends Element, ARGS extends any[]> () {
+		return {
+			of<CLASS extends typeof Component<Element, readonly any[]>> (cls: CLASS) {
+				const result = (class extends (cls as any) {
+					static addSuper = true;
+				});
+
+				return result as any as {
+					new(element: ELEMENT): Component<ELEMENT, ARGS> & { super: CLASS["prototype"] };
+					create: (typeof Component)["create"];
+					get: (typeof Component)["get"];
+				};
+			},
+		}
+	}
+
 	public get classes (): ClassManager<this & Component<HTMLElement>> {
 		const classes = new ClassManager(this as any as Component<HTMLElement>);
 		Object.defineProperty(this, "classes", {
@@ -144,6 +160,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	public make<COMPONENT_CLASS extends ComponentClass> (cls: COMPONENT_CLASS, ...args: ComponentArgs<COMPONENT_CLASS["prototype"]>): COMPONENT_CLASS["prototype"] {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		Object.setPrototypeOf(this, cls.prototype);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		if ((cls as any).addSuper)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			(this as any).super = this;
 		(this as COMPONENT_CLASS["prototype"]).onMake(...args);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return this as any;

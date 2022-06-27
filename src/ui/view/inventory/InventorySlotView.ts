@@ -1,4 +1,4 @@
-import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterComponent, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { DestinyGeneratedEnums, ItemCategoryHashes } from "bungie-api-ts/generated-enums";
 import type { DestinyEnumHelper } from "model/models/DestinyEnums";
@@ -7,7 +7,10 @@ import type { Bucket, BucketId, Item } from "model/models/Items";
 import Items from "model/models/Items";
 import Profile from "model/models/Profile";
 import { InventoryClasses } from "ui/Classes";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import type { IDraggableEvents } from "ui/form/Draggable";
+import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/ItemSort";
@@ -15,7 +18,6 @@ import type SortManager from "ui/inventory/SortManager";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
-import { EventManager } from "utility/EventManager";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -29,6 +31,7 @@ export enum InventorySlotViewClasses {
 	VaultBucket = "view-inventory-slot-vault-bucket",
 	SlotPendingRemoval = "view-inventory-slot-pending-removal",
 	HighestPower = "view-inventory-slot-highest-power",
+	ItemMoving = "view-inventory-slot-item-moving",
 }
 
 class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
@@ -56,178 +59,242 @@ class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
 	}
 }
 
-export default new View.Factory()
-	.using(Items, Profile(DestinyComponentType.Characters))
-	.define<{
-		sort: SortManager;
-		slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
-	}>()
-	.initialise(async (view, buckets, profile) => {
-		if (!profile.characters.data || !Object.keys(profile.characters.data).length) {
+interface IInteractableItemEvents extends ComponentEvents<typeof ItemComponent>, IDraggableEvents {
+	transfer: Event;
+}
+
+class InteractableItem extends ItemComponent {
+
+	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
+
+	protected override async onMake (item: Item) {
+		await super.onMake(item);
+
+		this.event.subscribe("click", () => this.event.emit("transfer"));
+
+		new Draggable(this.element);
+	}
+}
+
+interface IInventorySlotViewDefinition {
+	sort: SortManager;
+	slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
+}
+
+class InventorySlotViewWrapper extends View.WrapperComponent<[], View.IViewBase & IInventorySlotViewDefinition> { }
+
+type InventorySlotViewArgs = [Record<BucketId, Bucket>, DictionaryComponentResponse<DestinyCharacterComponent>];
+class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
+
+	public vaultBucket!: BucketComponent;
+	public currentCharacter!: CharacterBucket;
+	public characters!: Record<string, CharacterBucket>;
+	public buckets!: Record<string, Bucket>;
+	public bucketEntries!: [BucketId, Bucket][];
+	public itemMap!: Map<Item, ItemComponent>;
+	public transferringItemMap!: Map<Item, ItemComponent>;
+
+	protected override async onMake (...[buckets, profileCharacters]: InventorySlotViewArgs) {
+		if (!profileCharacters.data || !Object.keys(profileCharacters.data).length) {
 			console.warn("No characters");
 			return;
 		}
 
-		view.classes.add(InventorySlotViewClasses.Main);
-		view.content.classes.add(InventorySlotViewClasses.Content);
+		this.classes.add(InventorySlotViewClasses.Main);
+		this.super.content.classes.add(InventorySlotViewClasses.Content);
 
 		const { ItemCategoryHashes } = await DestinyEnums.await();
 
 		const characterBuckets = Component.create()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
-			.appendTo(view.content);
+			.appendTo(this.super.content);
 
-		const vaultBucket = BucketComponent.create()
+		this.vaultBucket = BucketComponent.create()
 			.classes.add(InventorySlotViewClasses.VaultBucket)
 			.tweak(vault => vault.icon.style.set("--icon",
 				"url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")"))
 			.tweak(vault => vault.title.text.add("Vault"))
-			.appendTo(view.content);
+			.appendTo(this.super.content);
 
-		const characterBucketsSorted = Object.values(profile.characters.data)
+		const characterBucketsSorted = Object.values(profileCharacters.data)
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
 			.map(character => CharacterBucket.create([character]));
 
 		characterBuckets.append(...characterBucketsSorted);
 
-		const characters = Object.fromEntries(characterBucketsSorted.map(bucket => [
+		this.characters = Object.fromEntries(characterBucketsSorted.map(bucket => [
 			bucket.character.characterId,
 			bucket,
 		]));
 
-		const itemMap = new Map<Item, ItemComponent>();
-		const movingItemMap = new Map<Item, ItemComponent>();
+		this.currentCharacter = characterBucketsSorted[0];
 
-		const bucketEntries = Object.entries(buckets) as [BucketId, Bucket][];
-		for (const [bucketId, bucket] of bucketEntries) {
+		this.itemMap = new Map<Item, ItemComponent>();
+		this.transferringItemMap = new Map<Item, ItemComponent>();
+
+		this.bucketEntries = Object.entries(buckets) as [BucketId, Bucket][];
+		for (const [bucketId, bucket] of this.bucketEntries) {
 			if (bucketId === "inventory" || bucketId === "postmaster")
 				continue;
 
-			for (const item of view.definition.sort.sort(bucket.items)) {
+			for (const item of this.super.definition.sort.sort(bucket.items)) {
 				const categories = item.definition.itemCategoryHashes ?? [];
-				if (!categories.includes(view.definition.slot(ItemCategoryHashes)))
+				if (!categories.includes(this.super.definition.slot(ItemCategoryHashes)))
 					continue;
 
-				itemMap.set(item, createItemComponent(item, bucketId));
+				this.itemMap.set(item, this.createItemComponent(item, bucketId));
 			}
 		}
 
-		function createItemComponent (item: Item, bucketId: "vault" | `${bigint}`) {
-			return ItemComponent.create([item])
-				.event.subscribe("click", async () => {
-					if (item.equipped)
-						// items can't be unequipped with fvm
-						return;
+		this.sort();
 
-					if (item.moving)
-						// item is already moving
-						return;
+		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
 
-					let characterId: `${bigint}`;
-					let destination: "vault" | `${bigint}`;
-					if (bucketId === "vault") {
-						destination = characterId = characterBucketsSorted[0].character.characterId as `${bigint}`;
-					} else {
-						characterId = bucketId;
-						destination = "vault";
-					}
+		this.sort = this.sort.bind(this);
+		ItemSort.create([this.super.definition.sort])
+			.event.subscribe("sort", this.sort)
+			.appendTo(this.super.footer);
+	}
 
-					movingItemMap.set(item, createItemComponent(item, destination));
-					item.moving = true;
-					buckets[destination].items.push(item);
-					sort();
+	private sort () {
+		const highestPowerSlot: Component[] = [];
+		let highestPower = 0;
+		for (const [bucketId, bucket] of this.bucketEntries) {
+			if (bucketId === "inventory" || bucketId === "postmaster")
+				continue;
 
-					const success = await TransferItem.query(item, characterId, destination)
-						.then(() => true)
-						.catch(err => { console.log(err); return false });
+			let bucketComponent: BucketComponent;
+			let equippedComponent: Component | undefined;
+			if (bucketId === "vault")
+				bucketComponent = this.vaultBucket;
+			else {
+				const characterBucket = this.characters[bucketId];
+				if (!characterBucket) {
+					console.warn(`Unknown character '${bucketId}'`);
+					continue;
+				}
 
-					item.moving = false;
-					// remove item from old bucket if move successful, remove temp item from destination otherwise
-					Arrays.remove(buckets[success ? bucketId : destination].items, item);
-					// update this item component's bucket so future clicks transfer to the right place
-					bucketId = destination;
-					sort();
-				});
-		}
+				bucketComponent = characterBucket;
+				equippedComponent = characterBucket.equippedSlot;
+			}
 
-		function sort () {
-			const highestPowerSlot: Component[] = [];
-			let highestPower = 0;
-			for (const [bucketId, bucket] of bucketEntries) {
-				if (bucketId === "inventory" || bucketId === "postmaster")
+			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
+
+			for (const slot of [...bucketComponent.inventory.children()])
+				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
+
+			for (const item of this.super.definition.sort.sort(bucket.items)) {
+				let itemComponent = this.itemMap.get(item);
+				if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+					itemComponent = this.transferringItemMap.get(item);
+
+				if (!itemComponent)
+					// item not included in view
 					continue;
 
-				let bucketComponent: BucketComponent;
-				let equippedComponent: Component | undefined;
-				if (bucketId === "vault")
-					bucketComponent = vaultBucket;
-				else {
-					const characterBucket = characters[bucketId];
-					if (!characterBucket) {
-						console.warn(`Unknown character '${bucketId}'`);
-						continue;
-					}
+				const slot = item.equipped ? equippedComponent! : Component.create()
+					.classes.add(InventoryClasses.Slot)
+					.appendTo(bucketComponent.inventory);
 
-					bucketComponent = characterBucket;
-					equippedComponent = characterBucket.equippedSlot;
-				}
+				itemComponent
+					.setSortedBy(this.super.definition.sort)
+					.appendTo(slot);
 
-				equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
-
-				for (const slot of [...bucketComponent.inventory.children()])
-					slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
-
-				for (const item of view.definition.sort.sort(bucket.items)) {
-					let itemComponent = itemMap.get(item);
-					if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
-						itemComponent = movingItemMap.get(item);
-
-					if (!itemComponent)
-						// item not included in view
-						continue;
-
-					const slot = item.equipped ? equippedComponent! : Component.create()
-						.classes.add(InventoryClasses.Slot)
-						.appendTo(bucketComponent.inventory);
-
-					itemComponent
-						.setSortedBy(view.definition.sort)
-						.appendTo(slot);
-
-					const power = item.instance?.primaryStat?.value ?? 0;
-					if (power > highestPower) {
-						highestPower = power;
-						highestPowerSlot.splice(0, Infinity, slot);
-					} else if (power === highestPower) {
-						highestPowerSlot.push(slot);
-					}
-				}
-
-				// clean up old slots
-				for (const slot of [...bucketComponent.inventory.children()])
-					if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
-						slot.remove();
-			}
-
-			for (const [item, newComponent] of [...movingItemMap]) {
-				const existing = itemMap.get(item);
-				if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
-					itemMap.set(item, newComponent);
-					movingItemMap.delete(item);
+				const power = item.instance?.primaryStat?.value ?? 0;
+				if (power > highestPower) {
+					highestPower = power;
+					highestPowerSlot.splice(0, Infinity, slot);
+				} else if (power === highestPower) {
+					highestPowerSlot.push(slot);
 				}
 			}
 
-			if (highestPowerSlot.length < 3)
-				for (const slot of highestPowerSlot)
-					slot.classes.add(InventorySlotViewClasses.HighestPower);
+			// clean up old slots
+			for (const slot of [...bucketComponent.inventory.children()])
+				if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+					slot.remove();
 		}
 
-		sort();
+		for (const [item, newComponent] of [...this.transferringItemMap]) {
+			const existing = this.itemMap.get(item);
+			if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
+				this.itemMap.set(item, newComponent);
+				this.transferringItemMap.delete(item);
+			}
+		}
 
-		view.footer.classes.add(InventorySlotViewClasses.Footer);
+		if (highestPowerSlot.length < 3)
+			for (const slot of highestPowerSlot)
+				slot.classes.add(InventorySlotViewClasses.HighestPower);
+	}
 
-		ItemSort.create([view.definition.sort])
-			.event.subscribe("sort", sort)
-			.appendTo(view.footer);
-	});
+	private itemMoving?: ItemComponent;
+	private createItemComponent (item: Item, bucketId: "vault" | `${bigint}`) {
+		return InteractableItem.create([item])
+			.event.subscribe("click", () =>
+				this.transfer(item, bucketId))
+			.event.subscribe("moveStart", event => {
+				if (item.equipped)
+					return event.preventDefault();
+
+				this.itemMoving?.remove();
+				this.itemMoving = ItemComponent.create([item])
+					.classes.add(InventorySlotViewClasses.ItemMoving)
+					.appendTo(this);
+			})
+			.event.subscribe("move", event => {
+				this.itemMoving?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
+			})
+			.event.subscribe("moveEnd", event => {
+				this.itemMoving?.event.emit("mouseout", new MouseEvent("mouseout"));
+				this.itemMoving?.remove();
+				delete this.itemMoving;
+			});
+	}
+
+	private async transfer (item: Item, bucketId: "vault" | `${bigint}`, destination?: "vault" | `${bigint}`) {
+		if (item.equipped)
+			// items can't be unequipped with fvm
+			return;
+
+		if (item.transferring)
+			// item is already moving
+			return;
+
+		let characterId: `${bigint}`;
+		if (bucketId === "vault") {
+			characterId = this.currentCharacter.character.characterId as `${bigint}`;
+			destination ??= characterId;
+		} else {
+			characterId = bucketId;
+			destination ??= "vault";
+		}
+
+		if (destination === bucketId)
+			// already in that location
+			return;
+
+		this.transferringItemMap.set(item, this.createItemComponent(item, destination));
+		item.transferring = true;
+		this.buckets[destination].items.push(item);
+		this.sort();
+
+		const success = await TransferItem.query(item, characterId, destination)
+			.then(() => true)
+			.catch(err => { console.log(err); return false });
+
+		item.transferring = false;
+		// remove item from old bucket if move successful, remove temp item from destination otherwise
+		Arrays.remove(this.buckets[success ? bucketId : destination].items, item);
+		// update this item component's bucket so future clicks transfer to the right place
+		bucketId = destination;
+		this.sort();
+	}
+}
+
+export default new View.Factory()
+	.using(Items, Profile(DestinyComponentType.Characters))
+	.define<IInventorySlotViewDefinition>()
+	.initialise((view, buckets, profile) =>
+		view.make(InventorySlotView, buckets, profile.characters));

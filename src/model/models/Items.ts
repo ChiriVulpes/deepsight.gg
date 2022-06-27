@@ -55,7 +55,7 @@ export interface IStat {
 }
 
 export interface IItemEvents {
-	movingStateChange: { moving: boolean };
+	transferStateChange: { transferring: boolean };
 }
 
 export interface Item extends IItem { }
@@ -63,16 +63,16 @@ export class Item {
 
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
-	private _moving = false;
-	public get moving () {
-		return this._moving;
+	private _transferring = false;
+	public get transferring () {
+		return this._transferring;
 	}
-	public set moving (moving: boolean) {
-		if (this._moving === moving)
+	public set transferring (transferring: boolean) {
+		if (this._transferring === transferring)
 			return;
 
-		this._moving = moving;
-		this.event.emit("movingStateChange", { moving });
+		this._transferring = transferring;
+		this.event.emit("transferStateChange", { transferring });
 	}
 
 	public constructor (item: IItem) {

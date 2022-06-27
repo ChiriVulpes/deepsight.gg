@@ -1,4 +1,4 @@
-import type { IDraggableEvents } from "ui/form/Draggable";
+import type { IDraggableEvents, MouseTouchEvent } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -30,7 +30,9 @@ export default class Sortable {
 		for (const child of host.children as Iterable<HTMLElement>) {
 			child.classList.add(SortableClasses.Item);
 			child.setAttribute("tabindex", "0");
-			this.draggables.set(child, new Draggable(child).setStickyDistance(this.sortStickyDistance));
+			this.draggables.set(child, new Draggable(child)
+				.setStickyDistance(this.sortStickyDistance)
+				.setInputFilter(this.sortInputFilter));
 
 			child.addEventListener("moveStart", this.onItemMoveStart);
 			child.addEventListener("move", this.onItemMove);
@@ -55,6 +57,15 @@ export default class Sortable {
 		this.sortStickyDistance = stickyDistance;
 		for (const item of this.host.children as Iterable<HTMLElement>)
 			this.draggables.get(item)?.setStickyDistance(stickyDistance);
+
+		return this;
+	}
+
+	private sortInputFilter?: (input: MouseTouchEvent) => any;
+	public setInputFilter (filter: (input: MouseTouchEvent) => any) {
+		this.sortInputFilter = filter;
+		for (const item of this.host.children as Iterable<HTMLElement>)
+			this.draggables.get(item)?.setInputFilter(filter);
 
 		return this;
 	}
@@ -92,7 +103,7 @@ export default class Sortable {
 		this.slot ??= document.createElement("div");
 		this.slot.classList.add(SortableClasses.Slot);
 		this.host.insertBefore(this.slot, item);
-		this.onItemMove({ target: item, offset: IVector2.ZERO() });
+		this.onItemMove({ target: item, mouse: event.mouse, offset: IVector2.ZERO() });
 	}
 
 	private slot?: HTMLElement;

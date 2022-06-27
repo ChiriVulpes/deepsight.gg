@@ -60,6 +60,69 @@
 			}
 		}
 	}
+
+	&-character-bucket {
+		grid-template-columns: auto auto 1fr;
+		grid-template-rows: unset;
+		
+		&:last-child {
+			--bucket-gap-y: 0px;
+		}
+		
+		&-emblem {
+			justify-self: right;
+			&::before {
+				content: "";
+				display: block;
+				width: 100%;
+				height: 100%;
+				background: var(--emblem);
+				background-size: contain;
+			}
+		}
+		
+		&-inventory {
+			grid-column: 2/5;
+			grid-row: 2/5;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			width: fit-content;
+			padding: var(--bucket-inventory-padding) 20px;
+			margin-left: calc(-20px + var(--bucket-inventory-padding));
+			margin-right: calc(-20px + var(--bucket-inventory-padding));
+			padding-bottom: calc(var(--bucket-inventory-padding) + var(--bucket-gap-y));
+		}
+		
+		&-equipped {
+			margin-top: 4px;
+			margin-left: var(--bucket-inventory-padding);
+			position: relative;
+			
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				top: 6px;
+				right: -3px;
+				width: 2px;
+				height: calc(var(--slot-size) - 12px);
+				background: color(background-4);
+				z-index: -2;
+			}
+		}
+	}
+	
+	@at-root {
+		@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
+			@include animation-swipe-up-in;
+		}
+		
+		.view-hidden {
+			@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
+				@include animation-swipe-down-out;
+			}
+		}
+	}
 	
 	&-highest-power {
 		position: relative;
@@ -126,66 +189,16 @@
 			}
 		}
 	}
-}
-
-.view-inventory-slot-character-bucket {
-	grid-template-columns: auto auto 1fr;
-	grid-template-rows: unset;
 	
-	&:last-child {
-		--bucket-gap-y: 0px;
-	}
-	
-	&-emblem {
-		justify-self: right;
-		&::before {
-			content: "";
-			display: block;
-			width: 100%;
-			height: 100%;
-			background: var(--emblem);
-			background-size: contain;
-		}
-	}
-	
-	&-inventory {
-		grid-column: 2/5;
-		grid-row: 2/5;
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		width: fit-content;
-		padding: var(--bucket-inventory-padding) 20px;
-		margin-left: calc(-20px + var(--bucket-inventory-padding));
-		margin-right: calc(-20px + var(--bucket-inventory-padding));
-		padding-bottom: calc(var(--bucket-inventory-padding) + var(--bucket-gap-y));
-	}
-	
-	&-equipped {
-		margin-top: 4px;
-		margin-left: var(--bucket-inventory-padding);
-		position: relative;
-		
-		&::after {
-			content: "";
-			display: block;
-			position: absolute;
-			top: 6px;
-			right: -3px;
-			width: 2px;
-			height: calc(var(--slot-size) - 12px);
-			background: color(background-4);
-			z-index: -2;
-		}
-	}
-}
-	
-@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
-	@include animation-swipe-up-in;
-}
-
-.view-hidden {
-	@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
-		@include animation-swipe-down-out;
+	&-item-moving {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+		width: calc(var(--slot-size) - var(--slot-padding) * 2);
+		height: calc(var(--slot-size) - var(--slot-padding) * 2);
+		transform: var(--transform) translate(-50%, -50%);
+		transition-property: background, border, color;
 	}
 }
 

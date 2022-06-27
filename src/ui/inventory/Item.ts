@@ -115,19 +115,19 @@ export default class ItemComponent extends Button<[Item]> {
 
 		const loadingSpinny = Component.create()
 			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
-			.classes.toggle(!item.moving, Classes.Hidden)
+			.classes.toggle(!item.transferring, Classes.Hidden)
 			.append(Component.create())
 			.append(Component.create())
 			.appendTo(this);
 
-		const onMoving = ({ moving }: { moving: boolean }) => {
+		const onMoving = ({ transferring }: { transferring: boolean }) => {
 			if (!document.contains(this.element)) {
-				item.event.unsubscribe("movingStateChange", onMoving);
+				item.event.unsubscribe("transferStateChange", onMoving);
 			}
-			loadingSpinny.classes.toggle(!moving, Classes.Hidden);
+			loadingSpinny.classes.toggle(!transferring, Classes.Hidden);
 		};
 
-		item.event.subscribe("movingStateChange", onMoving);
+		item.event.subscribe("transferStateChange", onMoving);
 	}
 
 	public setSortedBy (sorter: SortManager) {

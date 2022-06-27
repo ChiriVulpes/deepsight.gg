@@ -9,9 +9,11 @@ enum DragStage {
 
 export interface IDraggableEvents {
 	moveStart: { mouse: IVector2 };
-	move: { offset: IVector2 };
+	move: { mouse: IVector2; offset: IVector2 };
 	moveEnd: Event;
 }
+
+export interface MouseTouchEvent extends Partial<MouseEvent>, Partial<TouchEvent> { }
 
 export default class Draggable {
 
@@ -34,7 +36,13 @@ export default class Draggable {
 		return this;
 	}
 
-	private dragStart (event: Partial<MouseEvent> & Partial<TouchEvent>) {
+	private filter?: (input: MouseTouchEvent) => any;
+	public setInputFilter (filter?: (input: MouseTouchEvent) => any) {
+		this.filter = filter;
+		return this;
+	}
+
+	private dragStart (event: MouseTouchEvent) {
 		const position = this.getMousePosition(event);
 		if (!position)
 			return;
@@ -52,7 +60,7 @@ export default class Draggable {
 		}
 	}
 
-	private drag (event: Partial<MouseEvent> & Partial<TouchEvent>) {
+	private drag (event: MouseTouchEvent) {
 		const position = this.getMousePosition(event);
 		if (!position)
 			return;
@@ -63,17 +71,21 @@ export default class Draggable {
 		};
 
 		if (this.dragStage === DragStage.Starting && !IVector2.distanceWithin(IVector2.ZERO(), offset, this.stickyDistance)) {
-			EventManager.emit(this.host, "moveStart", { offset: this.mouseStartPosition });
+			const event = EventManager.emit(this.host, "moveStart", { offset: this.mouseStartPosition });
+			if (event.defaultPrevented)
+				// cancelled
+				return;
+
 			this.dragStage = DragStage.Dragging;
 		}
 
 		if (this.dragStage !== DragStage.Dragging)
 			return;
 
-		EventManager.emit(this.host, "move", { offset });
+		EventManager.emit(this.host, "move", { offset, mouse: { x: position.clientX, y: position.clientY } });
 	}
 
-	private dragEnd (event: Partial<MouseEvent> & Partial<TouchEvent>) {
+	private dragEnd (event: MouseTouchEvent) {
 		window.removeEventListener("mousemove", this.drag);
 		window.removeEventListener("mouseup", this.dragEnd);
 		window.removeEventListener("touchmove", this.drag);
@@ -91,13 +103,12 @@ export default class Draggable {
 		this.mouseStartPosition = undefined;
 	}
 
-	private getMousePosition (event: Partial<MouseEvent> & Partial<TouchEvent>) {
+	private getMousePosition (event: MouseTouchEvent) {
 		const touch = event.touches?.[0];
 		if (event.button !== 0 && !touch)
 			return undefined;
 
-		const element = event.target as HTMLElement;
-		if (element.closest("button"))
+		if (this.filter && !this.filter(event))
 			return undefined;
 
 		return touch ?? event;

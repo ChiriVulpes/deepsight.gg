@@ -8,12 +8,15 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	}
 
 	public static emit (target: EventTarget | undefined, event: Event | string, init?: ((event: Event) => any) | object) {
+		if (init instanceof Event)
+			event = init;
+
 		if (typeof event === "string")
 			event = new Event(event);
 
 		if (typeof init === "function")
 			init?.(event);
-		else if (init)
+		else if (init && event !== init)
 			Object.assign(event, init);
 
 		target?.dispatchEvent(event);
@@ -32,28 +35,28 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		this._target = target;
 	}
 
-	public subscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: EVENTS[TYPE]) => any): HOST;
+	public subscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
 	public subscribe (type: string, listener: (this: TARGET, event: Event) => any): HOST;
 	public subscribe (type: never, listener: (this: TARGET, event: any) => any) {
 		this.target?.addEventListener(type, listener);
 		return this.host.deref() as HOST;
 	}
 
-	public subscribeFirst<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: EVENTS[TYPE]) => any): HOST;
+	public subscribeFirst<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
 	public subscribeFirst (type: string, listener: (this: TARGET, event: Event) => any): HOST;
 	public subscribeFirst (type: string, listener: (this: TARGET, event: any) => any) {
 		this.target?.addEventListener(type, listener, { once: true });
 		return this.host.deref() as HOST;
 	}
 
-	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: EVENTS[TYPE]) => any): HOST;
+	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
 	public unsubscribe (type: string, listener: (this: TARGET, event: Event) => any): HOST;
 	public unsubscribe (type: string, listener: (this: TARGET, event: any) => any) {
 		this.target?.removeEventListener(type, listener);
 		return this.host.deref() as HOST;
 	}
 
-	public async waitFor<TYPE extends keyof EVENTS> (type: TYPE): Promise<EVENTS[TYPE]>;
+	public async waitFor<TYPE extends keyof EVENTS> (type: TYPE): Promise<Event & EVENTS[TYPE]>;
 	public async waitFor (type: string): Promise<Event>;
 	public async waitFor (type: string) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return

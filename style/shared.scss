@@ -18,6 +18,7 @@
 		- var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */
 		- var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
 		) / 9);
+	--slot-padding: 3px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 400;
 	letter-spacing: .02em;
@@ -52,7 +53,7 @@ html .hidden {
 
 .slot {
 	display: flex;
-	padding: 3px;
+	padding: var(--slot-padding);
 	width: var(--slot-size);
 	height: var(--slot-size);
 	box-sizing: border-box;

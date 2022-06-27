@@ -150,6 +150,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.onCommitSort = this.onCommitSort.bind(this);
 		new Sortable(this.sortsList.element)
+			.setInputFilter(event => !(event.target as HTMLElement).closest("button"))
 			.event.subscribe("commit", this.onCommitSort);
 
 		this.sortsDisabledHeading.attributes.remove("tabindex");
