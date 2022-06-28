@@ -32,6 +32,8 @@ export enum InventorySlotViewClasses {
 	SlotPendingRemoval = "view-inventory-slot-pending-removal",
 	HighestPower = "view-inventory-slot-highest-power",
 	ItemMoving = "view-inventory-slot-item-moving",
+	ItemMovingOriginal = "view-inventory-slot-item-moving-original",
+	BucketDropTarget = "view-inventory-slot-bucket-drop-target"
 }
 
 class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
@@ -63,18 +65,17 @@ interface IInteractableItemEvents extends ComponentEvents<typeof ItemComponent>,
 	transfer: Event;
 }
 
-class InteractableItem extends ItemComponent {
+class DraggableItem extends ItemComponent {
 
 	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
 
 	protected override async onMake (item: Item) {
 		await super.onMake(item);
-
-		this.event.subscribe("click", () => this.event.emit("transfer"));
-
 		new Draggable(this.element);
 	}
 }
+
+type DestinationBucketId = "vault" | `${bigint}`;
 
 interface IInventorySlotViewDefinition {
 	sort: SortManager;
@@ -89,7 +90,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characters!: Record<string, CharacterBucket>;
-	public buckets!: Record<string, Bucket>;
+	public buckets!: Record<BucketId, Bucket>;
 	public bucketEntries!: [BucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public transferringItemMap!: Map<Item, ItemComponent>;
@@ -99,6 +100,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			console.warn("No characters");
 			return;
 		}
+
+		this.buckets = buckets;
 
 		this.classes.add(InventorySlotViewClasses.Main);
 		this.super.content.classes.add(InventorySlotViewClasses.Content);
@@ -230,37 +233,67 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private itemMoving?: ItemComponent;
-	private createItemComponent (item: Item, bucketId: "vault" | `${bigint}`) {
-		return InteractableItem.create([item])
-			.event.subscribe("click", () =>
-				this.transfer(item, bucketId))
+	private createItemComponent (item: Item, bucketId: DestinationBucketId) {
+		const component = DraggableItem.create([item]);
+		return component
+			.event.subscribe("click", async () => {
+				// update this item component's bucket so future clicks transfer to the right place
+				bucketId = await this.transfer(item, bucketId);
+			})
 			.event.subscribe("moveStart", event => {
 				if (item.equipped)
 					return event.preventDefault();
 
+				component.classes.add(InventorySlotViewClasses.ItemMovingOriginal);
+
 				this.itemMoving?.remove();
 				this.itemMoving = ItemComponent.create([item])
 					.classes.add(InventorySlotViewClasses.ItemMoving)
+					.setTooltipPadding(40)
 					.appendTo(this);
 			})
 			.event.subscribe("move", event => {
 				this.itemMoving?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
+				for (const [dropBucketId] of this.bucketEntries) {
+					if (dropBucketId === "inventory" || dropBucketId === "postmaster")
+						continue;
+
+					const component = dropBucketId === "vault" ? this.vaultBucket : this.characters[dropBucketId];
+					component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
+				}
 			})
-			.event.subscribe("moveEnd", event => {
+			.event.subscribe("moveEnd", async event => {
 				this.itemMoving?.event.emit("mouseout", new MouseEvent("mouseout"));
 				this.itemMoving?.remove();
 				delete this.itemMoving;
+				component.classes.remove(InventorySlotViewClasses.ItemMovingOriginal);
+				let dropBucketId: DestinationBucketId | undefined;
+				for (const [bucketId] of this.bucketEntries) {
+					if (bucketId === "inventory" || bucketId === "postmaster")
+						continue;
+
+					const component = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+					component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
+					if (!component.intersects(event.mouse))
+						continue;
+
+					dropBucketId = bucketId;
+				}
+
+				if (dropBucketId)
+					// update this item component's bucket so future clicks transfer to the right place
+					bucketId = await this.transfer(item, bucketId, dropBucketId);
 			});
 	}
 
-	private async transfer (item: Item, bucketId: "vault" | `${bigint}`, destination?: "vault" | `${bigint}`) {
+	private async transfer (item: Item, bucketId: DestinationBucketId, destination?: DestinationBucketId) {
 		if (item.equipped)
 			// items can't be unequipped with fvm
-			return;
+			return bucketId;
 
 		if (item.transferring)
 			// item is already moving
-			return;
+			return bucketId;
 
 		let characterId: `${bigint}`;
 		if (bucketId === "vault") {
@@ -273,7 +306,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		if (destination === bucketId)
 			// already in that location
-			return;
+			return bucketId;
 
 		this.transferringItemMap.set(item, this.createItemComponent(item, destination));
 		item.transferring = true;
@@ -287,9 +320,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		item.transferring = false;
 		// remove item from old bucket if move successful, remove temp item from destination otherwise
 		Arrays.remove(this.buckets[success ? bucketId : destination].items, item);
-		// update this item component's bucket so future clicks transfer to the right place
-		bucketId = destination;
 		this.sort();
+
+		console.log(bucketId, destination);
+		return destination;
 	}
 }
 

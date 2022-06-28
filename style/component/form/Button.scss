@@ -54,12 +54,9 @@
 		}
 	}
 	
-	&:active {
+	&:where(:active) {
 		transform: translateY(2px);
 		@include transition(0s);
-	}
-	
-	&:where(:active) {
 		background: color(button-background-active);
 	}
 	

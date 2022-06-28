@@ -1,5 +1,6 @@
 import type { Tooltip } from "ui/TooltipManager";
 import { EventManager } from "utility/EventManager";
+import type { IVector2 } from "utility/maths/Vector2";
 
 declare global {
 	interface Element {
@@ -238,6 +239,24 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 				return i;
 
 		return -1;
+	}
+
+	private rect?: DOMRect;
+	public getRect () {
+		return this.rect ??= this.element.getBoundingClientRect();
+	}
+
+	public uncacheRect () {
+		delete this.rect;
+	}
+
+	public intersects (position: IVector2) {
+		const rect = this.getRect();
+		if (position.x < rect.left || position.x >= rect.left + rect.width)
+			return false;
+		if (position.y < rect.top || position.y >= rect.top + rect.height)
+			return false;
+		return true;
 	}
 }
 

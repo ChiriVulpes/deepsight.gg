@@ -53,6 +53,11 @@ export class Tooltip extends Component {
 			.classes.add(TooltipClasses.Footer)
 			.appendTo(this);
 	}
+
+	public setPadding (padding: number) {
+		this.style.set("--mouse-offset", `${padding}px`);
+		return this;
+	}
 }
 
 namespace TooltipManager {

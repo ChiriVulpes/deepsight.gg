@@ -30,10 +30,12 @@ export default class ItemComponent extends Button<[Item]> {
 
 	public item!: Item;
 	public extra!: Component;
+	public tooltipPadding!: number;
 
 	protected override async onMake (item: Item) {
 		super.onMake(item);
 
+		this.tooltipPadding = 0;
 		this.item = item;
 		this.classes.add(ItemClasses.Main)
 			.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
@@ -109,6 +111,7 @@ export default class ItemComponent extends Button<[Item]> {
 
 		// this.text.set(item.definition.displayProperties.name);
 		this.setTooltip(ItemTooltip, tooltip => tooltip
+			.setPadding(this.tooltipPadding)
 			.setItem(item));
 
 		this.extra.appendTo(this);
@@ -132,6 +135,11 @@ export default class ItemComponent extends Button<[Item]> {
 
 	public setSortedBy (sorter: SortManager) {
 		void this.rerenderExtra(sorter);
+		return this;
+	}
+
+	public setTooltipPadding (padding: number) {
+		this.tooltipPadding = padding;
 		return this;
 	}
 

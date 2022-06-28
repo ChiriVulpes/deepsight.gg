@@ -10,7 +10,7 @@ enum DragStage {
 export interface IDraggableEvents {
 	moveStart: { mouse: IVector2 };
 	move: { mouse: IVector2; offset: IVector2 };
-	moveEnd: Event;
+	moveEnd: { mouse: IVector2; offset: IVector2 };
 }
 
 export interface MouseTouchEvent extends Partial<MouseEvent>, Partial<TouchEvent> { }
@@ -63,7 +63,7 @@ export default class Draggable {
 	private drag (event: MouseTouchEvent) {
 		const position = this.getMousePosition(event);
 		if (!position)
-			return;
+			return undefined;
 
 		const offset: IVector2 = {
 			x: position.clientX! - this.mouseStartPosition!.x,
@@ -74,15 +74,17 @@ export default class Draggable {
 			const event = EventManager.emit(this.host, "moveStart", { offset: this.mouseStartPosition });
 			if (event.defaultPrevented)
 				// cancelled
-				return;
+				return undefined;
 
 			this.dragStage = DragStage.Dragging;
 		}
 
 		if (this.dragStage !== DragStage.Dragging)
-			return;
+			return undefined;
 
-		EventManager.emit(this.host, "move", { offset, mouse: { x: position.clientX, y: position.clientY } });
+		const eventResult = { offset, mouse: { x: position.clientX!, y: position.clientY! } };
+		EventManager.emit(this.host, "move", eventResult);
+		return eventResult;
 	}
 
 	private dragEnd (event: MouseTouchEvent) {
@@ -93,10 +95,11 @@ export default class Draggable {
 
 		if (this.dragStage === DragStage.Dragging) {
 			const position = this.getMousePosition(event);
+			let eventResult: IDraggableEvents["move"] | undefined;
 			if (position)
-				this.drag(event);
+				eventResult = this.drag(event);
 
-			EventManager.emit(this.host, "moveEnd");
+			EventManager.emit(this.host, "moveEnd", eventResult ?? { offset: { x: 0, y: 0 }, mouse: { x: event.clientX, y: event.clientY } });
 		}
 
 		this.dragStage = DragStage.None;

@@ -191,6 +191,40 @@
 	}
 	
 	&-item-moving {
+		&-original {
+			opacity: 0.5;
+			transform: none;
+			&::before {
+				animation: item-moving-original-animation 1.5s linear infinite;
+				@keyframes item-moving-original-animation {
+					0% {
+						inset: -3px;
+						opacity: 1;
+					}
+					30% {
+						inset: -5px;
+						opacity: 0.7;
+					}
+					50% {
+						inset: -6px;
+						opacity: 0;
+					}
+					70% {
+						inset: 2px;
+						opacity: 0;
+					}
+					100% {
+						inset: -3px;
+						opacity: 1;
+					}
+				}
+			}
+			
+			&::after {
+				background: none;
+			}
+		}
+		
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -199,6 +233,39 @@
 		height: calc(var(--slot-size) - var(--slot-padding) * 2);
 		transform: var(--transform) translate(-50%, -50%);
 		transition-property: background, border, color;
+		&::before, &::after {
+			content: none;
+		}
+	}
+	
+	&-bucket-drop-target {
+		filter: brightness(1.1);
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			background: #fff1;
+		}
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: -100%;
+			z-index: 3;
+			background: linear-gradient(-45deg, transparent 46%, #fff5 50%, transparent 54%);
+			background-size: 500% 500%;
+			background-repeat: no-repeat;
+			animation: bucket-drop-target 2s linear infinite;
+			@keyframes bucket-drop-target {
+				from {
+					background-position-x: 115%;
+				}
+				to {
+					background-position-x: 0%;
+				}
+			}
+		}
 	}
 }
 

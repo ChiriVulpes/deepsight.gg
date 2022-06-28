@@ -29,7 +29,7 @@ export default BungieEndpoint
 				stackSize: item.reference.quantity,
 				transferToVault: destination === "vault",
 				itemId: item.reference.itemInstanceId,
-				characterId: character,
+				characterId: destination === "vault" ? character : destination,
 				membershipType: membership.membershipType,
 			},
 		} as EndpointRequest;
