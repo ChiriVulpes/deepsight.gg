@@ -68,6 +68,9 @@
 	&-masterwork {
 		box-shadow: inset 0 0 0 2px #CBAF3C, inset 0 0 0 4px #CBAF3C66, inset 0 0 2px 5px #CBAF3C77;
 		overflow: hidden;
+		background: radial-gradient(ellipse at bottom center, #CBAF3Caa 0%, transparent 30%);
+		background-size: 300% 100%;
+		background-position: center;
 		
 		&-spinny {
 			position: absolute;
