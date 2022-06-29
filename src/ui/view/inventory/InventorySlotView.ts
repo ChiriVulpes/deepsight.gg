@@ -33,7 +33,8 @@ export enum InventorySlotViewClasses {
 	HighestPower = "view-inventory-slot-highest-power",
 	ItemMoving = "view-inventory-slot-item-moving",
 	ItemMovingOriginal = "view-inventory-slot-item-moving-original",
-	BucketDropTarget = "view-inventory-slot-bucket-drop-target"
+	BucketDropTarget = "view-inventory-slot-bucket-drop-target",
+	BucketMovingFrom = "view-inventory-slot-bucket-moving-from",
 }
 
 class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
@@ -245,6 +246,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					return event.preventDefault();
 
 				component.classes.add(InventorySlotViewClasses.ItemMovingOriginal);
+				const bucketComponent = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
 				this.itemMoving = ItemComponent.create([item])
@@ -266,7 +269,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				this.itemMoving?.event.emit("mouseout", new MouseEvent("mouseout"));
 				this.itemMoving?.remove();
 				delete this.itemMoving;
+
 				component.classes.remove(InventorySlotViewClasses.ItemMovingOriginal);
+				const bucketComponent = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+				bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
+
 				let dropBucketId: DestinationBucketId | undefined;
 				for (const [bucketId] of this.bucketEntries) {
 					if (bucketId === "inventory" || bucketId === "postmaster")
