@@ -93,7 +93,9 @@ export class Item {
 	}
 
 	public isMasterwork () {
-		return !!(this.reference.state & ItemState.Masterwork);
+		return !!(this.reference.state & ItemState.Masterwork)
+			|| (this.plugs?.filter(socket => socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
+				.length ?? 0) >= 2;
 	}
 }
 
