@@ -54,7 +54,7 @@ export default class ItemComponent extends Button<[Item]> {
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
-			&& item.definition.traitIds.includes("item_type.armor");
+			&& item.definition.traitIds?.includes("item_type.armor");
 
 		Component.create()
 			.classes.add(ItemClasses.Icon)

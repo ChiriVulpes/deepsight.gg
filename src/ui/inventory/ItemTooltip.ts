@@ -224,7 +224,8 @@ class ItemTooltip extends Tooltip {
 
 			const isInvalidSocket = !isValidSocket || socket.some(plug =>
 				plug.definition?.plug?.plugCategoryIdentifier === "intrinsics"
-				|| plug.definition?.plug?.plugCategoryIdentifier === "v400.weapon.mod_empty");
+				|| plug.definition?.plug?.plugCategoryIdentifier === "v400.weapon.mod_empty"
+				|| plug.definition?.traitIds?.includes("item_type.ornament.weapon"));
 			if (isInvalidSocket)
 				continue;
 
