@@ -120,8 +120,10 @@
 			background: $background;
 			-webkit-mask-image: url("/image/svg/shaped.svg");
 			-webkit-mask-size: contain;
+			-webkit-mask-repeat: no-repeat;
 			mask-image: url("/image/svg/shaped.svg");
 			mask-size: contain;
+			mask-repeat: no-repeat;
 		}
 	}
 	

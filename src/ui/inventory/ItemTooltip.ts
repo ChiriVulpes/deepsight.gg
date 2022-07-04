@@ -209,21 +209,47 @@ class ItemTooltip extends Tooltip {
 		this.stats.setItem(item);
 
 		this.mods.removeContents();
+		const intrinsics: Component[] = [];
 		for (const socket of item.sockets?.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics" && Display.name(socket.definition)) ?? []) {
+			const socketComponent = Component.create()
+				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
+				.appendTo(this.mods);
+
+			intrinsics.push(socketComponent);
+
 			Component.create()
-				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed, ItemTooltipClasses.Intrinsic)
+				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
 				.style.set("--icon", Display.icon(socket?.definition))
 				.text.set(Display.name(socket?.definition))
-				.appendTo(this.mods);
+				.appendTo(socketComponent);
 		}
 
-		for (const socket of item.plugs ?? []) {
+		for (const socket of item.plugs?.filter(socket => socket.some(plug => plug.definition?.plug?.plugCategoryIdentifier === "origins")) ?? []) {
+			const socketComponent = Component.create()
+				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
+				.appendTo(this.mods);
+
+			for (const plug of socket.sort((a, b) => (b.socketed ? 1 : 0) - (a.socketed ? 1 : 0))) {
+				Component.create()
+					.classes.add(ItemTooltipClasses.Mod)
+					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
+					.style.set("--icon", Display.icon(plug.definition))
+					.append(!plug?.socketed ? undefined : Component.create()
+						.classes.add(ItemTooltipClasses.ModName)
+						.text.set(Display.name(plug.definition) ?? "Unknown"))
+					.appendTo(socketComponent);
+			}
+		}
+
+		for (const socket of (item.plugs ?? [])) {
 			const isValidSocket = socket.some(plug =>
-				// different socket type (a shader or something)
-				plug.definition?.itemCategoryHashes?.some(hash => hash === ITEM_WEAPON_MOD));
+				// filter out different socket types (a shader or something)
+				plug.definition?.itemCategoryHashes?.some(hash => hash === ITEM_WEAPON_MOD)
+				|| plug.definition?.plug?.plugCategoryIdentifier === "frames");
 
 			const isInvalidSocket = !isValidSocket || socket.some(plug =>
 				plug.definition?.plug?.plugCategoryIdentifier === "intrinsics"
+				|| plug.definition?.plug?.plugCategoryIdentifier === "origins"
 				|| plug.definition?.plug?.plugCategoryIdentifier === "v400.weapon.mod_empty"
 				|| plug.definition?.traitIds?.includes("item_type.ornament.weapon"));
 			if (isInvalidSocket)

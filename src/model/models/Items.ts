@@ -8,6 +8,9 @@ import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetD
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
+/**
+ * **Warning:** Not all weapon mods have this category hash
+ */
 export const ITEM_WEAPON_MOD = 610365472;
 
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
