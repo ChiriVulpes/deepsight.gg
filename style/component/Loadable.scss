@@ -57,7 +57,7 @@
 			top: 75%;
 			font-size: 20pt;
 			font-weight: 300;
-			width: 30%;
+			width: 50%;
 		}
 		
 		&-message {
@@ -68,10 +68,10 @@
 		
 		&-bar {
 			position: relative;
-			margin-left: -50px;
-			width: calc(100% + 100px);
+			width: calc(100% - 100px);
 			height: 1em;
 			border: 2px solid currentColor;
+			margin: auto;
 			margin-bottom: 20px;
 			min-width: 300px;
 			
