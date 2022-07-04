@@ -159,7 +159,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	async function resolveDeepsightPattern (item: Item): Promise<IDeepsightPattern | undefined> {
 
 		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
-		const record = await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null);
+		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
+			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const progress = profile.profileRecords.data?.records[record?.hash!];

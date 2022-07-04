@@ -7,7 +7,7 @@ import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
 type Indices<COMPONENT_NAME extends AllComponentNames> =
 	{
 		DestinySourceDefinition: "iconWatermark" | "id";
-		DestinyRecordDefinition: "icon";
+		DestinyRecordDefinition: "icon" | "name";
 	} extends infer ALL_INDICES ?
 	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
 	: never;
@@ -110,6 +110,8 @@ export default Model.create("manifest", {
 					case "manifest [DestinyRecordDefinition]":
 						if (!store.indexNames.contains("icon"))
 							store.createIndex("icon", "displayProperties.icon");
+						if (!store.indexNames.contains("name"))
+							store.createIndex("name", "displayProperties.name");
 						break;
 				}
 			}
