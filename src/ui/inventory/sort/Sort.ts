@@ -1,7 +1,7 @@
 import type { Item } from "model/models/Items";
 import type Component from "ui/Component";
 import type { AnyComponent } from "ui/Component";
-import type { SortableSort } from "ui/inventory/ItemSort";
+import type { SortableSort } from "ui/inventory/sort/ItemSort";
 
 enum Sort {
 	Power,

@@ -5,7 +5,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
-import type SortManager from "ui/inventory/SortManager";
+import type SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 
 export enum ItemClasses {

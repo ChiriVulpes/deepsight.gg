@@ -1,15 +1,15 @@
 import type { Item } from "model/models/Items";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
-import SortDeepsight from "ui/inventory/sort/SortDeepsight";
-import SortEnergy from "ui/inventory/sort/SortEnergy";
-import SortMasterwork from "ui/inventory/sort/SortMasterwork";
-import SortName from "ui/inventory/sort/SortName";
-import SortPattern from "ui/inventory/sort/SortPattern";
-import SortPower from "ui/inventory/sort/SortPower";
-import SortRarity from "ui/inventory/sort/SortRarity";
-import SortStatDistribution from "ui/inventory/sort/SortStatDistribution";
-import SortStatTotal from "ui/inventory/sort/SortStatTotal";
+import SortDeepsight from "ui/inventory/sort/sorts/SortDeepsight";
+import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
+import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
+import SortName from "ui/inventory/sort/sorts/SortName";
+import SortPattern from "ui/inventory/sort/sorts/SortPattern";
+import SortPower from "ui/inventory/sort/sorts/SortPower";
+import SortRarity from "ui/inventory/sort/sorts/SortRarity";
+import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
+import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
 import Store from "utility/Store";
 
 const sortMap: Record<Sort, ISort> = {

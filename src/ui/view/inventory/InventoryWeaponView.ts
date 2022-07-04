@@ -1,5 +1,5 @@
 import Sort from "ui/inventory/sort/Sort";
-import SortManager from "ui/inventory/SortManager";
+import SortManager from "ui/inventory/sort/SortManager";
 import InventorySlotView from "ui/view/inventory/InventorySlotView";
 
 export default InventorySlotView.clone().configure({

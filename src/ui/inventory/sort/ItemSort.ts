@@ -6,7 +6,7 @@ import Button, { ButtonClasses } from "ui/form/Button";
 import Sortable from "ui/form/Sortable";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
-import type SortManager from "ui/inventory/SortManager";
+import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 
