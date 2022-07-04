@@ -381,6 +381,22 @@
 			padding: var(--tooltip-padding);
 			padding-top: var(--mod-padding);
 			padding-bottom: var(--mod-padding);
+		
+			&-enhanced {
+				box-shadow: inset 1px 0 color(tooltip-background), inset 4px 0 #D4B73C;
+				background-image: linear-gradient(to right, rgba(#D4B73C, .25) 0%, transparent 40%);
+				position: relative;
+				
+				&::before {
+					content: "";
+					display: block;
+					position: absolute;
+					inset: 0;
+					background: linear-gradient(-45deg, transparent 40%, rgba(#D4B73C, .1) 50%, transparent 65%);
+					background-size: 500% 500%;
+					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * .5s);
+				}
+			}
 		}
 		
 		&-intrinsic {

@@ -29,6 +29,7 @@ enum ItemTooltipClasses {
 	Mods = "item-tooltip-mods",
 	Mod = "item-tooltip-mod",
 	ModSocket = "item-tooltip-mod-socket",
+	ModSocketEnhanced = "item-tooltip-mod-socket-enhanced",
 	ModSocketed = "item-tooltip-mod-socketed",
 	ModName = "item-tooltip-mod-name",
 	Intrinsic = "item-tooltip-mod-intrinsic",
@@ -241,6 +242,7 @@ class ItemTooltip extends Tooltip {
 			}
 		}
 
+		let i = 0;
 		for (const socket of (item.plugs ?? [])) {
 			const isValidSocket = socket.some(plug =>
 				// filter out different socket types (a shader or something)
@@ -257,6 +259,8 @@ class ItemTooltip extends Tooltip {
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket)
+				.classes.toggle(socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
+				.style.set("--socket-index", `${i++}`)
 				.appendTo(this.mods);
 
 			for (const plug of socket.sort((a, b) => (b.socketed ? 1 : 0) - (a.socketed ? 1 : 0))) {
