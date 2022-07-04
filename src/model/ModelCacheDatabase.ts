@@ -4,6 +4,7 @@ export interface ICachedModel<T> {
 	cacheTime: number;
 	persist?: true;
 	value: T;
+	version: number;
 }
 
 export interface IModelCache {

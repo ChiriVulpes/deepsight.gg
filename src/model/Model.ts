@@ -20,6 +20,7 @@ export interface IModelGenerationApi {
 export interface IModel<T, R> {
 	cache: "Global" | "Session" | false;
 	resetTime?: "Daily" | "Weekly" | number;
+	version?: number;
 	generate?(api: IModelGenerationApi): Promise<T>;
 	filter?(value: T): R;
 	reset?(value?: T): any;
@@ -78,12 +79,13 @@ namespace Model {
 
 		private value?: R | Promise<R>;
 		private cacheTime?: number;
+		private version?: number;
 		private _loadingInfo?: { progress: number, message?: string };
 
 		public get loading () {
 			return this.value === undefined
 				|| this.value instanceof Promise
-				|| !this.isCacheTimeValid();
+				|| !this.isCacheValid();
 		}
 
 		public get loadingInfo () {
@@ -92,8 +94,11 @@ namespace Model {
 
 		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
 
-		public isCacheTimeValid (cacheTime = this.cacheTime) {
+		public isCacheValid (cacheTime = this.cacheTime, version = this.version) {
 			if (cacheTime === undefined)
+				return false;
+
+			if ((this.model.version ?? 0) !== version)
 				return false;
 
 			if (this.model.resetTime === undefined)
@@ -111,11 +116,12 @@ namespace Model {
 			if (!cached)
 				return undefined;
 
-			if (this.isCacheTimeValid(cached.cacheTime)) {
+			if (this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
 				console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
 				this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
 				this.cacheTime = cached.cacheTime;
+				this.version = cached.version;
 				this.event.emit("loaded", { value: this.value });
 				return this.value;
 			}
@@ -137,7 +143,7 @@ namespace Model {
 
 		public get () {
 			if (this.value !== undefined && !(this.value instanceof Promise))
-				if (!this.isCacheTimeValid())
+				if (!this.isCacheValid())
 					delete this.value;
 
 			if (this.value === undefined) {
@@ -205,9 +211,10 @@ namespace Model {
 			const filtered = (this.model.filter?.(value) ?? value) as R;
 			this.value = filtered;
 			this.cacheTime = Date.now();
+			this.version = this.model.version ?? 0;
 
 			if (this.model.cache) {
-				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value };
+				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value, version: this.version };
 				if (this.model.cache === "Global")
 					cached.persist = true;
 				await Model.cacheDB.set("models", this.name, cached);
