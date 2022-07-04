@@ -421,9 +421,12 @@ export class StyleManager<HOST extends Component<HTMLElement>> {
 	// 	return this.host.deref()?.element.style.getPropertyValue(name);
 	// }
 
-	public set (name: string, value: string) {
+	public set (name: string, value?: string) {
 		const host = this.host.deref();
-		host?.element.style.setProperty(name, value);
+		if (value === undefined)
+			return this.remove(name);
+		else
+			host?.element.style.setProperty(name, value);
 		return host as HOST;
 	}
 

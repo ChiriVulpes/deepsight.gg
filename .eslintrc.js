@@ -23,6 +23,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		"no-constant-condition": ["warn", { checkLoops: false }], // allows `while (true)`
 		"no-empty": ["warn", { allowEmptyCatch: true }],
 		"prefer-const": ["warn", { "destructuring": "all" }],
+		"no-inner-declarations": ["off"],
 
 		// typescript-eslint
 		"@typescript-eslint/no-unused-vars": ["off"], // literally just what typescript already has, no thanks

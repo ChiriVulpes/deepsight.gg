@@ -1,6 +1,8 @@
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
 import type { Item } from "model/models/Items";
+import { ITEM_WEAPON_MOD } from "model/models/Items";
 import Manifest from "model/models/Manifest";
+import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import ItemTooltipStat from "ui/inventory/tooltip/ItemTooltipStat";
@@ -24,10 +26,12 @@ enum ItemTooltipClasses {
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
-	Stats = "item-tooltip-stats",
-	Stat = "item-tooltip-stat",
-	StatLabel = "item-tooltip-stat-label",
-	StatBar = "item-tooltip-stat-bar",
+	Mods = "item-tooltip-mods",
+	Mod = "item-tooltip-mod",
+	ModSocket = "item-tooltip-mod-socket",
+	ModSocketed = "item-tooltip-mod-socketed",
+	ModName = "item-tooltip-mod-name",
+	Intrinsic = "item-tooltip-mod-intrinsic",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPattern = "item-tooltip-deepsight-pattern",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
@@ -50,6 +54,7 @@ class ItemTooltip extends Tooltip {
 	public weaponLevel!: Component;
 	public weaponLevelLabel!: Component;
 	public weaponLevelProgress!: Component;
+	public mods!: Component;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
 	public deepsightPatternLabel!: Component;
@@ -102,6 +107,10 @@ class ItemTooltip extends Tooltip {
 		this.stats = ItemTooltipStat.Wrapper.create()
 			.appendTo(this.content);
 
+		this.mods = Component.create()
+			.classes.add(ItemTooltipClasses.Mods)
+			.appendTo(this.content);
+
 		this.deepsight = Component.create()
 			.classes.add(ItemTooltipClasses.Deepsight)
 			.appendTo(this.content);
@@ -132,7 +141,7 @@ class ItemTooltip extends Tooltip {
 	}
 
 	public async setItem (item: Item) {
-		console.log(item.definition.displayProperties.name, item);
+		console.log(Display.name(item.definition), item);
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
@@ -140,7 +149,7 @@ class ItemTooltip extends Tooltip {
 			.classes.add(`item-tooltip-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
 			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork);
 
-		this.title.text.set(item.definition.displayProperties.name);
+		this.title.text.set(Display.name(item.definition));
 		this.subtitle.removeContents();
 
 		this.subtitle.text.set(item.definition.itemTypeDisplayName);
@@ -163,7 +172,7 @@ class ItemTooltip extends Tooltip {
 		if (damageType !== undefined)
 			this.primaryStat
 				.classes.add(`item-tooltip-energy-type-${(damageType?.displayProperties.name ?? "Unknown").toLowerCase()}`)
-				.style.set("--icon", `url("https://www.bungie.net${damageType?.displayProperties.icon ?? ""}")`);
+				.style.set("--icon", Display.icon(damageType));
 
 		const ammoType = item.definition.equippingBlock?.ammoType;
 		this.ammoType.classes.toggle(!ammoType, Classes.Hidden);
@@ -185,7 +194,7 @@ class ItemTooltip extends Tooltip {
 			this.energyValue.text.set(`${energy.energyCapacity}`)
 				.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
 				.classes.add(`item-tooltip-energy-type-${(energyType?.displayProperties.name ?? "Unknown").toLowerCase()}`)
-				.style.set("--icon", `url("https://www.bungie.net${energyType?.displayProperties.icon ?? ""}")`);
+				.style.set("--icon", Display.icon(energyType));
 		}
 
 		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);
@@ -198,6 +207,42 @@ class ItemTooltip extends Tooltip {
 		}
 
 		this.stats.setItem(item);
+
+		this.mods.removeContents();
+		for (const socket of item.sockets?.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics" && Display.name(socket.definition)) ?? []) {
+			Component.create()
+				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed, ItemTooltipClasses.Intrinsic)
+				.style.set("--icon", Display.icon(socket?.definition))
+				.text.set(Display.name(socket?.definition))
+				.appendTo(this.mods);
+		}
+
+		for (const socket of item.plugs ?? []) {
+			const isValidSocket = socket.some(plug =>
+				// different socket type (a shader or something)
+				plug.definition?.itemCategoryHashes?.some(hash => hash === ITEM_WEAPON_MOD));
+
+			const isInvalidSocket = !isValidSocket || socket.some(plug =>
+				plug.definition?.plug?.plugCategoryIdentifier === "intrinsics"
+				|| plug.definition?.plug?.plugCategoryIdentifier === "v400.weapon.mod_empty");
+			if (isInvalidSocket)
+				continue;
+
+			const socketComponent = Component.create()
+				.classes.add(ItemTooltipClasses.ModSocket)
+				.appendTo(this.mods);
+
+			for (const plug of socket.sort((a, b) => (b.socketed ? 1 : 0) - (a.socketed ? 1 : 0))) {
+				Component.create()
+					.classes.add(ItemTooltipClasses.Mod)
+					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
+					.style.set("--icon", Display.icon(plug.definition))
+					.append(!plug?.socketed ? undefined : Component.create()
+						.classes.add(ItemTooltipClasses.ModName)
+						.text.set(Display.name(plug.definition) ?? "Unknown"))
+					.appendTo(socketComponent);
+			}
+		}
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
 		this.deepsight.classes.toggle(!item.deepsight?.attunement && !showPattern, Classes.Hidden);

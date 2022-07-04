@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemSocketState, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemPlugBase, DestinyItemSocketState, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat } from "bungie-api-ts/destiny2";
 import { DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DestinyEnums from "model/models/DestinyEnums";
@@ -7,6 +7,8 @@ import Profile from "model/models/Profile";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
+
+export const ITEM_WEAPON_MOD = 610365472;
 
 export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
 export interface IItem {
@@ -19,7 +21,9 @@ export interface IItem {
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
 	stats?: Partial<Record<number, IStat>>;
-	sockets?: ISocket[];
+	sockets?: (ISocket | undefined)[];
+	plugs?: IReusablePlug[][];
+	temp: any;
 }
 
 export interface IWeaponShaped {
@@ -45,6 +49,12 @@ export interface IObjective {
 export interface ISocket {
 	reference: DestinyItemSocketState;
 	definition: DestinyInventoryItemDefinition;
+}
+
+export interface IReusablePlug {
+	reference?: DestinyItemPlugBase | DestinyItemSocketState;
+	definition?: DestinyInventoryItemDefinition;
+	socketed: boolean;
 }
 
 export interface IStat {
@@ -112,6 +122,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyComponentType.ItemStats,
 		DestinyComponentType.Records,
 		DestinyComponentType.ItemSockets,
+		DestinyComponentType.ItemReusablePlugs,
+		DestinyComponentType.ItemPlugStates,
 	);
 
 	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
@@ -166,8 +178,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		return { attunement: await resolveDeepsightAttunement(item), pattern: await resolveDeepsightPattern(item) };
 	}
 
-	async function resolveSockets (sockets?: DestinyItemSocketState[]): Promise<ISocket[]> {
-		const result = await Promise.all(sockets
+	async function resolveSockets (sockets?: DestinyItemSocketState[]): Promise<(ISocket | undefined)[]> {
+		return Promise.all(sockets
 			?.map(async (socket): Promise<ISocket | undefined> => {
 				const definition = await DestinyInventoryItemDefinition.get(socket.plugHash);
 				return !definition ? undefined : {
@@ -175,18 +187,50 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					definition,
 				};
 			}) ?? []);
-		return result.filter((socket): socket is ISocket => !!socket);
 	}
 
-	async function resolveStats (stats: Record<number, DestinyStat> | undefined, sockets: ISocket[]) {
-		const intrinsicStats = sockets.filter(socket => socket.definition.plug?.plugCategoryIdentifier === "intrinsics")
-			.flatMap(plug => plug.definition.investmentStats);
+	// async function resolvePlugStates (sockets: ISocket[], plugs?: Record<number, DestinyItemPlugBase[]>) {
+	// 	return Promise.all(Object.values(plugs ?? {})
+	// 		.map(async (plugs) => Promise.all(plugs.map(async plug => {
+	// 			const definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
+	// 			return !definition ? undefined : {
+	// 				reference: plug,
+	// 				definition,
+	// 				socketed: !!sockets.find(socket => socket.definition.hash === definition.hash),
+	// 			} as IReusablePlug;
+	// 		}))
+	// 		) ?? []);
+	// }
 
-		const masterworkStats = sockets.find(socket => socket.definition.plug?.uiPlugLabel === "masterwork")
+	async function resolveReusablePlugs (sockets: (ISocket | undefined)[], plugs?: Record<number, DestinyItemPlugBase[]>) {
+		// sockets = sockets.filter(socket => socket?.definition.itemCategoryHashes?.includes(ITEM_WEAPON_MOD)
+		// 	&& socket.definition.plug?.plugCategoryIdentifier !== "intrinsics");
+		const reusablePlugs = sockets.map(socket => [{
+			reference: socket?.reference,
+			definition: socket?.definition,
+			socketed: true,
+		} as IReusablePlug]);
+		return Object.assign(reusablePlugs, Object.fromEntries(await Promise.all(Object.entries(plugs ?? {})
+			.sort(([a], [b]) => +a - +b)
+			.map(async ([i, plugs]) => [i, await Promise.all(plugs.map(async plug => {
+				const definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
+				return {
+					reference: plug,
+					definition,
+					socketed: !!sockets.find(socket => socket?.definition.hash === definition?.hash),
+				} as IReusablePlug;
+			}))] as const) ?? []))) as IReusablePlug[][];
+	}
+
+	async function resolveStats (stats: Record<number, DestinyStat> | undefined, sockets: (ISocket | undefined)[]) {
+		const intrinsicStats = sockets.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics")
+			.flatMap(plug => plug?.definition.investmentStats);
+
+		const masterworkStats = sockets.find(socket => socket?.definition.plug?.uiPlugLabel === "masterwork")
 			?.definition.investmentStats ?? [];
 
-		const modStats = sockets.filter(socket => socket.definition.plug?.plugCategoryIdentifier !== "intrinsics" && socket.definition.plug?.uiPlugLabel !== "masterwork")
-			.flatMap(plug => plug.definition.investmentStats);
+		const modStats = sockets.filter(socket => socket?.definition.plug?.plugCategoryIdentifier !== "intrinsics" && socket?.definition.plug?.uiPlugLabel !== "masterwork")
+			.flatMap(plug => plug?.definition.investmentStats);
 
 		const result: Record<number, IStat> = {};
 
@@ -200,7 +244,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			const stat: IStat = result[+hash] = { value };
 
 			for (const intrinsic of intrinsicStats)
-				if (+hash === intrinsic.statTypeHash)
+				if (+hash === intrinsic?.statTypeHash)
 					stat.intrinsic = (stat.intrinsic ?? 0) + intrinsic.value;
 
 			for (const masterwork of masterworkStats)
@@ -208,7 +252,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					stat.masterwork = (stat.masterwork ?? 0) + masterwork.value;
 
 			for (const mod of modStats)
-				if (+hash === mod.statTypeHash)
+				if (+hash === mod?.statTypeHash)
 					stat.mod = (stat.mod ?? 0) + mod.value;
 		}
 
@@ -237,6 +281,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		initialisedItems.add(itemId);
 
 		const sockets = await resolveSockets(profile.itemComponents.sockets.data?.[reference.itemInstanceId!]?.sockets);
+		const plugs = await resolveReusablePlugs(sockets, profile.itemComponents.reusablePlugs.data?.[reference.itemInstanceId!]?.plugs);
 
 		const stats = await resolveStats(profile.itemComponents.stats.data?.[reference.itemInstanceId!]?.stats, sockets);
 
@@ -247,6 +292,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
 			sockets,
 			stats,
+			plugs,
+			temp: profile.itemComponents.plugStates.data,
 		});
 
 		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${definition.iconWatermark}`);

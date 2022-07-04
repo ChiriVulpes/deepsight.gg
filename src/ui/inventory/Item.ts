@@ -1,5 +1,6 @@
 import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
+import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -47,9 +48,9 @@ export default class ItemComponent extends Button<[Item]> {
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.add(`item-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
-		const ornament = item.sockets?.find(socket => socket.definition.traitIds?.includes("item_type.ornament.armor")
-			|| socket.definition.traitIds?.includes("item_type.armor")
-			|| socket.definition.traitIds?.includes("item_type.ornament.weapon"));
+		const ornament = item.sockets?.find(socket => socket?.definition.traitIds?.includes("item_type.ornament.armor")
+			|| socket?.definition.traitIds?.includes("item_type.armor")
+			|| socket?.definition.traitIds?.includes("item_type.ornament.weapon"));
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
@@ -58,7 +59,7 @@ export default class ItemComponent extends Button<[Item]> {
 		Component.create()
 			.classes.add(ItemClasses.Icon)
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
-			.style.set("--icon", `url("https://www.bungie.net${ornament?.definition.displayProperties.icon ?? item.definition.displayProperties.icon}")`)
+			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 
 		if (item.shaped)
