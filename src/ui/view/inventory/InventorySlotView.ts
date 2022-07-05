@@ -9,9 +9,12 @@ import Profile from "model/models/Profile";
 import { InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import { ButtonClasses } from "ui/form/Button";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
+import type FilterManager from "ui/inventory/filter/FilterManager";
+import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
@@ -35,6 +38,7 @@ export enum InventorySlotViewClasses {
 	ItemMovingOriginal = "view-inventory-slot-item-moving-original",
 	BucketDropTarget = "view-inventory-slot-bucket-drop-target",
 	BucketMovingFrom = "view-inventory-slot-bucket-moving-from",
+	Hints = "view-inventory-slot-hints",
 }
 
 class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
@@ -81,6 +85,7 @@ type DestinationBucketId = "vault" | `${bigint}`;
 interface IInventorySlotViewDefinition {
 	sort: SortManager;
 	slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
+	filter: FilterManager;
 }
 
 class InventorySlotViewWrapper extends View.WrapperComponent<[], View.IViewBase & IInventorySlotViewDefinition> { }
@@ -95,6 +100,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public bucketEntries!: [BucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public transferringItemMap!: Map<Item, ItemComponent>;
+	public hints!: Component;
 
 	protected override async onMake (...[buckets, profileCharacters]: InventorySlotViewArgs) {
 		if (!profileCharacters.data || !Object.keys(profileCharacters.data).length) {
@@ -158,6 +164,27 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.sort = this.sort.bind(this);
 		ItemSort.create([this.super.definition.sort])
 			.event.subscribe("sort", this.sort)
+			.tweak(itemSort => itemSort.button
+				.classes.remove(ButtonClasses.Main)
+				.classes.add(View.Classes.FooterButton)
+				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemSort => itemSort.label.classes.add(View.Classes.FooterButtonLabel))
+			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
+			.appendTo(this.super.footer);
+
+		this.filter = this.filter.bind(this);
+		ItemFilter.create([this.super.definition.filter])
+			.event.subscribe("filter", this.filter)
+			.tweak(itemFilter => itemFilter.button
+				.classes.remove(ButtonClasses.Main)
+				.classes.add(View.Classes.FooterButton)
+				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemFilter => itemFilter.label.classes.add(View.Classes.FooterButtonLabel))
+			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
+			.appendTo(this.super.footer);
+
+		this.hints = Component.create()
+			.classes.add(InventorySlotViewClasses.Hints)
 			.appendTo(this.super.footer);
 	}
 
@@ -231,6 +258,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventorySlotViewClasses.HighestPower);
+	}
+
+	private filter () {
+
 	}
 
 	private itemMoving?: ItemComponent;

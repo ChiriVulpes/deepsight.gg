@@ -10,6 +10,7 @@
 @import "component/form/Button";
 @import "component/form/Sortable";
 @import "component/form/RangeInput";
+@import "component/form/Drawer";
 // misc
 @import "component/Label";
 @import "component/AppNav";
@@ -19,5 +20,6 @@
 @import "component/inventory/Bucket";
 @import "component/inventory/Item";
 @import "component/inventory/ItemSort";
+@import "component/inventory/ItemFilter";
 
 @import "view/Views";

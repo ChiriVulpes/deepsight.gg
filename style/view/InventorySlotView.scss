@@ -17,25 +17,16 @@
 	}
 	
 	&-footer {
-		.item-sort {
+		--sort-width: calc(
+			var(--slot-size) * 4
+			+ var(--bucket-inventory-padding) * 3
+			+ var(--bucket-gap-x) / 2
+			+ var(--view-padding-x)
+		);
+			
+		.item-sort, .item-filter {
 			position: relative;
-			--sort-width: calc(
-				var(--slot-size) * 4
-				+ var(--bucket-inventory-padding) * 3
-				+ var(--bucket-gap-x) / 2
-				+ var(--view-padding-x)
-			);
-			width: var(--sort-width);
-			
-			&-drawer, &-button {
-				width: var(--sort-width);
-			}
-			
 			&-drawer {
-				position: fixed;
-				display: block;
-				left: 0;
-				bottom: 0;
 				height: calc(
 					var(--footer-height)
 					+ var(--slot-size) * 6
@@ -45,20 +36,27 @@
 					+ var(--view-padding-bottom)
 					+ var(--slot-size-optimisation)
 				);
-				transform: translateY(0);
-				@include transition(in, transform);
-				
-				&.hidden {
-					transform: translateY(100%);
-					@include transition(out);
-					transition-timing-function: ease-in;
-					
-					> * {
-						opacity: 0;
-					}
-				}
+			}
+			
+			&-button, &-drawer {
+				width: 100%;
 			}
 		}
+		
+		.item-sort {
+			width: var(--sort-width);
+		}
+		
+		.item-filter {
+			flex-grow: 1;
+			&-drawer {
+				max-height: 30vh;
+			}
+		}
+	}
+	
+	&-hints {
+		width: var(--sort-width);
 	}
 
 	&-character-bucket {

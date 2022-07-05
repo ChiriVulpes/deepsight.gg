@@ -1,0 +1,47 @@
+.drawer {
+	position: absolute;
+	display: block;
+	left: 0;
+	bottom: 0;
+	height: max-content;
+	max-height: 70vh;
+	transform: translateY(0);
+	@include transition(in, transform, height);
+	overflow: hidden;
+	user-select: none;
+	background: color(background-1);
+	@supports(backdrop-filter: blur(5px) brightness(1.5)) {
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			backdrop-filter: blur(5px) brightness(1.5);
+			z-index: -1;
+		}
+		background: color(background-0, .9);
+	}
+	
+	&.hidden {
+		display: block;
+		height: 0 !important;
+		@include transition(out);
+		transition-timing-function: ease-in;
+		
+		> * {
+			opacity: 0;
+		}
+	}
+		
+	&-panel {
+		position: absolute;
+		inset: 0;
+		@include transition(out, opacity, top);
+		&.hidden {
+			display: block;
+			opacity: 0;
+			top: 10px;
+			pointer-events: none;
+		}
+	}
+}

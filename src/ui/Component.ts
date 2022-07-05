@@ -197,6 +197,13 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
+	public prepend (...elements: (AnyComponent | Node | undefined)[]) {
+		this.element.prepend(...elements.map(element =>
+			element instanceof Component ? element.element : element)
+			.filter((element): element is Element | Node => element !== undefined));
+		return this;
+	}
+
 	public appendTo (componentOrParentNode: ParentNode | AnyComponent) {
 		if (componentOrParentNode instanceof Component<Element>)
 			componentOrParentNode = componentOrParentNode.element;

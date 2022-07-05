@@ -1,8 +1,8 @@
-import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import ExtraInfoManager from "ui/ExtraInfoManager";
 import Button, { ButtonClasses } from "ui/form/Button";
+import Drawer from "ui/form/Drawer";
 import Sortable from "ui/form/Sortable";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
@@ -63,12 +63,14 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	public override readonly event!: ComponentEventManager<this, ItemSortEvents>;
 
 	public sorter!: SortManager;
-	public drawer!: Component;
+	public button!: Button;
+	public label!: Component;
+	public sortText!: Component;
+	public drawer!: Drawer;
+	public mainPanel!: Component;
+	public sortsDisabledHeading!: Component;
 	public sorts!: SortableSort[];
 	public sortsList!: Component;
-	public sortsDisabledHeading!: Component;
-	public sortText!: Component;
-	public mainPanel!: Component;
 	public configurePanel!: Component;
 	public configureTitle!: Component;
 	public configureWrapper!: Component;
@@ -81,39 +83,29 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		////////////////////////////////////
 		// Button
-		const sortButton = Button.create()
-			.classes.remove(ButtonClasses.Main)
+		this.button = Button.create()
 			.classes.add(ItemSortClasses.Button)
 			.event.subscribe("click", this.toggleDrawer.bind(this))
+			.addIcon(icon => icon.classes.add(ItemSortClasses.ButtonIcon))
 			.appendTo(this);
 
-		Component.create()
-			.classes.add(ItemSortClasses.ButtonIcon)
-			.append(Component.create())
-			.append(Component.create())
-			.appendTo(sortButton);
-
-		Component.create()
+		this.label = Component.create()
 			.classes.add(ItemSortClasses.ButtonLabel)
 			.text.set(`Sort ${sorter.name}`)
-			.appendTo(sortButton);
+			.appendTo(this.button);
 
 		this.sortText = Component.create()
 			.classes.add(ItemSortClasses.ButtonSortText)
-			.appendTo(sortButton);
+			.appendTo(this.button);
 
 		////////////////////////////////////
 		// Drawer
-		this.drawer = Component.create()
-			.classes.add(ItemSortClasses.Drawer, Classes.Hidden)
-			.attributes.add("inert")
-			.attributes.set("tabindex", "0")
+		this.drawer = Drawer.create()
+			.classes.add(ItemSortClasses.Drawer)
 			.event.subscribe("focus", this.focusDrawer.bind(this))
 			.appendTo(this);
 
-		this.mainPanel = Component.create()
-			.classes.add(ItemSortClasses.DrawerPanel)
-			.appendTo(this.drawer);
+		this.mainPanel = this.drawer.createPanel();
 
 		Component.create()
 			.classes.add(ItemSortClasses.SortsHeading)
@@ -124,9 +116,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.classes.add(ItemSortClasses.Sorts)
 			.appendTo(this.mainPanel);
 
-		this.configurePanel = Component.create()
-			.classes.add(ItemSortClasses.DrawerPanel)
-			.appendTo(this.drawer);
+		this.configurePanel = this.drawer.createPanel();
 
 		this.configureTitle = Component.create()
 			.classes.add(ItemSortClasses.SortsHeading)
@@ -177,10 +167,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	private configureSort ({ sort }: { sort: ISort }) {
 		this.configureTitle.text.set(`Configure ${sort.name}`);
 		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions, this.onCommitSort);
-		this.configurePanel.classes.remove(Classes.Hidden);
-		this.configurePanel.attributes.remove("inert");
-		this.mainPanel.classes.add(Classes.Hidden);
-		this.mainPanel.attributes.add("inert");
+		this.drawer.showPanel(this.configurePanel);
 	}
 
 	private onClick (event: Event): void {
@@ -214,10 +201,10 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			return;
 		}
 
-		if (event.use("s", "ctrl"))
+		if (event.useOverInput("s", "ctrl"))
 			this.openDrawer();
 
-		if (!this.drawer.classes.has(Classes.Hidden) && event.use("Escape"))
+		if (this.drawer.isOpen() && event.useOverInput("Escape"))
 			this.closeDrawer();
 	}
 
@@ -232,30 +219,25 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	}
 
 	private toggleDrawer () {
-		if (this.drawer.classes.has(Classes.Hidden))
+		if (!this.drawer.isOpen())
 			this.openDrawer();
 		else
 			this.closeDrawer();
 	}
 
 	private openDrawer () {
-		if (!this.drawer.classes.has(Classes.Hidden))
+		if (this.drawer.isOpen())
 			return;
 
-		this.configurePanel.attributes.add("inert");
-		this.configurePanel.classes.add(Classes.Hidden);
-		this.mainPanel.attributes.remove("inert");
-		this.mainPanel.classes.remove(Classes.Hidden);
-		this.drawer.classes.remove(Classes.Hidden);
+		this.drawer.open();
+		this.drawer.showPanel(this.mainPanel);
 		ExtraInfoManager.show(ItemSortClasses.Main);
-		this.drawer.attributes.remove("inert");
 		this.focusDrawer();
 	}
 
 	private closeDrawer () {
-		this.drawer.classes.add(Classes.Hidden);
+		this.drawer.close();
 		ExtraInfoManager.hide(ItemSortClasses.Main);
-		this.drawer.attributes.add("inert");
 	}
 
 	private focusDrawer () {
