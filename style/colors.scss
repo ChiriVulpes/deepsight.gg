@@ -2,14 +2,16 @@ $tiers: common, uncommon, rare, legendary, exotic;
 
 $colors: (
 	background: var(--background-2),
-	background-0: #0f0d0d #fff,
-	background-1: #201c1c #fff,
-	background-2: #2e2929 #fff,
-	background-3: #3f3a3a #f3f7ff,
-	background-4: #494444 #e1ebff,
-	background-5: #555050 #d4e1fb,
-	background-6: #747171 #cdf,
-	background-7: #858080 #c3d6fc,
+	background-0: #0f0d0d #b2b6bd,
+	background-0a: #181515 #b2b6bd,
+	background-1: #201c1c #b9bec7,
+	background-2: #2e2929 #c1c5ce,
+	background-3: #3f3a3a #d0d3da,
+	background-4: #494444 #dddfe2,
+	background-5: #555050 #eaecf0,
+	background-6: #747171 #f0f0f0,
+	background-7: #858080 #fff,
+	background-8: #918b8b #fff,
 	
 	foreground: var(--foreground-1),
 	foreground-0: #fff #000,
@@ -72,24 +74,24 @@ $colors: (
 		}
 	}
 	
-	@media (prefers-color-scheme: light) {
-		color-scheme: light;
-		@each $var, $val in $colors {
-			@if length($val) > 1 {
-				$color: nth($val, 2);
-				@if type-of($color) == color {
-					--#{$var}: #{$color};
-					--#{$var}-rgb: #{red($color), green($color), blue($color)};
-				} @else if str-starts-with($color, "color(") {
-					$referenced-var: str-slice($color, 9, str-length($color) - 1);
-					--#{$var}: var(--#{$referenced-var});
-					--#{$var}-rgb: var(--#{$referenced-var}-rgb);
-				} @else {
-					--#{$var}: #{$color};
-				}
-			}
-		}
-	}
+	// @media (prefers-color-scheme: light) {
+	// 	color-scheme: light;
+	// 	@each $var, $val in $colors {
+	// 		@if length($val) > 1 {
+	// 			$color: nth($val, 2);
+	// 			@if type-of($color) == color {
+	// 				--#{$var}: #{$color};
+	// 				--#{$var}-rgb: #{red($color), green($color), blue($color)};
+	// 			} @else if str-starts-with($color, "color(") {
+	// 				$referenced-var: str-slice($color, 9, str-length($color) - 1);
+	// 				--#{$var}: var(--#{$referenced-var});
+	// 				--#{$var}-rgb: var(--#{$referenced-var}-rgb);
+	// 			} @else {
+	// 				--#{$var}: #{$color};
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 @function color($name, $opacity: null) {

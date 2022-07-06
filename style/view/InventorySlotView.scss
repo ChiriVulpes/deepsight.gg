@@ -26,6 +26,7 @@
 			
 		.item-sort, .item-filter {
 			position: relative;
+			height: 100%;
 			&-drawer {
 				height: calc(
 					var(--footer-height)
@@ -45,6 +46,7 @@
 		
 		.item-sort {
 			width: var(--sort-width);
+    		flex-shrink: 0;
 		}
 		
 		.item-filter {
@@ -57,6 +59,7 @@
 	
 	&-hints {
 		width: var(--sort-width);
+    	flex-shrink: 0;
 	}
 
 	&-character-bucket {

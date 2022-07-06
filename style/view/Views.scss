@@ -50,7 +50,7 @@
 			cursor: pointer;
 			display: grid;
 			grid-template-columns: auto 1fr;
-			grid-template-rows: 1fr auto auto 1fr;
+    		grid-template-rows: 1fr max-content max-content 1fr;
 			align-items: center;
 			z-index: 2;
 			text-align: left;
@@ -168,10 +168,10 @@
 				align-self: flex-end;
 			}
 			
-			&-text {
+			:where(&-text) {
 				grid-row: 3;
 				font-size: .9em;
-				line-height: 1.2em;
+				line-height: 1.4em;
 			}
 		}
 	}

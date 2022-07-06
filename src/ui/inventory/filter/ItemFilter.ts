@@ -51,9 +51,12 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.text.set(`Filter ${filterer.name}`)
 			.appendTo(this.button);
 
+		this.onPaste = this.onPaste.bind(this);
 		this.input = Component.create()
 			.classes.add(ItemFilterClasses.Input)
 			.attributes.add("contenteditable")
+			.attributes.set("placeholder", "No filter enabled")
+			.event.subscribe("paste", this.onPaste)
 			.appendTo(this.button);
 
 		////////////////////////////////////
@@ -114,5 +117,27 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 		if (this.drawer.isOpen() && event.useOverInput("Escape"))
 			this.closeDrawer();
+	}
+
+	private onPaste (event: ClipboardEvent) {
+		event.preventDefault();
+
+		const data = event.clipboardData?.getData("text/plain");
+		if (!data)
+			return;
+
+		const selection = window.getSelection();
+		for (let i = 0; i < (selection?.rangeCount ?? 0); i++) {
+			const range = selection?.getRangeAt(i);
+			if (!range)
+				continue;
+
+			if (!this.input.element.contains(range.startContainer) || !this.input.element.contains(range.endContainer))
+				continue;
+
+			range.deleteContents();
+			range.insertNode(document.createTextNode(data));
+			range.collapse();
+		}
 	}
 }

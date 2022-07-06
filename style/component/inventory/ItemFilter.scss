@@ -2,4 +2,38 @@
 	&-button {
 		--icon: url("/image/svg/filter.svg");
 	}
+	
+	&-input {
+		outline: none;
+		@include transition(in, line-height);
+		&:not(:empty) {
+			line-height: 1.7em;
+		}
+		&:empty::before {
+			content: "No filter enabled";
+			font-style: italic;
+			color: color(foreground-3);
+		}
+		overflow-x: auto;
+		overflow-y: hidden;
+		white-space: nowrap;
+		scrollbar-width: thin;
+		&::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+			&-thumb {
+				background: color(background-7);
+				&:hover {
+					background: color(background-8);
+				}
+				&:active {
+					background: color(background-6);
+				}
+			}
+		}
+	}
+	
+	&:focus-within &-button {
+		outline: auto;
+	}
 }
