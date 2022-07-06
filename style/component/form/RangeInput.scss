@@ -33,7 +33,7 @@
 		border-bottom-color: white;
 		border-top: none;
 		@include transition(out, border, height, filter);
-		filter: drop-shadow(-1px 0 0 color(background-1)) drop-shadow(-2px 0 0 color(background-1)) drop-shadow(3px 0 0 color(background-1));
+		filter: drop-shadow(-1px 0 0 color(background-2)) drop-shadow(-2px 0 0 color(background-2)) drop-shadow(3px 0 0 color(background-2));
 	}
 	
 	&::before {

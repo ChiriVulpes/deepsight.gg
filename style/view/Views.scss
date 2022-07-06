@@ -8,7 +8,7 @@
 	grid-template-columns: 1fr;
 	grid-template-rows: 1fr auto;
 	justify-content: center;
-	background: color(background-1);
+	background: color(background-2);
 	overflow: hidden;
 	
 	&-loadable {
@@ -71,7 +71,7 @@
 				grid-row: 1/5;
 				color: color(foreground-2);
 				border-radius: 1em;
-				background: color(background-5);
+				background: color(background-6);
 				border: 2px solid currentColor;
 				margin: 0 .8em 0 .5em;
 				@include transition(out, background, color, transform);
@@ -134,7 +134,7 @@
 				
 				.view-footer-button:where(:hover, :focus-visible, :active) & {
 					color: color(foreground-0);
-					background: color(background-6);
+					background: color(background-7);
 					transform: scale(1.25);
 					@include transition(in);
 					
@@ -147,7 +147,7 @@
 				
 				.view-footer-button:active & {
 					transform: scale(1.25);
-					background: color(background-5);
+					background: color(background-6);
 					> * {
 						&::before, &::after {
 							animation: none;

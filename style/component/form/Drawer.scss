@@ -9,7 +9,7 @@
 	@include transition(in, transform, height);
 	overflow: hidden;
 	user-select: none;
-	background: color(background-0a);
+	background: color(background-1);
 	@supports(backdrop-filter: blur(5px) brightness(1.5)) {
 		&::before {
 			content: "";

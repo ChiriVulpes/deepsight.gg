@@ -7,7 +7,7 @@
 		display: block;
 		position: absolute;
 		inset: 0;
-		background: color(background-2);
+		background: color(background-3);
 		@supports(backdrop-filter: blur(5px) brightness(1.5)) {
 			backdrop-filter: blur(5px) brightness(1.5);
 			background: #fff4;
@@ -19,7 +19,7 @@
 	
 	&-header {
 		position: relative;
-		background: color(background-3, .85);
+		background: color(background-4, .85);
 		padding: var(--tooltip-padding);
 		display: grid;
 		grid-template-columns: 1fr auto;
