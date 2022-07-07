@@ -287,7 +287,7 @@
 						flex-shrink: 0;
 					}
 					&::after {
-						transform: translateX(calc(100% / (var(--value) * -1)));
+						transform: translateX(calc(100% / (var(--value) * -1) + 1px));
 					}
 				}
 			}
