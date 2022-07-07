@@ -276,9 +276,17 @@
 	}
 	
 	&-item-filtered-out:not(:focus-visible):not(:hover):not(:active) {
-		opacity: .2;
-		transform: scale(.9);
 		filter: grayscale(.5);
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: -1px;
+			z-index: 10;
+			border: none;
+			box-shadow: none;
+			background: color(background-1, .8);
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import AmmoFilter from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
+import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
 
 let filterMap: Record<Filter, IFilter> | undefined;
 
@@ -32,6 +33,7 @@ class FilterManager {
 		filterMap = {
 			[Filter.Ammo]: AmmoFilter,
 			[Filter.Element]: await ElementFilter(),
+			[Filter.WeaponType]: FilterWeaponType,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

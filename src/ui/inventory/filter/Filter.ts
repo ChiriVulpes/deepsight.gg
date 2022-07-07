@@ -3,6 +3,7 @@ import type { Item } from "model/models/Items";
 enum Filter {
 	Ammo,
 	Element,
+	WeaponType,
 	Raw,
 }
 
