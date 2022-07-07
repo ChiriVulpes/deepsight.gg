@@ -1,9 +1,10 @@
 import type { Item } from "model/models/Items";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
-import AmmoFilter from "ui/inventory/filter/filters/FilterAmmo";
+import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
+import FilterSource from "ui/inventory/filter/filters/FilterSource";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
 
 let filterMap: Record<Filter, IFilter> | undefined;
@@ -32,10 +33,11 @@ class FilterManager {
 			return;
 
 		filterMap = {
-			[Filter.Ammo]: AmmoFilter,
+			[Filter.Ammo]: FilterAmmo,
 			[Filter.Element]: await ElementFilter(),
 			[Filter.WeaponType]: FilterWeaponType,
 			[Filter.Perk]: FilterPerk,
+			[Filter.Source]: await FilterSource(),
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

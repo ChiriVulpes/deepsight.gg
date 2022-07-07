@@ -5,6 +5,7 @@ enum Filter {
 	Element,
 	WeaponType,
 	Perk,
+	Source,
 	Raw,
 }
 

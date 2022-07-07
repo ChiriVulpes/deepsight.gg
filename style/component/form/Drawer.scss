@@ -1,6 +1,7 @@
 .drawer {
 	position: absolute;
 	display: grid;
+    grid-template-rows: 1fr;
 	left: 0;
 	bottom: 0;
 	height: max-content;
@@ -38,6 +39,8 @@
 		grid-row: 1;
 		grid-column: 1;
 		z-index: 1;
+		overflow-y: auto;
+		min-height: 0;
 		@include transition(out, opacity, transform);
 		&.hidden {
 			display: block;
