@@ -31,6 +31,10 @@ class Database<SCHEMA> {
 		return this.transaction([store], "readonly", transaction => transaction.get(store, key, index));
 	}
 
+	public async all<KEY extends keyof SCHEMA> (store: KEY): Promise<SCHEMA[KEY][]> {
+		return this.transaction([store], "readonly", transaction => transaction.all(store));
+	}
+
 	public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {
 		return this.transaction([store], transaction => transaction.set(store, key, value));
 	}
@@ -239,6 +243,14 @@ namespace Database {
 
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return store.get(key);
+			});
+		}
+
+		public async all<KEY extends keyof SCHEMA> (name: KEY) {
+			return this.do<SCHEMA[KEY][]>(() => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return this.transaction.objectStore(name as string)
+					.getAll();
 			});
 		}
 

@@ -1,3 +1,4 @@
+import Filter from "ui/inventory/filter/Filter";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import Sort from "ui/inventory/sort/Sort";
 import SortManager from "ui/inventory/sort/SortManager";
@@ -13,6 +14,6 @@ export default InventorySlotView.clone().configure({
 	filter: new FilterManager({
 		id: "armour",
 		name: "Armour",
-		inapplicable: [],
+		inapplicable: [Filter.Ammo],
 	}),
 });

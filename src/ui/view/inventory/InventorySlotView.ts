@@ -13,7 +13,7 @@ import { ButtonClasses } from "ui/form/Button";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
-import type FilterManager from "ui/inventory/filter/FilterManager";
+import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
@@ -39,6 +39,7 @@ export enum InventorySlotViewClasses {
 	BucketDropTarget = "view-inventory-slot-bucket-drop-target",
 	BucketMovingFrom = "view-inventory-slot-bucket-moving-from",
 	Hints = "view-inventory-slot-hints",
+	ItemFilteredOut = "view-inventory-slot-item-filtered-out"
 }
 
 class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
@@ -172,6 +173,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
 
+		await FilterManager.init();
 		this.filter = this.filter.bind(this);
 		ItemFilter.create([this.super.definition.filter])
 			.event.subscribe("filter", this.filter)
@@ -261,7 +263,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private filter () {
-
+		for (const [item, component] of this.itemMap) {
+			component.classes.toggle(!this.super.definition.filter.apply(item), InventorySlotViewClasses.ItemFilteredOut);
+		}
 	}
 
 	private itemMoving?: ItemComponent;

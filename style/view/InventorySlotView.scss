@@ -274,6 +274,12 @@
 			background-image: linear-gradient(-45deg, transparent 46%, #fff3 50%, transparent 54%);
 		}
 	}
+	
+	&-item-filtered-out:not(:focus-visible):not(:hover):not(:active) {
+		opacity: .2;
+		transform: scale(.9);
+		filter: grayscale(.5);
+	}
 }
 
 .stat-distribution {

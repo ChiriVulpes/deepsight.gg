@@ -54,6 +54,10 @@ class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		return this.memoryCache[memoryCacheKey] = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
 			.then(value => this.memoryCache[memoryCacheKey] = value);
 	}
+
+	public all () {
+		return Model.cacheDB.all(this.componentName);
+	}
 }
 
 function elapsed (elapsed: number) {

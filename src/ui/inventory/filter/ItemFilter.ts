@@ -182,6 +182,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		const selection = window.getSelection()!;
 		selection.removeAllRanges();
 		this.input.removeContents();
+		this.filterer.reset();
 
 		const rangeElements = ranges.map(() => new Range());
 		let lastEnd = -1;
@@ -269,6 +270,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 				selection.addRange(range);
 			}
+
+		if (this.filterer.hasChanged())
+			this.event.emit("filter");
 	}
 
 	private getTokens () {

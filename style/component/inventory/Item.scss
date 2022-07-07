@@ -5,6 +5,7 @@
 	border: none;
 	margin: 0;
 	padding: 0;
+	transition-property: background, border, color, transform, filter, opacity;
 	
 	&::after {
 		content: "";

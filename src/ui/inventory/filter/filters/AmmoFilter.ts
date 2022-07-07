@@ -5,10 +5,11 @@ export default IFilter.create({
 	id: Filter.Ammo,
 	prefix: "ammo:",
 	colour: 0x444444,
-	suggestedValues: ["primary", "special", "heavy"],
-	matches (value) { return this.suggestedValues!.includes(value) },
-	filter: (value, item) => item.definition.equippingBlock?.ammoType === (
-		value === "primary" ? DestinyAmmunitionType.Primary
-			: value === "special" ? DestinyAmmunitionType.Special
-				: DestinyAmmunitionType.Heavy),
-})
+	suggestedValues: ["primary", "special"],
+	matches: value => "primary".startsWith(value) || "special".startsWith(value) || "heavy".startsWith(value),
+	apply: (value, item) => value === ""
+		|| item.definition.equippingBlock?.ammoType === (
+			"primary".startsWith(value) ? DestinyAmmunitionType.Primary
+				: "special".startsWith(value) ? DestinyAmmunitionType.Special
+					: DestinyAmmunitionType.Heavy),
+});
