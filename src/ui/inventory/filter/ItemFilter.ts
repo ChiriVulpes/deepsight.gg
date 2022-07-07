@@ -201,8 +201,10 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			return;
 		}
 
-		if (event.useOverInput("f", "ctrl"))
+		if (event.useOverInput("f", "ctrl")) {
+			this.input.element.focus();
 			void this.openDrawer();
+		}
 
 		if (this.drawer.isOpen() && event.useOverInput("Escape"))
 			this.closeDrawer();
