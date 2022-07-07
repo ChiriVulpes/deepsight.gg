@@ -4,6 +4,7 @@ enum Filter {
 	Ammo,
 	Element,
 	WeaponType,
+	Perk,
 	Raw,
 }
 
