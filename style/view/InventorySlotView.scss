@@ -53,7 +53,7 @@
 		
 		.item-filter {
 			flex-grow: 1;
-			:where(&-drawer) {
+			@at-root .view-inventory-slot :where(.item-filter-drawer) {
 				max-height: 30vh;
 			}
 		}
