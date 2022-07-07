@@ -185,7 +185,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		}
 
 		if (event.useOverInput("f", "ctrl"))
-			this.openDrawer();
+			void this.openDrawer();
 
 		if (this.drawer.isOpen() && event.useOverInput("Escape"))
 			this.closeDrawer();
@@ -316,7 +316,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			lastEnd = token.end;
 		}
 
-		this.input.element.appendChild(document.createTextNode("\xa0"));
+		if (this.input.element.textContent?.trim())
+			this.input.element.appendChild(document.createTextNode("\xa0"));
 
 		// handle range being in whitespace after all tokens
 		for (let i = 0; i < ranges.length; i++) {
