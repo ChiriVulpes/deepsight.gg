@@ -29,6 +29,7 @@ export enum ItemFilterClasses {
 	ButtonIcon = "item-filter-button-icon",
 	ButtonLabel = "item-filter-button-label",
 	Input = "item-filter-input",
+	Reset = "item-filter-reset",
 	FilterChip = "item-filter-chip",
 	FilterChipPrefix = "item-filter-chip-prefix",
 	FilterChipValue = "item-filter-chip-value",
@@ -81,6 +82,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	public button!: Button;
 	public label!: Component;
 	public input!: Component;
+	public resetButton!: Button;
 	public drawer!: Drawer;
 	public mainPanel!: Component;
 
@@ -114,6 +116,12 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.event.subscribe("paste", this.onPaste)
 			.event.subscribe("input", this.onInput)
 			.event.subscribe("focus", this.openDrawer)
+			.appendTo(this.button);
+
+		this.resetButton = Button.create()
+			.classes.add(ItemFilterClasses.Reset, Classes.Hidden)
+			.event.subscribe("click", () => { this.input.removeContents(); this.cleanup(); })
+			.append(Component.create())
 			.appendTo(this.button);
 
 		////////////////////////////////////
@@ -356,6 +364,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 				selection.addRange(range);
 			}
+
+		this.resetButton.classes.toggle(!tokens.length, Classes.Hidden);
 
 		if (this.filterer.hasChanged())
 			this.event.emit("filter");
