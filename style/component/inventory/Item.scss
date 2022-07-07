@@ -76,6 +76,7 @@
 		&-spinny {
 			position: absolute;
 			inset: 0;
+			pointer-events: none;
 			
 			-webkit-mask:
 				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68"><polygon points="2,2 2,66 66,66 66,2" fill="black"/></svg>'),
