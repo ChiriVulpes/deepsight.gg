@@ -1,8 +1,8 @@
 import type { Item } from "model/models/Items";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
-import AmmoFilter from "ui/inventory/filter/filters/AmmoFilter";
-import ElementFilter from "ui/inventory/filter/filters/ElementFilter";
+import AmmoFilter from "ui/inventory/filter/filters/FilterAmmo";
+import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 
 let filterMap: Record<Filter, IFilter> | undefined;
 
