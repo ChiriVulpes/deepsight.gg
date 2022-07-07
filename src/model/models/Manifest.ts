@@ -80,6 +80,7 @@ export type Manifest = {
 export default Model.create("manifest", {
 	cache: "Global",
 	resetTime: "Daily",
+	version: 1,
 	async generate (api) {
 		api.emitProgress(0, "Downloading manifest");
 

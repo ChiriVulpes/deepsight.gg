@@ -13,6 +13,7 @@ enum Sort {
 	Rarity,
 	StatTotal,
 	StatDistribution,
+	Source,
 }
 
 export default Sort;

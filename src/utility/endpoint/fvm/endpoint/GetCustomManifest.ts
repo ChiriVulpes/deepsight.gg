@@ -13,7 +13,14 @@ export default (new class extends Endpoint<AllCustomManifestComponents> {
 
 	public override async query (): Promise<AllCustomManifestComponents> {
 		return {
-			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
+			DestinySourceDefinition: await this.getSources(),
 		};
+	}
+
+	private async getSources () {
+		const sources = await GetDestinySourceDefinition.query();
+		for (const [hash, source] of Object.entries(sources))
+			source.hash = +hash;
+		return sources;
 	}
 })
