@@ -35,8 +35,10 @@ export default IFilter.async(async () => {
 
 		if (resultEnergies.length === 1)
 			return resultEnergies[0];
+		if (resultEnergies.length > 1)
+			return null;
 
-		return null;
+		return undefined;
 	}
 
 	return {
