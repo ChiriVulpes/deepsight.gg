@@ -3,10 +3,17 @@ import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2"
 export type DisplayPropertied = DestinyDisplayPropertiesDefinition | { displayProperties: DestinyDisplayPropertiesDefinition };
 
 namespace Display {
-	export function icon (displayProperties?: DisplayPropertied) {
-		const url = displayProperties === undefined ? undefined
+	export function icon (url?: string): string | undefined;
+	export function icon (displayProperties?: DisplayPropertied): string | undefined;
+	export function icon (displayProperties?: DisplayPropertied | string) {
+		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
-		return url ? `url("https://www.bungie.net${url}")` : undefined;
+		if (!url)
+			return undefined;
+
+		if (!url.startsWith("https://www.bungie.net"))
+			url = `https://www.bungie.net${url}`;
+		return `url("${url}")`;
 	}
 
 	export function name (displayProperties?: DisplayPropertied) {

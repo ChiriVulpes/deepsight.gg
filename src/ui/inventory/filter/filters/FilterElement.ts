@@ -1,4 +1,6 @@
+import type { Item } from "model/models/Items";
 import Manifest from "model/models/Manifest";
+import Display from "ui/bungie/DisplayProperties";
 import ElementTypes from "ui/inventory/ElementTypes";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
@@ -16,16 +18,34 @@ export default IFilter.async(async () => {
 		.filter(type => type.hash !== ENERGY_TYPE_ANY && type.hash !== ENERGY_TYPE_GHOST && type.hash !== ENERGY_TYPE_SUBCLASS)
 		.sort((a, b) => a.enumValue - b.enumValue);
 
+	function definition (value: string, item?: Item) {
+		if (value === "")
+			return null;
+
+		const resultDamages = damages.filter(element => element.displayProperties.name.toLowerCase().startsWith(value)
+			&& (!item || element.hash === item.instance?.damageTypeHash));
+
+		if (resultDamages.length === 1)
+			return resultDamages[0];
+		if (resultDamages.length > 1)
+			return null;
+
+		const resultEnergies = energies.filter(element => element.displayProperties.name.toLowerCase().startsWith(value)
+			&& (!item || element.hash === item.instance?.energy?.energyTypeHash));
+
+		if (resultEnergies.length === 1)
+			return resultEnergies[0];
+
+		return null;
+	}
+
 	return {
 		id: Filter.Element,
 		prefix: "element:",
-		colour: value => ElementTypes.getColour(value) ?? 0xaaaaaa,
 		suggestedValues: damages.map(element => element.displayProperties.name.toLowerCase()),
 		matches: value => damages.some(element => element.displayProperties.name.toLowerCase().startsWith(value)),
-		apply: (value, item) => value === ""
-			|| damages.some(element => element.displayProperties.name.toLowerCase().startsWith(value)
-				&& (element.hash === item.instance?.damageTypeHash))
-			|| energies.some(element => element.displayProperties.name.toLowerCase().startsWith(value)
-				&& (element.hash === item.instance?.energy?.energyTypeHash)),
+		apply: (value, item) => definition(value, item) !== undefined,
+		colour: value => ElementTypes.getColour(definition(value)?.displayProperties.name.toLowerCase()) ?? 0xaaaaaa,
+		maskIcon: value => Display.icon(definition(value) ?? undefined),
 	};
 });

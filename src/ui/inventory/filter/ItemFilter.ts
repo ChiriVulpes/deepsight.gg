@@ -32,6 +32,8 @@ export enum ItemFilterClasses {
 	FilterChip = "item-filter-chip",
 	FilterChipPrefix = "item-filter-chip-prefix",
 	FilterChipValue = "item-filter-chip-value",
+	FilterChipValueHasIcon = "item-filter-chip-value-has-icon",
+	FilterChipValueHasMaskIcon = "item-filter-chip-value-has-mask-icon",
 	FilterChipRaw = "item-filter-chip-raw",
 	Drawer = "item-filter-drawer",
 	DrawerPanel = "item-filter-drawer-panel",
@@ -40,6 +42,8 @@ export enum ItemFilterClasses {
 	FilterChipButton = "item-filter-chip-button",
 	FilterChipButtonPrefix = "item-filter-chip-button-prefix",
 	FilterChipButtonValue = "item-filter-chip-button-value",
+	FilterChipButtonValueHasIcon = "item-filter-chip-button-value-has-icon",
+	FilterChipButtonValueHasMaskIcon = "item-filter-chip-button-value-has-mask-icon",
 	FilterChipButtonValueHint = "item-filter-chip-button-value-hint",
 }
 
@@ -51,6 +55,9 @@ class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: 
 	protected override onMake (filter: IFilter, value: string, isHint?: true): void {
 		super.onMake(filter, value, isHint);
 
+		const icon = IFilter.icon(value, filter.icon);
+		const maskIcon = IFilter.icon(value, filter.maskIcon);
+
 		this.classes.add(ItemFilterClasses.FilterChipButton)
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonPrefix)
@@ -58,7 +65,10 @@ class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: 
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonValue)
 				.classes.toggle(isHint ?? false, ItemFilterClasses.FilterChipButtonValueHint)
-				.text.set(value))
+				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipButtonValueHasIcon)
+				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipButtonValueHasMaskIcon)
+				.text.set(value)
+				.style.set("--icon", icon ?? maskIcon))
 			.style.set("--colour", IFilter.colour(value, filter.colour));
 	}
 }
@@ -297,10 +307,15 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				}
 			}
 
+			const icon = IFilter.icon(value, filter.icon);
+			const maskIcon = IFilter.icon(value, filter.maskIcon);
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
+				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipValueHasIcon)
+				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)
 				.style.set("--colour", IFilter.colour(value, filter.colour))
+				.style.set("--icon", icon ?? maskIcon)
 				.append(textNode = document.createTextNode(value))
 				.appendTo(this.input);
 
@@ -321,14 +336,15 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			this.input.element.appendChild(document.createTextNode("\xa0"));
 
 		// handle range being in whitespace after all tokens
-		for (let i = 0; i < ranges.length; i++) {
-			const range = ranges[i];
-			for (let ri = 0; ri < 2; ri++) {
-				if (range[ri] > lastEnd) {
-					rangeElements[i][ri === 0 ? "setStart" : "setEnd"](this.input.element.lastChild!, 1);
+		if (this.input.element.lastChild)
+			for (let i = 0; i < ranges.length; i++) {
+				const range = ranges[i];
+				for (let ri = 0; ri < 2; ri++) {
+					if (range[ri] > lastEnd) {
+						rangeElements[i][ri === 0 ? "setStart" : "setEnd"](this.input.element.lastChild, 1);
+					}
 				}
 			}
-		}
 
 		if (!tokens.length)
 			selection.collapse(this.input.element);

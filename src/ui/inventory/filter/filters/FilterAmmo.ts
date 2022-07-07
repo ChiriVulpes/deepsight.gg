@@ -1,4 +1,5 @@
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
+import Display from "ui/bungie/DisplayProperties";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
 export default IFilter.create({
@@ -12,4 +13,6 @@ export default IFilter.create({
 			"primary".startsWith(value) ? DestinyAmmunitionType.Primary
 				: "special".startsWith(value) ? DestinyAmmunitionType.Special
 					: DestinyAmmunitionType.Heavy),
+	icon: value => value === "" ? undefined
+		: Display.icon(`/img/destiny_content/ammo_types/${"primary".startsWith(value) ? "primary" : "special".startsWith(value) ? "special" : "heavy"}.png`),
 });

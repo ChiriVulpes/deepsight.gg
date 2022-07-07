@@ -38,25 +38,6 @@
 		outline: auto;
 	}
 	
-	$darken: #0005;
-	&-chip {
-		background: var(--colour, transparent);
-		background-image: linear-gradient(0, $darken 0%, $darken 100%);
-		color: color(foreground-0);
-		padding: 1px 4px 2px;
-		&-prefix {
-			color: color(foreground-0, .6);
-		}
-		
-		&-value {
-			padding-left: 0;
-		}
-		
-		&-raw {
-			padding: 0;
-		}
-	}
-	
 	&-heading {
 		text-transform: uppercase;
 		pointer-events: none;
@@ -68,6 +49,28 @@
 		flex-wrap: wrap;
 		gap: .5em;
 		padding-top: .6em;
+	}
+	
+	$darken: #0005;
+	&-chip {
+		background: var(--colour, transparent);
+		border: 1px solid var(--colour, transparent);
+		background-image: linear-gradient(0, $darken 0%, $darken 100%);
+		color: color(foreground-0);
+		padding: 1px 4px 2px;
+		&-prefix {
+			color: color(foreground-0, .6);
+			border-right: none;
+		}
+		
+		&-value {
+			padding-left: 0;
+			border-left: none;
+		}
+		
+		&-raw {
+			padding: 0;
+		}
 	}
 	
 	&-chip-button {
@@ -104,6 +107,38 @@
 					content: ">";
 				}
 			}
+		}
+	}
+	
+	&-chip-value, &-chip-button-value {
+		&-has-mask-icon, &-has-icon {
+			&::before {
+				content: "";
+				display: inline-block;
+				width: 1em;
+				height: 1em;
+				margin-right: .2em;
+				margin-bottom: .15em;
+				vertical-align: middle;
+			}
+		}
+		
+		&-has-mask-icon::before {
+			background: white;
+			-webkit-mask-image: var(--icon);
+			-webkit-mask-size: contain;
+			-webkit-mask-position: center;
+			-webkit-mask-repeat: no-repeat;
+			mask-image: var(--icon);
+			mask-size: contain;
+			mask-position: center;
+			mask-repeat: no-repeat;
+		}
+		&-has-icon::before {
+			background-image: var(--icon);
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
 		}
 	}
 }

@@ -13,11 +13,13 @@ export default Filter;
 export interface IFilter {
 	id: Filter;
 	prefix: string;
-	colour: `#${string}` | number | ((value: string) => `#${string}` | number);
 	suggestedValues?: string[];
 	suggestedValueHint?: string;
 	matches?(filterValue: string): boolean;
 	apply (filterValue: string, item: Item): boolean;
+	colour: `#${string}` | number | ((value: string) => `#${string}` | number);
+	maskIcon?: string | ((filterValue: string) => string | undefined);
+	icon?: string | ((filterValue: string) => string | undefined);
 }
 
 export type IFilterGenerator = IFilter | (() => Promise<IFilter>);
@@ -41,5 +43,15 @@ export namespace IFilter {
 			return colour;
 
 		return `#${colour.toString(16).padStart(6, "0")}`;
+	}
+
+	export function icon (value: string, icon?: IFilter["icon"]) {
+		if (icon === undefined)
+			return undefined;
+
+		if (typeof icon === "string")
+			return icon;
+
+		return icon(value);
 	}
 }
