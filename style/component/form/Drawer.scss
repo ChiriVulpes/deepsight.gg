@@ -8,6 +8,7 @@
 	@include transition(in, max-height, padding);
 	overflow: hidden;
 	user-select: none;
+	outline: none;
 	background: color(background-1);
 	@supports(backdrop-filter: blur(5px) brightness(1.5)) {
 		&::before {
@@ -34,6 +35,7 @@
 	}
 		
 	&-panel {
+		padding: 10px 15px;
 		grid-row: 1;
 		grid-column: 1;
 		@include transition(out, opacity, transform);

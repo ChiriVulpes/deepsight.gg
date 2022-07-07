@@ -3,6 +3,7 @@ import type { ComponentEventManager } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
+import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import type FilterManager from "ui/inventory/filter/FilterManager";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -36,10 +37,31 @@ export enum ItemFilterClasses {
 	Drawer = "item-filter-drawer",
 	DrawerPanel = "item-filter-drawer-panel",
 	FiltersHeading = "item-filter-heading",
+	SuggestedFilters = "item-filter-suggested",
+	FilterChipButton = "item-filter-chip-button",
+	FilterChipButtonPrefix = "item-filter-chip-button-prefix",
+	FilterChipButtonValue = "item-filter-chip-button-value",
+	FilterChipButtonValueHint = "item-filter-chip-button-value-hint",
 }
 
 export interface IItemFilterEvents {
 	filter: Event;
+}
+
+class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: true]> {
+	protected override onMake (filter: IFilter, value: string, isHint?: true): void {
+		super.onMake(filter, value, isHint);
+
+		this.classes.add(ItemFilterClasses.FilterChipButton)
+			.append(Component.create("span")
+				.classes.add(ItemFilterClasses.FilterChipButtonPrefix)
+				.text.set(filter.prefix))
+			.append(Component.create("span")
+				.classes.add(ItemFilterClasses.FilterChipButtonValue)
+				.classes.toggle(isHint ?? false, ItemFilterClasses.FilterChipButtonValueHint)
+				.text.set(value))
+			.style.set("--colour", `#${filter.colour.toString(16).padStart(6, "0")}`);
+	}
 }
 
 export default class ItemFilter extends Component<HTMLElement, [FilterManager]> {
@@ -57,11 +79,14 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.filterer = filterer;
 		this.classes.add(ItemFilterClasses.Main);
 
+		this.openDrawer = this.openDrawer.bind(this);
+
 		////////////////////////////////////
 		// Button
 		this.button = Button.create()
 			.classes.add(ItemFilterClasses.Button)
-			.event.subscribe("click", this.openDrawer.bind(this))
+			.event.subscribe("click", this.openDrawer)
+			.event.subscribe("focus", this.openDrawer)
 			.addIcon(icon => icon.classes.add(ItemFilterClasses.ButtonIcon))
 			.appendTo(this);
 
@@ -79,13 +104,15 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.attributes.set("placeholder", "No filter enabled")
 			.event.subscribe("paste", this.onPaste)
 			.event.subscribe("input", this.onInput)
+			.event.subscribe("focus", this.openDrawer)
 			.appendTo(this.button);
 
 		////////////////////////////////////
 		// Drawer
 		this.drawer = Drawer.create()
 			.classes.add(ItemFilterClasses.Drawer)
-			.event.subscribe("focus", () => this.input.element.focus())
+			.attributes.set("tabindex", "-1")
+			.event.subscribe("click", () => this.input.element.focus())
 			.appendTo(this);
 
 		this.mainPanel = this.drawer.createPanel();
@@ -95,24 +122,47 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.text.set("Suggested Filters")
 			.appendTo(this.mainPanel);
 
+		const suggestedFilters = Component.create()
+			.classes.add(ItemFilterClasses.SuggestedFilters)
+			.appendTo(this.mainPanel);
+
+		for (const filter of filterer.getApplicable()) {
+			if (!filter.suggestedValues?.length && !filter.suggestedValueHint)
+				continue;
+
+			if (filter.suggestedValues?.length)
+				for (const value of filter.suggestedValues)
+					FilterChipButton.create([filter, value])
+						.event.subscribe("click", () => this.toggleChip(filter, value))
+						.appendTo(suggestedFilters);
+			else
+				FilterChipButton.create([filter, filter.suggestedValueHint!, true])
+					.event.subscribe("click", () => this.toggleChip(filter))
+					.appendTo(suggestedFilters);
+		}
+
 		this.onFocusOut = this.onFocusOut.bind(this);
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
-	private openDrawer () {
-		this.input.element.focus();
+	private async openDrawer () {
 		if (!this.drawer.classes.has(Classes.Hidden))
-			return;
+			return this.input.element.focus();
 
+		this.button.attributes.set("tabindex", "-1");
 		this.drawer.open();
+
+		await Async.sleep(0); // next tick
 		const selection = window.getSelection();
-		selection?.selectAllChildren(this.input.element);
+		if (!this.input.element.contains(selection?.focusNode ?? null) || !this.input.element.contains(selection?.anchorNode ?? null))
+			selection?.selectAllChildren(this.input.element);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		document.addEventListener("focusout", this.onFocusOut);
 	}
 
 	private closeDrawer () {
+		this.button.attributes.remove("tabindex");
 		this.drawer.classes.add(Classes.Hidden);
 		this.drawer.attributes.add("inert");
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -171,6 +221,24 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.cleanup();
 	}
 
+	private toggleChip (filter: IFilter, value?: string) {
+		const chipText = `${filter.prefix}${value ?? ""}`;
+
+		const chipRegex = new RegExp(`(?<=^| |\xa0)${chipText}(?= |\xa0|$)`);
+		const removed = chipRegex.test(this.input.element.textContent ?? "");
+		if (removed)
+			this.input.element.textContent = this.input.element.textContent!.replace(chipRegex, "");
+		else
+			this.input.element.appendChild(document.createTextNode(chipText));
+
+		this.cleanup();
+
+		if (removed)
+			this.setCursorAtEnd();
+		else
+			this.setCursorAtLastChipValue();
+	}
+
 	private onInput (event: Event) {
 		this.cleanup();
 	}
@@ -214,7 +282,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipPrefix)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
-				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16)}`)
+				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16).padStart(6, "0")}`)
 				.append(textNode = document.createTextNode(filter.prefix))
 				.appendTo(this.input);
 
@@ -231,7 +299,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
-				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16)}`)
+				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16).padStart(6, "0")}`)
 				.append(textNode = document.createTextNode(token.text.slice(filter.prefix.length)))
 				.appendTo(this.input);
 
@@ -348,5 +416,18 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		}
 
 		return rangePositions.filter(([start, end]) => start !== -1 && end !== -1);
+	}
+
+	private setCursorAtEnd (node?: Node | null) {
+		const selection = window.getSelection();
+		selection?.removeAllRanges();
+		const range = new Range();
+		range.selectNodeContents(node ?? this.input.element);
+		range.collapse();
+		selection?.addRange(range);
+	}
+
+	private setCursorAtLastChipValue () {
+		this.setCursorAtEnd(this.input.element.querySelector(`.${ItemFilterClasses.FilterChipValue}:last-child`));
 	}
 }

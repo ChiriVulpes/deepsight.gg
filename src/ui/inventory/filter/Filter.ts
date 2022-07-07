@@ -15,6 +15,7 @@ export interface IFilter {
 	prefix: string;
 	colour: number;
 	suggestedValues?: string[];
+	suggestedValueHint?: string;
 	matches?(filterValue: string): boolean;
 	apply (filterValue: string, item: Item): boolean;
 }

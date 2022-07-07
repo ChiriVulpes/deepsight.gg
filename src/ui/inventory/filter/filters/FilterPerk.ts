@@ -11,6 +11,7 @@ export default IFilter.create({
 	id: Filter.Perk,
 	prefix: "perk:",
 	colour: 0x4887ba,
+	suggestedValueHint: "perk name",
 	apply: (value, item) => {
 		return item.plugs?.some(socket => socket.some(plug => {
 			if (!plug.definition)

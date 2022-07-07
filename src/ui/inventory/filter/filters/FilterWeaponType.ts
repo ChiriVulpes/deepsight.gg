@@ -11,6 +11,7 @@ export default IFilter.create({
 	id: Filter.WeaponType,
 	prefix: "type:",
 	colour: 0x333333,
+	suggestedValueHint: "weapon type name",
 	apply: (value, item) => {
 		item.definition.itemTypeDisplayNameLowerCase ??= item.definition.itemTypeDisplayName.toLowerCase();
 		item.definition.itemTypeDisplayNameLowerCaseCompressed ??= item.definition.itemTypeDisplayNameLowerCase

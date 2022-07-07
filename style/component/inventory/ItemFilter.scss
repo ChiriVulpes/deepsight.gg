@@ -41,7 +41,7 @@
 	&-chip {
 		background: var(--colour, transparent);
 		color: color(foreground-0);
-		padding: 2px 4px;
+		padding: 1px 4px 2px;
 		&-prefix {
 			color: color(foreground-0, .6);
 		}
@@ -52,6 +52,52 @@
 		
 		&-raw {
 			padding: 0;
+		}
+	}
+	
+	&-heading {
+		text-transform: uppercase;
+		pointer-events: none;
+		font-size: .7em;
+	}
+	
+	&-suggested {
+		display: flex;
+		flex-wrap: wrap;
+		gap: .5em;
+		padding-top: .6em;
+	}
+	
+	&-chip-button {
+		background: var(--colour, transparent);
+		border-color: var(--colour, transparent);
+		margin: 0;
+		font-size: .95em;
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: -1px;
+			box-shadow: inset 0 0 0 1px #fff5;
+		}
+		
+		&-prefix {
+			color: color(foreground-0, .6);
+			padding-right: 4px;
+		}
+		
+		&-value {
+			&-hint {
+				font-style: italic;
+				font-size: .9em;
+				opacity: .8;
+				&::before {
+					content: "<";
+				}
+				&::after {
+					content: ">";
+				}
+			}
 		}
 	}
 }
