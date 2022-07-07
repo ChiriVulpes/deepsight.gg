@@ -5,6 +5,7 @@ import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import ElementType from "ui/inventory/ElementTypes";
 import ItemTooltipStat from "ui/inventory/tooltip/ItemTooltipStat";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
 
@@ -170,10 +171,13 @@ class ItemTooltip extends Tooltip {
 			.style.remove("--icon")
 			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
 
-		if (damageType !== undefined)
+		if (damageType !== undefined) {
+			const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
 			this.primaryStat
-				.classes.add(`item-tooltip-energy-type-${(damageType?.displayProperties.name ?? "Unknown").toLowerCase()}`)
-				.style.set("--icon", Display.icon(damageType));
+				.classes.add(`item-tooltip-energy-type-${damageTypeName}`)
+				.style.set("--icon", Display.icon(damageType))
+				.style.set("--colour", ElementType.getColour(damageTypeName));
+		}
 
 		const ammoType = item.definition.equippingBlock?.ammoType;
 		this.ammoType.classes.toggle(!ammoType, Classes.Hidden);
@@ -192,10 +196,12 @@ class ItemTooltip extends Tooltip {
 		this.energy.classes.toggle(energy === undefined, Classes.Hidden);
 		if (energy !== undefined) {
 			const energyType = await DestinyEnergyTypeDefinition.get(energy.energyTypeHash);
+			const energyTypeName = (energyType?.displayProperties.name ?? "Unknown").toLowerCase();
 			this.energyValue.text.set(`${energy.energyCapacity}`)
 				.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
-				.classes.add(`item-tooltip-energy-type-${(energyType?.displayProperties.name ?? "Unknown").toLowerCase()}`)
-				.style.set("--icon", Display.icon(energyType));
+				.classes.add(`item-tooltip-energy-type-${energyTypeName}`)
+				.style.set("--icon", Display.icon(energyType))
+				.style.set("--colour", ElementType.getColour(energyTypeName));
 		}
 
 		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);

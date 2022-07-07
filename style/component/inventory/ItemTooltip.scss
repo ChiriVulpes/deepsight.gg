@@ -80,6 +80,7 @@
 		margin: 4px 0;
 		
 		&-damage {
+			color: var(--colour);
 			display: flex;
 			&::before {
 				content: "";
@@ -103,19 +104,6 @@
 			background: white;
 			opacity: 0.25;
 		}
-	}
-	
-	&-energy-type-void {
-		color: #b185df;
-	}
-	&-energy-type-solar {
-		color: #f0631e;
-	}
-	&-energy-type-arc {
-		color: #7aecf3;
-	}
-	&-energy-type-stasis {
-		color: #4d88ff;
 	}
 	
 	&-ammo-type, &-energy-type {
@@ -163,6 +151,7 @@
 			margin-right: .25em;
 			transform: translateY(.03em);
 			align-items: center;
+			color: var(--colour);
 			
 			&::before {
 				content: "";

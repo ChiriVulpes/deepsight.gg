@@ -3,8 +3,7 @@ import type { ComponentEventManager } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
-import type { IFilter } from "ui/inventory/filter/Filter";
-import Filter from "ui/inventory/filter/Filter";
+import Filter, { IFilter } from "ui/inventory/filter/Filter";
 import type FilterManager from "ui/inventory/filter/FilterManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -60,7 +59,7 @@ class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: 
 				.classes.add(ItemFilterClasses.FilterChipButtonValue)
 				.classes.toggle(isHint ?? false, ItemFilterClasses.FilterChipButtonValueHint)
 				.text.set(value))
-			.style.set("--colour", `#${filter.colour.toString(16).padStart(6, "0")}`);
+			.style.set("--colour", IFilter.colour(value, filter.colour));
 	}
 }
 
@@ -278,11 +277,13 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 			const filter = this.filterer.add(raw) ?? {};
 
+			const value = token.text.slice(filter.prefix.length);
+
 			let textNode: Text;
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipPrefix)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
-				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16).padStart(6, "0")}`)
+				.style.set("--colour", IFilter.colour(value, filter.colour))
 				.append(textNode = document.createTextNode(filter.prefix))
 				.appendTo(this.input);
 
@@ -299,8 +300,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
-				.style.set("--colour", !filter.colour ? undefined : `#${filter.colour.toString(16).padStart(6, "0")}`)
-				.append(textNode = document.createTextNode(token.text.slice(filter.prefix.length)))
+				.style.set("--colour", IFilter.colour(value, filter.colour))
+				.append(textNode = document.createTextNode(value))
 				.appendTo(this.input);
 
 			// handle range being in value

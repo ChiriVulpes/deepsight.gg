@@ -13,7 +13,7 @@ export default Filter;
 export interface IFilter {
 	id: Filter;
 	prefix: string;
-	colour: number;
+	colour: `#${string}` | number | ((value: string) => `#${string}` | number);
 	suggestedValues?: string[];
 	suggestedValueHint?: string;
 	matches?(filterValue: string): boolean;
@@ -28,5 +28,18 @@ export namespace IFilter {
 	}
 	export function async (filterGenerator: () => Promise<IFilter>) {
 		return filterGenerator;
+	}
+
+	export function colour (value: string, colour?: IFilter["colour"]) {
+		if (colour === undefined)
+			return undefined;
+
+		if (typeof colour === "function")
+			colour = colour(value);
+
+		if (typeof colour === "string")
+			return colour;
+
+		return `#${colour.toString(16).padStart(6, "0")}`;
 	}
 }

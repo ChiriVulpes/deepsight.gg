@@ -1,4 +1,5 @@
 import Manifest from "model/models/Manifest";
+import ElementTypes from "ui/inventory/ElementTypes";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
 const DAMAGE_TYPE_RAID = 1067729826;
@@ -18,7 +19,7 @@ export default IFilter.async(async () => {
 	return {
 		id: Filter.Element,
 		prefix: "element:",
-		colour: 0x444444,
+		colour: value => ElementTypes.getColour(value) ?? 0xaaaaaa,
 		suggestedValues: damages.map(element => element.displayProperties.name.toLowerCase()),
 		matches: value => damages.some(element => element.displayProperties.name.toLowerCase().startsWith(value)),
 		apply: (value, item) => value === ""

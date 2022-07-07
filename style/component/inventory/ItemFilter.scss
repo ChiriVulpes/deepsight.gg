@@ -38,8 +38,10 @@
 		outline: auto;
 	}
 	
+	$darken: #0005;
 	&-chip {
 		background: var(--colour, transparent);
+		background-image: linear-gradient(0, $darken 0%, $darken 100%);
 		color: color(foreground-0);
 		padding: 1px 4px 2px;
 		&-prefix {
@@ -69,16 +71,18 @@
 	}
 	
 	&-chip-button {
-		background: var(--colour, transparent);
+		background-color: var(--colour, transparent);
 		border-color: var(--colour, transparent);
 		margin: 0;
 		font-size: .95em;
+		align-items: baseline;
 		&::after {
 			content: "";
 			display: block;
 			position: absolute;
-			inset: -1px;
-			box-shadow: inset 0 0 0 1px #fff5;
+			inset: 0;
+			background: $darken;
+			z-index: -1;
 		}
 		
 		&-prefix {
@@ -88,9 +92,11 @@
 		
 		&-value {
 			&-hint {
+				position: relative;
 				font-style: italic;
 				font-size: .9em;
 				opacity: .8;
+				height: min-content;
 				&::before {
 					content: "<";
 				}

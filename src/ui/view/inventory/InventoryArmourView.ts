@@ -14,6 +14,6 @@ export default InventorySlotView.clone().configure({
 	filter: new FilterManager({
 		id: "armour",
 		name: "Armour",
-		inapplicable: [Filter.Ammo],
+		inapplicable: [Filter.Ammo, Filter.WeaponType, Filter.Perk],
 	}),
 });
