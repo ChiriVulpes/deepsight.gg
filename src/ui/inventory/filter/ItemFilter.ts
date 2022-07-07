@@ -287,7 +287,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 			const filter = this.filterer.add(raw) ?? {};
 
-			const value = token.text.slice(filter.prefix.length);
+			const value = token.text.slice(filter.prefix.length).toLowerCase();
 
 			let textNode: Text;
 			Component.create("span")
