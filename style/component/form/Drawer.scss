@@ -1,12 +1,11 @@
 .drawer {
 	position: absolute;
-	display: block;
+	display: grid;
 	left: 0;
 	bottom: 0;
 	height: max-content;
 	max-height: 70vh;
-	transform: translateY(0);
-	@include transition(in, transform, height);
+	@include transition(in, max-height, padding);
 	overflow: hidden;
 	user-select: none;
 	background: color(background-1);
@@ -23,8 +22,9 @@
 	}
 	
 	&.hidden {
-		display: block;
-		height: 0 !important;
+		display: grid;
+		max-height: 0;
+		padding: 0;
 		@include transition(out);
 		transition-timing-function: ease-in;
 		
@@ -34,13 +34,13 @@
 	}
 		
 	&-panel {
-		position: absolute;
-		inset: 0;
-		@include transition(out, opacity, top);
+		grid-row: 1;
+		grid-column: 1;
+		@include transition(out, opacity, transform);
 		&.hidden {
 			display: block;
 			opacity: 0;
-			top: 10px;
+			transform: translateY(10px);
 			pointer-events: none;
 		}
 	}

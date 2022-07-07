@@ -1,6 +1,7 @@
 .item-filter {
 	&-button {
 		--icon: url("/image/svg/filter.svg");
+		cursor: text !important;
 	}
 	
 	&-input {
@@ -35,5 +36,22 @@
 	
 	&:focus-within &-button {
 		outline: auto;
+	}
+	
+	&-chip {
+		background: var(--colour, transparent);
+		color: color(foreground-0);
+		padding: 2px 4px;
+		&-prefix {
+			color: color(foreground-0, .6);
+		}
+		
+		&-value {
+			padding-left: 0;
+		}
+		
+		&-raw {
+			padding: 0;
+		}
 	}
 }

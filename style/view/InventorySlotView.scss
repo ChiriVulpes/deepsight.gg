@@ -27,8 +27,8 @@
 		.item-sort, .item-filter {
 			position: relative;
 			height: 100%;
-			&-drawer {
-				height: calc(
+			:where(&-drawer) {
+				max-height: min(70vh, calc(
 					var(--footer-height)
 					+ var(--slot-size) * 6
 					+ var(--bucket-title-height) * 2
@@ -36,7 +36,9 @@
 					+ var(--bucket-gap-y) * 2
 					+ var(--view-padding-bottom)
 					+ var(--slot-size-optimisation)
-				);
+				));
+				padding-bottom: calc(var(--footer-height) + 30px);
+				box-sizing: border-box;
 			}
 			
 			&-button, &-drawer {
@@ -51,7 +53,7 @@
 		
 		.item-filter {
 			flex-grow: 1;
-			&-drawer {
+			:where(&-drawer) {
 				max-height: 30vh;
 			}
 		}
