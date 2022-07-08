@@ -9,6 +9,7 @@ enum Sort {
 	Energy,
 	Deepsight,
 	Pattern,
+	Shaped,
 	Masterwork,
 	Rarity,
 	StatTotal,

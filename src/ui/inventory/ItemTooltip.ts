@@ -236,7 +236,7 @@ class ItemTooltip extends Tooltip {
 				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
 				.appendTo(this.mods);
 
-			for (const plug of socket.sort((a, b) => (b.socketed ? 1 : 0) - (a.socketed ? 1 : 0))) {
+			for (const plug of socket.sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
@@ -269,7 +269,7 @@ class ItemTooltip extends Tooltip {
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this.mods);
 
-			for (const plug of socket.sort((a, b) => (b.socketed ? 1 : 0) - (a.socketed ? 1 : 0))) {
+			for (const plug of socket.sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)

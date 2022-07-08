@@ -8,6 +8,7 @@ import SortName from "ui/inventory/sort/sorts/SortName";
 import SortPattern from "ui/inventory/sort/sorts/SortPattern";
 import SortPower from "ui/inventory/sort/sorts/SortPower";
 import SortRarity from "ui/inventory/sort/sorts/SortRarity";
+import SortShaped from "ui/inventory/sort/sorts/SortShaped";
 import SortSource from "ui/inventory/sort/sorts/SortSource";
 import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
@@ -24,6 +25,7 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.StatTotal]: SortStatTotal,
 	[Sort.StatDistribution]: SortStatDistribution,
 	[Sort.Source]: SortSource,
+	[Sort.Shaped]: SortShaped,
 };
 
 for (const [type, sort] of Object.entries(sortMap))
@@ -43,8 +45,15 @@ class SortManager {
 	private readonly current: ISort[];
 	public constructor (configuration: ISortManagerConfiguration) {
 		Object.assign(this, configuration);
-		this.current = (Store.get(`sort-${this.id}`) as Sort[] ?? this.default)
-			.map(sortType => sortMap[sortType]);
+
+		let sort: readonly Sort[] = (Store.get(`sort-${this.id}`) as (keyof typeof Sort)[] ?? [])
+			.map(sortName => Sort[sortName])
+			.filter(sort => !isNaN(+sort));
+
+		if (!sort.length)
+			sort = this.default;
+
+		this.current = sort.map(sortType => sortMap[sortType])
 	}
 
 	public get () {
@@ -59,7 +68,7 @@ class SortManager {
 
 	public set (sort: ISort[]) {
 		this.current.splice(0, Infinity, ...sort);
-		Store.set(`sort-${this.id}`, this.current.map(sort => sort.id));
+		Store.set(`sort-${this.id}`, this.current.map(sort => Sort[sort.id]));
 	}
 
 	public sort (items: readonly Item[]) {
