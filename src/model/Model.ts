@@ -3,7 +3,6 @@ import ModelCacheDatabase from "model/ModelCacheDatabase";
 import Database from "utility/Database";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
-import Time from "utility/Time";
 
 export interface IModelEvents<R> {
 	loading: Event;
@@ -118,7 +117,10 @@ namespace Model {
 				return true;
 
 			const resetTime = this.model.resetTime;
-			return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
+			if (typeof resetTime === "number")
+				return Date.now() < cacheTime + resetTime;
+
+			return cacheTime > Bungie[`last${resetTime}Reset`];
 		}
 
 		public async resolveCache () {
