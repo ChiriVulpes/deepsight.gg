@@ -15,6 +15,7 @@ enum Sort {
 	StatTotal,
 	StatDistribution,
 	Source,
+	AmmoType,
 }
 
 export default Sort;
@@ -24,7 +25,7 @@ export interface ISort {
 	name: string;
 	shortName?: string;
 	sort (itemA: Item, itemB: Item): number;
-	render?(item: Item): AnyComponent | Promise<AnyComponent>;
+	render?(item: Item): AnyComponent | Promise<AnyComponent> | undefined;
 	renderSortable?(sortable: SortableSort): any;
 	renderSortableOptions?(wrapper: Component, update: () => void): any;
 }

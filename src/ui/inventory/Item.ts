@@ -155,6 +155,9 @@ export default class ItemComponent extends Button<[Item]> {
 				continue;
 
 			const rendered = await sort.render(this.item);
+			if (!rendered)
+				continue;
+
 			if (this.rerenderId !== rerenderId)
 				// something else is causing this to rerender
 				return;

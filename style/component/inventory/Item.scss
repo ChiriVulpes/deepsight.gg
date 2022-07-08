@@ -342,4 +342,29 @@
 		z-index: 1;
 		background: color(background-0, .8);
 	}
+	
+	&-ammo-type {
+		&::before {
+			content: "";
+			display: block;
+			height: 100%;
+			width: 100%;
+			background: var(--icon);
+			background-position: center right;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+		height: 70%;
+	    filter: drop-shadow(0 1px 1px #000) drop-shadow(0 0 2px #000a);
+		
+		&-primary {
+			--icon: url("https://www.bungie.net/img/destiny_content/ammo_types/primary.png");
+		}
+		&-special {
+			--icon: url("https://www.bungie.net/img/destiny_content/ammo_types/special.png");
+		}
+		&-heavy {
+			--icon: url("https://www.bungie.net/img/destiny_content/ammo_types/heavy.png");
+		}
+	}
 }
