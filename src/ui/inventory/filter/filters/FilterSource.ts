@@ -17,12 +17,25 @@ export default IFilter.async(async () => {
 			|| source.id.startsWith(value);
 	}
 
+	function getAllMatches (value: string) {
+		return sources.filter(source => sourceMatches(source, value));
+	}
+
 	return {
 		id: Filter.Source,
 		prefix: "source:",
 		colour: 0x3B3287,
 		suggestedValues: sources.map(source => source.id),
 		apply: (value, item) => !item.source ? false : sourceMatches(item.source, value),
-		maskIcon: value => `url("${sources.find(source => sourceMatches(source, value))?.displayProperties.icon ?? ""}")`,
+		maskIcon: value => {
+			if (!value)
+				return undefined;
+
+			const matches = getAllMatches(value);
+			if (matches.length !== 1)
+				return undefined;
+
+			return `url("${matches[0].displayProperties.icon}")`;
+		},
 	};
 });
