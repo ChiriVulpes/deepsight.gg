@@ -1,6 +1,6 @@
 import Sort from "ui/inventory/sort/Sort";
 import SortManager from "ui/inventory/sort/SortManager";
-import InventoryArmourView from "ui/view/inventory/InventoryArmourView";
+import InventoryArmourView, { SORTS_DEFAULT_ARMOUR, SORTS_INAPPLICABLE_ARMOUR } from "ui/view/inventory/InventoryArmourView";
 
 export default InventoryArmourView.create({
 	id: "class-item",
@@ -9,7 +9,7 @@ export default InventoryArmourView.create({
 	sort: new SortManager({
 		id: "class-items",
 		name: "Class Items",
-		default: [Sort.Power, Sort.Name, Sort.Energy],
-		inapplicable: [Sort.Deepsight, Sort.Pattern, Sort.StatDistribution, Sort.StatTotal],
+		default: SORTS_DEFAULT_ARMOUR,
+		inapplicable: [...SORTS_INAPPLICABLE_ARMOUR, Sort.StatDistribution, Sort.StatTotal],
 	}),
 });
