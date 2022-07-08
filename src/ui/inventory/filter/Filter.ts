@@ -1,6 +1,8 @@
 import type { Item } from "model/models/Items";
 
 enum Filter {
+	Shaped,
+	Masterwork,
 	Ammo,
 	Element,
 	WeaponType,
