@@ -47,7 +47,7 @@ class FilterManager {
 				prefix: "",
 				colour: undefined as any as 0,
 				apply: (value: string, item: Item) =>
-					item.definition.displayProperties.name.toLowerCase().includes(value.toLowerCase()),
+					new RegExp(`(?<=^| )${value}`).test(item.definition.displayProperties.name.toLowerCase()),
 			},
 		};
 
