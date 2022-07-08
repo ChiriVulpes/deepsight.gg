@@ -234,7 +234,7 @@ namespace Model {
 				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value, version: this.version };
 				if (this.model.cache === "Global")
 					cached.persist = true;
-				await Model.cacheDB.set("models", this.name, cached);
+				void Model.cacheDB.set("models", this.name, cached);
 			}
 
 			this.event.emit("loaded", { value: filtered });
