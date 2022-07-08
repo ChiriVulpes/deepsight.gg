@@ -134,8 +134,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(ProfileQuery, 1 / 3, 1 / 3);
 	const profile = await ProfileQuery.await();
 
-	console.log(profile.itemComponents.sockets);
-
 	const initialisedItems = new Set<string>();
 
 	async function findObjective (item: Item, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
@@ -194,19 +192,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				};
 			}) ?? []);
 	}
-
-	// async function resolvePlugStates (sockets: ISocket[], plugs?: Record<number, DestinyItemPlugBase[]>) {
-	// 	return Promise.all(Object.values(plugs ?? {})
-	// 		.map(async (plugs) => Promise.all(plugs.map(async plug => {
-	// 			const definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
-	// 			return !definition ? undefined : {
-	// 				reference: plug,
-	// 				definition,
-	// 				socketed: !!sockets.find(socket => socket.definition.hash === definition.hash),
-	// 			} as IReusablePlug;
-	// 		}))
-	// 		) ?? []);
-	// }
 
 	async function resolveReusablePlugs (sockets: (ISocket | undefined)[], plugs?: Record<number, DestinyItemPlugBase[]>) {
 		// sockets = sockets.filter(socket => socket?.definition.itemCategoryHashes?.includes(ITEM_WEAPON_MOD)
