@@ -20,7 +20,7 @@ export interface IModelGenerationApi {
 export interface IModel<T, R> {
 	cache: "Global" | "Session" | false;
 	resetTime?: "Daily" | "Weekly" | number;
-	version?: number;
+	version?: string | number | (() => Promise<string | number | undefined>);
 	generate?(api: IModelGenerationApi): Promise<T>;
 	filter?(value: T): R;
 	reset?(value?: T): any;
@@ -38,6 +38,9 @@ namespace Model {
 	export async function clearCache (force = false) {
 		console.warn("Clearing cache...");
 		loadId = Date.now();
+
+		if (force)
+			return cacheDB.dispose();
 
 		for (const store of (await cacheDB.stores()) as Iterable<keyof IModelCache>) {
 			if (store === "models") {
@@ -79,9 +82,15 @@ namespace Model {
 
 		private value?: R | Promise<R>;
 		private cacheTime?: number;
-		private version?: number;
+		private version?: string | number;
 		private _loadingInfo?: { progress: number, message?: string };
 		private loadId = loadId;
+
+		private modelVersion?: string | number;
+		private async getModelVersion () {
+			this.modelVersion ??= (await (typeof this.model.version === "function" ? this.model.version() : this.model.version)) ?? 0;
+			return this.modelVersion;
+		}
 
 		public get loading () {
 			return this.value === undefined
@@ -102,13 +111,13 @@ namespace Model {
 			if (this.loadId !== loadId)
 				return false;
 
-			if ((this.model.version ?? 0) !== version)
+			if (this.modelVersion === undefined || this.modelVersion !== version)
 				return false;
 
 			if (this.model.resetTime === undefined)
 				return true;
 
-			const resetTime = this.model.resetTime ?? 0;
+			const resetTime = this.model.resetTime;
 			return cacheTime > (typeof resetTime === "number" ? Time.floor(resetTime) : Bungie[`last${resetTime}Reset`]);
 		}
 
@@ -120,6 +129,7 @@ namespace Model {
 			if (!cached)
 				return undefined;
 
+			await this.getModelVersion();
 			if (this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
 				console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
@@ -143,6 +153,8 @@ namespace Model {
 			}
 			await this.model.reset?.(value);
 			await Model.cacheDB.delete("models", this.name);
+			delete this.modelVersion;
+			await this.getModelVersion();
 		}
 
 		public get () {
@@ -215,7 +227,7 @@ namespace Model {
 			const filtered = (this.model.filter?.(value) ?? value) as R;
 			this.value = filtered;
 			this.cacheTime = Date.now();
-			this.version = this.model.version ?? 0;
+			this.version = await this.getModelVersion();
 			this.loadId = loadId;
 
 			if (this.model.cache) {

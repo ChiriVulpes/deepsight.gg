@@ -2,7 +2,6 @@ import Model from "model/Model";
 import Card from "ui/Card";
 import Component from "ui/Component";
 import DescribedButton from "ui/form/DescribedButton";
-import LoadingView from "ui/view/LoadingView";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 export default class SettingsDeviceStorage extends Card<[]> {
@@ -17,18 +16,13 @@ export default class SettingsDeviceStorage extends Card<[]> {
 				.append(Component.create("p")
 					.append(Component.create("b").text.set("Note:"))
 					.text.add(" Continuing to use the app will re-download the deleted data.")))
-			.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
-				LoadingView.show();
-				await Model.clearCache(true);
-				LoadingView.hide();
-			}))
+			.tweak(wrapper => wrapper.button.event.subscribe("click", () => Model.clearCache(true)))
 			.appendTo(this.content);
 
 		DescribedButton.create()
 			.tweak(wrapper => wrapper.button.text.set("Unauthorise"))
 			.tweak(wrapper => wrapper.description.text.set("Forgets your Bungie.net authentication. (Note that the authentication token is not sent anywhere except Bungie.net, and it's stored on your device.)"))
 			.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
-				LoadingView.show();
 				await Model.clearCache(true);
 				Bungie.resetAuthentication();
 			}))

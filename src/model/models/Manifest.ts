@@ -79,8 +79,10 @@ export type Manifest = {
 
 export default Model.create("manifest", {
 	cache: "Global",
-	resetTime: "Daily",
-	version: 1,
+	version: async () => {
+		const manifest = await GetManifest.query();
+		return `${manifest.version}-0.fvm`;
+	},
 	async generate (api) {
 		api.emitProgress(0, "Downloading manifest");
 

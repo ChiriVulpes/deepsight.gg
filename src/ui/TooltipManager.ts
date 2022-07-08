@@ -70,12 +70,21 @@ namespace TooltipManager {
 		.classes.add(TooltipClasses.Surface)
 		.appendTo(document.body);
 
-	export function create<TOOLTIP extends Tooltip> (initialiser: (tooltip: Tooltip) => TOOLTIP) {
-		return initialiser(Tooltip.create()
-			.appendTo(tooltipStorage));
+	export interface ITooltipClass<TOOLTIP> {
+		get (): TOOLTIP;
 	}
 
-	export function show<TOOLTIP extends Tooltip> (tooltip: TOOLTIP, initialiser: (tooltip: TOOLTIP) => any) {
+	export function create<TOOLTIP extends Tooltip> (initialiser: (tooltip: Tooltip) => TOOLTIP): ITooltipClass<TOOLTIP> {
+		let tooltip: TOOLTIP | undefined;
+		return {
+			get () {
+				return tooltip ??= initialiser(Tooltip.create()
+					.appendTo(tooltipStorage));
+			},
+		};
+	}
+
+	export function show<TOOLTIP extends Tooltip> (tooltipClass: ITooltipClass<TOOLTIP>, initialiser: (tooltip: TOOLTIP) => any) {
 		for (const child of tooltipSurface.element.children) {
 			const childComponent = child.component?.deref();
 			if (!childComponent) {
@@ -87,6 +96,7 @@ namespace TooltipManager {
 			hide(childComponent as Tooltip);
 		}
 
+		const tooltip = tooltipClass.get();
 		initialiser(tooltip);
 		tooltip.classes.remove(Classes.Hidden)
 			.appendTo(tooltipSurface);
@@ -117,13 +127,14 @@ namespace TooltipManager {
 		});
 	}
 
-	Component.event.subscribe("setTooltip", ({ component, tooltip, initialiser }) => {
+	Component.event.subscribe("setTooltip", ({ component, tooltip: tooltipClass, initialiser }) => {
+		const tooltip = tooltipClass.get();
 		component.event.subscribe("mouseover", () => {
 			if (tooltip.owner?.deref() === component)
 				return; // this tooltip is already shown
 
 			tooltip.owner = new WeakRef(component);
-			TooltipManager.show(tooltip, initialiser);
+			TooltipManager.show(tooltipClass, initialiser);
 		});
 		component.event.subscribe("mouseout", event => {
 			if (component.element.contains(document.elementFromPoint(event.clientX, event.clientY)))
