@@ -45,7 +45,7 @@ class FilterManager {
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",
-				colour: 0,
+				colour: undefined as any as 0,
 				apply: (value: string, item: Item) =>
 					item.definition.displayProperties.name.toLowerCase().includes(value.toLowerCase()),
 			},
