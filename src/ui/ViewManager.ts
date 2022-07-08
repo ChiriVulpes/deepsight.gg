@@ -30,6 +30,7 @@ const registry = Object.fromEntries([
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
+View.event.subscribe("hide", () => ViewManager.hide());
 URL.event.subscribe("navigate", () => {
 	ViewManager.showById(URL.hash);
 });
@@ -48,6 +49,7 @@ export default class ViewManager {
 	}
 
 	private static view?: View.WrapperComponent;
+	private static history: string[] = [];
 
 	public static hasView () {
 		return !!this.view;
@@ -77,10 +79,18 @@ export default class ViewManager {
 			void Async.sleep(1000).then(() => oldView.remove());
 		}
 
+		this.history.push(view.definition.id);
 		URL.hash = view.definition.id;
 		this.view = view;
 		view.appendTo(document.body);
 		this.event.emit("show", { view });
 		document.title = `${view.definition.name} | ${APP_NAME}`;
+	}
+
+	public static hide () {
+		this.history.pop();
+		const previous = this.history.pop();
+		if (previous)
+			this.showById(previous);
 	}
 }

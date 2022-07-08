@@ -1,13 +1,39 @@
 $animation-duration-global: null;
 $animation-delay-global: null;
 
-@mixin animate-multi($classes, $delay: .2s, $duration: .3s) {
+@mixin animate-multi($duration: .3s, $delay: .2s) {
+	$split-selectors: str-split(#{&}, ",");
+	$selectors: ();
+	@each $selector in $split-selectors {
+		$selector: str-trim($selector);
+		$added: false;
+		@for $i from 1 to 100 {
+			@if str-ends-with($selector, ":times(#{$i})") {
+				$added: true;
+				$selector: str-slice($selector, 1, str-length($selector) - str-length(":times(#{$i})"));
+				@for $j from 1 through $i {
+					@if $selector == sleep {
+						$selectors: append($selectors, sleep);
+					} @else {
+						$selectors: append($selectors, unquote("#{$selector}:where(:nth-child(#{$j}))"));
+					}
+				}
+			}
+		}
+		
+		@if not $added {
+			$selectors: append($selectors, $selector);
+		}
+	}
+	
 	$animation-duration-global: $duration !global;
 	$i: 0;
-	@each $class in $classes {
-		.#{$class} {
+	@each $selector in $selectors {
+		@at-root #{$selector} {
 			$animation-delay-global: $delay * $i !global;
-			@content;
+			@if $selector != sleep {
+				@content;
+			}
 			$animation-delay-global: null !global;
 		}
 		$i: $i + 1;

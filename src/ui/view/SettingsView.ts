@@ -1,15 +1,15 @@
-import Button from "ui/form/Button";
 import View from "ui/View";
-import Bungie from "utility/endpoint/bungie/Bungie";
+import SettingsDeviceStorage from "ui/view/settings/SettingsDeviceStorage";
+import SettingsInformationDisplay from "ui/view/settings/SettingsInformationDisplay";
 
 export default View.create({
 	id: "settings",
 	name: "Settings",
 	initialiseDestinationButton: button =>
 		button.text.remove(),
-	initialise: view => view.content
+	initialise: view => view
 		.setTitle(title => title.text.set("Settings"))
-		.append(Button.create()
-			.text.set("Sign Out")
-			.event.subscribe("click", () => Bungie.resetAuthentication())),
+		.tweak(view => view.content
+			.append(SettingsInformationDisplay.create())
+			.append(SettingsDeviceStorage.create())),
 });

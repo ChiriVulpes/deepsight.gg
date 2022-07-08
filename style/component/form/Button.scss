@@ -107,6 +107,17 @@
 			mask-position: center;
 		}
 	}
+	
+	&-description {
+		flex-basis: 100%;
+		font-style: italic;
+		font-size: .8em;
+		color: color(foreground-2);
+		margin: 0 0 8px;
+		p {
+			margin: 2px 0 0;
+		}
+	}
 }
 
 @keyframes flash {

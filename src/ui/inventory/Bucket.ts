@@ -1,6 +1,6 @@
 import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import Manifest from "model/models/Manifest";
-import Component from "ui/Component";
+import Card from "ui/Card";
 
 export enum BucketClasses {
 	Main = "bucket",
@@ -10,31 +10,15 @@ export enum BucketClasses {
 	Inventory = "bucket-inventory",
 }
 
-export default class BucketComponent<ARGS extends readonly any[] = readonly any[]> extends Component<HTMLElement, ARGS> {
-
-	public header!: Component;
-	public title!: Component;
-	public icon!: Component;
-	public inventory!: Component;
+export default class BucketComponent<ARGS extends readonly any[] = readonly any[]> extends Card<ARGS> {
 
 	protected override onMake (...args: ARGS) {
+		super.onMake(...args);
 		this.classes.add(BucketClasses.Main);
-
-		this.header = Component.create()
-			.classes.add(BucketClasses.Header)
-			.appendTo(this);
-
-		this.title = Component.create()
-			.classes.add(BucketClasses.Title)
-			.appendTo(this.header);
-
-		this.icon = Component.create()
-			.classes.add(BucketClasses.Icon)
-			.appendTo(this.title);
-
-		this.inventory = Component.create()
-			.classes.add(BucketClasses.Inventory)
-			.appendTo(this);
+		this.header.classes.add(BucketClasses.Header);
+		this.title.classes.add(BucketClasses.Title);
+		this.icon.classes.add(BucketClasses.Icon);
+		this.content.classes.add(BucketClasses.Inventory);
 	}
 
 	public async initialiseFromCharacter (character: DestinyCharacterComponent) {

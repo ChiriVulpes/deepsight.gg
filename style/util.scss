@@ -47,3 +47,27 @@
 @function str-starts-with($string, $substring) {
     @return str-slice($string, 1, str-length($substring)) == $substring;
 }
+
+@function str-ends-with($string, $substring) {
+    @return str-slice($string, str-length($string) - str-length($substring) + 1) == $substring;
+}
+
+@function str-trim-start ($str) {
+    @if (str-slice($str, 1, 1) == ' ') {
+        @return str-trim-start(str-slice($str, 2));
+    } @else {
+        @return $str;
+    }
+}
+
+@function str-trim-end ($str) {
+    @if (str-slice($str, str-length($str), -1) == ' ') {
+        @return str-trim-end(str-slice($str, 1, -2));
+    } @else {
+        @return $str;
+    }
+}
+
+@function str-trim ($str) {
+    @return str-trim-start(str-trim-end($str));
+}

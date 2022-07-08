@@ -4,7 +4,7 @@
 	&-content {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		gap: var(--bucket-gap-x);
+		gap: var(--card-gap-x);
 		
 		@media (min-width: 1000px) {
 			overflow: hidden;
@@ -20,7 +20,7 @@
 		--sort-width: calc(
 			var(--slot-size) * 4
 			+ var(--bucket-inventory-padding) * 3
-			+ var(--bucket-gap-x) / 2
+			+ var(--card-gap-x) / 2
 			+ var(--view-padding-x)
 		);
 			
@@ -31,9 +31,9 @@
 				max-height: min(70vh, calc(
 					var(--footer-height)
 					+ var(--slot-size) * 6
-					+ var(--bucket-title-height) * 2
-					+ var(--bucket-inventory-padding) * 4
-					+ var(--bucket-gap-y) * 2
+					+ var(--card-title-height) * 2
+					+ var(--card-inventory-padding) * 4
+					+ var(--card-gap-y) * 2
 					+ var(--view-padding-bottom)
 					+ var(--slot-size-optimisation)
 				));
@@ -69,7 +69,7 @@
 		grid-template-rows: unset;
 		
 		&:last-child {
-			--bucket-gap-y: 0px;
+			--card-gap-y: 0px;
 		}
 		
 		&-emblem {
@@ -93,7 +93,7 @@
 			padding: var(--bucket-inventory-padding) 20px;
 			margin-left: calc(-20px + var(--bucket-inventory-padding));
 			margin-right: calc(-20px + var(--bucket-inventory-padding));
-			padding-bottom: calc(var(--bucket-inventory-padding) + var(--bucket-gap-y));
+			padding-bottom: calc(var(--bucket-inventory-padding) + var(--card-gap-y));
 		}
 		
 		&-equipped {
@@ -111,18 +111,6 @@
 				height: calc(var(--slot-size) - 12px);
 				background: color(background-5);
 				z-index: -2;
-			}
-		}
-	}
-	
-	@at-root {
-		@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
-			@include animation-swipe-up-in;
-		}
-		
-		.view-hidden {
-			@include animate-multi(view-inventory-slot-character-bucket view-inventory-slot-vault-bucket, $duration: .6s, $delay: .1s) {
-				@include animation-swipe-down-out;
 			}
 		}
 	}
@@ -286,6 +274,12 @@
 			border: none;
 			box-shadow: none;
 			background: color(background-1, .8);
+		}
+	}
+	
+	@at-root {
+		.view-inventory-slot-character-bucket:times(3), .view-inventory-slot-vault-bucket {
+			@include view-swipe-animation;
 		}
 	}
 }

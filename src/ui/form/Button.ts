@@ -9,6 +9,10 @@ export enum ButtonClasses {
 
 export default class Button<ARGS extends any[] = []> extends Component<HTMLButtonElement, ARGS> {
 
+	public static basic () {
+		return Button.create([]) as Button<[]>;
+	}
+
 	protected static override defaultType = "button";
 
 	protected override onMake (...args: ARGS) {

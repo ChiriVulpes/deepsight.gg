@@ -61,7 +61,7 @@ class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
 			.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
 			.appendTo(this);
 
-		this.inventory.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
+		this.content.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
 
 		void this.initialiseFromCharacter(character);
 	}
@@ -214,7 +214,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
 
-			for (const slot of [...bucketComponent.inventory.children()])
+			for (const slot of [...bucketComponent.content.children()])
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
@@ -228,7 +228,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 				const slot = item.equipped ? equippedComponent! : Component.create()
 					.classes.add(InventoryClasses.Slot)
-					.appendTo(bucketComponent.inventory);
+					.appendTo(bucketComponent.content);
 
 				itemComponent
 					.setSortedBy(this.super.definition.sort)
@@ -244,7 +244,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			}
 
 			// clean up old slots
-			for (const slot of [...bucketComponent.inventory.children()])
+			for (const slot of [...bucketComponent.content.children()])
 				if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
 					slot.remove();
 		}

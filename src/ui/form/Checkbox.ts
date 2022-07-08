@@ -9,6 +9,7 @@ export enum CheckboxClasses {
 	Main = "checkbox",
 	Checkbox = "checkbox-checkbox",
 	Label = "checkbox-label",
+	Description = "checkbox-description",
 }
 
 export default class Checkbox extends Component<HTMLLabelElement, [boolean?]> {
@@ -27,6 +28,13 @@ export default class Checkbox extends Component<HTMLLabelElement, [boolean?]> {
 
 	public checkbox!: Component<HTMLInputElement>;
 	public label!: Component<HTMLSpanElement>;
+	public get description (): Component<HTMLParagraphElement> {
+		const description = Component.create("p")
+			.classes.add(CheckboxClasses.Description)
+			.appendTo(this);
+		Object.defineProperty(this, "description", { value: description });
+		return description;
+	}
 
 	protected override onMake (checked?: boolean): void {
 		this.classes.add(CheckboxClasses.Main);

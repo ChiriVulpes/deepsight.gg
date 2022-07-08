@@ -34,22 +34,22 @@ namespace Model {
 
 	export const cacheDB = new Database(ModelCacheDatabase);
 
-	export async function clearCache () {
+	let loadId = Date.now();
+	export async function clearCache (force = false) {
 		console.warn("Clearing cache...");
-		// if (!cacheDB)
-		// 	return;
+		loadId = Date.now();
 
 		for (const store of (await cacheDB.stores()) as Iterable<keyof IModelCache>) {
 			if (store === "models") {
 				for (const key of await cacheDB.keys("models")) {
 					const cached = await cacheDB.get("models", key);
-					if (cached?.persist)
+					if (cached?.persist && !force)
 						continue;
 
 					await cacheDB.delete("models", key);
 				}
-			} else {
-				// await cacheDB.clear(store);
+			} else if (force) {
+				await cacheDB.clear(store);
 			}
 		}
 	}
@@ -81,6 +81,7 @@ namespace Model {
 		private cacheTime?: number;
 		private version?: number;
 		private _loadingInfo?: { progress: number, message?: string };
+		private loadId = loadId;
 
 		public get loading () {
 			return this.value === undefined
@@ -96,6 +97,9 @@ namespace Model {
 
 		public isCacheValid (cacheTime = this.cacheTime, version = this.version) {
 			if (cacheTime === undefined)
+				return false;
+
+			if (this.loadId !== loadId)
 				return false;
 
 			if ((this.model.version ?? 0) !== version)
@@ -212,6 +216,7 @@ namespace Model {
 			this.value = filtered;
 			this.cacheTime = Date.now();
 			this.version = this.model.version ?? 0;
+			this.loadId = loadId;
 
 			if (this.model.cache) {
 				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value, version: this.version };

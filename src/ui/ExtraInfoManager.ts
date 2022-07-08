@@ -1,4 +1,5 @@
 import UiEventBus from "ui/UiEventBus";
+import Store from "utility/Store";
 
 class ExtraInfoManager {
 
@@ -11,6 +12,11 @@ class ExtraInfoManager {
 			if (event.use("e"))
 				this.hide("KEY");
 		});
+
+		if (Store.items.settingsAlwaysShowExtra)
+			this.show("settingsAlwaysShowExtra");
+
+		Store.event.subscribe("setSettingsAlwaysShowExtra", ({ value }) => this.toggle("settingsAlwaysShowExtra", !!value));
 	}
 
 	private showers = new Set<string>();

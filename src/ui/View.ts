@@ -98,10 +98,15 @@ namespace View {
 			View.event.emit("show", { view });
 			return view as WrapperComponent<MODELS, DEFINITION>;
 		}
+
+		public hide () {
+			View.event.emit("hide");
+		}
 	}
 
 	export interface IEvents {
 		show: { view: WrapperComponent };
+		hide: Event;
 	}
 
 	export const event = EventManager.make<IEvents>();
@@ -109,6 +114,7 @@ namespace View {
 	export enum Classes {
 		Main = "view",
 		Content = "view-content",
+		Header = "view-header",
 		Footer = "view-footer",
 		FooterButton = "view-footer-button",
 		FooterButtonIcon = "view-footer-button-icon",
@@ -123,30 +129,10 @@ namespace View {
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
 
 		public definition!: IView<MODELS, [], DEFINITION>;
-		public title!: Component;
-		public subtitle!: Component;
 
 		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
 			this.definition = definition;
 			this.classes.add(Classes.Content, `view-${this.definition.id}-content`);
-
-			this.title = Component.create()
-				.classes.add(Classes.Title, BaseClasses.Hidden)
-				.appendTo(this);
-
-			this.subtitle = Component.create()
-				.classes.add(Classes.Subtitle, BaseClasses.Hidden)
-				.appendTo(this);
-		}
-
-		public setTitle (tweak?: (component: Component) => any) {
-			this.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
-			return this;
-		}
-
-		public setSubtitle (tweak?: (component: Component) => any) {
-			this.subtitle.classes.remove(BaseClasses.Hidden).tweak(tweak);
-			return this;
 		}
 	}
 
@@ -154,15 +140,14 @@ namespace View {
 
 		private static index = 0;
 
+		public header!: Component;
+		public title!: Component;
+		public subtitle!: Component;
 		public content!: ContentComponent<MODELS, DEFINITION>;
-
+		private _footer!: Component;
 		public get footer () {
-			const footer = Component.create()
-				.classes.add(Classes.Footer)
-				.prependTo(this);
-
-			Object.defineProperty(this, "footer", { value: footer });
-			return footer;
+			Object.defineProperty(this, "footer", { value: this._footer });
+			return this._footer.classes.remove(BaseClasses.Hidden);
 		}
 
 		public definition!: IView<MODELS, [], DEFINITION>;
@@ -172,6 +157,22 @@ namespace View {
 			this.classes.add(Classes.Main, `view-${this.definition.id}`);
 
 			this.style.set("--index", `${WrapperComponent.index++}`);
+
+			this.header = Component.create()
+				.classes.add(Classes.Header, BaseClasses.Hidden)
+				.appendTo(this);
+
+			this._footer = Component.create()
+				.classes.add(Classes.Footer, BaseClasses.Hidden)
+				.appendTo(this);
+
+			this.title = Component.create()
+				.classes.add(Classes.Title, BaseClasses.Hidden)
+				.appendTo(this.header);
+
+			this.subtitle = Component.create()
+				.classes.add(Classes.Subtitle, BaseClasses.Hidden)
+				.appendTo(this.header);
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
 			this.content = ContentComponent.create([definition as any])
@@ -185,6 +186,18 @@ namespace View {
 
 			else
 				this.initialise(...[] as any as Model.Resolve<MODELS>);
+		}
+
+		public setTitle (tweak?: (component: Component) => any) {
+			this.header.classes.remove(BaseClasses.Hidden);
+			this.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			return this;
+		}
+
+		public setSubtitle (tweak?: (component: Component) => any) {
+			this.header.classes.remove(BaseClasses.Hidden);
+			this.subtitle.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			return this;
 		}
 
 		private initialise (...args: Model.Resolve<MODELS>) {

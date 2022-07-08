@@ -1,0 +1,18 @@
+.view-settings {
+	&-content {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		
+		row-gap: 30px;
+		column-gap: 40px;
+	}
+	
+	.card {
+		width: min(500px, 30%);
+	}
+	
+	@at-root sleep:times(2), .card:times(30) {
+		@include view-swipe-animation;
+	}
+}

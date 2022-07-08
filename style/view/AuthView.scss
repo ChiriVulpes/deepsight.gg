@@ -1,5 +1,7 @@
 .view-auth {
+	grid-template-rows: 1fr;
 	&-content {
+		grid-row: 1;
 		display: grid;
 		grid-template-columns: auto 1fr;
 		overflow-y: visible;
@@ -66,7 +68,7 @@
 		}
 	}
 	
-	@include animate-multi(view-auth-logo view-auth-title view-auth-state view-auth-button-auth, $duration: .6s, $delay: .1s) {
-		@include animation-swipe-up-in;
+	&-logo, &-title, &-state, &-button-auth {
+		@include view-swipe-animation;
 	}
 }
