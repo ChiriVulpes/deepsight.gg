@@ -185,6 +185,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
 
+		this.filter();
+
 		this.hints = Component.create()
 			.classes.add(InventorySlotViewClasses.Hints)
 			.appendTo(this.super.footer);

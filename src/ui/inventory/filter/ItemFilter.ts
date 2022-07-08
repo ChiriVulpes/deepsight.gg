@@ -8,6 +8,7 @@ import type FilterManager from "ui/inventory/filter/FilterManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Async from "utility/Async";
+import Store from "utility/Store";
 
 interface IToken {
 	text: string;
@@ -113,6 +114,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.attributes.add("contenteditable")
 			.attributes.set("spellcheck", "false")
 			.attributes.set("placeholder", "No filter enabled")
+			.text.set(Store.items.settingsClearItemFilterOnSwitchingViews ? "" : Store.items.itemFilter ?? "")
 			.event.subscribe("paste", this.onPaste)
 			.event.subscribe("input", this.onInput)
 			.event.subscribe("focus", this.openDrawer)
@@ -161,6 +163,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.onFocusOut = this.onFocusOut.bind(this);
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
+		this.cleanup();
 	}
 
 	private async openDrawer () {
@@ -368,6 +371,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			}
 
 		this.resetButton.classes.toggle(!tokens.length, Classes.Hidden);
+
+		Store.items.itemFilter = this.input.element.textContent ?? "";
 
 		if (this.filterer.hasChanged())
 			this.event.emit("filter");

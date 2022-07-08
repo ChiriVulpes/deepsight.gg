@@ -9,6 +9,8 @@ export interface ILocalStorage {
 	bungieAccessTokenRefreshToken?: string;
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
+	settingsClearItemFilterOnSwitchingViews?: true;
+	itemFilter?: string;
 }
 
 export type IStoreEvents =
