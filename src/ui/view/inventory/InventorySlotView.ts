@@ -425,10 +425,9 @@ class SlotViewModel {
 			this.buckets = value;
 			this.event.emit("update", this);
 		});
-		ProfileCharacters.event.subscribe("loaded", ({ value }) => {
-			this.characters = value.characters;
-			this.event.emit("update", this);
-		});
+		ProfileCharacters.event.subscribe("loaded", ({ value }) =>
+			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
+			this.characters = value.characters);
 
 		this.await = this.await.bind(this);
 		this.onPageFocus = this.onPageFocus.bind(this);
