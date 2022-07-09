@@ -1,8 +1,7 @@
-import type { DestinyCharacterComponent, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
-import type { DestinyGeneratedEnums, ItemCategoryHashes } from "bungie-api-ts/generated-enums";
-import type { DestinyEnumHelper } from "model/models/DestinyEnums";
-import DestinyEnums from "model/models/DestinyEnums";
+import type { IModelGenerationApi } from "model/Model";
+import Model from "model/Model";
 import type { Bucket, BucketId, Item } from "model/models/Items";
 import Items from "model/models/Items";
 import Profile from "model/models/Profile";
@@ -21,6 +20,8 @@ import type SortManager from "ui/inventory/sort/SortManager";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
+import { EventManager } from "utility/EventManager";
+import Time from "utility/Time";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -42,16 +43,14 @@ export enum InventorySlotViewClasses {
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out"
 }
 
-class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
+class CharacterBucket extends BucketComponent<[]> {
 
 	public character!: DestinyCharacterComponent;
 	public equippedSlot!: Component;
 
-	protected override onMake (character: DestinyCharacterComponent): void {
-		super.onMake(character);
+	protected override onMake (): void {
+		super.onMake();
 		this.classes.add(InventorySlotViewClasses.CharacterBucket);
-
-		this.character = character;
 
 		Component.create()
 			.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
@@ -62,8 +61,12 @@ class CharacterBucket extends BucketComponent<[DestinyCharacterComponent]> {
 			.appendTo(this);
 
 		this.content.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
+	}
 
+	public setCharacter (character: DestinyCharacterComponent) {
+		this.character = character;
 		void this.initialiseFromCharacter(character);
+		return this;
 	}
 }
 
@@ -85,38 +88,33 @@ type DestinationBucketId = "vault" | `${bigint}`;
 
 interface IInventorySlotViewDefinition {
 	sort: SortManager;
-	slot: (hashes: DestinyEnumHelper<DestinyGeneratedEnums["ItemCategoryHashes"]>) => ItemCategoryHashes;
+	slot: ItemCategoryHashes;
 	filter: FilterManager;
 }
 
 class InventorySlotViewWrapper extends View.WrapperComponent<[], View.IViewBase & IInventorySlotViewDefinition> { }
 
-type InventorySlotViewArgs = [Record<BucketId, Bucket>, DictionaryComponentResponse<DestinyCharacterComponent>];
+type InventorySlotViewArgs = [Required<SlotViewModel>];
 class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
 
+	public model!: Required<SlotViewModel>;
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
+	public characterBucketsContainer!: Component;
 	public characters!: Record<string, CharacterBucket>;
-	public buckets!: Record<BucketId, Bucket>;
 	public bucketEntries!: [BucketId, Bucket][];
+	public items!: Record<string, Item>;
 	public itemMap!: Map<Item, ItemComponent>;
 	public transferringItemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 
-	protected override async onMake (...[buckets, profileCharacters]: InventorySlotViewArgs) {
-		if (!profileCharacters.data || !Object.keys(profileCharacters.data).length) {
-			console.warn("No characters");
-			return;
-		}
-
-		this.buckets = buckets;
+	protected override async onMake (model: Required<SlotViewModel>) {
+		this.model = model;
 
 		this.classes.add(InventorySlotViewClasses.Main);
 		this.super.content.classes.add(InventorySlotViewClasses.Content);
 
-		const { ItemCategoryHashes } = await DestinyEnums.await();
-
-		const characterBuckets = Component.create()
+		this.characterBucketsContainer = Component.create()
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
 			.appendTo(this.super.content);
 
@@ -127,38 +125,16 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(this.super.content);
 
-		const characterBucketsSorted = Object.values(profileCharacters.data)
-			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
-				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
-			.map(character => CharacterBucket.create([character]));
-
-		characterBuckets.append(...characterBucketsSorted);
-
-		this.characters = Object.fromEntries(characterBucketsSorted.map(bucket => [
-			bucket.character.characterId,
-			bucket,
-		]));
-
-		this.currentCharacter = characterBucketsSorted[0];
-
 		this.itemMap = new Map<Item, ItemComponent>();
 		this.transferringItemMap = new Map<Item, ItemComponent>();
 
-		this.bucketEntries = Object.entries(buckets) as [BucketId, Bucket][];
-		for (const [bucketId, bucket] of this.bucketEntries) {
-			if (bucketId === "inventory" || bucketId === "postmaster")
-				continue;
+		this.update = this.update.bind(this);
+		model.event.subscribe("update", this.update);
+		this.event.subscribe("hide", () => {
+			model.event.unsubscribe("update", this.update);
+		});
 
-			for (const item of this.super.definition.sort.sort(bucket.items)) {
-				const categories = item.definition.itemCategoryHashes ?? [];
-				if (!categories.includes(this.super.definition.slot(ItemCategoryHashes)))
-					continue;
-
-				this.itemMap.set(item, this.createItemComponent(item, bucketId));
-			}
-		}
-
-		this.sort();
+		await this.update();
 
 		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
 
@@ -190,6 +166,53 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.hints = Component.create()
 			.classes.add(InventorySlotViewClasses.Hints)
 			.appendTo(this.super.footer);
+	}
+
+	private async update () {
+		await this.transferring;
+		this.updateCharacters();
+		this.updateItems();
+		this.sort();
+	}
+
+	private updateItems () {
+		this.itemMap.clear();
+		this.transferringItemMap.clear();
+		this.bucketEntries = Object.entries(this.model.buckets) as [BucketId, Bucket][];
+		for (const [bucketId, bucket] of this.bucketEntries) {
+			if (bucketId === "inventory" || bucketId === "postmaster")
+				continue;
+
+			for (const item of bucket.items) {
+				const categories = item.definition.itemCategoryHashes ?? [];
+				if (!categories.includes(this.super.definition.slot))
+					continue;
+
+				this.itemMap.set(item, this.createItemComponent(item, bucketId));
+			}
+		}
+	}
+
+	private updateCharacters () {
+		this.characters ??= {};
+
+		const oldBuckets = [...this.characterBucketsContainer.children<CharacterBucket>()];
+		const characterBucketsSorted = Object.values(this.model.characters.data ?? {})
+			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
+				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
+			.map(character => this.characters[character.characterId] ??= CharacterBucket.create([]).setCharacter(character));
+
+		for (const oldCharacterBucket of oldBuckets)
+			if (!characterBucketsSorted.includes(oldCharacterBucket))
+				// this character was deleted
+				oldCharacterBucket.remove();
+
+		this.currentCharacter = characterBucketsSorted[0];
+
+		const charactersChanged = characterBucketsSorted.length !== oldBuckets.length
+			|| oldBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character?.characterId);
+		if (charactersChanged)
+			this.characterBucketsContainer.append(...characterBucketsSorted);
 	}
 
 	private sort () {
@@ -228,7 +251,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					// item not included in view
 					continue;
 
-				const slot = item.equipped ? equippedComponent! : Component.create()
+				const slot = item.equipped ? equippedComponent!.removeContents() : Component.create()
 					.classes.add(InventoryClasses.Slot)
 					.appendTo(bucketComponent.content);
 
@@ -330,6 +353,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			});
 	}
 
+	private transferring?: Promise<void>;
 	private async transfer (item: Item, bucketId: DestinationBucketId, destination?: DestinationBucketId) {
 		if (item.equipped)
 			// items can't be unequipped with fvm
@@ -352,27 +376,105 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			// already in that location
 			return bucketId;
 
-		this.transferringItemMap.set(item, this.createItemComponent(item, destination));
-		item.transferring = true;
-		this.buckets[destination].items.push(item);
-		this.sort();
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+		this.transferring = new Promise<void>(async resolve => {
+			this.transferringItemMap.set(item, this.createItemComponent(item, destination!));
+			item.transferring = true;
+			this.model.buckets[destination!].items.push(item);
+			this.sort();
 
-		const success = await TransferItem.query(item, characterId, destination)
-			.then(() => true)
-			.catch(err => { console.log(err); return false });
+			const success = await TransferItem.query(item, characterId, destination)
+				.then(() => true)
+				.catch(err => { console.log(err); return false });
 
-		item.transferring = false;
-		// remove item from old bucket if move successful, remove temp item from destination otherwise
-		Arrays.remove(this.buckets[success ? bucketId : destination].items, item);
-		this.sort();
+			item.transferring = false;
+			// remove item from old bucket if move successful, remove temp item from destination otherwise
+			Arrays.remove(this.model.buckets[success ? bucketId : destination!].items, item);
+			this.sort();
 
-		console.log(bucketId, destination);
+			console.log(bucketId, destination);
+			resolve();
+		});
+
+		await this.transferring;
+		delete this.transferring;
+
 		return destination;
 	}
 }
 
+interface ISlotViewModelEvents {
+	update: SlotViewModel;
+}
+
+const ProfileCharacters = Profile(DestinyComponentType.Characters);
+class SlotViewModel {
+
+	private static INSTANCE?: SlotViewModel;
+	public static get () {
+		return SlotViewModel.INSTANCE ??= new SlotViewModel();
+	}
+
+	public readonly event = new EventManager<this, ISlotViewModelEvents>(this);
+
+	public buckets?: Record<BucketId, Bucket>;
+	public characters?: DictionaryComponentResponse<DestinyCharacterComponent>;
+
+	public constructor () {
+		Items.event.subscribe("loaded", ({ value }) => {
+			this.buckets = value;
+			this.event.emit("update", this);
+		});
+		ProfileCharacters.event.subscribe("loaded", ({ value }) => {
+			this.characters = value.characters;
+			this.event.emit("update", this);
+		});
+
+		this.await = this.await.bind(this);
+		this.onPageFocus = this.onPageFocus.bind(this);
+		this.onPageBlur = this.onPageBlur.bind(this);
+		if (document.hasFocus())
+			this.onPageFocus();
+
+		window.addEventListener("focus", this.onPageFocus);
+		window.addEventListener("blur", this.onPageBlur);
+	}
+
+	public async await (progress?: IModelGenerationApi) {
+		const charactersLoadedPromise = ProfileCharacters.await();
+
+		if (!this.characters) {
+			progress?.subscribeProgress(ProfileCharacters, 1 / 2);
+			await charactersLoadedPromise;
+		}
+
+		const itemsLoadedPromise = Items.await();
+		if (!this.buckets) {
+			progress?.subscribeProgress(Items, 1 / 2, 1 / 2);
+			await itemsLoadedPromise;
+		}
+
+		progress?.emitProgress(2 / 2);
+		return this as Required<this>;
+	}
+
+	private interval?: number;
+	private onPageFocus () {
+		void this.await();
+		clearInterval(this.interval);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		this.interval = setInterval(this.await, Time.seconds(5));
+	}
+
+	private onPageBlur () {
+		clearInterval(this.interval);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		this.interval = setInterval(this.await, Time.minutes(2));
+	}
+}
+
 export default new View.Factory()
-	.using(Items, Profile(DestinyComponentType.Characters))
+	.using(Model.createTemporary(async progress => SlotViewModel.get().await(progress)))
 	.define<IInventorySlotViewDefinition>()
-	.initialise((view, buckets, profile) =>
-		view.make(InventorySlotView, buckets, profile.characters));
+	.initialise((view, model) =>
+		view.make(InventorySlotView, model));

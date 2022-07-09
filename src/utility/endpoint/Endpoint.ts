@@ -1,5 +1,3 @@
-import TypeScriptParser from "utility/overcomplicated/TypeScriptParser";
-
 export interface EndpointRequest extends Omit<RequestInit, "headers" | "body"> {
 	headers?: Record<string, string | undefined>;
 	body?: string | object;
@@ -14,11 +12,8 @@ export default class Endpoint<T, ARGS extends any[] = []> {
 		return this.fetch(path, ...args)
 			.then(response => response.text())
 			.then(text => {
-				if (path.endsWith(".json")) {
+				if (path.endsWith(".json"))
 					return JSON.parse(text) as T;
-				} else if (path.endsWith(".ts")) {
-					return TypeScriptParser.parse(text) as T;
-				}
 
 				throw new Error("Unknown file type");
 			});

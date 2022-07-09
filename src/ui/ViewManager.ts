@@ -74,6 +74,7 @@ export default class ViewManager {
 
 		const oldView = this.view;
 		if (oldView) {
+			oldView.event.emit("hide");
 			this.event.emit("hide", { view: oldView });
 			oldView.classes.add(View.Classes.Hidden);
 			void Async.sleep(1000).then(() => oldView.remove());

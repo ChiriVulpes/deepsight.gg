@@ -35,6 +35,11 @@ export default class ItemComponent extends Button<[Item]> {
 
 	protected override async onMake (item: Item) {
 		super.onMake(item);
+		await this.setItem(item);
+	}
+
+	public async setItem (item: Item) {
+		this.removeContents();
 
 		this.tooltipPadding = 0;
 		this.item = item;

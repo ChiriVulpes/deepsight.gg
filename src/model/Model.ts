@@ -17,7 +17,7 @@ export interface IModelGenerationApi {
 }
 
 export interface IModel<T, R> {
-	cache: "Global" | "Session" | false;
+	cache: "Global" | "Session" | "Memory" | false;
 	resetTime?: "Daily" | "Weekly" | number;
 	version?: string | number | (() => Promise<string | number | undefined>);
 	generate?(api: IModelGenerationApi): Promise<T>;
@@ -69,7 +69,7 @@ namespace Model {
 
 	export function createDynamic<T> (resetTime: Exclude<IModel<T, T>["resetTime"], undefined>, generate: IModel<T, T>["generate"]) {
 		return new Impl("", {
-			cache: false,
+			cache: "Memory",
 			resetTime,
 			generate,
 		});
@@ -94,7 +94,7 @@ namespace Model {
 		public get loading () {
 			return this.value === undefined
 				|| this.value instanceof Promise
-				|| !this.isCacheValid();
+				|| (this.model.cache ? !this.isCacheValid() : false);
 		}
 
 		public get loadingInfo () {
@@ -113,6 +113,9 @@ namespace Model {
 			if (this.modelVersion === undefined || this.modelVersion !== version)
 				return false;
 
+			if (!this.model.cache)
+				return false;
+
 			if (this.model.resetTime === undefined)
 				return true;
 
@@ -124,7 +127,7 @@ namespace Model {
 		}
 
 		public async resolveCache () {
-			if (!this.model.cache)
+			if (!this.model.cache || this.model.cache === "Memory")
 				return undefined;
 
 			const cached = await Model.cacheDB.get("models", this.name) as ICachedModel<T> | undefined;
@@ -134,7 +137,7 @@ namespace Model {
 			await this.getModelVersion();
 			if (this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
-				console.info(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
+				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
 				this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;
@@ -142,7 +145,7 @@ namespace Model {
 				return this.value;
 			}
 
-			console.info(`Purging expired cache data for '${this.name}'`);
+			console.debug(`Purging expired cache data for '${this.name}'`);
 			await this.reset();
 			return undefined;
 		}
@@ -166,13 +169,13 @@ namespace Model {
 
 			if (this.value === undefined) {
 				if (this.name)
-					console.info(`No value in memory for '${this.name}'`);
+					console.debug(`No value in memory for '${this.name}'`);
 
 				this.event.emit("loading");
 
 				// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 				const promise = new Promise<R>(async resolve => {
-					if (this.model.cache) {
+					if (this.model.cache && this.model.cache !== "Memory") {
 						const cached = await this.resolveCache();
 						if (cached)
 							return resolve(cached);
@@ -194,7 +197,7 @@ namespace Model {
 								const handleSubUpdate = ({ progress: subAmount, message }: IModelEvents<any>["loadUpdate"]) =>
 									api.emitProgress(from + subAmount * amount, message);
 								model.event.subscribe("loadUpdate", handleSubUpdate);
-								model.event.subscribe("loaded", () =>
+								model.event.subscribeFirst("loaded", () =>
 									model.event.unsubscribe("loadUpdate", handleSubUpdate));
 							}
 
@@ -232,7 +235,7 @@ namespace Model {
 			this.version = await this.getModelVersion();
 			this.loadId = loadId;
 
-			if (this.model.cache) {
+			if (this.model.cache && this.model.cache !== "Memory") {
 				const cached: ICachedModel<T> = { cacheTime: this.cacheTime, value, version: this.version };
 				if (this.model.cache === "Global")
 					cached.persist = true;
@@ -241,7 +244,7 @@ namespace Model {
 
 			this.event.emit("loaded", { value: filtered });
 			if (this.name)
-				console.info(`${!this.model.cache ? "Loaded" : "Cached"} data for '${this.name}'`);
+				console.debug(`${!this.model.cache || this.model.cache === "Memory" ? "Loaded" : "Cached"} data for '${this.name}'`);
 
 			return filtered;
 		}

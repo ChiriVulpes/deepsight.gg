@@ -45,10 +45,13 @@ namespace Loadable {
 						.classes.add(Classes.LoadingMessage)))
 				.appendTo(this);
 
+			this.onLoading = this.onLoading.bind(this);
+			this.onLoaded = this.onLoaded.bind(this);
+			this.updateLoadingInfo = this.updateLoadingInfo.bind(this);
 			for (const model of models) {
-				model.event.subscribe("loading", _ => this.onLoading());
-				model.event.subscribe("loaded", _ => this.onLoaded());
-				model.event.subscribe("loadUpdate", _ => this.updateLoadingInfo());
+				model.event.subscribe("loading", this.onLoading);
+				model.event.subscribe("loaded", this.onLoaded);
+				model.event.subscribe("loadUpdate", this.updateLoadingInfo);
 
 				model.get();
 			}
@@ -79,6 +82,12 @@ namespace Loadable {
 				if (model.loading)
 					return; // not loaded yet
 
+			for (const model of this.models) {
+				model.event.unsubscribe("loading", this.onLoading);
+				model.event.unsubscribe("loaded", this.onLoaded);
+				model.event.unsubscribe("loadUpdate", this.updateLoadingInfo);
+			}
+
 			if (this.loading.classes.has(Classes.LoadingHidden))
 				return; // already loaded
 
@@ -92,7 +101,7 @@ namespace Loadable {
 			});
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
-			this.initialiser(...this.models.map(model => model.get()) as any)
+			this.initialiser(...this.models.map(model => model["value"]) as any)
 				.appendTo(this);
 		}
 

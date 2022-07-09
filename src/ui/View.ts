@@ -1,5 +1,6 @@
 import type Model from "model/Model";
 import { Classes as BaseClasses } from "ui/Classes";
+import type { ComponentEventManager } from "ui/Component";
 import Component from "ui/Component";
 import type Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
@@ -136,9 +137,15 @@ namespace View {
 		}
 	}
 
+	export interface IWrapperComponentEvents {
+		hide: Event;
+	}
+
 	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
 
 		private static index = 0;
+
+		public override event!: ComponentEventManager<this, IWrapperComponentEvents>;
 
 		public header!: Component;
 		public title!: Component;

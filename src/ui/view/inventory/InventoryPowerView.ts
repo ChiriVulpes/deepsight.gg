@@ -1,3 +1,4 @@
+import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import Filter from "ui/inventory/filter/Filter";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import InventoryWeaponView, { FILTERS_INAPPLICABLE_WEAPONS } from "ui/view/inventory/InventoryWeaponView";
@@ -5,7 +6,7 @@ import InventoryWeaponView, { FILTERS_INAPPLICABLE_WEAPONS } from "ui/view/inven
 export default InventoryWeaponView.create({
 	id: "power",
 	name: "Power",
-	slot: slots => slots.byName("PowerWeapon"),
+	slot: ItemCategoryHashes.PowerWeapon,
 	filter: new FilterManager({
 		id: "heavyWeapons",
 		name: "Heavy Weapons",

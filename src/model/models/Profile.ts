@@ -73,7 +73,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 
 		super(`profile#${type} [${applicableKeys.join(",")}]`, {
 			cache: "Session",
-			resetTime: Time.minutes(1),
+			resetTime: Time.seconds(20),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
 		});
@@ -136,7 +136,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return Model.createTemporary<DestinyProfileResponse>(async api => {
+	return Model.createDynamic<DestinyProfileResponse>(Time.seconds(30), async api => {
 		const result = {} as DestinyProfileResponse;
 
 		// only allow one profile query at a time

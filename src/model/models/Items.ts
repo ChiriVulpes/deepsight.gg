@@ -1,7 +1,6 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemPlugBase, DestinyItemSocketState, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat } from "bungie-api-ts/destiny2";
-import { DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import DestinyEnums from "model/models/DestinyEnums";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
@@ -115,7 +114,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyObjectiveDefinition,
 		DestinyStatDefinition,
 	} = await Manifest.await();
-	const { BucketHashes } = await DestinyEnums.await();
 
 	const ProfileQuery = Profile(
 		DestinyComponentType.CharacterInventories,
@@ -342,7 +340,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	}
 
 	buckets.inventory = await createBucket("inventory", profileItems
-		.filter(item => item.bucketHash === BucketHashes.byName("Modifications") || item.bucketHash === BucketHashes.byName("Consumables")));
+		.filter(item => item.bucketHash === BucketHashes.Modifications || item.bucketHash === BucketHashes.Consumables));
 	buckets.vault = await createBucket("vault", profileItems);
 
 	return buckets;
