@@ -14,11 +14,16 @@ export interface Response {
 	DetailedErrorTrace: string;
 }
 
-export default BungieEndpoint
+const TransferItem = BungieEndpoint
 	.at("/Destiny2/Actions/Items/TransferItem/")
 	.request(async (item: Item, character: `${bigint}`, destination: "vault" | `${bigint}` = character) => {
 		if (!item.reference.itemInstanceId)
 			throw new Error("Item has no instance ID");
+
+		if (character !== destination && destination !== "vault") {
+			await TransferItem.query(item, character, "vault");
+			character = destination;
+		}
 
 		const membership = await DestinyMembership.await();
 
@@ -35,3 +40,5 @@ export default BungieEndpoint
 		} as EndpointRequest;
 	})
 	.returning<DestinyProfileResponse>();
+
+export default TransferItem;
