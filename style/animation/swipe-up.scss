@@ -1,13 +1,24 @@
 @mixin animation-swipe-up-in($duration: $animation-duration-global, $delay: $animation-delay-global) {
-	transform: translateY(30px);
-	opacity: 0;
+	transform: translateY(0);
+	opacity: 1;
 	@if $duration == null {
 		$duration: .3s;
 	}
 	@if $delay == null {
 		$delay: 0s;
 	}
-	animation: animation-swipe-up-in $duration cubic-bezier(0,0,.4,1) $delay forwards;
+	animation: animation-swipe-up-in-pre ($delay + .01s) linear, animation-swipe-up-in $duration cubic-bezier(0,0,.4,1) $delay;
+}
+
+@keyframes animation-swipe-up-in-pre {
+	from {
+		transform: translateY(30px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(30px);
+		opacity: 0;
+	}
 }
 
 @keyframes animation-swipe-up-in {
@@ -22,15 +33,26 @@
 }
 
 @mixin animation-swipe-down-out($duration: $animation-duration-global, $delay: $animation-delay-global) {
-	transform: translateY(0);
-	opacity: 1;
+	transform: translateY(30px);
+	opacity: 0;
 	@if $duration == null {
 		$duration: .3s;
 	}
 	@if $delay == null {
 		$delay: 0s;
 	}
-	animation: animation-swipe-down-out $duration cubic-bezier(0,0,.4,1) $delay forwards;
+	animation: animation-swipe-down-out-pre ($delay + .01s) linear, animation-swipe-down-out $duration cubic-bezier(0,0,.4,1) $delay;
+}
+
+@keyframes animation-swipe-down-out-pre {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
 }
 
 @keyframes animation-swipe-down-out {
