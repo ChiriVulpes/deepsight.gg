@@ -1,6 +1,7 @@
 import View from "ui/View";
 import SettingsDeviceStorage from "ui/view/settings/SettingsDeviceStorage";
 import SettingsInventoryDisplay from "ui/view/settings/SettingsInventoryDisplay";
+import SettingsItemMovement from "ui/view/settings/SettingsItemMovement";
 
 export default View.create({
 	id: "settings",
@@ -11,5 +12,6 @@ export default View.create({
 		.setTitle(title => title.text.set("Settings"))
 		.tweak(view => view.content
 			.append(SettingsInventoryDisplay.create())
+			.append(SettingsItemMovement.create())
 			.append(SettingsDeviceStorage.create())),
 });

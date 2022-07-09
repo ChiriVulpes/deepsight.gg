@@ -21,6 +21,7 @@ import View from "ui/View";
 import Arrays from "utility/Arrays";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import { EventManager } from "utility/EventManager";
+import Store from "utility/Store";
 import Time from "utility/Time";
 
 export enum InventorySlotViewClasses {
@@ -376,6 +377,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			// already in that location
 			return bucketId;
 
+		// only allow transferring one item at a time
+		await this.transferring;
+
+		let finalDestination = destination;
+
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 		this.transferring = new Promise<void>(async resolve => {
 			this.transferringItemMap.set(item, this.createItemComponent(item, destination!));
@@ -383,11 +389,43 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			this.model.buckets[destination!].items.push(item);
 			this.sort();
 
-			const success = await TransferItem.query(item, characterId, destination)
-				.then(() => true)
-				.catch(err => { console.log(err); return false });
+			let movedToVault = false;
+			let success: boolean | undefined;
+			if (bucketId !== "vault" && destination !== "vault" && destination !== characterId) {
+				// first transfer to vault
+				success = await TransferItem.query(item, characterId, "vault")
+					.then(() => true)
+					.catch(err => { console.log(err); return false });
+				if (success)
+					characterId = destination!, movedToVault = true;
+			}
+
+			if (success !== false)
+				success = await TransferItem.query(item, characterId, destination)
+					.then(() => true)
+					.catch(err => { console.log(err); return false });
 
 			item.transferring = false;
+
+			if (!success && movedToVault) {
+				let inVault = true;
+				if (!Store.items.settingsDisableReturnOnFailure)
+					// put the item back where it was originally
+					inVault = !await TransferItem.query(item, bucketId as `${bigint}`, bucketId)
+						.then(() => true)
+						.catch(err => { console.log(err); return false });
+
+				if (inVault) {
+					// the full transfer failed and now the item is in the vault
+					finalDestination = "vault";
+					this.model.buckets.vault.items.push(item);
+					// remove the item from the original location since it's not there anymore
+					Arrays.remove(this.model.buckets[bucketId].items, item);
+				} else {
+					finalDestination = bucketId;
+				}
+			}
+
 			// remove item from old bucket if move successful, remove temp item from destination otherwise
 			Arrays.remove(this.model.buckets[success ? bucketId : destination!].items, item);
 			this.sort();
@@ -399,7 +437,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		await this.transferring;
 		delete this.transferring;
 
-		return destination;
+		return finalDestination;
 	}
 }
 

@@ -20,11 +20,6 @@ const TransferItem = BungieEndpoint
 		if (!item.reference.itemInstanceId)
 			throw new Error("Item has no instance ID");
 
-		if (character !== destination && destination !== "vault") {
-			await TransferItem.query(item, character, "vault");
-			character = destination;
-		}
-
 		const membership = await DestinyMembership.await();
 
 		return {

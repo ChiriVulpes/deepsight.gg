@@ -10,6 +10,7 @@ export interface ILocalStorage {
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
+	settingsDisableReturnOnFailure?: true;
 	itemFilter?: string;
 }
 
