@@ -19,6 +19,7 @@ import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
+import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
@@ -107,7 +108,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public items!: Record<string, Item>;
 	public itemMap!: Map<Item, ItemComponent>;
 	public transferringItemMap!: Map<Item, ItemComponent>;
+	public unequippingItemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
+	public equipped!: Record<`${bigint}`, ItemComponent>;
 
 	protected override async onMake (model: Required<SlotViewModel>) {
 		this.model = model;
@@ -126,8 +129,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(this.super.content);
 
+		this.equipped = {};
 		this.itemMap = new Map<Item, ItemComponent>();
 		this.transferringItemMap = new Map<Item, ItemComponent>();
+		this.unequippingItemMap = new Map<Item, ItemComponent>();
 
 		this.update = this.update.bind(this);
 		model.event.subscribe("update", this.update);
@@ -236,6 +241,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 				bucketComponent = characterBucket;
 				equippedComponent = characterBucket.equippedSlot;
+
+				const currentlyEquipped = this.equipped[bucketId];
+				if (!this.itemMap.has(currentlyEquipped?.item))
+					// old item instance was equipped here, remove it
+					currentlyEquipped?.remove();
 			}
 
 			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
@@ -245,20 +255,23 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
 				let itemComponent = this.itemMap.get(item);
-				if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+				if ((!item.equipped && !item.unequipping) && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
 					itemComponent = this.transferringItemMap.get(item);
 
 				if (!itemComponent)
 					// item not included in view
 					continue;
 
-				const slot = item.equipped ? equippedComponent!.removeContents() : Component.create()
+				const slot = item.equipped ? equippedComponent! : Component.create()
 					.classes.add(InventoryClasses.Slot)
 					.appendTo(bucketComponent.content);
 
 				itemComponent
 					.setSortedBy(this.super.definition.sort)
 					.appendTo(slot);
+
+				if (item.equipped)
+					this.equipped[bucketId as `${bigint}`] = itemComponent;
 
 				const power = item.instance?.primaryStat?.value ?? 0;
 				if (power > highestPower) {
@@ -298,9 +311,12 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	private createItemComponent (item: Item, bucketId: DestinationBucketId) {
 		const component = DraggableItem.create([item]);
 		return component
-			.event.subscribe("click", async () => {
-				// update this item component's bucket so future clicks transfer to the right place
-				bucketId = await this.transfer(item, bucketId);
+			.event.subscribe("click", async event => {
+				if (event.shiftKey)
+					// update this item component's bucket so future clicks transfer to the right place
+					bucketId = await this.transfer(item, bucketId);
+				else
+					await this.equip(item, bucketId);
 			})
 			.event.subscribe("moveStart", event => {
 				if (item.equipped)
@@ -378,7 +394,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			return bucketId;
 
 		// only allow transferring one item at a time
-		await this.transferring;
+		while (this.transferring)
+			await this.transferring;
 
 		let finalDestination = destination;
 
@@ -438,6 +455,58 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		delete this.transferring;
 
 		return finalDestination;
+	}
+
+	private async equip (item: Item, bucketId: DestinationBucketId) {
+		if (item.equipped)
+			// items can't be unequipped with fvm
+			return bucketId;
+
+		if (item.transferring)
+			// item is already moving
+			return bucketId;
+
+		if (bucketId === "vault")
+			bucketId = await this.transfer(item, bucketId);
+
+		if (bucketId === "vault")
+			// failed
+			return bucketId;
+
+		const characterId = bucketId;
+
+		// only allow transferring one item at a time
+		while (this.transferring)
+			await this.transferring;
+
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+		this.transferring = new Promise<void>(async resolve => {
+			const currentlyEquipped = this.equipped[characterId];
+			currentlyEquipped.item.transferring = true;
+			item.transferring = true;
+			this.sort();
+
+			const success = await EquipItem.query(item, characterId)
+				.then(() => true)
+				.catch(err => { console.log(err); return false });
+
+			if (success) {
+				item.equipped = true;
+				delete currentlyEquipped.item.equipped;
+			}
+
+			currentlyEquipped.item.transferring = false;
+			item.transferring = false;
+			this.model.buckets[characterId].items
+			currentlyEquipped.item.unequipping = true;
+			this.sort();
+			currentlyEquipped.item.unequipping = false;
+
+			resolve();
+		});
+
+		await this.transferring;
+		delete this.transferring;
 	}
 }
 

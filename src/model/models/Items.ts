@@ -87,6 +87,8 @@ export class Item {
 		this.event.emit("transferStateChange", { transferring });
 	}
 
+	public unequipping = false;
+
 	public constructor (item: IItem) {
 		Object.assign(this, item);
 	}
