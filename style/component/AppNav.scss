@@ -24,21 +24,26 @@
 	
 	$delay: .02s;
 	
-	@at-root .app-nav-logo, .app-nav-title, .app-nav-identity-container, .app-nav-destination {
+	@at-root .app-nav-logo-container, .app-nav-title, .app-nav-identity-container, .app-nav-destination {
 		@include transition(.2s, transform);
 		transition-timing-function: cubic-bezier(0,0,.4,1);
 	}
 	
 	&.hidden {
-		:where(.app-nav-logo, .app-nav-title, .app-nav-identity-container, .app-nav-destination) {
+		:where(.app-nav-logo-container, .app-nav-title, .app-nav-identity-container, .app-nav-destination) {
 			@include transition(.4s);
 			transform: translateY(-50px);
 		}
 	}
 	
 	&-logo {
+		&-container {
+			position: relative;
+			width: var(--nav-height);
+			pointer-events: none;
+		}
+		
 		margin: 10px;
-		pointer-events: none;
 	}
 	
 	&-title {

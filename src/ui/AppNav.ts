@@ -4,11 +4,13 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
+import LoadingManager from "ui/LoadingManager";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
+	LogoContainer = "app-nav-logo-container",
 	Logo = "app-nav-logo",
 	Title = "app-nav-title",
 	IdentityContainer = "app-nav-identity-container",
@@ -31,8 +33,12 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
 
-		Component.create()
-			.classes.add(ClassesAppNav.Logo, Classes.Logo)
+		Loadable.create(LoadingManager.model)
+			.onReady(() => Component.create()
+				.classes.add(ClassesAppNav.Logo, Classes.Logo))
+			.classes.add(ClassesAppNav.LogoContainer)
+			.setSimple()
+			.setPersistent()
 			.appendTo(this);
 
 		Component.create()

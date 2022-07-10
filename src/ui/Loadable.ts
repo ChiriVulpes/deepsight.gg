@@ -50,8 +50,6 @@ namespace Loadable {
 			this.updateLoadingInfo = this.updateLoadingInfo.bind(this);
 			for (const model of models) {
 				model.event.subscribe("loading", this.onLoading);
-				model.event.subscribe("loaded", this.onLoaded);
-				model.event.subscribe("loadUpdate", this.updateLoadingInfo);
 
 				model.get();
 			}
@@ -67,6 +65,11 @@ namespace Loadable {
 		}
 
 		private onLoading () {
+			for (const model of this.models) {
+				model.event.subscribe("loaded", this.onLoaded);
+				model.event.subscribe("loadUpdate", this.updateLoadingInfo);
+			}
+
 			if (this.loading.classes.some(BaseClasses.Hidden, Classes.LoadingHidden)) {
 				// start loading
 				this.updateLoadingInfo();
@@ -76,6 +79,12 @@ namespace Loadable {
 			}
 		}
 
+		private persistent = false;
+		public setPersistent () {
+			this.persistent = true;
+			return this;
+		}
+
 		private onLoaded () {
 			this.updateLoadingInfo();
 			for (const model of this.models)
@@ -83,7 +92,8 @@ namespace Loadable {
 					return; // not loaded yet
 
 			for (const model of this.models) {
-				model.event.unsubscribe("loading", this.onLoading);
+				if (!this.persistent)
+					model.event.unsubscribe("loading", this.onLoading);
 				model.event.unsubscribe("loaded", this.onLoaded);
 				model.event.unsubscribe("loadUpdate", this.updateLoadingInfo);
 			}
@@ -129,10 +139,14 @@ namespace Loadable {
 		}
 	}
 
-	export function create<MODELS extends Model<any, any>[]> (...model: MODELS) {
+	export interface ILoadableFactory<MODELS extends Model<any, any>[]> {
+		onReady (initialiser: Initialiser<MODELS>): Component<MODELS>;
+	}
+
+	export function create<MODELS extends Model<any, any>[]> (...models: MODELS): ILoadableFactory<MODELS> {
 		return {
 			onReady (initialiser: Initialiser<MODELS>) {
-				return Component.create([model, initialiser]);
+				return Component.create([models, initialiser]);
 			},
 		};
 	}

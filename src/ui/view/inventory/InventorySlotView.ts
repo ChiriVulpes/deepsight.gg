@@ -17,6 +17,7 @@ import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
+import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
@@ -528,9 +529,11 @@ class SlotViewModel {
 	public characters?: DictionaryComponentResponse<DestinyCharacterComponent>;
 
 	public constructor () {
+		Items.event.subscribe("loading", () => LoadingManager.start(InventorySlotViewClasses.Main));
 		Items.event.subscribe("loaded", ({ value }) => {
 			this.buckets = value;
 			this.event.emit("update", this);
+			LoadingManager.end(InventorySlotViewClasses.Main);
 		});
 		ProfileCharacters.event.subscribe("loaded", ({ value }) =>
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
