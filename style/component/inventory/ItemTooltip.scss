@@ -385,6 +385,32 @@
 					background-size: 500% 500%;
 					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * .5s);
 				}
+				
+				&::after {
+					content: "";
+					display: block;
+					position: absolute;
+					left: 8px;
+					border: 3.5px solid transparent;
+					border-bottom-color: #ffed9f;
+					border-bottom-width: 4px;
+					transform: scaleX(.8)
+				}
+
+				.item-tooltip-mod-socketed::after {
+					content: "";
+					display: block;
+					position: absolute;
+					left: -2px;
+					top: 1px;
+					border: 1.5px solid transparent;
+					border-top-color: #ffed9f;
+					border-top-width: 20px;
+					border-bottom-width: 0;
+					-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+					mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+					transform: scaleX(.9)
+				}
 			}
 		}
 		
