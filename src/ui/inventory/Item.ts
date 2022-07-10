@@ -116,9 +116,11 @@ export default class ItemComponent extends Button<[Item]> {
 		}
 
 		// this.text.set(item.definition.displayProperties.name);
-		this.setTooltip(ItemTooltip, tooltip => tooltip
-			.setPadding(this.tooltipPadding)
-			.setItem(item));
+		this.setTooltip(ItemTooltip, {
+			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
+				.setItem(item),
+			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
+		});
 
 		this.extra.appendTo(this);
 

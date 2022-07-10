@@ -84,7 +84,8 @@ namespace TooltipManager {
 		};
 	}
 
-	export function show<TOOLTIP extends Tooltip> (tooltipClass: ITooltipClass<TOOLTIP>, initialiser: (tooltip: TOOLTIP) => any) {
+	export function show<TOOLTIP extends Tooltip> (tooltipClass: ITooltipClass<TOOLTIP>, initialiser: (tooltip: TOOLTIP) => any, hidePreviousIfSame = true) {
+		const tooltip = tooltipClass.get();
 		for (const child of tooltipSurface.element.children) {
 			const childComponent = child.component?.deref();
 			if (!childComponent) {
@@ -93,10 +94,10 @@ namespace TooltipManager {
 				continue;
 			}
 
-			hide(childComponent as Tooltip);
+			if (childComponent !== tooltip || hidePreviousIfSame)
+				hide(childComponent as Tooltip);
 		}
 
-		const tooltip = tooltipClass.get();
 		initialiser(tooltip);
 		tooltip.classes.remove(Classes.Hidden)
 			.appendTo(tooltipSurface);
@@ -127,14 +128,14 @@ namespace TooltipManager {
 		});
 	}
 
-	Component.event.subscribe("setTooltip", ({ component, tooltip: tooltipClass, initialiser }) => {
+	Component.event.subscribe("setTooltip", ({ component, tooltip: tooltipClass, handler }) => {
 		const tooltip = tooltipClass.get();
 		component.event.subscribe("mouseover", () => {
 			if (tooltip.owner?.deref() === component)
 				return; // this tooltip is already shown
 
 			tooltip.owner = new WeakRef(component);
-			TooltipManager.show(tooltipClass, initialiser);
+			TooltipManager.show(tooltipClass, handler.initialiser, handler.differs?.(tooltip));
 		});
 		component.event.subscribe("mouseout", event => {
 			if (component.element.contains(document.elementFromPoint(event.clientX, event.clientY)))

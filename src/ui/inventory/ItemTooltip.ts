@@ -47,6 +47,7 @@ enum ItemTooltipClasses {
 
 class ItemTooltip extends Tooltip {
 
+	public item?: Item;
 	public source!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
@@ -143,6 +144,7 @@ class ItemTooltip extends Tooltip {
 	}
 
 	public async setItem (item: Item) {
+		this.item = item;
 		console.log(Display.name(item.definition), item);
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = await Manifest.await();

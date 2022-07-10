@@ -1,5 +1,5 @@
-import type { Tooltip } from "ui/TooltipManager";
 import type TooltipManager from "ui/TooltipManager";
+import type { Tooltip } from "ui/TooltipManager";
 import { EventManager } from "utility/EventManager";
 import type { IVector2 } from "utility/maths/Vector2";
 
@@ -18,8 +18,13 @@ export type ComponentClass<COMPONENT extends AnyComponent = AnyComponent> = {
 export type ComponentElement<COMPONENT extends AnyComponent> = COMPONENT["element"];
 export type ComponentArgs<COMPONENT extends AnyComponent> = COMPONENT["_args"];
 
+export interface ITooltipHandler<TOOLTIP extends Tooltip> {
+	initialiser (tooltip: TOOLTIP): any;
+	differs?(tooltip: TOOLTIP): boolean;
+}
+
 export interface IComponentsEvents {
-	setTooltip: { component: AnyComponent; tooltip: TooltipManager.ITooltipClass<Tooltip>; initialiser (tooltip: Tooltip): any };
+	setTooltip: { component: AnyComponent; tooltip: TooltipManager.ITooltipClass<Tooltip>; handler: ITooltipHandler<Tooltip> };
 }
 
 export type AnyComponent = Component<Element, readonly any[]>;
@@ -231,9 +236,9 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
-	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TooltipManager.ITooltipClass<TOOLTIP>, initialiser: (tooltip: TOOLTIP) => any) {
+	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TooltipManager.ITooltipClass<TOOLTIP>, handler: ITooltipHandler<TOOLTIP>) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Component.event.emit("setTooltip", { component: this as any, tooltip, initialiser: initialiser as (tooltip: Tooltip) => any });
+		Component.event.emit("setTooltip", { component: this as any, tooltip, handler });
 	}
 
 	public exists () {
