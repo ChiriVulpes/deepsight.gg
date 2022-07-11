@@ -180,6 +180,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.updateCharacters();
 		this.updateItems();
 		this.sort();
+		this.filter();
 	}
 
 	private updateItems () {
