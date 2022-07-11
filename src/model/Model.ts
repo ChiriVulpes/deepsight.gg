@@ -151,12 +151,18 @@ namespace Model {
 		}
 
 		public async reset (value?: T) {
-			if (!value) {
-				const cached = await Model.cacheDB.get("models", this.name);
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-				value = cached?.value;
+			if (!this.model.reset)
+				this.value = value = undefined;
+			else {
+				if (!value) {
+					const cached = await Model.cacheDB.get("models", this.name);
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+					value = cached?.value;
+				}
+
+				await this.model.reset?.(value);
 			}
-			await this.model.reset?.(value);
+
 			await Model.cacheDB.delete("models", this.name);
 			delete this.modelVersion;
 			await this.getModelVersion();
