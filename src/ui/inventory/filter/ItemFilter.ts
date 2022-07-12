@@ -51,6 +51,7 @@ export enum ItemFilterClasses {
 
 export interface IItemFilterEvents {
 	filter: Event;
+	submit: Event;
 }
 
 class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: true]> {
@@ -209,14 +210,15 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			void this.openDrawer();
 		}
 
-		if (this.drawer.isOpen() && event.useOverInput("Escape"))
+		if (this.drawer.isOpen() && (event.useOverInput("Escape") || event.useOverInput("Enter"))) {
 			this.closeDrawer();
+			this.event.emit("submit");
+		}
 
 		// cancel keybinds
 		event.useOverInput("b", "ctrl");
 		event.useOverInput("i", "ctrl");
 		event.useOverInput("u", "ctrl");
-		event.useOverInput("Enter");
 	}
 
 	private onPaste (event: ClipboardEvent) {

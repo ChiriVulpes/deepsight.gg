@@ -397,10 +397,10 @@ export class AttributeManager<HOST extends Component<HTMLElement>> {
 		return host as HOST;
 	}
 
-	public toggle (present: boolean, name: string) {
+	public toggle (present: boolean, name: string, value = "") {
 		const host = this.host.deref();
 		if (present)
-			host?.element.setAttribute(name, "");
+			host?.element.setAttribute(name, value);
 		else
 			host?.element.removeAttribute(name);
 		return host as HOST;

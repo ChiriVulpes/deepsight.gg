@@ -14,7 +14,7 @@ import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
-import ItemComponent from "ui/inventory/Item";
+import ItemComponent, { ItemClasses } from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import LoadingManager from "ui/LoadingManager";
@@ -160,6 +160,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.filter = this.filter.bind(this);
 		ItemFilter.create([this.super.definition.filter])
 			.event.subscribe("filter", this.filter)
+			.event.subscribe("submit", () =>
+				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
 			.tweak(itemFilter => itemFilter.button
 				.classes.remove(ButtonClasses.Main)
 				.classes.add(View.Classes.FooterButton)
@@ -305,7 +307,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 	private filter () {
 		for (const [item, component] of this.itemMap) {
-			component.classes.toggle(!this.super.definition.filter.apply(item), InventorySlotViewClasses.ItemFilteredOut);
+			const filteredOut = !this.super.definition.filter.apply(item);
+			component.classes.toggle(filteredOut, InventorySlotViewClasses.ItemFilteredOut)
+				.attributes.toggle(filteredOut, "tabindex", "-1");
 		}
 	}
 
