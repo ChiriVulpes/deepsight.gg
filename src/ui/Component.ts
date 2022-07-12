@@ -35,6 +35,13 @@ export type ComponentEventManager<HOST extends AnyComponent, EVENTS> =
 export type ComponentEvents<CLASS extends { prototype: AnyComponent } = typeof Component> =
 	CLASS["prototype"]["event"] extends EventManager<any, infer SUPER_EVENTS, any> ? SUPER_EVENTS : never;
 
+const SVG_ELEMENTS = new Set([
+	"svg",
+	"path",
+	"circle",
+	"line",
+]);
+
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
 
 	public static readonly event = EventManager.make<IComponentsEvents>();
@@ -54,7 +61,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			type = undefined;
 		}
 
-		const component = new Component(document.createElement(type ?? this.defaultType));
+		type ??= this.defaultType as keyof HTMLElementTagNameMap;
+		const element = SVG_ELEMENTS.has(type) ? document.createElementNS("http://www.w3.org/2000/svg", type)
+			: document.createElement(type);
+
+		const component = new Component(element);
 
 		if (this !== Component)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument

@@ -4,6 +4,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type { StatOrder } from "ui/inventory/Stat";
 import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, IStatDistribution, Stat } from "ui/inventory/Stat";
+import RecoilDirection from "ui/inventory/tooltip/stats/RecoilDirection";
 import type { GetterOfOr } from "utility/Type";
 
 enum CustomStat {
@@ -22,8 +23,9 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
-	calculate?(item: Item): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
-	renderFormula?(item: Item): Component[];
+	calculate?(item: Item, stat: ICustomStatDisplayDefinition): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
+	renderFormula?(item: Item, stat: ICustomStatDisplayDefinition): Component[];
+	renderBar?(bar: Component, item: Item, value: number): any;
 }
 
 export enum ItemTooltipStatClasses {
@@ -103,6 +105,10 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.AirborneEffectiveness]: { name: "Airborne Aim" },
 	[Stat.RPM]: { name: "RPM" },
 	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow ? false : { bar: true },
+	[Stat.RecoilDirection]: {
+		renderBar: (bar, item, stat) => bar.removeContents()
+			.append(RecoilDirection(stat)),
+	},
 	// armour
 	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
 	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
@@ -130,13 +136,19 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 	protected override onMake (stat: ICustomStatDisplayDefinition) {
 		this.stat = stat;
 
+		const statName = Stat[this.stat.hash]
+			?? CustomStat[this.stat.hash]
+			?? this.stat.name
+			?? this.stat.definition?.displayProperties.name.replace(/\s+/g, "")
+			?? `${this.stat.hash}`;
+
 		this.label = Component.create()
 			.classes.add(ItemTooltipStatClasses.Label)
 			.appendTo(this);
 
 		if (this.stat?.bar)
 			this.bar = Component.create()
-				.classes.add(ItemTooltipStatClasses.Bar)
+				.classes.add(ItemTooltipStatClasses.Bar, `${ItemTooltipStatClasses.Bar}-${(statName).toLowerCase()}`)
 				.append(this.intrinsicBar = Component.create()
 					.classes.add(ItemTooltipStatClasses.BarBlock, ItemTooltipStatClasses.Intrinsic))
 				.append(this.masterworkBar = Component.create()
@@ -159,12 +171,6 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Formula))
 			.appendTo(this);
 
-		const statName = Stat[this.stat.hash]
-			?? CustomStat[this.stat.hash]
-			?? this.stat.name
-			?? this.stat.definition?.displayProperties.name.replace(/\s+/g, "")
-			?? `${this.stat.hash}`;
-
 		this.classes.add(ItemTooltipStatClasses.Main, `${ItemTooltipStatClasses.Main}-${(statName).toLowerCase()}`);
 
 		this.label.text.set(this.stat?.name ?? this.stat.definition?.displayProperties.name ?? "Unknown Stat");
@@ -178,7 +184,7 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 		this.stat = display;
 
 		if (display?.calculate) {
-			const calculatedDisplay = display.calculate(item);
+			const calculatedDisplay = display.calculate(item, display);
 			if (!calculatedDisplay) {
 				this.classes.add(Classes.Hidden);
 				return false;
@@ -193,9 +199,12 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 			const render = this.render(display, display.value, true);
 			this.combinedText.text.set(display.combinedText ?? render?.text);
 			this.intrinsicText.text.set(render?.text);
-			if (display.bar && display.max)
-				this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
+			if (display.bar && display.max) {
+				const value = (render?.value ?? 0) / display.max;
+				this.intrinsicBar!.style.set("--value", `${value}`)
 					.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
+				this.bar!.style.set("--value", `${value}`);
+			}
 			return true;
 		}
 
@@ -204,11 +213,19 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
 			if (combinedValue < (display.min ?? -Infinity))
 				combinedValue = display.min!;
+
+			if (combinedValue > (display.max ?? Infinity))
+				combinedValue = display.max!;
 		}
 
 		let render = this.render(display, combinedValue, true);
 		this.combinedText.style.set("--value", `${render?.value ?? 0}`)
 			.text.set(display.combinedText ?? render?.text);
+
+		if (display.bar && display.max) {
+			this.bar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
+				.tweak(display.renderBar, item, render?.value ?? 0);
+		}
 
 		render = this.render(display, display.intrinsic, true);
 		this.intrinsicText.text.set(render?.text);
@@ -231,7 +248,7 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 
 		this.formulaText.classes.toggle(!display.renderFormula, Classes.Hidden)
 			.removeContents()
-			.append(...display.renderFormula?.(item) ?? []);
+			.append(...display.renderFormula?.(item, display) ?? []);
 
 		return true;
 	}
