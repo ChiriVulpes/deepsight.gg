@@ -74,7 +74,7 @@
 	&-primary-stat {
 		font-size: 32pt;
 		font-weight: 700;
-		line-height: 24px;
+		line-height: 28px;
 		letter-spacing: -.02em;
 		display: inline-flex;
 		margin: 4px 0;
@@ -249,7 +249,7 @@
 			display: grid;
 			grid-template-columns: auto 1fr repeat(3, auto);
 			column-gap: .5em;
-			row-gap: 3px;
+			row-gap: 2px;
 			align-items: center;
 			
 			&-other-stats {
