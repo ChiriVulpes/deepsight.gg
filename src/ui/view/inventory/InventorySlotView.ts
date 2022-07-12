@@ -18,6 +18,8 @@ import ItemComponent, { ItemClasses } from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import LoadingManager from "ui/LoadingManager";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
@@ -112,6 +114,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public unequippingItemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
+	public filterer!: ItemFilter;
 
 	protected override async onMake (model: Required<SlotViewModel>) {
 		this.model = model;
@@ -158,7 +161,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		await FilterManager.init();
 		this.filter = this.filter.bind(this);
-		ItemFilter.create([this.super.definition.filter])
+		this.filterer = ItemFilter.create([this.super.definition.filter])
 			.event.subscribe("filter", this.filter)
 			.event.subscribe("submit", () =>
 				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
@@ -175,6 +178,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.hints = Component.create()
 			.classes.add(InventorySlotViewClasses.Hints)
 			.appendTo(this.super.footer);
+
+		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
+		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
 	private async update () {
@@ -513,6 +519,17 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		await this.transferring;
 		delete this.transferring;
+	}
+
+	private onGlobalKeydown (event: IKeyEvent) {
+		if (!document.contains(this.element)) {
+			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
+			return;
+		}
+
+		if (this.filterer.isFiltered() && event.use("Escape")) {
+			this.filterer.reset();
+		}
 	}
 }
 

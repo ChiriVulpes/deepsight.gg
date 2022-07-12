@@ -121,9 +121,10 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.event.subscribe("focus", this.openDrawer)
 			.appendTo(this.button);
 
+		this.reset = this.reset.bind(this);
 		this.resetButton = Button.create()
 			.classes.add(ItemFilterClasses.Reset, Classes.Hidden)
-			.event.subscribe("click", () => { this.input.removeContents(); this.cleanup(); })
+			.event.subscribe("click", () => this.reset(true))
 			.append(Component.create())
 			.appendTo(this.button);
 
@@ -165,6 +166,15 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 		this.cleanup();
+	}
+
+	public isFiltered () {
+		return this.input.hasContents();
+	}
+
+	public reset (focus = false) {
+		this.input.removeContents();
+		this.cleanup(focus);
 	}
 
 	private async openDrawer () {
@@ -267,7 +277,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.cleanup();
 	}
 
-	private cleanup () {
+	private cleanup (focus = true) {
 		const ranges = this.getRanges();
 		const tokens = this.getTokens();
 
@@ -361,16 +371,18 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				}
 			}
 
-		if (!tokens.length)
-			selection.collapse(this.input.element);
+		if (focus) {
+			if (!tokens.length)
+				selection.collapse(this.input.element);
 
-		else
-			for (const range of rangeElements) {
-				if (range.startContainer === document || range.endContainer === document)
-					continue;
+			else
+				for (const range of rangeElements) {
+					if (range.startContainer === document || range.endContainer === document)
+						continue;
 
-				selection.addRange(range);
-			}
+					selection.addRange(range);
+				}
+		}
 
 		this.resetButton.classes.toggle(!tokens.length, Classes.Hidden);
 
