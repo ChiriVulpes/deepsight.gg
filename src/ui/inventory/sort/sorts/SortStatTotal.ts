@@ -13,6 +13,6 @@ export default ISort.create({
 });
 
 function getStatTotal (item: Item) {
-	return ARMOUR_STAT_GROUPS.flat().map(stat => item.stats?.[stat]?.intrinsic ?? 0)
+	return ARMOUR_STAT_GROUPS.flat().map(stat => item.stats?.values[stat]?.intrinsic ?? 0)
 		.reduce((a, b) => a + b, 0);
 }

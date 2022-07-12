@@ -1,10 +1,13 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemPlugBase, DestinyItemSocketState, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyComponentType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemPlugBase, DestinyItemSocketState, DestinyItemStatBlockDefinition, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyComponentType, DestinyItemSubType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
+import type { StatOrder } from "ui/inventory/Stat";
+import { Stat, STAT_DISPLAY_ORDER } from "ui/inventory/Stat";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
+import Maths from "utility/maths/Maths";
 import Time from "utility/Time";
 
 /**
@@ -22,10 +25,10 @@ export interface IItem {
 	objectives: DestinyObjectiveProgress[];
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
-	stats?: Partial<Record<number, IStat>>;
+	stats?: IStats;
 	sockets?: (ISocket | undefined)[];
 	plugs?: IReusablePlug[][];
-	temp: any;
+	temp?: any;
 }
 
 export interface IWeaponShaped {
@@ -60,10 +63,21 @@ export interface IReusablePlug {
 }
 
 export interface IStat {
+	hash: number;
+	definition: DestinyStatDefinition;
+	order: StatOrder;
+	max?: number;
+	bar: boolean;
 	value: number;
-	intrinsic?: number;
-	masterwork?: number;
-	mod?: number;
+	intrinsic: number;
+	masterwork: number;
+	mod: number;
+}
+
+export interface IStats {
+	values: Record<number, IStat>;
+	block: DestinyItemStatBlockDefinition;
+	definition: DestinyStatGroupDefinition;
 }
 
 export interface IItemEvents {
@@ -115,6 +129,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		DestinyCollectibleDefinition,
 		DestinyObjectiveDefinition,
 		DestinyStatDefinition,
+		DestinyStatGroupDefinition,
 	} = await Manifest.await();
 
 	const ProfileQuery = Profile(
@@ -213,9 +228,22 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			}))] as const) ?? []))) as IReusablePlug[][];
 	}
 
-	async function resolveStats (stats: Record<number, DestinyStat> | undefined, sockets: (ISocket | undefined)[]) {
+	async function resolveStats (definition: DestinyInventoryItemDefinition, stats: Record<number, DestinyStat> | undefined, sockets: (ISocket | undefined)[]): Promise<IStats | undefined> {
+		if (!definition.stats)
+			return undefined;
+
+		const statGroupDefinition = await DestinyStatGroupDefinition.get(definition.stats?.statGroupHash);
+		if (!statGroupDefinition)
+			return undefined;
+
 		const intrinsicStats = sockets.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics")
-			.flatMap(plug => plug?.definition.investmentStats);
+			.flatMap(plug => plug?.definition.investmentStats)
+			.concat(definition.investmentStats);
+
+		if (stats)
+			for (const intrinsic of intrinsicStats)
+				if (intrinsic && !intrinsic.isConditionallyActive)
+					stats[intrinsic.statTypeHash] ??= { statHash: intrinsic.statTypeHash, value: intrinsic.value };
 
 		const masterworkStats = sockets.find(socket => socket?.definition.plug?.uiPlugLabel === "masterwork")
 			?.definition.investmentStats ?? [];
@@ -225,29 +253,66 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 		const result: Record<number, IStat> = {};
 
-		for (const [hash, { value }] of Object.entries(stats ?? {})) {
-			const definition = await DestinyStatDefinition.get(hash);
-			if (!definition) {
+		for (const [hashString, { value }] of Object.entries(stats ?? {})) {
+			const hash = +hashString;
+			const statDefinition = await DestinyStatDefinition.get(hash);
+			if (!statDefinition) {
 				console.warn("Unknown stat", hash, "value", value);
 				continue;
 			}
 
-			const stat: IStat = result[+hash] = { value };
+			const displayIndex = statGroupDefinition.scaledStats.findIndex(stat => stat.statHash === hash);
+			const display = statGroupDefinition.scaledStats[displayIndex] as DestinyStatDisplayDefinition | undefined;
+
+			const stat: IStat = result[hash] = {
+				hash,
+				value,
+				definition: statDefinition,
+				max: hash === Stat.ChargeTime && definition.itemSubType === DestinyItemSubType.FusionRifle ? 1000 : display?.maximumValue ?? 100,
+				bar: !(display?.displayAsNumeric ?? false),
+				order: STAT_DISPLAY_ORDER[hash as Stat] ?? (displayIndex === -1 ? 10000 : displayIndex),
+				intrinsic: 0,
+				mod: 0,
+				masterwork: 0,
+			};
+
+			const statDisplay = statGroupDefinition.scaledStats.find(statDisplay => statDisplay.statHash === hash);
+			function interpolate (value: number) {
+				if (!statDisplay?.displayInterpolation.length)
+					return value;
+
+				const start = statDisplay.displayInterpolation.findLast(stat => stat.value <= value) ?? statDisplay.displayInterpolation[0];
+				const end = statDisplay.displayInterpolation.find(stat => stat.value > value) ?? statDisplay.displayInterpolation[statDisplay.displayInterpolation.length - 1];
+				if (start === end)
+					return start.weight;
+
+				const t = (value - start.value) / (end.value - start.value);
+				return Maths.bankersRound(start.weight + t * (end.weight - start.weight));
+			}
 
 			for (const intrinsic of intrinsicStats)
-				if (+hash === intrinsic?.statTypeHash)
-					stat.intrinsic = (stat.intrinsic ?? 0) + intrinsic.value;
+				if (hash === intrinsic?.statTypeHash && !intrinsic.isConditionallyActive)
+					stat.intrinsic += intrinsic.value;
 
 			for (const masterwork of masterworkStats)
-				if (+hash === masterwork.statTypeHash)
-					stat.masterwork = (stat.masterwork ?? 0) + masterwork.value;
+				if (hash === masterwork.statTypeHash && !masterwork.isConditionallyActive)
+					stat.masterwork += masterwork.value;
 
 			for (const mod of modStats)
-				if (+hash === mod?.statTypeHash)
-					stat.mod = (stat.mod ?? 0) + mod.value;
+				if (hash === mod?.statTypeHash && !mod.isConditionallyActive)
+					stat.mod += mod.value;
+
+			const { intrinsic, masterwork, mod } = stat;
+			stat.intrinsic = interpolate(intrinsic);
+			stat.mod = interpolate(intrinsic + mod) - stat.intrinsic;
+			stat.masterwork = interpolate(intrinsic + masterwork) - stat.intrinsic;
 		}
 
-		return result;
+		return {
+			values: result,
+			definition: statGroupDefinition,
+			block: definition.stats,
+		};
 	}
 
 	async function resolveItemComponent (reference: DestinyItemComponent) {
@@ -274,7 +339,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		const sockets = await resolveSockets(profile.itemComponents.sockets.data?.[reference.itemInstanceId!]?.sockets);
 		const plugs = await resolveReusablePlugs(sockets, profile.itemComponents.reusablePlugs.data?.[reference.itemInstanceId!]?.plugs);
 
-		const stats = await resolveStats(profile.itemComponents.stats.data?.[reference.itemInstanceId!]?.stats, sockets);
+		const stats = await resolveStats(definition, profile.itemComponents.stats.data?.[reference.itemInstanceId!]?.stats, sockets);
 
 		const item = new Item({
 			definition: definition,
@@ -284,7 +349,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			sockets,
 			stats,
 			plugs,
-			temp: profile.itemComponents.plugStates.data,
+			// temp: profile.itemComponents.plugStates.data,
 		});
 
 		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${definition.iconWatermark}`);

@@ -251,6 +251,10 @@
 			column-gap: .5em;
 			row-gap: 3px;
 			align-items: center;
+			
+			&-other-stats {
+				display: contents;
+			}
 		}
 		
 		display: contents;

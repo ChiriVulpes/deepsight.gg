@@ -1,31 +1,29 @@
-import type { DestinyStatDefinition } from "bungie-api-ts/destiny2";
+import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type { IStat, Item } from "model/models/Items";
-import Manifest from "model/models/Manifest";
 import { Classes } from "ui/Classes";
-import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";
+import type { StatOrder } from "ui/inventory/Stat";
 import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, IStatDistribution, Stat } from "ui/inventory/Stat";
+import type { GetterOfOr } from "utility/Type";
 
 enum CustomStat {
 	Total = -1,
 	Distribution = -2,
 }
 
-interface IDisplayStat extends Omit<IStat, "definition"> {
+interface ICustomStatDisplayDefinition extends Partial<IStat> {
+	hash: number;
+	order: StatOrder;
+	name?: string;
+	min?: number;
+	max?: number;
+	bar?: boolean;
+	plus?: true;
+	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
-	renderFormula?(): AnyComponent[];
-}
-
-interface IStatDisplayCalculator {
-	(item: Item, stat?: IStat): IDisplayStat | undefined;
-}
-
-interface IStatDisplayDefinition {
-	name?: string;
-	bar?: { max: number };
-	calculate?: IStatDisplayCalculator;
-	plus?: true;
+	calculate?(item: Item): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
+	renderFormula?(item: Item): Component[];
 }
 
 export enum ItemTooltipStatClasses {
@@ -46,22 +44,18 @@ export enum ItemTooltipStatClasses {
 	Distribution = "item-tooltip-stat-distribution-component",
 }
 
-const statDisplays: Record<Stat | CustomStat, IStatDisplayDefinition> = {
-	[Stat.Mobility]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
-	[Stat.Resilience]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
-	[Stat.Recovery]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
-	[Stat.Discipline]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
-	[Stat.Intellect]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
-	[Stat.Strength]: { plus: true, bar: { max: ARMOUR_STAT_MAX } },
+const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 	[CustomStat.Total]: {
+		hash: CustomStat.Total,
+		order: 1000,
 		name: "Total",
 		calculate: item => {
 			const armourStats = ARMOUR_STAT_GROUPS.flat();
-			const totalIntrinsic = armourStats.map(stat => item.stats?.[stat]?.intrinsic ?? 0)
+			const totalIntrinsic = armourStats.map(stat => item.stats?.values[stat]?.intrinsic ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMasterwork = armourStats.map(stat => item.stats?.[stat]?.masterwork ?? 0)
+			const totalMasterwork = armourStats.map(stat => item.stats?.values[stat]?.masterwork ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMod = armourStats.map(stat => item.stats?.[stat]?.mod ?? 0)
+			const totalMod = armourStats.map(stat => item.stats?.values[stat]?.mod ?? 0)
 				.reduce((a, b) => a + b, 0);
 			if (totalIntrinsic + totalMasterwork + totalMod === 0)
 				return undefined; // this item doesn't have armour stats
@@ -75,6 +69,8 @@ const statDisplays: Record<Stat | CustomStat, IStatDisplayDefinition> = {
 		},
 	},
 	[CustomStat.Distribution]: {
+		hash: CustomStat.Distribution,
+		order: 1001,
 		name: "Distribution",
 		calculate: item => {
 			const distribution = IStatDistribution.get(item);
@@ -94,11 +90,33 @@ const statDisplays: Record<Stat | CustomStat, IStatDisplayDefinition> = {
 	},
 };
 
-class ItemTooltipStat extends Component<HTMLElement, [Stat | CustomStat]> {
+type StatDisplayDef = GetterOfOr<Partial<ICustomStatDisplayDefinition> | false, [Item, ICustomStatDisplayDefinition]>;
+const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<Stat, StatDisplayDef>> = {
+	// undrendered
+	[Stat.Attack]: false,
+	[Stat.Defense]: false,
+	[Stat.Power]: false,
+	[Stat.InventorySize]: false,
+	[Stat.Mystery1]: false,
+	[Stat.Mystery2]: false,
+	// // weapons
+	[Stat.AirborneEffectiveness]: { name: "Airborne Aim" },
+	[Stat.RPM]: { name: "RPM" },
+	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow ? false : { bar: true },
+	// armour
+	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	...customStats,
+};
 
-	public stat!: Stat | CustomStat;
-	public display!: IStatDisplayDefinition;
-	public definition?: DestinyStatDefinition;
+class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
+
+	public stat!: ICustomStatDisplayDefinition;
+	public label!: Component;
 	public bar?: Component;
 	public intrinsicBar?: Component;
 	public masterworkBar?: Component;
@@ -109,24 +127,14 @@ class ItemTooltipStat extends Component<HTMLElement, [Stat | CustomStat]> {
 	public modText!: Component;
 	public formulaText!: Component;
 
-	protected override async onMake (stat: Stat | CustomStat) {
+	protected override onMake (stat: ICustomStatDisplayDefinition) {
 		this.stat = stat;
-		this.classes.add(ItemTooltipStatClasses.Main, `${ItemTooltipStatClasses.Main}-${(Stat[stat] ?? CustomStat[stat]).toLowerCase()}`);
 
-		this.display = statDisplays[stat];
-		const { DestinyStatDefinition } = await Manifest.await();
-
-		this.definition = await DestinyStatDefinition.get(stat);
-		const label = Component.create()
+		this.label = Component.create()
 			.classes.add(ItemTooltipStatClasses.Label)
-			.text.set(this.display.name ?? this.definition?.displayProperties.name ?? "Unknown Stat")
 			.appendTo(this);
 
-		const icon = this.definition?.displayProperties.icon;
-		if (icon)
-			label.style.set("--icon", `url("${icon}")`);
-
-		if (this.display.bar)
+		if (this.stat?.bar)
 			this.bar = Component.create()
 				.classes.add(ItemTooltipStatClasses.Bar)
 				.append(this.intrinsicBar = Component.create()
@@ -150,93 +158,158 @@ class ItemTooltipStat extends Component<HTMLElement, [Stat | CustomStat]> {
 			.append(this.formulaText = Component.create()
 				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Formula))
 			.appendTo(this);
+
+		const statName = Stat[this.stat.hash]
+			?? CustomStat[this.stat.hash]
+			?? this.stat.name
+			?? this.stat.definition?.displayProperties.name.replace(/\s+/g, "")
+			?? `${this.stat.hash}`;
+
+		this.classes.add(ItemTooltipStatClasses.Main, `${ItemTooltipStatClasses.Main}-${(statName).toLowerCase()}`);
+
+		this.label.text.set(this.stat?.name ?? this.stat.definition?.displayProperties.name ?? "Unknown Stat");
+
+		const icon = this.stat.definition?.displayProperties.icon;
+		if (icon)
+			this.label.style.set("--icon", `url("${icon}")`);
 	}
 
-	public setItem (item: Item) {
-		const stat = item.stats?.[this.stat];
-		if (this.display.calculate)
-			return this.setDisplay(this.display.calculate(item, stat));
+	public set (display: ICustomStatDisplayDefinition, item: Item) {
+		this.stat = display;
 
-		return this.setDisplay(stat);
-	}
+		if (display?.calculate) {
+			const calculatedDisplay = display.calculate(item);
+			if (!calculatedDisplay) {
+				this.classes.add(Classes.Hidden);
+				return false;
+			}
 
-	private setDisplay (display?: IDisplayStat) {
-		if (!display) {
-			this.classes.add(Classes.Hidden);
-			return false;
+			display = { ...display, ...calculatedDisplay };
 		}
 
 		this.classes.remove(Classes.Hidden);
 
 		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
-			const render = this.render(display.value, true);
+			const render = this.render(display, display.value, true);
 			this.combinedText.text.set(display.combinedText ?? render?.text);
 			this.intrinsicText.text.set(render?.text);
-			if (this.display.bar)
-				this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`)
+			if (display.bar && display.max)
+				this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 					.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
 			return true;
 		}
 
-		let render = this.render(display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0), true);
+		let combinedValue = undefined;
+		if (combinedValue === undefined) {
+			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
+			if (combinedValue < (display.min ?? -Infinity))
+				combinedValue = display.min!;
+		}
+
+		let render = this.render(display, combinedValue, true);
 		this.combinedText.style.set("--value", `${render?.value ?? 0}`)
 			.text.set(display.combinedText ?? render?.text);
 
-		render = this.render(display.intrinsic, true);
+		render = this.render(display, display.intrinsic, true);
 		this.intrinsicText.text.set(render?.text);
-		if (this.display.bar)
-			this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`);
+		if (display.bar && display.max)
+			this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`);
 
-		render = this.render(display.masterwork, !render);
-		this.masterworkText.text.set(render?.text);
-		if (this.display.bar)
-			this.masterworkBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`);
+		render = this.render(display, display.masterwork, !render);
+		this.masterworkText.text.set(render?.text)
+			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
+		if (display.bar && display.max)
+			this.masterworkBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`);
 
-		render = this.render(display.mod, !render);
+		render = this.render(display, display.mod, !render);
 		this.modText.text.set(render?.text)
-			.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.ValueComponentNegative);
-		if (this.display.bar)
-			this.modBar!.style.set("--value", `${(render?.value ?? 0) / this.display.bar.max}`)
+			.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.ValueComponentNegative)
+			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
+		if (display.bar && display.max)
+			this.modBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 				.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
 
 		this.formulaText.classes.toggle(!display.renderFormula, Classes.Hidden)
 			.removeContents()
-			.append(...display.renderFormula?.() ?? []);
+			.append(...display.renderFormula?.(item) ?? []);
 
 		return true;
 	}
 
-	private render (value: number | undefined, first: boolean): { text: string; value: number } | undefined {
+	private render (display: ICustomStatDisplayDefinition, value: number | undefined, first: boolean): { text: string; value: number } | undefined {
 		if (value === undefined)
 			return undefined;
 
 		return {
 			value,
-			text: (!first || this.display.plus) && value >= 0 ? `+${value}` : `${value}`,
+			text: (!first || display.plus) && value >= 0 ? `+${value}` : `${value}`,
 		};
 	}
 }
 
 namespace ItemTooltipStat {
 	export class Wrapper extends Component {
-		public map!: Record<Stat | CustomStat, ItemTooltipStat>;
+		public map!: Record<number, ItemTooltipStat>;
 
 		protected override onMake (): void {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			this.map = {} as any;
+			this.map = {};
 
 			this.classes.add(ItemTooltipStatClasses.Wrapper)
-				.append(...ARMOUR_STAT_GROUPS.flat().map(stat => this.map[stat] = ItemTooltipStat.create([stat])))
-				.append(this.map[CustomStat.Total] = ItemTooltipStat.create([CustomStat.Total]))
-				.append(this.map[CustomStat.Distribution] = ItemTooltipStat.create([CustomStat.Distribution]));
 		}
 
 		public setItem (item: Item) {
-			const hasVisibleStats = Object.values(this.map)
-				.map(component => component.setItem(item))
-				.some(statVisible => statVisible);
+			let hasAnyVisible = false;
+			const stats = (Object.values(item.stats?.values ?? {}) as ICustomStatDisplayDefinition[])
+				.concat(Object.values(customStats));
 
-			this.classes.toggle(!hasVisibleStats, Classes.Hidden);
+			while (true) {
+				let sorted = false;
+				NextStat: for (const stat of stats) {
+					if (typeof stat.order !== "number") {
+						const searchHash = stat.order.after ?? stat.order.before;
+						for (const pivotStat of stats) {
+							if (pivotStat.hash === searchHash) {
+								if (typeof pivotStat.order !== "number")
+									// can't pivot on this stat yet, it doesn't have its own order fixed
+									continue NextStat;
+
+								stat.order = pivotStat.order + 0.01;
+								sorted = true;
+							}
+						}
+					}
+				}
+
+				if (!sorted)
+					break;
+			}
+
+			stats.sort((a, b) => (a.order as number) - (b.order as number));
+
+			const statDisplays: Record<number, ICustomStatDisplayDefinition | undefined> = {};
+			for (const stat of stats) {
+				let custom = customStatDisplays[stat.hash as Stat];
+				if (typeof custom === "function")
+					custom = custom(item, stat);
+
+				if (custom === false)
+					continue;
+
+				const display = {
+					...stat,
+					...custom,
+				};
+				const component = (this.map[stat.hash] ??= ItemTooltipStat.create([display])).appendTo(this);
+				const isVisible = component.set(display, item);
+				hasAnyVisible ||= isVisible;
+				if (isVisible)
+					statDisplays[stat.hash] = display;
+			}
+
+			for (const stat of Object.keys(this.map))
+				this.map[+stat].classes.toggle(!statDisplays[+stat], Classes.Hidden);
+
+			this.classes.toggle(!hasAnyVisible, Classes.Hidden);
 		}
 	}
 }
