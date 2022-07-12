@@ -3,7 +3,7 @@
 	
 	&-content {
 		display: grid;
-		grid-template-columns: auto 1fr;
+		grid-template-columns: auto 1fr auto;
 		gap: var(--card-gap-x);
 		
 		@media (min-width: 1000px) {
@@ -274,6 +274,45 @@
 			border: none;
 			box-shadow: none;
 			background: color(background-1, .8);
+		}
+	}
+	
+	&-postmaster-bucket {
+		&-empty-slot {
+			opacity: .2;
+			position: relative;
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: 8px;
+				box-shadow: inset 0 0 0 1px currentColor;
+			}
+		}
+		
+		.bucket-inventory {
+			margin: 0 auto;
+			max-width: calc(var(--slot-size) * 3);
+		}
+		
+		&-warning {
+			.bucket-header {
+				&::before, &::after {
+					background: #361010;
+					animation: postmaster-background-intensity .7s linear infinite reverse;
+					@keyframes postmaster-background-intensity {
+						to { background: #501515 }
+					}
+				}
+			}
+			
+			.bucket-title {
+				box-shadow: inset 0 0 0 1px #8f3333;
+				animation: postmaster-box-shadow-intensity .7s linear infinite reverse;
+				@keyframes postmaster-box-shadow-intensity {
+					to { box-shadow: inset 0 0 0 1px #d13f3f }
+				}
+			}
 		}
 	}
 	

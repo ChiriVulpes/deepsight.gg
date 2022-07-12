@@ -56,6 +56,8 @@
 		font-weight: 500;
 		user-select: none;
 		margin-right: -.5em;
+		box-sizing: border-box;
+		width: 100%;
 		
 		:root.environment-dev &::after {
 			content: "";

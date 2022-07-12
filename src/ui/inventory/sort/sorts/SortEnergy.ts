@@ -8,9 +8,9 @@ export default ISort.create({
 	sort: (a, b) => (b.instance?.energy?.energyCapacity ?? 0) - (a.instance?.energy?.energyCapacity ?? 0),
 	render: async item => {
 		const { DestinyEnergyTypeDefinition } = await Manifest.await();
-		const energyType = await DestinyEnergyTypeDefinition.get(item.instance?.energy.energyTypeHash);
+		const energyType = await DestinyEnergyTypeDefinition.get(item.instance?.energy?.energyTypeHash);
 		const result = Component.create()
-			.text.set(`${item.instance?.energy.energyCapacity ?? 0}`);
+			.text.set(`${item.instance?.energy?.energyCapacity ?? 0}`);
 
 		if (energyType !== undefined)
 			result
