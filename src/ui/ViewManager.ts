@@ -83,6 +83,8 @@ export default class ViewManager {
 		this.history.push(view.definition.id);
 		URL.hash = view.definition.id;
 		this.view = view;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		(window as any).view = view;
 		view.appendTo(document.body);
 		this.event.emit("show", { view });
 		document.title = `${view.definition.name} | ${APP_NAME}`;

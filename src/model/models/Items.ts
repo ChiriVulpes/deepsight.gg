@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemPlugBase, DestinyItemSocketState, DestinyItemStatBlockDefinition, DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyRecordDefinition, DestinyStat, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyComponentType, DestinyItemSubType, DestinyObjectiveUiStyle, ItemLocation, ItemState } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyComponentType, DestinyItemSubType, DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
@@ -390,9 +390,19 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	const buckets = {} as Record<BucketId, Bucket>;
 	buckets.postmaster = await createBucket("postmaster", profileItems
-		.filter(item => item.location === ItemLocation.Postmaster));
+		.filter(item => item.bucketHash === BucketHashes.LostItems));
 
 	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {})) {
+		for (const itemComponent of character.items) {
+			if (itemComponent.bucketHash === BucketHashes.LostItems) {
+				const item = await resolveItemComponent(itemComponent);
+				if (!item)
+					continue;
+
+				buckets.postmaster.items.push(item);
+			}
+		}
+
 		const bucketId = characterId as BucketId;
 		const bucket = buckets[bucketId] = await createBucket(bucketId, character.items);
 
