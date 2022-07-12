@@ -361,7 +361,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			})
 			.event.subscribe("moveStart", event => {
 				if (bucketId === "postmaster")
-					return;
+					return event.preventDefault();
 
 				if (item.equipped)
 					return event.preventDefault();

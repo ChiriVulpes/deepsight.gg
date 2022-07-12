@@ -72,9 +72,11 @@ export default class Draggable {
 
 		if (this.dragStage === DragStage.Starting && !IVector2.distanceWithin(IVector2.ZERO(), offset, this.stickyDistance)) {
 			const event = EventManager.emit(this.host, "moveStart", { offset: this.mouseStartPosition });
-			if (event.defaultPrevented)
+			if (event.defaultPrevented) {
 				// cancelled
+				this.dragEnd(event);
 				return undefined;
+			}
 
 			this.dragStage = DragStage.Dragging;
 		}

@@ -12,7 +12,7 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 			event = init;
 
 		if (typeof event === "string")
-			event = new Event(event);
+			event = new Event(event, { cancelable: true });
 
 		if (typeof init === "function")
 			init?.(event);
