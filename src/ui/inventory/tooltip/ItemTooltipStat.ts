@@ -102,13 +102,18 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Mystery1]: false,
 	[Stat.Mystery2]: false,
 	// // weapons
-	[Stat.AirborneEffectiveness]: { name: "Airborne Aim" },
+	[Stat.AirborneEffectiveness]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : { name: "Airborne Aim" },
 	[Stat.RPM]: { name: "RPM" },
-	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow ? false : { bar: true },
+	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow || item.definition.itemSubType === DestinyItemSubType.Sword ? false
+		: { bar: true },
 	[Stat.RecoilDirection]: {
 		renderBar: (bar, item, stat) => bar.removeContents()
 			.append(RecoilDirection(stat)),
 	},
+	[Stat.Magazine]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
+	[Stat.Zoom]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
+	[Stat.Stability]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
+	[Stat.Range]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
 	// armour
 	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
 	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },

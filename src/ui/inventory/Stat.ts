@@ -12,7 +12,9 @@ export enum Stat {
 
 	// weapons
 	Stability = 155624089,
+	Range = 1240592695,
 	Magazine = 3871231066,
+	AmmoCapacity = 925767036,
 	RPM = 4284893193,
 	AirborneEffectiveness = 2714457168,
 	AimAssistance = 1345609583,
@@ -38,6 +40,7 @@ export const STAT_DISPLAY_ORDER: Partial<Record<Stat, StatOrder>> = {
 	[Stat.RecoilDirection]: { after: Stat.AimAssistance },
 	[Stat.Zoom]: 1000,
 	[Stat.Magazine]: 1001,
+	[Stat.AmmoCapacity]: 1002,
 };
 
 export const ARMOUR_STAT_GROUPS: [Stat, Stat, Stat][] = [
