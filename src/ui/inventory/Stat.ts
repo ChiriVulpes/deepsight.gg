@@ -1,4 +1,4 @@
-import type { Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import Store from "utility/Store";
 
 export enum Stat {

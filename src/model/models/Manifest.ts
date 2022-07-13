@@ -32,7 +32,7 @@ declare module "model/ModelCacheDatabase" {
 	interface IModelCache extends IModelCacheManifestComponents { }
 }
 
-class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
+export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	private memoryCache: Record<string, Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME> | undefined> | undefined> = {};
 

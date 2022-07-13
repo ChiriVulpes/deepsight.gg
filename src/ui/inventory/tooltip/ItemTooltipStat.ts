@@ -1,5 +1,6 @@
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
-import type { IStat, Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
+import type { IStat } from "model/models/items/Stats";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type { StatOrder } from "ui/inventory/Stat";

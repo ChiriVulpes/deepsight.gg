@@ -1,4 +1,4 @@
-import type { Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";

@@ -1,4 +1,4 @@
-import type { Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import { DestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";

@@ -1,4 +1,4 @@
-import type { Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({

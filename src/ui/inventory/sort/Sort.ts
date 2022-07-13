@@ -1,4 +1,4 @@
-import type { Item } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import type Component from "ui/Component";
 import type { AnyComponent } from "ui/Component";
 import type { SortableSort } from "ui/inventory/sort/ItemSort";

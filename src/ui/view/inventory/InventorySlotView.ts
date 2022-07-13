@@ -2,8 +2,9 @@ import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCatego
 import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
-import type { Bucket, BucketId, Item } from "model/models/Items";
+import type { Bucket, BucketId } from "model/models/Items";
 import Items from "model/models/Items";
+import type Item from "model/models/items/Item";
 import Profile from "model/models/Profile";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";

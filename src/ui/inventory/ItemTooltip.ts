@@ -1,6 +1,6 @@
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
-import type { Item } from "model/models/Items";
 import { ITEM_WEAPON_MOD } from "model/models/Items";
+import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
