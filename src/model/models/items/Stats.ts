@@ -1,6 +1,7 @@
-import type { DestinyItemComponentSetOfint64, DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
-import type Item from "model/models/items/Item";
+import type { IItemInit } from "model/models/items/Item";
+import type Plugs from "model/models/items/Plugs";
 import type { Manifest } from "model/models/Manifest";
 import type { StatOrder } from "ui/inventory/Stat";
 import { Stat, STAT_DISPLAY_ORDER } from "ui/inventory/Stat";
@@ -26,11 +27,14 @@ export interface IStats {
 
 namespace Stats {
 
-	export interface IStatsProfile {
-		itemComponents: DestinyItemComponentSetOfint64,
+	export interface IStatsProfile extends
+		Plugs.IPlugsProfile { }
+
+	export async function apply (manifest: Manifest, profile: IStatsProfile, item: IItemInit) {
+		item.stats = await resolve(manifest, profile, item);
 	}
 
-	export async function resolve (manifest: Manifest, profile: IStatsProfile, item: Item): Promise<IStats | undefined> {
+	async function resolve (manifest: Manifest, profile: IStatsProfile, item: IItemInit): Promise<IStats | undefined> {
 		if (!item.definition.stats)
 			return undefined;
 
@@ -40,7 +44,7 @@ namespace Stats {
 		if (!statGroupDefinition)
 			return undefined;
 
-		const sockets = item.sockets ?? [];
+		const sockets = (await item.sockets) ?? [];
 		const intrinsicStats = sockets.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics")
 			.flatMap(plug => plug?.definition.investmentStats)
 			.concat(item.definition.investmentStats);

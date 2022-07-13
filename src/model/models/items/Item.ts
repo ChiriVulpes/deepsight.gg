@@ -10,19 +10,25 @@ import Stats from "model/models/items/Stats";
 import type { Manifest } from "model/models/Manifest";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
+import type { PromiseOr } from "utility/Type";
 
-export interface IItem {
-	equipped?: true;
+export interface IItemInit {
 	reference: DestinyItemComponent;
-	instance?: DestinyItemInstanceComponent;
 	definition: DestinyInventoryItemDefinition;
-	source?: DestinySourceDefinition;
+	instance?: DestinyItemInstanceComponent;
 	objectives: DestinyObjectiveProgress[];
+	sockets?: PromiseOr<(ISocket | undefined)[]>;
+	plugs?: PromiseOr<IReusablePlug[][]>;
+	source?: DestinySourceDefinition;
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
 	stats?: IStats;
-	sockets?: (ISocket | undefined)[];
-	plugs?: IReusablePlug[][];
+}
+
+export interface IItem extends IItemInit {
+	equipped?: true;
+	sockets: (ISocket | undefined)[];
+	plugs: IReusablePlug[][];
 }
 
 export interface IItemEvents {
@@ -53,21 +59,21 @@ class Item {
 			return undefined;
 		}
 
-		const item = new Item({
-			definition: definition,
+		const item: IItemInit = {
 			reference: reference,
+			definition: definition,
 			instance: profile.itemComponents.instances.data?.[reference.itemInstanceId!],
 			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
-		});
+		};
 
-		item.sockets = await Plugs.resolveSockets(manifest, profile, item);
-		item.plugs = await Plugs.resolveReusable(manifest, profile, item);
-		item.stats = await Stats.resolve(manifest, profile, item);
-		item.source = await Source.resolve(manifest, item);
-		item.deepsight = await Deepsight.resolve(manifest, profile, item);
-		item.shaped = await Deepsight.resolveShaped(manifest, item);
+		await Promise.all([
+			Plugs.apply(manifest, profile, item),
+			Stats.apply(manifest, profile, item),
+			Deepsight.apply(manifest, profile, item),
+			Source.apply(manifest, item),
+		]);
 
-		return item;
+		return new Item(item);
 	}
 
 	public readonly event = new EventManager<this, IItemEvents>(this);
@@ -86,7 +92,7 @@ class Item {
 
 	public unequipping = false;
 
-	public constructor (item: IItem) {
+	private constructor (item: IItemInit) {
 		Object.assign(this, item);
 	}
 

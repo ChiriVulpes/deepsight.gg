@@ -1,6 +1,6 @@
 import type { DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
-import type Item from "model/models/items/Item";
+import type { IItemInit } from "model/models/items/Item";
 import type { Manifest } from "model/models/Manifest";
 
 export interface IWeaponShaped {
@@ -29,11 +29,16 @@ namespace Deepsight {
 		profileRecords: SingleComponentResponse<DestinyProfileRecordsComponent>;
 	}
 
-	export async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: Item): Promise<IDeepsight> {
+	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit) {
+		item.deepsight = await resolve(manifest, profile, item);
+		item.shaped = await resolveShaped(manifest, item);
+	}
+
+	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
 		return { attunement: await resolveAttunement(manifest, item), pattern: await resolvePattern(manifest, profile, item) };
 	}
 
-	export async function resolveShaped (manifest: Manifest, item: Item) {
+	async function resolveShaped (manifest: Manifest, item: IItemInit) {
 		if (!(item.reference.state & ItemState.Crafted))
 			return undefined;
 
@@ -45,7 +50,7 @@ namespace Deepsight {
 		};
 	}
 
-	async function resolveAttunement (manifest: Manifest, item: Item) {
+	async function resolveAttunement (manifest: Manifest, item: IItemInit) {
 		if (!(item.reference.state & ItemState.HighlightedObjective))
 			return undefined;
 
@@ -53,7 +58,7 @@ namespace Deepsight {
 			definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted);
 	}
 
-	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: Item): Promise<IDeepsightPattern | undefined> {
+	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {
 		const { DestinyCollectibleDefinition, DestinyRecordDefinition } = manifest;
 
 		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
@@ -76,7 +81,7 @@ namespace Deepsight {
 		};
 	}
 
-	async function findObjective ({ DestinyObjectiveDefinition }: Manifest, item: Item, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
+	async function findObjective ({ DestinyObjectiveDefinition }: Manifest, item: IItemInit, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
 		for (const objective of item.objectives) {
 			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
 			if (!definition)

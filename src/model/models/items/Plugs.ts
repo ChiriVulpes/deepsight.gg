@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPlugBase, DestinyItemSocketState } from "bungie-api-ts/destiny2";
-import type Item from "model/models/items/Item";
+import type { IItemInit } from "model/models/items/Item";
 import type { Manifest } from "model/models/Manifest";
 
 export interface ISocket {
@@ -19,7 +19,13 @@ namespace Plugs {
 		itemComponents: DestinyItemComponentSetOfint64,
 	}
 
-	export async function resolveSockets ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: Item): Promise<(ISocket | undefined)[]> {
+	export function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {
+		item.sockets = resolveSockets(manifest, profile, item).then(sockets => item.sockets = sockets);
+		item.plugs = resolveReusable(manifest, profile, item).then(plugs => item.plugs = plugs);
+		return Promise.all([item.sockets, item.plugs]);
+	}
+
+	async function resolveSockets ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: IItemInit): Promise<(ISocket | undefined)[]> {
 		const sockets = profile.itemComponents.sockets.data?.[item.reference.itemInstanceId!]?.sockets;
 		return Promise.all(sockets
 			?.map(async (socket): Promise<ISocket | undefined> => {
@@ -31,9 +37,9 @@ namespace Plugs {
 			}) ?? []);
 	}
 
-	export async function resolveReusable ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: Item) {
+	async function resolveReusable ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: IItemInit) {
 		const plugs = profile.itemComponents.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs;
-		const sockets = item.sockets ?? [];
+		const sockets = (await item.sockets) ?? [];
 
 		const reusablePlugs = sockets.map(socket => [{
 			reference: socket?.reference,
