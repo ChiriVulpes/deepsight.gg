@@ -84,6 +84,7 @@ namespace Model {
 		private version?: string | number;
 		private _loadingInfo?: { progress: number, message?: string };
 		private loadId = loadId;
+		private errored = false;
 
 		private modelVersion?: string | number;
 		private async getModelVersion () {
@@ -173,14 +174,14 @@ namespace Model {
 				if (!this.isCacheValid())
 					delete this.value;
 
-			if (this.value === undefined) {
+			if (this.value === undefined || this.errored) {
 				if (this.name)
 					console.debug(`No value in memory for '${this.name}'`);
 
 				this.event.emit("loading");
 
 				// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-				const promise = new Promise<R>(async resolve => {
+				const promise = new Promise<R>(async (resolve, reject) => {
 					if (this.model.cache && this.model.cache !== "Memory") {
 						const cached = await this.resolveCache();
 						if (cached)
@@ -216,6 +217,8 @@ namespace Model {
 					void generated.catch(error => {
 						console.error(`Model '${this.name}' failed to load:`, error);
 						this.event.emit("errored", { error: error as Error });
+						this.errored = true;
+						reject(error);
 					});
 
 					void generated.then(async value => {
