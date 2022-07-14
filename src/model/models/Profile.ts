@@ -137,7 +137,8 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
 	return Model.createDynamic<DestinyProfileResponse>(Time.seconds(30), async api => {
-		const result = {} as DestinyProfileResponse;
+		let result = {} as DestinyProfileResponse;
+		let lastResult: DestinyProfileResponse | undefined;
 
 		// only allow one profile query at a time
 		while (lastOperation)
@@ -149,9 +150,10 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 			const missingComponents: DestinyComponentType[] = [];
 			for (const component of components) {
 				const cached = await models[component]?.resolveCache();
-				if (cached)
+				if (cached) {
+					lastResult = cached;
 					mergeProfile(result, cached);
-				else
+				} else
 					missingComponents.push(component);
 			}
 
@@ -179,7 +181,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				api.emitProgress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
 				await models[component]!.update(newData);
 			}
-		})();
+		})().catch(() => { result = lastResult ?? result });
 
 		await lastOperation;
 		lastOperation = undefined;
