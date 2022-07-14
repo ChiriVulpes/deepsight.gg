@@ -58,3 +58,12 @@ html .hidden {
 	height: var(--slot-size);
 	box-sizing: border-box;
 }
+
+kbd {
+	font-style: normal;
+	border: 1px solid currentColor;
+	background: color(background-3);
+	border-radius: .4em;
+	padding: 0 .4em .1em;
+	font-family: inherit;
+}

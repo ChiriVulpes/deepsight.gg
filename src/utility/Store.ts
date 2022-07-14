@@ -9,8 +9,10 @@ export interface ILocalStorage {
 	bungieAccessTokenRefreshToken?: string;
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
+	settingsToggleExtra?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
+	settingsNoDeepsightBorderOnItemsWithoutPatterns?: true;
 	itemFilter?: string;
 }
 

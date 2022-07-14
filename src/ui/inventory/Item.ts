@@ -7,6 +7,7 @@ import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
+import Store from "utility/Store";
 
 export enum ItemClasses {
 	Main = "item",
@@ -100,10 +101,12 @@ export default class ItemComponent extends Button<[Item]> {
 				.appendTo(this);
 
 		if (!item.shaped) {
-			if (item.deepsight?.attunement)
+			const objectiveComplete = item.deepsight?.attunement?.objective.complete ?? false;
+			const hasIncompletePattern = item.deepsight?.pattern && !(item.deepsight.pattern.progress.complete ?? false);
+			if (item.deepsight?.attunement && (objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns))
 				Component.create()
 					.classes.add(ItemClasses.Deepsight)
-					.classes.toggle(item.deepsight.attunement?.objective.complete ?? false, ItemClasses.DeepsightAttuned)
+					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
 					.appendTo(this);
 
 			if (item.deepsight?.pattern)

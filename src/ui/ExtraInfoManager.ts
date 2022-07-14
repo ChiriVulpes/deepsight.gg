@@ -6,10 +6,13 @@ class ExtraInfoManager {
 	public constructor () {
 		UiEventBus.subscribe("keydown", event => {
 			if (event.use("e"))
-				this.show("KEY");
+				if (Store.items.settingsToggleExtra)
+					this.toggle("KEY");
+				else
+					this.show("KEY");
 		});
 		UiEventBus.subscribe("keyup", event => {
-			if (event.use("e"))
+			if (!Store.items.settingsToggleExtra && event.use("e"))
 				this.hide("KEY");
 		});
 
