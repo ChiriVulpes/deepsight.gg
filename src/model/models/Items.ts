@@ -1,6 +1,7 @@
-import type { DestinyItemComponent } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryComponent, DestinyItemComponent } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
@@ -10,8 +11,6 @@ import Time from "utility/Time";
  * **Warning:** Not all weapon mods have this category hash
  */
 export const ITEM_WEAPON_MOD = 610365472;
-
-export type BucketId = `${bigint}` | "vault" | "inventory" | "postmaster";
 
 export class Bucket {
 
@@ -42,14 +41,14 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	const initialisedItems = new Set<string>();
 
-	async function resolveItemComponent (reference: DestinyItemComponent) {
+	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
 		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
 		const itemId = reference.itemInstanceId ?? `item:${reference.itemHash}`;
 		if (initialisedItems.has(itemId))
 			return undefined; // already initialised in another bucket
 
 		initialisedItems.add(itemId);
-		const result = await Item.resolve(manifest, profile, reference);
+		const result = await Item.resolve(manifest, profile, reference, bucket);
 		if (!result)
 			initialisedItems.delete(itemId);
 
@@ -59,7 +58,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {
 		const items: Item[] = [];
 		for (const itemComponent of itemComponents) {
-			const item = await resolveItemComponent(itemComponent);
+			const item = await resolveItemComponent(itemComponent, id);
 			if (!item)
 				continue;
 
@@ -72,25 +71,15 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	const profileItems = profile.profileInventory.data?.items ?? [];
 
 	const buckets = {} as Record<BucketId, Bucket>;
-	buckets.postmaster = await createBucket("postmaster", profileItems
-		.filter(item => item.bucketHash === BucketHashes.LostItems));
+	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
+		const postmasterId = `postmaster:${characterId}` as const;
+		buckets[postmasterId] = await createBucket(postmasterId, character.items
+			.filter(item => item.bucketHash === BucketHashes.LostItems));
 
-	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {})) {
-		for (const itemComponent of character.items) {
-			if (itemComponent.bucketHash === BucketHashes.LostItems) {
-				const item = await resolveItemComponent(itemComponent);
-				if (!item)
-					continue;
+		const bucket = buckets[characterId] = await createBucket(characterId, character.items);
 
-				buckets.postmaster.items.push(item);
-			}
-		}
-
-		const bucketId = characterId as BucketId;
-		const bucket = buckets[bucketId] = await createBucket(bucketId, character.items);
-
-		for (const itemComponent of (profile.characterEquipment.data?.[bucketId].items ?? [])) {
-			const item = await resolveItemComponent(itemComponent);
+		for (const itemComponent of (profile.characterEquipment.data?.[characterId].items ?? [])) {
+			const item = await resolveItemComponent(itemComponent, characterId);
 			if (!item)
 				continue;
 

@@ -18,6 +18,12 @@
 		- var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */
 		- var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
 		) / 9);
+	--bucket-inventory-width: (
+		var(--slot-size) * 4
+		+ var(--bucket-inventory-padding) * 3
+		+ var(--card-gap-x) / 2
+		+ var(--view-padding-x)
+	);
 	--slot-padding: 3px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 400;

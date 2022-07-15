@@ -2,9 +2,11 @@ import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCatego
 import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
-import type { Bucket, BucketId } from "model/models/Items";
+import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
+import type { BucketId, CharacterId, DestinationBucketId } from "model/models/items/Item";
+import { PostmasterId } from "model/models/items/Item";
 import Profile from "model/models/Profile";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
@@ -22,11 +24,7 @@ import LoadingManager from "ui/LoadingManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
-import Arrays from "utility/Arrays";
-import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
-import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import { EventManager } from "utility/EventManager";
-import Store from "utility/Store";
 import Time from "utility/Time";
 
 export enum InventorySlotViewClasses {
@@ -39,6 +37,7 @@ export enum InventorySlotViewClasses {
 	CharacterBucketEquipped = "view-inventory-slot-character-bucket-equipped",
 	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
 	VaultBucket = "view-inventory-slot-vault-bucket",
+	PostmasterBuckets = "view-inventory-slot-postmaster-buckets",
 	PostmasterBucket = "view-inventory-slot-postmaster-bucket",
 	PostmasterBucketWarning = "view-inventory-slot-postmaster-bucket-warning",
 	PostmasterBucketEmptySlot = "view-inventory-slot-postmaster-bucket-empty-slot",
@@ -79,6 +78,23 @@ class CharacterBucket extends BucketComponent<[]> {
 	}
 }
 
+class PostmasterBucket extends BucketComponent<[]> {
+
+	public character!: DestinyCharacterComponent;
+
+	protected override onMake (): void {
+		super.onMake();
+		this.classes.add(InventorySlotViewClasses.PostmasterBucket);
+		this.icon.style.set("--icon", "url(\"/image/svg/postmaster.svg\")");
+		this.title.text.add("Postmaster");
+	}
+
+	public setCharacter (character: DestinyCharacterComponent) {
+		this.character = character;
+		return this;
+	}
+}
+
 interface IInteractableItemEvents extends ComponentEvents<typeof ItemComponent>, IDraggableEvents {
 	transfer: Event;
 }
@@ -93,9 +109,6 @@ class DraggableItem extends ItemComponent {
 	}
 }
 
-type DestinationBucketId = "vault" | `${bigint}`;
-type OriginBucketId = DestinationBucketId | "postmaster";
-
 interface IInventorySlotViewDefinition {
 	sort: SortManager;
 	slot: ItemCategoryHashes;
@@ -109,15 +122,14 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 	public model!: Required<SlotViewModel>;
 	public vaultBucket!: BucketComponent;
-	public postmasterBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characterBucketsContainer!: Component;
-	public characters!: Record<string, CharacterBucket>;
+	public postmasterBucketsContainer!: Component;
+	public characters!: Record<CharacterId, CharacterBucket>;
+	public postmasters!: Record<PostmasterId, PostmasterBucket>;
 	public bucketEntries!: [BucketId, Bucket][];
 	public items!: Record<string, Item>;
 	public itemMap!: Map<Item, ItemComponent>;
-	public transferringItemMap!: Map<Item, ItemComponent>;
-	public unequippingItemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
@@ -139,17 +151,12 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.tweak(vault => vault.title.text.add("Vault"))
 			.appendTo(this.super.content);
 
-		this.postmasterBucket = BucketComponent.create()
-			.classes.add(InventorySlotViewClasses.PostmasterBucket)
-			.tweak(vault => vault.icon.style.set("--icon",
-				"url(\"/image/svg/postmaster.svg\")"))
-			.tweak(vault => vault.title.text.add("Postmaster"))
+		this.postmasterBucketsContainer = Component.create()
+			.classes.add(InventorySlotViewClasses.PostmasterBuckets)
 			.appendTo(this.super.content);
 
 		this.equipped = {};
 		this.itemMap = new Map<Item, ItemComponent>();
-		this.transferringItemMap = new Map<Item, ItemComponent>();
-		this.unequippingItemMap = new Map<Item, ItemComponent>();
 
 		this.update = this.update.bind(this);
 		model.event.subscribe("update", this.update);
@@ -196,8 +203,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
-	private async update () {
-		await this.transferring;
+	private update () {
 		this.updateCharacters();
 		this.updateItems();
 		this.sort();
@@ -206,7 +212,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 	private updateItems () {
 		this.itemMap.clear();
-		this.transferringItemMap.clear();
 		this.bucketEntries = Object.entries(this.model.buckets) as [BucketId, Bucket][];
 		for (const [bucketId, bucket] of this.bucketEntries) {
 			if (bucketId === "inventory")
@@ -217,31 +222,43 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				if (!categories.includes(this.super.definition.slot) && item.reference.bucketHash !== BucketHashes.LostItems)
 					continue;
 
-				this.itemMap.set(item, this.createItemComponent(item, bucketId));
+				this.itemMap.set(item, this.createItemComponent(item));
 			}
 		}
 	}
 
 	private updateCharacters () {
 		this.characters ??= {};
+		this.postmasters ??= {};
 
-		const oldBuckets = [...this.characterBucketsContainer.children<CharacterBucket>()];
 		const characterBucketsSorted = Object.values(this.model.characters.data ?? {})
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
-			.map(character => this.characters[character.characterId] ??= CharacterBucket.create([]).setCharacter(character));
+			.map(character => ({
+				character: this.characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
+				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
+			}));
 
-		for (const oldCharacterBucket of oldBuckets)
-			if (!characterBucketsSorted.includes(oldCharacterBucket))
+		const oldCharacterBuckets = [...this.characterBucketsContainer.children<CharacterBucket>()];
+		for (const oldCharacterBucket of oldCharacterBuckets)
+			if (!characterBucketsSorted.some(({ character }) => oldCharacterBucket === character))
 				// this character was deleted
 				oldCharacterBucket.remove();
 
-		this.currentCharacter = characterBucketsSorted[0];
+		const oldPostmasterBuckets = [...this.postmasterBucketsContainer.children<PostmasterBucket>()];
+		for (const oldPostmasterBucket of oldPostmasterBuckets)
+			if (!characterBucketsSorted.some(({ postmaster }) => oldPostmasterBucket === postmaster))
+				// this character was deleted
+				oldPostmasterBucket.remove();
 
-		const charactersChanged = characterBucketsSorted.length !== oldBuckets.length
-			|| oldBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character?.characterId);
-		if (charactersChanged)
-			this.characterBucketsContainer.append(...characterBucketsSorted);
+		this.currentCharacter = characterBucketsSorted[0].character;
+
+		const charactersChanged = characterBucketsSorted.length !== oldCharacterBuckets.length
+			|| oldCharacterBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character.character?.characterId);
+		if (charactersChanged) {
+			this.characterBucketsContainer.append(...characterBucketsSorted.map(({ character }) => character));
+			this.postmasterBucketsContainer.append(...characterBucketsSorted.map(({ postmaster }) => postmaster));
+		}
 	}
 
 	private sort () {
@@ -255,8 +272,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			let equippedComponent: Component | undefined;
 			if (bucketId === "vault")
 				bucketComponent = this.vaultBucket;
-			else if (bucketId === "postmaster")
-				bucketComponent = this.postmasterBucket;
+			else if (PostmasterId.is(bucketId))
+				bucketComponent = this.postmasters[bucketId];
 			else {
 				const characterBucket = this.characters[bucketId];
 				if (!characterBucket) {
@@ -279,9 +296,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
-				let itemComponent = this.itemMap.get(item);
-				if ((!item.equipped && !item.unequipping) && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
-					itemComponent = this.transferringItemMap.get(item);
+				const itemComponent = this.itemMap.get(item);
+				// if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+				// 	itemComponent = this.transferringItemMap.get(item);
 
 				if (!itemComponent)
 					// item not included in view
@@ -313,27 +330,29 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					slot.remove();
 		}
 
-		for (const [item, newComponent] of [...this.transferringItemMap]) {
-			const existing = this.itemMap.get(item);
-			if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
-				this.itemMap.set(item, newComponent);
-				this.transferringItemMap.delete(item);
-			}
-		}
+		// for (const [item, newComponent] of [...this.transferringItemMap]) {
+		// 	const existing = this.itemMap.get(item);
+		// 	if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
+		// 		this.itemMap.set(item, newComponent);
+		// 		this.transferringItemMap.delete(item);
+		// 	}
+		// }
 
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventorySlotViewClasses.HighestPower);
 
-		const postmasterItems = this.postmasterBucket.content.element.childElementCount;
-		this.postmasterBucket
-			.classes.toggle(!postmasterItems, Classes.Hidden)
-			.classes.toggle(postmasterItems > 15, InventorySlotViewClasses.PostmasterBucketWarning);
-		if (postmasterItems) {
-			for (let i = postmasterItems; i < 21; i++) {
-				Component.create()
-					.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
-					.appendTo(this.postmasterBucket.content);
+		for (const postmaster of Object.values(this.postmasters)) {
+			const postmasterItems = postmaster.content.element.childElementCount;
+			postmaster
+				.classes.toggle(!postmasterItems, Classes.Hidden)
+				.classes.toggle(postmasterItems > 15, InventorySlotViewClasses.PostmasterBucketWarning);
+			if (postmasterItems) {
+				for (let i = postmasterItems; i < 21; i++) {
+					Component.create()
+						.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
+						.appendTo(postmaster.content);
+				}
 			}
 		}
 	}
@@ -346,29 +365,31 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		}
 	}
 
+	private getBucket (bucketId: BucketId) {
+		return bucketId === "vault" ? this.vaultBucket
+			: bucketId === "inventory" ? this.currentCharacter
+				: PostmasterId.is(bucketId) ? this.postmasters[bucketId]
+					: this.characters[bucketId];
+	}
+
 	private itemMoving?: ItemComponent;
-	private createItemComponent (item: Item, bucketId: OriginBucketId) {
+	private createItemComponent (item: Item) {
 		const component = DraggableItem.create([item]);
 		return component
 			.event.subscribe("click", async event => {
-				if (bucketId === "postmaster")
-					return;
-
 				if (event.shiftKey)
 					// update this item component's bucket so future clicks transfer to the right place
-					bucketId = await this.transfer(item, bucketId);
+					await item.transferToggleVaulted(this.currentCharacter.character.characterId as CharacterId);
 				else
-					await this.equip(item, bucketId);
+					await item.equip(item.character ?? this.currentCharacter.character.characterId as CharacterId);
 			})
 			.event.subscribe("moveStart", event => {
-				if (bucketId === "postmaster")
-					return event.preventDefault();
-
 				if (item.equipped)
 					return event.preventDefault();
 
 				component.classes.add(InventorySlotViewClasses.ItemMovingOriginal);
-				const bucketComponent = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+				const bucketComponent = this.getBucket(item.bucket);
+
 				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
@@ -380,10 +401,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.event.subscribe("move", event => {
 				this.itemMoving?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
 				for (const [dropBucketId] of this.bucketEntries) {
-					if (dropBucketId === "inventory" || dropBucketId === "postmaster")
+					if (dropBucketId === "inventory" || PostmasterId.is(dropBucketId))
 						continue;
 
-					const component = dropBucketId === "vault" ? this.vaultBucket : this.characters[dropBucketId];
+					const component = this.getBucket(dropBucketId);
 					component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
 				}
 			})
@@ -393,18 +414,15 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				delete this.itemMoving;
 
 				component.classes.remove(InventorySlotViewClasses.ItemMovingOriginal);
-				const bucketComponent = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+				const bucketComponent = this.getBucket(item.bucket);
 				bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
-
-				if (bucketId === "postmaster")
-					return;
 
 				let dropBucketId: DestinationBucketId | undefined;
 				for (const [bucketId] of this.bucketEntries) {
-					if (bucketId === "inventory" || bucketId === "postmaster")
+					if (bucketId === "inventory" || PostmasterId.is(bucketId))
 						continue;
 
-					const component = bucketId === "vault" ? this.vaultBucket : this.characters[bucketId];
+					const component = this.getBucket(bucketId);
 					component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
 					if (!component.intersects(event.mouse))
 						continue;
@@ -414,147 +432,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 				if (dropBucketId)
 					// update this item component's bucket so future clicks transfer to the right place
-					bucketId = await this.transfer(item, bucketId, dropBucketId);
+					await item.transferToBucket(dropBucketId);
 			});
-	}
-
-	private transferring?: Promise<void>;
-	private async transfer (item: Item, bucketId: DestinationBucketId, destination?: DestinationBucketId) {
-		if (item.equipped)
-			// items can't be unequipped with fvm
-			return bucketId;
-
-		if (item.transferring)
-			// item is already moving
-			return bucketId;
-
-		let characterId: `${bigint}`;
-		if (bucketId === "vault") {
-			characterId = this.currentCharacter.character.characterId as `${bigint}`;
-			destination ??= characterId;
-		} else {
-			characterId = bucketId;
-			destination ??= "vault";
-		}
-
-		if (destination === bucketId)
-			// already in that location
-			return bucketId;
-
-		// only allow transferring one item at a time
-		while (this.transferring)
-			await this.transferring;
-
-		let finalDestination = destination;
-
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-		this.transferring = new Promise<void>(async resolve => {
-			this.transferringItemMap.set(item, this.createItemComponent(item, destination!));
-			item.transferring = true;
-			this.model.buckets[destination!].items.push(item);
-			this.sort();
-
-			let movedToVault = false;
-			let success: boolean | undefined;
-			if (bucketId !== "vault" && destination !== "vault" && destination !== characterId) {
-				// first transfer to vault
-				success = await TransferItem.query(item, characterId, "vault")
-					.then(() => true)
-					.catch(err => { console.log(err); return false });
-				if (success)
-					characterId = destination!, movedToVault = true;
-			}
-
-			if (success !== false)
-				success = await TransferItem.query(item, characterId, destination)
-					.then(() => true)
-					.catch(err => { console.log(err); return false });
-
-			item.transferring = false;
-
-			if (!success && movedToVault) {
-				let inVault = true;
-				if (!Store.items.settingsDisableReturnOnFailure)
-					// put the item back where it was originally
-					inVault = !await TransferItem.query(item, bucketId as `${bigint}`, bucketId)
-						.then(() => true)
-						.catch(err => { console.log(err); return false });
-
-				if (inVault) {
-					// the full transfer failed and now the item is in the vault
-					finalDestination = "vault";
-					this.model.buckets.vault.items.push(item);
-					// remove the item from the original location since it's not there anymore
-					Arrays.remove(this.model.buckets[bucketId].items, item);
-				} else {
-					finalDestination = bucketId;
-				}
-			}
-
-			// remove item from old bucket if move successful, remove temp item from destination otherwise
-			Arrays.remove(this.model.buckets[success ? bucketId : destination!].items, item);
-			this.sort();
-
-			console.log(bucketId, destination);
-			resolve();
-		});
-
-		await this.transferring;
-		delete this.transferring;
-
-		return finalDestination;
-	}
-
-	private async equip (item: Item, bucketId: DestinationBucketId) {
-		if (item.equipped)
-			// items can't be unequipped with fvm
-			return bucketId;
-
-		if (item.transferring)
-			// item is already moving
-			return bucketId;
-
-		if (bucketId === "vault")
-			bucketId = await this.transfer(item, bucketId);
-
-		if (bucketId === "vault")
-			// failed
-			return bucketId;
-
-		const characterId = bucketId;
-
-		// only allow transferring one item at a time
-		while (this.transferring)
-			await this.transferring;
-
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-		this.transferring = new Promise<void>(async resolve => {
-			const currentlyEquipped = this.equipped[characterId];
-			currentlyEquipped.item.transferring = true;
-			item.transferring = true;
-			this.sort();
-
-			const success = await EquipItem.query(item, characterId)
-				.then(() => true)
-				.catch(err => { console.log(err); return false });
-
-			if (success) {
-				item.equipped = true;
-				delete currentlyEquipped.item.equipped;
-			}
-
-			currentlyEquipped.item.transferring = false;
-			item.transferring = false;
-			this.model.buckets[characterId].items
-			currentlyEquipped.item.unequipping = true;
-			this.sort();
-			currentlyEquipped.item.unequipping = false;
-
-			resolve();
-		});
-
-		await this.transferring;
-		delete this.transferring;
 	}
 
 	private onGlobalKeydown (event: IKeyEvent) {

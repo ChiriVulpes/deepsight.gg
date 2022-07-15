@@ -8,13 +8,132 @@ import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import type { Manifest } from "model/models/Manifest";
+import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
+import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
+import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
+import Store from "utility/Store";
 import type { PromiseOr } from "utility/Type";
+
+export type CharacterId = `${bigint}`;
+export type PostmasterId = `postmaster:${CharacterId}`;
+export type DestinationBucketId = CharacterId | "vault" | "inventory";
+export type BucketId = DestinationBucketId | PostmasterId;
+export namespace PostmasterId {
+	export function is (id: BucketId): id is PostmasterId {
+		return id.startsWith("postmaster:");
+	}
+
+	export function character (id: PostmasterId) {
+		return id.slice(11) as CharacterId;
+	}
+}
+export namespace CharacterId {
+	export function is (id: BucketId): id is CharacterId {
+		return id !== "vault" && id !== "inventory" && !PostmasterId.is(id);
+	}
+}
+
+enum TransferType {
+	PullFromPostmaster,
+	TransferToVault,
+	TransferToCharacterFromVault,
+	// TransferToInventoryFromVault,
+	Equip,
+}
+
+interface ITransferArgs {
+	[TransferType.PullFromPostmaster]: [],
+	[TransferType.TransferToVault]: [],
+	[TransferType.TransferToCharacterFromVault]: [character: CharacterId],
+	// [TransferType.TransferToInventoryFromVault]: [],
+	[TransferType.Equip]: [character: CharacterId],
+}
+
+type Transfer = {
+	[TYPE in TransferType]: (
+		[type: TYPE, ...args: ITransferArgs[TYPE]] extends infer TRANSFER ?
+		Extract<TRANSFER, any[]>["length"] extends 1 ? Extract<TRANSFER, any[]>[number] | TRANSFER : TRANSFER
+		: never
+	)
+} extends infer UNDOS ? UNDOS[keyof UNDOS] : never;
+
+interface ITransferDefinition<TYPE extends TransferType> {
+	applicable (item: Item, ...args: ITransferArgs[TYPE]): boolean;
+	transfer (item: Item, ...args: ITransferArgs[TYPE]): Promise<ITransferResult>;
+}
+
+interface IGenericTransferDefinition {
+	applicable (item: Item, ...args: ITransferArgs[TransferType]): boolean;
+	transfer (item: Item, ...args: ITransferArgs[TransferType]): Promise<ITransferResult>;
+}
+
+interface ITransferResult {
+	bucket: DestinationBucketId;
+	equipped?: true;
+	undo?: Transfer;
+}
+
+const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
+	[TransferType.PullFromPostmaster]: {
+		applicable: item => PostmasterId.is(item.bucket),
+		transfer: async item => {
+			if (!PostmasterId.is(item.bucket))
+				throw new Error("Not in postmaster bucket");
+
+			const characterId = PostmasterId.character(item.bucket);
+			await PullFromPostmaster.query(item, characterId);
+			return { bucket: characterId };
+		},
+	},
+	[TransferType.TransferToVault]: {
+		applicable: item => CharacterId.is(item.bucket),
+		transfer: async item => {
+			if (!CharacterId.is(item.bucket))
+				throw new Error("Not in character bucket");
+
+			const characterId = item.bucket;
+			await TransferItem.query(item, characterId, "vault");
+			return {
+				bucket: "vault",
+				undo: [TransferType.TransferToCharacterFromVault, characterId],
+			};
+		},
+	},
+	[TransferType.TransferToCharacterFromVault]: {
+		applicable: item => item.bucket === "vault",
+		transfer: async (item, characterId) => {
+			if (item.bucket !== "vault")
+				throw new Error("Not in vault bucket");
+
+			await TransferItem.query(item, characterId);
+			return {
+				bucket: characterId,
+				undo: TransferType.TransferToVault,
+			};
+		},
+	},
+	[TransferType.Equip]: {
+		applicable: item => CharacterId.is(item.bucket),
+		transfer: async (item, characterId) => {
+			if (!CharacterId.is(item.bucket))
+				throw new Error("Not in character bucket");
+
+			await EquipItem.query(item, characterId);
+			return {
+				bucket: characterId,
+				equipped: true,
+				undo: TransferType.TransferToVault,
+			};
+		},
+	},
+};
 
 export interface IItemInit {
 	reference: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
+	bucket: BucketId;
 	instance?: DestinyItemInstanceComponent;
 	objectives: DestinyObjectiveProgress[];
 	sockets?: PromiseOr<(ISocket | undefined)[]>;
@@ -32,7 +151,7 @@ export interface IItem extends IItemInit {
 }
 
 export interface IItemEvents {
-	transferStateChange: { transferring: boolean };
+	stateChange: { item: Item };
 }
 
 namespace Item {
@@ -45,7 +164,7 @@ namespace Item {
 interface Item extends IItem { }
 class Item {
 
-	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent) {
+	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: BucketId) {
 		const { DestinyInventoryItemDefinition } = manifest;
 
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
@@ -60,8 +179,9 @@ class Item {
 		}
 
 		const item: IItemInit = {
-			reference: reference,
-			definition: definition,
+			reference,
+			definition,
+			bucket,
 			instance: profile.itemComponents.instances.data?.[reference.itemInstanceId!],
 			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
 		};
@@ -78,19 +198,11 @@ class Item {
 
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
-	private _transferring = false;
-	public get transferring () {
-		return this._transferring;
+	public get character () {
+		return this.bucket === "vault" || this.bucket === "inventory" ? undefined
+			: PostmasterId.is(this.bucket) ? PostmasterId.character(this.bucket)
+				: this.bucket;
 	}
-	public set transferring (transferring: boolean) {
-		if (this._transferring === transferring)
-			return;
-
-		this._transferring = transferring;
-		this.event.emit("transferStateChange", { transferring });
-	}
-
-	public unequipping = false;
 
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
@@ -100,6 +212,96 @@ class Item {
 		return !!(this.reference.state & ItemState.Masterwork)
 			|| (this.plugs?.filter(socket => socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
 				.length ?? 0) >= 2;
+	}
+
+	public movingTo?: DestinationBucketId;
+	private _transferPromise?: Promise<void>;
+	private history: Transfer[] = [];
+
+	public async transferrable () {
+		while (this._transferPromise)
+			await this._transferPromise;
+	}
+
+	public transferToBucket (bucket: DestinationBucketId) {
+		if (bucket === "inventory")
+			throw new Error("Inventory transfer not implemented yet");
+
+		if (bucket === "vault")
+			return this.transferToVault();
+
+		return this.transferToCharacter(bucket);
+	}
+
+	public async transferToCharacter (character: CharacterId) {
+		if (character === this.bucket)
+			return;
+
+		return this.transfer(
+			TransferType.PullFromPostmaster,
+			...CharacterId.is(this.bucket) ? [TransferType.TransferToVault as const] : [],
+			[TransferType.TransferToCharacterFromVault, character],
+		);
+	}
+
+	public transferToVault () {
+		return this.transfer(
+			TransferType.PullFromPostmaster,
+			TransferType.TransferToVault,
+		);
+	}
+
+	public transferToggleVaulted (character: CharacterId) {
+		if (this.bucket === "vault")
+			return this.transferToCharacter(character);
+		else
+			return this.transferToVault();
+	}
+
+	public equip (character: CharacterId) {
+		return this.transfer(
+			TransferType.PullFromPostmaster,
+			[TransferType.TransferToCharacterFromVault, character],
+			[TransferType.Equip, character],
+		);
+	}
+
+	public pullFromPostmaster () {
+		return this.transfer(TransferType.PullFromPostmaster);
+	}
+
+	private async transfer (...transfers: Transfer[]) {
+		await this.transferrable();
+		this._transferPromise = this.performTransfer(...transfers);
+		await this._transferPromise;
+		delete this._transferPromise;
+	}
+
+	private async performTransfer (...transfers: Transfer[]) {
+		this.history.splice(0, Infinity);
+
+		for (let transfer of transfers) {
+			transfer = Array.isArray(transfer) ? transfer : [transfer] as Exclude<Transfer, number>;
+			const [type, ...args] = transfer;
+			const definition = TRANSFERS[type] as IGenericTransferDefinition;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+			if (!definition.applicable(this, ...args))
+				continue;
+
+			try {
+				const result = await definition.transfer(this, ...args);
+				this.bucket = result.bucket;
+				this.equipped = result.equipped;
+				if (result.undo)
+					this.history.push(result.undo);
+				else
+					this.history.splice(0, Infinity);
+			} catch (error) {
+				console.error(error);
+				if (!Store.items.settingsDisableReturnOnFailure)
+					await this.performTransfer(...this.history.reverse());
+			}
+		}
 	}
 }
 

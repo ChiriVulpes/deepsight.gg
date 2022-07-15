@@ -17,12 +17,6 @@
 	}
 	
 	&-footer {
-		--sort-width: calc(
-			var(--slot-size) * 4
-			+ var(--bucket-inventory-padding) * 3
-			+ var(--card-gap-x) / 2
-			+ var(--view-padding-x)
-		);
 			
 		.item-sort, .item-filter {
 			position: relative;
@@ -47,7 +41,7 @@
 		}
 		
 		.item-sort {
-			width: var(--sort-width);
+			width: var(--bucket-inventory-width);
     		flex-shrink: 0;
 		}
 		
@@ -60,7 +54,7 @@
 	}
 	
 	&-hints {
-		width: var(--sort-width);
+		width: var(--bucket-inventory-width);
     	flex-shrink: 0;
 	}
 
@@ -278,6 +272,10 @@
 	}
 	
 	&-postmaster-bucket {
+		&s {
+			--slot-size: calc(var(--bucket-inventory-width) / 7);
+		}
+		
 		&-empty-slot {
 			opacity: .2;
 			position: relative;
@@ -292,7 +290,7 @@
 		
 		.bucket-inventory {
 			margin: 0 auto;
-			max-width: calc(var(--slot-size) * 3);
+			max-width: calc(var(--slot-size) * 7);
 		}
 		
 		&-warning {

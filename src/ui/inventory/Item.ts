@@ -1,12 +1,10 @@
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
-import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
-import Loadable from "ui/Loadable";
 import Store from "utility/Store";
 
 export enum ItemClasses {
@@ -127,21 +125,21 @@ export default class ItemComponent extends Button<[Item]> {
 
 		this.extra.appendTo(this);
 
-		const loadingSpinny = Component.create()
-			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
-			.classes.toggle(!item.transferring, Classes.Hidden)
-			.append(Component.create())
-			.append(Component.create())
-			.appendTo(this);
+		// const loadingSpinny = Component.create()
+		// 	.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
+		// 	.classes.toggle(!item.transferring, Classes.Hidden)
+		// 	.append(Component.create())
+		// 	.append(Component.create())
+		// 	.appendTo(this);
 
-		const onMoving = ({ transferring }: { transferring: boolean }) => {
-			if (!document.contains(this.element)) {
-				item.event.unsubscribe("transferStateChange", onMoving);
-			}
-			loadingSpinny.classes.toggle(!transferring, Classes.Hidden);
-		};
+		// const onMoving = ({ transferring }: { transferring: boolean }) => {
+		// 	if (!document.contains(this.element)) {
+		// 		item.event.unsubscribe("transferStateChange", onMoving);
+		// 	}
+		// 	loadingSpinny.classes.toggle(!transferring, Classes.Hidden);
+		// };
 
-		item.event.subscribe("transferStateChange", onMoving);
+		// item.event.subscribe("transferStateChange", onMoving);
 	}
 
 	public setSortedBy (sorter: SortManager) {
