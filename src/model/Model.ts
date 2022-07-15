@@ -226,6 +226,7 @@ namespace Model {
 					});
 				});
 
+				this.errored = false;
 				this.value = promise;
 
 				return undefined;
