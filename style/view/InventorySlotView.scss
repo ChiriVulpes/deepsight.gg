@@ -1,5 +1,11 @@
 .view-inventory-slot {
 	--view-padding-x: 12px;
+	--bucket-inventory-width: calc(
+		var(--slot-size) * 4
+		+ var(--bucket-inventory-padding) * 3
+		+ var(--card-gap-x) / 2
+		+ var(--view-padding-x)
+	);
 	
 	&-content {
 		display: grid;
