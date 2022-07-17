@@ -26,7 +26,10 @@ declare global {
 }
 
 namespace Arrays {
-	export function remove (array: any[], value: any) {
+	export function remove (array: any[] | undefined, value: any) {
+		if (!array)
+			return false;
+
 		const index = array.indexOf(value);
 		if (index === -1)
 			return false;

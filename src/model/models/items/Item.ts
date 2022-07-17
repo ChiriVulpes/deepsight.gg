@@ -14,6 +14,7 @@ import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/item
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
+import Time from "utility/Time";
 import type { PromiseOr } from "utility/Type";
 
 export type CharacterId = `${bigint}`;
@@ -130,7 +131,10 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 	},
 };
 
+export type ItemId = `hash:${bigint}` | `${bigint}`;
+
 export interface IItemInit {
+	id: ItemId;
 	reference: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
 	bucket: BucketId;
@@ -151,7 +155,10 @@ export interface IItem extends IItemInit {
 }
 
 export interface IItemEvents {
-	stateChange: { item: Item };
+	update: { item: Item };
+	loadStart: Event;
+	loadEnd: Event;
+	bucketChange: { item: Item; oldBucket: BucketId; equipped?: true };
 }
 
 namespace Item {
@@ -163,6 +170,10 @@ namespace Item {
 
 interface Item extends IItem { }
 class Item {
+
+	public static id (reference: DestinyItemComponent): ItemId {
+		return reference.itemInstanceId as `${bigint}` ?? `hash:${reference.itemHash}`;
+	}
 
 	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: BucketId) {
 		const { DestinyInventoryItemDefinition } = manifest;
@@ -179,6 +190,7 @@ class Item {
 		}
 
 		const item: IItemInit = {
+			id: Item.id(reference),
 			reference,
 			definition,
 			bucket,
@@ -214,9 +226,37 @@ class Item {
 				.length ?? 0) >= 2;
 	}
 
-	public movingTo?: DestinationBucketId;
+	public isSame (item: Item) {
+		return this.id === item.id;
+	}
+
+	public update (item: Item) {
+		this.id = item.id;
+		this.reference = item.reference;
+		if (this.trustTransferUntil < Date.now() || !this.bucketHistory?.includes(item.bucket)) {
+			delete this.bucketHistory;
+			this.bucket = item.bucket;
+		}
+		this.instance = item.instance;
+		this.objectives = item.objectives;
+		this.sockets = item.sockets;
+		this.plugs = item.plugs;
+		this.source = item.source;
+		this.deepsight = item.deepsight;
+		this.shaped = item.shaped;
+		this.stats = item.stats;
+		this.event.emit("update", { item: this });
+		return this;
+	}
+
 	private _transferPromise?: Promise<void>;
-	private history: Transfer[] = [];
+	private undoTransfers: Transfer[] = [];
+	private bucketHistory?: BucketId[];
+	private trustTransferUntil = 0;
+
+	public get transferring () {
+		return !!this._transferPromise;
+	}
 
 	public async transferrable () {
 		while (this._transferPromise)
@@ -272,13 +312,15 @@ class Item {
 
 	private async transfer (...transfers: Transfer[]) {
 		await this.transferrable();
+		this.event.emit("loadStart");
 		this._transferPromise = this.performTransfer(...transfers);
 		await this._transferPromise;
 		delete this._transferPromise;
+		this.event.emit("loadEnd");
 	}
 
 	private async performTransfer (...transfers: Transfer[]) {
-		this.history.splice(0, Infinity);
+		this.undoTransfers.splice(0, Infinity);
 
 		for (let transfer of transfers) {
 			transfer = Array.isArray(transfer) ? transfer : [transfer] as Exclude<Transfer, number>;
@@ -290,16 +332,25 @@ class Item {
 
 			try {
 				const result = await definition.transfer(this, ...args);
+
+				if (result.undo)
+					this.undoTransfers.push(result.undo);
+				else
+					this.undoTransfers.splice(0, Infinity);
+
+				const oldBucket = this.bucket;
+				this.bucketHistory ??= [];
+				this.bucketHistory.push(oldBucket);
+
 				this.bucket = result.bucket;
 				this.equipped = result.equipped;
-				if (result.undo)
-					this.history.push(result.undo);
-				else
-					this.history.splice(0, Infinity);
+				this.trustTransferUntil = Date.now() + Time.seconds(30);
+				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });
+
 			} catch (error) {
 				console.error(error);
 				if (!Store.items.settingsDisableReturnOnFailure)
-					await this.performTransfer(...this.history.reverse());
+					await this.performTransfer(...this.undoTransfers.reverse());
 			}
 		}
 	}

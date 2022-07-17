@@ -43,7 +43,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
 		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
-		const itemId = reference.itemInstanceId ?? `item:${reference.itemHash}`;
+		const itemId = Item.id(reference);
 		if (initialisedItems.has(itemId))
 			return undefined; // already initialised in another bucket
 

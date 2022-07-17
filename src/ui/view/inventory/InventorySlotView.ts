@@ -1,11 +1,11 @@
 import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId, DestinationBucketId } from "model/models/items/Item";
+import type { BucketId, CharacterId, DestinationBucketId, ItemId } from "model/models/items/Item";
 import { PostmasterId } from "model/models/items/Item";
 import Profile from "model/models/Profile";
 import { Classes, InventoryClasses } from "ui/Classes";
@@ -24,6 +24,7 @@ import LoadingManager from "ui/LoadingManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
+import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
@@ -131,7 +132,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public characters!: Record<CharacterId, CharacterBucket>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
 	public bucketEntries!: [BucketId, Bucket][];
-	public items!: Record<string, Item>;
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
@@ -171,11 +171,12 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				delete InventorySlotView.current;
 		});
 
+		this.sort = this.sort.bind(this);
+		this.filter = this.filter.bind(this);
 		this.update();
 
 		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
 
-		this.sort = this.sort.bind(this);
 		ItemSort.create([this.super.definition.sort])
 			.event.subscribe("sort", this.sort)
 			.tweak(itemSort => itemSort.button
@@ -187,7 +188,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.appendTo(this.super.footer);
 
 		await FilterManager.init();
-		this.filter = this.filter.bind(this);
 		this.filterer = ItemFilter.create([this.super.definition.filter])
 			.event.subscribe("filter", this.filter)
 			.event.subscribe("submit", () =>
@@ -218,15 +218,32 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private updateItems () {
-		this.itemMap.clear();
 		this.bucketEntries = Object.entries(this.model.buckets) as [BucketId, Bucket][];
+		for (const [item] of this.itemMap) {
+			if (!this.bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
+				// this item doesn't exist anymore
+				this.itemMap.delete(item);
+			}
+		}
+
 		for (const [bucketId, bucket] of this.bucketEntries) {
 			if (bucketId === "inventory")
 				continue;
 
 			for (const item of bucket.items) {
 				const categories = item.definition.itemCategoryHashes ?? [];
-				if (!categories.includes(this.super.definition.slot) && item.reference.bucketHash !== BucketHashes.LostItems)
+				const excluded = !categories.includes(this.super.definition.slot) && !PostmasterId.is(item.bucket);
+
+				if (this.itemMap.has(item)) {
+					if (excluded)
+						// this item was transferred from postmaster and should not be in this view
+						this.itemMap.delete(item);
+
+					// don't create a new item component if one already exists for this item
+					continue;
+				}
+
+				if (excluded)
 					continue;
 
 				this.itemMap.set(item, this.createItemComponent(item));
@@ -381,6 +398,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
+		item.event.subscribe("bucketChange", this.update);
 		const component = DraggableItem.create([item]);
 		return component
 			.event.subscribe("click", async event => {
@@ -469,16 +487,13 @@ class SlotViewModel {
 
 	public readonly event = new EventManager<this, ISlotViewModelEvents>(this);
 
+	public items?: Record<ItemId, Item>;
 	public buckets?: Record<BucketId, Bucket>;
 	public characters?: DictionaryComponentResponse<DestinyCharacterComponent>;
 
 	public constructor () {
 		Items.event.subscribe("loading", () => LoadingManager.start(InventorySlotViewClasses.Main));
-		Items.event.subscribe("loaded", ({ value }) => {
-			this.buckets = value;
-			this.event.emit("update", this);
-			LoadingManager.end(InventorySlotViewClasses.Main);
-		});
+		Items.event.subscribe("loaded", ({ value }) => this.updateItems(value));
 		ProfileCharacters.event.subscribe("loaded", ({ value }) =>
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
 			this.characters = value.characters);
@@ -512,6 +527,37 @@ class SlotViewModel {
 
 		progress?.emitProgress(2 / 2);
 		return this as Required<this>;
+	}
+
+	private updateItems (buckets: Record<BucketId, Bucket>) {
+		this.items ??= {};
+		this.buckets = buckets;
+		for (const [bucketId, bucket] of Object.entries(this.buckets)) {
+			for (let i = 0; i < bucket.items.length; i++) {
+				let newItem = bucket.items[i];
+				// use old item if it exists
+				newItem = this.items[newItem.id]?.update(newItem) ?? newItem;
+
+				if (this.items[newItem.id] !== newItem)
+					// if the new item instance is used, subscribe to its bucketChange event
+					newItem.event.subscribe("bucketChange", ({ item, oldBucket, equipped }) => {
+						// and on its bucket changing, remove it from its old bucket and put it in its new one
+						Arrays.remove(this.buckets![oldBucket]?.items, item);
+						this.buckets![item.bucket].items.push(item);
+
+						// if this item is equipped now, make the previously equipped item not equipped
+						if (equipped)
+							for (const potentiallyEquippedItem of this.buckets![item.bucket].items)
+								if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
+									delete potentiallyEquippedItem.equipped;
+					});
+
+				this.buckets[bucketId as BucketId]!.items[i] = this.items[newItem.id] = newItem;
+			}
+		}
+
+		this.event.emit("update", this);
+		LoadingManager.end(InventorySlotViewClasses.Main);
 	}
 
 	private interval?: number;

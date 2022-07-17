@@ -1,10 +1,12 @@
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
+import Loadable from "ui/Loadable";
 import Store from "utility/Store";
 
 export enum ItemClasses {
@@ -30,18 +32,56 @@ export default class ItemComponent extends Button<[Item]> {
 
 	public item!: Item;
 	public extra!: Component;
+	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
 
 	protected override async onMake (item: Item) {
 		super.onMake(item);
-		await this.setItem(item);
+
+		this.update = this.update.bind(this);
+		this.loadStart = this.loadStart.bind(this);
+		this.loadEnd = this.loadEnd.bind(this);
+		const done = this.setItem(item);
+		await done;
 	}
 
-	public async setItem (item: Item) {
+	private update (event: { item: Item }) {
+		if (!document.contains(this.element)) {
+			this.item.event.unsubscribe("update", this.update);
+			this.item.event.unsubscribe("loadStart", this.loadStart);
+			this.item.event.unsubscribe("loadEnd", this.loadEnd);
+			return;
+		}
+
+		void this.setItem(event.item);
+	}
+
+	private loadStart () {
+		this.loadingSpinny?.classes.remove(Classes.Hidden);
+	}
+
+	private loadEnd () {
+		this.loadingSpinny?.classes.add(Classes.Hidden);
+	}
+
+	public setItem (item: Item) {
+		if (item !== this.item) {
+			this.item?.event.unsubscribe("update", this.update);
+			this.item?.event.unsubscribe("loadStart", this.loadStart);
+			this.item?.event.unsubscribe("loadEnd", this.loadEnd);
+			item.event.subscribe("update", this.update);
+			item.event.subscribe("loadStart", this.loadStart);
+			item.event.subscribe("loadEnd", this.loadEnd);
+			this.item = item;
+		}
+
+		return this.renderItem(item);
+	}
+
+	private async renderItem (item: Item) {
 		this.removeContents();
 
 		this.tooltipPadding = 0;
-		this.item = item;
 		this.classes.add(ItemClasses.Main)
 			.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
 
@@ -125,21 +165,12 @@ export default class ItemComponent extends Button<[Item]> {
 
 		this.extra.appendTo(this);
 
-		// const loadingSpinny = Component.create()
-		// 	.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
-		// 	.classes.toggle(!item.transferring, Classes.Hidden)
-		// 	.append(Component.create())
-		// 	.append(Component.create())
-		// 	.appendTo(this);
-
-		// const onMoving = ({ transferring }: { transferring: boolean }) => {
-		// 	if (!document.contains(this.element)) {
-		// 		item.event.unsubscribe("transferStateChange", onMoving);
-		// 	}
-		// 	loadingSpinny.classes.toggle(!transferring, Classes.Hidden);
-		// };
-
-		// item.event.subscribe("transferStateChange", onMoving);
+		this.loadingSpinny = Component.create()
+			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
+			.classes.toggle(!item.transferring, Classes.Hidden)
+			.append(Component.create())
+			.append(Component.create())
+			.appendTo(this);
 	}
 
 	public setSortedBy (sorter: SortManager) {
