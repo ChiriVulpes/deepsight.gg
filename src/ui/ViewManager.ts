@@ -48,7 +48,7 @@ export default class ViewManager {
 		return registry;
 	}
 
-	private static view?: View.WrapperComponent;
+	public static view?: View.WrapperComponent;
 	private static history: string[] = [];
 
 	public static hasView () {

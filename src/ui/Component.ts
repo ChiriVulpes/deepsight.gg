@@ -108,7 +108,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 				});
 
 				return result as any as {
-					new(element: ELEMENT): Component<ELEMENT, ARGS> & { super: CLASS["prototype"] };
+					new(element: ELEMENT): Component<ELEMENT, ARGS> & {
+						super: CLASS["prototype"];
+						event: CLASS["prototype"]["event"];
+					};
 					create: (typeof Component)["create"];
 					get: (typeof Component)["get"];
 				};

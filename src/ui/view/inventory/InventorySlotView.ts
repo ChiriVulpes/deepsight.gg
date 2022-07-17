@@ -24,6 +24,7 @@ import LoadingManager from "ui/LoadingManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
+import ViewManager from "ui/ViewManager";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
@@ -487,6 +488,9 @@ class SlotViewModel {
 	}
 
 	public async await (progress?: IModelGenerationApi) {
+		if (!ViewManager.view?.classes.has(`.${InventorySlotViewClasses.Main}`))
+			return this as Required<this>;
+
 		const charactersLoadedPromise = ProfileCharacters.await();
 
 		if (!this.characters) {
