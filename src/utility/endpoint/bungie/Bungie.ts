@@ -29,8 +29,8 @@ export class BungieAPI {
 	public constructor () {
 		BungieEndpoint.event.subscribe("authenticationFailed", () =>
 			this.resetAuthentication());
-		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise }) =>
-			setAuthorisationPromise(this.validateAuthorisation()));
+		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise, force }) =>
+			setAuthorisationPromise(this.validateAuthorisation(force)));
 	}
 
 	public get authenticated () {
@@ -82,8 +82,8 @@ export class BungieAPI {
 		this.event.emit("resetAuthentication");
 	}
 
-	private async validateAuthorisation () {
-		if ((Store.items.bungieAccessTokenExpireTime ?? 0) > Date.now())
+	private async validateAuthorisation (force = false) {
+		if (!force && (Store.items.bungieAccessTokenExpireTime ?? 0) > Date.now())
 			return; // authorisation valid
 
 		await this.requestToken();

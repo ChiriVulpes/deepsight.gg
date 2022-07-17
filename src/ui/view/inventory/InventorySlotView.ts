@@ -24,7 +24,6 @@ import LoadingManager from "ui/LoadingManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
-import ViewManager from "ui/ViewManager";
 import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
@@ -121,6 +120,9 @@ class InventorySlotViewWrapper extends View.WrapperComponent<[], View.IViewBase 
 type InventorySlotViewArgs = [Required<SlotViewModel>];
 class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
 
+	public static hasExisted = false;
+	public static current?: InventorySlotView;
+
 	public model!: Required<SlotViewModel>;
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
@@ -136,6 +138,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public filterer!: ItemFilter;
 
 	protected override async onMake (model: Required<SlotViewModel>) {
+		InventorySlotView.hasExisted = true;
+		InventorySlotView.current = this;
 		this.model = model;
 
 		this.classes.add(InventorySlotViewClasses.Main);
@@ -163,9 +167,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		model.event.subscribe("update", this.update);
 		this.event.subscribe("hide", () => {
 			model.event.unsubscribe("update", this.update);
+			if (InventorySlotView.current === this)
+				delete InventorySlotView.current;
 		});
 
-		await this.update();
+		this.update();
 
 		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
 
@@ -488,7 +494,7 @@ class SlotViewModel {
 	}
 
 	public async await (progress?: IModelGenerationApi) {
-		if (!ViewManager.view?.classes.has(`.${InventorySlotViewClasses.Main}`))
+		if (InventorySlotView.hasExisted && !InventorySlotView.current)
 			return this as Required<this>;
 
 		const charactersLoadedPromise = ProfileCharacters.await();

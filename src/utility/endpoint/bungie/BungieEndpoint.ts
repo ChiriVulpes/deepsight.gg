@@ -14,34 +14,55 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	}
 
 	public override async query (...args: ARGS) {
-		return this.fetch(undefined, ...args)
-			.then(response => {
-				if (response.status === 401) {
-					BungieEndpoint.event.emit("authenticationFailed");
-					throw new Error("Not authenticated");
-				}
-
-				return response.text();
-			})
-			.then(text => {
-				try {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-					const data = JSON.parse(text) as Record<string, unknown>;
-					if (data?.ErrorStatus === "WebAuthRequired") {
-						BungieEndpoint.event.emit("authenticationFailed");
-						throw Object.assign(new Error(data.Message as string | undefined ?? "Not authenticated"), data);
+		const attempts = 3;
+		const lastAttempt = attempts - 1;
+		for (let attempt = 0; attempt < 3; attempt++) {
+			let error401d: Error | undefined;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const result = await this.fetch(undefined, ...args)
+				.then(response => {
+					if (response.status === 401) {
+						error401d = new Error("Not authenticated");
+						return;
 					}
 
-					if (data?.ErrorStatus && data.ErrorStatus !== "Success")
-						throw Object.assign(new Error(data.Message as string | undefined ?? data.ErrorStatus as string), data);
+					return response.text();
+				})
+				.then(text => {
+					if (!text)
+						return;
 
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-					return ("Response" in data && data.Response ? data.Response : data) as any;
-				} catch (error) {
-					BungieEndpoint.event.emit("error", { error: error as Error, responseText: text });
-					throw error;
+					try {
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+						const data = JSON.parse(text) as Record<string, unknown>;
+						if (data?.ErrorStatus === "WebAuthRequired") {
+							error401d = Object.assign(new Error(data.Message as string | undefined ?? "Not authenticated"), data);
+							return;
+						}
+
+						if (data?.ErrorStatus && data.ErrorStatus !== "Success")
+							throw Object.assign(new Error(data.Message as string | undefined ?? data.ErrorStatus as string), data);
+
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+						return ("Response" in data && data.Response ? data.Response : data) as any;
+					} catch (error) {
+						BungieEndpoint.event.emit("error", { error: error as Error, responseText: text });
+						throw error;
+					}
+				});
+
+			if (error401d) {
+				if (attempt >= lastAttempt) {
+					BungieEndpoint.event.emit("authenticationFailed");
+					throw error401d;
+				} else {
+					await this.validateAuthorisation(true);
+					continue;
 				}
-			});
+			}
+
+			return result;
+		}
 	}
 
 	protected override resolvePath (...args: ARGS): string {
@@ -63,10 +84,14 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	}
 
 	private async getAuthorisation () {
-		let authorisationPromise: Promise<void> | undefined;
-		BungieEndpoint.event.emit("validateAuthorisation", { setAuthorisationPromise: promise => void (authorisationPromise = promise) });
-		await authorisationPromise;
+		await this.validateAuthorisation();
 		return Store.items.bungieAccessToken ? `Bearer ${Store.items.bungieAccessToken}` : undefined;
+	}
+
+	private async validateAuthorisation (force?: true) {
+		let authorisationPromise: Promise<void> | undefined;
+		BungieEndpoint.event.emit("validateAuthorisation", { setAuthorisationPromise: promise => void (authorisationPromise = promise), force });
+		await authorisationPromise;
 	}
 }
 
@@ -75,8 +100,9 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 }
 
 namespace BungieEndpoint {
+
 	export interface IEvents {
-		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; };
+		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; force?: true };
 		authenticationFailed: Event;
 		error: { error: Error; responseText: string };
 	}
