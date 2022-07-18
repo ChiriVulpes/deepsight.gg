@@ -94,6 +94,7 @@
 				inset: -100%;
 				background: linear-gradient(to bottom, transparent 30%, #fff 50%, transparent 70%);
 				animation: masterwork-rotate 6s linear infinite;
+				@include blur-disables-animation;
 				
 				@keyframes masterwork-rotate {
 					from { transform: rotate(0deg); }

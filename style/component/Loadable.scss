@@ -95,6 +95,7 @@
 				background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
 				background-size: 600% 600%;
 				animation: flash 3s linear infinite;
+				@include blur-disables-animation;
 			}
 		}
 	}

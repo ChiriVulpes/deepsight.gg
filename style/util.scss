@@ -22,6 +22,12 @@
 	}
 }
 
+@mixin blur-disables-animation {
+    :root:not(.focused) & {
+        animation: none;
+    }
+}
+
 @function str-split($string, $separator) {
     // empty array/list
     $split-arr: ();

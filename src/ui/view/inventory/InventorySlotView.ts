@@ -11,6 +11,7 @@ import Profile from "model/models/Profile";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import FocusManager from "ui/FocusManager";
 import { ButtonClasses } from "ui/form/Button";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
@@ -499,13 +500,11 @@ class SlotViewModel {
 			this.characters = value.characters);
 
 		this.await = this.await.bind(this);
-		this.onPageFocus = this.onPageFocus.bind(this);
-		this.onPageBlur = this.onPageBlur.bind(this);
-		if (document.hasFocus())
-			this.onPageFocus();
+		this.onPageFocusChange = this.onPageFocusChange.bind(this);
+		if (FocusManager.focused)
+			this.onPageFocusChange(FocusManager);
 
-		window.addEventListener("focus", this.onPageFocus);
-		window.addEventListener("blur", this.onPageBlur);
+		FocusManager.event.subscribe("changeFocusState", this.onPageFocusChange);
 	}
 
 	public async await (progress?: IModelGenerationApi) {
@@ -561,17 +560,12 @@ class SlotViewModel {
 	}
 
 	private interval?: number;
-	private onPageFocus () {
-		void this.await();
+	private onPageFocusChange ({ focused }: { focused: boolean }) {
+		if (focused)
+			void this.await();
 		clearInterval(this.interval);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.interval = setInterval(this.await, Time.seconds(5));
-	}
-
-	private onPageBlur () {
-		clearInterval(this.interval);
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.interval = setInterval(this.await, Time.minutes(2));
+		this.interval = setInterval(this.await, focused ? Time.seconds(5) : Time.minutes(2));
 	}
 }
 

@@ -49,6 +49,7 @@
 			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #D4B73C;
 			background-size: 400% 400%;
 			animation: flash 2s linear infinite reverse;
+			@include blur-disables-animation;
 			-webkit-mask-image: 
 				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
 				url("/image/masterworktooltip.png");
@@ -404,6 +405,7 @@
 					background: linear-gradient(-45deg, transparent 40%, rgba(#D4B73C, .1) 50%, transparent 65%);
 					background-size: 500% 500%;
 					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * .5s);
+					@include blur-disables-animation;
 				}
 				
 				&::after {
