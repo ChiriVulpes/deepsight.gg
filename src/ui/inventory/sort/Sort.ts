@@ -25,7 +25,7 @@ export interface ISort {
 	name: string;
 	shortName?: string;
 	sort (itemA: Item, itemB: Item): number;
-	render?(item: Item): AnyComponent | Promise<AnyComponent> | undefined;
+	render?(item: Item): AnyComponent | Promise<AnyComponent | undefined> | undefined;
 	renderSortable?(sortable: SortableSort): any;
 	renderSortableOptions?(wrapper: Component, update: () => void): any;
 }

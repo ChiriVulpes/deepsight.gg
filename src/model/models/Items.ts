@@ -74,7 +74,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
 		const postmasterId = `postmaster:${characterId}` as const;
 		buckets[postmasterId] = await createBucket(postmasterId, character.items
-			.filter(item => item.bucketHash === BucketHashes.LostItems));
+			.filter(item => item.bucketHash === BucketHashes.LostItems || item.bucketHash === BucketHashes.Engrams));
 
 		const bucket = buckets[characterId] = await createBucket(characterId, character.items);
 

@@ -6,6 +6,7 @@
 	margin: 0;
 	padding: 0;
 	transition-property: background, border, color, transform, filter, opacity;
+	background: none;
 	
 	&::after {
 		content: "";
@@ -30,6 +31,12 @@
 		background-position: center;
 		width: 100%;
 		height: 100%;
+	}
+	
+	&-borderless {
+		&::after {
+			content: none;
+		}
 	}
 	
 	&-is-masterwork {

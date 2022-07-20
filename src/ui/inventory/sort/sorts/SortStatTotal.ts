@@ -7,9 +7,15 @@ export default ISort.create({
 	id: Sort.StatTotal,
 	name: "Stat Total",
 	sort: (a, b) => getStatTotal(b) - getStatTotal(a),
-	render: item => Component.create()
-		.classes.add("item-stat-total")
-		.text.set(`${getStatTotal(item)}`),
+	render: item => {
+		const total = getStatTotal(item);
+		if (!total)
+			return undefined;
+
+		return Component.create()
+			.classes.add("item-stat-total")
+			.text.set(`${getStatTotal(item)}`);
+	},
 });
 
 function getStatTotal (item: Item) {

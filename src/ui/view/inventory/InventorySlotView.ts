@@ -1,5 +1,5 @@
 import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import type { Bucket } from "model/models/Items";
@@ -41,6 +41,7 @@ export enum InventorySlotViewClasses {
 	VaultBucket = "view-inventory-slot-vault-bucket",
 	PostmasterBuckets = "view-inventory-slot-postmaster-buckets",
 	PostmasterBucket = "view-inventory-slot-postmaster-bucket",
+	PostmasterBucketEngrams = "view-inventory-slot-postmaster-bucket-engrams",
 	PostmasterBucketWarning = "view-inventory-slot-postmaster-bucket-warning",
 	PostmasterBucketEmptySlot = "view-inventory-slot-postmaster-bucket-empty-slot",
 	SlotPendingRemoval = "view-inventory-slot-pending-removal",
@@ -83,10 +84,17 @@ class CharacterBucket extends BucketComponent<[]> {
 class PostmasterBucket extends BucketComponent<[]> {
 
 	public character!: DestinyCharacterComponent;
+	public engrams!: Component;
 
 	protected override onMake (): void {
 		super.onMake();
 		this.classes.add(InventorySlotViewClasses.PostmasterBucket);
+
+		this.engrams = Component.create()
+			.classes.add(InventorySlotViewClasses.PostmasterBucketEngrams);
+
+		this.element.insertBefore(this.engrams.element, this.content.element);
+
 		this.icon.style.set("--icon", "url(\"/image/svg/postmaster.svg\")");
 		this.title.text.add("Postmaster");
 	}
@@ -317,7 +325,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
 
-			for (const slot of [...bucketComponent.content.children()])
+			const slots = [
+				...bucketComponent.content.children(),
+				...bucketComponent instanceof PostmasterBucket ? bucketComponent.engrams.children() : [],
+			];
+			for (const slot of slots)
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
@@ -329,9 +341,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					// item not included in view
 					continue;
 
+				const slotWrapper = item.reference.bucketHash === BucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
+					: bucketComponent.content;
 				const slot = item.equipped ? equippedComponent! : Component.create()
 					.classes.add(InventoryClasses.Slot)
-					.appendTo(bucketComponent.content);
+					.appendTo(slotWrapper);
 
 				itemComponent
 					.setSortedBy(this.super.definition.sort)
@@ -340,7 +354,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				if (item.equipped)
 					this.equipped[bucketId as `${bigint}`] = itemComponent;
 
-				const power = item.instance?.primaryStat?.value ?? 0;
+				const power = item.getPower();
 				if (power > highestPower) {
 					highestPower = power;
 					highestPowerSlot.splice(0, Infinity, slot);
@@ -350,7 +364,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			}
 
 			// clean up old slots
-			for (const slot of [...bucketComponent.content.children()])
+			for (const slot of slots)
 				if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
 					slot.remove();
 		}
@@ -369,16 +383,22 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		for (const postmaster of Object.values(this.postmasters)) {
 			const postmasterItems = postmaster.content.element.childElementCount;
+			const engrams = postmaster.engrams.element.childElementCount;
 			postmaster
-				.classes.toggle(!postmasterItems, Classes.Hidden)
+				.classes.toggle(!postmasterItems && !engrams, Classes.Hidden)
 				.classes.toggle(postmasterItems > 15, InventorySlotViewClasses.PostmasterBucketWarning);
-			if (postmasterItems) {
-				for (let i = postmasterItems; i < 21; i++) {
+
+			if (postmasterItems)
+				for (let i = postmasterItems; i < 21; i++)
 					Component.create()
 						.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
 						.appendTo(postmaster.content);
-				}
-			}
+
+			if (engrams)
+				for (let i = engrams; i < 10; i++)
+					Component.create()
+						.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
+						.appendTo(postmaster.engrams);
 		}
 	}
 
@@ -400,8 +420,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
-		const component = DraggableItem.create([item]);
-		return component
+		const component = !item.canTransfer() ? ItemComponent.create([item]) : DraggableItem.create([item]);
+		return !item.canTransfer() ? component : (component as DraggableItem)
 			.event.subscribe("click", async event => {
 				if (event.shiftKey)
 					// update this item component's bucket so future clicks transfer to the right place

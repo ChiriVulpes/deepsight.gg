@@ -197,5 +197,5 @@ export default ISort.create({
 		}
 	},
 	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,
-	render: item => StatDistributionDisplay.create([item]),
+	render: item => IStatDistribution.get(item).overall <= 0 ? undefined : StatDistributionDisplay.create([item]),
 });

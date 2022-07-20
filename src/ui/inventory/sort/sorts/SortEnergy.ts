@@ -12,6 +12,9 @@ export default ISort.create({
 		const result = Component.create()
 			.text.set(`${item.instance?.energy?.energyCapacity ?? 0}`);
 
+		if (!item.instance?.energy?.energyCapacity)
+			return undefined;
+
 		if (energyType !== undefined)
 			result
 				.classes.add("item-energy", `item-energy-${energyType.displayProperties.name.toLowerCase() ?? "unknown"}`)

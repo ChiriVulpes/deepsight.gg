@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
-import { ItemState } from "bungie-api-ts/destiny2";
+import { BucketHashes, ItemState, StatHashes } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
 import type { IReusablePlug, ISocket } from "model/models/items/Plugs";
@@ -184,7 +184,7 @@ class Item {
 			return undefined;
 		}
 
-		if (definition.nonTransferrable) {
+		if (definition.nonTransferrable && reference.bucketHash !== BucketHashes.LostItems && reference.bucketHash !== BucketHashes.Engrams) {
 			console.debug(`Skipping "${definition.displayProperties.name}", non-transferrable`);
 			return undefined;
 		}
@@ -224,6 +224,19 @@ class Item {
 		return !!(this.reference.state & ItemState.Masterwork)
 			|| (this.plugs?.filter(socket => socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
 				.length ?? 0) >= 2;
+	}
+
+	public canTransfer () {
+		return !this.definition.doesPostmasterPullHaveSideEffects && this.reference.bucketHash !== BucketHashes.Engrams;
+	}
+
+	public getPower () {
+		const isValidStat = this.instance?.primaryStat?.statHash === StatHashes.Power
+			|| this.instance?.primaryStat?.statHash === StatHashes.Attack
+			|| this.instance?.primaryStat?.statHash === StatHashes.Defense;
+		const primaryStatPower = isValidStat ? this.instance!.primaryStat.value : 0;
+		const itemLevelQualityPower = (this.instance?.itemLevel ?? 0) * 10 + (this.instance?.quality ?? 0);
+		return Math.max(primaryStatPower, itemLevelQualityPower);
 	}
 
 	public isSame (item: Item) {

@@ -1,3 +1,4 @@
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
@@ -12,6 +13,7 @@ import Store from "utility/Store";
 export enum ItemClasses {
 	Main = "item",
 	Icon = "item-icon",
+	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",
 	SourceWatermark = "item-source-watermark",
 	SourceWatermarkCustom = "item-source-watermark-custom",
@@ -87,6 +89,11 @@ export default class ItemComponent extends Button<[Item]> {
 
 		this.extra = Component.create()
 			.classes.add(ItemClasses.Extra);
+
+		const borderless = item.definition.itemType === DestinyItemType.Engram
+			|| item.definition.itemType === DestinyItemType.Package
+			|| item.definition.itemTypeDisplayName == "Umbral Engram";
+		this.classes.toggle(borderless, ItemClasses.Borderless);
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
