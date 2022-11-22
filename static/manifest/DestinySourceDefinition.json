@@ -370,5 +370,16 @@
 		"season": 17,
 		"year": 5,
 		"seasonHash": 2809059430
+	},
+	"27": {
+		"id": "plunder",
+		"displayProperties": {
+			"name": "Season of Plunder",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
+		},
+		"iconWatermark": "https://www.bungie.net/common/destiny2_content/icons/f359d68324ae21522c299983ff1ef9f2.png",
+		"season": 18,
+		"year": 5,
+		"seasonHash": 2809059433
 	}
 }
