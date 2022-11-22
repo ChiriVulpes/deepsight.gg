@@ -16,6 +16,7 @@ export enum Stat {
 	Magazine = 3871231066,
 	AmmoCapacity = 925767036,
 	RPM = 4284893193,
+	DrawTime = 447667954,
 	AirborneEffectiveness = 2714457168,
 	AimAssistance = 1345609583,
 	RecoilDirection = 2715839340,

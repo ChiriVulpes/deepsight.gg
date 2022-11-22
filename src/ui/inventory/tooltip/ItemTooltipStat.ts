@@ -104,7 +104,8 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Mystery2]: false,
 	// // weapons
 	[Stat.AirborneEffectiveness]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : { name: "Airborne Aim" },
-	[Stat.RPM]: { name: "RPM" },
+	[Stat.RPM]: { name: "RPM", max: undefined },
+	[Stat.DrawTime]: { max: undefined },
 	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow || item.definition.itemSubType === DestinyItemSubType.Sword ? false
 		: { bar: true },
 	[Stat.RecoilDirection]: {
