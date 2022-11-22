@@ -1,8 +1,8 @@
 import ansi from "ansicolor";
-import { ErrorHandleFunction, NextHandleFunction } from "connect";
+import type { ErrorHandleFunction, NextHandleFunction } from "connect";
 import encodeUrl from "encodeurl";
 import escapeHTML from "escape-html";
-import Express from "express-serve-static-core";
+import type Express from "express-serve-static-core";
 import fs from "fs-extra";
 import os from "os";
 import parseUrl from "parseurl";
@@ -46,7 +46,7 @@ export default Task("serve", () => {
 			Log.info("Serving", ansi.cyan(root), "on:", ...Object.values(networkInterfaces)
 				.flatMap(interfaces => interfaces)
 				.filter((details): details is os.NetworkInterfaceInfoIPv4 => details?.family === "IPv4")
-				.map(details => ansi.darkGray(`http://${details.address}:${port}`)));
+				.map(details => ansi.darkGray(`https://${details.address}:${port}`)));
 
 			resolve();
 		});
