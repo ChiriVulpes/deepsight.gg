@@ -10,7 +10,7 @@
 	}
 	
 	.card {
-		width: min(500px, 30%);
+		width: max(500px, 30%);
 	}
 	
 	@at-root sleep:times(2), .card:times(30) {
