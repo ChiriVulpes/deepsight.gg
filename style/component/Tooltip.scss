@@ -25,6 +25,11 @@
 		grid-template-columns: 1fr auto;
 	}
 	
+	&-footer {
+		background: color(tooltip-footer-background, .85);
+		padding: 4px 12px;
+	}
+	
 	&-title {
 		padding-top: 4px;
 		margin: 0;

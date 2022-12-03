@@ -228,7 +228,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		if (componentOrParentNode instanceof Component<Element>)
 			componentOrParentNode = componentOrParentNode.element;
 
-		componentOrParentNode.appendChild(this.element);
+		if (componentOrParentNode)
+			componentOrParentNode.appendChild(this.element);
+		else
+			this.element.remove();
+
 		return this;
 	}
 
@@ -236,7 +240,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		if (componentOrParentNode instanceof Component<Element>)
 			componentOrParentNode = componentOrParentNode.element;
 
-		componentOrParentNode.insertBefore(this.element, componentOrParentNode.firstChild);
+		if (componentOrParentNode)
+			componentOrParentNode.insertBefore(this.element, componentOrParentNode.firstChild);
+		else
+			this.element.remove();
+
 		return this;
 	}
 

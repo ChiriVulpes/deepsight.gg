@@ -1,10 +1,13 @@
+import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
 import { ITEM_WEAPON_MOD } from "model/models/Items";
 import type Item from "model/models/items/Item";
+import { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import { Hint, IInput } from "ui/Hints";
 import ElementType from "ui/inventory/ElementTypes";
 import ItemTooltipStat from "ui/inventory/tooltip/ItemTooltipStat";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
@@ -43,6 +46,7 @@ enum ItemTooltipClasses {
 	DeepsightPatternRequiredUnit = "item-tooltip-deepsight-pattern-required-unit",
 	DeepsightProgressBar = "item-tooltip-deepsight-progress-bar",
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
+	Hints = "item-tooltip-hints",
 }
 
 class ItemTooltip extends Tooltip {
@@ -68,6 +72,10 @@ class ItemTooltip extends Tooltip {
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
 	public stats!: ItemTooltipStat.Wrapper;
+	public hints!: Component;
+	public hintVault!: Hint;
+	public hintPullToCharacter!: Hint;
+	public hintEquipToCharacter!: Hint;
 
 	protected override onMake () {
 		this.classes.add(ItemTooltipClasses.Main);
@@ -141,15 +149,29 @@ class ItemTooltip extends Tooltip {
 		this.deepsightProgressValue = Component.create()
 			.classes.add(ItemTooltipClasses.DeepsightProgressValue)
 			.appendTo(this.deepsightProgressBar);
+
+		this.hints = Component.create()
+			.classes.add(ItemTooltipClasses.Hints)
+			.appendTo(this.footer);
+
+		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
+			.appendTo(this.hints);
+
+		this.hintPullToCharacter = Hint.create([IInput.get("MouseLeft")])
+			.appendTo(this.hints);
+
+		this.hintVault = Hint.create([IInput.get("MouseLeft", "Shift")])
+			.tweak(hint => hint.label.text.set("Vault"))
+			.appendTo(this.hints);
 	}
 
-	public async setItem (item: Item) {
+	public async setItem (item: Item, character: DestinyCharacterComponent) {
 		this.item = item;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).item = item;
 		console.log(Display.name(item.definition), item);
 
-		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = await Manifest.await();
+		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.removeWhere(cls => cls.startsWith("item-tooltip-tier-"))
 			.classes.add(`item-tooltip-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
@@ -308,6 +330,14 @@ class ItemTooltip extends Tooltip {
 			this.deepsightProgressBar.style.set("--progress", `${progress}`);
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
+
+		const cls = await DestinyClassDefinition.get(character.classHash);
+		const className = cls?.displayProperties.name ?? "Unknown";
+		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
+		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
+		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped, Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
+		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
 	}
 }
 

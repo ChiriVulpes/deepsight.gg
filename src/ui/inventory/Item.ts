@@ -1,3 +1,4 @@
+import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
@@ -30,15 +31,18 @@ export enum ItemClasses {
 	Loading = "item-loading",
 }
 
-export default class ItemComponent extends Button<[Item]> {
+export default class ItemComponent extends Button<[Item, DestinyCharacterComponent]> {
 
 	public item!: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
+	public character!: DestinyCharacterComponent;
 
-	protected override async onMake (item: Item) {
-		super.onMake(item);
+	protected override async onMake (item: Item, character: DestinyCharacterComponent) {
+		super.onMake(item, character);
+
+		this.character = character;
 
 		this.update = this.update.bind(this);
 		this.loadStart = this.loadStart.bind(this);
@@ -166,7 +170,7 @@ export default class ItemComponent extends Button<[Item]> {
 		// this.text.set(item.definition.displayProperties.name);
 		this.setTooltip(ItemTooltip, {
 			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
-				.setItem(item),
+				.setItem(item, this.character),
 			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
 		});
 

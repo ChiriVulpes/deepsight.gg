@@ -113,8 +113,8 @@ class DraggableItem extends ItemComponent {
 
 	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
 
-	protected override async onMake (item: Item) {
-		await super.onMake(item);
+	protected override async onMake (item: Item, character: DestinyCharacterComponent) {
+		await super.onMake(item, character);
 		new Draggable(this.element);
 	}
 }
@@ -420,14 +420,20 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
-		const component = !item.canTransfer() ? ItemComponent.create([item]) : DraggableItem.create([item]);
+		const character = (this.characters[item.character!] ?? this.currentCharacter).character;
+		const component = !item.canTransfer() ? ItemComponent.create([item, character]) : DraggableItem.create([item, character]);
 		return !item.canTransfer() ? component : (component as DraggableItem)
 			.event.subscribe("click", async event => {
 				if (event.shiftKey)
 					// update this item component's bucket so future clicks transfer to the right place
 					await item.transferToggleVaulted(this.currentCharacter.character.characterId as CharacterId);
-				else
-					await item.equip(item.character ?? this.currentCharacter.character.characterId as CharacterId);
+				else {
+					const character = item.character ?? this.currentCharacter.character.characterId as CharacterId;
+					if (PostmasterId.is(item.bucket))
+						await item.transferToCharacter(character);
+					else
+						await item.equip(character);
+				}
 			})
 			.event.subscribe("moveStart", event => {
 				if (item.equipped)
@@ -439,7 +445,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
-				this.itemMoving = ItemComponent.create([item])
+				const character = (this.characters[item.character!] ?? this.currentCharacter).character;
+				this.itemMoving = ItemComponent.create([item, character])
 					.classes.add(InventorySlotViewClasses.ItemMoving)
 					.setTooltipPadding(40)
 					.appendTo(this);
