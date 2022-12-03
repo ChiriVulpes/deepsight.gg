@@ -24,7 +24,7 @@
 	letter-spacing: .02em;
 	
 	@media (max-width: 1200px) and (min-width: 800px) and (min-height: 800px) {
-		--slot-size: min(106px, (100vw
+		--slot-size: min(78px, (100vw
 			- 120px
 			- var(--nav-height) /* nav */
 			- var(--footer-height) /* footer */
