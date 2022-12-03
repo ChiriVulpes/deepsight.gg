@@ -128,7 +128,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 		Extract<keyof { [KEY in Exclude<keyof COMPONENTS, "length"> as COMPONENTS[KEY] extends COMPONENTS_FOR_RESPONSE ? KEY : never]: COMPONENTS[KEY] }, string>
 	)] extends [never] ? never : PROFILE_RESPONSE_KEY
 	: never
-)]: DestinyProfileResponse[PROFILE_RESPONSE_KEY] }> {
+)]?: DestinyProfileResponse[PROFILE_RESPONSE_KEY] }> {
 	components.sort();
 
 	for (const component of components)

@@ -194,8 +194,8 @@ class Item {
 			reference,
 			definition,
 			bucket,
-			instance: profile.itemComponents.instances.data?.[reference.itemInstanceId!],
-			objectives: Object.values(profile.itemComponents.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
+			instance: profile.itemComponents?.instances.data?.[reference.itemInstanceId!],
+			objectives: Object.values(profile.itemComponents?.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
 		};
 
 		await Promise.all([

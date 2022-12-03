@@ -42,7 +42,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	const initialisedItems = new Set<string>();
 
 	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
-		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory.data?.items.length ?? 1)), "Loading items");
+		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory?.data?.items.length ?? 1)), "Loading items");
 		const itemId = Item.id(reference);
 		if (initialisedItems.has(itemId))
 			return undefined; // already initialised in another bucket
@@ -68,17 +68,17 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		return new Bucket(id, items);
 	}
 
-	const profileItems = profile.profileInventory.data?.items ?? [];
+	const profileItems = profile.profileInventory?.data?.items ?? [];
 
 	const buckets = {} as Record<BucketId, Bucket>;
-	for (const [characterId, character] of Object.entries(profile.characterInventories.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
+	for (const [characterId, character] of Object.entries(profile.characterInventories?.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
 		const postmasterId = `postmaster:${characterId}` as const;
 		buckets[postmasterId] = await createBucket(postmasterId, character.items
 			.filter(item => item.bucketHash === BucketHashes.LostItems || item.bucketHash === BucketHashes.Engrams));
 
 		const bucket = buckets[characterId] = await createBucket(characterId, character.items);
 
-		for (const itemComponent of (profile.characterEquipment.data?.[characterId].items ?? [])) {
+		for (const itemComponent of (profile.characterEquipment?.data?.[characterId].items ?? [])) {
 			const item = await resolveItemComponent(itemComponent, characterId);
 			if (!item)
 				continue;

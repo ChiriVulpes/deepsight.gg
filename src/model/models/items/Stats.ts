@@ -49,7 +49,7 @@ namespace Stats {
 			.flatMap(plug => plug?.definition.investmentStats)
 			.concat(item.definition.investmentStats);
 
-		const stats = profile.itemComponents.stats.data?.[item.reference.itemInstanceId!]?.stats;
+		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats;
 		if (stats)
 			for (const intrinsic of intrinsicStats)
 				if (intrinsic && !intrinsic.isConditionallyActive)

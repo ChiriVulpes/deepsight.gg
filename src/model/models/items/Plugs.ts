@@ -16,7 +16,7 @@ export interface IReusablePlug {
 namespace Plugs {
 
 	export interface IPlugsProfile {
-		itemComponents: DestinyItemComponentSetOfint64,
+		itemComponents?: DestinyItemComponentSetOfint64,
 	}
 
 	export function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {
@@ -26,7 +26,7 @@ namespace Plugs {
 	}
 
 	async function resolveSockets ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: IItemInit): Promise<(ISocket | undefined)[]> {
-		const sockets = profile.itemComponents.sockets.data?.[item.reference.itemInstanceId!]?.sockets;
+		const sockets = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets;
 		return Promise.all(sockets
 			?.map(async (socket): Promise<ISocket | undefined> => {
 				const definition = await DestinyInventoryItemDefinition.get(socket.plugHash);
@@ -38,7 +38,7 @@ namespace Plugs {
 	}
 
 	async function resolveReusable ({ DestinyInventoryItemDefinition }: Manifest, profile: IPlugsProfile, item: IItemInit) {
-		const plugs = profile.itemComponents.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs;
+		const plugs = profile.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs;
 		const sockets = (await item.sockets) ?? [];
 
 		const reusablePlugs = sockets.map(socket => [{

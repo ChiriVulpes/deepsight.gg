@@ -26,7 +26,7 @@ export interface IDeepsight {
 namespace Deepsight {
 
 	export interface IDeepsightProfile {
-		profileRecords: SingleComponentResponse<DestinyProfileRecordsComponent>;
+		profileRecords?: SingleComponentResponse<DestinyProfileRecordsComponent>;
 	}
 
 	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit) {
@@ -66,7 +66,7 @@ namespace Deepsight {
 			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const progress = profile.profileRecords.data?.records[record?.hash!];
+		const progress = profile.profileRecords?.data?.records[record?.hash!];
 		if (!progress)
 			return undefined;
 
