@@ -1,5 +1,6 @@
 import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import Async from "utility/Async";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllCustomManifestComponents } from "utility/endpoint/fvm/endpoint/GetCustomManifest";
 import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
@@ -32,9 +33,15 @@ declare module "model/ModelCacheDatabase" {
 	interface IModelCache extends IModelCacheManifestComponents { }
 }
 
+const bulkKeys = new Set<keyof IModelCacheManifestComponents>([
+	"manifest [DestinyInventoryItemDefinition]",
+	"manifest [DestinyCollectibleDefinition]",
+]);
+
 export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	private memoryCache: Record<string, Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME> | undefined> | undefined> = {};
+	private accessed = new Set<string>();
 
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
@@ -48,11 +55,29 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 			return undefined;
 
 		const memoryCacheKey = `${index ?? "/"}:${key}`;
+		this.accessed.add(memoryCacheKey);
 		if (this.memoryCache[memoryCacheKey])
 			return this.memoryCache[memoryCacheKey];
 
-		return this.memoryCache[memoryCacheKey] = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
-			.then(value => this.memoryCache[memoryCacheKey] = value);
+		if (!bulkKeys.has(this.componentName))
+			return this.memoryCache[memoryCacheKey] = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
+				.then(value => this.memoryCache[memoryCacheKey] = value);
+
+		// this is a bulk key so to prevent taking ten million years we load data in bulk
+		const bulkKey = `${key}`.slice(0, 2);
+		return Model.cacheDB.all(this.componentName, IDBKeyRange.bound(bulkKey, `${bulkKey.slice(0, -1)}${String.fromCharCode(bulkKey.charCodeAt(1) + 1)}`, false, true))
+			.then(items => {
+				items.forEach(item => this.memoryCache[`${index ?? "/"}:${item.hash}`] = item);
+				void Async.sleep(10000)
+					.then(() => {
+						for (const key of Object.keys(this.memoryCache)) {
+							if (!this.accessed.has(key)) {
+								delete this.memoryCache[key];
+							}
+						}
+					});
+			})
+			.then(() => this.memoryCache[memoryCacheKey]);
 	}
 
 	public all () {
