@@ -150,7 +150,7 @@ namespace TooltipManager {
 
 	let reversed: boolean | undefined;
 	document.body.addEventListener("mousemove", event => {
-		const switchTooltipAt = (500 / 1920) * window.innerWidth;
+		const switchTooltipAt = (800 / 1920) * window.innerWidth;
 		const switchTooltipDirection = reversed && event.clientX < switchTooltipAt
 			|| !reversed && event.clientX > window.innerWidth - switchTooltipAt;
 
