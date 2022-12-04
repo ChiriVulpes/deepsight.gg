@@ -1,17 +1,13 @@
-import type { DestinyCharacterComponent, DictionaryComponentResponse, ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
-import type { IModelGenerationApi } from "model/Model";
-import Model from "model/Model";
+import type { DestinyCharacterComponent, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { BucketHashes } from "bungie-api-ts/destiny2";
+import InventoryModel from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
-import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId, DestinationBucketId, ItemId } from "model/models/items/Item";
+import type { BucketId, CharacterId, DestinationBucketId } from "model/models/items/Item";
 import { PostmasterId } from "model/models/items/Item";
-import Profile from "model/models/Profile";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
-import FocusManager from "ui/FocusManager";
 import { ButtonClasses } from "ui/form/Button";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
@@ -21,13 +17,10 @@ import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent, { ItemClasses } from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
-import LoadingManager from "ui/LoadingManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
-import Arrays from "utility/Arrays";
-import { EventManager } from "utility/EventManager";
-import Time from "utility/Time";
+import ItemView from "ui/view/item/ItemView";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -125,15 +118,15 @@ interface IInventorySlotViewDefinition {
 	filter: FilterManager;
 }
 
-class InventorySlotViewWrapper extends View.WrapperComponent<[], View.IViewBase & IInventorySlotViewDefinition> { }
+class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
 
-type InventorySlotViewArgs = [Required<SlotViewModel>];
+type InventorySlotViewArgs = [Required<InventoryModel>];
 class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
 
 	public static hasExisted = false;
 	public static current?: InventorySlotView;
 
-	public model!: Required<SlotViewModel>;
+	public model!: Required<InventoryModel>;
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characterBucketsContainer!: Component;
@@ -146,10 +139,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
 
-	protected override async onMake (model: Required<SlotViewModel>) {
+	protected override async onMake (model: Required<InventoryModel>) {
 		InventorySlotView.hasExisted = true;
 		InventorySlotView.current = this;
 		this.model = model;
+		model.setShouldSkipCharacters(() => !InventorySlotView.current);
 
 		this.classes.add(InventorySlotViewClasses.Main);
 		this.super.content.classes.add(InventorySlotViewClasses.Content);
@@ -435,6 +429,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 						await item.equip(character);
 				}
 			})
+			.event.subscribe("contextmenu", event => {
+				event.preventDefault();
+				ItemView.show(item);
+			})
 			.event.subscribe("moveStart", event => {
 				if (item.equipped)
 					return event.preventDefault();
@@ -501,103 +499,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 }
 
-interface ISlotViewModelEvents {
-	update: SlotViewModel;
-}
-
-const ProfileCharacters = Profile(DestinyComponentType.Characters);
-class SlotViewModel {
-
-	private static INSTANCE?: SlotViewModel;
-	public static get () {
-		return SlotViewModel.INSTANCE ??= new SlotViewModel();
-	}
-
-	public readonly event = new EventManager<this, ISlotViewModelEvents>(this);
-
-	public items?: Record<ItemId, Item>;
-	public buckets?: Record<BucketId, Bucket>;
-	public characters?: DictionaryComponentResponse<DestinyCharacterComponent>;
-
-	public constructor () {
-		Items.event.subscribe("loading", () => LoadingManager.start(InventorySlotViewClasses.Main));
-		Items.event.subscribe("loaded", ({ value }) => this.updateItems(value));
-		ProfileCharacters.event.subscribe("loaded", ({ value }) =>
-			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
-			this.characters = value.characters);
-
-		this.await = this.await.bind(this);
-		this.onPageFocusChange = this.onPageFocusChange.bind(this);
-		if (FocusManager.focused)
-			this.onPageFocusChange(FocusManager);
-
-		FocusManager.event.subscribe("changeFocusState", this.onPageFocusChange);
-	}
-
-	public async await (progress?: IModelGenerationApi) {
-		if (InventorySlotView.hasExisted && !InventorySlotView.current)
-			return this as Required<this>;
-
-		const charactersLoadedPromise = ProfileCharacters.await();
-
-		if (!this.characters) {
-			progress?.subscribeProgress(ProfileCharacters, 1 / 2);
-			await charactersLoadedPromise;
-		}
-
-		const itemsLoadedPromise = Items.await();
-		if (!this.buckets) {
-			progress?.subscribeProgress(Items, 1 / 2, 1 / 2);
-			await itemsLoadedPromise;
-		}
-
-		progress?.emitProgress(2 / 2);
-		return this as Required<this>;
-	}
-
-	private updateItems (buckets: Record<BucketId, Bucket>) {
-		this.items ??= {};
-		this.buckets = buckets;
-		for (const [bucketId, bucket] of Object.entries(this.buckets)) {
-			for (let i = 0; i < bucket.items.length; i++) {
-				let newItem = bucket.items[i];
-				// use old item if it exists
-				newItem = this.items[newItem.id]?.update(newItem) ?? newItem;
-
-				if (this.items[newItem.id] !== newItem)
-					// if the new item instance is used, subscribe to its bucketChange event
-					newItem.event.subscribe("bucketChange", ({ item, oldBucket, equipped }) => {
-						// and on its bucket changing, remove it from its old bucket and put it in its new one
-						Arrays.remove(this.buckets![oldBucket]?.items, item);
-						this.buckets![item.bucket].items.push(item);
-
-						// if this item is equipped now, make the previously equipped item not equipped
-						if (equipped)
-							for (const potentiallyEquippedItem of this.buckets![item.bucket].items)
-								if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
-									delete potentiallyEquippedItem.equipped;
-					});
-
-				this.buckets[bucketId as BucketId]!.items[i] = this.items[newItem.id] = newItem;
-			}
-		}
-
-		this.event.emit("update", this);
-		LoadingManager.end(InventorySlotViewClasses.Main);
-	}
-
-	private interval?: number;
-	private onPageFocusChange ({ focused }: { focused: boolean }) {
-		if (focused)
-			void this.await();
-		clearInterval(this.interval);
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.interval = setInterval(this.await, focused ? Time.seconds(5) : Time.minutes(2));
-	}
-}
 
 export default new View.Factory()
-	.using(Model.createTemporary(async progress => SlotViewModel.get().await(progress)))
+	.using(InventoryModel.createTemporary())
 	.define<IInventorySlotViewDefinition>()
 	.initialise((view, model) =>
 		view.make(InventorySlotView, model));

@@ -18,6 +18,7 @@ export default View.create({
 	id: "auth",
 	name: "Authentication",
 	noNav: true,
+	noDestinationButton: true,
 	initialise: view => view.content
 		.classes.add(AuthViewClasses.Content)
 

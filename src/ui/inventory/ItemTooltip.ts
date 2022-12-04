@@ -76,6 +76,7 @@ class ItemTooltip extends Tooltip {
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
 	public hintEquipToCharacter!: Hint;
+	public hintInspect!: Hint;
 
 	protected override onMake () {
 		this.classes.add(ItemTooltipClasses.Main);
@@ -162,6 +163,10 @@ class ItemTooltip extends Tooltip {
 
 		this.hintVault = Hint.create([IInput.get("MouseLeft", "Shift")])
 			.tweak(hint => hint.label.text.set("Vault"))
+			.appendTo(this.hints);
+
+		this.hintInspect = Hint.create([IInput.get("MouseRight")])
+			.tweak(hint => hint.label.text.set("Inspect"))
 			.appendTo(this.hints);
 	}
 

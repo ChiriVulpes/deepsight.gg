@@ -1,6 +1,6 @@
 import type Model from "model/Model";
 import { Classes as BaseClasses } from "ui/Classes";
-import type { ComponentEventManager } from "ui/Component";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import type Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
@@ -8,54 +8,56 @@ import { EventManager } from "utility/EventManager";
 
 namespace View {
 
-	export type Initialiser<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase> =
-		(api: WrapperComponent<MODELS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
+	export type Initialiser<MODELS extends readonly Model<any, any>[], ARGS extends any[], DEFINITION extends IViewBase<ARGS>> =
+		(api: WrapperComponent<MODELS, ARGS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
 
-	export interface IViewBase {
+	export interface IViewBase<ARGS extends any[]> {
 		id: string;
-		name: string;
+		hash?: (...args: ARGS) => string;
+		name: string | ((...args: ARGS) => string);
 		initialiseDestinationButton?: (button: Button) => any;
 		noNav?: true;
+		noDestinationButton?: true;
 	}
 
 	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =
 		Omit<FROM, keyof PROVIDED> & Partial<Pick<FROM, Extract<keyof PROVIDED, keyof FROM>>>;
 
-	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
+	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
 		models?: MODELS;
-		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], DEFINITION>;
+		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>;
 	};
 
-	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], DEFINITION extends IViewBase = IViewBase, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> {
+	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> {
 		private otherModels = [] as any as OTHER_MODELS;
 		public using<ADDITIONAL_MODELS extends readonly Model<any, any>[]> (...models: ADDITIONAL_MODELS) {
 			(this.otherModels as any as Model<any, any>[]).push(...models);
-			return this as any as Factory<[...OTHER_MODELS, ...ADDITIONAL_MODELS], DEFINITION, HELPER>;
+			return this as any as Factory<[...OTHER_MODELS, ...ADDITIONAL_MODELS], ARGS, DEFINITION, HELPER>;
 		}
 
-		private initialisers: Initialiser<OTHER_MODELS, DEFINITION>[] = [];
-		public initialise (initialiser: Initialiser<OTHER_MODELS, DEFINITION>) {
+		private initialisers: Initialiser<OTHER_MODELS, ARGS, DEFINITION>[] = [];
+		public initialise (initialiser: Initialiser<OTHER_MODELS, ARGS, DEFINITION>) {
 			this.initialisers.push(initialiser);
 			return this;
 		}
 
 		public define<EXTENDED_DEFINITION> () {
-			return this as any as Factory<OTHER_MODELS, EXTENDED_DEFINITION & DEFINITION, HELPER> & HELPER;
+			return this as any as Factory<OTHER_MODELS, ARGS, EXTENDED_DEFINITION & DEFINITION, HELPER> & HELPER;
 		}
 
 		public helper<NEW_HELPER> (helper: NEW_HELPER) {
 			Object.assign(this, helper);
-			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
+			return this as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
 		}
 
 		protected definition = {} as DEFINITION;
 		public configure<PROVIDED extends Partial<DEFINITION>> (definition: PROVIDED) {
 			Object.assign(this.definition, definition);
-			return this as any as Factory<OTHER_MODELS, DEFINITION, HELPER, PROVIDED_DEFINITION & PROVIDED> & HELPER;
+			return this as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION & PROVIDED> & HELPER;
 		}
 
 		public clone () {
-			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, DEFINITION, HELPER, PROVIDED_DEFINITION> & HELPER;
+			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION> & HELPER;
 			this.definition = { ...this.definition };
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			this.otherModels = [...this.otherModels] as any;
@@ -63,8 +65,8 @@ namespace View {
 			return clone;
 		}
 
-		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, DEFINITION, PROVIDED_DEFINITION>) {
-			return new Handler<[...OTHER_MODELS, ...MODELS], DEFINITION>({
+		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, ARGS, DEFINITION, PROVIDED_DEFINITION>) {
+			return new Handler<[...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>({
 				...this.definition,
 				...definition,
 				models: [...this.otherModels, ...(definition.models ?? []) as MODELS],
@@ -78,26 +80,26 @@ namespace View {
 		}
 	}
 
-	export function create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS>) {
+	export function create<MODELS extends readonly Model<any, any>[], ARGS extends any[] = []> (definition: IView<MODELS, [], ARGS>) {
 		return new Handler(definition);
 	}
 
-	export interface Handler<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends IView<MODELS> { }
-	export class Handler<MODELS extends readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> {
+	export interface Handler<MODELS extends readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends IView<MODELS> { }
+	export class Handler<MODELS extends readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> {
 
-		public constructor (definition: IView<MODELS, [], DEFINITION>) {
+		public constructor (definition: IView<MODELS, [], ARGS, DEFINITION>) {
 			Object.assign(this, definition);
 		}
 
 		public get definition () {
-			return this as this & IView<MODELS, [], DEFINITION>;
+			return this as this & IView<MODELS, [], ARGS, DEFINITION>;
 		}
 
-		public show () {
+		public show (...args: ARGS) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			const view = WrapperComponent.create([this as any]);
+			const view = WrapperComponent.create([this as any, ...args]);
 			View.event.emit("show", { view });
-			return view as WrapperComponent<MODELS, DEFINITION>;
+			return view as WrapperComponent<MODELS, ARGS, DEFINITION>;
 		}
 
 		public hide () {
@@ -127,21 +129,22 @@ namespace View {
 		Subtitle = "view-subtitle",
 	}
 
-	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
+	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>]> {
 
-		public definition!: IView<MODELS, [], DEFINITION>;
+		public definition!: IView<MODELS, [], ARGS, DEFINITION>;
 
-		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
+		protected override onMake (definition: IView<MODELS, [], ARGS, DEFINITION>): void {
 			this.definition = definition;
 			this.classes.add(Classes.Content, `view-${this.definition.id}-content`);
 		}
 	}
 
-	export interface IWrapperComponentEvents {
+	export interface IWrapperComponentEvents extends ComponentEvents<typeof Component> {
 		hide: Event;
+		updateTitle: Event;
 	}
 
-	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], DEFINITION extends IViewBase = IViewBase> extends Component<HTMLElement, [IView<MODELS, [], DEFINITION>]> {
+	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>, ...ARGS]> {
 
 		private static index = 0;
 
@@ -150,16 +153,23 @@ namespace View {
 		public header!: Component;
 		public title!: Component;
 		public subtitle!: Component;
-		public content!: ContentComponent<MODELS, DEFINITION>;
+		public content!: ContentComponent<MODELS, ARGS, DEFINITION>;
 		private _footer!: Component;
 		public get footer () {
 			Object.defineProperty(this, "footer", { value: this._footer });
 			return this._footer.classes.remove(BaseClasses.Hidden);
 		}
 
-		public definition!: IView<MODELS, [], DEFINITION>;
+		public get hash () {
+			return this.definition.hash?.(...this._args.slice(1) as ARGS) ?? this.definition.id;
+		}
 
-		protected override onMake (definition: IView<MODELS, [], DEFINITION>): void {
+		public definition!: IView<MODELS, [], ARGS, DEFINITION>;
+
+		protected override onMake (definition: IView<MODELS, [], ARGS, DEFINITION>, ...args: ARGS): void {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			(this as any)._args = [definition, ...args];
+
 			this.definition = definition;
 			this.classes.add(Classes.Main, `view-${this.definition.id}`);
 
@@ -198,6 +208,7 @@ namespace View {
 		public setTitle (tweak?: (component: Component) => any) {
 			this.header.classes.remove(BaseClasses.Hidden);
 			this.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			this.event.emit("updateTitle");
 			return this;
 		}
 

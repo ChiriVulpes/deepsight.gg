@@ -1,5 +1,5 @@
 import { Classes } from "ui/Classes";
-import type { ComponentEventManager } from "ui/Component";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
@@ -49,9 +49,8 @@ export enum ItemFilterClasses {
 	FilterChipButtonValueHint = "item-filter-chip-button-value-hint",
 }
 
-export interface IItemFilterEvents {
+export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
 	filter: Event;
-	submit: Event;
 }
 
 class FilterChipButton extends Button<[filter: IFilter, value: string, isHint?: true]> {
@@ -222,7 +221,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 		if (this.drawer.isOpen() && (event.useOverInput("Escape") || event.useOverInput("Enter"))) {
 			this.closeDrawer();
-			this.event.emit("submit");
+			this.event.emit(new SubmitEvent("submit"));
 		}
 
 		// cancel keybinds

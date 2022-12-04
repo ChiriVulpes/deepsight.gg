@@ -10,9 +10,11 @@ import InventoryHelmetView from "ui/view/inventory/InventoryHelmetView";
 import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/InventoryPowerView";
+import ItemView from "ui/view/item/ItemView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
+import Strings from "utility/Strings";
 import URL from "utility/URL";
 
 const registry = Object.fromEntries([
@@ -27,12 +29,13 @@ const registry = Object.fromEntries([
 	InventoryLegsView,
 	InventoryClassItemView,
 	SettingsView,
+	ItemView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
 View.event.subscribe("hide", () => ViewManager.hide());
 URL.event.subscribe("navigate", () => {
-	ViewManager.showById(URL.hash);
+	ViewManager.showByHash(URL.hash);
 });
 
 export interface IViewManagerEvents {
@@ -55,17 +58,21 @@ export default class ViewManager {
 		return !!this.view;
 	}
 
-	public static showById (id: string) {
-		if (id === this.view?.definition.id)
+	public static showByHash (hash: string) {
+		if (hash === this.view?.hash)
 			return;
 
-		const view = registry[id];
+		const view = registry[hash] ?? registry[Strings.sliceTo(hash, "/")];
 		if (!view) {
-			console.warn(`Tried to navigate to an unknown view '${id}'`);
+			console.warn(`Tried to navigate to an unknown view '${hash}'`);
 			return;
 		}
 
-		this.show(view.show());
+		const args: any[] = [];
+		if (view !== registry[hash])
+			args.push(Strings.sliceAfter(hash, "/"));
+
+		this.show(view.show(...args as []));
 	}
 
 	public static show (view: View.WrapperComponent) {
@@ -80,20 +87,31 @@ export default class ViewManager {
 			void Async.sleep(1000).then(() => oldView.remove());
 		}
 
-		this.history.push(view.definition.id);
-		URL.hash = view.definition.id;
+		this.history.push(view.hash);
+		URL.hash = view.hash;
 		this.view = view;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).view = view;
 		view.appendTo(document.body);
 		this.event.emit("show", { view });
-		document.title = `${view.definition.name} | ${APP_NAME}`;
+		view.event.until("hide", manager => manager
+			.subscribe("updateTitle", () => this.updateDocumentTitle(view)));
+
+		this.updateDocumentTitle(view);
 	}
 
 	public static hide () {
 		this.history.pop();
 		const previous = this.history.pop();
 		if (previous)
-			this.showById(previous);
+			this.showByHash(previous);
+	}
+
+	private static updateDocumentTitle (view: View.WrapperComponent) {
+		let name = view.definition.name;
+		if (typeof name === "function")
+			name = name(...view._args.slice(1) as []);
+
+		document.title = `${name} | ${APP_NAME}`;
 	}
 }

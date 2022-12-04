@@ -54,7 +54,7 @@ export default class FluffiestVaultManager {
 			if (URL.hash === AuthView.id)
 				URL.hash = "";
 
-			ViewManager.showById(URL.hash);
+			ViewManager.showByHash(URL.hash);
 			if (!ViewManager.hasView())
 				InventoryKineticView.show();
 

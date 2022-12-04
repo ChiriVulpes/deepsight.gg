@@ -37,6 +37,7 @@ export type ComponentEvents<CLASS extends { prototype: AnyComponent } = typeof C
 
 const SVG_ELEMENTS = new Set([
 	"svg",
+	"g",
 	"path",
 	"circle",
 	"line",

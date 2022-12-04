@@ -12,6 +12,22 @@ namespace Strings {
 
 		return true;
 	}
+
+	export function sliceTo (string: string, substring: string, startAt?: number) {
+		const index = string.indexOf(substring, startAt);
+		if (index === -1)
+			return string;
+
+		return string.slice(0, index);
+	}
+
+	export function sliceAfter (string: string, substring: string, startAt?: number) {
+		const index = string.indexOf(substring, startAt);
+		if (index === -1)
+			return string;
+
+		return string.slice(index + substring.length);
+	}
 }
 
 export default Strings;

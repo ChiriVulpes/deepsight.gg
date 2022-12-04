@@ -1,4 +1,9 @@
 
+export interface IEventSubscriptionManager<EVENTS = {}, TARGET extends EventTarget = EventTarget> {
+	subscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this;
+	subscribe (type: string, listener: (this: TARGET, event: Event) => any): this;
+}
+
 export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
 
 	public static readonly global = EventManager.make<GlobalEventHandlersEventMap>();
@@ -62,6 +67,21 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return new Promise<any>(resolve =>
 			this.target?.addEventListener(type, resolve, { once: true }));
+	}
+
+	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => any): HOST {
+		if (typeof promise !== "object")
+			promise = this.waitFor(promise);
+
+		const manager: IEventSubscriptionManager<EVENTS, TARGET> = {
+			subscribe: (type: never, listener: (this: TARGET, event: any) => any) => {
+				this.target?.addEventListener(type, listener);
+				void (promise as Promise<any>).then(() => this.target?.removeEventListener(type, listener));
+				return manager;
+			},
+		};
+		initialiser?.(manager);
+		return this.host.deref() as HOST;
 	}
 
 	private pipeTargets = new Map<string, WeakRef<EventTarget>[]>();

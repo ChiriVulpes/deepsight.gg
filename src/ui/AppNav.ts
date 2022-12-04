@@ -70,12 +70,16 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.appendTo(destinationsWrapper);
 
 		for (const destinationViewHandler of Object.values(viewManager.registry)) {
-			if (destinationViewHandler.noNav)
+			if (destinationViewHandler.noDestinationButton)
 				continue;
+
+			let name = destinationViewHandler.definition.name;
+			if (typeof name === "function")
+				name = name();
 
 			this.destinationButtons[destinationViewHandler.id] = Button.create()
 				.classes.add(ClassesAppNav.Destination, `app-nav-destination-${destinationViewHandler.id}`)
-				.text.set(destinationViewHandler.name)
+				.text.set(name)
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show())
 				.appendTo(destinationsWrapper);
