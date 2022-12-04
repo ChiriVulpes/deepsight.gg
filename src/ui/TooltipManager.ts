@@ -148,8 +148,17 @@ namespace TooltipManager {
 		});
 	});
 
+	let reversed: boolean | undefined;
 	document.body.addEventListener("mousemove", event => {
-		tooltipSurface.classes.toggle(window.innerWidth - event.clientX < 500, TooltipClasses.Reversed);
+		const switchTooltipAt = (500 / 1920) * window.innerWidth;
+		const switchTooltipDirection = reversed && event.clientX < switchTooltipAt
+			|| !reversed && event.clientX > window.innerWidth - switchTooltipAt;
+
+		if (switchTooltipDirection) {
+			tooltipSurface.classes.toggle(TooltipClasses.Reversed);
+			reversed = !reversed;
+		}
+
 		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - window.innerWidth - event.clientX;
 		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - window.innerHeight / 2 - event.clientY;
 	});
