@@ -15,4 +15,10 @@ export interface DestinySourceDefinition {
 	hash: number;
 }
 
-export default new FVMEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json");
+export default new FVMEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json", {
+	process (received) {
+		for (const [hash, source] of Object.entries(received))
+			source.hash = +hash;
+		return received;
+	},
+});

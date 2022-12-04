@@ -19,7 +19,6 @@
 	grid-template-columns: 1fr;
 	grid-template-rows: calc(var(--current-nav-height) + var(--view-padding-top)) auto 1fr auto;
 	justify-content: center;
-	background: color(background-2);
 	overflow: hidden;
 	
 	&-loadable {

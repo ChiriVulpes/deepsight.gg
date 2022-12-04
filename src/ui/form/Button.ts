@@ -5,6 +5,7 @@ export enum ButtonClasses {
 	Icon = "button-icon",
 	InnerIcon = "button-icon-inner",
 	Attention = "button-attention",
+	Selected = "button-selected",
 }
 
 export default class Button<ARGS extends any[] = []> extends Component<HTMLButtonElement, ARGS> {

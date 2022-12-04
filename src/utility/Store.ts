@@ -13,6 +13,8 @@ export interface ILocalStorage {
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
 	settingsNoDeepsightBorderOnItemsWithoutPatterns?: true;
+	settingsBackgroundBlur?: true;
+	settingsBackground?: string;
 	itemFilter?: string;
 }
 

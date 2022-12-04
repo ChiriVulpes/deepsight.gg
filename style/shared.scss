@@ -47,6 +47,18 @@
 
 html {
 	overflow-x: hidden;
+	background: color(background-2);
+	background-size: cover;
+	background-position: center;
+}
+
+body {
+	background: color(background-2, 0.5);
+	margin: 0;
+	
+	&.blur {
+		backdrop-filter: blur(3px);
+	}
 }
 
 button {

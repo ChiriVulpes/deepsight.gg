@@ -7,7 +7,7 @@ import Store from "utility/Store";
 export type BungieEndpointURL = `/${string}/`;
 export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL | ((...args: ARGS) => BungieEndpointURL);
 
-class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
+class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
 
 	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
 		super(path, builder);

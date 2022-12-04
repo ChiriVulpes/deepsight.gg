@@ -1,4 +1,5 @@
 import View from "ui/View";
+import SettingsBackground from "ui/view/settings/SettingsBackground";
 import SettingsDeviceStorage from "ui/view/settings/SettingsDeviceStorage";
 import SettingsInventoryDisplay from "ui/view/settings/SettingsInventoryDisplay";
 import SettingsItemMovement from "ui/view/settings/SettingsItemMovement";
@@ -13,5 +14,6 @@ export default View.create({
 		.tweak(view => view.content
 			.append(SettingsInventoryDisplay.create())
 			.append(SettingsItemMovement.create())
+			.append(SettingsBackground.create())
 			.append(SettingsDeviceStorage.create())),
 });

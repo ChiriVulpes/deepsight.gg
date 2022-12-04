@@ -1,9 +1,12 @@
 import Endpoint from "utility/endpoint/Endpoint";
 import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
 import GetDestinySourceDefinition from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
+import type { DestinyWallpaperDefinition } from "utility/endpoint/fvm/endpoint/GetDestinyWallpaperDefinition";
+import GetDestinyWallpaperDefinition from "utility/endpoint/fvm/endpoint/GetDestinyWallpaperDefinition";
 
 export interface AllCustomManifestComponents {
 	DestinySourceDefinition: Record<number, DestinySourceDefinition>;
+	DestinyWallpaperDefinition: Record<number, DestinyWallpaperDefinition>;
 }
 
 export default (new class extends Endpoint<AllCustomManifestComponents> {
@@ -13,14 +16,8 @@ export default (new class extends Endpoint<AllCustomManifestComponents> {
 
 	public override async query (): Promise<AllCustomManifestComponents> {
 		return {
-			DestinySourceDefinition: await this.getSources(),
+			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
+			DestinyWallpaperDefinition: await GetDestinyWallpaperDefinition.query(),
 		};
-	}
-
-	private async getSources () {
-		const sources = await GetDestinySourceDefinition.query();
-		for (const [hash, source] of Object.entries(sources))
-			source.hash = +hash;
-		return sources;
 	}
 })

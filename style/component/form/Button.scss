@@ -39,7 +39,7 @@
 		}
 	}
 	
-	&:where(:hover, :active, :focus-visible) {
+	&:where(:hover, :active, :focus-visible, .button-selected) {
 		background: color(button-background-hover);
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
