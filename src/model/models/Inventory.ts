@@ -112,7 +112,15 @@ export default class InventoryModel {
 									delete potentiallyEquippedItem.equipped;
 					});
 
-				this.buckets[bucketId as BucketId]!.items[i] = this.items[newItem.id] = newItem;
+				this.items[newItem.id] = newItem;
+
+				if (newItem.bucket !== bucketId) {
+					this.buckets[newItem.bucket].items.push(newItem);
+					this.buckets[bucketId as BucketId].items.splice(i, 1);
+					i--;
+				} else {
+					this.buckets[bucketId]!.items[i] = this.items[newItem.id] = newItem;
+				}
 			}
 		}
 
