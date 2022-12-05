@@ -23,7 +23,7 @@ export interface ITooltipHandler<TOOLTIP extends Tooltip> {
 	differs?(tooltip: TOOLTIP): boolean;
 }
 
-export interface IComponentsEvents {
+export interface IComponentGlobalEvents {
 	setTooltip: { component: AnyComponent; tooltip: TooltipManager.ITooltipClass<Tooltip>; handler: ITooltipHandler<Tooltip> };
 }
 
@@ -43,9 +43,13 @@ const SVG_ELEMENTS = new Set([
 	"line",
 ]);
 
+export interface IComponentEvents extends HTMLElementEventMap {
+	clearTooltip: Event;
+}
+
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
 
-	public static readonly event = EventManager.make<IComponentsEvents>();
+	public static readonly event = EventManager.make<IComponentGlobalEvents>();
 
 	public readonly _args!: ARGS;
 
@@ -156,7 +160,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return text as any;
 	}
 
-	public readonly event!: EventManager<this & Component<HTMLElement, ARGS>, HTMLElementEventMap, ELEMENT>;
+	public readonly event!: EventManager<this & Component<HTMLElement, ARGS>, IComponentEvents, ELEMENT>;
 
 	protected constructor (public readonly element: ELEMENT) {
 		if (this.constructor !== Component)
@@ -260,8 +264,13 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public setTooltip<TOOLTIP extends Tooltip> (tooltip: TooltipManager.ITooltipClass<TOOLTIP>, handler: ITooltipHandler<TOOLTIP>) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Component.event.emit("setTooltip", { component: this as any, tooltip, handler });
+		Component.event.emit("setTooltip", { component: this, tooltip, handler });
+		return this;
+	}
+
+	public clearTooltip () {
+		this.event.emit("clearTooltip");
+		return this;
 	}
 
 	public exists () {

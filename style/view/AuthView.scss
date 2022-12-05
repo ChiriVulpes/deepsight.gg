@@ -33,7 +33,7 @@
 	&-logo {
 		grid-column: 1;
 		width: 128px;
-		margin-top: -2px;
+		margin-top: -3px;
 		margin-right: 20px;
 		
 		@media (max-width: 800px) {
@@ -58,6 +58,7 @@
 		white-space: pre;
 		margin-left: -3px;
 		font-weight: 300;
+		font-family: $font-title;
 		
 		@media (max-width: 800px) {
 			font-size: 40pt;

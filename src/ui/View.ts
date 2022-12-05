@@ -176,23 +176,24 @@ namespace View {
 			this.style.set("--index", `${WrapperComponent.index++}`);
 
 			this.header = Component.create()
-				.classes.add(Classes.Header, BaseClasses.Hidden)
+				.classes.add(Classes.Header, Classes.Header.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
 				.appendTo(this);
 
 			this._footer = Component.create()
-				.classes.add(Classes.Footer, BaseClasses.Hidden)
+				.classes.add(Classes.Footer, Classes.Footer.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
 				.appendTo(this);
 
 			this.title = Component.create()
-				.classes.add(Classes.Title, BaseClasses.Hidden)
+				.classes.add(Classes.Title, Classes.Title.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
 				.appendTo(this.header);
 
 			this.subtitle = Component.create()
-				.classes.add(Classes.Subtitle, BaseClasses.Hidden)
+				.classes.add(Classes.Subtitle, Classes.Subtitle.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
 				.appendTo(this.header);
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
 			this.content = ContentComponent.create([definition as any])
+				.classes.add(Classes.Content.replace("-", `-${this.definition.id}-`))
 				.appendTo(this);
 
 			if (this.definition.models)

@@ -130,22 +130,30 @@ namespace TooltipManager {
 
 	Component.event.subscribe("setTooltip", ({ component, tooltip: tooltipClass, handler }) => {
 		const tooltip = tooltipClass.get();
-		component.event.subscribe("mouseover", () => {
-			if (tooltip.owner?.deref() === component)
-				return; // this tooltip is already shown
+		component.event.until("clearTooltip", event => event
+			.subscribe("mouseover", () => {
+				if (tooltip.owner?.deref() === component)
+					return; // this tooltip is already shown
 
-			tooltip.owner = new WeakRef(component);
-			TooltipManager.show(tooltipClass, handler.initialiser, handler.differs?.(tooltip));
-		});
-		component.event.subscribe("mouseout", event => {
-			if (component.element.contains(document.elementFromPoint(event.clientX, event.clientY)))
-				return;
+				tooltip.owner = new WeakRef(component);
+				TooltipManager.show(tooltipClass, handler.initialiser, handler.differs?.(tooltip));
+			})
+			.subscribe("mouseout", event => {
+				if (component.element.contains(document.elementFromPoint(event.clientX, event.clientY)))
+					return;
 
+				hideTooltip();
+			}));
+
+		void component.event.waitFor("clearTooltip")
+			.then(hideTooltip);
+
+		function hideTooltip () {
 			if (tooltip.owner?.deref() === component) {
 				delete tooltip.owner;
 				TooltipManager.hide(tooltip);
 			}
-		});
+		}
 	});
 
 	let reversed: boolean | undefined;

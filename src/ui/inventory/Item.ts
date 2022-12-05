@@ -40,15 +40,15 @@ export interface IItemComponentCharacterHandler {
 	getCharacter (id?: CharacterId): DestinyCharacterComponent;
 }
 
-export default class ItemComponent extends Button<[Item, IItemComponentCharacterHandler]> {
+export default class ItemComponent extends Button<[Item, IItemComponentCharacterHandler?]> {
 
 	public item!: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
-	private characters!: IItemComponentCharacterHandler;
+	private characters?: IItemComponentCharacterHandler;
 
-	protected override async onMake (item: Item, characters: IItemComponentCharacterHandler) {
+	protected override async onMake (item: Item, characters?: IItemComponentCharacterHandler) {
 		super.onMake(item, characters);
 
 		this.characters = characters;
@@ -94,6 +94,12 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 	}
 
 	private async renderItem (item: Item) {
+		this.setTooltip(ItemTooltip, {
+			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
+				.setItem(item, this.characters?.getCharacter(this.item.character)),
+			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
+		});
+
 		this.removeContents();
 
 		this.tooltipPadding = 0;
@@ -175,13 +181,6 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 						.classes.add(ItemClasses.DeepsightHasPattern)
 						.appendTo(this));
 		}
-
-		// this.text.set(item.definition.displayProperties.name);
-		this.setTooltip(ItemTooltip, {
-			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
-				.setItem(item, this.characters.getCharacter(this.item.character)),
-			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
-		});
 
 		this.extra.appendTo(this);
 

@@ -21,6 +21,10 @@
 	justify-content: center;
 	overflow: hidden;
 	
+	&-hidden {
+		pointer-events: none;
+	}
+	
 	&-loadable {
 		display: contents;
 	}
@@ -44,10 +48,21 @@
 	}
 	
 	&-title {
-		font-size: 40pt;
-		font-weight: 700;
+		font-size: 44pt;
+		font-weight: 600;
 		text-transform: uppercase;
+		font-family: $font-title;
 		line-height: 1em;
+		margin-bottom: .15em;
+	}
+	
+	&-subtitle {
+		font-size: 22pt;
+		font-weight: 400;
+		text-transform: uppercase;
+		font-family: $font-title;
+		opacity: .6;
+		margin-top: -.5em;
 		margin-bottom: .2em;
 	}
 	
@@ -200,3 +215,4 @@
 @import "AuthView";
 @import "SettingsView";
 @import "InventorySlotView";
+@import "ItemView";

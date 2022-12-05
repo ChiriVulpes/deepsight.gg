@@ -170,7 +170,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.hints);
 	}
 
-	public async setItem (item: Item, character: DestinyCharacterComponent) {
+	public async setItem (item: Item, character?: DestinyCharacterComponent) {
 		this.item = item;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).item = item;
@@ -336,7 +336,7 @@ class ItemTooltip extends Tooltip {
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
-		const cls = await DestinyClassDefinition.get(character.classHash);
+		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);

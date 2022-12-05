@@ -17,7 +17,7 @@
 		@include transition(out, background, box-shadow);
 	}
 	
-	&:where(:hover, :active, :focus-visible) {
+	&:where(.button):where(:hover, :active, :focus-visible) {
 		&::after {
 			background: color(button-background-hover-overlay);
 			@include transition(in);
