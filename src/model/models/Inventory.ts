@@ -18,6 +18,9 @@ interface IInventoryModelEvents {
 }
 
 const ProfileCharacters = Profile(DestinyComponentType.Characters);
+
+Model.event.subscribe("clearCache", () => delete InventoryModel["INSTANCE"]);
+
 export default class InventoryModel {
 
 	private static INSTANCE?: InventoryModel;

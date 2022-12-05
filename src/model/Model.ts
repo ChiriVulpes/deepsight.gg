@@ -33,13 +33,22 @@ namespace Model {
 
 	export const cacheDB = new Database(ModelCacheDatabase);
 
+	export interface IModelGlobalEvents {
+		clearCache: Event;
+	}
+	export const event = EventManager.make<IModelGlobalEvents>();
+
 	let loadId = Date.now();
 	export async function clearCache (force = false) {
 		console.warn("Clearing cache...");
 		loadId = Date.now();
 
-		if (force)
-			return cacheDB.dispose();
+		if (force) {
+			await cacheDB.dispose();
+			console.warn("Cache cleared.");
+			event.emit("clearCache");
+			return;
+		}
 
 		for (const store of (await cacheDB.stores()) as Iterable<keyof IModelCache>) {
 			if (store === "models") {
@@ -54,6 +63,9 @@ namespace Model {
 				await cacheDB.clear(store);
 			}
 		}
+
+		console.warn("Cache cleared.");
+		event.emit("clearCache");
 	}
 
 	export function create<T, R = T> (name: string, model: IModel<T, R>) {
