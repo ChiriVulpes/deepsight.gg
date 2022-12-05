@@ -21,7 +21,7 @@ export interface IModel<T, R> {
 	resetTime?: "Daily" | "Weekly" | number;
 	version?: string | number | (() => Promise<string | number | undefined>);
 	generate?(api: IModelGenerationApi): Promise<T>;
-	filter?(value: T): R;
+	process?(value: T): R;
 	reset?(value?: T): any;
 }
 
@@ -139,7 +139,7 @@ namespace Model {
 			if (this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
 				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
-				this.value = (this.model.filter?.(cached.value) ?? cached.value) as R;
+				this.value = (this.model.process?.(cached.value) ?? cached.value) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;
 				this.event.emit("loaded", { value: this.value });
@@ -239,7 +239,7 @@ namespace Model {
 		}
 
 		protected async set (value: T) {
-			const filtered = (this.model.filter?.(value) ?? value) as R;
+			const filtered = (this.model.process?.(value) ?? value) as R;
 			this.value = filtered;
 			this.cacheTime = Date.now();
 			this.version = await this.getModelVersion();
