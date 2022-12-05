@@ -1,3 +1,4 @@
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import type { Manifest } from "model/models/Manifest";
 
@@ -15,6 +16,10 @@ namespace Source {
 		source = await DestinySourceDefinition.get("id", "redwar");
 		if (source?.itemHashes?.includes(item.definition.hash))
 			return source;
+
+		// skip engrams
+		if (item.definition.itemType === DestinyItemType.Engram || item.definition.traitHashes?.includes(1465704995))
+			return undefined;
 
 		console.warn(`Unable to determine source of '${item.definition.displayProperties.name}' (${item.definition.hash})`, item);
 		return undefined;
