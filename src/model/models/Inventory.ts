@@ -15,11 +15,16 @@ import Time from "utility/Time";
 
 interface IInventoryModelEvents {
 	update: InventoryModel;
+	dispose: Event;
 }
 
 const ProfileCharacters = Profile(DestinyComponentType.Characters);
 
-Model.event.subscribe("clearCache", () => delete InventoryModel["INSTANCE"]);
+Model.event.subscribe("clearCache", () => {
+	InventoryModel["INSTANCE"]?.event.emit("dispose");
+	clearInterval(InventoryModel["INSTANCE"]?.["interval"]);
+	delete InventoryModel["INSTANCE"];
+});
 
 export default class InventoryModel {
 
@@ -39,18 +44,22 @@ export default class InventoryModel {
 	public characters?: DictionaryComponentResponse<DestinyCharacterComponent>;
 
 	public constructor () {
-		Items.event.subscribe("loading", () => LoadingManager.start("inventory"));
-		Items.event.subscribe("loaded", ({ value }) => this.updateItems(value));
-		ProfileCharacters.event.subscribe("loaded", ({ value }) =>
+		const disposed = this.event.waitFor("dispose");
+		Items.event.until(disposed, event => event
+			.subscribe("loading", () => LoadingManager.start("inventory"))
+			.subscribe("loaded", ({ value }) => this.updateItems(value)));
+
+		ProfileCharacters.event.until(disposed, event => event
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
-			this.characters = value.characters);
+			.subscribe("loaded", ({ value }) => this.characters = value.characters));
 
 		this.await = this.await.bind(this);
 		this.onPageFocusChange = this.onPageFocusChange.bind(this);
 		if (FocusManager.focused)
 			this.onPageFocusChange(FocusManager);
 
-		FocusManager.event.subscribe("changeFocusState", this.onPageFocusChange);
+		FocusManager.event.until(disposed, event => event
+			.subscribe("changeFocusState", this.onPageFocusChange));
 	}
 
 	private shouldSkipCharacters?: () => boolean;
