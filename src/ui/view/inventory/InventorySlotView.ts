@@ -14,6 +14,7 @@ import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
+import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import ItemComponent, { ItemClasses } from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
@@ -106,8 +107,8 @@ class DraggableItem extends ItemComponent {
 
 	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
 
-	protected override async onMake (item: Item, character: DestinyCharacterComponent) {
-		await super.onMake(item, character);
+	protected override async onMake (item: Item, characters: IItemComponentCharacterHandler) {
+		await super.onMake(item, characters);
 		new Draggable(this.element);
 	}
 }
@@ -121,7 +122,7 @@ interface IInventorySlotViewDefinition {
 class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
 
 type InventorySlotViewArgs = [Required<InventoryModel>];
-class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
+class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) implements IItemComponentCharacterHandler {
 
 	public static hasExisted = false;
 	public static current?: InventorySlotView;
@@ -138,6 +139,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public hints!: Component;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
+
+	public getCharacter (id?: CharacterId) {
+		return (this.characters[id!] ?? this.currentCharacter).character;
+	}
 
 	protected override async onMake (model: Required<InventoryModel>) {
 		InventorySlotView.hasExisted = true;
@@ -414,8 +419,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
-		const character = (this.characters[item.character!] ?? this.currentCharacter).character;
-		const component = !item.canTransfer() ? ItemComponent.create([item, character]) : DraggableItem.create([item, character]);
+		const component = !item.canTransfer() ? ItemComponent.create([item, this]) : DraggableItem.create([item, this]);
 		return !item.canTransfer() ? component : (component as DraggableItem)
 			.event.subscribe("click", async event => {
 				if (event.shiftKey)
@@ -443,8 +447,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
-				const character = (this.characters[item.character!] ?? this.currentCharacter).character;
-				this.itemMoving = ItemComponent.create([item, character])
+				this.itemMoving = ItemComponent.create([item, this])
 					.classes.add(InventorySlotViewClasses.ItemMoving)
 					.setTooltipPadding(40)
 					.appendTo(this);

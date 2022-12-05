@@ -1,6 +1,7 @@
 import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -31,18 +32,26 @@ export enum ItemClasses {
 	Loading = "item-loading",
 }
 
-export default class ItemComponent extends Button<[Item, DestinyCharacterComponent]> {
+export interface IItemComponentCharacterHandler {
+	/**
+	 * Return the character associated with a given bucket ID, 
+	 * or, if no character is associated with that bucket ID, return the default character.
+	 */
+	getCharacter (id?: CharacterId): DestinyCharacterComponent;
+}
+
+export default class ItemComponent extends Button<[Item, IItemComponentCharacterHandler]> {
 
 	public item!: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
-	public character!: DestinyCharacterComponent;
+	private characters!: IItemComponentCharacterHandler;
 
-	protected override async onMake (item: Item, character: DestinyCharacterComponent) {
-		super.onMake(item, character);
+	protected override async onMake (item: Item, characters: IItemComponentCharacterHandler) {
+		super.onMake(item, characters);
 
-		this.character = character;
+		this.characters = characters;
 
 		this.update = this.update.bind(this);
 		this.loadStart = this.loadStart.bind(this);
@@ -170,7 +179,7 @@ export default class ItemComponent extends Button<[Item, DestinyCharacterCompone
 		// this.text.set(item.definition.displayProperties.name);
 		this.setTooltip(ItemTooltip, {
 			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
-				.setItem(item, this.character),
+				.setItem(item, this.characters.getCharacter(this.item.character)),
 			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
 		});
 
