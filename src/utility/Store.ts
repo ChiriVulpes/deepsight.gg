@@ -14,6 +14,7 @@ export interface ILocalStorage {
 	settingsDisableReturnOnFailure?: true;
 	settingsNoDeepsightBorderOnItemsWithoutPatterns?: true;
 	settingsBackgroundBlur?: true;
+	settingsBackgroundFollowMouse?: true;
 	settingsBackground?: string;
 	itemFilter?: string;
 }

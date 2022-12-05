@@ -54,5 +54,11 @@ export default class SettingsBackground extends Card<[]> {
 			.event.subscribe("update", ({ checked }) =>
 				Store.items.settingsBackgroundBlur = checked ? true : undefined)
 			.appendTo(this.content);
+
+		Checkbox.create([Store.items.settingsBackgroundFollowMouse])
+			.tweak(checkbox => checkbox.label.text.set("Follow Mouse"))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsBackgroundFollowMouse = checked ? true : undefined)
+			.appendTo(this.content);
 	}
 }
