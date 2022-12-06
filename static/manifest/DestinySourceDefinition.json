@@ -390,5 +390,16 @@
 		"season": 18,
 		"year": 5,
 		"seasonHash": 2809059433
+	},
+	"28": {
+		"id": "seraph",
+		"displayProperties": {
+			"name": "Season of the Seraph",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
+		},
+		"iconWatermark": "https://www.bungie.net/common/destiny2_content/icons/1a68ada4fb21371c5f2b7e2eae1ebce8.png",
+		"season": 19,
+		"year": 5,
+		"seasonHash": 2809059432
 	}
 }
