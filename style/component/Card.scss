@@ -97,10 +97,10 @@
 	}
 		
 	@media (max-width: 600px) {
-		overflow: initial;
+		overflow-y: initial;
 		
 		&-content {
-			overflow: initial;
+			overflow-y: initial;
 		}
 	}
 }

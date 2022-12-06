@@ -3,7 +3,11 @@
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
-    	align-content: flex-start;
+		align-content: flex-start;
+		
+		@media (max-width: 1600px) {
+			flex-direction: row;
+		}
 		
 		row-gap: 30px;
 		column-gap: 40px;
@@ -11,6 +15,7 @@
 	
 	.card {
 		width: max(500px, 30%);
+		max-width: 100%;
 	}
 	
 	@at-root sleep:times(2), .card:times(30) {
