@@ -283,7 +283,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				// this character was deleted
 				oldPostmasterBucket.remove();
 
-		this.currentCharacter = characterBucketsSorted[0].character;
+		this.currentCharacter = characterBucketsSorted[0]?.character;
 
 		const charactersChanged = characterBucketsSorted.length !== oldCharacterBuckets.length
 			|| oldCharacterBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character.character?.characterId);
