@@ -112,6 +112,6 @@ export default class ViewManager {
 		if (typeof name === "function")
 			name = name(...view._args.slice(1) as []);
 
-		document.title = `${name} | ${APP_NAME}`;
+		document.title = `${name} / ${APP_NAME}`;
 	}
 }

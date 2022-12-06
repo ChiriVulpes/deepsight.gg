@@ -1,12 +1,13 @@
 import InventoryModel from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { BucketId } from "model/models/items/Item";
-import Card from "ui/Card";
 import Component from "ui/Component";
 import { ButtonClasses } from "ui/form/Button";
 import ItemComponent from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
+import ItemIntrinsics from "ui/view/item/ItemIntrinsics";
+import ItemPerks from "ui/view/item/ItemPerks";
 
 enum ItemViewClasses {
 	Item = "view-item-header-item",
@@ -36,6 +37,8 @@ export default View.create({
 		const item = itemArg;
 		view._args[1] = item;
 
+		console.log(item.definition.displayProperties.name, item);
+
 		view.setTitle(title => title.text.set(item.definition.displayProperties.name))
 			.setSubtitle(subtitle => subtitle.text.set(item.definition.itemTypeDisplayName))
 			.tweak(view => view.header
@@ -49,15 +52,9 @@ export default View.create({
 			.tweak(view => view.content
 				.append(Component.create()
 					.classes.add(ItemViewClasses.PerksModsTraits)
-					.append(Card.create()
-						.tweak(card => card.title.text.set("Weapon Perks"))
-						.append())
-					.append(Card.create()
-						.tweak(card => card.title.text.set("Weapon Mods"))
-						.append())
-					.append(Card.create()
-						.tweak(card => card.title.text.set("Intrinsic Traits"))
-						.append()))
+					.append(ItemPerks.create([item]))
+					// .append(ItemMods.create([item]))
+					.append(ItemIntrinsics.create([item])))
 				.append(Component.create()
 					.classes.add(ItemViewClasses.Stats)));
 	},

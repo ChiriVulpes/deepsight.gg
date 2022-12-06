@@ -22,6 +22,12 @@ namespace Display {
 				.name;
 	}
 
+	export function description (displayProperties?: DisplayPropertied) {
+		return displayProperties === undefined ? undefined
+			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
+				.description;
+	}
+
 	function getIconURL (displayProperties: DestinyDisplayPropertiesDefinition) {
 		const icon = displayProperties.icon;
 		if (icon?.endsWith(".png"))

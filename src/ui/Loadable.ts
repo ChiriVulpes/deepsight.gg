@@ -1,4 +1,4 @@
-import type Model from "model/Model";
+import Model from "model/Model";
 import { Classes as BaseClasses } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import BaseComponent from "ui/Component";
@@ -143,10 +143,15 @@ namespace Loadable {
 		onReady (initialiser: Initialiser<MODELS>): Component<MODELS>;
 	}
 
-	export function create<MODELS extends Model<any, any>[]> (...models: MODELS): ILoadableFactory<MODELS> {
+	type ResolveModels<MODELS extends (Model<any, any> | Promise<any>)[]> = { [INDEX in keyof MODELS]: MODELS[INDEX] extends Model<any, any> ? MODELS[INDEX] : Model<any, Awaited<MODELS[INDEX]>> };
+
+	export function create<MODELS extends (Model<any, any> | Promise<any>)[]> (...models: MODELS): ILoadableFactory<ResolveModels<MODELS>> {
 		return {
-			onReady (initialiser: Initialiser<MODELS>) {
-				return Component.create([models, initialiser]);
+			onReady (initialiser: Initialiser<ResolveModels<MODELS>>) {
+				return Component.create([
+					models.map(model => model instanceof Promise ? Model.createTemporary(() => model) : model),
+					initialiser,
+				]);
 			},
 		};
 	}

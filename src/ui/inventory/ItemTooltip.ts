@@ -247,13 +247,10 @@ class ItemTooltip extends Tooltip {
 		this.stats.setItem(item);
 
 		this.mods.removeContents();
-		const intrinsics: Component[] = [];
 		for (const socket of item.sockets?.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics" && Display.name(socket.definition)) ?? []) {
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
 				.appendTo(this.mods);
-
-			intrinsics.push(socketComponent);
 
 			Component.create()
 				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
@@ -267,7 +264,7 @@ class ItemTooltip extends Tooltip {
 				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
 				.appendTo(this.mods);
 
-			for (const plug of socket.sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
+			for (const plug of socket.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
@@ -300,7 +297,7 @@ class ItemTooltip extends Tooltip {
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this.mods);
 
-			for (const plug of socket.sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
+			for (const plug of socket.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
