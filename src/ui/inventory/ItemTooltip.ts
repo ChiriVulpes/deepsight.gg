@@ -1,5 +1,5 @@
 import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
-import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyAmmunitionType } from "bungie-api-ts/destiny2";
 import { ITEM_WEAPON_MOD } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
@@ -337,9 +337,11 @@ class ItemTooltip extends Tooltip {
 		const className = cls?.displayProperties.name ?? "Unknown";
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
-		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped, Classes.Hidden);
-		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
+		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
+		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram, Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram, Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
+		this.hintInspect.classes.toggle(isEngram, Classes.Hidden);
 	}
 }
 
