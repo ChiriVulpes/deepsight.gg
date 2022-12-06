@@ -36,12 +36,6 @@ export default class FluffiestVaultManager {
 
 		await Env.load();
 
-		Bungie.event.subscribe("error", event => {
-			const iframe = document.createElement("iframe");
-			document.body.appendChild(iframe);
-			iframe.contentDocument?.write(event.responseText);
-		});
-
 		Bungie.event.subscribe("resetAuthentication", async _ => {
 			await Model.clearCache();
 			AuthView.show();
