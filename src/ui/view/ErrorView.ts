@@ -11,6 +11,7 @@ enum ErrorViewClasses {
 export default View.create({
 	id: "error",
 	name: "Error",
+	redirectOnLoad: true,
 	noDestinationButton: true,
 	initialise: view => {
 		if (Bungie.apiDown) {

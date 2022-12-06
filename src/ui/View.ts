@@ -18,6 +18,7 @@ namespace View {
 		initialiseDestinationButton?: (button: Button) => any;
 		noNav?: true;
 		noDestinationButton?: true;
+		redirectOnLoad?: true | string;
 	}
 
 	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =

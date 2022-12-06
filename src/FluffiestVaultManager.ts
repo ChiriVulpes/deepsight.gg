@@ -3,7 +3,6 @@ import AppNav from "ui/AppNav";
 import BackgroundManager from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
 import AuthView from "ui/view/AuthView";
-import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
 import ViewManager from "ui/ViewManager";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
@@ -59,7 +58,7 @@ export default class FluffiestVaultManager {
 
 			ViewManager.showByHash(URL.hash);
 			if (!ViewManager.hasView())
-				InventoryKineticView.show();
+				ViewManager.showDefaultView();
 
 		} else {
 			AuthView.show();

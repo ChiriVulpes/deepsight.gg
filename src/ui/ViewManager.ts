@@ -2,6 +2,7 @@ import { APP_NAME } from "Constants";
 import type Model from "model/Model";
 import View from "ui/View";
 import AuthView from "ui/view/AuthView";
+import ErrorView from "ui/view/ErrorView";
 import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/InventoryClassItemView";
@@ -30,6 +31,7 @@ const registry = Object.fromEntries([
 	InventoryClassItemView,
 	SettingsView,
 	ItemView,
+	ErrorView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
@@ -54,15 +56,26 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 	private static history: string[] = [];
 
+	public static defaultView = InventoryKineticView;
+
 	public static hasView () {
 		return !!this.view;
 	}
 
-	public static showByHash (hash: string) {
+	public static showDefaultView () {
+		this.defaultView.show();
+	}
+
+	public static showByHash (hash: string): void {
 		if (hash === this.view?.hash)
 			return;
 
 		const view = registry[hash] ?? registry[Strings.sliceTo(hash, "/")];
+		if (view.redirectOnLoad === true)
+			return this.showDefaultView();
+		else if (view.redirectOnLoad)
+			return this.showByHash(view.redirectOnLoad);
+
 		if (!view) {
 			console.warn(`Tried to navigate to an unknown view '${hash}'`);
 			return;
