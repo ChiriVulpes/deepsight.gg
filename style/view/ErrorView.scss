@@ -1,0 +1,5 @@
+.view-error {
+	&-p, &-button {
+		@include view-swipe-animation;
+	}
+}

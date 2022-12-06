@@ -26,11 +26,15 @@ export class BungieAPI {
 	public event = new EventManager<this, IBungieApiEvents>(this)
 		.pipe("error", BungieEndpoint.event);
 
+	public apiDown = false;
+
 	public constructor () {
 		BungieEndpoint.event.subscribe("authenticationFailed", () =>
 			this.resetAuthentication());
 		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise, force }) =>
 			setAuthorisationPromise(this.validateAuthorisation(force)));
+		BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
+		BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
 	}
 
 	public get authenticated () {

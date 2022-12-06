@@ -40,9 +40,14 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 							return;
 						}
 
-						if (data?.ErrorStatus && data.ErrorStatus !== "Success")
-							throw Object.assign(new Error(data.Message as string | undefined ?? data.ErrorStatus as string), data);
+						if (data?.ErrorStatus && data.ErrorStatus !== "Success") {
+							if (data.ErrorStatus === "SystemDisabled")
+								BungieEndpoint.event.emit("apiDown");
 
+							throw Object.assign(new Error(data.Message as string | undefined ?? data.ErrorStatus as string), data);
+						}
+
+						BungieEndpoint.event.emit("querySuccess");
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 						return ("Response" in data && data.Response ? data.Response : data) as any;
 					} catch (error) {
@@ -105,6 +110,8 @@ namespace BungieEndpoint {
 		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; force?: true };
 		authenticationFailed: Event;
 		error: { error: Error; responseText: string };
+		apiDown: Event;
+		querySuccess: Event;
 	}
 
 	export const event = EventManager.make<IEvents>();
