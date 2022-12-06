@@ -70,7 +70,7 @@ export default class InventoryModel {
 
 	public async await (progress?: IModelGenerationApi) {
 		if (this.shouldSkipCharacters?.() ?? false)
-			return this as Required<this>;
+			return this;
 
 		const charactersLoadedPromise = ProfileCharacters.await();
 

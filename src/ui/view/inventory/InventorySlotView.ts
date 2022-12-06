@@ -121,13 +121,13 @@ interface IInventorySlotViewDefinition {
 
 class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
 
-type InventorySlotViewArgs = [Required<InventoryModel>];
+type InventorySlotViewArgs = [InventoryModel];
 class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) implements IItemComponentCharacterHandler {
 
 	public static hasExisted = false;
 	public static current?: InventorySlotView;
 
-	public model!: Required<InventoryModel>;
+	public model!: InventoryModel;
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characterBucketsContainer!: Component;
@@ -144,7 +144,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		return (this.characters[id!] ?? this.currentCharacter).character;
 	}
 
-	protected override async onMake (model: Required<InventoryModel>) {
+	protected override async onMake (model: InventoryModel) {
 		InventorySlotView.hasExisted = true;
 		InventorySlotView.current = this;
 		this.model = model;
@@ -226,7 +226,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private updateItems () {
-		this.bucketEntries = Object.entries(this.model.buckets) as [BucketId, Bucket][];
+		this.bucketEntries = Object.entries(this.model.buckets ?? {}) as [BucketId, Bucket][];
 		for (const [item] of this.itemMap) {
 			if (!this.bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
 				// this item doesn't exist anymore
@@ -263,7 +263,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.characters ??= {};
 		this.postmasters ??= {};
 
-		const characterBucketsSorted = Object.values(this.model.characters.data ?? {})
+		const characterBucketsSorted = Object.values(this.model.characters?.data ?? {})
 			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
 			.map(character => ({
@@ -353,12 +353,14 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				if (item.equipped)
 					this.equipped[bucketId as `${bigint}`] = itemComponent;
 
-				const power = item.getPower();
-				if (power > highestPower) {
-					highestPower = power;
-					highestPowerSlot.splice(0, Infinity, slot);
-				} else if (power === highestPower) {
-					highestPowerSlot.push(slot);
+				if (!PostmasterId.is(item.bucket)) {
+					const power = item.getPower();
+					if (power > highestPower) {
+						highestPower = power;
+						highestPowerSlot.splice(0, Infinity, slot);
+					} else if (power === highestPower) {
+						highestPowerSlot.push(slot);
+					}
 				}
 			}
 

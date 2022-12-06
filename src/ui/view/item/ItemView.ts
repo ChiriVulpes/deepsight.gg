@@ -28,7 +28,7 @@ export default View.create({
 		let [, itemArg] = view._args as [any, Item | string | undefined];
 		if (typeof itemArg === "string") {
 			const [bucketId, itemId] = itemArg.split("/") as [BucketId, string];
-			itemArg = inventory.buckets[bucketId].items.find(item => item.id === itemId);
+			itemArg = inventory.buckets?.[bucketId].items.find(item => item.id === itemId);
 		}
 
 		if (!itemArg)
