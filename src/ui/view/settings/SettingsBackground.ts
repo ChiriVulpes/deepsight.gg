@@ -20,7 +20,8 @@ export default class SettingsBackground extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Background");
 
-		Loadable.create(WallpaperSources)
+		let scrollLeft = 0;
+		const sourcesWrapper = Loadable.create(WallpaperSources)
 			.onReady(sources => Component.create()
 				.classes.add(SettingsBackgroundClasses.InternalWrapper)
 				.append(...[...sources].reverse().map(source => Component.create()
@@ -47,6 +48,22 @@ export default class SettingsBackground extends Card<[]> {
 							.style.set("--wallpaper", `url("${wallpaper}")`)))))))
 			.classes.add(SettingsBackgroundClasses.BackgroundOptions)
 			.setSimple()
+			.event.subscribe("wheel", event => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				if (event.shiftKey)
+					return;
+
+				if (Math.sign(event.deltaY) !== Math.sign(scrollLeft - sourcesWrapper.element.scrollLeft))
+					scrollLeft = sourcesWrapper.element.scrollLeft;
+
+				scrollLeft += event.deltaY;
+				if (scrollLeft + sourcesWrapper.element.clientWidth > sourcesWrapper.element.scrollWidth)
+					scrollLeft = sourcesWrapper.element.scrollWidth - sourcesWrapper.element.clientWidth;
+				if (scrollLeft < 0)
+					scrollLeft = 0;
+
+				sourcesWrapper.element.scrollLeft = scrollLeft;
+			})
 			.appendTo(this.content);
 
 		Checkbox.create([Store.items.settingsBackgroundBlur])

@@ -27,6 +27,7 @@
 	flex-basis: 100%;
 	min-height: 100px;
 	margin-bottom: 10px;
+	scroll-behavior: smooth;
 	
 	&-wrapper {
 		display: contents;
