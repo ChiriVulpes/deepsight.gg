@@ -14,5 +14,6 @@ export default Model.createDynamic("Daily", async _ => Manifest.await()
 		return wallpaperSources.map(wallpaperSource => ({
 			wallpapers: wallpaperSource.data,
 			source: sources.find(source => wallpaperSource.hash === source.hash),
-		})) as IWallpaperSource[];
+		}))
+			.sort((a, b) => +(a.source?.hash || 0) - +(b.source?.hash || 0)) as IWallpaperSource[];
 	}));
