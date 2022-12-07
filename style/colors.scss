@@ -10,12 +10,12 @@ $colors: (
 	background-5: #494444 #dddfe2,
 	background-6: #555050 #eaecf0,
 	background-7: #747171 #f0f0f0,
-	background-8: #858080 #fff,
-	background-9: #918b8b #fff,
+	background-8: #858080 #ffffff,
+	background-9: #918b8b #ffffff,
 	
 	foreground: var(--foreground-1),
-	foreground-0: #fff #000,
-	foreground-1: #f7f3f3 #223,
+	foreground-0: #ffffff #000000,
+	foreground-1: #f7f3f3 #222233,
 	foreground-2: #bdb7b7 #676783,
 	foreground-3: #7c7474 #a3a3dd,
 	
@@ -23,8 +23,8 @@ $colors: (
 	accent-0-active: #8adcff,
 	
 	tier-common-background: #C2BCB4,
-	tier-common: #ddd,
-	tier-common-active: #eee,
+	tier-common: #dddddd,
+	tier-common-active: #eeeeee,
 	tier-uncommon-background: #366F42,
 	tier-uncommon: #5fa16d,
 	tier-uncommon-active: #9ccaa6,

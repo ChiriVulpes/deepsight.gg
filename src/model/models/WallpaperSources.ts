@@ -9,11 +9,27 @@ export interface IWallpaperSource {
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()
 	.then(async manifest => {
-		const wallpaperSources = await manifest.DestinyWallpaperDefinition.all();
+		const wallpaperSourcesRaw = await manifest.DestinyWallpaperDefinition.all();
 		const sources = await manifest.DestinySourceDefinition.all();
-		return wallpaperSources.map(wallpaperSource => ({
+
+		const wallpaperSources = wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			wallpapers: wallpaperSource.data,
-			source: sources.find(source => wallpaperSource.hash === source.hash),
+			source: sources.find(source => wallpaperSource.hash === source.hash)!,
 		}))
-			.sort((a, b) => +(a.source?.hash || 0) - +(b.source?.hash || 0)) as IWallpaperSource[];
+			.sort((a, b) => +(a.source?.hash || 0) - +(b.source?.hash || 0));
+		return wallpaperSources;
 	}));
+
+export async function createWallpaperThumbnail (wallpaper: string) {
+	const image = new Image();
+	image.src = wallpaper;
+	await new Promise(resolve => image.onload = resolve);
+
+	const canvas = document.createElement("canvas");
+	canvas.width = 144;
+	canvas.height = 81;
+	const context = canvas.getContext("2d")!;
+	context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+	return canvas;
+}

@@ -1,15 +1,17 @@
-import WallpaperSources from "model/models/WallpaperSources";
+import WallpaperSources, { createWallpaperThumbnail } from "model/models/WallpaperSources";
 import Card from "ui/Card";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Checkbox from "ui/form/Checkbox";
 import Loadable from "ui/Loadable";
+import Async from "utility/Async";
 import Store from "utility/Store";
 
 enum SettingsBackgroundClasses {
 	BackgroundOptions = "settings-background-options",
 	InternalWrapper = "settings-background-options-wrapper",
 	Wallpaper = "settings-background-options-wallpaper",
+	WallpaperLoadingThumbnail = "settings-background-options-wallpaper-loading-thumbnail",
 	WallpaperSource = "settings-background-options-wallpaper-source",
 	WallpaperSourceWallpapers = "settings-background-options-wallpaper-source-list",
 	WallpaperSourceLabel = "settings-background-options-wallpaper-source-label",
@@ -45,10 +47,12 @@ export default class SettingsBackground extends Card<[]> {
 								(event.target as HTMLElement).classList.add(ButtonClasses.Selected);
 								Store.items.settingsBackground = wallpaper;
 							})
-							.style.set("--wallpaper", `url("${wallpaper}")`)))))))
+							.tweak(button => button.attributes.set("data-wallpaper", wallpaper))))))))
 			.classes.add(SettingsBackgroundClasses.BackgroundOptions)
 			.setSimple()
 			.event.subscribe("wheel", event => {
+				// void renderThumbnails();
+
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if (event.shiftKey)
 					return;
@@ -65,6 +69,30 @@ export default class SettingsBackground extends Card<[]> {
 				sourcesWrapper.element.scrollLeft = scrollLeft;
 			})
 			.appendTo(this.content);
+
+		async function renderThumbnails () {
+			let hasUnloadedThumbnail = false;
+			let i = -1;
+			for (const button of sourcesWrapper.element.getElementsByClassName(SettingsBackgroundClasses.Wallpaper)) {
+				i++;
+				if (button.classList.contains(SettingsBackgroundClasses.WallpaperLoadingThumbnail))
+					continue;
+
+				if (sourcesWrapper.element.scrollLeft + 500 > i * 144) {
+					button.classList.add(SettingsBackgroundClasses.WallpaperLoadingThumbnail);
+					button.append(await createWallpaperThumbnail((button as HTMLElement).dataset.wallpaper!));
+					continue;
+				}
+
+				hasUnloadedThumbnail = true;
+			}
+
+			if (hasUnloadedThumbnail)
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises
+				setTimeout(renderThumbnails, 1);
+		}
+
+		void Async.sleep(500).then(renderThumbnails);
 
 		Checkbox.create([Store.items.settingsBackgroundBlur])
 			.tweak(checkbox => checkbox.label.text.set("Blur Background"))
