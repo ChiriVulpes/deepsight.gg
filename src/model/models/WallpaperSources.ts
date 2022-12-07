@@ -12,12 +12,11 @@ export default Model.createDynamic("Daily", async _ => Manifest.await()
 		const wallpaperSourcesRaw = await manifest.DestinyWallpaperDefinition.all();
 		const sources = await manifest.DestinySourceDefinition.all();
 
-		const wallpaperSources = wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
+		return wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
 			wallpapers: wallpaperSource.data,
 			source: sources.find(source => wallpaperSource.hash === source.hash)!,
 		}))
 			.sort((a, b) => +(a.source?.hash || 0) - +(b.source?.hash || 0));
-		return wallpaperSources;
 	}));
 
 export async function createWallpaperThumbnail (wallpaper: string) {
