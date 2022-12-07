@@ -13,7 +13,6 @@ export default Model.createDynamic("Daily", async _ => Manifest.await()
 		const sources = await manifest.DestinySourceDefinition.all();
 
 		const wallpaperSources = wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			wallpapers: wallpaperSource.data,
 			source: sources.find(source => wallpaperSource.hash === source.hash)!,
 		}))

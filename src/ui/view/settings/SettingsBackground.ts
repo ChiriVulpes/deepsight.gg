@@ -51,9 +51,6 @@ export default class SettingsBackground extends Card<[]> {
 			.classes.add(SettingsBackgroundClasses.BackgroundOptions)
 			.setSimple()
 			.event.subscribe("wheel", event => {
-				// void renderThumbnails();
-
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if (event.shiftKey)
 					return;
 
