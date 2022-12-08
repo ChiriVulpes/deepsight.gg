@@ -134,6 +134,6 @@ export default class InventoryModel {
 			void this.await();
 		clearInterval(this.interval);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.interval = setInterval(this.await, focused ? Time.seconds(5) : Time.minutes(2));
+		this.interval = window.setInterval(this.await, focused ? Time.seconds(5) : Time.minutes(2));
 	}
 }

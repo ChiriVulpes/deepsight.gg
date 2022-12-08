@@ -147,11 +147,11 @@ const ManifestCacheModel = Model.create(manifestCacheModelKey, {
 	},
 });
 
-let manifestCacheUpdateTimeout: NodeJS.Timeout;
+let manifestCacheUpdateTimeout: number;
 function updateManifestCache () {
 	clearTimeout(manifestCacheUpdateTimeout);
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	manifestCacheUpdateTimeout = setTimeout(async () => {
+	manifestCacheUpdateTimeout = window.setTimeout(async () => {
 		await ManifestCacheModel.reset()
 		await ManifestCacheModel.await();
 	}, 1000);
