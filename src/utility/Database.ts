@@ -70,6 +70,10 @@ class Database<SCHEMA> {
 		return result;
 	}
 
+	public stagedTransaction<STORES extends (keyof SCHEMA)[]> (over: STORES, mode: IDBTransactionMode = "readwrite"): Database.StagedTransaction<Pick<SCHEMA, STORES[number]>, STORES> {
+		return new Database.StagedTransaction<Pick<SCHEMA, STORES[number]>, STORES>(this, over, mode);
+	}
+
 	public async upgrade (upgrade: Database.Upgrade) {
 		await this.close();
 		const [, databaseVersionMinor] = (await this.getVersion()) ?? [];
@@ -315,6 +319,92 @@ namespace Database {
 		export interface IEvents {
 			complete: Event;
 			error: { error: Error };
+		}
+	}
+
+	type IStagedTransaction<SCHEMA, RETURN> = (transaction: Transaction<SCHEMA>) => Promise<RETURN>;
+
+	export class StagedTransaction<SCHEMA, STORES extends (keyof SCHEMA)[]> {
+		public constructor (
+			private readonly database: Database<SCHEMA>,
+			private readonly over: STORES,
+			private readonly mode: IDBTransactionMode,
+		) { }
+
+		private readonly pending: IStagedTransaction<SCHEMA, any>[] = [];
+		private activeTransaction?: Promise<void>;
+
+		private queue<RETURN> (staged: IStagedTransaction<SCHEMA, RETURN>) {
+			const resultPromise = new Promise<RETURN>(resolve => {
+				this.pending.push(async transaction => resolve(await staged(transaction)));
+			});
+
+			void this.tryExhaustQueue();
+
+			return resultPromise;
+		}
+
+		private async tryExhaustQueue () {
+			if (this.activeTransaction)
+				return this.activeTransaction;
+
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises
+			this.activeTransaction = (async () => {
+				while (this.pending.length) {
+					const transactions = this.pending.splice(0, Infinity);
+					console.log(`Found ${transactions.length} staged transactions`);
+					await this.database.transaction(this.over, this.mode, async transaction => {
+						for (const staged of transactions)
+							await staged(transaction);
+					});
+				}
+			})();
+
+			await this.activeTransaction;
+
+			delete this.activeTransaction;
+		}
+
+		public await () {
+			return this.tryExhaustQueue();
+		}
+
+		public async transaction<T> (initialiser: Transaction.Initialiser<SCHEMA, STORES, T>) {
+			return this.queue(transaction => initialiser(transaction));
+		}
+
+		public async get<KEY extends keyof SCHEMA> (store: KEY, key: string, index?: string) {
+			return this.queue(transaction => transaction.get(store, key, index));
+		}
+
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange) {
+			return this.queue(transaction => transaction.all(store, range));
+		}
+
+		public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {
+			if (this.mode === "readonly")
+				throw new Error("Cannot modify store in readonly mode");
+			return this.queue(transaction => transaction.set(store, key, value));
+		}
+
+		public async delete (store: keyof SCHEMA, key: string) {
+			if (this.mode === "readonly")
+				throw new Error("Cannot modify store in readonly mode");
+			return this.queue(transaction => transaction.delete(store, key));
+		}
+
+		public async keys (store: keyof SCHEMA) {
+			return this.queue(transaction => transaction.keys(store));
+		}
+
+		public async count (store: keyof SCHEMA) {
+			return this.queue(transaction => transaction.count(store));
+		}
+
+		public async clear (store: keyof SCHEMA) {
+			if (this.mode === "readonly")
+				throw new Error("Cannot modify store in readonly mode");
+			return this.queue(transaction => transaction.clear(store));
 		}
 	}
 }

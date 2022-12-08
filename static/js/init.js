@@ -60,6 +60,8 @@
 			processModules();
 	}
 
+	define.amd = true;
+
 	/**
 	 * @param {string} name
 	 */
@@ -83,7 +85,10 @@
 			throw new Error(`Module "${module._name}" has already been processed`);
 
 		try {
-			module._initializer(getModule, module, ...args);
+			const result = module._initializer(getModule, module, ...args);
+			if (module.default === undefined && result !== undefined)
+				module.default = result;
+
 			module._state = ModuleState.Processed;
 
 		} catch (err) {

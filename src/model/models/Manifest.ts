@@ -59,22 +59,18 @@ const Manifest = Model.create("manifest", {
 		return `${manifest.version}-3.deepsight.gg`;
 	},
 	async generate (api) {
-		api.emitProgress(0, "Downloading manifest");
-
 		const manifest = await GetManifest.query();
-		const manifestURL = Env.DEEPSIGHT_ENVIRONMENT === "dev" ? "testiny.json" : `https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`;
-		const destinyComponents = await fetch(manifestURL)
-			.then(response => response.json() as Promise<AllDestinyManifestComponents>);
+		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as AllComponentNames[];
 
 		const customComponents = await GetCustomManifest.query();
+		const customComponentNames = Object.keys(customComponents) as (keyof AllCustomManifestComponents)[];
 
-		const components = { ...destinyComponents, ...customComponents };
+		const allComponentNames = [...bungieComponentNames, ...customComponentNames];
 
-		const componentNames = Object.keys(components) as AllComponentNames[];
-		const totalLoad = componentNames.length + 1;
+		const totalLoad = allComponentNames.length * 2 + 1;
 
-		api.emitProgress(1 / totalLoad, "Allocating stores for manifest");
-		const cacheKeys = componentNames.map(CacheComponentKey.get);
+		api.emitProgress(0, "Allocating stores for manifest");
+		const cacheKeys = allComponentNames.map(CacheComponentKey.get);
 
 		await Model.cacheDB.upgrade((database, transaction) => {
 			for (const cacheKey of cacheKeys) {
@@ -100,20 +96,47 @@ const Manifest = Model.create("manifest", {
 			}
 		});
 
-		await Model.cacheDB.transaction(componentNames.map(CacheComponentKey.get), async transaction => {
+		for (let i = 0; i < bungieComponentNames.length; i++) {
+			const componentName = bungieComponentNames[i];
+			const cacheKey = CacheComponentKey.get(componentName);
 
-			for (let i = 0; i < componentNames.length; i++) {
-				const componentName = componentNames[i];
+			let startTime = performance.now();
+			console.info(`Downloading ${cacheKey}`);
+			api.emitProgress((1 + i * 2) / totalLoad, "Downloading manifest");
+
+			const data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net/${manifest.jsonWorldComponentContentPaths.en[componentName]}`)
+				.then(response => response.json()) as AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
+
+			console.info(`Finished downloading ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
+			startTime = performance.now();
+			console.info(`Storing objects from ${cacheKey}`);
+			api.emitProgress((1 + i * 2 + 1) / totalLoad, "Storing manifest");
+
+			await Model.cacheDB.transaction([cacheKey], async transaction => {
+				await transaction.clear(cacheKey);
+
+				for (const key of Object.keys(data)) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+					await transaction.set(cacheKey, key, (data as any)[key]);
+				}
+			});
+
+			console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
+		}
+
+		await Model.cacheDB.transaction(customComponentNames.map(CacheComponentKey.get), async transaction => {
+			for (let i = 0; i < customComponentNames.length; i++) {
+				const componentName = customComponentNames[i];
 				const cacheKey = CacheComponentKey.get(componentName);
 
 				const startTime = performance.now();
 				console.info(`Caching objects from ${cacheKey}`);
-				api.emitProgress((1 + i) / totalLoad, "Storing manifest");
+				api.emitProgress((1 + bungieComponentNames.length * 2 + i) / totalLoad, "Storing manifest");
 
 				await transaction.clear(cacheKey);
 
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				for (const [itemId, itemValue] of Object.entries(components[componentName])) {
+				for (const [itemId, itemValue] of Object.entries(customComponents[componentName])) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 					await transaction.set(cacheKey, itemId, itemValue);
 				}
@@ -122,7 +145,7 @@ const Manifest = Model.create("manifest", {
 			}
 		});
 
-		return componentNames;
+		return allComponentNames;
 	},
 	process: componentNames => Object.fromEntries(componentNames
 		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as Manifest,

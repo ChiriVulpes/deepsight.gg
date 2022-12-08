@@ -3,9 +3,10 @@ import fetch from "node-fetch";
 import Task from "./utilities/Task";
 
 export default Task("install", async () => {
-	// uncomment when there's more than one dependency
+	// uncomment when adding new dependencies
 	// await Task.cli({ cwd: "src" }, "PATH:npm", "install");
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest");
+
 	await fetch("https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/master/generated-enums.ts")
 		.then(response => response.text())
 		.then(text => {
