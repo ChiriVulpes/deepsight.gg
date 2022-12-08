@@ -226,6 +226,17 @@ class Item {
 				.length ?? 0) >= 2;
 	}
 
+	public hasDeepsight () {
+		const objectiveComplete = this.deepsight?.attunement?.objective.complete ?? false;
+		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress.complete ?? false);
+		return !this.deepsight?.attunement ? false
+			: objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns;
+	}
+
+	public hasPattern () {
+		return !!(this.deepsight?.attunement && this.deepsight?.pattern && !this.deepsight.pattern.progress.complete);
+	}
+
 	public canTransfer () {
 		return !this.definition.doesPostmasterPullHaveSideEffects && this.reference.bucketHash !== BucketHashes.Engrams;
 	}

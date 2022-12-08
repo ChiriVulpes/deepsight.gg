@@ -10,7 +10,6 @@ import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
-import Store from "utility/Store";
 
 export enum ItemClasses {
 	Main = "item",
@@ -166,8 +165,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 
 		if (!item.shaped) {
 			const objectiveComplete = item.deepsight?.attunement?.objective.complete ?? false;
-			const hasIncompletePattern = item.deepsight?.pattern && !(item.deepsight.pattern.progress.complete ?? false);
-			if (item.deepsight?.attunement && (objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns))
+			if (item.hasDeepsight())
 				Component.create()
 					.classes.add(ItemClasses.Deepsight)
 					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
