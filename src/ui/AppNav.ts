@@ -1,10 +1,10 @@
-import { APP_ACRONYM, APP_ACRONYM_FAKE_MEANINGS } from "Constants";
 import Memberships from "model/models/Memberships";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
 import LoadingManager from "ui/LoadingManager";
+import TextLogo from "ui/TextLogo";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";
 
@@ -41,10 +41,8 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.setPersistent()
 			.appendTo(this);
 
-		Component.create()
+		TextLogo.create()
 			.classes.add(ClassesAppNav.Title)
-			.text.set(APP_ACRONYM)
-			.attributes.set("title", APP_ACRONYM_FAKE_MEANINGS[Math.floor(Math.random() * APP_ACRONYM_FAKE_MEANINGS.length)])
 			.appendTo(this);
 
 		Loadable.create(Memberships)

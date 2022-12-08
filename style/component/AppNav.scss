@@ -48,14 +48,17 @@
 	}
 	
 	&-title {
-		font-size: 17pt;
-		line-height: .9em;
-		letter-spacing: .08em;
-		font-weight: 300;
+		font-family: $font-title;
+		font-size: .9em;
+		line-height: 1.05em;
+		font-weight: 100;
 		height: fit-content;
 		align-self: center;
 		margin-right: 30px;
 		transition-delay: $delay;
+		.text-logo-sight::before {
+			content: none;
+		}
 	}
 	
 	&-identity {

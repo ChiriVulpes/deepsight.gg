@@ -71,9 +71,9 @@ export default class ViewManager {
 			return;
 
 		const view = registry[hash] ?? registry[Strings.sliceTo(hash, "/")];
-		if (view.redirectOnLoad === true)
+		if (view?.redirectOnLoad === true || hash === "")
 			return this.showDefaultView();
-		else if (view.redirectOnLoad)
+		else if (view?.redirectOnLoad)
 			return this.showByHash(view.redirectOnLoad);
 
 		if (!view) {
@@ -125,6 +125,6 @@ export default class ViewManager {
 		if (typeof name === "function")
 			name = name(...view._args.slice(1) as []);
 
-		document.title = `${name} / ${APP_NAME}`;
+		document.title = `${name} // ${APP_NAME}`;
 	}
 }

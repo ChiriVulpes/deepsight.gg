@@ -2,6 +2,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Label from "ui/Label";
+import TextLogo from "ui/TextLogo";
 import View from "ui/View";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
@@ -26,9 +27,8 @@ export default View.create({
 			.classes.add(AuthViewClasses.Header)
 			.append(Component.create()
 				.classes.add(AuthViewClasses.Logo, Classes.Logo))
-			.append(Component.create()
-				.classes.add(AuthViewClasses.Title)
-				.text.set("Fluffiest Vault\nManager")))
+			.append(TextLogo.create()
+				.classes.add(AuthViewClasses.Title)))
 
 		.append(Label.create()
 			.classes.add(AuthViewClasses.State)
