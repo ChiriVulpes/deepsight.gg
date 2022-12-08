@@ -107,7 +107,7 @@ const Manifest = Model.create("manifest", {
 			const data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}`)
 				.then(response => response.json())
 				.catch(err => {
-					if (err.message.includes("Access-Control-Allow-Origin")) {
+					if ((err as Error).message.includes("Access-Control-Allow-Origin")) {
 						console.warn(err);
 						return {};
 					}
