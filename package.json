@@ -1,4 +1,5 @@
 {
+	"name": "deepsight.gg",
 	"private": true,
 	"scripts": {
 		"build": "npx ts-node tasks/utilities/TaskRunner.ts build",
