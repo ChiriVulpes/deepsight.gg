@@ -1,3 +1,5 @@
 node_modules/
 docs/
 .env
+static/testiny.json
+static/testiny.v

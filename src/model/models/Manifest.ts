@@ -3,6 +3,7 @@ import Model from "model/Model";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllCustomManifestComponents } from "utility/endpoint/fvm/endpoint/GetCustomManifest";
 import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
+import Env from "utility/Env";
 
 type Indices<COMPONENT_NAME extends AllComponentNames> =
 	{
@@ -61,7 +62,8 @@ const Manifest = Model.create("manifest", {
 		api.emitProgress(0, "Downloading manifest");
 
 		const manifest = await GetManifest.query();
-		const destinyComponents = await fetch(`https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`)
+		const manifestURL = Env.FVM_ENVIRONMENT === "dev" ? "testiny.json" : `https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`;
+		const destinyComponents = await fetch(manifestURL)
 			.then(response => response.json() as Promise<AllDestinyManifestComponents>);
 
 		const customComponents = await GetCustomManifest.query();
