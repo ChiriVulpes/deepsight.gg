@@ -11,9 +11,9 @@
 	background: color(background-2, .3);
 	backdrop-filter: blur(10px);
 	
-	@media (max-width: 600px) {
-		width: calc(100% - 17px);
-	}
+	// @media (max-width: 600px) {
+	// 	width: calc(100% - 17px);
+	// }
 	
 	&.hidden {
 		display: none;
@@ -205,8 +205,8 @@
 			}
 		}
 			
-		@media (max-width: 600px) {
-			right: 17px;
-		}
+		// @media (max-width: 600px) {
+		// 	right: 17px;
+		// }
 	}
 }

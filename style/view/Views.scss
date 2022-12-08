@@ -45,6 +45,10 @@
 		align-self: center;
 		grid-row: 3;
 		z-index: 1;
+	
+		@media (max-width: 600px) {
+			padding-bottom: 60px;
+		}
 	}
 	
 	&-title {

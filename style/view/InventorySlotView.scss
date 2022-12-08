@@ -90,6 +90,15 @@
 		}
 	}
 	
+	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		--bucket-inventory-inner-width: calc(100vw - 17px - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) * 2);
+		&-footer {
+			display: grid;
+			grid-template-columns: 1fr;
+			height: auto;
+		}
+	}
+	
 	&-hints {
 		width: var(--bucket-inventory-width);
     	flex-shrink: 0;
@@ -353,6 +362,10 @@
 			--slot-size: calc(var(--bucket-inventory-inner-width) / 7);
 			display: grid;
 			grid-template-rows: repeat(3, 1fr);
+				
+			@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+				grid-template-rows: initial;
+			}
 		}
 		
 		grid-template-columns: 1fr;

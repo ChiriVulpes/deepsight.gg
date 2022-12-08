@@ -1,8 +1,8 @@
 .checkbox {
-	display: flex;
+	display: grid;
+	grid-template-columns: auto 1fr;
 	align-items: center;
 	cursor: pointer;
-	flex-wrap: wrap;
 	
 	&-checkbox {
 		appearance: none;
@@ -142,5 +142,6 @@
 		color: color(foreground-2);
 		margin: 0 0 8px;
 		padding-top: .4em;
+		grid-column: 1/3;
 	}
 }

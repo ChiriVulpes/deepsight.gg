@@ -4,13 +4,12 @@
 		flex-direction: column;
 		flex-wrap: wrap;
 		align-content: flex-start;
+		row-gap: 30px;
+		column-gap: 40px;
 		
 		@media (max-width: 1600px) {
 			flex-direction: row;
 		}
-		
-		row-gap: 30px;
-		column-gap: 40px;
 	}
 	
 	.card {

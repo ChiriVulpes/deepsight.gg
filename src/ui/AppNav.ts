@@ -27,6 +27,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	protected static override defaultType = "nav";
 
 	private destinationButtons!: Record<string, Button>;
+	private destinationsWrapper!: Component;
 
 	protected override onMake (viewManager: typeof ViewManager): void {
 		this.destinationButtons = {};
@@ -58,14 +59,14 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.classes.add(ClassesAppNav.IdentityContainer)
 			.appendTo(this);
 
-		const destinationsWrapper = Component.create()
+		this.destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
 			.appendTo(this);
 
 		Button.create()
 			.classes.add(ClassesAppNav.DestinationsToggle)
-			.event.subscribe("click", () => destinationsWrapper.classes.toggle(Classes.Active))
-			.appendTo(destinationsWrapper);
+			.event.subscribe("click", () => this.destinationsWrapper.classes.toggle(Classes.Active))
+			.appendTo(this.destinationsWrapper);
 
 		for (const destinationViewHandler of Object.values(viewManager.registry)) {
 			if (destinationViewHandler.noDestinationButton)
@@ -80,7 +81,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.text.set(name)
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show())
-				.appendTo(destinationsWrapper);
+				.appendTo(this.destinationsWrapper);
 		}
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
@@ -94,5 +95,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, !view.definition.noNav);
 		this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
 		this.attributes.toggle(!!view.definition.noNav, "inert");
+
+		this.destinationsWrapper.classes.remove(Classes.Active)
 	}
 }
