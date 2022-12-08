@@ -109,6 +109,7 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow || item.definition.itemSubType === DestinyItemSubType.Sword ? false
 		: { bar: true },
 	[Stat.RecoilDirection]: {
+		bar: true,
 		renderBar: (bar, item, stat) => bar.removeContents()
 			.append(RecoilDirection(stat)),
 	},
