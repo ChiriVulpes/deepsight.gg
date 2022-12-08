@@ -104,8 +104,16 @@ const Manifest = Model.create("manifest", {
 			console.info(`Downloading ${cacheKey}`);
 			api.emitProgress((1 + i * 2) / totalLoad, "Downloading manifest");
 
-			const data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net/${manifest.jsonWorldComponentContentPaths.en[componentName]}`)
-				.then(response => response.json()) as AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
+			const data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}`)
+				.then(response => response.json())
+				.catch(err => {
+					if (err.message.includes("Access-Control-Allow-Origin")) {
+						console.warn(err);
+						return {};
+					}
+
+					throw err;
+				}) as AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
 
 			console.info(`Finished downloading ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 			startTime = performance.now();
