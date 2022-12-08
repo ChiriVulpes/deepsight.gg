@@ -9,7 +9,8 @@ import Task from "./utilities/Task";
 
 export default Task("build", task => task.series(
 	clean,
-	() => task.parallel(install, manifest),
+	install,
+	manifest,
 	() => task.parallel(sass, ts, _static),
 	env,
 ));
