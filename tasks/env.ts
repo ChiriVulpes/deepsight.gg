@@ -13,10 +13,10 @@ function env<KEY extends keyof IEnvironment> (key: KEY, orElse?: IEnvironment[KE
 let environment: IEnvironment | undefined;
 export default Task("env", _ => {
 	environment ??= {
-		FVM_ENVIRONMENT: env("FVM_ENVIRONMENT", "prod"),
-		FVM_BUNGIE_CLIENT_ID: env("FVM_BUNGIE_CLIENT_ID"),
-		FVM_BUNGIE_API_KEY: env("FVM_BUNGIE_API_KEY"),
-		FVM_BUNGIE_API_SECRET: env("FVM_BUNGIE_API_SECRET"),
+		DEEPSIGHT_ENVIRONMENT: env("DEEPSIGHT_ENVIRONMENT", "prod"),
+		DEEPSIGHT_BUNGIE_CLIENT_ID: env("DEEPSIGHT_BUNGIE_CLIENT_ID"),
+		DEEPSIGHT_BUNGIE_API_KEY: env("DEEPSIGHT_BUNGIE_API_KEY"),
+		DEEPSIGHT_BUNGIE_API_SECRET: env("DEEPSIGHT_BUNGIE_API_SECRET"),
 	};
 
 	return fs.writeFile("docs/env.json", JSON.stringify(environment));

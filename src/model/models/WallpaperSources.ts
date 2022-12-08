@@ -1,6 +1,6 @@
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
-import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
+import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 
 export interface IWallpaperSource {
 	wallpapers: string[];

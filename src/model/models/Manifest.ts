@@ -1,8 +1,8 @@
 import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
-import type { AllCustomManifestComponents } from "utility/endpoint/fvm/endpoint/GetCustomManifest";
-import GetCustomManifest from "utility/endpoint/fvm/endpoint/GetCustomManifest";
+import type { AllCustomManifestComponents } from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
+import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
 import Env from "utility/Env";
 
 type Indices<COMPONENT_NAME extends AllComponentNames> =
@@ -56,13 +56,13 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-3.fvm`;
+		return `${manifest.version}-3.deepsight.gg`;
 	},
 	async generate (api) {
 		api.emitProgress(0, "Downloading manifest");
 
 		const manifest = await GetManifest.query();
-		const manifestURL = Env.FVM_ENVIRONMENT === "dev" ? "testiny.json" : `https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`;
+		const manifestURL = Env.DEEPSIGHT_ENVIRONMENT === "dev" ? "testiny.json" : `https://www.bungie.net/${manifest.jsonWorldContentPaths.en}`;
 		const destinyComponents = await fetch(manifestURL)
 			.then(response => response.json() as Promise<AllDestinyManifestComponents>);
 

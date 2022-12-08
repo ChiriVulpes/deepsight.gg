@@ -2,9 +2,10 @@
 import ansicolor from "ansicolor";
 import Log from "./utilities/Log";
 import Task from "./utilities/Task";
-import { elapsed, Stopwatch, stopwatch } from "./utilities/Time";
+import type { Stopwatch } from "./utilities/Time";
+import { elapsed, stopwatch } from "./utilities/Time";
 
-const options = process.env.FVM_ENVIRONMENT === "dev"
+const options = process.env.DEEPSIGHT_ENVIRONMENT === "dev"
 	? ["--inlineSourceMap", "--inlineSources", "--incremental"]
 	: [];
 

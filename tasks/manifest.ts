@@ -15,7 +15,7 @@ interface Manifest {
 }
 
 export default Task("manifest", async () => {
-	if (process.env.FVM_ENVIRONMENT !== "dev")
+	if (process.env.DEEPSIGHT_ENVIRONMENT !== "dev")
 		return;
 
 	const manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
@@ -23,7 +23,7 @@ export default Task("manifest", async () => {
 		.then(json => (json as Manifest).Response);
 
 	const savedVersion = await fs.readFile("static/testiny.v", "utf8").catch(() => "<no saved manifest>");
-	const bungieVersion = `${manifest.version}-1.fvm`;
+	const bungieVersion = `${manifest.version}-1.deepsight.gg`;
 	if (bungieVersion === savedVersion)
 		return;
 

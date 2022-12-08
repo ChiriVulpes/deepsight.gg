@@ -1,5 +1,5 @@
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
-import FVMEndpoint from "utility/endpoint/fvm/FVMEndpoint";
+import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 
 export interface DestinySourceDefinition {
 	id: string;
@@ -15,7 +15,7 @@ export interface DestinySourceDefinition {
 	hash: number;
 }
 
-export default new FVMEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json", {
+export default new DeepsightEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json", {
 	process (received) {
 		for (const [hash, source] of Object.entries(received))
 			source.hash = +hash;

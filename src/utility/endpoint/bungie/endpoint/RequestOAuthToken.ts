@@ -21,7 +21,7 @@ export default BungieEndpoint
 	.request(() => ({
 		method: "POST",
 		headers: {
-			Authorization: `Basic ${btoa(`${Env.FVM_BUNGIE_CLIENT_ID}:${Env.FVM_BUNGIE_API_SECRET}`)}`,
+			Authorization: `Basic ${btoa(`${Env.DEEPSIGHT_BUNGIE_CLIENT_ID}:${Env.DEEPSIGHT_BUNGIE_API_SECRET}`)}`,
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 		body: Store.items.bungieAccessTokenRefreshToken

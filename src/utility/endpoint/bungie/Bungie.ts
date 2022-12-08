@@ -50,7 +50,7 @@ export class BungieAPI {
 
 			// step 1: get an auth code for this user
 
-			const clientId = Env.FVM_BUNGIE_CLIENT_ID;
+			const clientId = Env.DEEPSIGHT_BUNGIE_CLIENT_ID;
 			if (!clientId)
 				throw new Error("Cannot authenticate with Bungie, no client ID in environment");
 

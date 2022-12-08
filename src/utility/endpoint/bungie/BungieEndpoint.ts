@@ -83,7 +83,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	protected override async getHeaders (headers?: Record<string, string | undefined>) {
 		return {
 			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(),
-			"X-API-Key": Env.FVM_BUNGIE_API_KEY,
+			"X-API-Key": Env.DEEPSIGHT_BUNGIE_API_KEY,
 			...headers,
 		};
 	}

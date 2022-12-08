@@ -1,6 +1,6 @@
 import Manifest from "model/models/Manifest";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
-import type { DestinySourceDefinition } from "utility/endpoint/fvm/endpoint/GetDestinySourceDefinition";
+import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 
 export default IFilter.async(async () => {
 	const { DestinySourceDefinition } = await Manifest.await();
