@@ -1,5 +1,6 @@
 .text-logo {
 	display: grid;
+	width: fit-content;
 	
 	&-deep {
 		grid-column: 1/4;
@@ -12,9 +13,10 @@
 			content: "l";
 			display: block;
 			position: absolute;
-			left: 1.3em;
-			top: -.61em;
-			transform: scaleY(70%);
+			left: 1.315em;
+			top: -.23em;
+			transform: scaleY(173%);
+			text-shadow: -.02em 0 0 color(background-3);
 		}
 	}
 	
