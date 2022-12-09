@@ -304,6 +304,19 @@
 				mask-repeat: no-repeat;
 			}
 		}
+		
+		&-difference {
+			font-size: .8em;
+			margin-left: 6px;
+			align-self: center;
+			
+			&-better {
+				color: color(good);
+			}
+			&-worse {
+				color: color(bad);
+			}
+		}
 	}
 	
 	&-stat-total {

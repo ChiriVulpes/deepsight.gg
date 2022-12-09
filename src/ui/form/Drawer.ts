@@ -11,6 +11,8 @@ export enum DrawerClasses {
 export default class Drawer extends Component {
 
 	private panels!: Set<Component>;
+	public closeButton!: Button;
+
 	protected override onMake (): void {
 		this.panels = new Set();
 		this.classes.add(DrawerClasses.Main, Classes.Hidden)
@@ -24,7 +26,7 @@ export default class Drawer extends Component {
 				}
 			});
 
-		Button.create()
+		this.closeButton = Button.create()
 			.classes.add(DrawerClasses.Close)
 			.event.subscribe("mousedown", () => this.close())
 			.event.subscribe("click", () => this.close())
@@ -67,5 +69,11 @@ export default class Drawer extends Component {
 	public close () {
 		this.classes.add(Classes.Hidden);
 		this.attributes.add("inert");
+	}
+
+	public override removeContents (): this {
+		while (this.element.lastChild && this.element.lastChild !== this.closeButton.element)
+			this.element.lastChild?.remove();
+		return this;
 	}
 }

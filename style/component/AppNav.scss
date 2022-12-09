@@ -35,6 +35,12 @@
 	
 	$delay: .02s;
 	
+	&-identity-container {
+		position: relative;
+		margin-right: 30px;
+		transition-delay: $delay * 2;
+	}
+	
 	@at-root .app-nav-logo-container, .app-nav-title, .app-nav-identity-container, .app-nav-destination {
 		@include transition(.2s, transform);
 		transition-timing-function: cubic-bezier(0,0,.4,1);
@@ -68,29 +74,6 @@
 		transition-delay: $delay;
 		.text-logo-sight::before {
 			content: none;
-		}
-	}
-	
-	&-identity {
-		&-container {
-			position: relative;
-			display: flex;
-			margin-right: 30px;
-			transition-delay: $delay * 2;
-		}
-		
-		font-weight: 600;
-		user-select: all;
-		-webkit-user-select: all;
-		height: fit-content;
-		align-self: center;
-		
-		&-username, &-code {
-			display: inline;
-		}
-		
-		&-code {
-			color: color(accent-0);
 		}
 	}
 	

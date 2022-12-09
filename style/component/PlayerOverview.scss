@@ -1,0 +1,86 @@
+.player-overview {
+	&, &-container {
+		display: flex;
+		align-content: center;
+	}
+	
+	&-identity {
+		
+		font-weight: 600;
+		user-select: all;
+		-webkit-user-select: all;
+		height: fit-content;
+		align-self: center;
+		
+		&-username, &-code {
+			display: inline;
+		}
+		
+		&-code {
+			color: color(accent-0);
+		}
+	}
+	
+	&-drawer {
+		bottom: initial;
+		top: 0;
+		left: -20px;
+		padding: 10px;
+		padding-top: calc(var(--nav-height) + 10px);
+		z-index: -1;
+		
+		.drawer-close {
+			top: initial;
+			right: initial;
+			bottom: 8px;
+			left: 8px;
+			&::after {
+				transform: rotate(225deg);
+				top: 6px;
+			}
+		}
+		
+		&-panel {
+			display: grid;
+			grid-auto-flow: column;
+			overflow: initial;
+			gap: 8px;
+			padding: 0;
+		}
+	}
+	
+	&-slot {
+		&::before {
+			content: attr(data-name);
+			text-transform: uppercase;
+			display: block;
+			white-space: nowrap;
+			letter-spacing: 0.04em;
+			font-weight: 600;
+    		padding: 0 14px;
+			opacity: 0;
+		}
+		
+		&-overview::before {
+			text-transform: none;
+			padding: 0;
+			margin-right: 16px;
+			margin-left: 10px;
+			letter-spacing: inherit;
+		}
+		
+		display: grid;
+		grid-template-rows: 0px auto auto;
+		justify-items: center;
+		height: fit-content;
+		
+		.item-power-level {
+			justify-self: initial;
+		}
+	}
+	
+	&-item {
+		width: 60px;
+		height: 60px;
+	}
+}

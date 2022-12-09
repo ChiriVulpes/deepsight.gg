@@ -8,6 +8,20 @@ namespace Maths {
 		const r = Math.round(x);
 		return (x > 0 ? x : -x) % 1 === 0.5 ? (0 === r % 2 ? r : r - 1) : r;
 	}
+
+	export function sum (...nums: number[]) {
+		let result = 0;
+		for (const num of nums)
+			result += num;
+		return result;
+	}
+
+	export function average (...nums: number[]) {
+		let result = 0;
+		for (const num of nums)
+			result += num;
+		return result / nums.length;
+	}
 }
 
 export default Maths;

@@ -1,4 +1,4 @@
-import Component from "ui/Component";
+import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({
@@ -10,9 +10,6 @@ export default ISort.create({
 		if (!power)
 			return undefined;
 
-		return Component.create()
-			.classes.add("item-power-level")
-			.append(Component.create().classes.add("item-power-level-icon"))
-			.text.add(`${power}`)
+		return ItemPowerLevel.create([power]);
 	},
 });

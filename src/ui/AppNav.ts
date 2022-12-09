@@ -1,9 +1,9 @@
-import Memberships from "model/models/Memberships";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import Loadable from "ui/Loadable";
 import LoadingManager from "ui/LoadingManager";
+import PlayerOverview from "ui/PlayerOverview";
 import TextLogo from "ui/TextLogo";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";
@@ -14,9 +14,6 @@ export enum ClassesAppNav {
 	Logo = "app-nav-logo",
 	Title = "app-nav-title",
 	IdentityContainer = "app-nav-identity-container",
-	Identity = "app-nav-identity",
-	IdentityUsername = "app-nav-identity-username",
-	IdentityCode = "app-nav-identity-code",
 	Destinations = "app-nav-destinations",
 	DestinationsToggle = "app-nav-destinations-toggle",
 	DestinationsClose = "app-nav-destinations-close",
@@ -47,16 +44,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.classes.add(ClassesAppNav.Title)
 			.appendTo(this);
 
-		Loadable.create(Memberships)
-			.onReady(memberships => Component.create()
-				.classes.add(ClassesAppNav.Identity)
-				.append(Component.create()
-					.classes.add(ClassesAppNav.IdentityUsername)
-					.text.set(memberships.bungieNetUser.cachedBungieGlobalDisplayName))
-				.append(Component.create()
-					.classes.add(ClassesAppNav.IdentityCode)
-					.text.set(`#${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode ?? "????"}`)))
-			.setSimple()
+		PlayerOverview.create()
 			.classes.add(ClassesAppNav.IdentityContainer)
 			.appendTo(this);
 
