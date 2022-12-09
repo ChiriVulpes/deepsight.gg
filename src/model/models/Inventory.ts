@@ -8,6 +8,7 @@ import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId, ItemId } from "model/models/items/Item";
 import Profile from "model/models/Profile";
 import FocusManager from "ui/FocusManager";
+import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
@@ -26,7 +27,7 @@ Model.event.subscribe("clearCache", () => {
 	delete InventoryModel["INSTANCE"];
 });
 
-export default class InventoryModel {
+export default class InventoryModel implements IItemComponentCharacterHandler {
 
 	private static INSTANCE?: InventoryModel;
 	public static get () {
@@ -45,7 +46,7 @@ export default class InventoryModel {
 	public sortedCharacters?: DestinyCharacterComponent[];
 
 	public getCharacter (id?: CharacterId) {
-		return (this.characters?.[id!] ?? this.sortedCharacters?.[0]);
+		return (this.characters?.[id!] ?? this.sortedCharacters?.[0])!;
 	}
 
 	public constructor () {

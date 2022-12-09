@@ -41,7 +41,7 @@
 		}
 		
 		&-panel {
-			display: grid;
+			display: grid !important;
 			grid-auto-flow: column;
 			overflow: initial;
 			gap: 8px;

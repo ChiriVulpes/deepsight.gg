@@ -1,6 +1,6 @@
 import type { DestinyCharacterComponent, ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import { BucketHashes } from "bungie-api-ts/destiny2";
-import InventoryModel from "model/models/Inventory";
+import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId, DestinationBucketId } from "model/models/items/Item";
@@ -124,13 +124,13 @@ interface IInventorySlotViewDefinition {
 
 class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
 
-type InventorySlotViewArgs = [InventoryModel];
-class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) implements IItemComponentCharacterHandler {
+type InventorySlotViewArgs = [Inventory];
+class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
 
 	public static hasExisted = false;
 	public static current?: InventorySlotView;
 
-	public model!: InventoryModel;
+	public inventory!: Inventory;
 	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characterBucketsContainer!: Component;
@@ -143,14 +143,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
 
-	public getCharacter (id?: CharacterId) {
-		return (this.characters[id!] ?? this.currentCharacter).character;
-	}
-
-	protected override async onMake (model: InventoryModel) {
+	protected override async onMake (model: Inventory) {
 		InventorySlotView.hasExisted = true;
 		InventorySlotView.current = this;
-		this.model = model;
+		this.inventory = model;
 		model.setShouldSkipCharacters(() => !InventorySlotView.current);
 
 		this.classes.add(InventorySlotViewClasses.Main);
@@ -232,7 +228,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private updateItems () {
-		this.bucketEntries = Object.entries(this.model.buckets ?? {}) as [BucketId, Bucket][];
+		this.bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [BucketId, Bucket][];
 		for (const [item] of this.itemMap) {
 			if (!this.bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
 				// this item doesn't exist anymore
@@ -269,7 +265,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.characters ??= {};
 		this.postmasters ??= {};
 
-		const characterBucketsSorted = (this.model.sortedCharacters ?? [])
+		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
 				character: this.characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
 				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
@@ -425,7 +421,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
-		const component = !item.canTransfer() ? ItemComponent.create([item, this]) : DraggableItem.create([item, this]);
+		const component = !item.canTransfer() ? ItemComponent.create([item, this.inventory]) : DraggableItem.create([item, this.inventory]);
 		return !item.canTransfer() ? component : (component as DraggableItem)
 			.event.subscribe("click", async event => {
 				if (window.innerWidth <= 800)
@@ -462,7 +458,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
-				this.itemMoving = ItemComponent.create([item, this])
+				this.itemMoving = ItemComponent.create([item, this.inventory])
 					.classes.add(InventorySlotViewClasses.ItemMoving)
 					.setTooltipPadding(40)
 					.appendTo(this);
@@ -519,7 +515,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 
 export default new View.Factory()
-	.using(InventoryModel.createTemporary())
+	.using(Inventory.createTemporary())
 	.define<IInventorySlotViewDefinition>()
 	.initialise((view, model) =>
 		view.make(InventorySlotView, model));

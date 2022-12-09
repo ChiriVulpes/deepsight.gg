@@ -1,6 +1,7 @@
-import type { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterComponent, ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import type { UserMembershipData } from "bungie-api-ts/user";
 import Inventory from "model/models/Inventory";
+import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
@@ -68,14 +69,19 @@ namespace PlayerOverview {
 		}
 
 		public update () {
-			const bucketId = this.inventory.sortedCharacters?.[0].characterId as CharacterId;
-			const bucket = this.inventory.buckets?.[bucketId];
-			if (!bucket) {
-				console.warn("No bucket found for the current character");
-				return;
-			}
-
 			this.drawer.removeContents();
+			for (const character of this.inventory.sortedCharacters ?? []) {
+				const bucket = this.inventory.buckets?.[character.characterId as CharacterId];
+				if (!bucket) {
+					console.warn(`No bucket found for the character ${character.characterId}`);
+					continue;
+				}
+
+				this.createPanel(character, bucket);
+			}
+		}
+
+		private createPanel (character: DestinyCharacterComponent, bucket: Bucket) {
 			const panel = this.drawer.createPanel()
 				.classes.add(PlayerOverviewClasses.Panel);
 
@@ -159,8 +165,7 @@ namespace PlayerOverview {
 					continue;
 
 				console.log(`Highest power in ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
-				ItemComponent.create([highestPowerItem])
-					.classes.remove(ButtonClasses.Main)
+				ItemComponent.create([highestPowerItem, this.inventory])
 					.classes.add(PlayerOverviewClasses.Item)
 					.appendTo(slotComponent);
 
