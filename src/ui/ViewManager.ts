@@ -12,6 +12,7 @@ import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/InventoryPowerView";
 import ItemView from "ui/view/item/ItemView";
+import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
@@ -32,6 +33,7 @@ const registry = Object.fromEntries([
 	SettingsView,
 	ItemView,
 	ErrorView,
+	ItemTooltipView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));

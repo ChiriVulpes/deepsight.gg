@@ -23,6 +23,7 @@ import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import ErrorView from "ui/view/ErrorView";
 import ItemView from "ui/view/item/ItemView";
+import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum InventorySlotViewClasses {
@@ -268,9 +269,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.characters ??= {};
 		this.postmasters ??= {};
 
-		const characterBucketsSorted = Object.values(this.model.characters?.data ?? {})
-			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
-				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
+		const characterBucketsSorted = (this.model.sortedCharacters ?? [])
 			.map(character => ({
 				character: this.characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
 				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
@@ -429,6 +428,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		const component = !item.canTransfer() ? ItemComponent.create([item, this]) : DraggableItem.create([item, this]);
 		return !item.canTransfer() ? component : (component as DraggableItem)
 			.event.subscribe("click", async event => {
+				if (window.innerWidth <= 800)
+					return ItemTooltipView.show(item);
+
 				if (event.shiftKey)
 					// update this item component's bucket so future clicks transfer to the right place
 					await item.transferToggleVaulted(this.currentCharacter.character.characterId as CharacterId);
@@ -441,10 +443,16 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				}
 			})
 			.event.subscribe("contextmenu", event => {
+				if (window.innerWidth <= 800)
+					return;
+
 				event.preventDefault();
 				ItemView.show(item);
 			})
 			.event.subscribe("moveStart", event => {
+				if (window.innerWidth <= 800)
+					return event.preventDefault();
+
 				if (item.equipped)
 					return event.preventDefault();
 

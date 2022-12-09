@@ -34,7 +34,7 @@
 		}
 	}
 	
-	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+	@include mobile {
 		position: fixed;
 		top: var(--nav-height);
 		left: 0;

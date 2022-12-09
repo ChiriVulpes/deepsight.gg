@@ -21,7 +21,7 @@
 		}
 	}
 		
-	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+	@include mobile {
 		--view-padding-top: 0px;
 		
 		&-content {
@@ -80,7 +80,7 @@
 			z-index: 100;
 		}
 		
-		@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		@include mobile {
 			transform: none !important;
 			
 			.item-sort, .item-filter {
@@ -94,7 +94,7 @@
 		}
 	}
 	
-	@media (max-width: 1200px) and (min-width: 800px) and (min-height: 800px) {
+	@include tablet {
 		--bucket-inventory-width: calc(100vw / 3
 			- var(--view-padding-x) * 2
 		);
@@ -117,7 +117,7 @@
 		}
 	}
 	
-	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+	@include mobile {
 		--bucket-inventory-inner-width: calc(100vw - 17px - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) * 2);
 		&-footer {
 			display: grid;
@@ -189,7 +189,7 @@
 			}
 		}
 		
-		@media (max-width: 1200px) and (min-width: 800px) and (min-height: 800px) {
+		@include tablet {
 			&s {
 				grid-template-rows: initial;
 				grid-template-columns: repeat(3, 1fr);
@@ -201,7 +201,7 @@
 			max-width: var(--bucket-inventory-width);
 		}
 		
-		@media (max-width: 1000px) and (min-width: 800px) and (min-height: 800px) {
+		@include tablet($max-width: 1000px) {
 			&-inventory {
 				grid-row: 3/5;
 				grid-column: 1/5;
@@ -371,7 +371,7 @@
 	}
 	
 	&-vault-bucket {
-		@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		@include mobile {
 			padding-bottom: 8px;
 		}
 	}
@@ -396,7 +396,7 @@
 			display: grid;
 			grid-template-rows: repeat(3, 1fr);
 				
-			@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+			@include mobile {
 				grid-template-rows: initial;
 			}
 		}
@@ -435,7 +435,7 @@
 			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
 		}
 		
-		@media (max-width: 1200px) and (min-width: 800px) and (min-height: 800px) {
+		@include tablet {
 			&s {
 				grid-template-rows: 1fr;
 				grid-template-columns: repeat(3, 1fr);

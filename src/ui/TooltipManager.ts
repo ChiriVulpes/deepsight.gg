@@ -74,6 +74,7 @@ namespace TooltipManager {
 
 	export interface ITooltipClass<TOOLTIP> {
 		get (): TOOLTIP;
+		createRaw (): TOOLTIP;
 	}
 
 	export function create<TOOLTIP extends Tooltip> (initialiser: (tooltip: Tooltip) => TOOLTIP): ITooltipClass<TOOLTIP> {
@@ -83,6 +84,7 @@ namespace TooltipManager {
 				return tooltip ??= initialiser(Tooltip.create()
 					.appendTo(tooltipStorage));
 			},
+			createRaw: () => initialiser(Tooltip.create()),
 		};
 	}
 

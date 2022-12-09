@@ -23,7 +23,7 @@
 	font-weight: 400;
 	letter-spacing: .02em;
 	
-	@media (max-width: 1200px) and (min-width: 800px) and (min-height: 800px) {
+	@include tablet {
 		--slot-size: min(78px, (100vw
 			- 120px
 			- var(--nav-height) /* nav */
@@ -40,7 +40,7 @@
 		--slot-size: 70px;
 	}
 	
-	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+	@include mobile {
 		--view-padding-x: 12px;
 		--slot-size: calc((100vw - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) * 3) / 4);
 	}

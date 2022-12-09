@@ -11,6 +11,11 @@
 	background: color(background-2, .3);
 	backdrop-filter: blur(10px);
 	
+	@media (max-width: 1000px) {
+		backdrop-filter: none;
+	}
+	
+	
 	// @media (max-width: 600px) {
 	// 	width: calc(100% - 17px);
 	// }
@@ -175,7 +180,8 @@
 			flex-direction: column;
 			
 			&.active {
-				background: color(background-4);
+				background: color(background-4, .9);
+				backdrop-filter: blur(5px);
 			}
 			
 			&-toggle {
@@ -198,6 +204,7 @@
 			
 			@at-root .app-nav-destination {
 				margin-right: 0;
+				align-self: flex-end;
 			}
 		
 			&:not(.active) .app-nav-destination {

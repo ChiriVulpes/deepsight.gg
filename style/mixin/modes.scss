@@ -1,0 +1,11 @@
+@mixin mobile($always-max-width: 800px, $max-width: 1200px, $max-height: 800px) {
+	@media (max-width: $always-max-width), (max-width: $max-width) and (max-height: $max-height) {
+		@content;
+	}
+}
+
+@mixin tablet($max-width: 1200px, $min-width: 800px, $min-height: 800px) {
+	@media (max-width: $max-width) and (min-width: $min-width) and (min-height: $min-height) {
+		@content;
+	}
+}
