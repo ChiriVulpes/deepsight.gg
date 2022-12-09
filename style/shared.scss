@@ -40,9 +40,9 @@
 		--slot-size: 70px;
 	}
 	
-	@media (max-width: 600px) {
-		--slot-size: 60px;
+	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
 		--view-padding-x: 12px;
+		--slot-size: calc((100vw - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) * 3) / 4);
 	}
 }
 

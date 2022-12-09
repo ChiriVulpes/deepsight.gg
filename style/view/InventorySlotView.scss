@@ -19,18 +19,31 @@
 		@media (min-width: 1000px) {
 			overflow: hidden;
 		}
+	}
 		
-		@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		--view-padding-top: 0px;
+		
+		&-content {
 			display: flex;
 			flex-direction: column;
+			gap: 0px;
+		}
+		
+		.card {
+			overflow: initial;
+			&-title {
+				top: 0px;
+			}
 			
-			.card {
-				overflow: initial;
+			&-header::after {
+				top: 0px;
 			}
 		}
 	}
 	
 	&-footer {
+		backdrop-filter: blur(10px);
 			
 		.item-sort, .item-filter {
 			position: relative;
@@ -63,6 +76,15 @@
 			flex-grow: 1;
 			@at-root .view-inventory-slot :where(.item-filter-drawer) {
 				max-height: 30vh;
+			}
+			
+			z-index: 100;
+		}
+		
+		.item-sort, .item-filter {
+			@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+				height: var(--footer-height);
+				width: 100%;
 			}
 		}
 	}
@@ -138,9 +160,9 @@
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
 			width: fit-content;
-			padding: var(--bucket-inventory-padding) 20px;
+			padding: var(--bucket-inventory-padding) min(20px, var(--view-padding-x)) var(--bucket-inventory-padding) 20px;
 			margin-left: calc(-20px + var(--bucket-inventory-padding));
-			margin-right: calc(-20px + var(--bucket-inventory-padding));
+			margin-right: calc(0px - min(20px, var(--view-padding-x)) + var(--bucket-inventory-padding));
 			padding-bottom: calc(var(--bucket-inventory-padding) + var(--card-gap-y));
 		}
 		
@@ -340,6 +362,12 @@
 		
 		&.view-inventory-slot-vault-bucket::after {
 			background-image: linear-gradient(-45deg, transparent 46%, #fff3 50%, transparent 54%);
+		}
+	}
+	
+	&-vault-bucket {
+		@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+			padding-bottom: 8px;
 		}
 	}
 	

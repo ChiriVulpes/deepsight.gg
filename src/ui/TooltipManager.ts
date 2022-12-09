@@ -70,6 +70,8 @@ namespace TooltipManager {
 		.classes.add(TooltipClasses.Surface)
 		.appendTo(document.body);
 
+	let tooltipsEnabled = window.innerWidth > 800;
+
 	export interface ITooltipClass<TOOLTIP> {
 		get (): TOOLTIP;
 	}
@@ -86,6 +88,17 @@ namespace TooltipManager {
 
 	export function show<TOOLTIP extends Tooltip> (tooltipClass: ITooltipClass<TOOLTIP>, initialiser: (tooltip: TOOLTIP) => any, hidePreviousIfSame = true) {
 		const tooltip = tooltipClass.get();
+		hideTooltips(hidePreviousIfSame ? undefined : tooltip);
+
+		if (!tooltipsEnabled)
+			return;
+
+		initialiser(tooltip);
+		tooltip.classes.remove(Classes.Hidden)
+			.appendTo(tooltipSurface);
+	}
+
+	function hideTooltips (current?: Component) {
 		for (const child of tooltipSurface.element.children) {
 			const childComponent = child.component?.deref();
 			if (!childComponent) {
@@ -94,13 +107,9 @@ namespace TooltipManager {
 				continue;
 			}
 
-			if (childComponent !== tooltip || hidePreviousIfSame)
+			if (childComponent !== current)
 				hide(childComponent as Tooltip);
 		}
-
-		initialiser(tooltip);
-		tooltip.classes.remove(Classes.Hidden)
-			.appendTo(tooltipSurface);
 	}
 
 	export function hide (tooltip: Tooltip) {
@@ -169,6 +178,11 @@ namespace TooltipManager {
 
 		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - window.innerWidth - event.clientX;
 		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - window.innerHeight / 2 - event.clientY;
+	});
+
+	window.addEventListener("resize", () => {
+		tooltipsEnabled = window.innerWidth > 800;
+		hideTooltips();
 	});
 }
 
