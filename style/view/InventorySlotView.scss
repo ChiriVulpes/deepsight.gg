@@ -64,10 +64,6 @@
 			&-button, &-drawer {
 				width: 100%;
 			}
-			
-			&-button {
-				backdrop-filter: blur(10px);
-			}
 		}
 		
 		.item-sort {
@@ -90,6 +86,10 @@
 			.item-sort, .item-filter {
 				height: var(--footer-height);
 				width: 100%;
+			
+				&-button {
+					backdrop-filter: blur(10px);
+				}
 			}
 		}
 	}
