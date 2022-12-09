@@ -6,7 +6,7 @@
 	bottom: 0;
 	height: max-content;
 	max-height: 70vh;
-	@include transition(in, max-height, padding);
+	@include transition(in, top, max-height, padding);
 	overflow: hidden;
 	user-select: none;
 	outline: none;
@@ -33,6 +33,19 @@
 			opacity: 0;
 		}
 	}
+	
+	@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		position: fixed;
+		top: var(--nav-height);
+		left: 0;
+		height: 100%;
+		max-height: none !important;
+		width: 100%;
+		
+		&.hidden {
+			top: 100%;
+		}
+	}
 		
 	&-panel {
 		padding: 10px 15px;
@@ -46,6 +59,33 @@
 			display: block;
 			opacity: 0;
 			transform: translateY(10px);
+			pointer-events: none;
+		}
+	}
+	
+	&-close {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		margin: 0;
+		width: 30px;
+		height: 20px;
+		z-index: 2;
+		
+		background: none;
+		border: none;
+		
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			width: 12px;
+			height: 12px;
+			top: 0px;
+			border: 2px solid currentColor;
+			border-top: none;
+			border-left: none;
+			transform: rotate(45deg);
 			pointer-events: none;
 		}
 	}

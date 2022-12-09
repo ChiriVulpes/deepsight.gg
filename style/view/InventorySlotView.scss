@@ -43,7 +43,6 @@
 	}
 	
 	&-footer {
-		backdrop-filter: blur(10px);
 			
 		.item-sort, .item-filter {
 			position: relative;
@@ -65,6 +64,10 @@
 			&-button, &-drawer {
 				width: 100%;
 			}
+			
+			&-button {
+				backdrop-filter: blur(10px);
+			}
 		}
 		
 		.item-sort {
@@ -81,8 +84,10 @@
 			z-index: 100;
 		}
 		
-		.item-sort, .item-filter {
-			@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+		@media (max-width: 800px), (max-width: 1200px) and (max-height: 800px) {
+			transform: none !important;
+			
+			.item-sort, .item-filter {
 				height: var(--footer-height);
 				width: 100%;
 			}

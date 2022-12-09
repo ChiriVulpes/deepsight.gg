@@ -231,7 +231,8 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.drawer.open();
 		this.drawer.showPanel(this.mainPanel);
-		ExtraInfoManager.show(ItemSortClasses.Main);
+		if (window.innerWidth > 800)
+			ExtraInfoManager.show(ItemSortClasses.Main);
 		this.focusDrawer();
 	}
 

@@ -1,9 +1,11 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Button from "ui/form/Button";
 
 export enum DrawerClasses {
 	Main = "drawer",
 	Panel = "drawer-panel",
+	Close = "drawer-close",
 }
 
 export default class Drawer extends Component {
@@ -21,6 +23,12 @@ export default class Drawer extends Component {
 					this.event.emit("focus", new FocusEvent("focus"));
 				}
 			});
+
+		Button.create()
+			.classes.add(DrawerClasses.Close)
+			.event.subscribe("mousedown", () => this.close())
+			.event.subscribe("click", () => this.close())
+			.appendTo(this);
 	}
 
 	public isOpen () {
