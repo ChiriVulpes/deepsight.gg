@@ -62,21 +62,30 @@ export default View.create({
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Pull to ${className}`)
-				.event.subscribe("click", () => item.transferToCharacter(character!.characterId as CharacterId))
+				.event.subscribe("click", () => {
+					void item.transferToCharacter(character!.characterId as CharacterId);
+					view.back();
+				})
 				.appendTo(buttons);
 
 		if (CharacterId.is(item.bucket) && !item.equipped)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Equip to ${className}`)
-				.event.subscribe("click", () => item.equip(character!.characterId as CharacterId))
+				.event.subscribe("click", () => {
+					void item.equip(character!.characterId as CharacterId);
+					view.back();
+				})
 				.appendTo(buttons);
 
 		if (item.bucket !== "vault" && !item.equipped && !isEngram)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set("Vault")
-				.event.subscribe("click", () => item.transferToVault())
+				.event.subscribe("click", () => {
+					void item.transferToVault();
+					view.back();
+				})
 				.appendTo(buttons);
 
 		if (!isEngram)

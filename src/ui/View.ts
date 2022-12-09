@@ -143,6 +143,7 @@ namespace View {
 	export interface IWrapperComponentEvents extends ComponentEvents<typeof Component> {
 		hide: Event;
 		updateTitle: Event;
+		back: Event;
 	}
 
 	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>, ...ARGS]> {
@@ -223,6 +224,10 @@ namespace View {
 		private initialise (...args: Model.Resolve<MODELS>) {
 			this.definition.initialise?.(this, ...args);
 			return this.content;
+		}
+
+		public back () {
+			this.event.emit("back");
 		}
 	}
 

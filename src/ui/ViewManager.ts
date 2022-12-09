@@ -110,7 +110,8 @@ export default class ViewManager {
 		view.appendTo(document.body);
 		this.event.emit("show", { view });
 		view.event.until("hide", manager => manager
-			.subscribe("updateTitle", () => this.updateDocumentTitle(view)));
+			.subscribe("updateTitle", () => this.updateDocumentTitle(view))
+			.subscribe("back", () => this.hide()));
 
 		this.updateDocumentTitle(view);
 	}
