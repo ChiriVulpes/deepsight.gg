@@ -10,10 +10,14 @@
 	user-select: none;
 	-webkit-user-select: none;
 	background: color(background-2, .3);
-	backdrop-filter: blur(10px);
 	
-	@include tablet-or-mobile {
-		backdrop-filter: none;
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		backdrop-filter: blur(10px);
+		z-index: -1;
 	}
 	
 	
