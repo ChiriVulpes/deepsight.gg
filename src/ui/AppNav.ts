@@ -19,6 +19,7 @@ export enum ClassesAppNav {
 	IdentityCode = "app-nav-identity-code",
 	Destinations = "app-nav-destinations",
 	DestinationsToggle = "app-nav-destinations-toggle",
+	DestinationsClose = "app-nav-destinations-close",
 	Destination = "app-nav-destination",
 	DocumentHasAppNav = "has-app-nav",
 }
@@ -61,6 +62,11 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		this.destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
+			.appendTo(this);
+
+		Component.create()
+			.classes.add(ClassesAppNav.DestinationsClose)
+			.event.subscribe("click", () => this.destinationsWrapper.classes.remove(Classes.Active))
 			.appendTo(this);
 
 		Button.create()

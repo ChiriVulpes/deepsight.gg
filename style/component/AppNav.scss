@@ -166,7 +166,7 @@
 			}
 		}
 		
-		&-toggle {
+		&-toggle, &-close {
 			display: none;
 		}
 		
@@ -182,6 +182,7 @@
 			padding: 10px;
 			display: flex;
 			flex-direction: column;
+			z-index: 2;
 			
 			&.active {
 				background: color(background-4, .9);
@@ -213,6 +214,16 @@
 		
 			&:not(.active) .app-nav-destination {
 				display: none;
+			}
+			
+			&.active + &-close {
+				display: block;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				z-index: 1;
 			}
 		}
 			
