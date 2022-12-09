@@ -16,7 +16,7 @@
 		grid-template-columns: auto 1fr auto;
 		gap: var(--card-gap-x);
 		
-		@media (min-width: 1000px) {
+		@include tablet {
 			overflow: hidden;
 		}
 	}
@@ -102,13 +102,23 @@
 		&-content {
 			grid-template-columns: initial;
 			grid-template-rows: auto 1fr auto;
+			
+			@media (max-height: 1200px) {
+				overflow-y: auto;
+				display: flex;
+				flex-direction: column;
+				height: auto;
+				
+				.card, .card-content {
+					overflow: initial;
+				}
+			}
 		}
 		
 		&-footer {
 			display: grid;
 			grid-template-columns: auto 1fr;
-			grid-template-rows: 50px 1fr;
-			height: calc(var(--footer-height) + 50px);
+			grid-template-rows: 1fr;
 		}
 		
 		&-hints {
@@ -201,7 +211,7 @@
 			max-width: var(--bucket-inventory-width);
 		}
 		
-		@include tablet($max-width: 1000px) {
+		@media (max-width: 1000px) and (min-width: 800px) {
 			&-inventory {
 				grid-row: 3/5;
 				grid-column: 1/5;

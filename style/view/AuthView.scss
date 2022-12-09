@@ -15,7 +15,7 @@
 			grid-column: 2;
 		}
 		
-		@media (max-width: 540px) {
+		@include mobile {
 			grid-template-columns: 1fr;
 			
 			> * {

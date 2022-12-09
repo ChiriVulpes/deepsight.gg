@@ -96,11 +96,11 @@
 		padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
 	}
 		
-	@media (max-width: 600px) {
-		overflow-y: initial;
+	@include mobile {
+		overflow-y: hidden;
 		
 		&-content {
-			overflow-y: initial;
+			overflow-y: hidden;
 		}
 	}
 }

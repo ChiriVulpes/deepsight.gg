@@ -11,7 +11,7 @@
 	background: color(background-2, .3);
 	backdrop-filter: blur(10px);
 	
-	@media (max-width: 1000px) {
+	@include tablet-or-mobile {
 		backdrop-filter: none;
 	}
 	
@@ -164,13 +164,11 @@
 			display: none;
 		}
 		
-		@media (max-width: 1200px) {
+		@include tablet-or-mobile {
 			@at-root .app-nav-destination {
 				margin-right: 6px;
 			}
-		}
-		
-		@media (max-width: 1000px) {
+			
 			position: fixed;
 			top: 0;
 			right: 0;
