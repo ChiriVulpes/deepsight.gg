@@ -9,6 +9,7 @@
 	@include transition(in, top, max-height, padding);
 	overflow: hidden;
 	user-select: none;
+	-webkit-user-select: none;
 	outline: none;
 	background: color(background-1);
 	@supports(backdrop-filter: blur(5px) brightness(1.5)) {

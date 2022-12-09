@@ -4,6 +4,7 @@
 	float: left;
 	clear: both;
 	user-select: none;
+	-webkit-user-select: none;
 	&::before {
 		content: "slot";
 		opacity: 0;
@@ -25,6 +26,7 @@
 	* { pointer-events: none; }
 	button { pointer-events: all; }
 	user-select: none;
+	-webkit-user-select: none;
 	outline: none;
 	
 	&.sortable-moving {

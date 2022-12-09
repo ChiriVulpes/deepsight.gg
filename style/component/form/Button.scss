@@ -5,6 +5,7 @@
 	padding: 4px 8px 6px;
 	cursor: pointer;
 	user-select: none;
+	-webkit-user-select: none;
 	background: color(button-background);
 	border: 1px solid color(button-border);
 	color: color(button-foreground);
