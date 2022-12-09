@@ -211,7 +211,7 @@
 			max-width: var(--bucket-inventory-width);
 		}
 		
-		@media (max-width: 1000px) and (min-width: 800px) {
+		@media (max-width: 1000px) and (min-width: 801px) {
 			&-inventory {
 				grid-row: 3/5;
 				grid-column: 1/5;
