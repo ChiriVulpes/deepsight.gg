@@ -19,6 +19,7 @@
 		cursor: pointer;
 		outline: none;
 		position: relative;
+		border-radius: 0;
 		
 		&:where(:hover, :focus-visible) {
 			--current-inset: -5px;
