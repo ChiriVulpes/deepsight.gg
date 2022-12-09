@@ -140,12 +140,12 @@
 	&-shaped {
 		background-image: url("/image/shaped.png");
 		> * {
-			@include pattern-icon(#FF8D5C);
+			@include pattern-icon(color(shaped));
 		}
 	}
 	
 	&-deepsight {
-		$deepsight: #D2513B;
+		$deepsight: color(deepsight);
 		box-shadow: inset 0 0 0 2px $deepsight;
 		
 		&-attuned {

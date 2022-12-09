@@ -172,8 +172,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
-		background: rgba(#5a2e18, .85);
-		border: 2px solid #f0631e;
+		background: color(deepsight-tooltip-background, .85);
+		border: 2px solid color(deepsight-tooltip-border);
 		border-left: none;
 		border-right: none;
 		padding: var(--tooltip-padding);

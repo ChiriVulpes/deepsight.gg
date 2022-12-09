@@ -57,23 +57,38 @@ $colors: (
 	tooltip-footer-background: #000,
 	
 	perk: #559acfb9,
+	
+	deepsight: #D2513B,
+	deepsight-tooltip-border: #f0631e,
+	deepsight-tooltip-background: #5a2e18,
+	shaped: #FF8D5C,
 );
+
+@mixin override-color($name, $color) {
+	@if type-of($color) == color {
+		--#{$name}: #{$color};
+		--#{$name}-rgb: #{red($color), green($color), blue($color)};
+	} @else if str-starts-with($color, "color(") {
+		$referenced-var: str-slice($color, 9, str-length($color) - 1);
+		--#{$name}: var(--#{$referenced-var});
+		--#{$name}-rgb: var(--#{$referenced-var}-rgb);
+	} @else {
+		--#{$name}: #{$color};
+	}
+}
+
+@mixin override-colors($colors) {
+	@each $name, $color in $colors {
+		@include override-color($name, $color);
+	}
+}
 
 :root {
 	color-scheme: dark;
 	
-	@each $var, $val in $colors {
+	@each $name, $val in $colors {
 		$color: nth($val, 1);
-		@if type-of($color) == color {
-			--#{$var}: #{$color};
-			--#{$var}-rgb: #{red($color), green($color), blue($color)};
-		} @else if str-starts-with($color, "color(") {
-			$referenced-var: str-slice($color, 9, str-length($color) - 1);
-			--#{$var}: var(--#{$referenced-var});
-			--#{$var}-rgb: var(--#{$referenced-var}-rgb);
-		} @else {
-			--#{$var}: #{$color};
-		}
+		@include override-color($name, $color);
 	}
 	
 	// @media (prefers-color-scheme: light) {
