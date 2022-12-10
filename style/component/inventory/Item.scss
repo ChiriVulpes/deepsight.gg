@@ -305,6 +305,33 @@
 			}
 		}
 		
+		&-eighths {
+			display: grid;
+			grid-template-columns: 1em 1em;
+			grid-template-rows: 1em 1em;
+			font-size: .5em;
+			height: 2em;
+			margin-left: .5em;
+			top: .1em;
+			position: relative;
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				height: 100%;
+				width: 1px;
+				left: 35%;
+				top: 15%;
+				transform: rotate(25deg);
+				background: currentColor;
+			}
+			&::after {
+				content: "8";
+				grid-column: 2;
+				grid-row: 2;
+			}
+		}
+		
 		&-difference {
 			font-size: .8em;
 			margin-left: 6px;

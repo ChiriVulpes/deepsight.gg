@@ -11,6 +11,8 @@
 		-webkit-user-select: all;
 		height: fit-content;
 		align-self: center;
+		min-width: 130px;
+		text-align: center;
 		
 		&-username, &-code {
 			display: inline;
@@ -32,7 +34,7 @@
 		.drawer-close {
 			top: initial;
 			right: initial;
-			bottom: 8px;
+			top: calc(8px + var(--nav-height));
 			left: 8px;
 			&::after {
 				transform: rotate(225deg);
@@ -42,14 +44,19 @@
 		
 		&-panel {
 			display: grid !important;
-			grid-auto-flow: column;
+			grid-template-rows: 0px;
 			overflow: initial;
-			gap: 8px;
+			column-gap: 0;
+			row-gap: 4px;
 			padding: 0;
+			height: fit-content;
+			justify-items: center;
 		}
 	}
 	
 	&-slot {
+		display: contents;
+		
 		&::before {
 			content: attr(data-name);
 			text-transform: uppercase;
@@ -57,24 +64,21 @@
 			white-space: nowrap;
 			letter-spacing: 0.04em;
 			font-weight: 600;
-    		padding: 0 14px;
+    		padding: 0 18px;
 			opacity: 0;
+			grid-row: 1;
 		}
 		
 		&-overview::before {
 			text-transform: none;
 			padding: 0;
-			margin-right: 16px;
+			margin-right: 20px;
 			margin-left: 10px;
 			letter-spacing: inherit;
+			min-width: 130px;
 		}
 		
-		display: grid;
-		grid-template-rows: 0px auto auto;
-		justify-items: center;
-		height: fit-content;
-		
-		.item-power-level {
+		:where(.item-power-level) {
 			justify-self: initial;
 		}
 	}
@@ -82,5 +86,66 @@
 	&-item {
 		width: 60px;
 		height: 60px;
+		
+		@at-root &, .player-overview-power-total-label {
+			&-equipped {
+				grid-row: 2;
+			}
+			
+			&-highest-power {
+				grid-row: 4;
+			}
+		}
+		
+		&-same {
+			position: relative;
+			opacity: 0.2;
+			
+			&::before, &::after {
+				content: "";
+				display: block;
+				position: absolute;
+			}
+			
+			&::before {
+				width: 14px;
+				height: 30%;
+				background: currentColor;
+				left: calc(50% - 7px);
+				top: 50%;
+			}
+			
+			&::after {
+				border: 15px solid transparent;
+				border-bottom-color: currentColor;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+		}
+	}
+	
+	&-power {
+		&-equipped {
+			grid-row: 3;
+		}
+		
+		&-highest-power {
+			grid-row: 5;
+		}
+		
+		&-total {
+			justify-self: flex-end;
+		
+			&-label {
+				align-self: flex-end;
+				font-family: $font-title;
+				letter-spacing: .05em;
+				font-weight: 500;
+				text-transform: uppercase;
+				border-bottom: 2px solid;
+				width: 100%;
+				opacity: 0.6;
+			}
+		}
 	}
 }

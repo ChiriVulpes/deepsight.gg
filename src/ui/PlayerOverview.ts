@@ -32,7 +32,16 @@ export enum PlayerOverviewClasses {
 	Slot = "player-overview-slot",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
+	ItemEquipped = "player-overview-item-equipped",
+	ItemHighestPower = "player-overview-item-highest-power",
+	ItemSame = "player-overview-item-same",
 	Power = "player-overview-power",
+	PowerTotal = "player-overview-power-total",
+	PowerEquipped = "player-overview-power-equipped",
+	PowerHighestPower = "player-overview-power-highest-power",
+	PowerTotalLabel = "player-overview-power-total-label",
+	PowerTotalLabelEquipped = "player-overview-power-total-label-equipped",
+	PowerTotalLabelHighestPower = "player-overview-power-total-label-highest-power",
 }
 
 namespace PlayerOverview {
@@ -109,23 +118,33 @@ namespace PlayerOverview {
 					highestPowerItems[view.definition.slot] = item;
 			}
 
-			const currentPower = Math.floor(Maths.average(...Object.values(equippedItems)
-				.map(item => item.instance?.primaryStat?.value ?? 0)));
+			const currentPower = Maths.average(...Object.values(equippedItems)
+				.map(item => item.instance?.primaryStat?.value ?? 0));
 
-			const maximisedPower = Math.floor(Maths.average(...Object.values(highestPowerItems)
-				.map(item => item.instance?.primaryStat?.value ?? 0)));
+			const maximisedPower = Maths.average(...Object.values(highestPowerItems)
+				.map(item => item.instance?.primaryStat?.value ?? 0));
 
 			const slotComponent = BaseComponent.create()
 				.classes.add(PlayerOverviewClasses.Slot, PlayerOverviewClasses.OverviewSlot)
 				.attributes.set("data-name", `${this.displayName}#${this.code}`)
 				.appendTo(panel);
 
+			BaseComponent.create()
+				.text.add("Equipped")
+				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelEquipped)
+				.appendTo(slotComponent);
+
 			ItemPowerLevel.create([currentPower])
-				.classes.add(PlayerOverviewClasses.Power)
+				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerEquipped)
+				.appendTo(slotComponent);
+
+			BaseComponent.create()
+				.text.add("Maximum Power")
+				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelHighestPower)
 				.appendTo(slotComponent);
 
 			ItemPowerLevel.create([maximisedPower])
-				.classes.add(PlayerOverviewClasses.Power)
+				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerHighestPower)
 				.appendTo(slotComponent);
 
 			for (const view of slotViews) {
@@ -147,12 +166,12 @@ namespace PlayerOverview {
 				console.log(`Equipped to ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
 				ItemComponent.create([equippedItem])
 					.classes.remove(ButtonClasses.Main)
-					.classes.add(PlayerOverviewClasses.Item)
+					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
 					.appendTo(slotComponent);
 
 				const equippedPower = equippedItem.instance?.primaryStat.value ?? 0;
-				ItemPowerLevel.create([equippedPower, equippedPower - maximisedPower])
-					.classes.add(PlayerOverviewClasses.Power)
+				ItemPowerLevel.create([equippedPower, equippedPower - Math.floor(maximisedPower)])
+					.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerEquipped)
 					.appendTo(slotComponent);
 
 				const highestPowerItem = highestPowerItems[view.definition.slot];
@@ -161,17 +180,21 @@ namespace PlayerOverview {
 					continue;
 				}
 
-				if (highestPowerItem === equippedItem)
+				if (highestPowerItem === equippedItem) {
+					BaseComponent.create()
+						.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower, PlayerOverviewClasses.ItemSame)
+						.appendTo(slotComponent);
 					continue;
+				}
 
 				console.log(`Highest power in ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
 				ItemComponent.create([highestPowerItem, this.inventory])
-					.classes.add(PlayerOverviewClasses.Item)
+					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
 					.appendTo(slotComponent);
 
 				const highestPowerPower = highestPowerItem.instance?.primaryStat.value ?? 0;
-				ItemPowerLevel.create([highestPowerPower, highestPowerPower - maximisedPower])
-					.classes.add(PlayerOverviewClasses.Power)
+				ItemPowerLevel.create([highestPowerPower, highestPowerPower - Math.floor(maximisedPower)])
+					.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
 					.appendTo(slotComponent);
 			}
 		}
