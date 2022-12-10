@@ -28,6 +28,7 @@
 	user-select: none;
 	-webkit-user-select: none;
 	outline: none;
+	touch-action: none;
 	
 	&.sortable-moving {
 		position: absolute;
