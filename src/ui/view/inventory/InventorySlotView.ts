@@ -1,5 +1,6 @@
-import type { DestinyCharacterComponent, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import { BucketHashes } from "bungie-api-ts/destiny2";
+import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
@@ -53,7 +54,7 @@ export enum InventorySlotViewClasses {
 
 class CharacterBucket extends BucketComponent<[]> {
 
-	public character!: DestinyCharacterComponent;
+	public character!: Character;
 	public equippedSlot!: Component;
 
 	protected override onMake (): void {
@@ -71,7 +72,7 @@ class CharacterBucket extends BucketComponent<[]> {
 		this.content.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
 	}
 
-	public setCharacter (character: DestinyCharacterComponent) {
+	public setCharacter (character: Character) {
 		this.character = character;
 		void this.initialiseFromCharacter(character);
 		return this;
@@ -80,7 +81,7 @@ class CharacterBucket extends BucketComponent<[]> {
 
 class PostmasterBucket extends BucketComponent<[]> {
 
-	public character!: DestinyCharacterComponent;
+	public character!: Character;
 	public engrams!: Component;
 
 	protected override onMake (): void {
@@ -96,7 +97,7 @@ class PostmasterBucket extends BucketComponent<[]> {
 		this.title.text.add("Postmaster");
 	}
 
-	public setCharacter (character: DestinyCharacterComponent) {
+	public setCharacter (character: Character) {
 		this.character = character;
 		return this;
 	}

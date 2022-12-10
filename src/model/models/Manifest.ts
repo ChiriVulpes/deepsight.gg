@@ -46,7 +46,7 @@ function elapsed (elapsed: number) {
 	return `${+(elapsed / 60_000).toFixed(2)} m`;
 }
 
-export type Manifest = {
+type Manifest = {
 	[COMPONENT_NAME in AllComponentNames]: ManifestItem<COMPONENT_NAME>;
 };
 

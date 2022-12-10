@@ -1,5 +1,5 @@
-import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
+import type Character from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
@@ -36,7 +36,7 @@ export interface IItemComponentCharacterHandler {
 	 * Return the character associated with a given bucket ID, 
 	 * or, if no character is associated with that bucket ID, return the default character.
 	 */
-	getCharacter (id?: CharacterId): DestinyCharacterComponent;
+	getCharacter (id?: CharacterId): Character;
 }
 
 export default class ItemComponent extends Button<[Item, IItemComponentCharacterHandler?]> {

@@ -1,4 +1,4 @@
-import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
+import type Character from "model/models/Characters";
 import Manifest from "model/models/Manifest";
 import Card from "ui/Card";
 
@@ -21,11 +21,10 @@ export default class BucketComponent<ARGS extends readonly any[] = readonly any[
 		this.content.classes.add(BucketClasses.Inventory);
 	}
 
-	public async initialiseFromCharacter (character: DestinyCharacterComponent) {
-		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = await Manifest.await();
+	public async initialiseFromCharacter (character: Character) {
+		const { DestinyInventoryItemDefinition } = await Manifest.await();
 
-		const cls = await DestinyClassDefinition.get(character.classHash);
-		const className = cls?.displayProperties.name ?? "Unknown";
+		const className = character.class?.displayProperties.name ?? "Unknown";
 		this.icon.style.set("--icon",
 			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
 

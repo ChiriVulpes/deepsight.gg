@@ -1,5 +1,5 @@
-import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyAmmunitionType } from "bungie-api-ts/destiny2";
+import type Character from "model/models/Characters";
 import { ITEM_WEAPON_MOD } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
@@ -170,7 +170,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.hints);
 	}
 
-	public async setItem (item: Item, character?: DestinyCharacterComponent) {
+	public async setItem (item: Item, character?: Character) {
 		this.item = item;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).item = item;

@@ -2,7 +2,7 @@ import type { DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStat
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import type Plugs from "model/models/items/Plugs";
-import type { Manifest } from "model/models/Manifest";
+import type Manifest from "model/models/Manifest";
 import type { StatOrder } from "ui/inventory/Stat";
 import { Stat, STAT_DISPLAY_ORDER } from "ui/inventory/Stat";
 import Maths from "utility/maths/Maths";

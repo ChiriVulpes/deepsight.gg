@@ -1,12 +1,11 @@
-import type { DestinyCharacterComponent } from "bungie-api-ts/destiny2";
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
+import type Character from "model/models/Characters";
+import { ProfileCharacters } from "model/models/Characters";
 import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId, ItemId } from "model/models/items/Item";
-import Profile from "model/models/Profile";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
@@ -18,8 +17,6 @@ interface IInventoryModelEvents {
 	update: InventoryModel;
 	dispose: Event;
 }
-
-const ProfileCharacters = Profile(DestinyComponentType.Characters);
 
 Model.event.subscribe("clearCache", () => {
 	InventoryModel["INSTANCE"]?.event.emit("dispose");
@@ -42,8 +39,8 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 
 	public items?: Record<ItemId, Item>;
 	public buckets?: Record<BucketId, Bucket>;
-	public characters?: Record<CharacterId, DestinyCharacterComponent>;
-	public sortedCharacters?: DestinyCharacterComponent[];
+	public characters?: Record<CharacterId, Character>;
+	public sortedCharacters?: Character[];
 
 	public getCharacter (id?: CharacterId) {
 		return (this.characters?.[id!] ?? this.sortedCharacters?.[0])!;
@@ -58,7 +55,7 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 		ProfileCharacters.event.until(disposed, event => event
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
 			.subscribe("loaded", ({ value }) => {
-				this.sortedCharacters = Object.values(value.characters?.data ?? {})
+				this.sortedCharacters = Object.values(value)
 					.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 						new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
 				this.characters = Object.fromEntries(this.sortedCharacters.map(character => [character.characterId, character]));

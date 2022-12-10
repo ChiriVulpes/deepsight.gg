@@ -14,6 +14,7 @@ export interface IModelEvents<R> {
 export interface IModelGenerationApi {
 	emitProgress (progress: number, message?: string): void;
 	subscribeProgress (model: Model<any>, amount: number, from?: number): this;
+	subscribeProgressAndWait<R> (model: Model<any, R>, amount: number, from?: number): Promise<R>;
 }
 
 export interface IModel<T, R> {
@@ -221,6 +222,10 @@ namespace Model {
 							}
 
 							return api;
+						},
+						subscribeProgressAndWait: (model, amount, from) => {
+							api.subscribeProgress(model, amount, from);
+							return model.await();
 						},
 					};
 

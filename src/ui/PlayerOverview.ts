@@ -1,5 +1,6 @@
-import type { DestinyCharacterComponent, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import type { UserMembershipData } from "bungie-api-ts/user";
+import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
@@ -90,7 +91,7 @@ namespace PlayerOverview {
 			}
 		}
 
-		private createPanel (character: DestinyCharacterComponent, bucket: Bucket) {
+		private createPanel (character: Character, bucket: Bucket) {
 			const panel = this.drawer.createPanel()
 				.classes.add(PlayerOverviewClasses.Panel);
 
@@ -147,6 +148,9 @@ namespace PlayerOverview {
 				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerHighestPower)
 				.appendTo(slotComponent);
 
+			const equippedLog: any[] = [];
+			const highestPowerLog: any[] = [];
+
 			for (const view of slotViews) {
 				let name = view.definition.name;
 				if (typeof name === "function")
@@ -163,7 +167,7 @@ namespace PlayerOverview {
 					.attributes.set("data-name", name)
 					.appendTo(panel);
 
-				console.log(`Equipped to ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
+				equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
 				ItemComponent.create([equippedItem])
 					.classes.remove(ButtonClasses.Main)
 					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
@@ -187,7 +191,7 @@ namespace PlayerOverview {
 					continue;
 				}
 
-				console.log(`Highest power in ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
+				highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
 				ItemComponent.create([highestPowerItem, this.inventory])
 					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
 					.appendTo(slotComponent);
@@ -197,6 +201,9 @@ namespace PlayerOverview {
 					.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
 					.appendTo(slotComponent);
 			}
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			console.log(character.class.displayProperties.name, `\n  Equipped Items - ${Math.floor(currentPower)}${currentPower % 1 ? ` ${(currentPower % 1) * 8}/8` : ""}`, ...equippedLog, `\n\n  Highest Power Items - ${Math.floor(maximisedPower)}${maximisedPower % 1 ? ` ${(maximisedPower % 1) * 8}/8` : ""}`, ...highestPowerLog);
 		}
 	}
 

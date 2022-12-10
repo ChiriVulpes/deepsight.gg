@@ -45,6 +45,7 @@
 		&-panel {
 			display: grid !important;
 			grid-template-rows: 0px;
+			grid-template-columns: max-content;
 			overflow: initial;
 			column-gap: 0;
 			row-gap: 4px;
@@ -67,15 +68,17 @@
     		padding: 0 18px;
 			opacity: 0;
 			grid-row: 1;
+			background-color: red;
 		}
 		
 		&-overview::before {
 			text-transform: none;
 			padding: 0;
-			margin-right: 20px;
-			margin-left: 10px;
+			padding-right: 20px;
+			padding-left: 10px;
 			letter-spacing: inherit;
 			min-width: 130px;
+			text-align: center;
 		}
 		
 		:where(.item-power-level) {

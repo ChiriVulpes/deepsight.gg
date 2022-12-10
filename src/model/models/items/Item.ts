@@ -7,7 +7,7 @@ import Plugs from "model/models/items/Plugs";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
-import type { Manifest } from "model/models/Manifest";
+import type Manifest from "model/models/Manifest";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
