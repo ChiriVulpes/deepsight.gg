@@ -84,6 +84,7 @@ export default class Draggable {
 		if (this.dragStage !== DragStage.Dragging)
 			return undefined;
 
+		event.preventDefault?.();
 		const eventResult = { offset, mouse: { x: position.clientX!, y: position.clientY! } };
 		EventManager.emit(this.host, "move", eventResult);
 		return eventResult;
@@ -96,6 +97,8 @@ export default class Draggable {
 		window.removeEventListener("touchend", this.dragEnd);
 
 		if (this.dragStage === DragStage.Dragging) {
+			event.preventDefault?.();
+
 			const position = this.getMousePosition(event);
 			let eventResult: IDraggableEvents["move"] | undefined;
 			if (position)
