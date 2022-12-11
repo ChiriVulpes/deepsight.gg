@@ -8,6 +8,8 @@ import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
 import URL from "utility/URL";
 
+void screen?.orientation?.lock("portrait-primary");
+
 export default class FluffiestVaultManager {
 
 	public constructor () {
