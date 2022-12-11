@@ -193,8 +193,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 	private closeDrawer () {
 		this.button.attributes.remove("tabindex");
-		this.drawer.classes.add(Classes.Hidden);
-		this.drawer.attributes.add("inert");
+		this.drawer.close();
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		document.removeEventListener("focusout", this.onFocusOut);
 	}

@@ -27,7 +27,9 @@
 		bottom: initial;
 		top: 0;
 		left: -20px;
-		padding: 10px;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		padding-bottom: 10px;
 		padding-top: calc(var(--nav-height) + 10px);
 		z-index: -1;
 		
@@ -40,6 +42,8 @@
 				transform: rotate(225deg);
 				top: 6px;
 			}
+			
+			transition: opacity .3s ease-out;
 		}
 		
 		&-panel {

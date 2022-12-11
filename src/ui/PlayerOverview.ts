@@ -12,6 +12,8 @@ import Drawer from "ui/form/Drawer";
 import ItemComponent from "ui/inventory/Item";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import Loadable from "ui/Loadable";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/InventoryClassItemView";
@@ -68,7 +70,7 @@ namespace PlayerOverview {
 				.append(BaseComponent.create()
 					.classes.add(PlayerOverviewClasses.IdentityCode)
 					.text.set(`#${this.code}`))
-				.event.subscribe("click", () => this.drawer.open())
+				.event.subscribe("click", () => this.drawer.open("click"))
 				.appendTo(this);
 
 			this.drawer = Drawer.create()
@@ -76,6 +78,17 @@ namespace PlayerOverview {
 				.appendTo(this);
 
 			this.update();
+
+			this.event.subscribe("mouseenter", () => this.drawer.open("mouseenter"));
+			this.event.subscribe("mouseleave", () => this.drawer.close("mouseenter"));
+
+			this.onClick = this.onClick.bind(this);
+			document.body.addEventListener("click", this.onClick);
+
+			this.onKeydown = this.onKeydown.bind(this);
+			UiEventBus.subscribe("keydown", this.onKeydown);
+			this.onKeyup = this.onKeyup.bind(this);
+			UiEventBus.subscribe("keyup", this.onKeyup);
 		}
 
 		public update () {
@@ -204,6 +217,39 @@ namespace PlayerOverview {
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			console.log(character.class.displayProperties.name, `\n  Equipped Items - ${Math.floor(currentPower)}${currentPower % 1 ? ` ${(currentPower % 1) * 8}/8` : ""}`, ...equippedLog, `\n\n  Highest Power Items - ${Math.floor(maximisedPower)}${maximisedPower % 1 ? ` ${(maximisedPower % 1) * 8}/8` : ""}`, ...highestPowerLog);
+		}
+
+		private onClick (event: Event): void {
+			if (!this.exists())
+				return document.body.removeEventListener("click", this.onClick);
+
+			if ((event.target as HTMLElement).closest(`.${PlayerOverviewClasses.Main}`))
+				return;
+
+			this.drawer.close(true);
+		}
+
+		private onKeydown (event: IKeyEvent) {
+			if (!document.contains(this.element)) {
+				UiEventBus.unsubscribe("keydown", this.onKeydown);
+				return;
+			}
+
+			if (event.use("c") && this.drawer.toggle("key"))
+				this.drawer.element.focus();
+
+			if (this.drawer.isOpen() && event.useOverInput("Escape"))
+				this.drawer.close(true);
+		}
+
+		private onKeyup () {
+			if (!document.contains(this.element)) {
+				UiEventBus.unsubscribe("keyup", this.onKeyup);
+				return;
+			}
+
+			if (!this.element.contains(document.activeElement))
+				this.drawer.close(true);
 		}
 	}
 

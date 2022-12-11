@@ -237,7 +237,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	}
 
 	private closeDrawer () {
-		this.drawer.close();
+		this.drawer.close(true);
 		ExtraInfoManager.hide(ItemSortClasses.Main);
 	}
 

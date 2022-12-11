@@ -11,25 +11,30 @@ export enum DrawerClasses {
 export default class Drawer extends Component {
 
 	private panels!: Set<Component>;
+	private openReasons!: Set<string>;
 	public closeButton!: Button;
 
 	protected override onMake (): void {
 		this.panels = new Set();
+		this.openReasons = new Set();
+
 		this.classes.add(DrawerClasses.Main, Classes.Hidden)
 			.attributes.add("inert")
 			.attributes.set("tabindex", "0")
 			.event.subscribe("mousedown", event => {
 				if (!(event.target as HTMLElement).closest("button, input")) {
+					window.getSelection()?.removeAllRanges();
 					// focus the drawer 
 					this.element.focus();
+					this.open("click");
 					this.event.emit("focus", new FocusEvent("focus"));
 				}
 			});
 
 		this.closeButton = Button.create()
 			.classes.add(DrawerClasses.Close)
-			.event.subscribe("mousedown", () => this.close())
-			.event.subscribe("click", () => this.close())
+			.event.subscribe("mousedown", () => this.close(true))
+			.event.subscribe("click", () => this.close(true))
 			.appendTo(this);
 	}
 
@@ -61,14 +66,33 @@ export default class Drawer extends Component {
 		return this;
 	}
 
-	public open () {
+	public toggle (reason = "generic") {
+		if (this.isOpen())
+			this.close(reason);
+		else
+			this.open(reason);
+
+		return this.isOpen();
+	}
+
+	public open (reason = "generic") {
+		this.openReasons.add(reason);
 		this.classes.remove(Classes.Hidden);
 		this.attributes.remove("inert");
 	}
 
-	public close () {
-		this.classes.add(Classes.Hidden);
-		this.attributes.add("inert");
+	public close (force: true): void;
+	public close (reason?: string): void;
+	public close (reason: string | true = "generic") {
+		if (reason === true)
+			this.openReasons.clear();
+		else
+			this.openReasons.delete(reason);
+
+		if (!this.openReasons.size) {
+			this.classes.add(Classes.Hidden);
+			this.attributes.add("inert");
+		}
 	}
 
 	public override removeContents (): this {
