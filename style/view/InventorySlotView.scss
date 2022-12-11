@@ -15,9 +15,10 @@
 		display: grid;
 		grid-template-columns: auto 1fr auto;
 		gap: var(--card-gap-x);
+		overflow: hidden;
 		
-		@include tablet {
-			overflow: hidden;
+		@include mobile {
+			overflow-y: auto;
 		}
 	}
 		
