@@ -89,6 +89,8 @@ namespace PlayerOverview {
 			UiEventBus.subscribe("keydown", this.onKeydown);
 			this.onKeyup = this.onKeyup.bind(this);
 			UiEventBus.subscribe("keyup", this.onKeyup);
+
+			viewManager.event.subscribe("show", () => this.drawer.close(true));
 		}
 
 		public update () {

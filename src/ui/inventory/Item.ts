@@ -2,6 +2,7 @@ import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
+import { PostmasterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -32,6 +33,7 @@ export enum ItemClasses {
 }
 
 export interface IItemComponentCharacterHandler {
+	currentCharacter: Character;
 	/**
 	 * Return the character associated with a given bucket ID, 
 	 * or, if no character is associated with that bucket ID, return the default character.
@@ -55,6 +57,12 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		this.update = this.update.bind(this);
 		this.loadStart = this.loadStart.bind(this);
 		this.loadEnd = this.loadEnd.bind(this);
+		this.onClick = this.onClick.bind(this);
+		this.onContextMenu = this.onContextMenu.bind(this);
+
+		this.event.subscribe("click", this.onClick);
+		this.event.subscribe("contextmenu", this.onContextMenu);
+
 		const done = this.setItem(item);
 		await done;
 	}
@@ -222,5 +230,29 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			if (++extra === 3)
 				return;
 		}
+	}
+
+	private async onClick (event: MouseEvent) {
+		if (window.innerWidth <= 800)
+			return viewManager.showItemTooltip(this.item);
+
+		if (event.shiftKey)
+			// update this item component's bucket so future clicks transfer to the right place
+			await this.item.transferToggleVaulted(this.characters?.currentCharacter.characterId as CharacterId);
+		else {
+			const character = this.item.character ?? this.characters?.currentCharacter.characterId as CharacterId;
+			if (PostmasterId.is(this.item.bucket))
+				await this.item.transferToCharacter(character);
+			else
+				await this.item.equip(character);
+		}
+	}
+
+	private onContextMenu (event: MouseEvent) {
+		if (window.innerWidth <= 800)
+			return;
+
+		event.preventDefault();
+		viewManager.showItem(this.item);
 	}
 }

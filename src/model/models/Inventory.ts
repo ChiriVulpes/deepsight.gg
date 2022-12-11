@@ -42,8 +42,13 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
 
+	public get currentCharacter () {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		return this.sortedCharacters?.[0]!;
+	}
+
 	public getCharacter (id?: CharacterId) {
-		return (this.characters?.[id!] ?? this.sortedCharacters?.[0])!;
+		return this.characters?.[id!] ?? this.currentCharacter;
 	}
 
 	public constructor () {

@@ -1,5 +1,6 @@
 import { APP_NAME } from "Constants";
 import type Model from "model/Model";
+import type Item from "model/models/items/Item";
 import View from "ui/View";
 import AuthView from "ui/view/AuthView";
 import ErrorView from "ui/view/ErrorView";
@@ -18,6 +19,10 @@ import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
+
+declare global {
+	const viewManager: typeof ViewManager;
+}
 
 const registry = Object.fromEntries([
 	AuthView,
@@ -116,6 +121,14 @@ export default class ViewManager {
 		this.updateDocumentTitle(view);
 	}
 
+	public static showItem (item: Item) {
+		ItemView.show(item);
+	}
+
+	public static showItemTooltip (item: Item) {
+		ItemTooltipView.show(item);
+	}
+
 	public static hide () {
 		this.history.pop();
 		const previous = this.history.pop();
@@ -131,3 +144,6 @@ export default class ViewManager {
 		document.title = `${name} // ${APP_NAME}`;
 	}
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+(window as any).viewManager = ViewManager;

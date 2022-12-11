@@ -23,8 +23,6 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import ErrorView from "ui/view/ErrorView";
-import ItemView from "ui/view/item/ItemView";
-import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum InventorySlotViewClasses {
@@ -424,28 +422,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		item.event.subscribe("bucketChange", this.update);
 		const component = !item.canTransfer() ? ItemComponent.create([item, this.inventory]) : DraggableItem.create([item, this.inventory]);
 		return !item.canTransfer() ? component : (component as DraggableItem)
-			.event.subscribe("click", async event => {
-				if (window.innerWidth <= 800)
-					return ItemTooltipView.show(item);
-
-				if (event.shiftKey)
-					// update this item component's bucket so future clicks transfer to the right place
-					await item.transferToggleVaulted(this.currentCharacter.character.characterId as CharacterId);
-				else {
-					const character = item.character ?? this.currentCharacter.character.characterId as CharacterId;
-					if (PostmasterId.is(item.bucket))
-						await item.transferToCharacter(character);
-					else
-						await item.equip(character);
-				}
-			})
-			.event.subscribe("contextmenu", event => {
-				if (window.innerWidth <= 800)
-					return;
-
-				event.preventDefault();
-				ItemView.show(item);
-			})
 			.event.subscribe("moveStart", event => {
 				if (window.innerWidth <= 800)
 					return event.preventDefault();

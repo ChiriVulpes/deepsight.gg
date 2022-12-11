@@ -63,7 +63,7 @@ export default View.create({
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Pull to ${className}`)
 				.event.subscribe("click", () => {
-					void item.transferToCharacter(character!.characterId as CharacterId);
+					void item.transferToCharacter(character.characterId as CharacterId);
 					view.back();
 				})
 				.appendTo(buttons);
@@ -73,7 +73,7 @@ export default View.create({
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Equip to ${className}`)
 				.event.subscribe("click", () => {
-					void item.equip(character!.characterId as CharacterId);
+					void item.equip(character.characterId as CharacterId);
 					view.back();
 				})
 				.appendTo(buttons);
