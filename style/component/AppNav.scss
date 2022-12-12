@@ -57,10 +57,13 @@
 		&-container {
 			position: relative;
 			width: var(--nav-height);
-			pointer-events: none;
 		}
 		
 		margin: 10px;
+		
+		.bungie-api-down & {
+			background-image: url("/image/logo-api-down.png");
+		}
 	}
 	
 	&-title {

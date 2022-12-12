@@ -46,6 +46,10 @@ export default class FluffiestVaultManager {
 		await Bungie.authenticate("complete");
 
 		if (Bungie.authenticated) {
+
+			Bungie.event.subscribe("apiDown", () => document.body.classList.add("bungie-api-down"));
+			Bungie.event.subscribe("querySuccess", () => document.body.classList.remove("bungie-api-down"));
+
 			AppNav.create([ViewManager])
 				.appendTo(document.body);
 

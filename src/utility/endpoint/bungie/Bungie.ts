@@ -9,6 +9,8 @@ import URL from "utility/URL";
 export interface IBungieApiEvents {
 	resetAuthentication: Event;
 	error: BungieEndpoint.IEvents["error"];
+	apiDown: BungieEndpoint.IEvents["apiDown"];
+	querySuccess: BungieEndpoint.IEvents["querySuccess"];
 }
 
 export class BungieAPI {
@@ -24,7 +26,9 @@ export class BungieAPI {
 	}
 
 	public event = new EventManager<this, IBungieApiEvents>(this)
-		.pipe("error", BungieEndpoint.event);
+		.pipe("error", BungieEndpoint.event)
+		.pipe("apiDown", BungieEndpoint.event)
+		.pipe("querySuccess", BungieEndpoint.event);
 
 	public apiDown = false;
 
@@ -33,8 +37,8 @@ export class BungieAPI {
 			this.resetAuthentication());
 		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise, force }) =>
 			setAuthorisationPromise(this.validateAuthorisation(force)));
-		// BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
-		// BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
+		BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
+		BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
 	}
 
 	public get authenticated () {

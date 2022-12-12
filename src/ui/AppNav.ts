@@ -7,6 +7,7 @@ import PlayerOverview from "ui/PlayerOverview";
 import TextLogo from "ui/TextLogo";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
@@ -32,13 +33,16 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
 
-		Loadable.create(LoadingManager.model)
+		const logo = Loadable.create(LoadingManager.model)
 			.onReady(() => Component.create()
 				.classes.add(ClassesAppNav.Logo, Classes.Logo))
 			.classes.add(ClassesAppNav.LogoContainer)
 			.setSimple()
 			.setPersistent()
 			.appendTo(this);
+
+		Bungie.event.subscribe("apiDown", () => logo.attributes.set("title", "Bungie's API seems to be erroring. I promise it's not my fault, maybe!"));
+		Bungie.event.subscribe("querySuccess", () => logo.attributes.remove("title"));
 
 		TextLogo.create()
 			.classes.add(ClassesAppNav.Title)
