@@ -112,6 +112,7 @@ namespace PlayerOverview {
 
 			this.drawer.enable();
 
+			let first = true;
 			for (const character of characters) {
 				const bucket = this.inventory.buckets?.[character.characterId as CharacterId];
 				if (!bucket) {
@@ -120,12 +121,20 @@ namespace PlayerOverview {
 				}
 
 				const panel = this.createPanel(character, bucket);
-				Button.create()
+				const button = Button.create()
 					.classes.add(PlayerOverviewClasses.CharacterButton)
+					.classes.toggle(first, ButtonClasses.Selected)
 					.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
 					.text.set(Display.name(character.class))
-					.event.subscribe("click", () => this.drawer.showPanel(panel))
+					.event.subscribe("click", () => {
+						this.drawer.showPanel(panel);
+						for (const otherButton of this.drawer.element.getElementsByClassName(PlayerOverviewClasses.CharacterButton))
+							otherButton.classList.remove(ButtonClasses.Selected);
+						button.classes.add(ButtonClasses.Selected);
+					})
 					.appendTo(characterButtons);
+
+				first = false;
 			}
 		}
 
