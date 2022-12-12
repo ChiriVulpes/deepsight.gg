@@ -33,8 +33,8 @@ export class BungieAPI {
 			this.resetAuthentication());
 		BungieEndpoint.event.subscribe("validateAuthorisation", ({ setAuthorisationPromise, force }) =>
 			setAuthorisationPromise(this.validateAuthorisation(force)));
-		BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
-		BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
+		// BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
+		// BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
 	}
 
 	public get authenticated () {

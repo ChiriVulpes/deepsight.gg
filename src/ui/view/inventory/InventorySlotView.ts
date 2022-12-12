@@ -22,8 +22,6 @@ import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
-import ErrorView from "ui/view/ErrorView";
-import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -217,8 +215,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private update () {
-		if (Bungie.apiDown)
-			return ErrorView.show();
+		// if (Bungie.apiDown)
+		// 	return ErrorView.show();
 
 		this.updateCharacters();
 		this.updateItems();

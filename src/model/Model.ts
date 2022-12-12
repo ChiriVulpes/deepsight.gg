@@ -159,8 +159,13 @@ namespace Model {
 				return this.value;
 			}
 
-			console.debug(`Purging expired cache data for '${this.name}'`);
-			await this.reset();
+			// if (this.model.noPurge) {
+
+			// } else {
+			// 	console.debug(`Purging expired cache data for '${this.name}'`);
+			// 	await this.reset();
+			// }
+
 			return undefined;
 		}
 
