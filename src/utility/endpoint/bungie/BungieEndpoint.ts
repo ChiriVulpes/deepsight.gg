@@ -1,3 +1,4 @@
+import { Debug } from "utility/Debug";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
 import Endpoint from "utility/endpoint/Endpoint";
 import Env from "utility/Env";
@@ -34,10 +35,20 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 
 					try {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						const data = JSON.parse(text) as Record<string, unknown>;
+						let data = JSON.parse(text) as Record<string, unknown>;
 						if (data?.ErrorStatus === "WebAuthRequired") {
 							error401d = Object.assign(new Error(data.Message as string | undefined ?? "Not authenticated"), data);
 							return;
+						}
+
+						if (Debug.emulateBungieErrorSystemDisabled) {
+							data = {
+								ErrorCode: 5,
+								ThrottleSeconds: 0,
+								ErrorStatus: "SystemDisabled",
+								Message: "This system is temporarily disabled for maintenance.",
+								MessageData: {},
+							};
 						}
 
 						if (data?.ErrorStatus && data.ErrorStatus !== "Success") {
