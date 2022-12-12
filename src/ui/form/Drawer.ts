@@ -1,19 +1,31 @@
 import { Classes } from "ui/Classes";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 
 export enum DrawerClasses {
 	Main = "drawer",
 	Panel = "drawer-panel",
+	PanelHasBack = "drawer-panel-has-back",
 	Close = "drawer-close",
+	Back = "drawer-back",
 	Disabled = "drawer-disabled",
+}
+
+export interface IDrawerEvents extends ComponentEvents {
+	openDrawer: { reason: string };
+	closeDrawer: Event;
+	showPanel: { panel: Component };
 }
 
 export default class Drawer extends Component {
 
+	public override readonly event!: ComponentEventManager<this, IDrawerEvents>;
+
 	private panels!: Set<Component>;
 	private openReasons!: Set<string>;
 	public closeButton!: Button;
+	public backButton!: Button;
 
 	protected override onMake (): void {
 		this.panels = new Set();
@@ -34,8 +46,11 @@ export default class Drawer extends Component {
 
 		this.closeButton = Button.create()
 			.classes.add(DrawerClasses.Close)
-			.event.subscribe("mousedown", () => this.close(true))
-			.event.subscribe("click", () => this.close(true))
+			.event.subscribe(["mousedown", "click"], () => this.close(true))
+			.appendTo(this);
+
+		this.backButton = Button.create()
+			.classes.add(DrawerClasses.Back, Classes.Hidden)
 			.appendTo(this);
 	}
 
@@ -91,13 +106,33 @@ export default class Drawer extends Component {
 		return panel;
 	}
 
-	public showPanel (panel: Component) {
-		for (const panel of this.panels)
-			panel.attributes.add("inert")
-				.classes.add(Classes.Hidden);
+	public showPanel (panel: Component, showBackButton = false) {
+		let lastPanel: Component | undefined;
+		for (const panel of this.panels) {
+			if (!panel.classes.has(Classes.Hidden)) {
+				lastPanel = panel;
+				lastPanel.attributes.add("inert")
+					.classes.add(Classes.Hidden);
+			}
+		}
 
 		panel.attributes.remove("inert")
 			.classes.remove(Classes.Hidden);
+
+		this.event.emit("showPanel", { panel });
+
+		if (showBackButton && lastPanel) {
+			if (!this.backButton.classes.has(Classes.Hidden))
+				throw new Error("Drawer panels don't support multi-level back arrows yet");
+
+			panel.classes.add(DrawerClasses.PanelHasBack);
+			this.backButton.classes.remove(Classes.Hidden)
+				.event.until(this.event.waitFor(["closeDrawer", "showPanel"]), event => event
+					.subscribeOnce(["click", "mousedown"], () => {
+						this.showPanel(lastPanel!);
+						this.backButton.classes.add(Classes.Hidden);
+					}));
+		}
 
 		return this;
 	}
@@ -118,6 +153,7 @@ export default class Drawer extends Component {
 
 		this.classes.remove(Classes.Hidden);
 		this.attributes.remove("inert");
+		this.event.emit("openDrawer", { reason });
 	}
 
 	public close (force: true): void;
@@ -131,6 +167,8 @@ export default class Drawer extends Component {
 		if (!this.openReasons.size) {
 			this.classes.add(Classes.Hidden);
 			this.attributes.add("inert");
+			this.event.emit("closeDrawer");
+			this.backButton.classes.add(Classes.Hidden);
 		}
 	}
 

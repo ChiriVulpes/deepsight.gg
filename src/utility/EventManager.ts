@@ -2,6 +2,8 @@
 export interface IEventSubscriptionManager<EVENTS = {}, TARGET extends EventTarget = EventTarget> {
 	subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this;
 	subscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): this;
+	subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this;
+	subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => any): this;
 }
 
 export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
@@ -53,9 +55,9 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	}
 
 	private readonly subscriptions: Record<string, WeakMap<Function, Function>> = {};
-	public subscribeFirst<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
-	public subscribeFirst (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST;
-	public subscribeFirst (types: string | string[], listener: (this: TARGET, event: any) => any) {
+	public subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
+	public subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST;
+	public subscribeOnce (types: string | string[], listener: (this: TARGET, event: any) => any) {
 		if (!Array.isArray(types))
 			types = [types];
 
@@ -105,7 +107,7 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	public async waitFor (types: string | string[]) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return new Promise<any>(resolve =>
-			this.subscribeFirst(types, resolve));
+			this.subscribeOnce(types, resolve));
 	}
 
 	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => any): HOST {
@@ -115,6 +117,11 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		const manager: IEventSubscriptionManager<EVENTS, TARGET> = {
 			subscribe: (type: never, listener: (this: TARGET, event: any) => any) => {
 				this.subscribe(type, listener);
+				void (promise as Promise<any>).then(() => this.unsubscribe(type, listener));
+				return manager;
+			},
+			subscribeOnce: (type: never, listener: (this: TARGET, event: any) => any) => {
+				this.subscribeOnce(type, listener);
 				void (promise as Promise<any>).then(() => this.unsubscribe(type, listener));
 				return manager;
 			},

@@ -222,7 +222,7 @@ namespace Model {
 								const handleSubUpdate = ({ progress: subAmount, message }: IModelEvents<any>["loadUpdate"]) =>
 									api.emitProgress(from + subAmount * amount, message);
 								model.event.subscribe("loadUpdate", handleSubUpdate);
-								model.event.subscribeFirst("loaded", () =>
+								model.event.subscribeOnce("loaded", () =>
 									model.event.unsubscribe("loadUpdate", handleSubUpdate));
 							}
 

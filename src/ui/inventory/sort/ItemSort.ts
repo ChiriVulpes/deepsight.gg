@@ -167,7 +167,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	private configureSort ({ sort }: { sort: ISort }) {
 		this.configureTitle.text.set(`Configure ${sort.name}`);
 		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions, this.onCommitSort);
-		this.drawer.showPanel(this.configurePanel);
+		this.drawer.showPanel(this.configurePanel, true);
 	}
 
 	private onClick (event: Event): void {
