@@ -1,4 +1,4 @@
-import type { DestinyCharacterComponent, DestinyClassDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
@@ -8,6 +8,7 @@ import Time from "utility/Time";
 
 interface Character extends DestinyCharacterComponent {
 	class: DestinyClassDefinition;
+	emblem?: DestinyInventoryItemDefinition;
 }
 
 class Character {
@@ -15,8 +16,9 @@ class Character {
 	public static async get (characterComponent: DestinyCharacterComponent, manifest: Manifest) {
 		const character = Objects.inherit(characterComponent, Character);
 
-		const { DestinyClassDefinition } = manifest;
+		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = manifest;
 		character.class = await DestinyClassDefinition.get(character.classHash)!;
+		character.emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
 
 		return character;
 	}

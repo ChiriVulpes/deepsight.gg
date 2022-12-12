@@ -6,8 +6,9 @@ import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
+import Display from "ui/bungie/DisplayProperties";
 import BaseComponent from "ui/Component";
-import { ButtonClasses } from "ui/form/Button";
+import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
 import ItemComponent from "ui/inventory/Item";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
@@ -32,6 +33,8 @@ export enum PlayerOverviewClasses {
 	IdentityCode = "player-overview-identity-code",
 	Drawer = "player-overview-drawer",
 	Panel = "player-overview-drawer-panel",
+	CharacterButtons = "player-overview-character-buttons",
+	CharacterButton = "player-overview-character-button",
 	Slot = "player-overview-slot",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
@@ -95,6 +98,11 @@ namespace PlayerOverview {
 
 		public update () {
 			this.drawer.removeContents();
+
+			const characterButtons = BaseComponent.create()
+				.classes.add(PlayerOverviewClasses.CharacterButtons)
+				.appendTo(this.drawer);
+
 			const characters = this.inventory.sortedCharacters ?? [];
 			if (!characters.length) {
 				console.warn("No characters found");
@@ -111,7 +119,13 @@ namespace PlayerOverview {
 					continue;
 				}
 
-				this.createPanel(character, bucket);
+				const panel = this.createPanel(character, bucket);
+				Button.create()
+					.classes.add(PlayerOverviewClasses.CharacterButton)
+					.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
+					.text.set(Display.name(character.class))
+					.event.subscribe("click", () => this.drawer.showPanel(panel))
+					.appendTo(characterButtons);
 			}
 		}
 
@@ -228,6 +242,7 @@ namespace PlayerOverview {
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			console.log(character.class.displayProperties.name, `\n  Equipped Items - ${Math.floor(currentPower)}${currentPower % 1 ? ` ${(currentPower % 1) * 8}/8` : ""}`, ...equippedLog, `\n\n  Highest Power Items - ${Math.floor(maximisedPower)}${maximisedPower % 1 ? ` ${(maximisedPower % 1) * 8}/8` : ""}`, ...highestPowerLog);
+			return panel;
 		}
 
 		private onClick (event: Event): void {

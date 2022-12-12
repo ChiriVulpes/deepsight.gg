@@ -1,5 +1,4 @@
 import type Character from "model/models/Characters";
-import Manifest from "model/models/Manifest";
 import Card from "ui/Card";
 
 export enum BucketClasses {
@@ -21,17 +20,14 @@ export default class BucketComponent<ARGS extends readonly any[] = readonly any[
 		this.content.classes.add(BucketClasses.Inventory);
 	}
 
-	public async initialiseFromCharacter (character: Character) {
-		const { DestinyInventoryItemDefinition } = await Manifest.await();
-
+	public initialiseFromCharacter (character: Character) {
 		const className = character.class?.displayProperties.name ?? "Unknown";
 		this.icon.style.set("--icon",
 			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
 
 		this.title.text.add(className);
 
-		const emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
-		this.style.set("--background", `url("https://www.bungie.net${emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
-			.style.set("--emblem", `url("https://www.bungie.net${emblem?.secondaryOverlay ?? character.emblemPath}")`);
+		this.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
+			.style.set("--emblem", `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);
 	}
 }
