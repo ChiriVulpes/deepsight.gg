@@ -140,7 +140,7 @@ namespace Model {
 			return cacheTime > Bungie[`last${resetTime}Reset`];
 		}
 
-		public async resolveCache () {
+		public async resolveCache (includeExpired = false) {
 			if (!this.model.cache || this.model.cache === "Memory")
 				return undefined;
 
@@ -149,7 +149,7 @@ namespace Model {
 				return undefined;
 
 			await this.getModelVersion();
-			if (this.isCacheValid(cached.cacheTime, cached.version)) {
+			if (includeExpired || this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
 				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
 				this.value = (this.model.process?.(cached.value) ?? cached.value) as R;
@@ -159,13 +159,9 @@ namespace Model {
 				return this.value;
 			}
 
-			// if (this.model.noPurge) {
-
-			// } else {
-			// 	console.debug(`Purging expired cache data for '${this.name}'`);
-			// 	await this.reset();
-			// }
-
+			// we don't purge the data anymore so that deepsight.gg can show your inventory even if bungie's api is down
+			// console.debug(`Purging expired cache data for '${this.name}'`);
+			// await this.reset();
 			return undefined;
 		}
 
