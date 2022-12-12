@@ -1,7 +1,7 @@
 
 export interface IEventSubscriptionManager<EVENTS = {}, TARGET extends EventTarget = EventTarget> {
-	subscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this;
-	subscribe (type: string, listener: (this: TARGET, event: Event) => any): this;
+	subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this;
+	subscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): this;
 }
 
 export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
@@ -40,33 +40,72 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		this._target = target;
 	}
 
-	public subscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
-	public subscribe (type: string, listener: (this: TARGET, event: Event) => any): HOST;
-	public subscribe (type: never, listener: (this: TARGET, event: any) => any) {
-		this.target?.addEventListener(type, listener);
+	public subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
+	public subscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST;
+	public subscribe (type: string | string[], listener: (this: TARGET, event: any) => any) {
+		if (!Array.isArray(type))
+			type = [type];
+
+		for (const t of type)
+			this.target?.addEventListener(t, listener);
+
 		return this.host.deref() as HOST;
 	}
 
-	public subscribeFirst<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
-	public subscribeFirst (type: string, listener: (this: TARGET, event: Event) => any): HOST;
-	public subscribeFirst (type: string, listener: (this: TARGET, event: any) => any) {
-		this.target?.addEventListener(type, listener, { once: true });
+	private readonly subscriptions: Record<string, WeakMap<Function, Function>> = {};
+	public subscribeFirst<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
+	public subscribeFirst (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST;
+	public subscribeFirst (types: string | string[], listener: (this: TARGET, event: any) => any) {
+		if (!Array.isArray(types))
+			types = [types];
+
+		if (this.target) {
+			const target = this.target;
+			const subscriptions = this.subscriptions;
+
+			function realListener (this: TARGET, event: Event) {
+				listener.call(this, event);
+				for (const type of types) {
+					subscriptions[type]?.delete(listener);
+					target?.removeEventListener(type, realListener);
+				}
+			}
+
+			for (const type of types) {
+				subscriptions[type] ??= new WeakMap();
+				subscriptions[type].set(listener, realListener);
+				this.target?.addEventListener(type, realListener);
+			}
+		}
+
 		return this.host.deref() as HOST;
 	}
 
-	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE, listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
-	public unsubscribe (type: string, listener: (this: TARGET, event: Event) => any): HOST;
-	public unsubscribe (type: string, listener: (this: TARGET, event: any) => any) {
-		this.target?.removeEventListener(type, listener);
+	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST;
+	public unsubscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST;
+	public unsubscribe (types: string | string[], listener: (this: TARGET, event: any) => any) {
+		if (!Array.isArray(types))
+			types = [types];
+
+		for (const type of types) {
+			this.target?.removeEventListener(type, listener);
+			const realListener = this.subscriptions[type]?.get(listener);
+			if (realListener) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				this.target?.removeEventListener(type, realListener as any);
+				this.subscriptions[type].delete(listener);
+			}
+		}
+
 		return this.host.deref() as HOST;
 	}
 
-	public async waitFor<TYPE extends keyof EVENTS> (type: TYPE): Promise<Event & EVENTS[TYPE]>;
-	public async waitFor (type: string): Promise<Event>;
-	public async waitFor (type: string) {
+	public async waitFor<TYPE extends keyof EVENTS> (type: TYPE | TYPE[]): Promise<Event & EVENTS[TYPE]>;
+	public async waitFor (type: string | string[]): Promise<Event>;
+	public async waitFor (types: string | string[]) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return new Promise<any>(resolve =>
-			this.target?.addEventListener(type, resolve, { once: true }));
+			this.subscribeFirst(types, resolve));
 	}
 
 	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => any): HOST {
@@ -75,8 +114,8 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 
 		const manager: IEventSubscriptionManager<EVENTS, TARGET> = {
 			subscribe: (type: never, listener: (this: TARGET, event: any) => any) => {
-				this.target?.addEventListener(type, listener);
-				void (promise as Promise<any>).then(() => this.target?.removeEventListener(type, listener));
+				this.subscribe(type, listener);
+				void (promise as Promise<any>).then(() => this.unsubscribe(type, listener));
 				return manager;
 			},
 		};
