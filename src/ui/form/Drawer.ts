@@ -6,6 +6,7 @@ export enum DrawerClasses {
 	Main = "drawer",
 	Panel = "drawer-panel",
 	Close = "drawer-close",
+	Disabled = "drawer-disabled",
 }
 
 export default class Drawer extends Component {
@@ -38,8 +39,43 @@ export default class Drawer extends Component {
 			.appendTo(this);
 	}
 
-	public isOpen () {
-		return !this.classes.has(Classes.Hidden);
+	/**
+	 * Returns whether the drawer is set to the open state.  
+	 * If the drawer is disabled, but it's set to the open state, this method will return true.
+	 */
+	public isOpen (): boolean;
+	/**
+	 * Returns whether the drawer is *visually* open.  
+	 * This method will return true only if the drawer is set to open *and* it's not disabled.
+	 */
+	public isOpen (visually: true): boolean;
+	public isOpen (visually?: true) {
+		return !this.classes.has(Classes.Hidden)
+			&& (visually || !this.classes.has(Classes.Disabled));
+	}
+
+	public isDisabled () {
+		return this.classes.has(Classes.Disabled);
+	}
+
+	public disable () {
+		this.classes.add(Classes.Disabled, DrawerClasses.Disabled);
+		if (this.isOpen()) {
+			this.classes.add(Classes.Hidden);
+			this.attributes.add("inert");
+		}
+
+		return this;
+	}
+
+	public enable () {
+		this.classes.remove(Classes.Disabled, DrawerClasses.Disabled);
+		if (this.openReasons.size) {
+			this.classes.remove(Classes.Hidden);
+			this.attributes.remove("inert");
+		}
+
+		return this;
 	}
 
 	public createPanel () {
@@ -77,6 +113,9 @@ export default class Drawer extends Component {
 
 	public open (reason = "generic") {
 		this.openReasons.add(reason);
+		if (this.isDisabled())
+			return;
+
 		this.classes.remove(Classes.Hidden);
 		this.attributes.remove("inert");
 	}

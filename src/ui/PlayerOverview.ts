@@ -95,7 +95,16 @@ namespace PlayerOverview {
 
 		public update () {
 			this.drawer.removeContents();
-			for (const character of this.inventory.sortedCharacters ?? []) {
+			const characters = this.inventory.sortedCharacters ?? [];
+			if (!characters.length) {
+				console.warn("No characters found");
+				this.drawer.disable();
+				return;
+			}
+
+			this.drawer.enable();
+
+			for (const character of characters) {
 				const bucket = this.inventory.buckets?.[character.characterId as CharacterId];
 				if (!bucket) {
 					console.warn(`No bucket found for the character ${character.characterId}`);
