@@ -1,3 +1,4 @@
+import type { DestinyClass } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import Store from "utility/Store";
 
@@ -44,7 +45,9 @@ export const STAT_DISPLAY_ORDER: Partial<Record<Stat, StatOrder>> = {
 	[Stat.AmmoCapacity]: 1002,
 };
 
-export const ARMOUR_STAT_GROUPS: [Stat, Stat, Stat][] = [
+export type StatGroup = [Stat, Stat, Stat];
+
+export const ARMOUR_STAT_GROUPS: StatGroup[] = [
 	[Stat.Mobility, Stat.Resilience, Stat.Recovery],
 	[Stat.Discipline, Stat.Intellect, Stat.Strength],
 ];
@@ -60,19 +63,19 @@ export interface IStatDistribution {
 
 export namespace IStatDistribution {
 
-	export function isEnabled (stat: Stat) {
-		return Store.get<boolean>(`preferredStatDistribution.${Stat[stat]}.enabled`) ?? true;
+	export function isEnabled (stat: Stat, classType: DestinyClass) {
+		return Store.get<boolean>(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`) ?? true;
 	}
-	export function setIsEnabled (stat: Stat, enabled: boolean) {
-		Store.set(`preferredStatDistribution.${Stat[stat]}.enabled`, enabled);
-	}
-
-	export function getPreferredValue (stat: Stat) {
-		return Store.get<number>(`preferredStatDistribution.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
+	export function setIsEnabled (stat: Stat, classType: DestinyClass, enabled: boolean) {
+		Store.set(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`, enabled);
 	}
 
-	export function setPreferredValue (stat: Stat, value: number) {
-		Store.set(`preferredStatDistribution.${Stat[stat]}`, value);
+	export function getPreferredValue (stat: Stat, classType: DestinyClass) {
+		return Store.get<number>(`preferredStatDistribution.${classType}.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
+	}
+
+	export function setPreferredValue (stat: Stat, classType: DestinyClass, value: number) {
+		Store.set(`preferredStatDistribution.${classType}.${Stat[stat]}`, value);
 	}
 
 	export function get (item: Item): IStatDistribution {
@@ -90,13 +93,13 @@ export namespace IStatDistribution {
 			let stats = 0;
 			for (const stat of group) {
 				const statValue = item.stats.values[stat]?.intrinsic ?? 0;
-				if (!isEnabled(stat)) {
+				if (!isEnabled(stat, item.definition.classType)) {
 					groupDisabledTotal += statValue;
 					continue;
 				}
 
 				disabledStatsMax -= statValue;
-				const nearness = 1 - Math.abs(getPreferredValue(stat) - statValue) / ARMOUR_STAT_MAX;
+				const nearness = 1 - Math.abs(getPreferredValue(stat, item.definition.classType) - statValue) / ARMOUR_STAT_MAX;
 				groupEnabledNearnessTotal += nearness;
 				stats++;
 			}

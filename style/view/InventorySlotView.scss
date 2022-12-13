@@ -493,18 +493,72 @@
 }
 
 .stat-distribution {
-	&-configuration {
+	&-class-configuration {
+		margin-left: -25px;
+		
+		&-button {
+			margin: 0;
+			margin-top: 0.5em;
+			font-family: $font-title;
+			text-transform: uppercase;
+			font-weight: 500;
+			letter-spacing: 0.3em;
+			background: none;
+			border: none;
+			opacity: 0.5;
+			padding-left: 0;
+			margin-left: 0.5em;
+			margin-right: 0.5em;
+			
+			&::before {
+				display: none;
+			}
+			
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 0px;
+				height: 2px;
+				background: currentColor;
+				@include transition(out, width);
+			}
+			
+			&:where(:hover, :active, :focus-visible, .button-selected) {
+				opacity: 1;
+			}
+			
+			details[open] > & {
+				opacity: 1;
+				&::after {
+					width: 100%;
+					@include transition(in);
+				}
+			}
+		}
+			
+		&:first-child:last-child &-button {
+			display: none;
+		}
+	}
+	
+	&-stat-rows {
 		display: grid;
 		grid-template-columns: auto auto 1fr auto;
     	grid-auto-flow: dense;
 		column-gap: 0.5em;
 		row-gap: 0.5em;
-		padding: 1em 1em 0.5em;
-		margin-left: -25px;
+		padding: 0.5em 1em;
 	}
 	
 	&-stat {
 		display: contents;
+		
+		&-group {
+			display: contents;
+		}
 		
 		&-label {
 			display: contents;
