@@ -216,7 +216,6 @@ namespace PlayerOverview {
 
 				equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
 				ItemComponent.create([equippedItem])
-					.classes.remove(ButtonClasses.Main)
 					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
 					.appendTo(slotComponent);
 

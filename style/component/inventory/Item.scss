@@ -8,6 +8,10 @@
 	transition-property: background, border, color, transform, filter, opacity;
 	background: none;
 	
+	&:not(.button) {
+		pointer-events: none;
+	}
+	
 	&::after {
 		content: "";
 		display: block;

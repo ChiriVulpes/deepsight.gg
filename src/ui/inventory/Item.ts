@@ -236,6 +236,9 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		if (window.innerWidth <= 800)
 			return viewManager.showItemTooltip(this.item);
 
+		if (this.item.equipped)
+			return;
+
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
 			await this.item.transferToggleVaulted(this.characters?.currentCharacter.characterId as CharacterId);
