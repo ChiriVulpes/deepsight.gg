@@ -185,7 +185,7 @@ class ItemTooltip extends Tooltip {
 		this.title.text.set(Display.name(item.definition));
 		this.subtitle.removeContents();
 
-		this.subtitle.text.set(item.definition.itemTypeDisplayName);
+		this.subtitle.text.set(item.definition.itemTypeDisplayName ?? "Unknown");
 		this.extra.text.set(item.definition.inventory?.tierTypeName);
 
 		this.source.classes.toggle(!item.source?.displayProperties.icon, Classes.Hidden);
