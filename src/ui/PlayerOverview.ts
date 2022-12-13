@@ -1,4 +1,4 @@
-import type { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { BucketHashes } from "bungie-api-ts/destiny2";
 import type { UserMembershipData } from "bungie-api-ts/user";
 import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
@@ -152,10 +152,10 @@ namespace PlayerOverview {
 				InventoryLegsView,
 				InventoryClassItemView,
 			];
-			const equippedItems: Partial<Record<ItemCategoryHashes, Item>> = {};
-			const highestPowerItems: Partial<Record<ItemCategoryHashes, Item>> = {};
+			const equippedItems: Partial<Record<BucketHashes, Item>> = {};
+			const highestPowerItems: Partial<Record<BucketHashes, Item>> = {};
 			for (const item of bucket.items) {
-				const view = slotViews.find(view => item.definition.itemCategoryHashes?.includes(view.definition.slot));
+				const view = slotViews.find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
 				if (!view)
 					continue;
 

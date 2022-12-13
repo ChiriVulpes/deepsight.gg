@@ -1,4 +1,3 @@
-import type { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import { BucketHashes } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
@@ -115,7 +114,7 @@ class DraggableItem extends ItemComponent {
 
 interface IInventorySlotViewDefinition {
 	sort: SortManager;
-	slot: ItemCategoryHashes;
+	slot: BucketHashes;
 	filter: FilterManager;
 }
 
@@ -238,8 +237,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				continue;
 
 			for (const item of bucket.items) {
-				const categories = item.definition.itemCategoryHashes ?? [];
-				const excluded = !categories.includes(this.super.definition.slot) && !PostmasterId.is(item.bucket);
+				const excluded = item.definition.inventory?.bucketTypeHash !== this.super.definition.slot && !PostmasterId.is(item.bucket);
 
 				if (this.itemMap.has(item)) {
 					if (excluded)
