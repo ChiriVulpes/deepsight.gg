@@ -61,6 +61,9 @@ namespace Deepsight {
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {
 		const { DestinyCollectibleDefinition, DestinyRecordDefinition } = manifest;
 
+		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")
+			return undefined;
+
 		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
 		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
 			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
