@@ -234,6 +234,10 @@ namespace PlayerOverview {
 					BaseComponent.create()
 						.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower, PlayerOverviewClasses.ItemSame)
 						.appendTo(slotComponent);
+
+					BaseComponent.create()
+						.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
+						.appendTo(slotComponent);
 					continue;
 				}
 
