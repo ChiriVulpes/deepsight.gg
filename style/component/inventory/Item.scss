@@ -78,7 +78,8 @@
 	}
 	
 	&-masterwork {
-		box-shadow: inset 0 0 0 2px #CBAF3C, inset 0 0 0 4px #CBAF3C66, inset 0 0 2px 5px #CBAF3C77;
+		--main-border-color: #CBAF3C;
+		box-shadow: inset 0 0 0 2px var(--main-border-color), inset 0 0 0 4px #CBAF3C66, inset 0 0 2px 5px #CBAF3C77;
 		overflow: hidden;
 		background: radial-gradient(ellipse at bottom center, #ffe16766 10%, transparent 30%);
 		background-size: 300% 100%;
@@ -112,10 +113,22 @@
 					to { transform: rotate(360deg); }
 				}
 			}
+		}
+		
+		@mixin disabled-spinny {
+			--main-border-color: #ecca3e;
 			
-			.performance-mode & {
+			&-spinny {
 				display: none;
 			}
+		}
+		
+		@include mobile {
+			@include disabled-spinny;
+		}
+		
+		.performance-mode & {
+			@include disabled-spinny;
 		}
 	}
 	
