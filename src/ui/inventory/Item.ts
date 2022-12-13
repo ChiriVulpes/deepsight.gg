@@ -15,6 +15,7 @@ import Loadable from "ui/Loadable";
 export enum ItemClasses {
 	Main = "item",
 	Icon = "item-icon",
+	Classified = "item-classified",
 	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",
 	SourceWatermark = "item-source-watermark",
@@ -136,6 +137,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		Component.create()
 			.classes.add(ItemClasses.Icon)
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
+			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified)
 			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 

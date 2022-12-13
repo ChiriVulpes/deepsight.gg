@@ -37,6 +37,10 @@
 		height: 100%;
 	}
 	
+	&-classified {
+		background-color: color(background-7);
+	}
+	
 	&-borderless {
 		&::after {
 			content: none;
