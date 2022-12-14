@@ -1,5 +1,7 @@
 .details {
 	&-closed > :not(&-summary) {
 		display: none;
+		user-select: none;
+		pointer-events: none;
 	}
 }
