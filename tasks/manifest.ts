@@ -29,7 +29,7 @@ export default Task("manifest", async () => {
 
 	Log.info(`Bungie API is serving a new version of the Destiny manifest.\n    Old version: ${ansi.lightYellow(savedVersion)}\n    New version: ${ansi.lightBlue(bungieVersion)}`);
 
-	await fs.mkdir("static/testiny");
+	await fs.mkdir("static/testiny").catch(() => { });
 
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
 		Log.info(`Downloading manifest ${key}...`);
