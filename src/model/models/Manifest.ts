@@ -56,9 +56,11 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-3.deepsight.gg`;
+		return `${manifest.version}-4.deepsight.gg`;
 	},
 	async generate (api) {
+		await Model.cacheDB.dispose();
+
 		const manifest = await GetManifest.query();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as AllComponentNames[];
 
