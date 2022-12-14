@@ -1,8 +1,7 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
-import { PostmasterId } from "model/models/items/Item";
+import { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -246,10 +245,10 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			await this.item.transferToggleVaulted(this.characters?.currentCharacter.characterId as CharacterId);
 		else {
 			const character = this.item.character ?? this.characters?.currentCharacter.characterId as CharacterId;
-			if (PostmasterId.is(this.item.bucket))
-				await this.item.transferToCharacter(character);
-			else
+			if (CharacterId.is(this.item.bucket))
 				await this.item.equip(character);
+			else
+				await this.item.transferToCharacter(character);
 		}
 	}
 
