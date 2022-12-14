@@ -172,6 +172,54 @@
 					background: color(background-7, .8);
 				}
 			}
+			
+			&-perk {
+				&-enhanced {
+					box-shadow: inset 1px 0 color(tooltip-background), inset 4px 0 #D4B73C;
+					position: relative;
+					
+					&::before {
+						content: "";
+						display: block;
+						position: absolute;
+						inset: 0;
+						background: linear-gradient(-45deg, transparent 40%, rgba(#D4B73C, 1) 50%, transparent 65%);
+						background-size: 500% 500%;
+						animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * .5s);
+						@include blur-disables-animation;
+					}
+					
+					&::after {
+						content: "";
+						display: block;
+						position: absolute;
+						left: 5px;
+						border: 6px solid transparent;
+						border-bottom-color: #ffed9f;
+						border-bottom-width: 7px;
+						transform: scaleX(.8)
+					}
+
+					.view-item-socket-plug-socketed {
+						background-image: linear-gradient(to right, rgba(#D4B73C, .5) 0%, transparent 40%);
+						
+						&::after {
+							content: "";
+							display: block;
+							position: absolute;
+							left: 8px;
+							top: 10px;
+							border: 2px solid transparent;
+							border-top-color: #ffed9f;
+							border-top-width: 40px;
+							border-bottom-width: 0;
+							-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+							mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+							transform: scaleX(.9)
+						}
+					}
+				}
+			}
 		}
 	}
 }
