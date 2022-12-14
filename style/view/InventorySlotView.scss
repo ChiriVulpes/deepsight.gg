@@ -495,6 +495,9 @@
 .stat-distribution {
 	&-class-configuration {
 		margin-left: -25px;
+		--stat-height: 24px;
+		--stats-padding-y: 8px;
+		--stats-gap-y: 8px;
 		
 		&-button {
 			margin: 0;
@@ -530,7 +533,7 @@
 				opacity: 1;
 			}
 			
-			details[open] > & {
+			.details:not(.details-closed) > & {
 				opacity: 1;
 				&::after {
 					width: 100%;
@@ -542,15 +545,27 @@
 		&:first-child:last-child &-button {
 			display: none;
 		}
+		
+		&.details-closed .stat-distribution-stat-rows {
+			height: 0px;
+			--stats-padding-y: 0px;
+			opacity: 0;
+			// @include transition(in);
+		}
 	}
 	
 	&-stat-rows {
-		display: grid;
+		display: grid !important;
 		grid-template-columns: auto auto 1fr auto;
     	grid-auto-flow: dense;
+		grid-auto-rows: var(--stat-height);
 		column-gap: 0.5em;
-		row-gap: 0.5em;
-		padding: 0.5em 1em;
+		row-gap: var(--stats-gap-y);
+		padding: var(--stats-padding-y) 1em;
+		height: calc(var(--stats-padding-y) * 2 + var(--stat-height) * 6 + var(--stats-gap-y) * 5);
+		box-sizing: border-box;
+		overflow: hidden;
+		@include transition(out, height, padding, opacity);
 	}
 	
 	&-stat {
@@ -577,6 +592,7 @@
 				
 				&-label {
 					grid-column: 2;
+					margin-right: 0;
 				}
 			}
 		}

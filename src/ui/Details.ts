@@ -3,40 +3,47 @@ import Button from "ui/form/Button";
 
 export enum DetailsClasses {
 	Main = "details",
-	Summary = "summary",
+	Summary = "details-summary",
+	Open = "details-open",
+	Closed = "details-closed",
 }
 
 export default class Details<ARGS extends readonly any[] = []> extends Component<HTMLDetailsElement, ARGS> {
-
-	protected static override defaultType = "details";
 
 	public summary!: Button;
 
 	protected override onMake (...args: ARGS): void {
 		super.onMake(...args);
-		this.classes.add(DetailsClasses.Main);
+		this.classes.add(DetailsClasses.Main, DetailsClasses.Closed);
 
 		this.summary = Button.create("summary")
 			.classes.add(DetailsClasses.Summary)
+			.event.subscribe("click", () => this.toggle())
 			.appendTo(this);
 	}
 
 	public isOpen () {
-		return this.element.open;
+		return !this.classes.has(DetailsClasses.Closed);
 	}
 
 	public open () {
-		this.element.open = true;
+		this.classes.remove(DetailsClasses.Closed);
+		this.event.emit("toggle");
 		return this;
 	}
 
 	public close () {
-		this.element.open = false;
+		this.classes.add(DetailsClasses.Closed);
+		this.event.emit("toggle");
 		return this;
 	}
 
 	public toggle (open?: boolean) {
-		this.element.open = open === undefined ? !this.element.open : open;
+		if (open === undefined || !this.classes.has(DetailsClasses.Closed) !== open) {
+			this.classes.toggle(DetailsClasses.Closed);
+			this.event.emit("toggle");
+		}
+
 		return this;
 	}
 
