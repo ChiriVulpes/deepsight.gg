@@ -382,6 +382,20 @@
 	}
 	
 	&-vault-bucket {
+		&s {
+			display: grid;
+			grid-template-rows: repeat(3, 1fr);
+			overflow: hidden;
+			
+			&-combined {
+				grid-template-rows: 1fr;
+			}
+		}
+		
+		&:last-child {
+			--card-gap-y: 0px;
+		}
+		
 		@include mobile {
 			padding-bottom: 8px;
 		}
@@ -486,7 +500,7 @@
 	}
 	
 	@at-root {
-		.view-inventory-slot-character-bucket:times(3), .view-inventory-slot-vault-bucket {
+		.view-inventory-slot-character-bucket:times(3), .view-inventory-slot-vault-bucket:times(3) {
 			@include view-swipe-animation;
 		}
 	}

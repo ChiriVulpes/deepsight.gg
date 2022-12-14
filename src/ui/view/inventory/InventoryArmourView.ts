@@ -20,4 +20,5 @@ export default InventorySlotView.clone().configure({
 		name: "Armour",
 		inapplicable: FILTERS_INAPPLICABLE_ARMOUR,
 	}),
+	separateVaults: true,
 });

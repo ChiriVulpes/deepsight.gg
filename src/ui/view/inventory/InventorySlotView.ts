@@ -31,6 +31,8 @@ export enum InventorySlotViewClasses {
 	CharacterBucketEmblem = "view-inventory-slot-character-bucket-emblem",
 	CharacterBucketEquipped = "view-inventory-slot-character-bucket-equipped",
 	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
+	VaultBuckets = "view-inventory-slot-vault-buckets",
+	VaultBucketsCombined = "view-inventory-slot-vault-buckets-combined",
 	VaultBucket = "view-inventory-slot-vault-bucket",
 	PostmasterBuckets = "view-inventory-slot-postmaster-buckets",
 	PostmasterBucket = "view-inventory-slot-postmaster-bucket",
@@ -71,6 +73,22 @@ class CharacterBucket extends BucketComponent<[]> {
 		this.character = character;
 		void this.initialiseFromCharacter(character);
 		return this;
+	}
+}
+
+class VaultBucket extends BucketComponent<[Character?]> {
+
+	public character?: Character;
+
+	protected override onMake (character?: Character): void {
+		super.onMake(character);
+		this.character = character;
+		this.classes.add(InventorySlotViewClasses.VaultBucket);
+		this.icon.style.set("--icon", "url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")");
+		this.title.text.add("Vault");
+		const className = character?.class?.displayProperties.name;
+		if (className)
+			this.title.text.add(` (${className})`);
 	}
 }
 
@@ -116,6 +134,7 @@ interface IInventorySlotViewDefinition {
 	sort: SortManager;
 	slot: BucketHashes;
 	filter: FilterManager;
+	separateVaults?: true;
 }
 
 class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
@@ -127,12 +146,13 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public static current?: InventorySlotView;
 
 	public inventory!: Inventory;
-	public vaultBucket!: BucketComponent;
 	public currentCharacter!: CharacterBucket;
 	public characterBucketsContainer!: Component;
+	public vaultBucketsContainer!: Component;
 	public postmasterBucketsContainer!: Component;
 	public characters!: Record<CharacterId, CharacterBucket>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
+	public vaults!: Record<CharacterId, VaultBucket>;
 	public bucketEntries!: [BucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
@@ -152,11 +172,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			.classes.add(InventorySlotViewClasses.CharacterBuckets)
 			.appendTo(this.super.content);
 
-		this.vaultBucket = BucketComponent.create()
-			.classes.add(InventorySlotViewClasses.VaultBucket)
-			.tweak(vault => vault.icon.style.set("--icon",
-				"url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")"))
-			.tweak(vault => vault.title.text.add("Vault"))
+		this.vaultBucketsContainer = Component.create()
+			.classes.add(InventorySlotViewClasses.VaultBuckets)
 			.appendTo(this.super.content);
 
 		this.postmasterBucketsContainer = Component.create()
@@ -258,12 +275,17 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 	private updateCharacters () {
 		this.characters ??= {};
+		this.vaults ??= {};
 		this.postmasters ??= {};
+
+		const singleVaultBucket = this.super.definition.separateVaults ? undefined : VaultBucket.create([]);
+		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventorySlotViewClasses.VaultBucketsCombined);
 
 		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
 				character: this.characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
 				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
+				vault: this.vaults[character.characterId as CharacterId] ??= (singleVaultBucket ?? VaultBucket.create([character])),
 			}));
 
 		const oldCharacterBuckets = [...this.characterBucketsContainer.children<CharacterBucket>()];
@@ -284,6 +306,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			|| oldCharacterBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character.character?.characterId);
 		if (charactersChanged) {
 			this.characterBucketsContainer.append(...characterBucketsSorted.map(({ character }) => character));
+			this.vaultBucketsContainer.append(...characterBucketsSorted.map(({ vault }) => vault));
 			this.postmasterBucketsContainer.append(...characterBucketsSorted.map(({ postmaster }) => postmaster));
 		}
 	}
@@ -295,12 +318,12 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			if (bucketId === "inventory")
 				continue;
 
-			let bucketComponent: BucketComponent;
+			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
 			if (bucketId === "vault")
-				bucketComponent = this.vaultBucket;
+				bucketComponents = Object.values(this.vaults);
 			else if (PostmasterId.is(bucketId))
-				bucketComponent = this.postmasters[bucketId];
+				bucketComponents = [this.postmasters[bucketId]];
 			else {
 				const characterBucket = this.characters[bucketId];
 				if (!characterBucket) {
@@ -308,7 +331,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					continue;
 				}
 
-				bucketComponent = characterBucket;
+				bucketComponents = [characterBucket];
 				equippedComponent = characterBucket.equippedSlot;
 
 				const currentlyEquipped = this.equipped[bucketId];
@@ -319,10 +342,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
 
-			const slots = [
-				...bucketComponent.content.children(),
-				...bucketComponent instanceof PostmasterBucket ? bucketComponent.engrams.children() : [],
-			];
+			const slots = bucketComponents.flatMap(component => [
+				...component.content.children(),
+				...component instanceof PostmasterBucket ? component.engrams.children() : [],
+			]);
 			for (const slot of slots)
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
@@ -334,6 +357,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				if (!itemComponent)
 					// item not included in view
 					continue;
+
+				const bucketComponent = bucketComponents.length === 1 ? bucketComponents[0]
+					: bucketComponents.find(component => (component as VaultBucket).character?.classType === item.definition.classType)
+					?? bucketComponents[0];
 
 				const slotWrapper = item.reference.bucketHash === BucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
 					: bucketComponent.content;
@@ -407,10 +434,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private getBucket (bucketId: BucketId) {
-		return bucketId === "vault" ? this.vaultBucket
-			: bucketId === "inventory" ? this.currentCharacter
-				: PostmasterId.is(bucketId) ? this.postmasters[bucketId]
-					: this.characters[bucketId];
+		return bucketId === "vault" ? Object.values(this.vaults)
+			: bucketId === "inventory" ? [this.currentCharacter]
+				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
+					: [this.characters[bucketId]];
 	}
 
 	private itemMoving?: ItemComponent;
@@ -426,9 +453,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					return event.preventDefault();
 
 				component.classes.add(InventorySlotViewClasses.ItemMovingOriginal);
-				const bucketComponent = this.getBucket(item.bucket);
+				const bucketComponents = this.getBucket(item.bucket);
 
-				bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
+				for (const bucketComponent of bucketComponents)
+					bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
 
 				this.itemMoving?.remove();
 				this.itemMoving = ItemComponent.create([item, this.inventory])
@@ -442,8 +470,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					if (dropBucketId === "inventory" || PostmasterId.is(dropBucketId))
 						continue;
 
-					const component = this.getBucket(dropBucketId);
-					component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
+					const components = this.getBucket(dropBucketId);
+					for (const component of components)
+						component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
 				}
 			})
 			.event.subscribe("moveEnd", async event => {
@@ -452,17 +481,24 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				delete this.itemMoving;
 
 				component.classes.remove(InventorySlotViewClasses.ItemMovingOriginal);
-				const bucketComponent = this.getBucket(item.bucket);
-				bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
+				const bucketComponents = this.getBucket(item.bucket);
+				for (const bucketComponent of bucketComponents)
+					bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
 
 				let dropBucketId: DestinationBucketId | undefined;
 				for (const [bucketId] of this.bucketEntries) {
 					if (bucketId === "inventory" || PostmasterId.is(bucketId))
 						continue;
 
-					const component = this.getBucket(bucketId);
-					component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
-					if (!component.intersects(event.mouse))
+					const components = this.getBucket(bucketId);
+					let intersections = false;
+					for (const component of components) {
+						component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
+						if (component.intersects(event.mouse))
+							intersections = true;
+					}
+
+					if (!intersections)
 						continue;
 
 					dropBucketId = bucketId;
