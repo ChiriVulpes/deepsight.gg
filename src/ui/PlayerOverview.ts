@@ -59,6 +59,8 @@ namespace PlayerOverview {
 		public displayName!: string;
 		public code!: string;
 
+		private character!: CharacterId;
+
 		protected override onMake (memberships: UserMembershipData, inventory: Inventory): void {
 			this.classes.add(PlayerOverviewClasses.Main);
 			this.inventory = inventory;
@@ -80,6 +82,8 @@ namespace PlayerOverview {
 				.classes.add(PlayerOverviewClasses.Drawer)
 				.appendTo(this);
 
+			this.update = this.update.bind(this);
+			inventory.event.subscribe("update", this.update);
 			this.update();
 
 			this.event.subscribe("mouseenter", () => this.drawer.open("mouseenter"));
@@ -127,12 +131,19 @@ namespace PlayerOverview {
 					.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
 					.text.set(Display.name(character.class))
 					.event.subscribe("click", () => {
+						this.character = character.characterId as CharacterId;
 						this.drawer.showPanel(panel);
 						for (const otherButton of this.drawer.element.getElementsByClassName(PlayerOverviewClasses.CharacterButton))
 							otherButton.classList.remove(ButtonClasses.Selected);
 						button.classes.add(ButtonClasses.Selected);
 					})
 					.appendTo(characterButtons);
+
+				if (this.character === character.characterId)
+					this.drawer.showPanel(panel);
+
+				if (first && !this.character)
+					this.character = character.characterId as CharacterId;
 
 				first = false;
 			}

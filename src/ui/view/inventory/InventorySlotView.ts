@@ -159,11 +159,11 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
 
-	protected override async onMake (model: Inventory) {
+	protected override async onMake (inventory: Inventory) {
 		InventorySlotView.hasExisted = true;
 		InventorySlotView.current = this;
-		this.inventory = model;
-		model.setShouldSkipCharacters(() => !InventorySlotView.current);
+		this.inventory = inventory;
+		inventory.setShouldSkipCharacters(() => !InventorySlotView.current);
 
 		this.classes.add(InventorySlotViewClasses.Main);
 		this.super.content.classes.add(InventorySlotViewClasses.Content);
@@ -184,9 +184,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		this.itemMap = new Map<Item, ItemComponent>();
 
 		this.update = this.update.bind(this);
-		model.event.subscribe("update", this.update);
+		inventory.event.subscribe("update", this.update);
 		this.event.subscribe("hide", () => {
-			model.event.unsubscribe("update", this.update);
+			inventory.event.unsubscribe("update", this.update);
 			if (InventorySlotView.current === this)
 				delete InventorySlotView.current;
 		});

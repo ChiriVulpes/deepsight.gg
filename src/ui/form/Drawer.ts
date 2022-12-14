@@ -175,6 +175,8 @@ export default class Drawer extends Component {
 	public override removeContents (): this {
 		while (this.element.lastChild && this.element.lastChild !== this.closeButton.element)
 			this.element.lastChild?.remove();
+
+		this.panels.clear();
 		return this;
 	}
 }
