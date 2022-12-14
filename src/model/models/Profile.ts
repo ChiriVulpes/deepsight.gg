@@ -5,7 +5,9 @@ import { DestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 
-function makeProfileResponseComponentMap<MAP extends { [KEY in keyof DestinyProfileResponse]: DestinyComponentType | readonly DestinyComponentType[] | undefined }> (map: MAP) {
+type DestinyComponentName = Exclude<keyof DestinyProfileResponse, "responseMintedTimestamp" | "secondaryComponentsMintedTimestamp">;
+
+function makeProfileResponseComponentMap<MAP extends { [KEY in DestinyComponentName]: DestinyComponentType | readonly DestinyComponentType[] | undefined }> (map: MAP) {
 	return map;
 }
 
@@ -101,13 +103,13 @@ const models: Partial<Record<DestinyComponentType, ComponentModel | undefined>> 
 let lastOperation: Promise<void> | undefined;
 
 function mergeProfile (profileInto: DestinyProfileResponse, profileFrom: DestinyProfileResponse) {
-	for (const key of new Set([...Object.keys(profileInto), ...Object.keys(profileFrom)] as (keyof DestinyProfileResponse)[])) {
+	for (const key of new Set([...Object.keys(profileInto), ...Object.keys(profileFrom)] as (DestinyComponentName)[])) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		(profileInto as Writable<DestinyProfileResponse>)[key] = mergeProfileKey(key, profileInto[key], profileFrom[key]);
 	}
 }
 
-function mergeProfileKey (key: keyof DestinyProfileResponse, value1: any, value2: any): any {
+function mergeProfileKey (key: DestinyComponentName, value1: any, value2: any): any {
 	if (value1 && value2) {
 		if (Array.isArray(profileResponseComponentMap[key]))
 			return { ...value1, ...value2 };
@@ -119,7 +121,7 @@ function mergeProfileKey (key: keyof DestinyProfileResponse, value1: any, value2
 	return value1 ?? value2;
 }
 
-export default function <COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in keyof DestinyProfileResponse as (
+export default function <COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in DestinyComponentName as (
 	((typeof profileResponseComponentMap)[PROFILE_RESPONSE_KEY] extends infer COMPONENTS ?
 		COMPONENTS extends readonly DestinyComponentType[] ? COMPONENTS[number] : COMPONENTS
 		: never

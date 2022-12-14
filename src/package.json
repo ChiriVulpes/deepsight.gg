@@ -1,6 +1,6 @@
 {
 	"private": true,
 	"dependencies": {
-		"bungie-api-ts": "^4.19.0"
+		"bungie-api-ts": "^4.21.0"
 	}
 }
