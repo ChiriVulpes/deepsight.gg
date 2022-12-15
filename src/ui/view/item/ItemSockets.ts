@@ -1,9 +1,11 @@
 import type Item from "model/models/items/Item";
-import type { IReusablePlug } from "model/models/items/Plugs";
+import type { Perk, Plug } from "model/models/items/Plugs";
 import Display from "ui/bungie/DisplayProperties";
 import Card from "ui/Card";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
+import ItemPlugTooltip from "ui/inventory/ItemPlugTooltip";
 
 export enum ItemSocketsClasses {
 	Main = "view-item-sockets",
@@ -27,6 +29,7 @@ export default abstract class ItemSockets extends Card<[Item]> {
 
 		this.addedSockets = [];
 		await this.addSockets();
+		this.classes.toggle(!this.addedSockets.length, Classes.Hidden);
 		Component.create()
 			.classes.add(ItemSocketsClasses.SocketsContainer)
 			.append(...this.addedSockets.splice(0, Infinity))
@@ -46,6 +49,10 @@ export default abstract class ItemSockets extends Card<[Item]> {
 		this.addedSockets.push(socket);
 		return socket;
 	}
+
+	protected hasSockets () {
+		return !!this.addedSockets.length;
+	}
 }
 
 export class ItemSocket extends Component<HTMLElement, []> {
@@ -53,19 +60,21 @@ export class ItemSocket extends Component<HTMLElement, []> {
 		this.classes.add(ItemSocketsClasses.Socket);
 	}
 
-	public addOption (plug?: IReusablePlug, initialiser?: (plug: ItemPlug) => any) {
-		return ItemPlug.create([plug])
+	public addPlug (plug?: Plug, perk?: Perk, initialiser?: (plug: ItemPlug) => any): ItemPlug;
+	public addPlug (plug?: Plug, initialiser?: (plug: ItemPlug) => any): ItemPlug;
+	public addPlug (plug?: Plug, perkOrInitialiser?: Perk | ((plug: ItemPlug) => any), initialiser?: (plug: ItemPlug) => any) {
+		return ItemPlug.create(typeof perkOrInitialiser === "function" ? [plug] : [plug, perkOrInitialiser])
 			.tweak(initialiser)
 			.appendTo(this);
 	}
 }
 
-export class ItemPlug extends Button<[IReusablePlug?]> {
+export class ItemPlug extends Button<[Plug?, Perk?]> {
 
 	public label!: Component<HTMLLabelElement>;
 	public description!: Component;
 
-	protected override onMake (plug?: IReusablePlug): void {
+	protected override onMake (plug?: Plug, perk?: Perk): void {
 		super.onMake();
 		this.classes.add(ItemSocketsClasses.Plug);
 
@@ -79,14 +88,19 @@ export class ItemPlug extends Button<[IReusablePlug?]> {
 			.classes.add(ItemSocketsClasses.PlugDescription)
 			.appendTo(this);
 
-		if (plug) this.using(plug);
+		if (plug) this.using(plug, perk);
 	}
 
-	public using (plug: IReusablePlug) {
+	public using (plug: Plug, perk?: Perk) {
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
-			.setIcon(Display.icon(plug.definition))
-			.setName(Display.name(plug.definition) ?? "Unknown")
-			.setDescription(Display.description(plug.definition));
+			.setIcon(Display.icon(perk?.definition) ?? Display.icon(plug.definition))
+			.setName(Display.name(perk?.definition) ?? Display.name(plug.definition) ?? "Unknown")
+			.setDescription(Display.description(perk?.definition) ?? Display.description(plug.definition));
+
+		this.setTooltip(ItemPlugTooltip, {
+			initialiser: tooltip => tooltip.setPlug(plug, perk),
+			differs: tooltip => tooltip.plug?.plugItemHash !== plug.plugItemHash,
+		})
 	}
 
 	public setName (name?: string) {

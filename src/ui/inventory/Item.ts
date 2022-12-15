@@ -2,6 +2,7 @@ import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
+import { PlugType } from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -125,9 +126,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.add(`item-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
-		const ornament = item.sockets?.find(socket => socket?.definition.traitIds?.includes("item_type.ornament.armor")
-			|| socket?.definition.traitIds?.includes("item_type.armor")
-			|| socket?.definition.traitIds?.includes("item_type.ornament.weapon"));
+		const ornament = item.getSockets(PlugType.Ornament)[0];
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
@@ -137,7 +136,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			.classes.add(ItemClasses.Icon)
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified)
-			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
+			.style.set("--icon", Display.icon(ornament?.socketedPlug?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 
 		if (item.shaped)

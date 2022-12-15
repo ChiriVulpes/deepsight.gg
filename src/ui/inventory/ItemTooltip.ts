@@ -1,8 +1,8 @@
-import { BucketHashes, DestinyAmmunitionType } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyAmmunitionType, ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
-import { ITEM_WEAPON_MOD } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
+import { PlugType } from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -247,24 +247,44 @@ class ItemTooltip extends Tooltip {
 		this.stats.setItem(item);
 
 		this.mods.removeContents();
-		for (const socket of item.sockets?.filter(socket => socket?.definition.plug?.plugCategoryIdentifier === "intrinsics" && Display.name(socket.definition)) ?? []) {
+		for (const socket of item.getSockets(PlugType.Intrinsic)) {
+			if (!socket.isVisible)
+				continue;
+
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
 				.appendTo(this.mods);
 
 			Component.create()
 				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
-				.style.set("--icon", Display.icon(socket?.definition))
-				.text.set(Display.name(socket?.definition))
+				.style.set("--icon", Display.icon(socket?.socketedPlug?.definition))
+				.text.set(Display.name(socket?.socketedPlug?.definition))
 				.appendTo(socketComponent);
 		}
 
-		for (const socket of item.plugs?.filter(socket => socket.some(plug => plug.definition?.plug?.plugCategoryIdentifier === "origins")) ?? []) {
+		for (const socket of this.item.getSockets(PlugType.Catalyst))
+			for (const plug of socket.plugs)
+				for (const perk of plug.perks) {
+					if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
+						continue;
+
+					const socketComponent = Component.create()
+						.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
+						.appendTo(this.mods);
+
+					Component.create()
+						.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
+						.style.set("--icon", Display.icon(perk?.definition))
+						.text.set(Display.name(perk?.definition))
+						.appendTo(socketComponent);
+				}
+
+		for (const socket of item.getSockets(PlugType.Origin)) {
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
 				.appendTo(this.mods);
 
-			for (const plug of socket.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
+			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
@@ -277,27 +297,17 @@ class ItemTooltip extends Tooltip {
 		}
 
 		let i = 0;
-		for (const socket of (item.plugs ?? [])) {
-			const isValidSocket = socket.some(plug =>
-				// filter out different socket types (a shader or something)
-				plug.definition?.itemCategoryHashes?.some(hash => hash === ITEM_WEAPON_MOD)
-				|| plug.definition?.plug?.plugCategoryIdentifier === "frames");
-
-			const isInvalidSocket = !isValidSocket || socket.some(plug =>
-				plug.definition?.plug?.plugCategoryIdentifier === "intrinsics"
-				|| plug.definition?.plug?.plugCategoryIdentifier === "origins"
-				|| plug.definition?.plug?.plugCategoryIdentifier === "v400.weapon.mod_empty"
-				|| plug.definition?.traitIds?.includes("item_type.ornament.weapon"));
-			if (isInvalidSocket)
+		for (const socket of item.getSockets(PlugType.Perk)) {
+			if (!socket)
 				continue;
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket)
-				.classes.toggle(socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
+				.classes.toggle(socket.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this.mods);
 
-			for (const plug of socket.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
+			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
@@ -305,6 +315,29 @@ class ItemTooltip extends Tooltip {
 					.append(!plug?.socketed ? undefined : Component.create()
 						.classes.add(ItemTooltipClasses.ModName)
 						.text.set(Display.name(plug.definition) ?? "Unknown"))
+					.appendTo(socketComponent);
+			}
+		}
+
+		for (const socket of item.getSockets(PlugType.Mod)) {
+			if (!socket)
+				continue;
+
+			for (const perk of socket.socketedPlug.perks) {
+				if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
+					continue;
+
+				const socketComponent = Component.create()
+					.classes.add(ItemTooltipClasses.ModSocket)
+					.style.set("--socket-index", `${i++}`)
+					.appendTo(this.mods);
+
+				Component.create()
+					.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
+					.style.set("--icon", Display.icon(perk.definition))
+					.append(Component.create()
+						.classes.add(ItemTooltipClasses.ModName)
+						.text.set(Display.descriptionIfShortOrName(perk.definition) ?? "Unknown"))
 					.appendTo(socketComponent);
 			}
 		}

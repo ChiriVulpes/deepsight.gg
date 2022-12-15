@@ -28,6 +28,18 @@ namespace Display {
 				.description;
 	}
 
+	export function descriptionIfShortOrName (displayProperties?: DisplayPropertied) {
+		if (displayProperties === undefined)
+			return undefined;
+
+		displayProperties = "displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties;
+
+		if (displayProperties.description?.length && (displayProperties.description?.length ?? 0) < 32)
+			return displayProperties.description;
+
+		return displayProperties.name;
+	}
+
 	function getIconURL (displayProperties: DestinyDisplayPropertiesDefinition) {
 		const icon = displayProperties.icon;
 		if (icon?.endsWith(".png"))

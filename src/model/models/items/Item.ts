@@ -2,8 +2,8 @@ import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemI
 import { BucketHashes, ItemState, StatHashes } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
-import type { IReusablePlug, ISocket } from "model/models/items/Plugs";
-import Plugs from "model/models/items/Plugs";
+import type { PlugType } from "model/models/items/Plugs";
+import Plugs, { Socket } from "model/models/items/Plugs";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
@@ -140,8 +140,7 @@ export interface IItemInit {
 	bucket: BucketId;
 	instance?: DestinyItemInstanceComponent;
 	objectives: DestinyObjectiveProgress[];
-	sockets?: PromiseOr<(ISocket | undefined)[]>;
-	plugs?: PromiseOr<IReusablePlug[][]>;
+	sockets?: PromiseOr<(Socket | undefined)[]>;
 	source?: DestinySourceDefinition;
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
@@ -150,8 +149,7 @@ export interface IItemInit {
 
 export interface IItem extends IItemInit {
 	equipped?: true;
-	sockets: (ISocket | undefined)[];
-	plugs: IReusablePlug[][];
+	sockets: (Socket | undefined)[];
 }
 
 export interface IItemEvents {
@@ -222,7 +220,7 @@ class Item {
 
 	public isMasterwork () {
 		return !!(this.reference.state & ItemState.Masterwork)
-			|| (this.plugs?.filter(socket => socket.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
+			|| (this.sockets?.filter(socket => socket?.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
 				.length ?? 0) >= 2;
 	}
 
@@ -254,6 +252,10 @@ class Item {
 		return this.id === item.id;
 	}
 
+	public getSockets (type: PlugType) {
+		return Socket.filterByPlugs(this.sockets, type);
+	}
+
 	public update (item: Item) {
 		this.id = item.id;
 		this.reference = item.reference;
@@ -264,7 +266,6 @@ class Item {
 		this.instance = item.instance;
 		this.objectives = item.objectives;
 		this.sockets = item.sockets;
-		this.plugs = item.plugs;
 		this.source = item.source;
 		this.deepsight = item.deepsight;
 		this.shaped = item.shaped;

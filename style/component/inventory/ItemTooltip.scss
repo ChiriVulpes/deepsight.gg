@@ -1,6 +1,4 @@
-.item-tooltip {
-	width: 400px;
-		
+.item-tooltip {		
 	@each $tier in $tiers {
 		&-tier-#{$tier} .tooltip-header {
 			background: color(tier-#{$tier}-background, .85);

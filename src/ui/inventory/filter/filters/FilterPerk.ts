@@ -13,7 +13,7 @@ export default IFilter.create({
 	colour: 0x4887ba,
 	suggestedValueHint: "perk name",
 	apply: (value, item) => {
-		return item.plugs?.some(socket => socket.some(plug => {
+		return item.sockets.some(socket => socket?.plugs.some(plug => {
 			if (!plug.definition)
 				return false;
 

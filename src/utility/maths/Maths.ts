@@ -22,6 +22,15 @@ namespace Maths {
 			result += num;
 		return result / nums.length;
 	}
+
+	export function bits (number: number) {
+		const result: number[] = [];
+		for (let i = 52; i >= 0; i--) {
+			const v = 1 << i;
+			if (number & v) result.push(v);
+		}
+		return result;
+	}
 }
 
 export default Maths;

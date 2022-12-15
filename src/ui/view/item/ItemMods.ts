@@ -11,15 +11,15 @@ export default class ItemMods extends ItemSockets {
 
 	protected override addSockets () {
 		let i = 0;
-		for (const socket of (this.item.plugs ?? [])) {
-			if (!socket.some(plug => plug.definition?.itemTypeDisplayName === "Weapon Mod"))
+		for (const socket of (this.item.sockets ?? [])) {
+			if (!socket?.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Weapon Mod"))
 				continue;
 
 			const socketComponent = this.addSocket()
 				.style.set("--socket-index", `${i++}`);
 
-			for (const plug of socket)
-				socketComponent.addOption(plug);
+			for (const plug of socket.plugs)
+				socketComponent.addPlug(plug);
 		}
 	}
 }
