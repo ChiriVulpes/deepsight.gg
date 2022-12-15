@@ -106,16 +106,22 @@ const Manifest = Model.create("manifest", {
 			console.info(`Downloading ${cacheKey}`);
 			api.emitProgress((1 + i * 2) / totalLoad, "Downloading manifest");
 
-			const data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}`)
-				.then(response => response.json())
-				.catch(err => {
-					if ((err as Error).message.includes("Access-Control-Allow-Origin")) {
-						console.warn(err);
-						return {};
-					}
+			let data: AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
+			let tryAgain = true;
+			for (let i = 0; i < 5 && tryAgain; i++) {
+				tryAgain = false;
+				data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}?corsfix=${i}`)
+					.then(response => response.json())
+					.catch(err => {
+						if ((err as Error).message.includes("Access-Control-Allow-Origin")) {
+							console.warn(`CORS error, trying again with a query string (attempt ${++i})`);
+							tryAgain = true;
+							return {};
+						}
 
-					throw err;
-				}) as AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
+						throw err;
+					}) as AllDestinyManifestComponents[keyof AllDestinyManifestComponents];
+			}
 
 			console.info(`Finished downloading ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 			startTime = performance.now();
