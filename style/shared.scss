@@ -23,7 +23,7 @@
 	font-weight: 400;
 	letter-spacing: .02em;
 	
-	@include tablet {
+	@include vertical-or-tablet {
 		--slot-size: min(78px, (100vw
 			- 120px
 			- var(--nav-height) /* nav */

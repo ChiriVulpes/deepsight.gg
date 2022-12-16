@@ -6,15 +6,23 @@
 		align-content: flex-start;
 		row-gap: 30px;
 		column-gap: 40px;
-		
-		@media (max-width: 1600px) {
-			flex-direction: row;
-		}
 	}
 	
 	.card {
 		width: max(500px, 30%);
 		max-width: 100%;
+	}
+	
+	@media (max-width: 1600px) {
+		&-content {
+			flex-direction: row;
+		}
+		
+		@media (min-width: 1080px) {
+			.card {
+				max-width: calc((100vw - var(--view-padding-x) * 2 - 40px) / 2);
+			}
+		}
 	}
 	
 	@at-root sleep:times(2), .card:times(30) {

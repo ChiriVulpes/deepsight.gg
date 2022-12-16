@@ -56,6 +56,7 @@
 		&-panel {
 			display: grid !important;
 			grid-template-rows: 0px;
+			// grid-template-rows: 20px;
 			grid-template-columns: max-content;
 			overflow: initial;
 			column-gap: 0;
@@ -120,23 +121,33 @@
 			&::before {
 				content: attr(data-name);
 				text-transform: uppercase;
-				display: block;
 				white-space: nowrap;
 				letter-spacing: 0.04em;
 				font-weight: 600;
-				padding: 0 18px;
-				opacity: 0;
+				padding: 0 8px;
+				margin-right: var(--destination-margin-x);
+				margin-left: var(--destination-margin-x);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-sizing: border-box;
+				color: color(foreground-2);
+				min-width: 77px;
 				grid-row: 1;
-				background-color: red;
+				opacity: 0;
+				// background-color: blueviolet;
+				// box-shadow: 0 -15px 0 0 green;
 			}
 			
 			&-overview::before {
 				text-transform: none;
 				padding: 0;
-				padding-right: 20px;
 				letter-spacing: inherit;
 				min-width: 130px;
+				margin-right: 15px;
+				margin-left: 0;
 				text-align: center;
+				background-color: transparent;
 			}
 		}
 		

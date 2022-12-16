@@ -85,7 +85,6 @@
 			transform: none !important;
 			
 			.item-sort, .item-filter {
-				height: var(--footer-height);
 				width: 100%;
 			
 				&-button {
@@ -93,9 +92,15 @@
 				}
 			}
 		}
+		
+		@include vertical-or-tablet-or-mobile {
+			.item-sort, .item-filter {
+				height: var(--footer-height);
+			}
+		}
 	}
 	
-	@include tablet {
+	@include vertical-or-tablet {
 		--bucket-inventory-width: calc(100vw / 3
 			- var(--view-padding-x) * 2
 		);
@@ -200,7 +205,7 @@
 			}
 		}
 		
-		@include tablet {
+		@include vertical-or-tablet {
 			&s {
 				grid-template-rows: initial;
 				grid-template-columns: repeat(3, 1fr);
@@ -460,7 +465,7 @@
 			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
 		}
 		
-		@include tablet {
+		@include vertical-or-tablet {
 			&s {
 				grid-template-rows: 1fr;
 				grid-template-columns: repeat(3, 1fr);

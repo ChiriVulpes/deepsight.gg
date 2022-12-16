@@ -37,7 +37,7 @@
 	
 	&-identity-container {
 		position: relative;
-		margin-right: 30px;
+		margin-right: 15px;
 		transition-delay: $delay * 2;
 	}
 	
@@ -81,6 +81,11 @@
 		}
 	}
 	
+	--destination-margin-x: 10px;
+	@include vertical-or-tablet-or-mobile {
+		--destination-margin-x: 3px;
+	}
+	
 	&-destinations {
 		flex-grow: 1;
 		display: flex;
@@ -95,9 +100,15 @@
 			font-size: inherit;
 			letter-spacing: .04em;
 			font-weight: 600;
-			margin-right: 20px;
+			margin-right: var(--destination-margin-x);
+			margin-left: var(--destination-margin-x);
 			text-transform: uppercase;
+			box-sizing: border-box;
+			justify-content: center;
 			padding-bottom: 4px;
+			min-width: 77px;
+			width: fit-content;
+			// background-color: blueviolet;
 			
 			&:focus-visible {
 				outline: auto;
@@ -135,6 +146,7 @@
 			&-settings {
 				margin-left: auto;
 				margin-right: 0;
+				min-width: initial;
 				&::after {
 					content: "";
 					display: block;
@@ -158,10 +170,6 @@
 		}
 		
 		@include tablet-or-mobile {
-			@at-root .app-nav-destination {
-				margin-right: 6px;
-			}
-			
 			position: fixed;
 			top: 0;
 			right: 0;
