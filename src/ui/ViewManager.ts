@@ -61,7 +61,6 @@ export default class ViewManager {
 	}
 
 	public static view?: View.WrapperComponent;
-	private static history: string[] = [];
 
 	public static defaultView = InventoryKineticView;
 
@@ -107,8 +106,9 @@ export default class ViewManager {
 			void Async.sleep(1000).then(() => oldView.remove());
 		}
 
-		this.history.push(view.hash);
-		URL.hash = view.hash;
+		if (URL.hash !== view.hash)
+			URL.hash = view.hash;
+
 		this.view = view;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).view = view;
@@ -130,10 +130,7 @@ export default class ViewManager {
 	}
 
 	public static hide () {
-		this.history.pop();
-		const previous = this.history.pop();
-		if (previous)
-			this.showByHash(previous);
+		history.back();
 	}
 
 	private static updateDocumentTitle (view: View.WrapperComponent) {
@@ -144,6 +141,12 @@ export default class ViewManager {
 		document.title = `${name} // ${APP_NAME}`;
 	}
 }
+
+window.addEventListener("popstate", event => {
+	ViewManager.showByHash(URL.hash);
+	if (!ViewManager.hasView())
+		ViewManager.showDefaultView();
+});
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 (window as any).viewManager = ViewManager;
