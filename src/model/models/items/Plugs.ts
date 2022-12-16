@@ -62,6 +62,7 @@ export enum PlugType {
 	Memento = 2 ** 11,
 	DefaultOrnament = 2 ** 12,
 	Catalyst = 2 ** 13,
+	EmptyCatalyst = 2 ** 14,
 }
 
 export interface Plug extends DestinyItemPlugBase { }
@@ -115,6 +116,9 @@ export class Plug {
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins)
 			type |= PlugType.DefaultOrnament;
+
+		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
+			type |= PlugType.EmptyCatalyst;
 
 		if (["item_type.armor", "item_type.ornament.armor", "item_type.weapon", "item_type.ornament.weapon"].some(traitId => plug.definition?.traitIds?.includes(traitId)))
 			type |= PlugType.Ornament;
