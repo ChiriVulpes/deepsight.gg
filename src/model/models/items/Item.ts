@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
 import { BucketHashes, ItemState, StatHashes } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
@@ -7,6 +7,7 @@ import Plugs, { Socket } from "model/models/items/Plugs";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
+import Tier from "model/models/items/Tier";
 import type Manifest from "model/models/Manifest";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
@@ -145,6 +146,7 @@ export interface IItemInit {
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
 	stats?: IStats;
+	tier?: DestinyItemTierTypeDefinition;
 }
 
 export interface IItem extends IItemInit {
@@ -201,6 +203,7 @@ class Item {
 			Stats.apply(manifest, profile, item),
 			Deepsight.apply(manifest, profile, item),
 			Source.apply(manifest, item),
+			Tier.apply(manifest, item),
 		]);
 
 		return new Item(item);

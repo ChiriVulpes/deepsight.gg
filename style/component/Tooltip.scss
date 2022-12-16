@@ -42,6 +42,8 @@
 		line-height: 1em;
 		grid-column: 1/3;
 		font-family: $font-title;
+		position: relative;
+		z-index: 1;
 	}
 	
 	&-subtitle {
