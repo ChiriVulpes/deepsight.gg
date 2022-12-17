@@ -1,4 +1,4 @@
-import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
+import type { AllDestinyManifestComponents, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllCustomManifestComponents } from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
@@ -8,6 +8,7 @@ import Env from "utility/Env";
 type Indices<COMPONENT_NAME extends AllComponentNames> =
 	{
 		DestinySourceDefinition: "iconWatermark" | "id";
+		DestinyInventoryItemDefinition: "iconWatermark";
 		DestinyRecordDefinition: "icon" | "name";
 	} extends infer ALL_INDICES ?
 	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
@@ -56,7 +57,7 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-4.deepsight.gg`;
+		return `${manifest.version}-5.deepsight.gg`;
 	},
 	async generate (api) {
 		await Model.cacheDB.dispose();
@@ -66,6 +67,8 @@ const Manifest = Model.create("manifest", {
 
 		const customComponents = await GetCustomManifest.query();
 		const customComponentNames = Object.keys(customComponents) as (keyof AllCustomManifestComponents)[];
+
+		const sources = Object.values(customComponents.DestinySourceDefinition);
 
 		const allComponentNames = [...bungieComponentNames, ...customComponentNames];
 
@@ -87,6 +90,10 @@ const Manifest = Model.create("manifest", {
 							store.createIndex("iconWatermark", "iconWatermark");
 						if (!store.indexNames.contains("id"))
 							store.createIndex("id", "id", { unique: true });
+						break;
+					case "manifest [DestinyInventoryItemDefinition]":
+						if (!store.indexNames.contains("iconWatermark"))
+							store.createIndex("iconWatermark", "iconWatermark");
 						break;
 					case "manifest [DestinyRecordDefinition]":
 						if (!store.indexNames.contains("icon"))
@@ -132,8 +139,24 @@ const Manifest = Model.create("manifest", {
 				await transaction.clear(cacheKey);
 
 				for (const key of Object.keys(data)) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-					await transaction.set(cacheKey, key, (data as any)[key]);
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+					const definition = (data as any)[key];
+					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
+						// fix red war items that don't have watermarks for some reason
+						const itemDef = definition as DestinyInventoryItemDefinition;
+						if (!itemDef.iconWatermark) {
+							const source = sources.find(source => source.itemHashes?.includes(itemDef.hash));
+							if (source) {
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+								(itemDef as any).iconWatermark = source.iconWatermark;
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+								(itemDef as any).iconWatermarkShelved = source.iconWatermarkShelved;
+							}
+						}
+					}
+
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+					await transaction.set(cacheKey, key, definition);
 				}
 			});
 
@@ -248,7 +271,11 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 			});
 	}
 
-	public all () {
+	public all (): Promise<Component<COMPONENT_NAME>[]>;
+	public all (index: Indices<COMPONENT_NAME>, key: string | number | null): Promise<Component<COMPONENT_NAME>[]>;
+	public all (index?: string, key?: string | number | null) {
+		if (index)
+			return Model.cacheDB.all(this.componentName, `${key!}`, index);
 		return Model.cacheDB.all(this.componentName);
 	}
 

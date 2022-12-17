@@ -3,7 +3,7 @@ import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId, DestinationBucketId } from "model/models/items/Item";
+import type { BucketId, CharacterId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
 import { PostmasterId } from "model/models/items/Item";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
@@ -153,7 +153,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public characters!: Record<CharacterId, CharacterBucket>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
 	public vaults!: Record<CharacterId, VaultBucket>;
-	public bucketEntries!: [BucketId, Bucket][];
+	public bucketEntries!: [OwnedBucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
@@ -241,7 +241,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private updateItems () {
-		this.bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [BucketId, Bucket][];
+		this.bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [OwnedBucketId, Bucket][];
 		for (const [item] of this.itemMap) {
 			if (!this.bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
 				// this item doesn't exist anymore
@@ -437,7 +437,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		return bucketId === "vault" ? Object.values(this.vaults)
 			: bucketId === "inventory" ? [this.currentCharacter]
 				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
-					: [this.characters[bucketId]];
+					: bucketId === "collections" ? []
+						: [this.characters[bucketId]];
 	}
 
 	private itemMoving?: ItemComponent;

@@ -1,6 +1,10 @@
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
+import Model from "model/Model";
 import InventoryModel from "model/models/Inventory";
-import type Item from "model/models/items/Item";
 import type { BucketId } from "model/models/items/Item";
+import Item from "model/models/items/Item";
+import Manifest from "model/models/Manifest";
+import Profile from "model/models/Profile";
 import Component from "ui/Component";
 import { ButtonClasses } from "ui/form/Button";
 import ItemComponent from "ui/inventory/Item";
@@ -8,6 +12,24 @@ import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
 import ItemIntrinsics from "ui/view/item/ItemIntrinsics";
 import ItemPerks from "ui/view/item/ItemPerks";
+
+export async function resolveItemURL (url: string) {
+	const manifest = await Manifest.await();
+	const profile = await Profile(DestinyComponentType.Records).await();
+	const inventory = await InventoryModel.createTemporary().await();
+	const { DestinyInventoryItemDefinition } = manifest;
+
+	const [bucketId, itemId] = url.split("/") as [BucketId, string];
+	if (bucketId !== "collections")
+		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
+
+	const hash = itemId.slice(5);
+	const itemDef = await DestinyInventoryItemDefinition.get(hash);
+	if (!itemDef)
+		return;
+
+	return Item.createFake(manifest, profile, itemDef);
+}
 
 enum ItemViewClasses {
 	Item = "view-item-header-item",
@@ -17,25 +39,16 @@ enum ItemViewClasses {
 }
 
 export default View.create({
-	models: [InventoryModel.createTemporary()],
+	models: (item: Item | string) => typeof item !== "string" ? [] : [Model.createTemporary(async () =>
+		resolveItemURL(item))],
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
 	noDestinationButton: true,
-	initialise: (view, inventory) => {
+	initialise: (view, itemModel) => {
 		LoadingManager.end(view.definition.id);
 
-		let [, itemArg] = view._args as [any, Item | string | undefined];
-		if (typeof itemArg === "string") {
-			const [bucketId, itemId] = itemArg.split("/") as [BucketId, string];
-			itemArg = inventory.buckets?.[bucketId].items.find(item => item.id === itemId);
-		}
-
-		if (!itemArg)
-			return;
-
-		const item = itemArg;
-		view._args[1] = item;
+		const item = view._args[1] = itemModel ?? view._args[1]! as Item;
 
 		console.log(item.definition.displayProperties.name, item);
 

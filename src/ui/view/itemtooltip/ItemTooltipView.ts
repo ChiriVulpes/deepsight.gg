@@ -1,7 +1,7 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
+import Model from "model/Model";
 import InventoryModel from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type { BucketId } from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
@@ -9,7 +9,7 @@ import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
-import ItemView from "ui/view/item/ItemView";
+import ItemView, { resolveItemURL } from "ui/view/item/ItemView";
 
 export enum ItemTooltipViewClasses {
 	Tooltip = "view-item-tooltip-tooltip",
@@ -17,26 +17,20 @@ export enum ItemTooltipViewClasses {
 	Buttons = "view-item-tooltip-buttons",
 }
 
+const tooltipViewModels = [Manifest, InventoryModel.createTemporary()] as const;
 export default View.create({
-	models: [Manifest, InventoryModel.createTemporary()] as const,
+	models: (item: Item | string) => [
+		...tooltipViewModels,
+		...typeof item !== "string" ? []
+			: [Model.createTemporary(async () => resolveItemURL(item))]] as const,
 	noDestinationButton: true,
 	id: "item-tooltip",
 	hash: (item: Item | string) => typeof item === "string" ? `item-tooltip/${item}` : `item-tooltip/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item" : item.definition.displayProperties.name,
-	initialise: async (view, manifest, inventory) => {
+	initialise: async (view, manifest, inventory, itemModel) => {
 		LoadingManager.end(view.definition.id);
 
-		let [, itemArg] = view._args as [any, Item | string | undefined];
-		if (typeof itemArg === "string") {
-			const [bucketId, itemId] = itemArg.split("/") as [BucketId, string];
-			itemArg = inventory.buckets?.[bucketId].items.find(item => item.id === itemId);
-		}
-
-		if (!itemArg)
-			return;
-
-		const item = itemArg;
-		view._args[1] = item;
+		const item = view._args[1] = itemModel ?? view._args[1]! as Item;
 
 		console.log(item.definition.displayProperties.name, item);
 		const character = inventory.getCharacter(item.character);

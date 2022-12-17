@@ -9,12 +9,8 @@ namespace Source {
 	}
 
 	async function resolve ({ DestinySourceDefinition }: Manifest, item: IItemInit) {
-		let source = await DestinySourceDefinition.get("iconWatermark", `https://www.bungie.net${item.definition.iconWatermark}`);
+		const source = await DestinySourceDefinition.get("iconWatermark", item.definition.iconWatermark);
 		if (source)
-			return source;
-
-		source = await DestinySourceDefinition.get("id", "redwar");
-		if (source?.itemHashes?.includes(item.definition.hash))
 			return source;
 
 		// skip engrams

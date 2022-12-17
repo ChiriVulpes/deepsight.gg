@@ -25,7 +25,7 @@ namespace View {
 		Omit<FROM, keyof PROVIDED> & Partial<Pick<FROM, Extract<keyof PROVIDED, keyof FROM>>>;
 
 	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
-		models?: MODELS;
+		models?: MODELS | ((...args: ARGS) => MODELS);
 		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>;
 	};
 
@@ -198,14 +198,19 @@ namespace View {
 				.classes.add(Classes.Content.replace("-", `-${this.definition.id}-`))
 				.appendTo(this);
 
-			if (this.definition.models)
-				Loadable.create(...this.definition.models)
-					.onReady((...results) => this.initialise?.(...results))
-					.classes.add(Classes.Loadable)
-					.appendTo(this);
-
-			else
+			if (!this.definition.models) {
 				this.initialise(...[] as any as Model.Resolve<MODELS>);
+				return;
+			}
+
+			let models = this.definition.models;
+			if (typeof models === "function")
+				models = models(...args);
+
+			Loadable.create(...models)
+				.onReady((...results) => this.initialise?.(...results))
+				.classes.add(Classes.Loadable)
+				.appendTo(this);
 		}
 
 		public setTitle (tweak?: (component: Component) => any) {

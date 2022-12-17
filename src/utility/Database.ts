@@ -31,8 +31,10 @@ class Database<SCHEMA> {
 		return this.transaction([store], "readonly", transaction => transaction.get(store, key, index));
 	}
 
-	public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange): Promise<SCHEMA[KEY][]> {
-		return this.transaction([store], "readonly", transaction => transaction.all(store, range));
+	public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange): Promise<SCHEMA[KEY][]>;
+	public async all<KEY extends keyof SCHEMA> (store: KEY, key: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+	public async all<KEY extends keyof SCHEMA> (store: KEY, rangeOrKey?: IDBKeyRange | string, index?: string): Promise<SCHEMA[KEY][]> {
+		return this.transaction([store], "readonly", transaction => transaction.all(store, rangeOrKey as string, index as string));
 	}
 
 	public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {
@@ -250,11 +252,22 @@ namespace Database {
 			});
 		}
 
-		public async all<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange) {
+		public async all<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
 			return this.do<SCHEMA[KEY][]>(() => {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-				return this.transaction.objectStore(name as string)
-					.getAll(range);
+				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
+
+				if (typeof rangeOrKey === "string") {
+
+					if (index !== undefined)
+						store = store.index(index);
+
+					return store.getAll(rangeOrKey);
+				}
+
+				return store.getAll(rangeOrKey);
 			});
 		}
 

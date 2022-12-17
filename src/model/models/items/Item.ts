@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
-import { BucketHashes, ItemState, StatHashes } from "bungie-api-ts/destiny2";
+import { BucketHashes, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
 import type { PlugType } from "model/models/items/Plugs";
@@ -21,7 +21,8 @@ import type { PromiseOr } from "utility/Type";
 export type CharacterId = `${bigint}`;
 export type PostmasterId = `postmaster:${CharacterId}`;
 export type DestinationBucketId = CharacterId | "vault" | "inventory";
-export type BucketId = DestinationBucketId | PostmasterId;
+export type OwnedBucketId = DestinationBucketId | PostmasterId;
+export type BucketId = OwnedBucketId | "collections";
 export namespace PostmasterId {
 	export function is (id: BucketId): id is PostmasterId {
 		return id.startsWith("postmaster:");
@@ -33,7 +34,7 @@ export namespace PostmasterId {
 }
 export namespace CharacterId {
 	export function is (id: BucketId): id is CharacterId {
-		return id !== "vault" && id !== "inventory" && !PostmasterId.is(id);
+		return id !== "vault" && id !== "inventory" && id !== "collections" && !PostmasterId.is(id);
 	}
 }
 
@@ -158,7 +159,7 @@ export interface IItemEvents {
 	update: { item: Item };
 	loadStart: Event;
 	loadEnd: Event;
-	bucketChange: { item: Item; oldBucket: BucketId; equipped?: true };
+	bucketChange: { item: Item; oldBucket: OwnedBucketId; equipped?: true };
 }
 
 namespace Item {
@@ -209,10 +210,26 @@ class Item {
 		return new Item(item);
 	}
 
+	public static async createFake (manifest: Manifest, profile: Deepsight.IDeepsightProfile, definition: DestinyInventoryItemDefinition) {
+		const item: IItemInit = {
+			id: `hash:${definition.hash}` as ItemId,
+			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
+			definition,
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			bucket: "collections" as any,
+			objectives: [],
+			sockets: [],
+		};
+
+		await Deepsight.apply(manifest, profile, item);
+
+		return new Item(item);
+	}
+
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
 	public get character () {
-		return this.bucket === "vault" || this.bucket === "inventory" ? undefined
+		return this.bucket === "vault" || this.bucket === "inventory" || this.bucket === "collections" ? undefined
 			: PostmasterId.is(this.bucket) ? PostmasterId.character(this.bucket)
 				: this.bucket;
 	}
@@ -366,7 +383,7 @@ class Item {
 				else
 					this.undoTransfers.splice(0, Infinity);
 
-				const oldBucket = this.bucket;
+				const oldBucket = this.bucket as OwnedBucketId;
 				this.bucketHistory ??= [];
 				this.bucketHistory.push(oldBucket);
 

@@ -371,8 +371,8 @@ class ItemTooltip extends Tooltip {
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
 		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
-		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram, Classes.Hidden);
-		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram, Classes.Hidden);
+		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram || item.bucket === "collections", Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
 		this.hintInspect.classes.toggle(isEngram, Classes.Hidden);
 	}

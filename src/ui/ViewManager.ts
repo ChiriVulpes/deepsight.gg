@@ -3,6 +3,7 @@ import type Model from "model/Model";
 import type Item from "model/models/items/Item";
 import View from "ui/View";
 import AuthView from "ui/view/AuthView";
+import CollectionsView from "ui/view/collections/CollectionsView";
 import ErrorView from "ui/view/ErrorView";
 import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/InventoryChestView";
@@ -35,6 +36,7 @@ const registry = Object.fromEntries([
 	InventoryChestView,
 	InventoryLegsView,
 	InventoryClassItemView,
+	CollectionsView,
 	SettingsView,
 	ItemView,
 	ErrorView,

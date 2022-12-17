@@ -1,0 +1,15 @@
+.view-collections {
+	&-bucket {
+		&-details {
+			position: relative;
+			
+			@at-root sleep, &:times(100) {
+				@include view-swipe-animation;
+			}
+		}
+		
+		display: flex;
+		flex-wrap: wrap;
+		min-height: calc(var(--slot-size) * 2);
+	}
+}

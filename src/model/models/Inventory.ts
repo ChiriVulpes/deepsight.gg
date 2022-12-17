@@ -5,7 +5,7 @@ import { ProfileCharacters } from "model/models/Characters";
 import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId, ItemId } from "model/models/items/Item";
+import type { CharacterId, ItemId, OwnedBucketId } from "model/models/items/Item";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
@@ -38,7 +38,7 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 	public readonly event = new EventManager<this, IInventoryModelEvents>(this);
 
 	public items?: Record<ItemId, Item>;
-	public buckets?: Record<BucketId, Bucket>;
+	public buckets?: Record<OwnedBucketId, Bucket>;
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
 
@@ -102,7 +102,7 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 		return this as Required<this>;
 	}
 
-	private updateItems (buckets: Record<BucketId, Bucket>) {
+	private updateItems (buckets: Record<OwnedBucketId, Bucket>) {
 		this.items ??= {};
 		this.buckets = buckets;
 		for (const [bucketId, bucket] of Object.entries(this.buckets)) {
@@ -116,11 +116,11 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 					newItem.event.subscribe("bucketChange", ({ item, oldBucket, equipped }) => {
 						// and on its bucket changing, remove it from its old bucket and put it in its new one
 						Arrays.remove(this.buckets![oldBucket]?.items, item);
-						this.buckets![item.bucket].items.push(item);
+						this.buckets![item.bucket as OwnedBucketId].items.push(item);
 
 						// if this item is equipped now, make the previously equipped item not equipped
 						if (equipped)
-							for (const potentiallyEquippedItem of this.buckets![item.bucket].items)
+							for (const potentiallyEquippedItem of this.buckets![item.bucket as OwnedBucketId].items)
 								if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
 									delete potentiallyEquippedItem.equipped;
 					});
@@ -128,11 +128,11 @@ export default class InventoryModel implements IItemComponentCharacterHandler {
 				this.items[newItem.id] = newItem;
 
 				if (newItem.bucket !== bucketId) {
-					this.buckets[newItem.bucket].items.push(newItem);
-					this.buckets[bucketId as BucketId].items.splice(i, 1);
+					this.buckets[newItem.bucket as OwnedBucketId].items.push(newItem);
+					this.buckets[bucketId as OwnedBucketId].items.splice(i, 1);
 					i--;
 				} else {
-					this.buckets[bucketId]!.items[i] = this.items[newItem.id] = newItem;
+					this.buckets[bucketId as OwnedBucketId]!.items[i] = this.items[newItem.id] = newItem;
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyDisplayPropertiesDefinition, DestinyEventCardDefinition } from "bungie-api-ts/destiny2";
 import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 
 export interface DestinySourceDefinition {
@@ -6,7 +6,8 @@ export interface DestinySourceDefinition {
 	displayProperties: DestinyDisplayPropertiesDefinition;
 	iconWatermark: string;
 	iconWatermarkShelved?: string;
-	event?: true;
+	event?: true | number;
+	eventCard?: DestinyEventCardDefinition;
 	expansion?: true;
 	season?: number;
 	year?: number;

@@ -7,7 +7,7 @@ $animation-delay-global: null;
 	@each $selector in $split-selectors {
 		$selector: str-trim($selector);
 		$added: false;
-		@for $i from 1 to 100 {
+		@for $i from 1 to 1000 {
 			@if str-ends-with($selector, ":times(#{$i})") {
 				$added: true;
 				$selector: str-slice($selector, 1, str-length($selector) - str-length(":times(#{$i})"));

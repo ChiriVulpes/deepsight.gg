@@ -143,8 +143,14 @@
 				}
 			}
 			
-			&-settings {
+			&-collections {
 				margin-left: auto;
+				@include vertical-or-tablet-or-mobile {
+					display: none;
+				}
+			}
+			
+			&-settings {
 				margin-right: 0;
 				min-width: initial;
 				&::after {
