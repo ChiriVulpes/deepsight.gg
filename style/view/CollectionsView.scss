@@ -2,6 +2,9 @@
 	&-bucket {
 		&-details {
 			position: relative;
+			&:not(.details-closed) {
+				min-height: calc(var(--slot-size) * 2);
+			}
 			
 			@at-root sleep, &:times(100) {
 				@include view-swipe-animation;
@@ -10,6 +13,5 @@
 		
 		display: flex;
 		flex-wrap: wrap;
-		min-height: calc(var(--slot-size) * 2);
 	}
 }
