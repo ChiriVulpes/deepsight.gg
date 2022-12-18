@@ -332,7 +332,7 @@
 		"id": "lost",
 		"displayProperties": {
 			"name": "Season of the Lost",
-			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_265abf1e776ea726de1f1459392727b6.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_265abf1e776ea726de1f1459392727b6.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/4368a3e344977c5551407845ede830c2.png",
 		"season": 15,
@@ -343,7 +343,7 @@
 		"id": "30th",
 		"displayProperties": {
 			"name": "Bungie 30th Anniversary",
-			"icon": "/common/destiny2_content/icons/80362442a7f4bee0beca7ad100e5dbbf.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/80362442a7f4bee0beca7ad100e5dbbf.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/dd4dd93c5606998595d9e5a06d5bfc9c.png",
 		"expansion": true,
@@ -353,7 +353,7 @@
 		"id": "witchqueen",
 		"displayProperties": {
 			"name": "Witch Queen",
-			"icon": "/common/destiny2_content/icons/e17d13013bad7d53c47b0231b9784e1e.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/e17d13013bad7d53c47b0231b9784e1e.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/4fe83598190610f122497d22579a1fd9.png",
 		"iconWatermarkShelved": "/common/destiny2_content/icons/d05833668bcb5ae25344dd4538b1e0b2.png",
@@ -364,7 +364,7 @@
 		"id": "risen",
 		"displayProperties": {
 			"name": "Season of the Risen",
-			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_0f47a186cf0cb88d2388d811a6ec89cb.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_0f47a186cf0cb88d2388d811a6ec89cb.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/b0406992c49c84bdc5febad94048dc01.png",
 		"season": 16,
@@ -375,7 +375,7 @@
 		"id": "haunted",
 		"displayProperties": {
 			"name": "Season of the Haunted",
-			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_3847a7f2241ce39588bfc2c85239b055.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_3847a7f2241ce39588bfc2c85239b055.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/81edbfbf0bacf8e2117c00d1d6115f1b.png",
 		"season": 17,
@@ -386,7 +386,7 @@
 		"id": "plunder",
 		"displayProperties": {
 			"name": "Season of Plunder",
-			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/f359d68324ae21522c299983ff1ef9f2.png",
 		"season": 18,
@@ -397,7 +397,7 @@
 		"id": "seraph",
 		"displayProperties": {
 			"name": "Season of the Seraph",
-			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
 		},
 		"iconWatermark": "/common/destiny2_content/icons/1a68ada4fb21371c5f2b7e2eae1ebce8.png",
 		"season": 19,
