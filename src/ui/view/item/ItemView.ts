@@ -1,6 +1,6 @@
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import InventoryModel from "model/models/Inventory";
+import Inventory from "model/models/Inventory";
 import type { BucketId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
@@ -16,7 +16,7 @@ import ItemPerks from "ui/view/item/ItemPerks";
 export async function resolveItemURL (url: string) {
 	const manifest = await Manifest.await();
 	const profile = await Profile(DestinyComponentType.Records).await();
-	const inventory = await InventoryModel.createTemporary().await();
+	const inventory = await Inventory.createTemporary().await();
 	const { DestinyInventoryItemDefinition } = manifest;
 
 	const [bucketId, itemId] = url.split("/") as [BucketId, string];

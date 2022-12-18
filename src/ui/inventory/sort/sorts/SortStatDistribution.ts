@@ -1,5 +1,5 @@
 import { DestinyClass } from "bungie-api-ts/destiny2";
-import InventoryModel from "model/models/Inventory";
+import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
@@ -75,7 +75,7 @@ export default ISort.create({
 	shortName: "Stats",
 	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,
 	render: item => IStatDistribution.get(item).overall <= 0 ? undefined : StatDistributionDisplay.create([item]),
-	renderSortableOptions: (wrapper, update) => Loadable.create(InventoryModel.createTemporary())
+	renderSortableOptions: (wrapper, update) => Loadable.create(Inventory.createTemporary())
 		.onReady(inventory => {
 			const container = Component.create();
 

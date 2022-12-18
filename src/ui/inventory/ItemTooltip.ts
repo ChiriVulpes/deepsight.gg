@@ -192,13 +192,13 @@ class ItemTooltip extends Tooltip {
 		if (item.source?.displayProperties.icon)
 			this.source.style.set("--icon", `url("${item.source.displayProperties.icon}")`);
 
-		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash);
+		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
 
 		const primaryStat = item.getPower();
 		this.primaryStat
-			.classes.toggle(!primaryStat, Classes.Hidden)
+			.classes.toggle(!primaryStat && damageType === undefined, Classes.Hidden)
 			.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
-			.text.set(`${primaryStat}`)
+			.text.set(`${primaryStat || character?.power || "0"}`)
 			.style.remove("--icon")
 			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
 

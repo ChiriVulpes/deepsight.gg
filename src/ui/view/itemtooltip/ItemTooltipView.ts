@@ -1,6 +1,6 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import InventoryModel from "model/models/Inventory";
+import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
@@ -17,7 +17,7 @@ export enum ItemTooltipViewClasses {
 	Buttons = "view-item-tooltip-buttons",
 }
 
-const tooltipViewModels = [Manifest, InventoryModel.createTemporary()] as const;
+const tooltipViewModels = [Manifest, Inventory.createTemporary()] as const;
 export default View.create({
 	models: (item: Item | string) => [
 		...tooltipViewModels,

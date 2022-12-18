@@ -2,6 +2,7 @@ import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass, ItemCategoryHashes, TierType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Collections from "model/models/Collections";
+import Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import Sources from "model/models/Sources";
 import Display from "ui/bungie/DisplayProperties";
@@ -18,10 +19,10 @@ export enum CollectionsViewClasses {
 }
 
 export default View.create({
-	models: [Manifest, Sources] as const,
+	models: [Manifest, Sources, Inventory.createTemporary()] as const,
 	id: "collections",
 	name: "Collections",
-	initialise: (view, manifest, sources) => {
+	initialise: (view, manifest, sources, inventory) => {
 		view.setTitle(title => title.text.set("Collections"));
 
 		let shownExpansion = false;
@@ -64,7 +65,7 @@ export default View.create({
 								|| (Display.name(a.definition) ?? "").localeCompare(Display.name(b.definition) ?? ""))
 							.map(item => Component.create()
 								.classes.add(InventoryClasses.Slot)
-								.append(ItemComponent.create([item]))));
+								.append(ItemComponent.create([item, inventory]))));
 				})
 				.setSimple()
 				.appendTo(details);

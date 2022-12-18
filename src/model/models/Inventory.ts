@@ -14,25 +14,25 @@ import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
 interface IInventoryModelEvents {
-	update: InventoryModel;
+	update: Inventory;
 	dispose: Event;
 }
 
 Model.event.subscribe("clearCache", () => {
-	InventoryModel["INSTANCE"]?.event.emit("dispose");
-	clearInterval(InventoryModel["INSTANCE"]?.["interval"]);
-	delete InventoryModel["INSTANCE"];
+	Inventory["INSTANCE"]?.event.emit("dispose");
+	clearInterval(Inventory["INSTANCE"]?.["interval"]);
+	delete Inventory["INSTANCE"];
 });
 
-export default class InventoryModel implements IItemComponentCharacterHandler {
+export default class Inventory implements IItemComponentCharacterHandler {
 
-	private static INSTANCE?: InventoryModel;
+	private static INSTANCE?: Inventory;
 	public static get () {
-		return InventoryModel.INSTANCE ??= new InventoryModel();
+		return Inventory.INSTANCE ??= new Inventory();
 	}
 
 	public static createTemporary () {
-		return Model.createTemporary(async progress => InventoryModel.get().await(progress));
+		return Model.createTemporary(async progress => Inventory.get().await(progress));
 	}
 
 	public readonly event = new EventManager<this, IInventoryModelEvents>(this);
