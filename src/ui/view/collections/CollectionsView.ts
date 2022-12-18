@@ -1,5 +1,6 @@
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass, ItemCategoryHashes, TierType } from "bungie-api-ts/destiny2";
+import Model from "model/Model";
 import Collections from "model/models/Collections";
 import Manifest from "model/models/Manifest";
 import Sources from "model/models/Sources";
@@ -48,7 +49,12 @@ export default View.create({
 				.tweak(details => details.summary.text.set(source.displayProperties.name))
 				.appendTo(view.content);
 
-			Loadable.create(Collections.source(source))
+			Loadable.create(Model.createTemporary(async () => {
+				if (!defaultOpen)
+					await details.event.waitFor("toggle");
+
+				return Collections.source(source).await();
+			}))
 				.onReady(items => {
 					console.log(source.displayProperties.name, items);
 					return Component.create()
