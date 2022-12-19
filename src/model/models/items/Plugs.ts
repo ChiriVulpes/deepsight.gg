@@ -1,29 +1,37 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketState, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import { ItemCategoryHashes, PlugCategoryHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import type Manifest from "model/models/Manifest";
 import Maths from "utility/maths/Maths";
 import Objects from "utility/Objects";
 
-export interface Socket extends DestinyItemSocketState { }
+export interface Socket extends Socket.ISocketInit {
+}
+
 export class Socket {
 
 	public static filterByPlugs (sockets: (Socket | undefined)[], type: PlugType) {
 		const types = Maths.bits(type) as PlugType[];
-		return sockets.filter((socket): socket is SocketSocketed => types.every(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
+		return sockets.filter((socket): socket is Socket.Socketed => types.every(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
 	}
 
 	public static filterExcludePlugs (sockets: (Socket | undefined)[], type: PlugType) {
 		const types = Maths.bits(type) as PlugType[];
-		return sockets.filter((socket): socket is SocketSocketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
+		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
 	}
 
-	public static async resolve (manifest: Manifest, socketState: DestinyItemSocketState, plugs: DestinyItemPlugBase[]) {
-		const socket = Objects.inherit(socketState, Socket);
+	public static async resolve (manifest: Manifest, init: Socket.ISocketInit) {
+		const socket = Objects.inherit(init, Socket);
+
+		const { DestinyPlugSetDefinition } = manifest;
+		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash))
+			.then(plugSet => plugSet?.reusablePlugItems ?? []);
+
 		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
-		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === socket.plugHash);
-		if (!socketedPlug && socket.plugHash !== undefined) {
-			socketedPlug = await Plug.resolveFromHash(manifest, socket.plugHash, socket.isEnabled);
+		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
+		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
+		if (!socketedPlug && currentPlugHash !== undefined) {
+			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true);
 			if (socketedPlug)
 				socket.plugs.push(socketedPlug);
 		}
@@ -42,9 +50,20 @@ export class Socket {
 	private constructor () { }
 }
 
-export interface SocketSocketed extends Socket {
-	socketedPlug: Plug;
+export namespace Socket {
+
+	export interface Socketed extends Socket {
+		socketedPlug: Plug;
+	}
+
+	export interface ISocketInit {
+		definition: DestinyItemSocketEntryDefinition;
+		state?: DestinyItemSocketState;
+		category?: DestinyItemSocketCategoryDefinition;
+		plugs: DestinyItemPlugBase[];
+	}
 }
+
 
 export enum PlugType {
 	None = 0,
@@ -78,8 +97,8 @@ export class Plug {
 		});
 	}
 
-	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase) {
-		const plug = Objects.inherit(plugBase, Plug);
+	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
+		const plug = Objects.inherit({ ...plugBase }, Plug);
 		plug.socketed = false;
 		const { DestinyInventoryItemDefinition } = manifest;
 		plug.definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
@@ -178,9 +197,16 @@ namespace Plugs {
 	}
 
 	export async function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {
-		const sockets = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
+		const { socketCategories, /*intrinsicSockets,*/ socketEntries } = item.definition.sockets ?? {};
+		const states = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
 		const plugs = profile.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? [];
-		return item.sockets = Promise.all(sockets.map((socket, i) => Socket.resolve(manifest, socket, plugs[i] ?? [])))
+		return item.sockets = Promise.all((socketEntries ?? [])
+			.map(async (definition, i) => Socket.resolve(manifest, {
+				definition,
+				state: states[i],
+				category: socketCategories?.find(category => category.socketIndexes.includes(i)),
+				plugs: plugs[i] ?? [],
+			})))
 			.then(sockets => {
 				item.sockets = sockets;
 				return sockets;

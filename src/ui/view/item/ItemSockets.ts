@@ -58,7 +58,7 @@ export default abstract class ItemSockets extends Card<[Item]> {
 
 	protected addSockets (...sockets: Socket[]) {
 		for (const socket of sockets) {
-			if (socket.isVisible) {
+			if (socket.state?.isVisible !== false) {
 				const socketComponent = this.addSocket()
 					.classes.add(...this.socketClasses);
 
@@ -75,7 +75,7 @@ export default abstract class ItemSockets extends Card<[Item]> {
 
 	protected addPerks (...sockets: Socket[]) {
 		for (const socket of sockets) {
-			if (socket.isVisible) {
+			if (socket.state?.isVisible !== false) {
 				for (const plug of socket.plugs)
 					for (const perk of plug.perks) {
 						if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)

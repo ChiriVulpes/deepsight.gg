@@ -381,6 +381,7 @@
 		position: relative;
 		display: flex;
 		align-items: center;
+		gap: .5em;
 		
 		&-socket {
 			display: grid;
@@ -390,6 +391,10 @@
 			padding: var(--tooltip-padding);
 			padding-top: var(--mod-padding);
 			padding-bottom: var(--mod-padding);
+			
+			&-definition {
+				display: flex;
+			}
 		
 			&-enhanced {
 				box-shadow: inset 1px 0 color(tooltip-background), inset 4px 0 #D4B73C;
@@ -446,10 +451,6 @@
 			background: var(--icon);
 			background-size: contain;
 			background-repeat: no-repeat;
-		}
-		
-		&-socketed::before {
-			margin-right: .5em;
 		}
 	}
 	

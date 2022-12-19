@@ -34,6 +34,7 @@ enum ItemTooltipClasses {
 	Mod = "item-tooltip-mod",
 	ModSocket = "item-tooltip-mod-socket",
 	ModSocketEnhanced = "item-tooltip-mod-socket-enhanced",
+	ModSocketDefinition = "item-tooltip-mod-socket-definition",
 	ModSocketed = "item-tooltip-mod-socketed",
 	ModName = "item-tooltip-mod-name",
 	Intrinsic = "item-tooltip-mod-intrinsic",
@@ -248,7 +249,7 @@ class ItemTooltip extends Tooltip {
 
 		this.mods.removeContents();
 		for (const socket of item.getSockets(PlugType.Intrinsic)) {
-			if (!socket.isVisible)
+			if (socket.state?.isVisible === false || !socket.socketedPlug.definition?.displayProperties.name)
 				continue;
 
 			const socketComponent = Component.create()
@@ -303,16 +304,21 @@ class ItemTooltip extends Tooltip {
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipClasses.ModSocket)
-				.classes.toggle(socket.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
+				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
+				.classes.toggle(socket.state === undefined, ItemTooltipClasses.ModSocketDefinition)
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this.mods);
 
 			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
+				if (!socket.state && plug.is(PlugType.Enhanced))
+					// skip enhanced perks (duplicates) if this is an item definition (ie no actual socket state)
+					continue;
+
 				Component.create()
 					.classes.add(ItemTooltipClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
 					.style.set("--icon", Display.icon(plug.definition))
-					.append(!plug?.socketed ? undefined : Component.create()
+					.append(!plug?.socketed || (!socket.state && socket.plugs.length > 1) ? undefined : Component.create()
 						.classes.add(ItemTooltipClasses.ModName)
 						.text.set(Display.name(plug.definition) ?? "Unknown"))
 					.appendTo(socketComponent);

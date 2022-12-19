@@ -210,7 +210,7 @@ class Item {
 		return new Item(item);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Deepsight.IDeepsightProfile, definition: DestinyInventoryItemDefinition) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile, definition: DestinyInventoryItemDefinition) {
 		const item: IItemInit = {
 			id: `hash:${definition.hash}` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
@@ -221,7 +221,10 @@ class Item {
 			sockets: [],
 		};
 
-		await Deepsight.apply(manifest, profile, item);
+		await Promise.all([
+			Deepsight.apply(manifest, profile, item),
+			Plugs.apply(manifest, profile, item),
+		]);
 
 		return new Item(item);
 	}
@@ -240,8 +243,10 @@ class Item {
 
 	public isMasterwork () {
 		return !!(this.reference.state & ItemState.Masterwork)
-			|| (this.sockets?.filter(socket => socket?.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
-				.length ?? 0) >= 2;
+			|| (!!this.instance
+				&& (this.sockets
+					?.filter(socket => socket?.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
+					.length ?? 0) >= 2);
 	}
 
 	public hasDeepsight () {
