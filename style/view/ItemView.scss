@@ -232,4 +232,56 @@
 			}
 		}
 	}
+	
+	&-definition &-perks &-socket {
+		
+		&s-container {
+			display: flex;
+			flex-direction: column;
+  			writing-mode: vertical-lr;
+			// justify-content: space-between;
+			gap: 40px;
+		}
+		
+		position: relative;
+		flex-direction: row;
+		flex-wrap: wrap;
+		max-height: calc((3.8em + 9px * 2) * 5 + 5px);
+		width: fit-content;
+		gap: 8px;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: calc(100% + 19px);
+			left: -21px;
+			background: currentColor;
+			opacity: .1;
+		}
+		
+		&-plug {
+			grid-template-columns: auto;
+			max-width: initial;
+			padding: 5px;
+			flex-grow: 0;
+			flex-basis: initial;
+  			writing-mode: horizontal-tb;
+			background: transparent;
+			
+			&-name, &-description {
+				display: none;
+			}
+			
+			.button-icon-inner {
+				margin-right: 0;
+			}
+			
+			&, &::before {
+				border-radius: 100px;
+			}
+		}
+	}
 }

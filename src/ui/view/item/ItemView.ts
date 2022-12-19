@@ -33,6 +33,7 @@ export async function resolveItemURL (url: string) {
 
 enum ItemViewClasses {
 	Item = "view-item-header-item",
+	ItemDefinition = "view-item-definition",
 	FlavourText = "view-item-flavour-text",
 	PerksModsTraits = "view-item-perks-mods-traits",
 	Stats = "view-item-stats",
@@ -52,7 +53,8 @@ export default View.create({
 
 		console.log(item.definition.displayProperties.name, item);
 
-		view.setTitle(title => title.text.set(item.definition.displayProperties.name))
+		view.classes.toggle(!item.instance, ItemViewClasses.ItemDefinition)
+			.setTitle(title => title.text.set(item.definition.displayProperties.name))
 			.setSubtitle(subtitle => subtitle.text.set(item.definition.itemTypeDisplayName))
 			.tweak(view => view.header
 				.prepend(ItemComponent.create([item])
