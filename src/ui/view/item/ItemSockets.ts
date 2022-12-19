@@ -62,9 +62,13 @@ export default abstract class ItemSockets extends Card<[Item]> {
 				const socketComponent = this.addSocket()
 					.classes.add(...this.socketClasses);
 
-				for (const plug of socket.plugs)
+				for (const plug of socket.plugs) {
+					if (!socket.state && plug.is(PlugType.Enhanced))
+						continue;
+
 					socketComponent.addPlug(plug, undefined, this.item)
 						.classes.add(...this.plugClasses);
+				}
 			}
 		}
 	}
@@ -76,7 +80,10 @@ export default abstract class ItemSockets extends Card<[Item]> {
 	protected addPerks (...sockets: Socket[]) {
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
-				for (const plug of socket.plugs)
+				for (const plug of socket.plugs) {
+					if (!socket.state && plug.is(PlugType.Enhanced))
+						continue;
+
 					for (const perk of plug.perks) {
 						if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
 							continue;
@@ -87,6 +94,7 @@ export default abstract class ItemSockets extends Card<[Item]> {
 						socketComponent.addPlug(plug, perk, this.item)
 							.classes.add(...this.plugClasses);
 					}
+				}
 			}
 		}
 	}

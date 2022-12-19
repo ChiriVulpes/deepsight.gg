@@ -6,7 +6,7 @@ import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import Component from "ui/Component";
-import { ButtonClasses } from "ui/form/Button";
+import Button, { ButtonClasses } from "ui/form/Button";
 import ItemComponent from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
@@ -37,9 +37,11 @@ enum ItemViewClasses {
 	FlavourText = "view-item-flavour-text",
 	PerksModsTraits = "view-item-perks-mods-traits",
 	Stats = "view-item-stats",
+	ButtonViewInCollections = "view-item-button-view-in-collections",
+	ButtonWishlistPerks = "view-item-button-wishlist-perks",
 }
 
-export default View.create({
+const ItemView = View.create({
 	models: (item: Item | string) => typeof item !== "string" ? [] : [Model.createTemporary(async () =>
 		resolveItemURL(item))],
 	id: "item",
@@ -52,6 +54,10 @@ export default View.create({
 		const item = view._args[1] = itemModel ?? view._args[1]! as Item;
 
 		console.log(item.definition.displayProperties.name, item);
+
+		function viewInCollections () {
+			ItemView.show(`collections/hash:${item.definition.hash}`);
+		}
 
 		view.classes.toggle(!item.instance, ItemViewClasses.ItemDefinition)
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
@@ -67,10 +73,24 @@ export default View.create({
 			.tweak(view => view.content
 				.append(Component.create()
 					.classes.add(ItemViewClasses.PerksModsTraits)
-					.append(ItemPerks.create([item]))
+					.append(ItemPerks.create([item])
+						.tweak(perks => !item.instance ? undefined : perks.title
+							.append(Button.create()
+								.classes.add(ItemViewClasses.ButtonWishlistPerks)
+								.text.set("Wishlist Perks")
+								.event.subscribe("click", viewInCollections))))
 					// .append(ItemMods.create([item]))
 					.append(ItemIntrinsics.create([item])))
 				.append(Component.create()
 					.classes.add(ItemViewClasses.Stats)));
+
+		if (item.instance)
+			Button.create()
+				.classes.add(ItemViewClasses.ButtonViewInCollections)
+				.text.set("View in Collections")
+				.event.subscribe("click", viewInCollections)
+				.appendTo(view.header);
 	},
 });
+
+export default ItemView;

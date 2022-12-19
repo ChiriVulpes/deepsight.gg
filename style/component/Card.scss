@@ -70,6 +70,7 @@
 			height: calc(100% - var(--card-title-height));
 			z-index: 1;
 			background: red;
+			pointer-events: none;
 		}
 	}
 	

@@ -65,6 +65,8 @@
 	}
 	
 	.card {
+		padding-right: 15px;
+		
 		&-title {
 			background: none;
 			box-shadow: none;
@@ -78,9 +80,11 @@
 			font-family: $font-title;
 			font-size: 14pt;
 			font-weight: 200;
-			opacity: .5;
 			border-bottom: 2px solid currentColor;
 			padding-left: 0;
+			padding-right: 0;
+			color: color(foreground-0, .5);
+			padding-top: 10px;
 		}
 		
 		&-header {
@@ -280,6 +284,30 @@
 			
 			&, &::before {
 				border-radius: 100px;
+			}
+		}
+	}
+	
+	&-button {
+		&-view-in-collections {
+			position: absolute;
+			top: 0;
+			right: var(--view-padding-x);
+		}
+		
+		&-wishlist-perks {
+			background: none;
+			padding: 0 8px;
+			border: none;
+			text-transform: uppercase;
+			color: color(accent-0);
+			font-weight: 800;
+			margin: 0;
+			margin-left: auto;
+			margin-right: -8px;
+			
+			&:where(:focus-within, :hover) {
+				color: color(foreground-0);
 			}
 		}
 	}
