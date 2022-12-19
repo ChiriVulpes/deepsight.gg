@@ -76,6 +76,6 @@ export default View.create({
 function getSortIndex (item: Item) {
 	return (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 10000 : 0)
 		+ (item.definition.inventory?.tierType ?? TierType.Unknown) * 1000
-		+ (item.deepsight?.pattern ? item.deepsight.pattern.progress.complete ? 100 : 500 : 0)
+		+ (item.deepsight?.pattern ? item.deepsight.pattern.progress.complete ? 0 : 500 : 100)
 		+ (item.definition.classType ?? DestinyClass.Unknown);
 }
