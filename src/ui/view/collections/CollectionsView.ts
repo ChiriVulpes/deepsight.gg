@@ -1,8 +1,8 @@
-import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass, ItemCategoryHashes, TierType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Collections from "model/models/Collections";
 import Inventory from "model/models/Inventory";
+import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Sources from "model/models/Sources";
 import Display from "ui/bungie/DisplayProperties";
@@ -61,7 +61,7 @@ export default View.create({
 					return Component.create()
 						.classes.add(CollectionsViewClasses.Bucket)
 						.append(...items
-							.sort((a, b) => getSortIndex(b.definition) - getSortIndex(a.definition)
+							.sort((a, b) => getSortIndex(b) - getSortIndex(a)
 								|| (Display.name(a.definition) ?? "").localeCompare(Display.name(b.definition) ?? ""))
 							.map(item => Component.create()
 								.classes.add(InventoryClasses.Slot)
@@ -73,8 +73,9 @@ export default View.create({
 	},
 });
 
-function getSortIndex (item: DestinyInventoryItemDefinition) {
-	return (item.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 10000 : 0)
-		+ (item.inventory?.tierType ?? TierType.Unknown) * 1000
-		+ (item.classType ?? DestinyClass.Unknown);
+function getSortIndex (item: Item) {
+	return (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 10000 : 0)
+		+ (item.definition.inventory?.tierType ?? TierType.Unknown) * 1000
+		+ (item.deepsight?.pattern ? item.deepsight.pattern.progress.complete ? 100 : 500 : 0)
+		+ (item.definition.classType ?? DestinyClass.Unknown);
 }
