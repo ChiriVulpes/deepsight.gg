@@ -120,7 +120,7 @@
 			text-align: left;
 			background: none;
 			border-color: color(foreground-0, .3);
-			backdrop-filter: blur(3px);
+			// backdrop-filter: blur(3px);
 			margin: 0;
 			
 			display: grid;
@@ -239,7 +239,6 @@
 			display: flex;
 			flex-direction: column;
   			writing-mode: vertical-lr;
-			// justify-content: space-between;
 			gap: 40px;
 		}
 		
