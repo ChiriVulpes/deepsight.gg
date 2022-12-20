@@ -1,17 +1,43 @@
 .view-collections {
-	&-bucket {
-		&-details {
-			position: relative;
-			&:not(.details-closed) {
-				min-height: calc(var(--slot-size) * 2);
-			}
-			
-			@at-root sleep, &:times(100) {
-				@include view-swipe-animation;
-			}
+	&-source {
+		position: relative;
+		&:not(.details-closed) {
+			min-height: calc(var(--slot-size) * 2);
 		}
 		
+		@at-root sleep, &:times(100) {
+			@include view-swipe-animation;
+		}
+		
+		.details-summary {
+			font-size: 16pt;
+		}
+		
+		&-content {
+			display: flex;
+			flex-direction: row;
+			gap: 20px;
+		}
+	}
+		
+	&-bucket {
 		display: flex;
 		flex-wrap: wrap;
+    	height: fit-content;
+		
+		&-title {
+			flex-basis: 100%;
+			opacity: .5;
+			padding-bottom: 5px;
+			padding-left: 3px;
+			text-transform: uppercase;
+			font-family: $font-title;
+			letter-spacing: .2em;
+			pointer-events: none;
+			user-select: none;
+			&::before {
+				content: "// ";
+			}
+		}
 	}
 }
