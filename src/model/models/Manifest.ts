@@ -3,6 +3,7 @@ import Model from "model/Model";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllCustomManifestComponents } from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
 import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
+import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 import Env from "utility/Env";
 
 type Indices<COMPONENT_NAME extends AllComponentNames> =
@@ -57,7 +58,7 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-5.deepsight.gg`;
+		return `${manifest.version}-7.deepsight.gg`;
 	},
 	async generate (api) {
 		await Model.cacheDB.dispose();
@@ -138,20 +139,25 @@ const Manifest = Model.create("manifest", {
 			await Model.cacheDB.transaction([cacheKey], async transaction => {
 				await transaction.clear(cacheKey);
 
+				const replaceWatermarksByItemHash: Record<number, DestinySourceDefinition> = cacheKey !== "manifest [DestinyInventoryItemDefinition]" ? {}
+					: Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
+						.map(itemHash => [itemHash, source])));
+
 				for (const key of Object.keys(data)) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 					const definition = (data as any)[key];
 					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
 						// fix red war items that don't have watermarks for some reason
 						const itemDef = definition as DestinyInventoryItemDefinition;
-						if (!itemDef.iconWatermark) {
-							const source = sources.find(source => source.itemHashes?.includes(itemDef.hash));
-							if (source) {
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-								(itemDef as any).iconWatermark = source.iconWatermark;
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-								(itemDef as any).iconWatermarkShelved = source.iconWatermarkShelved;
-							}
+						const replacementSource = replaceWatermarksByItemHash[itemDef.hash];
+						if (replacementSource) {
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							(itemDef as any).iconWatermark = replacementSource.iconWatermark;
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							(itemDef as any).iconWatermarkShelved = replacementSource.iconWatermarkShelved;
+						} else if (!itemDef.iconWatermark && itemDef.quality?.displayVersionWatermarkIcons.length) {
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							(itemDef as any).iconWatermark = itemDef.quality.displayVersionWatermarkIcons[0];
 						}
 					}
 

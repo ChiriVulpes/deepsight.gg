@@ -180,7 +180,7 @@ class ItemTooltip extends Tooltip {
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.removeWhere(cls => cls.startsWith("item-tooltip-tier-"))
-			.classes.add(`item-tooltip-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
+			.classes.add(`item-tooltip-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
 			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork);
 
 		this.title.text.set(Display.name(item.definition));

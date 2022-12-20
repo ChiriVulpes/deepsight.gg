@@ -1,4 +1,11 @@
 {
+	"-1": {
+		"id": "destiny2",
+		"displayProperties": {
+			"name": "Destiny 2"
+		},
+		"iconWatermark": "/common/destiny2_content/icons/4b6352a0fa6f68cd2b8ce5c3ba18747c.png"
+	},
 	"0": {
 		"id": "dawning",
 		"displayProperties": {
@@ -57,90 +64,59 @@
 		"year": 1,
 		"seasonHash": 965757574,
 		"itemHashes": [
-			102368695,
-			193869523,
-			3297872976,
-			1345867570,
-			4190156464,
-			4124984448,
-			3089417789,
-			3628991658,
-			3381022971,
-			3381022970,
-			3381022969,
-			3787517196,
-			760584029,
-			2984725960,
-			4136768282,
-			775812602,
-			1418191156,
-			1418191156,
-			138282166,
-			3883866764,
-			241462141,
-			1591207518,
-			1591207519,
-			385985080,
-			623912054,
-			1160559849,
-			3539357319,
-			4258405681,
-			3539357318,
-			950899352,
-			3487922223,
-			581237363,
-			426283548,
-			685157383,
-			293622383,
-			3853748946,
-			2891979647,
-			685157381,
-			3351378128,
-			1643912408,
-			2907129556,
-			1321354573,
-			1030017949,
-			3580904581,
-			1734144409,
-			2362471600,
-			3628991659,
-			903984858,
-			193869522,
-			370930766,
-			241462142,
-			4255268456,
-			1321354572,
-			896224899,
-			193869520,
-			3141979346,
-			3580904580,
-			1508896098,
-			20158663,
-			2082483156,
-			475652357,
-			1331482397,
-			3549153979,
-			2766109872,
-			3844826443,
-			2362471601,
-			3844826440,
-			1345867571,
-			3141979347,
-			3549153978,
-			2766109874,
-			2907129557,
-			4124984448,
-			901647822,
-			2783831726,
-			2563444729,
-			1835885085,
-			1192890598,
-			3216110440,
-			1889156236,
-			477057676,
-			20859173,
-			3671791220,
-			3959529854
+			193869523, // orpheus rig
+			1345867570, // sweet business
+			4190156464, // merciless
+			4124984448, // hard light
+			3089417789, // riskrunner
+			3628991658, // graviton lance
+			3381022971, // nezarec's sin
+			3381022970, // eye of another world
+			3381022969, // crown of tempests
+			3787517196, // sunbracers
+			4136768282, // lunafaction boots
+			138282166, // transversive steps
+			3883866764, // mask of the quiet one
+			241462141, // doom fang pauldron
+			1591207518, // actium war rig
+			1591207519, // crest of alpha lupi
+			1160559849, // dunemarchers
+			3539357319, // peacekeepers
+			3539357318, // lion rampant
+			2907129556, // sturm
+			1321354573, // celestial nighthawk
+			1030017949, // skull of dire ahamkara
+			3580904581, // tractor cannon
+			1734144409, // mechaneer's tricksleeves
+			2362471600, // drang
+			3628991659, // vigilance wing
+			903984858, // lucky raspberry
+			193869522, // lucky pants
+			370930766, // wings of sacred dawn
+			241462142, // synthoceps
+			4255268456, // skyburner's oath
+			1321354572, // knucklehead radar
+			896224899, // foetracer
+			193869520, // st0mp-EE5
+			3141979346, // d.a.r.c.i.
+			3580904580, // legend of acrius
+			1508896098, // the wardcliff coil
+			2082483156, // starfire protocol
+			475652357, // young ahamkara's spine
+			1331482397, // mida multi-tool
+			3549153979, // the prospector
+			2766109872, // raiden flux
+			3844826443, // winter's guile
+			2362471601, // rat king
+			3844826440, // karnstein armlets
+			1345867571, // coldheart
+			3141979347, // borealis
+			3549153978, // fighting lion
+			2766109874, // the dragon's shadow
+			2907129557, // sunshot
+			2563444729, // acd/0 feedback fence
+			1192890598, // hallowfire heart
+			3216110440 // an insurmountable skullfort
 		]
 	},
 	"6": {
@@ -272,7 +248,10 @@
 		"iconWatermark": "/common/destiny2_content/icons/3d335ddc3ec6668469aae60baad8548d.png",
 		"season": 10,
 		"year": 3,
-		"seasonHash": 2809059425
+		"seasonHash": 2809059425,
+		"itemHashes": [
+			102368695 // anti-extinction mask (hunter helm)
+		]
 	},
 	"17": {
 		"id": "arrivals",
@@ -304,7 +283,12 @@
 		"iconWatermark": "/common/destiny2_content/icons/2347cc2407b51e1debbac020bfcd0224.png",
 		"season": 12,
 		"year": 4,
-		"seasonHash": 2809059427
+		"seasonHash": 2809059427,
+		"itemHashes": [
+			623912054, // kerak type 2 (titan legs)
+			1418191156, // the beyond (warlock bond)
+			760584029 // philomath gloves (warlock)
+		]
 	},
 	"20": {
 		"id": "chosen",
@@ -337,7 +321,19 @@
 		"iconWatermark": "/common/destiny2_content/icons/4368a3e344977c5551407845ede830c2.png",
 		"season": 15,
 		"year": 4,
-		"seasonHash": 2809059428
+		"seasonHash": 2809059428,
+		"itemHashes": [
+			2783831726, // retro-grade tg2 (titan helm)
+			385985080, // devastation complex (titan chest)
+			775812602, // be thy cipher (warlock bond)
+			901647822, // heiro camo (warlock arms)
+			2984725960, // heiro camo (warlock legs)
+			3671791220, // road complex aa1 (hunter arms)
+			1889156236, // road complex aa1 (hunter chest)
+			3959529854, // road complex aa1 (hunter legs)
+			1835885085, // dead end cure 2.1 (hunter chest)
+			3297872976 // far gone hood (hunter cloak)
+		]
 	},
 	"23": {
 		"id": "30th",
@@ -369,7 +365,15 @@
 		"iconWatermark": "/common/destiny2_content/icons/b0406992c49c84bdc5febad94048dc01.png",
 		"season": 16,
 		"year": 5,
-		"seasonHash": 2809059431
+		"seasonHash": 2809059431,
+		"itemHashes": [
+			// move hunter armour from the witch queen source to the risen source to match other classes' armours
+			3056950148,
+			4144240158,
+			3473867303,
+			4017738218,
+			2516879931
+		]
 	},
 	"26": {
 		"id": "haunted",

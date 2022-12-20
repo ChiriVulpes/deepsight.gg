@@ -24,6 +24,7 @@
 		display: flex;
 		flex-wrap: wrap;
     	height: fit-content;
+		min-width: calc(var(--slot-size) * 2);
 		
 		&-title {
 			flex-basis: 100%;
@@ -35,6 +36,8 @@
 			letter-spacing: .2em;
 			pointer-events: none;
 			user-select: none;
+			width: fit-content;
+			white-space: nowrap;
 			&::before {
 				content: "// ";
 			}

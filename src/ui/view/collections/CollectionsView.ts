@@ -76,13 +76,14 @@ export default View.create({
 					const wrapper = Component.create()
 						.classes.add(CollectionsViewClasses.SourceContent);
 
-					Component.create()
-						.classes.add(CollectionsViewClasses.Bucket)
-						.append(Component.create()
-							.classes.add(CollectionsViewClasses.BucketTitle)
-							.text.set("Weapons"))
-						.tweak(addItems, weapons, inventory)
-						.appendTo(wrapper);
+					if (weapons.length)
+						Component.create()
+							.classes.add(CollectionsViewClasses.Bucket)
+							.append(Component.create()
+								.classes.add(CollectionsViewClasses.BucketTitle)
+								.text.set("Weapons"))
+							.tweak(addItems, weapons, inventory)
+							.appendTo(wrapper);
 
 					const classes = [DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock]
 						.sort((a, b) => (inventory.sortedCharacters?.findIndex(character => character.classType === a) ?? 0)

@@ -124,7 +124,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
-		this.classes.add(`item-tier-${(tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
+		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
 		const ornament = item.getSockets(PlugType.Ornament)[0];
 

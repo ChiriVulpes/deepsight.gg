@@ -26,7 +26,7 @@ function getSortIndex (source: DestinySourceDefinition) {
 	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 	const eventCardEndTime = +source.eventCard?.endTime!;
 	if (eventCardEndTime && eventCardEndTime * 1000 > Date.now())
-		return Infinity; // event gets sorted highest
+		return Infinity; // current event gets sorted highest
 
 	return source.hash;
 }
