@@ -269,10 +269,23 @@
 		}
 		
 		background: var(--background);
-		font-family: $font-title;
 		margin: 0;
 		text-transform: uppercase;
 		border: none;
+		display: grid;
+		grid-template-rows: auto auto;
+		justify-items: flex-start;
+		
+		&-class-name {
+			font-family: $font-title;
+		}
+		
+		&-power {
+			justify-self: flex-start;
+			opacity: .6;
+			font-size: .95em;
+			font-weight: 500;
+		}
 		
 		&::after {
 			content: "";

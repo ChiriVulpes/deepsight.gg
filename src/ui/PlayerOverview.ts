@@ -35,6 +35,8 @@ export enum PlayerOverviewClasses {
 	Panel = "player-overview-drawer-panel",
 	CharacterButtons = "player-overview-character-buttons",
 	CharacterButton = "player-overview-character-button",
+	CharacterButtonPower = "player-overview-character-button-power",
+	CharacterButtonClassName = "player-overview-character-button-class-name",
 	Slot = "player-overview-slot",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
@@ -129,7 +131,11 @@ namespace PlayerOverview {
 					.classes.add(PlayerOverviewClasses.CharacterButton)
 					.classes.toggle(first, ButtonClasses.Selected)
 					.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
-					.text.set(Display.name(character.class))
+					.append(BaseComponent.create()
+						.text.set(Display.name(character.class))
+						.classes.add(PlayerOverviewClasses.CharacterButtonClassName))
+					.append(ItemPowerLevel.create([character.light])
+						.classes.add(PlayerOverviewClasses.CharacterButtonPower))
 					.event.subscribe("click", () => {
 						this.character = character.characterId as CharacterId;
 						this.drawer.showPanel(panel);
