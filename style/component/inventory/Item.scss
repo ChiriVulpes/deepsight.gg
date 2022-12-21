@@ -136,7 +136,7 @@
 		}
 	}
 	
-	@mixin pattern-icon($background) {
+	@mixin icon($icon, $color) {
 		position: absolute;
 		inset: 0;
 		filter: drop-shadow(0 1px 0 #0006);
@@ -148,30 +148,58 @@
 			left: 6%;
 			width: 20%;
 			height: 20%;
-			background: $background;
-			-webkit-mask-image: url("/image/svg/shaped.svg");
+			background: $color;
+			-webkit-mask-image: $icon;
 			-webkit-mask-size: contain;
 			-webkit-mask-repeat: no-repeat;
-			mask-image: url("/image/svg/shaped.svg");
+			mask-image: $icon;
 			mask-size: contain;
 			mask-repeat: no-repeat;
-		}
-	}
-	
-	&-shaped {
-		background-image: url("/image/shaped.png");
-		> * {
-			@include pattern-icon(color(shaped));
 		}
 	}
 	
 	&-wishlist {
 		box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border),
 					inset 0 0 0 4px color(wishlist-tooltip-border, .5);
+					
+		> * {
+			@include icon(url("/image/svg/wishlisted.svg"), color(foreground-0));
+		}
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			border-bottom: calc(var(--slot-size) * .45) solid color(wishlist-tooltip-border);
+			border-right: calc(var(--slot-size) * .45) solid transparent;
+		}
 						
 		&-no-match {
 			box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border-no-match),
 						inset 0 0 0 4px color(wishlist-tooltip-border-no-match, .5);
+					
+			> * {
+				@include icon(url("/image/svg/delete.svg"), color(background-3));
+			}
+		
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				border-bottom: calc(var(--slot-size) * .45) solid color(wishlist-tooltip-border-no-match);
+				border-right: calc(var(--slot-size) * .45) solid transparent;
+			}
+		}
+	}
+	
+	&-shaped {
+		background-image: url("/image/shaped.png");
+		> * {
+			@include icon(url("/image/svg/shaped.svg"), color(shaped));
 		}
 	}
 	
@@ -209,11 +237,11 @@
 		}
 		
 		&-pattern:not(&-pattern-unlocked) {
-			@include pattern-icon(color(foreground));
+			@include icon(url("/image/svg/shaped.svg"), color(foreground));
 		}
 			
 		&-pattern-unlocked {
-			@include pattern-icon(color(background-3));
+			@include icon(url("/image/svg/shaped.svg"), color(background-3));
 		}
 	}
 	

@@ -11,6 +11,7 @@ import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
+import Store from "utility/Store";
 
 export enum ItemClasses {
 	Main = "item",
@@ -166,7 +167,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 		}
 
-		const wishlisted = item.instance && await item.isWishlisted();
+		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
 		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
@@ -174,14 +175,16 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
-		else if (wishlisted)
+		else if (wishlisted && Store.items.settingsDisplayWishlistedHighlights)
 			Component.create()
 				.classes.add(ItemClasses.Wishlist)
+				.append(Component.create())
 				.appendTo(this);
 
-		if (wishlisted === false)
+		if (wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights)
 			Component.create()
 				.classes.add(ItemClasses.WishlistNoMatch)
+				.append(Component.create())
 				.appendTo(this);
 
 		if (!item.shaped) {

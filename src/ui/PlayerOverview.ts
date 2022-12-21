@@ -236,7 +236,7 @@ namespace PlayerOverview {
 					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
 					.appendTo(slotComponent);
 
-				const equippedPower = equippedItem.instance?.primaryStat.value ?? 0;
+				const equippedPower = equippedItem.instance?.primaryStat?.value ?? 0;
 				ItemPowerLevel.create([equippedPower, equippedPower - Math.floor(maximisedPower)])
 					.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerEquipped)
 					.appendTo(slotComponent);
@@ -263,7 +263,7 @@ namespace PlayerOverview {
 					.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
 					.appendTo(slotComponent);
 
-				const highestPowerPower = highestPowerItem.instance?.primaryStat.value ?? 0;
+				const highestPowerPower = highestPowerItem.instance?.primaryStat?.value ?? 0;
 				ItemPowerLevel.create([highestPowerPower, highestPowerPower - Math.floor(maximisedPower)])
 					.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
 					.appendTo(slotComponent);

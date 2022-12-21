@@ -37,5 +37,19 @@ export default class SettingsInformationDisplay extends Card<[]> {
 			.event.subscribe("update", ({ checked }) =>
 				Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns = checked ? true : undefined)
 			.appendTo(this.content);
+
+		Checkbox.create([Store.items.settingsDisplayWishlistedHighlights])
+			.tweak(checkbox => checkbox.label.text.set("Highlight Items Matching Wishlists"))
+			.tweak(checkbox => checkbox.description.text.set("Items that exactly match a wishlist you've created will be highlighted with a teal border."))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsDisplayWishlistedHighlights = checked ? true : undefined)
+			.appendTo(this.content);
+
+		Checkbox.create([!Store.items.settingsDisableDisplayNonWishlistedHighlights])
+			.tweak(checkbox => checkbox.label.text.set("Highlight Items Not Matching Wishlists"))
+			.tweak(checkbox => checkbox.description.text.set("Items that do not match wishlists you've created will be highlighted with a lime border."))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsDisplayWishlistedHighlights = !checked ? true : undefined)
+			.appendTo(this.content);
 	}
 }

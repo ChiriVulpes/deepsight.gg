@@ -223,12 +223,36 @@
 	
 	&-wishlist {
 		font-size: 15px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		
+		&::before {
+			content: "";
+			display: block;
+			width: .85em;
+			height: .85em;
+			background: currentColor;
+			-webkit-mask-image: url("/image/svg/delete.svg");
+			-webkit-mask-size: contain;
+			-webkit-mask-repeat: no-repeat;
+			mask-image: url("/image/svg/delete.svg");
+			mask-size: contain;
+			mask-repeat: no-repeat;
+			position: relative;
+			top: 1px;
+		}
 		
 		background: color(wishlist-tooltip-background-no-match, .85);
 		border-color: color(wishlist-tooltip-border-no-match);
 		&ed {
 			background: color(wishlist-tooltip-background, .85);
 			border-color: color(wishlist-tooltip-border);
+			
+			&::before {
+				-webkit-mask-image: url("/image/svg/wishlisted.svg");
+				mask-image: url("/image/svg/wishlisted.svg");
+			}
 		}
 	}
 		

@@ -379,7 +379,7 @@ class ItemTooltip extends Tooltip {
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
-		const wishlists = !item.instance ? false : await item.getMatchingWishlists();
+		const wishlists = !item.instance || item.shaped ? false : await item.getMatchingWishlists();
 		this.wishlist.classes.toggle(wishlists === false, Classes.Hidden);
 		if (wishlists !== false)
 			this.wishlist.classes.toggle(wishlists.length > 0, ItemTooltipClasses.Wishlisted)
