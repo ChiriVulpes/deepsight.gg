@@ -173,7 +173,7 @@ namespace TooltipManager {
 		const switchTooltipDirection = reversed && event.clientX < switchTooltipAt
 			|| !reversed && event.clientX > window.innerWidth - switchTooltipAt;
 
-		if (switchTooltipDirection) {
+		if (switchTooltipDirection && [...tooltipSurface.element.children].some(tooltip => !tooltip.classList.contains(Classes.Hidden))) {
 			tooltipSurface.classes.toggle(TooltipClasses.Reversed);
 			reversed = !reversed;
 		}
