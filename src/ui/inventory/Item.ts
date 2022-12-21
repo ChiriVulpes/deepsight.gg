@@ -166,7 +166,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 		}
 
-		const wishlisted = await item.isWishlisted();
+		const wishlisted = item.instance && await item.isWishlisted();
 		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
