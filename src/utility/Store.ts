@@ -1,6 +1,16 @@
 import { EventManager } from "utility/EventManager";
 
-export interface ILocalStorage {
+export interface IItemPerkWishlist {
+	name: string;
+	plugs: number[];
+}
+
+type WishlistKey = `item${number}PerkWishlists`;
+type ILocalStorageBase = {
+	[key in WishlistKey]?: IItemPerkWishlist[];
+}
+
+export interface ILocalStorage extends ILocalStorageBase {
 	bungieAuthCode?: string;
 	bungieAccessToken?: string;
 	bungieAccessTokenExpireTime?: number;

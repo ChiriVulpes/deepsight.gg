@@ -26,8 +26,10 @@ export default class Drawer extends Component {
 	private openReasons!: Set<string>;
 	public closeButton!: Button;
 	public backButton!: Button;
+	public focusOnClick!: boolean;
 
 	protected override onMake (): void {
+		this.focusOnClick = true;
 		this.panels = new Set();
 		this.openReasons = new Set();
 
@@ -35,7 +37,7 @@ export default class Drawer extends Component {
 			.attributes.add("inert")
 			.attributes.set("tabindex", "0")
 			.event.subscribe("mousedown", event => {
-				if (!(event.target as HTMLElement).closest("button, input")) {
+				if (!(event.target as HTMLElement).closest("button, input") && this.focusOnClick) {
 					window.getSelection()?.removeAllRanges();
 					// focus the drawer 
 					this.element.focus();

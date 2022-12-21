@@ -54,6 +54,11 @@ $colors: (
 	button-icon-foreground-hover: color(--foreground-1),
 	button-icon-foreground-active: color(--foreground-3),
 	
+	input-background: color(--background-4),
+	input-background-active: color(--background-2),
+	input-border: color(--foreground-1),
+	input-border-active: color(--foreground-3),
+	
 	tooltip-header-background: rgba(var(--background-4-rgb), .85),
 	tooltip-background-alt: rgba(var(--background-3-rgb), .85),
 	tooltip-background: rgba(var(--background-0-rgb), .85),
@@ -62,6 +67,7 @@ $colors: (
 	perk: #559acf,
 	perk-tooltip-background: #5c90b8,
 	perk-exotic: #9b8f65,
+	perk-wishlisted: #53af90,
 	
 	deepsight: #D2513B,
 	deepsight-tooltip-border: #f0631e,

@@ -15,12 +15,16 @@ export enum ItemSocketsClasses {
 	SocketsContainer = "view-item-sockets-container",
 	Socket = "view-item-socket",
 	Plug = "view-item-socket-plug",
+	PlugSelected = "view-item-socket-plug-selected",
 	PlugName = "view-item-socket-plug-name",
 	PlugDescription = "view-item-socket-plug-description",
 	PlugEnhanced = "view-item-socket-plug-enhanced",
 	PlugEffects = "view-item-socket-plug-effects",
 	PlugExotic = "view-item-socket-plug-exotic",
 	Socketed = "view-item-socket-plug-socketed",
+	Header = "view-item-sockets-header",
+	Title = "view-item-sockets-title",
+	TitleButton = "view-item-sockets-title-button",
 }
 
 export default abstract class ItemSockets extends Card<[Item]> {
@@ -34,7 +38,10 @@ export default abstract class ItemSockets extends Card<[Item]> {
 	protected override async onMake (item: Item) {
 		super.onMake(item);
 		this.item = item;
-		this.title.text.set(this.getTitle());
+		this.classes.add(ItemSocketsClasses.Main);
+		this.header.classes.add(ItemSocketsClasses.Header);
+		this.title.classes.add(ItemSocketsClasses.Title)
+			.text.set(this.getTitle());
 
 		this.addedSockets = [];
 		await this.initialise();
@@ -53,14 +60,17 @@ export default abstract class ItemSockets extends Card<[Item]> {
 	protected abstract initialise (): void | Promise<void>;
 
 	protected addSocketsByPlugType (type: PlugType) {
-		this.addSockets(...this.item.getSockets(type));
+		return this.addSockets(...this.item.getSockets(type));
 	}
 
 	protected addSockets (...sockets: Socket[]) {
+		const components: ItemSocket[] = [];
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
 				const socketComponent = this.addSocket()
 					.classes.add(...this.socketClasses);
+
+				components.push(socketComponent);
 
 				for (const plug of socket.plugs) {
 					if (!socket.state && plug.is(PlugType.Enhanced))
@@ -71,13 +81,17 @@ export default abstract class ItemSockets extends Card<[Item]> {
 				}
 			}
 		}
+
+		return components;
 	}
 
 	protected addPerksByPlugType (type: PlugType) {
-		this.addPerks(...this.item.getSockets(type));
+		return this.addPerks(...this.item.getSockets(type));
 	}
 
 	protected addPerks (...sockets: Socket[]) {
+		const components: ItemSocket[] = [];
+
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
 				for (const plug of socket.plugs) {
@@ -91,12 +105,16 @@ export default abstract class ItemSockets extends Card<[Item]> {
 						const socketComponent = this.addSocket()
 							.classes.add(...this.socketClasses);
 
+						components.push(socketComponent);
+
 						socketComponent.addPlug(plug, perk, this.item)
 							.classes.add(...this.plugClasses);
 					}
 				}
 			}
 		}
+
+		return components;
 	}
 
 	protected addSocket (initialiser?: (socket: ItemSocket) => any) {
@@ -112,8 +130,12 @@ export default abstract class ItemSockets extends Card<[Item]> {
 }
 
 export class ItemSocket extends Component<HTMLElement, []> {
+
+	public plugs!: ItemPlug[];
+
 	protected override onMake (): void {
 		this.classes.add(ItemSocketsClasses.Socket);
+		this.plugs = [];
 	}
 
 	public addPlug (plug?: Plug, perk?: Perk, item?: Item, initialiser?: (plug: ItemPlug) => any): ItemPlug;
@@ -124,9 +146,12 @@ export class ItemSocket extends Component<HTMLElement, []> {
 		const item = typeof itemOrInitialiser === "function" ? undefined : itemOrInitialiser;
 		initialiser = typeof perkOrInitialiser === "function" ? perkOrInitialiser : typeof itemOrInitialiser === "function" ? itemOrInitialiser : initialiser;
 
-		return ItemPlug.create([plug, perk, item])
+		const component = ItemPlug.create([plug, perk, item])
 			.tweak(initialiser)
 			.appendTo(this);
+
+		this.plugs.push(component);
+		return component;
 	}
 }
 
@@ -135,6 +160,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 	public label!: Component<HTMLLabelElement>;
 	public description!: Component;
 	public effects!: Component;
+	public hash!: number;
 
 	protected override onMake (plug?: Plug, perk?: Perk, item?: Item): void {
 		super.onMake();
@@ -158,6 +184,8 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 	}
 
 	public using (plug: Plug, perk?: Perk, item?: Item) {
+		this.hash = perk?.definition.hash ?? plug.definition?.hash ?? -1;
+
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
 			.classes.toggle((plug.is(PlugType.Intrinsic) || plug.is(PlugType.Catalyst)) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
 			.classes.toggle(plug.is(PlugType.Enhanced) || plug.is(PlugType.Catalyst) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugEnhanced)

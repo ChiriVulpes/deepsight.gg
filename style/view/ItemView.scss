@@ -39,6 +39,7 @@
 		font-style: italic;
 		grid-column: 1/3;
 		max-width: 520px;
+		margin: .5em 0;
 		
 		@include mobile {
 			margin: .5em 0;
@@ -64,43 +65,67 @@
 		}
 	}
 	
-	.card {
-		padding-right: 15px;
-		
-		&-title {
-			background: none;
-			box-shadow: none;
-			backdrop-filter: none;
-			&::after {
-				opacity: 0;
-			}
-			
-			justify-content: flex-start;
-			letter-spacing: inherit;
-			font-family: $font-title;
-			font-size: 14pt;
-			font-weight: 200;
-			border-bottom: 2px solid currentColor;
-			padding-left: 0;
-			padding-right: 0;
-			color: color(foreground-0, .5);
-			padding-top: 10px;
-		}
-		
-		&-header {
-			background: none;
-			-webkit-mask-image: none;
-			mask-image: none;
-			
-			&::before, &::after {
-				content: none;
-			}
-		}
-	}
-	
 	&-socket {
-		&s-container {
-			width: 100%;
+		&s {
+			padding-right: 15px;
+			
+			&-header {
+				background: none;
+				-webkit-mask-image: none;
+				mask-image: none;
+				
+				&::before, &::after {
+					content: none;
+				}
+			}
+			
+			&-title {
+				background: none;
+				box-shadow: none;
+				backdrop-filter: none;
+				&::after {
+					opacity: 0;
+				}
+				
+				justify-content: flex-start;
+				letter-spacing: inherit;
+				font-family: $font-title;
+				font-size: 14pt;
+				font-weight: 200;
+				border-bottom: 2px solid currentColor;
+				padding-left: 0;
+				padding-right: 0;
+				color: color(foreground-0, .5);
+				padding-top: 10px;
+				
+				&-button {
+					background: none;
+					padding: 0 8px;
+					border: none;
+					text-transform: uppercase;
+					color: color(accent-0);
+					font-weight: 800;
+					letter-spacing: .1em;
+					margin: 0;
+					margin-left: auto;
+					
+					&:where(:focus-visible, :hover) {
+						color: color(foreground-0);
+					}
+					
+					& ~ & {
+						margin-left: 8px;
+					}
+					
+					&:last-child {
+						margin-right: -8px;
+					}
+				}
+			}
+			
+			&-container {
+				width: 100%;
+			}
 		}
 		
 		display: flex;
@@ -237,54 +262,64 @@
 		}
 	}
 	
-	&-definition &-perks &-socket {
-		
-		&s-container {
-			display: flex;
-			flex-direction: column;
-  			writing-mode: vertical-lr;
-			gap: 40px;
+	&-definition &-perks {
+		.view-item-socket {
+			
+			&s-container {
+				display: flex;
+				flex-direction: column;
+				writing-mode: vertical-lr;
+				gap: 40px;
+			}
+			
+			position: relative;
+			flex-direction: row;
+			flex-wrap: wrap;
+			max-height: calc((3.8em + 9px * 2) * 5 + 5px);
+			width: fit-content;
+			gap: 8px;
+			
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				right: calc(100% + 19px);
+				left: -21px;
+				background: currentColor;
+				opacity: .1;
+			}
+			
+			&-plug {
+				grid-template-columns: auto;
+				max-width: initial;
+				padding: 5px;
+				flex-grow: 0;
+				flex-basis: initial;
+				writing-mode: horizontal-tb;
+				background: color(perk, .85);
+				
+				&-name, &-description {
+					display: none;
+				}
+				
+				.button-icon-inner {
+					margin-right: 0;
+				}
+				
+				&, &::before {
+					border-radius: 100px;
+				}
+			}
 		}
 		
-		position: relative;
-		flex-direction: row;
-		flex-wrap: wrap;
-		max-height: calc((3.8em + 9px * 2) * 5 + 5px);
-		width: fit-content;
-		gap: 8px;
-		
-		&::before {
-			content: "";
-			display: block;
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			right: calc(100% + 19px);
-			left: -21px;
-			background: currentColor;
-			opacity: .1;
-		}
-		
-		&-plug {
-			grid-template-columns: auto;
-			max-width: initial;
-			padding: 5px;
-			flex-grow: 0;
-			flex-basis: initial;
-  			writing-mode: horizontal-tb;
+		@at-root :is(#{&}-wishlisting, #{&}-viewing-wishlist) .view-item-socket-plug:not(.view-item-socket-plug-selected) {
 			background: transparent;
-			
-			&-name, &-description {
-				display: none;
-			}
-			
-			.button-icon-inner {
-				margin-right: 0;
-			}
-			
-			&, &::before {
-				border-radius: 100px;
-			}
+		}
+		
+		@at-root :is(#{&}-wishlisting, #{&}-viewing-wishlist) .view-item-socket-plug-selected {
+			background: color(perk-wishlisted, .85);
 		}
 	}
 	
@@ -294,20 +329,173 @@
 			top: 0;
 			right: var(--view-padding-x);
 		}
-		
-		&-wishlist-perks {
-			background: none;
-			padding: 0 8px;
-			border: none;
-			text-transform: uppercase;
-			color: color(accent-0);
-			font-weight: 800;
-			margin: 0;
+	}
+	
+	&-perks-wishlist {
+		&-container {
 			margin-left: auto;
-			margin-right: -8px;
+			position: relative;
+		}
+		
+		&-button-add {
+			.view-item-perks:not(.view-item-perks-wishlisting) &-plus-icon {
+				position: relative;
+				width: .75em;
+				height: .75em;
+				margin-right: .3em;
+				
+				&::before, &::after {
+					content: "";
+					display: block;
+					background: currentColor;
+					width: 2px;
+					height: 2px;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+				}
+				
+				&::before {
+					height: 100%;
+				}
+				
+				&::after {
+					width: 100%;
+				}
+			}
 			
-			&:where(:focus-within, :hover) {
+			&.button-selected {
+				background: color(input-background-active, .85);
+				box-shadow: 0 0 0 7px color(input-background-active, .85);
+			}
+			
+			.view-item-perks-wishlisting & {
+				width: 200px;
+			}
+		}
+		
+		&-name-input {
+			background: none;
+			border: none;
+			font: inherit;
+			color: inherit;
+			letter-spacing: inherit;
+			outline: none;
+			flex-grow: 1;
+			text-transform: none;
+			
+			&:focus {
 				color: color(foreground-0);
+			}
+		}
+		
+		&-button-confirm {
+			position: absolute;
+			top: 50%;
+			right: 8px;
+			transform: translateY(-50%);
+			align-self: center;
+			display: grid;
+			width: 1em;
+			height: 1em;
+			padding: 0;
+			background: none;
+			border: none;
+			margin: 0;
+			opacity: 0;
+			pointer-events: none;
+			
+			&-icon {
+				grid-column: 1;
+				grid-row: 1;
+				display: block;
+				border: 2px solid currentColor;
+				border-top: none;
+				border-left: none;
+				width: 40%;
+				height: 80%;
+				margin-top: -5px;
+				position: relative;
+				transform: rotate(45deg);
+				align-self: center;
+				justify-self: center;
+			}
+			
+			.view-item-perks-wishlisting & {
+				opacity: 1;
+				pointer-events: all;
+			}
+		}
+		
+		&-drawer {
+			position: absolute;
+			top: -7px;
+			right: -16px;
+			left: initial;
+			padding: 10px !important;
+			padding-top: 41px !important;
+			height: 300px;
+			min-width: 200px;
+			display: flex;
+			flex-direction: column;
+			
+			.drawer-close {
+				display: none;
+			}
+			
+			&.hidden {
+				opacity: 0;
+				height: 0px;
+			}
+			
+			&-wishlist {
+				display: grid;
+				grid-template-columns: 1fr auto;
+				align-content: flex-start;
+				
+				&-title, &-remove {
+					background: none;
+					border: none;
+				}
+				
+				&-title {
+					grid-row: 1;
+					grid-column: 1/3;
+				}
+				
+				&-remove {
+					grid-row: 1;
+					grid-column: 2;
+					align-self: center;
+					display: grid;
+					width: 1em;
+					height: 1em;
+					padding: 0;
+					
+					&-icon {
+						display: contents;
+						&::before, &::after {
+							content: "";
+							grid-column: 1;
+							grid-row: 1;
+							display: block;
+							width: 100%;
+							height: 100%;
+							margin: auto;
+							transform: rotate(45deg);
+							transform-origin: center;
+							background: white;
+						}
+						
+						&::before {
+							height: 2px;
+						}
+						&::after {
+							width: 2px;
+						}
+					}
+				}
 			}
 		}
 	}

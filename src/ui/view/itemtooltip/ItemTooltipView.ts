@@ -22,7 +22,7 @@ export default View.create({
 	models: (item: Item | string) => [
 		...tooltipViewModels,
 		...typeof item !== "string" ? []
-			: [Model.createTemporary(async () => resolveItemURL(item))]] as const,
+			: [Model.createTemporary(async api => resolveItemURL(item, api))]] as const,
 	noDestinationButton: true,
 	id: "item-tooltip",
 	hash: (item: Item | string) => typeof item === "string" ? `item-tooltip/${item}` : `item-tooltip/${item.bucket}/${item.id}`,

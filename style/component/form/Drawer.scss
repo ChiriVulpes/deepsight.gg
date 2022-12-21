@@ -6,7 +6,7 @@
 	bottom: 0;
 	height: max-content;
 	max-height: 70vh;
-	@include transition(in, top, bottom, max-height, padding);
+	@include transition(in, top, bottom, max-height, padding, opacity, height);
 	overflow: hidden;
 	user-select: none;
 	-webkit-user-select: none;
