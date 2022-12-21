@@ -167,12 +167,21 @@
 		}
 	}
 	
-	&-deepsight {
+	&-deepsight, &-wishlist {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 		background: color(deepsight-tooltip-background, .85);
 		border: 2px solid color(deepsight-tooltip-border);
+		border-left: none;
+		border-right: none;
+		padding: var(--tooltip-padding);
+	}
+	
+	&-deepsight {
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
 		border-left: none;
 		border-right: none;
 		padding: var(--tooltip-padding);
@@ -209,6 +218,17 @@
 				gap: .5em;
 				opacity: .5;
 			}
+		}
+	}
+	
+	&-wishlist {
+		font-size: 15px;
+		
+		background: color(wishlist-tooltip-background-no-match, .85);
+		border-color: color(wishlist-tooltip-border-no-match);
+		&ed {
+			background: color(wishlist-tooltip-background, .85);
+			border-color: color(wishlist-tooltip-border);
 		}
 	}
 		

@@ -29,6 +29,8 @@ export enum ItemClasses {
 	DeepsightPattern = "item-deepsight-pattern",
 	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
 	DeepsightAttuned = "item-deepsight-attuned",
+	Wishlist = "item-wishlist",
+	WishlistNoMatch = "item-wishlist-no-match",
 	Extra = "item-extra",
 	Loading = "item-loading",
 }
@@ -164,11 +166,22 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 		}
 
+		const wishlisted = await item.isWishlisted();
 		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
 				.append(Component.create()
 					.classes.add(ItemClasses.MasterworkSpinny))
+				.appendTo(this);
+
+		else if (wishlisted)
+			Component.create()
+				.classes.add(ItemClasses.Wishlist)
+				.appendTo(this);
+
+		if (wishlisted === false)
+			Component.create()
+				.classes.add(ItemClasses.WishlistNoMatch)
 				.appendTo(this);
 
 		if (!item.shaped) {

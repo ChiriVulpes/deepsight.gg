@@ -1,7 +1,7 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import { ItemCategoryHashes, PlugCategoryHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
-import type Manifest from "model/models/Manifest";
+import Manifest from "model/models/Manifest";
 import Maths from "utility/maths/Maths";
 import Objects from "utility/Objects";
 
@@ -48,6 +48,17 @@ export class Socket {
 	public plugs!: Plug[];
 
 	private constructor () { }
+
+	public async getPool () {
+		if (!this.state)
+			return this.plugs;
+
+		const manifest = await Manifest.await();
+		const { DestinyPlugSetDefinition } = manifest;
+		return await Promise.resolve(DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
+			.then(plugSet => plugSet?.reusablePlugItems ?? [])
+			.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))));
+	}
 }
 
 export namespace Socket {
@@ -82,6 +93,7 @@ export enum PlugType {
 	DefaultOrnament = 2 ** 12,
 	Catalyst = 2 ** 13,
 	EmptyCatalyst = 2 ** 14,
+	DeepsightResonance = 2 ** 15,
 }
 
 export interface Plug extends DestinyItemPlugBase { }
@@ -138,6 +150,9 @@ export class Plug {
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
 			type |= PlugType.EmptyCatalyst;
+
+		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
+			type |= PlugType.DeepsightResonance;
 
 		if (["item_type.armor", "item_type.ornament.armor", "item_type.weapon", "item_type.ornament.weapon"].some(traitId => plug.definition?.traitIds?.includes(traitId)))
 			type |= PlugType.Ornament;

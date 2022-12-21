@@ -73,6 +73,12 @@ $colors: (
 	deepsight-tooltip-border: #f0631e,
 	deepsight-tooltip-background: #5a2e18,
 	shaped: #FF8D5C,
+	
+	wishlist-tooltip-border: #53af90,
+	wishlist-tooltip-background: #346353,
+	
+	wishlist-tooltip-border-no-match: #93af53,
+	wishlist-tooltip-background-no-match: #4e690d,
 );
 
 @mixin override-color($name, $color) {

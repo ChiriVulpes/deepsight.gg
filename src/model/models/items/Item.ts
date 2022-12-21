@@ -14,6 +14,7 @@ import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/action
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
+import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 import Time from "utility/Time";
 import type { PromiseOr } from "utility/Type";
@@ -403,6 +404,54 @@ class Item {
 					await this.performTransfer(...this.undoTransfers.reverse());
 			}
 		}
+	}
+
+	/**
+	 * @returns undefined if there are no wishlists for this item, true if a wishlist matches, false otherwise
+	 */
+	public async isWishlisted () {
+		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`] ?? [];
+		if (!wishlists.length)
+			return undefined;
+
+		for (const wishlist of Store.items[`item${this.definition.hash}PerkWishlists`] ?? [])
+			if (await this.checkMatchesWishlist(wishlist))
+				// all sockets match this wishlist!
+				return true;
+
+		// none of the wishlists matched
+		return false;
+	}
+
+	/**
+	 * @returns false if there are no wishlists for this item, and an array with matching wishlists otherwise
+	 */
+	public async getMatchingWishlists () {
+		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`] ?? [];
+		if (!wishlists.length)
+			return false;
+
+		const matchingWishlists: IItemPerkWishlist[] = [];
+		for (const wishlist of wishlists)
+			if (await this.checkMatchesWishlist(wishlist))
+				matchingWishlists.push(wishlist);
+
+		return matchingWishlists;
+	}
+
+	private async checkMatchesWishlist (wishlist: IItemPerkWishlist) {
+		for (const socket of this.sockets) {
+			const pool = await socket?.getPool();
+			if (pool?.some(plug => wishlist.plugs.includes(plug.plugItemHash))) {
+				// the full pool for this socket contains a wishlisted plug
+				if (!socket?.plugs.some(plug => wishlist.plugs.includes(plug.plugItemHash))) {
+					// but the available plugs on this socket don't
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 }
 

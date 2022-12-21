@@ -69,7 +69,7 @@
 		}
 	}
 	
-	&-masterwork, &-shaped, &-deepsight, &-source-watermark, &-extra {
+	&-masterwork, &-shaped, &-deepsight, &-wishlist, &-wishlist-no-match, &-source-watermark, &-extra {
 		position: absolute;
 		inset: 0;
 		background-size: cover;
@@ -162,6 +162,16 @@
 		background-image: url("/image/shaped.png");
 		> * {
 			@include pattern-icon(color(shaped));
+		}
+	}
+	
+	&-wishlist {
+		box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border),
+					inset 0 0 0 4px color(wishlist-tooltip-border, .5);
+						
+		&-no-match {
+			box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border-no-match),
+						inset 0 0 0 4px color(wishlist-tooltip-border-no-match, .5);
 		}
 	}
 	

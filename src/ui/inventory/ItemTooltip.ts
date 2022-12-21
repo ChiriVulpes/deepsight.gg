@@ -47,6 +47,8 @@ enum ItemTooltipClasses {
 	DeepsightPatternRequiredUnit = "item-tooltip-deepsight-pattern-required-unit",
 	DeepsightProgressBar = "item-tooltip-deepsight-progress-bar",
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
+	Wishlist = "item-tooltip-wishlist",
+	Wishlisted = "item-tooltip-wishlisted",
 	Hints = "item-tooltip-hints",
 }
 
@@ -72,6 +74,7 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternRequiredUnit!: Component;
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
+	public wishlist!: Component;
 	public stats!: ItemTooltipStat.Wrapper;
 	public hints!: Component;
 	public hintVault!: Hint;
@@ -151,6 +154,10 @@ class ItemTooltip extends Tooltip {
 		this.deepsightProgressValue = Component.create()
 			.classes.add(ItemTooltipClasses.DeepsightProgressValue)
 			.appendTo(this.deepsightProgressBar);
+
+		this.wishlist = Component.create()
+			.classes.add(ItemTooltipClasses.Wishlist)
+			.appendTo(this.content);
 
 		this.hints = Component.create()
 			.classes.add(ItemTooltipClasses.Hints)
@@ -371,6 +378,14 @@ class ItemTooltip extends Tooltip {
 			this.deepsightProgressBar.style.set("--progress", `${progress}`);
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
+
+		const wishlists = await item.getMatchingWishlists();
+		this.wishlist.classes.toggle(wishlists === false, Classes.Hidden);
+		if (wishlists !== false)
+			this.wishlist.classes.toggle(wishlists.length > 0, ItemTooltipClasses.Wishlisted)
+				.text.set(wishlists.length === 0 ? "This item does not match a wishlisted roll."
+					: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
+						: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
 
 		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
