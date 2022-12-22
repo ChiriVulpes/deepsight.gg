@@ -122,7 +122,9 @@ export default class Inventory implements IItemComponentCharacterHandler {
 						if (equipped)
 							for (const potentiallyEquippedItem of this.buckets![item.bucket as OwnedBucketId].items)
 								if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
-									delete potentiallyEquippedItem.equipped;
+									// only visually unequip items if they're in the same slot
+									if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
+										delete potentiallyEquippedItem.equipped;
 					});
 
 				this.items[newItem.id] = newItem;
