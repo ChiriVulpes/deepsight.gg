@@ -396,7 +396,7 @@ class Item {
 
 				this.bucket = result.bucket;
 				this.equipped = result.equipped;
-				this.trustTransferUntil = Date.now() + Time.seconds(30);
+				this.trustTransferUntil = Date.now() + Time.seconds(45);
 				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });
 
 			} catch (error) {
