@@ -288,6 +288,7 @@ class Item {
 		if (this.trustTransferUntil < Date.now() || !this.bucketHistory?.includes(item.bucket)) {
 			delete this.bucketHistory;
 			this.bucket = item.bucket;
+			this.equipped = item.equipped;
 		}
 		this.instance = item.instance;
 		this.objectives = item.objectives;
