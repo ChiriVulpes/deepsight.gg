@@ -86,6 +86,7 @@ namespace PlayerOverview {
 
 			this.update = this.update.bind(this);
 			inventory.event.subscribe("update", this.update);
+			inventory.event.subscribe("itemUpdate", this.update);
 			this.update();
 
 			this.event.subscribe("mouseenter", () => this.drawer.open("mouseenter"));

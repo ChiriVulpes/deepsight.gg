@@ -14,7 +14,8 @@ import { EventManager } from "utility/EventManager";
 import Time from "utility/Time";
 
 interface IInventoryModelEvents {
-	update: Inventory;
+	update: Event;
+	itemUpdate: Event;
 	dispose: Event;
 }
 
@@ -125,6 +126,9 @@ export default class Inventory implements IItemComponentCharacterHandler {
 									// only visually unequip items if they're in the same slot
 									if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
 										delete potentiallyEquippedItem.equipped;
+
+						// inform listeners of inventory changes that an item has updated
+						this.event.emit("itemUpdate");
 					});
 
 				this.items[newItem.id] = newItem;
@@ -139,7 +143,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 			}
 		}
 
-		this.event.emit("update", this);
+		this.event.emit("update");
 		LoadingManager.end("inventory");
 	}
 
