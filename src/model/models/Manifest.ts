@@ -1,5 +1,7 @@
 import type { AllDestinyManifestComponents, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import type { IModelCache } from "model/ModelCacheDatabase";
+import type Database from "utility/Database";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllCustomManifestComponents } from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
 import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
@@ -236,7 +238,11 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	private memoryCache: ManifestItemCache<COMPONENT_NAME> = {};
 
-	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
+	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, ComponentKey<COMPONENT_NAME>>, [ComponentKey<COMPONENT_NAME>]>;
+
+	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) {
+		this.stagedTransaction = Model.cacheDB.stagedTransaction([componentName]);
+	}
 
 	public get (key?: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
 	public get (index: Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
@@ -273,7 +279,7 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey];
 
-		const promise = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
+		const promise = this.stagedTransaction.get(this.componentName, `${key}`, index as string | undefined)
 			.then(value => {
 				if (cached) {
 					updateManifestCache();
@@ -293,8 +299,8 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 	public all (index: Indices<COMPONENT_NAME>, key: string | number | null): Promise<Component<COMPONENT_NAME>[]>;
 	public all (index?: string, key?: string | number | null) {
 		if (index)
-			return Model.cacheDB.all(this.componentName, `${key!}`, index);
-		return Model.cacheDB.all(this.componentName);
+			return this.stagedTransaction.all(this.componentName, `${key!}`, index);
+		return this.stagedTransaction.all(this.componentName);
 	}
 
 	public createCache () {

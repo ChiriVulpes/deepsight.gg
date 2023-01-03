@@ -365,7 +365,7 @@ namespace Database {
 			this.activeTransaction = (async () => {
 				while (this.pending.length) {
 					const transactions = this.pending.splice(0, Infinity);
-					console.log(`Found ${transactions.length} staged transactions`);
+					console.debug(`Found ${transactions.length} staged transactions over:`, ...this.over);
 					await this.database.transaction(this.over, this.mode, async transaction => {
 						for (const staged of transactions)
 							await staged(transaction);
@@ -390,8 +390,10 @@ namespace Database {
 			return this.queue(transaction => transaction.get(store, key, index));
 		}
 
-		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange) {
-			return this.queue(transaction => transaction.all(store, range));
+		public async all<KEY extends keyof SCHEMA> (store: KEY): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
+			return this.queue(transaction => transaction.all(store, range!, index!));
 		}
 
 		public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {
