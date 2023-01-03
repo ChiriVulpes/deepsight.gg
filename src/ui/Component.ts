@@ -315,6 +315,18 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			return false;
 		return true;
 	}
+
+	public isFocused () {
+		return document.activeElement === this.element;
+	}
+
+	public focus () {
+		(this.element as any as HTMLElement).focus();
+	}
+
+	public blur () {
+		(this.element as any as HTMLElement).blur();
+	}
 }
 
 export interface IBasicClassManager<HOST extends Component<HTMLElement>> {

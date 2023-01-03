@@ -3,6 +3,8 @@ import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 import type { ItemSocket } from "ui/view/item/ItemSockets";
 import ItemSockets, { ItemSocketsClasses } from "ui/view/item/ItemSockets";
 import type { IItemPerkWishlist } from "utility/Store";
@@ -37,11 +39,13 @@ export default class ItemPerks extends ItemSockets {
 
 	public wishlistContainer!: Component;
 	public wishlistDrawer!: Drawer;
-	public wishlistButtonInput!: Button;
+	public wishlistButton!: Button;
 	public wishlistNameInput!: Component;
+	public wishlistConfirmButton!: Button;
 	private wishlists!: IItemPerkWishlist[];
 	private sockets!: ItemSocket[];
 	private editingWishlist?: IItemPerkWishlist;
+	private backupEditingWishlist?: IItemPerkWishlist;
 
 	protected getTitle () {
 		return "Weapon Perks";
@@ -93,6 +97,7 @@ export default class ItemPerks extends ItemSockets {
 			.classes.add(ItemPerksClasses.WishlistNameInput)
 			.text.set("WISHLIST")
 			.attributes.set("contenteditable", "")
+			.attributes.add("inert")
 			.event.subscribe("input", () => {
 				if (!this.editingWishlist)
 					return;
@@ -121,8 +126,17 @@ export default class ItemPerks extends ItemSockets {
 
 		this.renderWishlists();
 
-		this.wishlistButtonInput = Button.create("div")
+		this.wishlistConfirmButton = Button.create()
+			.classes.add(ItemPerksClasses.WishlistButtonConfirm)
+			.attributes.add("inert")
+			.event.subscribe("click", event => this.doneEditingWishlist(event))
+			.append(Component.create()
+				.classes.add(ItemPerksClasses.WishlistButtonConfirmIcon));
+
+		this.wishlistButton = Button.create("div")
 			.classes.add(ItemSocketsClasses.TitleButton, ItemPerksClasses.WishlistButtonAdd)
+			.attributes.set("tabindex", "0")
+			.attributes.set("role", "button")
 			.event.subscribe("click", () => {
 				if (this.editingWishlist)
 					return;
@@ -132,12 +146,12 @@ export default class ItemPerks extends ItemSockets {
 			.append(Component.create()
 				.classes.add(ItemPerksClasses.WishlistButtonAddPlusIcon))
 			.append(this.wishlistNameInput)
-			.append(Button.create()
-				.classes.add(ItemPerksClasses.WishlistButtonConfirm)
-				.event.subscribe("click", event => this.doneEditingWishlist(event))
-				.append(Component.create()
-					.classes.add(ItemPerksClasses.WishlistButtonConfirmIcon)))
+			.append(this.wishlistConfirmButton)
 			.appendTo(this.wishlistContainer);
+
+		this.onKeydown = this.onKeydown.bind(this);
+		UiEventBus.until(viewManager.event.waitFor("hide"), events => events
+			.subscribe("keydown", this.onKeydown));
 	}
 
 	private renderWishlists () {
@@ -193,9 +207,10 @@ export default class ItemPerks extends ItemSockets {
 		if (!this.wishlists.includes(wishlist))
 			this.wishlists.push(wishlist);
 
+		this.backupEditingWishlist = { ...wishlist, plugs: [...wishlist.plugs] };
 		this.editingWishlist = wishlist;
 		this.classes.add(ItemPerksClasses.Wishlisting);
-		this.wishlistButtonInput.classes.add(ButtonClasses.Selected);
+		this.wishlistButton.classes.add(ButtonClasses.Selected);
 
 		for (const socket of this.sockets) {
 			for (const plug of socket.plugs) {
@@ -203,6 +218,8 @@ export default class ItemPerks extends ItemSockets {
 			}
 		}
 
+		this.wishlistNameInput.attributes.remove("inert");
+		this.wishlistConfirmButton.attributes.remove("inert");
 		this.wishlistNameInput.text.set(wishlist.name);
 		window.getSelection()?.selectAllChildren(this.wishlistNameInput.element);
 		this.wishlistDrawer.close(true);
@@ -211,11 +228,21 @@ export default class ItemPerks extends ItemSockets {
 		this.renderWishlists();
 	}
 
-	private doneEditingWishlist (event: Event) {
+	private cancelEditingWishlist () {
+		this.editingWishlist = this.backupEditingWishlist;
+		this.doneEditingWishlist();
+		if (this.wishlistNameInput.isFocused())
+			this.wishlistButton.focus();
+	}
+
+	private doneEditingWishlist (event?: Event) {
 		delete this.editingWishlist;
 		this.classes.remove(ItemPerksClasses.Wishlisting);
-		this.wishlistButtonInput.classes.remove(ButtonClasses.Selected);
+		this.wishlistButton.classes.remove(ButtonClasses.Selected);
 		this.wishlistNameInput.text.set("WISHLIST");
+
+		this.wishlistNameInput.attributes.add("inert");
+		this.wishlistConfirmButton.attributes.add("inert");
 
 		for (const socket of this.sockets)
 			for (const plug of socket.plugs)
@@ -224,7 +251,7 @@ export default class ItemPerks extends ItemSockets {
 		this.saveWishlists();
 		this.renderWishlists();
 
-		event.stopImmediatePropagation();
+		event?.stopImmediatePropagation();
 
 		const hovered = document.querySelectorAll(":hover");
 		if (this.wishlistContainer.contains(hovered[hovered.length - 1]))
@@ -250,6 +277,14 @@ export default class ItemPerks extends ItemSockets {
 	private saveWishlists () {
 		this.cleanupWishlists();
 		Store.items[`item${this.item.definition.hash}PerkWishlists`] = this.wishlists;
+	}
+
+	private onKeydown (event: IKeyEvent) {
+		if (this.editingWishlist && event.useOverInput("Escape"))
+			this.cancelEditingWishlist();
+
+		if (this.wishlistButton.isFocused() && !this.editingWishlist && (event.use(" ") || event.use("Enter")))
+			this.editNewWishlist();
 	}
 
 	private onPaste (event: ClipboardEvent) {
