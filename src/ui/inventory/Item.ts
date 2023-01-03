@@ -126,7 +126,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		this.classes.toggle(borderless, ItemClasses.Borderless);
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
-		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
+		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash, item.bucket !== "collections");
 		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
 		const ornament = item.getSockets(PlugType.Ornament)[0];
@@ -149,7 +149,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 
 		let watermark: string | undefined;
-		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash);
+		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item.bucket !== "collections");
 		if ((powerCap?.powerCap ?? 0) < 900000)
 			watermark = item.definition.iconWatermarkShelved ?? item.definition.iconWatermark;
 		else

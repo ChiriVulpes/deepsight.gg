@@ -64,9 +64,9 @@ namespace Deepsight {
 		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")
 			return undefined;
 
-		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
-		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
-			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
+		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash, item.bucket !== "collections");
+		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null, item.bucket !== "collections")
+			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name, item.bucket !== "collections");
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const progress = profile.profileRecords?.data?.records[record?.hash!];
@@ -86,7 +86,7 @@ namespace Deepsight {
 
 	async function findObjective ({ DestinyObjectiveDefinition }: Manifest, item: IItemInit, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
 		for (const objective of item.objectives) {
-			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash);
+			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash, item.bucket !== "collections");
 			if (!definition)
 				continue;
 

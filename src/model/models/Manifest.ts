@@ -238,9 +238,12 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) { }
 
-	public get (key?: string | number | null): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index: Indices<COMPONENT_NAME>, key: string | number | null): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index?: string | number | null, key?: string | number | null) {
+	public get (key?: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index: Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true) {
+		if (typeof key === "boolean")
+			cached = key, key = undefined;
+
 		if (key === undefined)
 			key = index, index = undefined;
 
@@ -251,10 +254,10 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		if (this.memoryCache[memoryCacheKey])
 			return this.memoryCache[memoryCacheKey];
 
-		return this.resolve(memoryCacheKey, key, index);
+		return this.resolve(memoryCacheKey, key, index, cached);
 	}
 
-	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null) {
+	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {
 		if (!loadedManifestCache) {
 			loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache = resolve);
 			const manifestCache = await ManifestCacheModel.await();
@@ -270,11 +273,20 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey];
 
-		return this.memoryCache[memoryCacheKey] = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
+		const promise = Model.cacheDB.get(this.componentName, `${key}`, index as string | undefined)
 			.then(value => {
-				updateManifestCache();
-				return this.memoryCache[memoryCacheKey] = value;
+				if (cached) {
+					updateManifestCache();
+					this.memoryCache[memoryCacheKey] = value;
+				}
+
+				return value;
 			});
+
+		if (cached)
+			this.memoryCache[memoryCacheKey] = promise;
+
+		return promise;
 	}
 
 	public all (): Promise<Component<COMPONENT_NAME>[]>;
@@ -286,7 +298,7 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 	}
 
 	public createCache () {
-		return this.memoryCache;
+		return JSON.parse(JSON.stringify(this.memoryCache));
 	}
 
 	public updateCache (value: ManifestItemCache<COMPONENT_NAME>) {

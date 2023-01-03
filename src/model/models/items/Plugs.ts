@@ -20,11 +20,11 @@ export class Socket {
 		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
 	}
 
-	public static async resolve (manifest: Manifest, init: Socket.ISocketInit) {
+	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit) {
 		const socket = Objects.inherit(init, Socket);
 
 		const { DestinyPlugSetDefinition } = manifest;
-		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash))
+		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash, item?.bucket !== "collections"))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
 
 		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
@@ -110,7 +110,8 @@ export class Plug {
 	}
 
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
-		const plug = Objects.inherit({ ...plugBase }, Plug);
+		const plug = new Plug();
+		Object.assign(plug, plugBase);
 		plug.socketed = false;
 		const { DestinyInventoryItemDefinition } = manifest;
 		plug.definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
@@ -197,7 +198,8 @@ export interface Perk extends DestinyItemPerkEntryDefinition { }
 export class Perk {
 
 	public static async resolve ({ DestinySandboxPerkDefinition }: Manifest, perkEntry: DestinyItemPerkEntryDefinition) {
-		const perk = Objects.inherit(perkEntry, Perk);
+		const perk = new Perk();
+		Object.assign(perk, perkEntry);
 		perk.definition = await DestinySandboxPerkDefinition.get(perk.perkHash)!;
 		return perk;
 	}
@@ -221,7 +223,7 @@ namespace Plugs {
 				state: states[i],
 				category: socketCategories?.find(category => category.socketIndexes.includes(i)),
 				plugs: plugs[i] ?? [],
-			})))
+			}, item)))
 			.then(sockets => {
 				item.sockets = sockets;
 				return sockets;

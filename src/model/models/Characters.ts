@@ -24,7 +24,8 @@ interface IProfileProgression {
 class Character {
 
 	public static async get (characterComponent: DestinyCharacterComponent, manifest: Manifest, profile: IProfileProgression) {
-		const character = Objects.inherit(characterComponent, Character);
+		const character = new Character();
+		Object.assign(character, characterComponent);
 
 		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = manifest;
 		character.class = await DestinyClassDefinition.get(character.classHash)!;
