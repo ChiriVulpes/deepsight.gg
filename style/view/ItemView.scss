@@ -167,6 +167,13 @@
 				align-self: flex-start;
 				&::before {
 					inset: 0;
+					mask-image: none;
+					-webkit-mask-image: none;
+					background-image: var(--icon);
+					background-size: contain;
+					background-repeat: no-repeat;
+					background-position: center;
+					background-color: initial;
 				}
 			}
 			
