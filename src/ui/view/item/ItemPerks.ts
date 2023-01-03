@@ -35,6 +35,7 @@ export default class ItemPerks extends ItemSockets {
 
 	public override event!: ComponentEventManager<this, IItemPerksEvents>;
 
+	public wishlistContainer!: Component;
 	public wishlistDrawer!: Drawer;
 	public wishlistButtonInput!: Button;
 	public wishlistNameInput!: Component;
@@ -60,14 +61,16 @@ export default class ItemPerks extends ItemSockets {
 			return;
 		}
 
-		this.wishlists = (Store.items[`item${this.item.definition.hash}PerkWishlists`] ??= [])
-			.filter(wishlist => wishlist.name !== "" && wishlist.plugs.length > 0);
+		this.wishlists = (Store.items[`item${this.item.definition.hash}PerkWishlists`] ??= []);
 
 		this.saveWishlists();
 
 		for (const socket of this.sockets) {
 			for (const plug of socket.plugs) {
 				plug.event.subscribe("click", () => {
+					if (!this.editingWishlist)
+						this.editNewWishlist();
+
 					plug.classes.toggle(ItemSocketsClasses.PlugSelected);
 					if (this.editingWishlist) {
 						const plugs = [];
@@ -99,7 +102,7 @@ export default class ItemPerks extends ItemSockets {
 			})
 			.event.subscribe("paste", this.onPaste);
 
-		const wishlistContainer = Component.create()
+		this.wishlistContainer = Component.create()
 			.classes.add(ItemPerksClasses.WishlistContainer)
 			.event.subscribe("mouseenter", () => {
 				if (this.editingWishlist)
@@ -112,7 +115,7 @@ export default class ItemPerks extends ItemSockets {
 
 		this.wishlistDrawer = Drawer.create()
 			.classes.add(ItemPerksClasses.WishlistDrawer)
-			.appendTo(wishlistContainer);
+			.appendTo(this.wishlistContainer);
 
 		this.wishlistDrawer.focusOnClick = false;
 
@@ -124,7 +127,7 @@ export default class ItemPerks extends ItemSockets {
 				if (this.editingWishlist)
 					return;
 
-				this.editWishlist({ name: `Wishlist${this.wishlists.length ? ` ${this.wishlists.length + 1}` : ""}`, plugs: [] });
+				this.editNewWishlist();
 			})
 			.append(Component.create()
 				.classes.add(ItemPerksClasses.WishlistButtonAddPlusIcon))
@@ -134,7 +137,7 @@ export default class ItemPerks extends ItemSockets {
 				.event.subscribe("click", event => this.doneEditingWishlist(event))
 				.append(Component.create()
 					.classes.add(ItemPerksClasses.WishlistButtonConfirmIcon)))
-			.appendTo(wishlistContainer);
+			.appendTo(this.wishlistContainer);
 	}
 
 	private renderWishlists () {
@@ -179,6 +182,10 @@ export default class ItemPerks extends ItemSockets {
 				plug.classes.remove(ItemSocketsClasses.PlugSelected);
 	}
 
+	private editNewWishlist () {
+		return this.editWishlist({ name: `Wishlist${this.wishlists.length ? ` ${this.wishlists.length + 1}` : ""}`, plugs: [] });
+	}
+
 	private editWishlist (wishlist: IItemPerkWishlist) {
 		if (this.displayedWishlist)
 			this.undisplayWishlist(this.displayedWishlist);
@@ -218,6 +225,10 @@ export default class ItemPerks extends ItemSockets {
 		this.renderWishlists();
 
 		event.stopImmediatePropagation();
+
+		const hovered = document.querySelectorAll(":hover");
+		if (this.wishlistContainer.contains(hovered[hovered.length - 1]))
+			this.wishlistDrawer.open("mouse");
 	}
 
 	private removeWishlist (wishlist: IItemPerkWishlist) {
@@ -232,7 +243,12 @@ export default class ItemPerks extends ItemSockets {
 		this.renderWishlists();
 	}
 
+	private cleanupWishlists () {
+		this.wishlists = this.wishlists.filter(wishlist => wishlist.name !== "" && wishlist.plugs.length > 0);
+	}
+
 	private saveWishlists () {
+		this.cleanupWishlists();
 		Store.items[`item${this.item.definition.hash}PerkWishlists`] = this.wishlists;
 	}
 

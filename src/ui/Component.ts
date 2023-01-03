@@ -286,6 +286,18 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return -1;
 	}
 
+	public contains (...nodes: (Component | Node | undefined | null)[]) {
+		for (let node of nodes) {
+			if (!node)
+				return false;
+
+			if (node instanceof Component)
+				node = node.element;
+
+			return this.element.contains(node);
+		}
+	}
+
 	private rect?: DOMRect;
 	public getRect () {
 		return this.rect ??= this.element.getBoundingClientRect();
