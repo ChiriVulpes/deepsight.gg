@@ -510,5 +510,19 @@
 				}
 			}
 		}
+				
+		&-no-rolls-please {
+			margin-top: auto;
+			margin-bottom: -10px;
+			font-size: 11.5pt;
+			font-weight: 500;
+			z-index: 1;
+			text-transform: none;
+			font-family: $font-sans-serif;
+			
+			.checkbox-label {
+				color: color(foreground-0);
+			}
+		}
 	}
 }

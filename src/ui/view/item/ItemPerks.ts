@@ -1,7 +1,9 @@
 import { PlugType } from "model/models/items/Plugs";
+import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
+import Checkbox from "ui/form/Checkbox";
 import Drawer from "ui/form/Drawer";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -27,6 +29,7 @@ export enum ItemPerksClasses {
 	WishlistRemove = "view-item-perks-wishlist-drawer-wishlist-remove",
 	WishlistRemoveIcon = "view-item-perks-wishlist-drawer-wishlist-remove-icon",
 	WishlistNameInput = "view-item-perks-wishlist-name-input",
+	NoRollsPlease = "view-item-perks-wishlist-no-rolls-please",
 }
 
 export interface IItemPerksEvents extends ComponentEvents<typeof ItemSockets> {
@@ -42,7 +45,8 @@ export default class ItemPerks extends ItemSockets {
 	public wishlistButton!: Button;
 	public wishlistNameInput!: Component;
 	public wishlistConfirmButton!: Button;
-	private wishlists!: IItemPerkWishlist[];
+	public wishlistNoRollsPlease!: Checkbox;
+	private wishlists?: IItemPerkWishlist[];
 	private sockets!: ItemSocket[];
 	private editingWishlist?: IItemPerkWishlist;
 	private backupEditingWishlist?: IItemPerkWishlist;
@@ -65,7 +69,7 @@ export default class ItemPerks extends ItemSockets {
 			return;
 		}
 
-		this.wishlists = (Store.items[`item${this.item.definition.hash}PerkWishlists`] ??= []);
+		this.wishlists = Store.items[`item${this.item.definition.hash}PerkWishlists`];
 
 		this.saveWishlists();
 
@@ -156,7 +160,7 @@ export default class ItemPerks extends ItemSockets {
 
 	private renderWishlists () {
 		this.wishlistDrawer.removeContents();
-		for (const wishlist of this.wishlists) {
+		for (const wishlist of this.wishlists ?? []) {
 			Component.create()
 				.classes.add(ItemPerksClasses.Wishlist)
 				.append(Button.create()
@@ -172,6 +176,20 @@ export default class ItemPerks extends ItemSockets {
 				.event.subscribe("mouseleave", () => this.undisplayWishlist(wishlist))
 				.appendTo(this.wishlistDrawer);
 		}
+
+		this.wishlistNoRollsPlease = Checkbox.create([this.wishlists?.length === 0])
+			.classes.add(ItemPerksClasses.NoRollsPlease)
+			.classes.toggle(!!this.wishlists?.length, Classes.Hidden)
+			.attributes.toggle(!!this.wishlists?.length, "inert")
+			.tweak(checkbox => checkbox.label.text.set("Mark all rolls as junk"))
+			.tweak(checkbox => checkbox.description.text.set("No perk combination satisfies me!"))
+			.event.subscribe("update", ({ checked }) => {
+				if (!this.wishlists?.length) {
+					this.wishlists = checked ? [] : undefined;
+					this.saveWishlists();
+				}
+			})
+			.appendTo(this.wishlistDrawer);
 	}
 
 	private displayedWishlist?: IItemPerkWishlist;
@@ -197,13 +215,14 @@ export default class ItemPerks extends ItemSockets {
 	}
 
 	private editNewWishlist () {
-		return this.editWishlist({ name: `Wishlist${this.wishlists.length ? ` ${this.wishlists.length + 1}` : ""}`, plugs: [] });
+		return this.editWishlist({ name: `Wishlist${this.wishlists?.length ? ` ${this.wishlists.length + 1}` : ""}`, plugs: [] });
 	}
 
 	private editWishlist (wishlist: IItemPerkWishlist) {
 		if (this.displayedWishlist)
 			this.undisplayWishlist(this.displayedWishlist);
 
+		this.wishlists ??= [];
 		if (!this.wishlists.includes(wishlist))
 			this.wishlists.push(wishlist);
 
@@ -224,7 +243,7 @@ export default class ItemPerks extends ItemSockets {
 		window.getSelection()?.selectAllChildren(this.wishlistNameInput.element);
 		this.wishlistDrawer.close(true);
 
-		this.saveWishlists();
+		this.saveWishlists(true);
 		this.renderWishlists();
 	}
 
@@ -262,20 +281,21 @@ export default class ItemPerks extends ItemSockets {
 		if (this.displayedWishlist === wishlist)
 			this.undisplayWishlist(wishlist);
 
-		const index = this.wishlists.indexOf(wishlist);
-		if (index >= 0)
-			this.wishlists.splice(index, 1);
+		const index = this.wishlists?.indexOf(wishlist);
+		if (index !== undefined && index >= 0)
+			this.wishlists!.splice(index, 1);
 
 		this.saveWishlists();
 		this.renderWishlists();
 	}
 
 	private cleanupWishlists () {
-		this.wishlists = this.wishlists.filter(wishlist => wishlist.name !== "" && wishlist.plugs.length > 0);
+		this.wishlists = this.wishlists?.filter(wishlist => wishlist.name !== "" && wishlist.plugs.length > 0);
 	}
 
-	private saveWishlists () {
-		this.cleanupWishlists();
+	private saveWishlists (preserveEmptyWishlists = false) {
+		if (!preserveEmptyWishlists)
+			this.cleanupWishlists();
 		Store.items[`item${this.item.definition.hash}PerkWishlists`] = this.wishlists;
 	}
 

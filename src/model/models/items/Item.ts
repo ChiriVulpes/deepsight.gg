@@ -411,8 +411,13 @@ class Item {
 	 * @returns undefined if there are no wishlists for this item, true if a wishlist matches, false otherwise
 	 */
 	public async isWishlisted () {
-		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`] ?? [];
-		if (!wishlists.length)
+		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`];
+		if (wishlists?.length === 0)
+			// the user doesn't want any roll of this item
+			return false;
+
+		if (!wishlists)
+			// the user hasn't configured wishlists for this item
 			return undefined;
 
 		for (const wishlist of Store.items[`item${this.definition.hash}PerkWishlists`] ?? [])

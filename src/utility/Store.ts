@@ -76,7 +76,10 @@ export default class Store {
 
 	public static set (key: string, value: any) {
 		const oldValue = Store.get(key);
-		localStorage.setItem(key, JSON.stringify(value));
+		if (value === undefined)
+			localStorage.removeItem(key);
+		else
+			localStorage.setItem(key, JSON.stringify(value));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue })
 		return true;
