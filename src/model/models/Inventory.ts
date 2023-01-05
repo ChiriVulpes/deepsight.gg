@@ -5,7 +5,7 @@ import { ProfileCharacters } from "model/models/Characters";
 import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { CharacterId, ItemId, OwnedBucketId } from "model/models/items/Item";
+import type { CharacterId, IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import LoadingManager from "ui/LoadingManager";
@@ -53,6 +53,8 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	public constructor () {
+		this.onItemBucketChange = this.onItemBucketChange.bind(this);
+
 		const disposed = this.event.waitFor("dispose");
 		Items.event.until(disposed, event => event
 			.subscribe("loading", () => LoadingManager.start("inventory"))
@@ -108,43 +110,55 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		this.buckets = buckets;
 		for (const [bucketId, bucket] of Object.entries(this.buckets)) {
 			for (let i = 0; i < bucket.items.length; i++) {
-				let newItem = bucket.items[i];
-				// use old item if it exists
-				newItem = this.items[newItem.id]?.update(newItem) ?? newItem;
-
-				if (this.items[newItem.id] !== newItem)
-					// if the new item instance is used, subscribe to its bucketChange event
-					newItem.event.subscribe("bucketChange", ({ item, oldBucket, equipped }) => {
-						// and on its bucket changing, remove it from its old bucket and put it in its new one
-						Arrays.remove(this.buckets![oldBucket]?.items, item);
-						this.buckets![item.bucket as OwnedBucketId].items.push(item);
-
-						// if this item is equipped now, make the previously equipped item not equipped
-						if (equipped)
-							for (const potentiallyEquippedItem of this.buckets![item.bucket as OwnedBucketId].items)
-								if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
-									// only visually unequip items if they're in the same slot
-									if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
-										delete potentiallyEquippedItem.equipped;
-
-						// inform listeners of inventory changes that an item has updated
-						this.event.emit("itemUpdate");
-					});
-
-				this.items[newItem.id] = newItem;
-
-				if (newItem.bucket !== bucketId) {
-					this.buckets[newItem.bucket as OwnedBucketId].items.push(newItem);
-					this.buckets[bucketId as OwnedBucketId].items.splice(i, 1);
-					i--;
-				} else {
-					this.buckets[bucketId as OwnedBucketId]!.items[i] = this.items[newItem.id] = newItem;
-				}
+				this.updateItem(bucketId, bucket, i);
 			}
 		}
 
 		this.event.emit("update");
 		LoadingManager.end("inventory");
+	}
+
+	private updateItem (bucketId: string, bucket: Bucket, itemIndex: number) {
+		const items = this.items!;
+
+		let newItem = bucket.items[itemIndex];
+		// use old item if it exists
+		newItem = items[newItem.id]?.update(newItem) ?? newItem;
+
+		if (items[newItem.id] !== newItem)
+			this.registerItem(newItem);
+
+		items[newItem.id] = newItem;
+
+		const buckets = this.buckets!;
+		if (newItem.bucket !== bucketId) {
+			buckets[newItem.bucket as OwnedBucketId].items.push(newItem);
+			buckets[bucketId as OwnedBucketId].items.splice(itemIndex, 1);
+			itemIndex--;
+		} else {
+			buckets[bucketId as OwnedBucketId]!.items[itemIndex] = items[newItem.id] = newItem;
+		}
+	}
+
+	private registerItem (item: Item) {
+		item.event.subscribe("bucketChange", this.onItemBucketChange);
+	}
+
+	private onItemBucketChange ({ item, oldBucket, equipped }: IItemEvents["bucketChange"]) {
+		// and on its bucket changing, remove it from its old bucket and put it in its new one
+		Arrays.remove(this.buckets![oldBucket]?.items, item);
+		this.buckets![item.bucket as OwnedBucketId].items.push(item);
+
+		// if this item is equipped now, make the previously equipped item not equipped
+		if (equipped)
+			for (const potentiallyEquippedItem of this.buckets![item.bucket as OwnedBucketId].items)
+				if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
+					// only visually unequip items if they're in the same slot
+					if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
+						delete potentiallyEquippedItem.equipped;
+
+		// inform listeners of inventory changes that an item has updated
+		this.event.emit("itemUpdate");
 	}
 
 	private interval?: number;
