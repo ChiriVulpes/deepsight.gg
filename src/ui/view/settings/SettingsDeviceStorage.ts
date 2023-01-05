@@ -12,7 +12,7 @@ export default class SettingsDeviceStorage extends Card<[]> {
 		DescribedButton.create()
 			.tweak(wrapper => wrapper.button.text.set("Clear Destiny Cache"))
 			.tweak(wrapper => wrapper.description
-				.text.set("Removes the Destiny manifest (a large database of information about the game downloaded from the Bungie.net API), your profile information, and some other misc Destiny data downloaded from other projects. ")
+				.text.set("Removes the Destiny manifest (a large database of information about the game downloaded from the Bungie.net API), your profile information, and some other misc Destiny data downloaded from other projects. Does not clear your deepsight.gg settings.")
 				.append(Component.create("p")
 					.append(Component.create("b").text.set("Note:"))
 					.text.add(" Continuing to use the app will re-download the deleted data.")))
