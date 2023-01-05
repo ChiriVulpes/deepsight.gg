@@ -1,5 +1,6 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
+import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import { PlugType } from "model/models/items/Plugs";
@@ -51,12 +52,12 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 	public extra!: Component;
 	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
-	private characters?: IItemComponentCharacterHandler;
+	public inventory?: Inventory;
 
-	protected override async onMake (item: Item, characters?: IItemComponentCharacterHandler) {
-		super.onMake(item, characters);
+	protected override async onMake (item: Item, inventory?: Inventory) {
+		super.onMake(item, inventory);
 
-		this.characters = characters;
+		this.inventory = inventory;
 
 		this.update = this.update.bind(this);
 		this.loadStart = this.loadStart.bind(this);
@@ -107,7 +108,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 	private async renderItem (item: Item) {
 		this.setTooltip(ItemTooltip, {
 			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
-				.setItem(item, this.characters?.getCharacter(this.item.character)),
+				.setItem(item, this.inventory),
 			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
 		});
 
@@ -142,7 +143,8 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			.style.set("--icon", Display.icon(ornament?.socketedPlug?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 
-		if (item.shaped)
+		const shaped = item.shaped || (item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !this.inventory?.craftedItems.has(item.definition.hash));
+		if (shaped)
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
 				.append(Component.create())
@@ -187,7 +189,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.append(Component.create())
 				.appendTo(this);
 
-		if (!item.shaped) {
+		if (!shaped) {
 			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
 			if (item.hasDeepsight())
 				Component.create()
@@ -257,9 +259,9 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
-			await this.item.transferToggleVaulted(this.characters?.currentCharacter.characterId as CharacterId);
+			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
 		else {
-			const character = this.item.character ?? this.characters?.currentCharacter.characterId as CharacterId;
+			const character = this.item.character ?? this.inventory?.currentCharacter.characterId as CharacterId;
 			if (CharacterId.is(this.item.bucket))
 				await this.item.equip(character);
 			else

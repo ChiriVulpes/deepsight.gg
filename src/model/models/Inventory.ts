@@ -42,6 +42,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	public buckets?: Record<OwnedBucketId, Bucket>;
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
+	public readonly craftedItems = new Set<number>();
 
 	public get currentCharacter () {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
@@ -106,13 +107,12 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	private updateItems (buckets: Record<OwnedBucketId, Bucket>) {
+		this.craftedItems.clear(); // crafted items will be re-initialised through updateItem
 		this.items ??= {};
 		this.buckets = buckets;
-		for (const [bucketId, bucket] of Object.entries(this.buckets)) {
-			for (let i = 0; i < bucket.items.length; i++) {
+		for (const [bucketId, bucket] of Object.entries(this.buckets))
+			for (let i = 0; i < bucket.items.length; i++)
 				this.updateItem(bucketId, bucket, i);
-			}
-		}
 
 		this.event.emit("update");
 		LoadingManager.end("inventory");
@@ -121,22 +121,25 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	private updateItem (bucketId: string, bucket: Bucket, itemIndex: number) {
 		const items = this.items!;
 
-		let newItem = bucket.items[itemIndex];
+		let item = bucket.items[itemIndex];
 		// use old item if it exists
-		newItem = items[newItem.id]?.update(newItem) ?? newItem;
+		item = items[item.id]?.update(item) ?? item;
 
-		if (items[newItem.id] !== newItem)
-			this.registerItem(newItem);
+		if (item.shaped)
+			this.craftedItems.add(item.definition.hash);
 
-		items[newItem.id] = newItem;
+		if (items[item.id] !== item)
+			this.registerItem(item);
+
+		items[item.id] = item;
 
 		const buckets = this.buckets!;
-		if (newItem.bucket !== bucketId) {
-			buckets[newItem.bucket as OwnedBucketId].items.push(newItem);
+		if (item.bucket !== bucketId) {
+			buckets[item.bucket as OwnedBucketId].items.push(item);
 			buckets[bucketId as OwnedBucketId].items.splice(itemIndex, 1);
 			itemIndex--;
 		} else {
-			buckets[bucketId as OwnedBucketId]!.items[itemIndex] = items[newItem.id] = newItem;
+			buckets[bucketId as OwnedBucketId]!.items[itemIndex] = items[item.id] = item;
 		}
 	}
 

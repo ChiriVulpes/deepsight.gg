@@ -37,7 +37,7 @@ export default View.create({
 
 		const itemTooltip = ItemTooltip.createRaw()
 			.classes.add(ItemTooltipViewClasses.Tooltip);
-		await itemTooltip.setItem(item, character);
+		await itemTooltip.setItem(item, inventory);
 
 		itemTooltip.appendTo(view.content);
 		itemTooltip.footer.remove();

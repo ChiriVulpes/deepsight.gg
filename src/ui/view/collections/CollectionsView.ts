@@ -114,16 +114,16 @@ export default View.create({
 
 function addItems (component: Component, items: Item[], inventory: Inventory) {
 	component.append(...items
-		.sort((a, b) => getSortIndex(b) - getSortIndex(a)
+		.sort((a, b) => getSortIndex(b, inventory) - getSortIndex(a, inventory)
 			|| (Display.name(a.definition) ?? "").localeCompare(Display.name(b.definition) ?? ""))
 		.map(item => Component.create()
 			.classes.add(InventoryClasses.Slot)
 			.append(ItemComponent.create([item, inventory]))));
 }
 
-function getSortIndex (item: Item) {
-	return (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 10000 : 0)
-		+ (item.definition.inventory?.tierType ?? TierType.Unknown) * 1000
-		+ (item.deepsight?.pattern ? item.deepsight.pattern.progress.complete ? 0 : 500 : 100)
+function getSortIndex (item: Item, inventory: Inventory) {
+	return (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 100000 : 0)
+		+ (item.definition.inventory?.tierType ?? TierType.Unknown) * 10000
+		+ (item.deepsight?.pattern ? inventory.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress.complete ? 6000 : 3000 : 1000)
 		+ (item.definition.classType ?? DestinyClass.Unknown);
 }

@@ -14,7 +14,6 @@ import Draggable from "ui/form/Draggable";
 import BucketComponent from "ui/inventory/Bucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
-import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
 import ItemComponent, { ItemClasses } from "ui/inventory/Item";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
@@ -124,8 +123,8 @@ class DraggableItem extends ItemComponent {
 
 	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
 
-	protected override async onMake (item: Item, characters: IItemComponentCharacterHandler) {
-		await super.onMake(item, characters);
+	protected override async onMake (item: Item, inventory: Inventory) {
+		await super.onMake(item, inventory);
 		new Draggable(this.element);
 	}
 }

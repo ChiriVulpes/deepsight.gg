@@ -1,5 +1,5 @@
 import { BucketHashes, DestinyAmmunitionType, ItemPerkVisibility } from "bungie-api-ts/destiny2";
-import type Character from "model/models/Characters";
+import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import { PlugType } from "model/models/items/Plugs";
@@ -196,11 +196,13 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.hints);
 	}
 
-	public async setItem (item: Item, character?: Character) {
+	public async setItem (item: Item, inventory?: Inventory) {
 		this.item = item;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).item = item;
 		console.log(Display.name(item.definition), item);
+
+		const character = inventory?.getCharacter(item.character);
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
@@ -386,8 +388,10 @@ class ItemTooltip extends Tooltip {
 		if (showPattern) {
 			const complete = !!item.deepsight?.pattern?.progress.complete;
 			this.deepsightPatternLabel
-				.text.set(complete ? "This weapon's Pattern is unlocked."
-					: !item.deepsight?.attunement ? "This weapon can be shaped." : "Attune to extract the Pattern.");
+				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
+					: complete ? "This weapon's Pattern is unlocked."
+						: !item.deepsight?.attunement ? "This weapon can be shaped." : "Attune to extract the Pattern.");
+
 			this.deepsightPatternNumber.classes.toggle(complete, Classes.Hidden);
 			this.deepsightPatternOutOf.classes.toggle(complete, Classes.Hidden);
 			this.deepsightPatternNumber.text.set(`${item.deepsight!.pattern!.progress.progress ?? 0}`);
