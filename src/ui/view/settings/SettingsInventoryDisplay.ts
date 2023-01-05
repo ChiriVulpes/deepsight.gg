@@ -38,6 +38,13 @@ export default class SettingsInformationDisplay extends Card<[]> {
 				Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns = checked ? true : undefined)
 			.appendTo(this.content);
 
+		Checkbox.create([Store.items.settingsDisableShapedIcon])
+			.tweak(checkbox => checkbox.label.text.set("Don't Display Icon on Shaped Weapons"))
+			.tweak(checkbox => checkbox.description.text.set("Items with unlockable patterns appear with a white icon, items with patterns unlocked appear with a black icon, and by default, shaped items appear with an orange icon like in-game. You can choose to disable the orange icon."))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsDisableShapedIcon = checked ? true : undefined)
+			.appendTo(this.content);
+
 		Checkbox.create([Store.items.settingsDisplayWishlistedHighlights])
 			.tweak(checkbox => checkbox.label.text.set("Highlight Items Matching Wishlists"))
 			.tweak(checkbox => checkbox.description.text.set("Items that exactly match a wishlist you've created will be highlighted with a teal border."))
