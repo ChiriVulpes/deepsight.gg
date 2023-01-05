@@ -2,8 +2,7 @@ import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemI
 import { BucketHashes, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
-import type { PlugType } from "model/models/items/Plugs";
-import Plugs, { Socket } from "model/models/items/Plugs";
+import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
@@ -458,6 +457,20 @@ class Item {
 		}
 
 		return true;
+	}
+
+	public getStatTracker () {
+		for (const socket of this.sockets) {
+			if (socket?.socketedPlug?.type !== PlugType.Tracker)
+				continue;
+
+			for (const objective of socket.socketedPlug.objectives) {
+				if (!objective.progress.visible)
+					continue;
+
+				return objective;
+			}
+		}
 	}
 }
 

@@ -30,6 +30,10 @@ enum ItemTooltipClasses {
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
+	StatTracker = "item-tooltip-stat-tracker",
+	StatTrackerIcon = "item-tooltip-stat-tracker-icon",
+	StatTrackerLabel = "item-tooltip-stat-tracker-label",
+	StatTrackerValue = "item-tooltip-stat-tracker-value",
 	Mods = "item-tooltip-mods",
 	Mod = "item-tooltip-mod",
 	ModSocket = "item-tooltip-mod-socket",
@@ -64,6 +68,10 @@ class ItemTooltip extends Tooltip {
 	public weaponLevel!: Component;
 	public weaponLevelLabel!: Component;
 	public weaponLevelProgress!: Component;
+	public statTracker!: Component;
+	public statTrackerIcon!: Component;
+	public statTrackerLabel!: Component;
+	public statTrackerValue!: Component;
 	public mods!: Component;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
@@ -118,6 +126,16 @@ class ItemTooltip extends Tooltip {
 				.classes.add(ItemTooltipClasses.WeaponLevelLabel))
 			.append(this.weaponLevelProgress = Component.create()
 				.classes.add(ItemTooltipClasses.WeaponLevelProgress))
+			.appendTo(this.primaryInfo);
+
+		this.statTracker = Component.create()
+			.classes.add(ItemTooltipClasses.StatTracker)
+			.append(this.statTrackerIcon = Component.create()
+				.classes.add(ItemTooltipClasses.StatTrackerIcon))
+			.append(this.statTrackerLabel = Component.create()
+				.classes.add(ItemTooltipClasses.StatTrackerLabel))
+			.append(this.statTrackerValue = Component.create()
+				.classes.add(ItemTooltipClasses.StatTrackerValue))
 			.appendTo(this.primaryInfo);
 
 		this.stats = ItemTooltipStat.Wrapper.create()
@@ -251,6 +269,12 @@ class ItemTooltip extends Tooltip {
 			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.progress.progress ?? 0}`);
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
 		}
+
+		const statTracker = item.getStatTracker();
+		this.statTracker.classes.toggle(!statTracker, Classes.Hidden);
+		this.statTrackerIcon.style.set("--icon", Display.icon(statTracker?.definition));
+		this.statTrackerLabel.text.set(statTracker?.definition.progressDescription ?? Display.name(statTracker?.definition));
+		this.statTrackerValue.text.set(`${(statTracker?.progress.progress ?? 0).toLocaleString()}`);
 
 		this.stats.setItem(item);
 
