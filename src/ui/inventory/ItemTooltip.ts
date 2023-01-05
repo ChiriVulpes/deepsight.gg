@@ -407,13 +407,14 @@ class ItemTooltip extends Tooltip {
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
-		const wishlists = !item.instance || item.shaped ? false : await item.getMatchingWishlists();
-		this.wishlist.classes.toggle(wishlists === false, Classes.Hidden);
-		if (wishlists !== false)
-			this.wishlist.classes.toggle(wishlists.length > 0, ItemTooltipClasses.Wishlisted)
-				.text.set(wishlists.length === 0 ? "This item does not match a wishlisted roll."
-					: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
-						: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
+		const wishlists = !item.instance || item.shaped ? undefined : await item.getMatchingWishlists();
+		this.wishlist.classes.toggle(wishlists === undefined, Classes.Hidden);
+		if (wishlists !== undefined)
+			this.wishlist.classes.toggle(wishlists && wishlists.length > 0, ItemTooltipClasses.Wishlisted)
+				.text.set(!wishlists ? "All rolls of this item are marked as junk."
+					: wishlists.length === 0 ? "This item does not match a wishlisted roll."
+						: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
+							: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
 
 		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";

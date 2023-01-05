@@ -429,10 +429,14 @@ class Item {
 	}
 
 	/**
-	 * @returns false if there are no wishlists for this item, and an array with matching wishlists otherwise
+	 * @returns `undefined` if there are no wishlists for this item, `false` if the user doesn't want this item at all,
+	 * and an array with matching wishlists otherwise
 	 */
 	public async getMatchingWishlists () {
-		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`] ?? [];
+		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`];
+		if (!wishlists)
+			return undefined;
+
 		if (!wishlists.length)
 			return false;
 
