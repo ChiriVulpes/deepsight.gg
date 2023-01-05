@@ -1,11 +1,12 @@
-import type { DestinyObjectiveDefinition, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
+import type Objectives from "model/models/items/Objectives";
 import type Manifest from "model/models/Manifest";
 
 export interface IWeaponShaped {
-	level?: IObjective;
-	progress?: IObjective;
+	level?: Objectives.IObjective;
+	progress?: Objectives.IObjective;
 }
 
 export interface IDeepsightPattern {
@@ -13,13 +14,8 @@ export interface IDeepsightPattern {
 	progress: DestinyObjectiveProgress;
 }
 
-export interface IObjective {
-	objective: DestinyObjectiveProgress;
-	definition: DestinyObjectiveDefinition;
-}
-
 export interface IDeepsight {
-	attunement?: IObjective;
+	attunement?: Objectives.IObjective;
 	pattern?: IDeepsightPattern;
 }
 
@@ -31,31 +27,31 @@ namespace Deepsight {
 
 	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit) {
 		item.deepsight = await resolve(manifest, profile, item);
-		item.shaped = await resolveShaped(manifest, item);
+		item.shaped = await resolveShaped(item);
 	}
 
 	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
-		return { attunement: await resolveAttunement(manifest, item), pattern: await resolvePattern(manifest, profile, item) };
+		return { attunement: await resolveAttunement(item), pattern: await resolvePattern(manifest, profile, item) };
 	}
 
-	async function resolveShaped (manifest: Manifest, item: IItemInit) {
+	async function resolveShaped (item: IItemInit) {
 		if (!(item.reference.state & ItemState.Crafted))
 			return undefined;
 
 		return {
-			level: await findObjective(manifest, item, (objective, definition) =>
-				definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevel),
-			progress: await findObjective(manifest, item, (objective, definition) =>
-				definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevelProgress),
+			level: await findObjective(item, objective =>
+				objective.definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevel),
+			progress: await findObjective(item, objective =>
+				objective.definition.uiStyle === DestinyObjectiveUiStyle.CraftingWeaponLevelProgress),
 		};
 	}
 
-	async function resolveAttunement (manifest: Manifest, item: IItemInit) {
+	async function resolveAttunement (item: IItemInit) {
 		if (!(item.reference.state & ItemState.HighlightedObjective))
 			return undefined;
 
-		return findObjective(manifest, item, (objective, definition) =>
-			definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted);
+		return findObjective(item, objective =>
+			objective.definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted);
 	}
 
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {
@@ -84,14 +80,11 @@ namespace Deepsight {
 		};
 	}
 
-	async function findObjective ({ DestinyObjectiveDefinition }: Manifest, item: IItemInit, predicate: (objective: DestinyObjectiveProgress, definition: DestinyObjectiveDefinition) => any): Promise<IObjective | undefined> {
-		for (const objective of item.objectives) {
-			const definition = await DestinyObjectiveDefinition.get(objective.objectiveHash, item.bucket !== "collections");
-			if (!definition)
-				continue;
-
-			if (predicate(objective, definition))
-				return { objective: objective, definition };
+	async function findObjective (item: IItemInit, predicate: (objective: Objectives.IObjective) => any): Promise<Objectives.IObjective | undefined> {
+		const sockets = await item.sockets ?? [];
+		for (const objective of sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? [])) {
+			if (predicate(objective))
+				return objective;
 		}
 
 		return undefined;

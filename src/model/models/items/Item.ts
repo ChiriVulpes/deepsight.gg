@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { BucketHashes, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
@@ -142,7 +142,6 @@ export interface IItemInit {
 	definition: DestinyInventoryItemDefinition;
 	bucket: BucketId;
 	instance?: DestinyItemInstanceComponent;
-	objectives: DestinyObjectiveProgress[];
 	sockets?: PromiseOr<(Socket | undefined)[]>;
 	source?: DestinySourceDefinition;
 	deepsight?: IDeepsight;
@@ -197,7 +196,6 @@ class Item {
 			definition,
 			bucket,
 			instance: profile.itemComponents?.instances.data?.[reference.itemInstanceId!],
-			objectives: Object.values(profile.itemComponents?.plugObjectives.data?.[reference.itemInstanceId!]?.objectivesPerPlug ?? {}).flat(),
 		};
 
 		await Promise.all([
@@ -218,7 +216,6 @@ class Item {
 			definition,
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			bucket: "collections" as any,
-			objectives: [],
 			sockets: [],
 		};
 
@@ -238,6 +235,10 @@ class Item {
 				: this.bucket;
 	}
 
+	public get objectives () {
+		return this.sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? []);
+	}
+
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
 	}
@@ -251,7 +252,7 @@ class Item {
 	}
 
 	public hasDeepsight () {
-		const objectiveComplete = this.deepsight?.attunement?.objective.complete ?? false;
+		const objectiveComplete = this.deepsight?.attunement?.progress.complete ?? false;
 		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress.complete ?? false);
 		return !this.deepsight?.attunement ? false
 			: objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns;
@@ -291,7 +292,6 @@ class Item {
 			this.equipped = item.equipped;
 		}
 		this.instance = item.instance;
-		this.objectives = item.objectives;
 		this.sockets = item.sockets;
 		this.source = item.source;
 		this.deepsight = item.deepsight;

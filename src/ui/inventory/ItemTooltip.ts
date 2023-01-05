@@ -245,10 +245,10 @@ class ItemTooltip extends Tooltip {
 
 		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);
 		if (item.shaped) {
-			const progressObjective = item.shaped.progress?.objective;
+			const progressObjective = item.shaped.progress?.progress;
 			const progress = (progressObjective?.progress ?? 0) / (progressObjective?.completionValue ?? 1);
 			this.weaponLevel.style.set("--progress", `${progress}`);
-			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.objective.progress ?? 0}`);
+			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.progress.progress ?? 0}`);
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
@@ -374,7 +374,7 @@ class ItemTooltip extends Tooltip {
 
 		this.deepsightProgressBar.classes.toggle(!item.deepsight?.attunement, Classes.Hidden);
 		if (item.deepsight?.attunement) {
-			const progress = (item.deepsight.attunement.objective.progress ?? 0) / item.deepsight.attunement.objective.completionValue;
+			const progress = (item.deepsight.attunement.progress.progress ?? 0) / item.deepsight.attunement.progress.completionValue;
 			this.deepsightProgressBar.style.set("--progress", `${progress}`);
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}

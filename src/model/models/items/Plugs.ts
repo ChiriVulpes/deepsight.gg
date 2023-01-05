@@ -1,9 +1,9 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import { ItemCategoryHashes, PlugCategoryHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
+import Objectives from "model/models/items/Objectives";
 import Manifest from "model/models/Manifest";
 import Maths from "utility/maths/Maths";
-import Objects from "utility/Objects";
 
 export interface Socket extends Socket.ISocketInit {
 }
@@ -21,7 +21,9 @@ export class Socket {
 	}
 
 	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit) {
-		const socket = Objects.inherit(init, Socket);
+		const socket = new Socket();
+		Object.assign(socket, init);
+		delete socket.objectives;
 
 		const { DestinyPlugSetDefinition } = manifest;
 		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash, item?.bucket !== "collections"))
@@ -40,6 +42,9 @@ export class Socket {
 
 		if (socket.socketedPlug)
 			socket.socketedPlug.socketed = true;
+
+		for (const plug of socket.plugs)
+			plug.objectives = await Objectives.resolve(manifest, init.objectives![plug.plugItemHash] ?? [], plug, item);
 
 		return socket;
 	}
@@ -72,6 +77,7 @@ export namespace Socket {
 		state?: DestinyItemSocketState;
 		category?: DestinyItemSocketCategoryDefinition;
 		plugs: DestinyItemPlugBase[];
+		objectives?: Record<number, DestinyObjectiveProgress[]>;
 	}
 }
 
@@ -180,6 +186,7 @@ export class Plug {
 	public definition?: DestinyInventoryItemDefinition;
 	public type!: PlugType;
 	public perks!: Perk[];
+	public objectives!: Objectives.IObjective[];
 
 	private constructor () { }
 
@@ -214,20 +221,26 @@ namespace Plugs {
 	}
 
 	export async function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {
-		const { socketCategories, /*intrinsicSockets,*/ socketEntries } = item.definition.sockets ?? {};
-		const states = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
-		const plugs = profile.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? [];
-		return item.sockets = Promise.all((socketEntries ?? [])
-			.map(async (definition, i) => Socket.resolve(manifest, {
-				definition,
-				state: states[i],
-				category: socketCategories?.find(category => category.socketIndexes.includes(i)),
-				plugs: plugs[i] ?? [],
-			}, item)))
-			.then(sockets => {
-				item.sockets = sockets;
-				return sockets;
-			});
+		return item.sockets = (async (): Promise<(Socket | undefined)[]> => {
+			const { socketCategories, /*intrinsicSockets,*/ socketEntries } = item.definition.sockets ?? {};
+			const states = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
+
+			const plugs = profile.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? {};
+			const objectivesByPlug = profile.itemComponents?.plugObjectives?.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug ?? {};
+
+			const sockets = await Promise.all((socketEntries ?? [])
+				.map(async (definition, i) => Socket.resolve(manifest, {
+					definition,
+					state: states[i],
+					category: socketCategories?.find(category => category.socketIndexes.includes(i)),
+					plugs: plugs[i] ?? [],
+					objectives: objectivesByPlug,
+				}, item)));
+
+			item.sockets = sockets;
+
+			return item.sockets;
+		})();
 	}
 }
 

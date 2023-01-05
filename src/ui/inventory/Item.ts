@@ -188,7 +188,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 
 		if (!item.shaped) {
-			const objectiveComplete = item.deepsight?.attunement?.objective.complete ?? false;
+			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
 			if (item.hasDeepsight())
 				Component.create()
 					.classes.add(ItemClasses.Deepsight)
