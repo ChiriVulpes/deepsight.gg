@@ -105,7 +105,7 @@
 				
 				&-button {
 					background: none;
-					padding: 0 8px;
+					padding: 0 calc(8px - .1em) 0 8px;
 					border: none;
 					text-transform: uppercase;
 					color: color(accent-0);
@@ -343,6 +343,30 @@
 		}
 	}
 	
+	&-perks-button-wishlist-perks-marked-as-junk {
+		
+		&:not(:hover, :focus-visible) {
+			color: color(wishlist-color-no-match);
+		}
+		
+		&::after {
+			content: "";
+			display: block;
+			width: .85em;
+			height: .85em;
+			background: currentColor;
+			-webkit-mask-image: url("/image/svg/delete.svg");
+			-webkit-mask-size: contain;
+			-webkit-mask-repeat: no-repeat;
+			mask-image: url("/image/svg/delete.svg");
+			mask-size: contain;
+			mask-repeat: no-repeat;
+			position: relative;
+			order: -1;
+			padding-right: .5em;
+		}
+	}
+	
 	&-perks-wishlist {
 		&-container {
 			margin-left: auto;
@@ -350,30 +374,32 @@
 		}
 		
 		&-button-add {
-			.view-item-perks:not(.view-item-perks-wishlisting) &-plus-icon {
-				position: relative;
-				width: .75em;
-				height: .75em;
-				margin-right: .3em;
-				
-				&::before, &::after {
-					content: "";
-					display: block;
-					background: currentColor;
-					width: 2px;
-					height: 2px;
-					position: absolute;
-					top: 50%;
-					left: 50%;
-					transform: translate(-50%, -50%);
-				}
-				
-				&::before {
-					height: 100%;
-				}
-				
-				&::after {
-					width: 100%;
+			.view-item-perks:not(.view-item-perks-wishlisting) &:not(.view-item-perks-button-wishlist-perks-marked-as-junk) & {
+				&-plus-icon {
+					position: relative;
+					width: .75em;
+					height: .75em;
+					margin-right: .3em;
+					
+					&::before, &::after {
+						content: "";
+						display: block;
+						background: currentColor;
+						width: 2px;
+						height: 2px;
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+					}
+					
+					&::before {
+						height: 100%;
+					}
+					
+					&::after {
+						width: 100%;
+					}
 				}
 			}
 			
@@ -447,8 +473,8 @@
 			left: initial;
 			padding: 10px !important;
 			padding-top: 41px !important;
-			height: 300px;
-			min-width: 200px;
+			max-height: 300px;
+			min-width: 214px;
 			display: flex;
 			flex-direction: column;
 			
@@ -458,7 +484,7 @@
 			
 			&.hidden {
 				opacity: 0;
-				height: 0px;
+				max-height: 0px;
 			}
 			
 			&-wishlist {
@@ -507,6 +533,10 @@
 							width: 2px;
 						}
 					}
+				}
+				
+				&:last-of-type {
+					margin-bottom: -8px;
 				}
 			}
 		}

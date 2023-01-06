@@ -59,6 +59,10 @@ namespace Arrays {
 			return -1;
 		},
 	});
+
+	export function tuple<VALUES extends any[]> (...values: VALUES): VALUES {
+		return values;
+	}
 }
 
 export default Arrays;

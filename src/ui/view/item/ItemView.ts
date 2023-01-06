@@ -45,8 +45,8 @@ enum ItemViewClasses {
 }
 
 const itemViewBase = View.create({
-	models: (item: Item | string) => typeof item !== "string" ? []
-		: [Model.createTemporary(async api => resolveItemURL(item, api))],
+	models: (item: Item | string) =>
+		[Model.createTemporary(async api => typeof item !== "string" ? undefined : resolveItemURL(item, api))],
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
