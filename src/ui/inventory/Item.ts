@@ -169,6 +169,23 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 		}
 
+		if (!shaped) {
+			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
+			if (item.hasDeepsight())
+				Component.create()
+					.classes.add(ItemClasses.Deepsight)
+					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
+					.appendTo(this);
+
+			if (item.deepsight?.pattern)
+				Component.create()
+					.classes.add(ItemClasses.DeepsightPattern)
+					.classes.toggle(item.deepsight.pattern.progress.complete, ItemClasses.DeepsightPatternUnlocked)
+					.appendTo(Component.create()
+						.classes.add(ItemClasses.DeepsightHasPattern)
+						.appendTo(this));
+		}
+
 		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
 		if (item.isMasterwork())
 			Component.create()
@@ -188,23 +205,6 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.classes.add(ItemClasses.WishlistNoMatch)
 				.append(Component.create())
 				.appendTo(this);
-
-		if (!shaped) {
-			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
-			if (item.hasDeepsight())
-				Component.create()
-					.classes.add(ItemClasses.Deepsight)
-					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
-					.appendTo(this);
-
-			if (item.deepsight?.pattern)
-				Component.create()
-					.classes.add(ItemClasses.DeepsightPattern)
-					.classes.toggle(item.deepsight.pattern.progress.complete, ItemClasses.DeepsightPatternUnlocked)
-					.appendTo(Component.create()
-						.classes.add(ItemClasses.DeepsightHasPattern)
-						.appendTo(this));
-		}
 
 		this.extra.appendTo(this);
 

@@ -89,6 +89,10 @@
 		background-size: 300% 100%;
 		background-position: center;
 		
+		.item-deepsight ~ & {
+			inset: 2px;
+		}
+		
 		&-spinny {
 			position: absolute;
 			inset: 0;
@@ -294,7 +298,7 @@
 			z-index: -1;
 			inset: 1px;
 			:where(.item-masterwork, .item-deepsight) ~ & {
-				inset: 2px
+				inset: 2px;
 			}
 		}
 	}
