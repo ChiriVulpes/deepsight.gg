@@ -28,6 +28,16 @@ namespace Strings {
 
 		return string.slice(index + substring.length);
 	}
+
+	export function extractFromQuotes (string?: string | null) {
+		let substring = (string ?? "").trim();
+		if (substring[0] === '"')
+			substring = substring.slice(1);
+		if (substring[substring.length - 1] === '"')
+			substring = substring.slice(0, -1);
+
+		return substring.trim();
+	}
 }
 
 export default Strings;

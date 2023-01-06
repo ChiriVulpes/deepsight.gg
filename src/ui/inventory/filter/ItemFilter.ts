@@ -9,6 +9,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Async from "utility/Async";
 import Store from "utility/Store";
+import Strings from "utility/Strings";
 
 interface IToken {
 	text: string;
@@ -56,6 +57,8 @@ export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
 class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string, isHint?: true]> {
 
 	public prefix!: string;
+	public value!: string;
+	public searchableValue!: string;
 	public id!: string;
 	public isHint!: boolean;
 	public shouldHideByDefault!: boolean;
@@ -68,9 +71,14 @@ class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: st
 		icon ??= IFilter.icon(value, filter.icon);
 		const maskIcon = IFilter.icon(value, filter.maskIcon);
 
+		this.prefix = filter.prefix;
+		this.value = value;
+		this.searchableValue = ` ${value.toLowerCase()}`;
+		this.id = `${filter.prefix}${value.toLowerCase()}`;
+
 		this.classes.add(ItemFilterClasses.FilterChipButton)
 			.classes.toggle(this.shouldHideByDefault, Classes.Hidden)
-			.attributes.set("data-id", this.id = `${this.prefix = filter.prefix}${value}`)
+			.attributes.set("data-id", this.id)
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonPrefix)
 				.text.set(filter.prefix))
@@ -301,7 +309,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	}
 
 	private toggleChip (filter: IFilter, value?: string) {
-		const chipText = `${filter.prefix}${value ?? ""}`;
+		const chipText = `${filter.prefix}${!value ? "" : value.includes(" ") ? `"${value}"` : value}`;
 
 		const editingChip = this.getEditingChip();
 		const textContent = this.input.element.textContent ?? "";
@@ -317,7 +325,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 		} else {
 			editingChip.value?.remove();
-			editingChip.prefix.replaceWith(new Text(chipText));
+			editingChip.prefix.replaceWith(document.createTextNode(chipText));
 		}
 
 		this.cleanup();
@@ -356,7 +364,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				const range = ranges[i];
 				for (let ri = 0; ri < 2; ri++) {
 					if (range[ri] <= token.start && range[ri] > lastEnd) {
-						rangeElements[i][ri === 0 ? "setStart" : "setEnd"](this.input.element.lastChild!, 1);
+						rangeElements[i][ri === 0 ? "setStart" : "setEnd"](this.input.element.lastChild ?? this.input.element, this.input.element.lastChild ? 1 : 0);
 					}
 				}
 			}
@@ -370,7 +378,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 			const filter = this.filterer.add(raw) ?? {};
 
-			const value = token.text.slice(filter.prefix.length).toLowerCase();
+			const valueRaw = token.text.slice(filter.prefix.length);
+			const value = Strings.extractFromQuotes(valueRaw).toLowerCase();
+			const forceAddQuotes = valueRaw.length > value.length;
 
 			let textNode: Text;
 			Component.create("span")
@@ -399,7 +409,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)
 				.style.set("--colour", IFilter.colour(value, filter.colour))
 				.style.set("--icon", icon ?? maskIcon)
-				.append(textNode = document.createTextNode(value))
+				.append(textNode = document.createTextNode(forceAddQuotes || value.includes(" ") ? `"${value}"` : value))
 				.appendTo(this.input);
 
 			// handle range being in value
@@ -407,7 +417,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				const range = ranges[i];
 				for (let ri = 0; ri < 2; ri++) {
 					if (range[ri] >= token.start + filter.prefix.length && range[ri] <= token.end) {
-						rangeElements[i][ri === 0 ? "setStart" : "setEnd"](textNode, range[ri] - (token.start + filter.prefix.length));
+						rangeElements[i][ri === 0 ? "setStart" : "setEnd"](textNode, Math.min(range[ri] - (token.start + filter.prefix.length), textNode.length));
 					}
 				}
 			}
@@ -468,16 +478,27 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		const editingChip = this.getEditingChip();
 		const currentChips = this.filterer.getFilterIds();
 
-		const id = `${editingChip?.prefix.textContent ?? ""}${editingChip?.value?.textContent ?? ""}`;
+		const prefix = editingChip?.prefix.textContent ?? "";
+		const value = Strings.extractFromQuotes(editingChip?.value?.textContent);
+		const id = `${prefix}${value}`;
+		const words = !value ? [] : value.toLowerCase().split(/\s+/g);
 		for (const chip of this.suggestedChips) {
-			if (currentChips.includes(chip.id))
+			if (currentChips.includes(chip.id)) {
 				chip.hide();
-			else if (chip.shouldHideByDefault)
-				chip.toggle(!!id && id.startsWith(chip.prefix) && chip.id.startsWith(id));
-			else if (chip.isHint)
+				continue;
+			}
+
+			if (chip.isHint) {
 				chip.toggle(!id || chip.id.startsWith(id) && id.length < chip.prefix.length)
+				continue;
+			}
+
+			const wordsInChip = () => words.every(word => chip.searchableValue.includes(` ${word}`));
+
+			if (chip.shouldHideByDefault)
+				chip.toggle(!!id && (!prefix && !!words.length && (wordsInChip() || chip.prefix.startsWith(id)) || id.startsWith(chip.prefix) && wordsInChip()));
 			else
-				chip.toggle(!id || chip.id.startsWith(id));
+				chip.toggle(!id || (!prefix && !!words.length && (wordsInChip() || chip.prefix.startsWith(id)) || id.startsWith(chip.prefix) && wordsInChip()));
 		}
 	}
 

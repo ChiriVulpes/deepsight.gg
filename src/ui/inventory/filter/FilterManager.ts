@@ -8,6 +8,7 @@ import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
 import FilterSource from "ui/inventory/filter/filters/FilterSource";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
+import Strings from "utility/Strings";
 
 let filterMap: Record<Filter, IFilter> | undefined;
 
@@ -72,7 +73,8 @@ class FilterManager {
 			if (!token.startsWith(filter.prefix))
 				continue;
 
-			const value = token.slice(filter.prefix.length);
+			const value = Strings.extractFromQuotes(token.slice(filter.prefix.length));
+
 			if (filter.matches?.(value) ?? true) {
 				this.current.push({
 					filter: filter.id,

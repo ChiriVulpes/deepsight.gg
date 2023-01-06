@@ -1,4 +1,5 @@
 import Manifest from "model/models/Manifest";
+import Display from "ui/bungie/DisplayProperties";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 
@@ -9,11 +10,8 @@ export default IFilter.async(async () => {
 
 	function sourceMatches (source: DestinySourceDefinition, value: string) {
 		source.displayProperties.nameLowerCase ??= source.displayProperties.name.toLowerCase();
-		source.displayProperties.nameLowerCaseCompressed ??= source.displayProperties.nameLowerCase
-			.replace(/\s+/g, "");
 
 		return source.displayProperties.nameLowerCase.startsWith(value)
-			|| source.displayProperties.nameLowerCaseCompressed.startsWith(value)
 			|| source.id.startsWith(value);
 	}
 
@@ -26,13 +24,13 @@ export default IFilter.async(async () => {
 		prefix: "source:",
 		colour: 0x3B3287,
 		suggestedValueHint: "expansion, season, or event",
-		suggestedValues: sources.map(source => source.id),
+		suggestedValues: sources.map(source => Display.name(source) ?? source.id),
 		apply: (value, item) => !item.source ? false : sourceMatches(item.source, value),
 		maskIcon: value => {
 			if (!value)
 				return undefined;
 
-			const matches = getAllMatches(value);
+			const matches = getAllMatches(value.toLowerCase());
 			if (matches.length !== 1)
 				return undefined;
 
