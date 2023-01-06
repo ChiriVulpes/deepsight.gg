@@ -144,7 +144,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			.appendTo(this);
 
 		const shaped = item.shaped || (item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !this.inventory?.craftedItems.has(item.definition.hash));
-		if (shaped && (!item.shaped || !Store.items.settingsDisableShapedIcon))
+		if (shaped && !item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
 				.append(Component.create())

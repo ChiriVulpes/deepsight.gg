@@ -28,7 +28,6 @@ export interface ILocalStorage extends ILocalStorageBase {
 	settingsBackground?: string;
 	settingsDisplayWishlistedHighlights?: true;
 	settingsDisableDisplayNonWishlistedHighlights?: true;
-	settingsDisableShapedIcon?: true;
 	itemFilter?: string;
 }
 
