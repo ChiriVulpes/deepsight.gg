@@ -13,10 +13,12 @@ enum Filter {
 
 export default Filter;
 
+export type IFilterSuggestedValue = { name: string, icon: string };
+
 export interface IFilter {
 	id: Filter;
 	prefix: string;
-	suggestedValues?: string[];
+	suggestedValues?: (IFilterSuggestedValue | string)[];
 	suggestedValueHint?: string;
 	matches?(filterValue: string): boolean;
 	apply (filterValue: string, item: Item): boolean;

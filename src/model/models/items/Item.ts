@@ -278,8 +278,8 @@ class Item {
 		return this.id === item.id;
 	}
 
-	public getSockets (type: PlugType) {
-		return Socket.filterByPlugs(this.sockets, type);
+	public getSockets (...types: PlugType[]) {
+		return types.flatMap(type => Socket.filterByPlugs(this.sockets, type));
 	}
 
 	public update (item: Item) {

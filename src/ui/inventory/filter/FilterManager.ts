@@ -38,7 +38,7 @@ class FilterManager {
 			[Filter.Ammo]: FilterAmmo,
 			[Filter.Element]: await ElementFilter(),
 			[Filter.WeaponType]: FilterWeaponType,
-			[Filter.Perk]: FilterPerk,
+			[Filter.Perk]: await FilterPerk(),
 			[Filter.Source]: await FilterSource(),
 			[Filter.Shaped]: FilterShaped,
 			[Filter.Masterwork]: FilterMasterwork,
@@ -99,6 +99,10 @@ class FilterManager {
 		// it's alright that it's the same filters, they get dumped from current rather than modified
 		this.last = this.current.slice();
 		return !isIdentical;
+	}
+
+	public getFilterIds () {
+		return this.current.map(filter => `${filterMap![filter.filter].prefix}${filter.value}`);
 	}
 }
 

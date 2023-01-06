@@ -63,6 +63,14 @@ namespace Arrays {
 	export function tuple<VALUES extends any[]> (...values: VALUES): VALUES {
 		return values;
 	}
+
+	export function filterNullish<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined> {
+		return value !== null && value !== undefined;
+	}
+
+	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | ""> {
+		return !!value;
+	}
 }
 
 export default Arrays;
