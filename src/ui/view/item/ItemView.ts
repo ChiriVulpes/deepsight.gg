@@ -46,15 +46,15 @@ enum ItemViewClasses {
 
 const itemViewBase = View.create({
 	models: (item: Item | string) =>
-		[Model.createTemporary(async api => typeof item !== "string" ? undefined : resolveItemURL(item, api))],
+		[Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))],
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
 	noDestinationButton: true,
-	initialise: (view, itemModel) => {
+	initialise: (view, itemResult) => {
 		LoadingManager.end(view.definition.id);
 
-		const item = view._args[1] = itemModel ?? view._args[1]! as Item;
+		const item = itemResult!;
 
 		console.log(item.definition.displayProperties.name, item);
 
