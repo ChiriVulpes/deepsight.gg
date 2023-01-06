@@ -192,7 +192,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.hints);
 
 		this.hintInspect = Hint.create([IInput.get("MouseRight")])
-			.tweak(hint => hint.label.text.set("Inspect"))
+			.tweak(hint => hint.label.text.set("Details"))
 			.appendTo(this.hints);
 	}
 
