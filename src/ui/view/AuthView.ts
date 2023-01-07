@@ -17,7 +17,8 @@ export enum AuthViewClasses {
 
 export default View.create({
 	id: "auth",
-	name: "Authentication",
+	hash: null,
+	name: null,
 	noNav: true,
 	noDestinationButton: true,
 	initialise: view => view.content

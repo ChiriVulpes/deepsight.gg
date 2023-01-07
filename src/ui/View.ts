@@ -13,8 +13,8 @@ namespace View {
 
 	export interface IViewBase<ARGS extends any[]> {
 		id: string;
-		hash?: (...args: ARGS) => string;
-		name: string | ((...args: ARGS) => string);
+		hash?: string | ((...args: ARGS) => string) | null;
+		name: string | ((...args: ARGS) => string) | null;
 		initialiseDestinationButton?: (button: Button) => any;
 		noNav?: true;
 		noDestinationButton?: true;
@@ -162,8 +162,15 @@ namespace View {
 			return this._footer.classes.remove(BaseClasses.Hidden);
 		}
 
-		public get hash () {
-			return this.definition.hash?.(...this._args.slice(1) as ARGS) ?? this.definition.id;
+		public get hash (): string | null {
+			let hash = this.definition.hash;
+			if (typeof hash === "string" || hash === null)
+				return hash;
+
+			if (typeof hash === "function")
+				hash = hash?.(...this._args.slice(1) as ARGS);
+
+			return hash ?? this.definition.id;
 		}
 
 		public definition!: IView<MODELS, [], ARGS, DEFINITION>;

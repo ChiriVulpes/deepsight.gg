@@ -221,7 +221,7 @@ namespace PlayerOverview {
 			let i = 0;
 
 			for (const view of slotViews) {
-				let name = view.definition.name;
+				let name = view.definition.name ?? "Unknown View";
 				if (typeof name === "function")
 					name = name();
 

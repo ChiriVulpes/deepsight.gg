@@ -76,7 +76,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 			this.destinationButtons[destinationViewHandler.id] = Button.create()
 				.classes.add(ClassesAppNav.Destination, `app-nav-destination-${destinationViewHandler.id}`)
-				.text.set(name)
+				.text.set(name ?? "Unknown View")
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show())
 				.appendTo(this.destinationsWrapper);

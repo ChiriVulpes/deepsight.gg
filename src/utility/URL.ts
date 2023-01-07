@@ -35,9 +35,9 @@ export default class URL {
 		return location.hash.slice(1);
 	}
 
-	public static set hash (value: string) {
+	public static set hash (value: string | null) {
 		if (!poppingState)
-			history.pushState(null, "", `${location.origin}${location.pathname}${location.search}#${value}`);
+			history.pushState(null, "", `${location.origin}${location.pathname}${location.search}${value ? `#${value}` : ""}`);
 	}
 
 	public static get params () {

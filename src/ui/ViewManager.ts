@@ -74,9 +74,12 @@ export default class ViewManager {
 		this.defaultView.show();
 	}
 
-	public static showByHash (hash: string): void {
+	public static showByHash (hash: string | null): void {
 		if (hash === this.view?.hash)
 			return;
+
+		if (hash === null)
+			return this.showDefaultView();
 
 		const view = registry[hash] ?? registry[Strings.sliceTo(hash, "/")];
 		if (view?.redirectOnLoad === true || hash === "")
@@ -140,7 +143,7 @@ export default class ViewManager {
 		if (typeof name === "function")
 			name = name(...view._args.slice(1) as []);
 
-		document.title = `${name} // ${APP_NAME}`;
+		document.title = name ? `${name} // ${APP_NAME}` : APP_NAME;
 	}
 }
 
