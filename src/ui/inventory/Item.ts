@@ -72,6 +72,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		await done;
 	}
 
+	private lastUpdatePromise?: Promise<void>;
 	private update (event: { item: Item }) {
 		if (!document.contains(this.element)) {
 			this.item.event.unsubscribe("update", this.update);
@@ -80,7 +81,15 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 			return;
 		}
 
-		void this.setItem(event.item);
+		void (async () => {
+			while (this.lastUpdatePromise)
+				await this.lastUpdatePromise;
+
+			const updatePromise = this.lastUpdatePromise = this.setItem(event.item);
+			await this.lastUpdatePromise;
+			if (this.lastUpdatePromise === updatePromise)
+				delete this.lastUpdatePromise;
+		})();
 	}
 
 	private loadStart () {
