@@ -109,7 +109,7 @@ export default class ItemPerks extends ItemSockets {
 					return;
 
 				this.editingWishlist.name = this.wishlistNameInput.text.get()?.trim().slice(0, 20) ?? "";
-				this.saveWishlists();
+				this.saveWishlists({ preserveEmptyWishlists: true });
 			})
 			.event.subscribe("paste", this.onPaste);
 
