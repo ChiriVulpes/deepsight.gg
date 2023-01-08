@@ -31,9 +31,17 @@
 	 * @param {string[]} reqs
 	 * @param {ModuleInitializer} fn
 	 */
-	function define (name, reqs, fn) {
+	function define (name, reqs = [], fn) {
 		if (moduleMap.has(name))
 			throw new Error(`Module "${name}" cannot be redefined`);
+
+		if (typeof reqs === "function") {
+			if (fn)
+				throw new Error("Unsupport define call");
+
+			fn = reqs;
+			reqs = [];
+		}
 
 		/**
 		 * @type {Module}
