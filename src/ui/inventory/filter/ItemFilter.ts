@@ -155,7 +155,13 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.text.set(Store.items.settingsClearItemFilterOnSwitchingViews ? "" : Store.items.itemFilter ?? "")
 			.event.subscribe("paste", this.onPaste)
 			.event.subscribe("input", this.onInput)
-			.event.subscribe("focus", this.openDrawer)
+			.event.subscribe("focus", () => {
+				this.button.attributes.set("tabindex", "-1");
+				void this.openDrawer();
+			})
+			.event.subscribe("blur", () => {
+				this.button.attributes.remove("tabindex");
+			})
 			.appendTo(this.button);
 
 		this.reset = this.reset.bind(this);
@@ -223,10 +229,10 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		if (!this.drawer.classes.has(Classes.Hidden))
 			return this.input.element.focus();
 
-		this.button.attributes.set("tabindex", "-1");
 		this.drawer.open();
 
 		await Async.sleep(0); // next tick
+		this.input.element.focus();
 		const selection = window.getSelection();
 		if (!this.input.element.contains(selection?.focusNode ?? null) || !this.input.element.contains(selection?.anchorNode ?? null))
 			selection?.selectAllChildren(this.input.element);
@@ -235,7 +241,6 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	}
 
 	private closeDrawer () {
-		this.button.attributes.remove("tabindex");
 		this.drawer.close();
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		document.removeEventListener("focusout", this.onFocusOut);
@@ -272,7 +277,12 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			void this.openDrawer();
 		}
 
-		if (this.drawer.isOpen() && (event.useOverInput("Escape") || event.useOverInput("Enter"))) {
+		if (this.input.isFocused() && event.useOverInput("Escape")) {
+			this.closeDrawer();
+			this.reset(true);
+		}
+
+		if (this.drawer.isOpen() && event.useOverInput("Enter")) {
 			this.closeDrawer();
 			this.event.emit(new SubmitEvent("submit"));
 		}
@@ -304,6 +314,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			range.collapse();
 		}
 
+		void this.openDrawer();
 		this.cleanup();
 		this.filterChips();
 	}
@@ -339,6 +350,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	}
 
 	private onInput (event: Event) {
+		void this.openDrawer();
 		this.cleanup();
 		this.filterChips();
 	}
