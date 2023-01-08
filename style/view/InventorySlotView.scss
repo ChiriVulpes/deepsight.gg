@@ -392,6 +392,10 @@
 			grid-template-rows: repeat(3, 1fr);
 			overflow: hidden;
 			
+			@include tablet-or-mobile {
+				overflow: initial;
+			}
+			
 			&-combined {
 				grid-template-rows: 1fr;
 			}
