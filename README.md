@@ -1,7 +1,9 @@
 # deepsight.gg
-### Destiny 2 Vault Manager
+### Another Destiny 2 Vault Manager
 
-deepsight.gg is definitely not at the same level of development as Destiny Item Manager, but I'd like to think it handles the basics well! 
+Yes, yes, I know. Retreading ground that's already been tread. To be fair, though, the whole reason I did this is because there's stuff that I needed that DIM didn't handle — namely, sorting armour by stat distribution, and wishlisting specific rolls of weapons.
+
+No, deepsight.gg is definitely not at the same level of development as Destiny Item Manager, but I'd like to think it handles the basics well! If you give it a try, thanks!
 
 ## Slot Views
 One view per slot — Kinetic, Energy, Power, Helmet, Arms, Chest, Legs, Class Item. This results in more items being displayable at one time, at a larger size, and allows quickly transferring them between characters and the vault. I know it's not like DIM — it's not supposed to be!
