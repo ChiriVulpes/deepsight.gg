@@ -1,4 +1,6 @@
 .view-auth {
+	perspective: 500px;
+	perspective-origin: center center;
 	grid-template-rows: 1fr;
 	&-content {
 		grid-row: 1;
@@ -70,5 +72,100 @@
 	
 	&-logo, &-title, &-state, &-button-auth {
 		@include view-swipe-animation;
+	}
+	
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 10%;
+		left: -10%;
+		transform: translateX(-50%) translateY(-50%) translateZ(-500px) rotateX(25deg) rotateY(-5deg) rotateZ(15deg);
+		transform-origin: center center;
+		
+		$sc-vault: url(https://user-images.githubusercontent.com/6081834/209422574-9c48fc61-18ae-4fc6-83fc-0596dc85b836.png);
+		$sc-collections: url(https://user-images.githubusercontent.com/6081834/209422841-14113e21-dafc-47c4-97f5-8c3b39fb9428.png);
+		$sc-wishlisting: url(https://user-images.githubusercontent.com/6081834/209422859-d9012d7b-b035-4ff2-aede-0d2c85ec023e.png);
+		
+		$backgrounds: 
+			$sc-vault, $sc-collections, $sc-wishlisting, 
+			$sc-wishlisting, $sc-vault, $sc-collections,
+			$sc-collections, $sc-wishlisting, $sc-vault;
+		$width: 1920px;
+		$height: 937px;
+		$positions: 
+			0px 0px, $width * 1 0px, $width * 2 0px,
+			0px $height * 1, $width * 1 $height * 1, $width * 2 $height * 1,
+			0px $height * 2, $width * 1 $height * 2, $width * 2 $height * 2;
+			
+		$offsets: 0px, 100px, 50px,
+			-50px, 0px, -100px,
+			0px, -50px, -70px;
+		
+		@function list-remove($list, $index) {
+			$newList: ();
+			@for $i from 1 through length($list) {
+				@if $i != $index {
+					$newList: append($newList, nth($list,$i), 'space');
+				}
+			}
+			@return $newList;
+		}
+
+		@function sort-indices($list) {
+			$list-with-indices: ();
+			@for $i from 1 through length($list) {
+				$list-with-indices: append($list-with-indices, (nth($list, $i), $i));
+			}
+			
+			// @debug $list-with-indices;
+			
+			$sortedlist: ();
+			@while length($list-with-indices) > 0 {
+				$index: 1;
+				$value: nth($list-with-indices, $index);
+				$remove-index: $index;
+				$index: nth($value, 2);
+				// @debug default index $index of $value;
+				@for $i from 1 through length($list-with-indices) {
+					$test-value: nth($list-with-indices, $i);
+					@if nth($test-value, 1) < nth($value, 1) {
+						$index: nth($test-value, 2);
+						$remove-index: $i;
+						// @debug preferring index $index of $test-value;
+					}
+				}
+				$sortedlist: append($sortedlist, $index, 'space');
+				$list-with-indices: list-remove($list-with-indices, $remove-index);
+			}
+			@return $sortedlist;
+		}
+		
+		$indices: sort-indices($offsets);
+		// @debug $indices;
+		// @each $index in $indices {
+		// 	@debug nth($offsets, $index);
+		// }
+		
+		$background-value: ();
+		$background-position-value: ();
+		@each $i in $indices {
+			$background: nth($backgrounds, $i);
+			$position: nth($positions, $i);
+			$offset: nth($offsets, $i);
+			
+			$background-value: append($background-value, $background, "comma");
+			$background-position-value: append($background-position-value, unquote("#{nth($position, 1) + $offset} #{nth($position, 2) + $offset}"), "comma");
+		}
+		
+		background: $background-value;
+		background-position: $background-position-value;
+		
+		width: $width * 3;
+		height: $height * 3;
+		background-size: $width $height;
+		background-repeat: no-repeat;
+		filter: blur(5px);
+		opacity: .2;
 	}
 }
