@@ -38,7 +38,7 @@ class FilterManager {
 		filterMap = {
 			[Filter.Ammo]: FilterAmmo,
 			[Filter.Element]: await ElementFilter(),
-			[Filter.WeaponType]: FilterWeaponType,
+			[Filter.WeaponType]: await FilterWeaponType(),
 			[Filter.Perk]: await FilterPerk(),
 			[Filter.Source]: await FilterSource(),
 			[Filter.Shaped]: FilterShaped,
