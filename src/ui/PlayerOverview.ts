@@ -309,7 +309,7 @@ namespace PlayerOverview {
 				return;
 			}
 
-			if (event.use("c") && this.drawer.toggle("key"))
+			if ((event.use("c") || event.use("p") || event.use("o") || event.use("F1")) && this.drawer.toggle("key"))
 				this.drawer.element.focus();
 
 			if (this.drawer.isOpen() && event.useOverInput("Escape"))
