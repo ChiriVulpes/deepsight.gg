@@ -279,14 +279,15 @@
 			
 			&s-container {
 				display: flex;
-				flex-direction: column;
-				writing-mode: vertical-lr;
+				flex-direction: row;
 				gap: 40px;
 			}
 			
 			position: relative;
-			flex-direction: row;
-			flex-wrap: wrap;
+			display: grid;
+			grid-template-rows: repeat(5, auto);
+			grid-auto-columns: auto;
+			grid-auto-flow: column;
 			max-height: calc((3.8em + 9px * 2) * 5 + 5px);
 			width: fit-content;
 			gap: 8px;
