@@ -2,3 +2,4 @@ node_modules/
 docs/
 .env
 static/testiny
+static/js/vendor

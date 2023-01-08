@@ -3,8 +3,7 @@ import fetch from "node-fetch";
 import Task from "./utilities/Task";
 
 export default Task("install", async () => {
-	// uncomment when adding new dependencies
-	// await Task.cli({ cwd: "src" }, "PATH:npm", "install");
+	await Task.cli({ cwd: "src" }, "PATH:npm", "install");
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest");
 
 	await fetch("https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/master/generated-enums.ts")
@@ -15,4 +14,7 @@ export default Task("install", async () => {
 		});
 
 	await fs.appendFile("src/node_modules/bungie-api-ts/destiny2/index.d.ts", "export * from './generated-enums';\n");
+
+	await fs.mkdirp("static/js/vendor");
+	await fs.copyFile("src/node_modules/wicg-inert/dist/inert.min.js", "static/js/vendor/inert.min.js");
 });
