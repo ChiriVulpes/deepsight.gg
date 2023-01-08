@@ -140,9 +140,15 @@ export default class Drawer extends Component {
 	}
 
 	public toggle (reason = "generic") {
-		if (this.isOpen())
-			this.close(reason);
+		const added = !this.openReasons.has(reason);
+		if (added)
+			this.openReasons.add(reason);
 		else
+			this.openReasons.delete(reason);
+
+		if (this.openReasons.size === 0)
+			this.close(reason);
+		else if (this.openReasons.size === 1 && added)
 			this.open(reason);
 
 		return this.isOpen();

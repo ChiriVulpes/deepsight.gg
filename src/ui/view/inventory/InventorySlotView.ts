@@ -8,9 +8,10 @@ import { PostmasterId } from "model/models/items/Item";
 import { Classes, InventoryClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
-import { ButtonClasses } from "ui/form/Button";
+import Button, { ButtonClasses } from "ui/form/Button";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
+import Drawer from "ui/form/Drawer";
 import BucketComponent from "ui/inventory/Bucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
@@ -20,6 +21,7 @@ import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
+import Store from "utility/Store";
 
 export enum InventorySlotViewClasses {
 	Main = "view-inventory-slot",
@@ -45,6 +47,10 @@ export enum InventorySlotViewClasses {
 	BucketDropTarget = "view-inventory-slot-bucket-drop-target",
 	BucketMovingFrom = "view-inventory-slot-bucket-moving-from",
 	Hints = "view-inventory-slot-hints",
+	HintsButton = "view-inventory-slot-hints-button",
+	HintsDrawer = "view-inventory-slot-hints-drawer",
+	Hint = "view-inventory-slot-hint",
+	HintIcon = "view-inventory-slot-hint-icon",
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out",
 }
 
@@ -155,6 +161,7 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public bucketEntries!: [OwnedBucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
+	public hintsDrawer!: Drawer;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
 	public filterer!: ItemFilter;
 
@@ -223,7 +230,54 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		this.hints = Component.create()
 			.classes.add(InventorySlotViewClasses.Hints)
+			.event.subscribe("mouseenter", () => this.hintsDrawer.open("mouse"))
+			.event.subscribe("mouseleave", () => this.hintsDrawer.close("mouse"))
 			.appendTo(this.super.footer);
+
+		Button.create()
+			.classes.remove(ButtonClasses.Main)
+			.classes.add(InventorySlotViewClasses.HintsButton, View.Classes.FooterButton)
+			.addIcon(icon => icon.classes.add(InventorySlotViewClasses.HintIcon))
+			.tweak(button => button.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.append(Component.create()
+				.classes.add(View.Classes.FooterButtonLabel)
+				.text.set("Help"))
+			.append(Component.create()
+				.classes.add(View.Classes.FooterButtonText)
+				.text.set("Keybinds & more"))
+			.event.subscribe("click", () => this.hintsDrawer.toggle("click"))
+			.appendTo(this.hints);
+
+		this.hintsDrawer = Drawer.create()
+			.classes.add(InventorySlotViewClasses.HintsDrawer)
+			.appendTo(this.hints);
+
+		this.hintsDrawer.createPanel()
+			.append(Component.create("p")
+				.classes.add(InventorySlotViewClasses.Hint)
+				.append(Component.create("kbd")
+					.text.set("F1"))
+				.text.add("\xa0 Player overview"))
+			.append(Component.create("p")
+				.classes.add(InventorySlotViewClasses.Hint)
+				.classes.toggle(!!Store.items.settingsAlwaysShowExtra, Classes.Hidden)
+				.append(Component.create("kbd")
+					.text.set("E"))
+				.text.add("\xa0 More information"))
+			.append(Component.create("p")
+				.classes.add(InventorySlotViewClasses.Hint)
+				.append(Component.create("kbd")
+					.text.set("Ctrl"))
+				.append(Component.create("kbd")
+					.text.set("S"))
+				.text.add("\xa0 Configure sort"))
+			.append(Component.create("p")
+				.classes.add(InventorySlotViewClasses.Hint)
+				.append(Component.create("kbd")
+					.text.set("Ctrl"))
+				.append(Component.create("kbd")
+					.text.set("F"))
+				.text.add("\xa0 Configure filter"));
 
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
@@ -514,6 +568,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
 			return;
+		}
+
+		if (this.hintsDrawer.isOpen() && event.useOverInput("Escape")) {
+			this.hintsDrawer.close(true);
 		}
 
 		if (this.filterer.isFiltered() && event.use("Escape")) {
