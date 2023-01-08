@@ -8,6 +8,7 @@
 		display: grid;
 		grid-template-columns: auto 1fr;
 		overflow-y: visible;
+		margin-left: -100px;
 		
 		width: fit-content;
 		height: fit-content;
@@ -37,6 +38,7 @@
 	&-logo {
 		grid-column: 1;
 		width: 128px;
+		margin-top: 5px;
 		margin-right: 20px;
 		
 		@media (max-width: 800px) {
@@ -167,5 +169,22 @@
 		background-repeat: no-repeat;
 		filter: blur(5px);
 		opacity: .2;
+	}
+	
+	&-footer {
+		text-align: center;
+		margin: auto;
+		height: fit-content;
+		padding: 0px 20px 10px;
+	}
+	
+	&-nav {
+		width: fit-content;
+		display: flex;
+		flex-wrap: wrap;
+		column-gap: 25px;
+		row-gap: 5px;
+		opacity: .8;
+		justify-content: right;
 	}
 }
