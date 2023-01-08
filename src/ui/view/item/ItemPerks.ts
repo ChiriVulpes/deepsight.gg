@@ -93,7 +93,7 @@ export default class ItemPerks extends ItemSockets {
 						}
 
 						this.editingWishlist.plugs = plugs;
-						this.saveWishlists();
+						this.saveWishlists({ preserveEmptyWishlists: true });
 					}
 				});
 			}
