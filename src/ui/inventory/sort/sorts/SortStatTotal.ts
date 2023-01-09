@@ -13,7 +13,7 @@ export default ISort.create({
 			return undefined;
 
 		return Component.create()
-			.classes.add("item-stat-total")
+			.classes.add("item-sort-stat-total")
 			.text.set(`${getStatTotal(item)}`);
 	},
 });

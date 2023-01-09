@@ -39,8 +39,8 @@ export const STAT_DISPLAY_ORDER: Partial<Record<Stat, StatOrder>> = {
 	[Stat.RPM]: -1,
 	[Stat.AirborneEffectiveness]: { after: Stat.Stability },
 	[Stat.AimAssistance]: { after: Stat.AirborneEffectiveness },
-	[Stat.RecoilDirection]: { after: Stat.AimAssistance },
-	[Stat.Zoom]: 1000,
+	[Stat.Zoom]: { after: Stat.AimAssistance },
+	[Stat.RecoilDirection]: { after: Stat.Zoom },
 	[Stat.Magazine]: 1001,
 	[Stat.AmmoCapacity]: 1002,
 };

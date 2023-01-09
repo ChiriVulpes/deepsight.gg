@@ -6,9 +6,14 @@ import type { BucketId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
+import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
+import ElementTypes from "ui/inventory/ElementTypes";
 import ItemComponent from "ui/inventory/Item";
+import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
+import ItemStat from "ui/inventory/tooltip/ItemStat";
+import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
 import ItemIntrinsics from "ui/view/item/ItemIntrinsics";
@@ -40,18 +45,26 @@ enum ItemViewClasses {
 	ItemDefinition = "view-item-definition",
 	FlavourText = "view-item-flavour-text",
 	PerksModsTraits = "view-item-perks-mods-traits",
-	Stats = "view-item-stats",
 	ButtonViewInCollections = "view-item-button-view-in-collections",
+
+	StatsContainer = "view-item-stats-container",
+	Stats = "view-item-stats",
+	PrimaryInfo = "view-item-primary-info",
+	PrimaryInfoPowerLabel = "view-item-primary-info-power-label",
+	PrimaryInfoPower = "view-item-primary-info-power",
+	PrimaryInfoElement = "view-item-primary-info-element",
+	PrimaryInfoAmmo = "view-item-primary-info-ammo",
+	PrimaryInfoTracker = "view-item-primary-info-tracker",
 }
 
 const itemViewBase = View.create({
 	models: (item: Item | string) =>
-		[Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))],
+		[Manifest, Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))] as const,
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
 	noDestinationButton: true,
-	initialise: (view, itemResult) => {
+	initialise: async (view, manifest, itemResult) => {
 		LoadingManager.end(view.definition.id);
 
 		const item = itemResult!;
@@ -88,15 +101,46 @@ const itemViewBase = View.create({
 			.append(ItemIntrinsics.create([item]))
 			.appendTo(view.content);
 
-		Component.create()
-			.classes.add(ItemViewClasses.Stats)
+		const statsContainer = Component.create()
+			.classes.add(ItemViewClasses.StatsContainer)
 			.appendTo(view.content);
+
+		const { DestinyDamageTypeDefinition } = manifest;
+		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
+
+		const primaryStat = item.getPower();
+		const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
+		if (primaryStat && damageType)
+			Component.create()
+				.classes.add(ItemViewClasses.PrimaryInfo)
+				.append(Component.create()
+					.classes.add(ItemViewClasses.PrimaryInfoPowerLabel)
+					.text.set("POWER"))
+				.append(Component.create()
+					.classes.add(ItemViewClasses.PrimaryInfoElement, `${ItemViewClasses.PrimaryInfoElement}-${damageTypeName}`)
+					.style.set("--icon", Display.icon(damageType))
+					.style.set("--colour", ElementTypes.getColour(damageTypeName)))
+				.append(Component.create()
+					.classes.add(ItemViewClasses.PrimaryInfoPower)
+					.text.set(`${item.getPower()}`))
+				.append(ItemAmmo.create()
+					.classes.add(ItemViewClasses.PrimaryInfoAmmo)
+					.setItem(item))
+				.append(ItemStatTracker.create()
+					.classes.add(ItemViewClasses.PrimaryInfoTracker)
+					.setItem(item))
+				.appendTo(statsContainer);
+
+		ItemStat.Wrapper.create()
+			.classes.add(ItemViewClasses.Stats)
+			.appendTo(statsContainer)
+			.setItem(item);
 	},
 });
 
 type ItemViewBase = typeof itemViewBase;
 interface ItemViewClass extends ItemViewBase { }
-class ItemViewClass extends View.Handler<Model.Impl<Item | undefined>[], [item: string | Item]> {
+class ItemViewClass extends View.Handler<readonly [typeof Manifest, Model.Impl<Item | undefined>], [item: string | Item]> {
 	public showCollections (item: Item) {
 		this.show(`collections/hash:${item.definition.hash}`);
 	}

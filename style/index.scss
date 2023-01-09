@@ -25,6 +25,9 @@
 // inventory
 @import "component/inventory/Bucket";
 @import "component/inventory/Item";
+@import "component/inventory/ItemAmmo";
+@import "component/inventory/ItemStat";
+@import "component/inventory/ItemStatTracker";
 @import "component/inventory/ItemSort";
 @import "component/inventory/ItemFilter";
 // other

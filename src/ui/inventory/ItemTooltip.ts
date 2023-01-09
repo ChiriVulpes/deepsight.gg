@@ -1,4 +1,4 @@
-import { BucketHashes, DestinyAmmunitionType, ItemPerkVisibility } from "bungie-api-ts/destiny2";
+import { BucketHashes, ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
@@ -9,7 +9,9 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
 import ElementType from "ui/inventory/ElementTypes";
-import ItemTooltipStat from "ui/inventory/tooltip/ItemTooltipStat";
+import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
+import ItemStat from "ui/inventory/tooltip/ItemStat";
+import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
 
 enum ItemTooltipClasses {
@@ -21,19 +23,11 @@ enum ItemTooltipClasses {
 	PrimaryInfo = "item-tooltip-primary-info",
 	PrimaryStat = "item-tooltip-primary-stat",
 	PrimaryStatDamage = "item-tooltip-primary-stat-damage",
-	AmmoType = "item-tooltip-ammo-type",
-	AmmoPrimary = "item-tooltip-ammo-type-primary",
-	AmmoSpecial = "item-tooltip-ammo-type-special",
-	AmmoHeavy = "item-tooltip-ammo-type-heavy",
 	Energy = "item-tooltip-energy",
 	EnergyValue = "item-tooltip-energy-value",
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
-	StatTracker = "item-tooltip-stat-tracker",
-	StatTrackerIcon = "item-tooltip-stat-tracker-icon",
-	StatTrackerLabel = "item-tooltip-stat-tracker-label",
-	StatTrackerValue = "item-tooltip-stat-tracker-value",
 	Mods = "item-tooltip-mods",
 	Mod = "item-tooltip-mod",
 	ModSocket = "item-tooltip-mod-socket",
@@ -62,16 +56,13 @@ class ItemTooltip extends Tooltip {
 	public source!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
-	public ammoType!: Component;
+	public ammoType!: ItemAmmo;
 	public energy!: Component;
 	public energyValue!: Component;
 	public weaponLevel!: Component;
 	public weaponLevelLabel!: Component;
 	public weaponLevelProgress!: Component;
-	public statTracker!: Component;
-	public statTrackerIcon!: Component;
-	public statTrackerLabel!: Component;
-	public statTrackerValue!: Component;
+	public statTracker!: ItemStatTracker;
 	public mods!: Component;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
@@ -83,7 +74,7 @@ class ItemTooltip extends Tooltip {
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
 	public wishlist!: Component;
-	public stats!: ItemTooltipStat.Wrapper;
+	public stats!: ItemStat.Wrapper;
 	public hints!: Component;
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
@@ -106,8 +97,7 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.PrimaryStat)
 			.appendTo(this.primaryInfo);
 
-		this.ammoType = Component.create()
-			.classes.add(ItemTooltipClasses.AmmoType)
+		this.ammoType = ItemAmmo.create()
 			.appendTo(this.primaryInfo);
 
 		this.energy = Component.create()
@@ -128,17 +118,10 @@ class ItemTooltip extends Tooltip {
 				.classes.add(ItemTooltipClasses.WeaponLevelProgress))
 			.appendTo(this.primaryInfo);
 
-		this.statTracker = Component.create()
-			.classes.add(ItemTooltipClasses.StatTracker)
-			.append(this.statTrackerIcon = Component.create()
-				.classes.add(ItemTooltipClasses.StatTrackerIcon))
-			.append(this.statTrackerLabel = Component.create()
-				.classes.add(ItemTooltipClasses.StatTrackerLabel))
-			.append(this.statTrackerValue = Component.create()
-				.classes.add(ItemTooltipClasses.StatTrackerValue))
+		this.statTracker = ItemStatTracker.create()
 			.appendTo(this.primaryInfo);
 
-		this.stats = ItemTooltipStat.Wrapper.create()
+		this.stats = ItemStat.Wrapper.create()
 			.appendTo(this.content);
 
 		this.mods = Component.create()
@@ -238,18 +221,7 @@ class ItemTooltip extends Tooltip {
 				.style.set("--colour", ElementType.getColour(damageTypeName));
 		}
 
-		const ammoType = item.definition.equippingBlock?.ammoType;
-		this.ammoType.classes.toggle(!ammoType, Classes.Hidden);
-		if (ammoType)
-			this.ammoType.classes.remove(ItemTooltipClasses.AmmoPrimary, ItemTooltipClasses.AmmoSpecial, ItemTooltipClasses.AmmoHeavy)
-				.classes.add(ammoType === DestinyAmmunitionType.Primary ? ItemTooltipClasses.AmmoPrimary
-					: ammoType === DestinyAmmunitionType.Special ? ItemTooltipClasses.AmmoSpecial
-						: ammoType === DestinyAmmunitionType.Heavy ? ItemTooltipClasses.AmmoHeavy
-							: ItemTooltipClasses.AmmoType)
-				.text.set(ammoType === DestinyAmmunitionType.Primary ? "Primary"
-					: ammoType === DestinyAmmunitionType.Special ? "Special"
-						: ammoType === DestinyAmmunitionType.Heavy ? "Heavy"
-							: "");
+		this.ammoType.setItem(item);
 
 		const energy = item.instance?.energy;
 		this.energy.classes.toggle(energy === undefined, Classes.Hidden);
@@ -272,11 +244,7 @@ class ItemTooltip extends Tooltip {
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
-		const statTracker = item.getStatTracker();
-		this.statTracker.classes.toggle(!statTracker, Classes.Hidden);
-		this.statTrackerIcon.style.set("--icon", Display.icon(statTracker?.definition));
-		this.statTrackerLabel.text.set(statTracker?.definition.progressDescription ?? Display.name(statTracker?.definition));
-		this.statTrackerValue.text.set(`${(statTracker?.progress.progress ?? 0).toLocaleString()}`);
+		this.statTracker.setItem(item);
 
 		this.stats.setItem(item);
 

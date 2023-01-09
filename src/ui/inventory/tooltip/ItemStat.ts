@@ -29,22 +29,22 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	renderBar?(bar: Component, item: Item, value: number): any;
 }
 
-export enum ItemTooltipStatClasses {
-	Wrapper = "item-tooltip-stat-wrapper",
-	Main = "item-tooltip-stat",
-	Label = "item-tooltip-stat-label",
-	Bar = "item-tooltip-stat-bar",
-	BarBlock = "item-tooltip-stat-bar-block",
-	BarBlockNegative = "item-tooltip-stat-bar-block-negative",
-	Value = "item-tooltip-stat-value",
-	ValueComponent = "item-tooltip-stat-value-component",
-	ValueComponentNegative = "item-tooltip-stat-value-component-negative",
-	Combined = "item-tooltip-stat-combined",
-	Intrinsic = "item-tooltip-stat-intrinsic",
-	Masterwork = "item-tooltip-stat-masterwork",
-	Mod = "item-tooltip-stat-mod",
-	Formula = "item-tooltip-stat-formula",
-	Distribution = "item-tooltip-stat-distribution-component",
+export enum ItemStatClasses {
+	Wrapper = "item-stat-wrapper",
+	Main = "item-stat",
+	Label = "item-stat-label",
+	Bar = "item-stat-bar",
+	BarBlock = "item-stat-bar-block",
+	BarBlockNegative = "item-stat-bar-block-negative",
+	Value = "item-stat-value",
+	ValueComponent = "item-stat-value-component",
+	ValueComponentNegative = "item-stat-value-component-negative",
+	Combined = "item-stat-combined",
+	Intrinsic = "item-stat-intrinsic",
+	Masterwork = "item-stat-masterwork",
+	Mod = "item-stat-mod",
+	Formula = "item-stat-formula",
+	Distribution = "item-stat-distribution-component",
 }
 
 const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
@@ -85,7 +85,7 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 				combinedValue: distribution.overall,
 				combinedText: `${Math.floor(distribution.overall * 100)}%`,
 				renderFormula: () => distribution.groups.map(groupValue => Component.create()
-					.classes.add(ItemTooltipStatClasses.Distribution)
+					.classes.add(ItemStatClasses.Distribution)
 					.text.set(`${Math.floor(groupValue * 100)}%`)
 					.style.set("--value", `${groupValue}`)),
 			};
@@ -127,7 +127,7 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	...customStats,
 };
 
-class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
+class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 	public stat!: ICustomStatDisplayDefinition;
 	public label!: Component;
@@ -151,35 +151,35 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 			?? `${this.stat.hash}`;
 
 		this.label = Component.create()
-			.classes.add(ItemTooltipStatClasses.Label)
+			.classes.add(ItemStatClasses.Label)
 			.appendTo(this);
 
 		if (this.stat?.bar)
 			this.bar = Component.create()
-				.classes.add(ItemTooltipStatClasses.Bar, `${ItemTooltipStatClasses.Bar}-${(statName).toLowerCase()}`)
+				.classes.add(ItemStatClasses.Bar, `${ItemStatClasses.Bar}-${(statName).toLowerCase()}`)
 				.append(this.intrinsicBar = Component.create()
-					.classes.add(ItemTooltipStatClasses.BarBlock, ItemTooltipStatClasses.Intrinsic))
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Intrinsic))
 				.append(this.masterworkBar = Component.create()
-					.classes.add(ItemTooltipStatClasses.BarBlock, ItemTooltipStatClasses.Masterwork))
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Masterwork))
 				.append(this.modBar = Component.create()
-					.classes.add(ItemTooltipStatClasses.BarBlock, ItemTooltipStatClasses.Mod))
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Mod))
 				.appendTo(this);
 
 		Component.create()
-			.classes.add(ItemTooltipStatClasses.Value)
+			.classes.add(ItemStatClasses.Value)
 			.append(this.combinedText = Component.create()
-				.classes.add(ItemTooltipStatClasses.Combined))
+				.classes.add(ItemStatClasses.Combined))
 			.append(this.intrinsicText = Component.create()
-				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Intrinsic))
+				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Intrinsic))
 			.append(this.masterworkText = Component.create()
-				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Masterwork))
+				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Masterwork))
 			.append(this.modText = Component.create()
-				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Mod))
+				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Mod))
 			.append(this.formulaText = Component.create()
-				.classes.add(ItemTooltipStatClasses.ValueComponent, ItemTooltipStatClasses.Formula))
+				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Formula))
 			.appendTo(this);
 
-		this.classes.add(ItemTooltipStatClasses.Main, `${ItemTooltipStatClasses.Main}-${(statName).toLowerCase()}`);
+		this.classes.add(ItemStatClasses.Main, `${ItemStatClasses.Main}-${(statName).toLowerCase()}`);
 
 		this.label.text.set(this.stat?.name ?? this.stat.definition?.displayProperties.name ?? "Unknown Stat");
 
@@ -210,7 +210,7 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 			if (display.bar && display.max) {
 				const value = (render?.value ?? 0) / display.max;
 				this.intrinsicBar!.style.set("--value", `${value}`)
-					.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
+					.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 				this.bar!.style.set("--value", `${value}`);
 			}
 			return true;
@@ -248,11 +248,11 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 
 		render = this.render(display, display.mod, !render);
 		this.modText.text.set(render?.text)
-			.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.ValueComponentNegative)
+			.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.ValueComponentNegative)
 			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
 		if (display.bar && display.max)
 			this.modBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
-				.classes.toggle((render?.value ?? 0) < 0, ItemTooltipStatClasses.BarBlockNegative);
+				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 
 		this.formulaText.classes.toggle(!display.renderFormula, Classes.Hidden)
 			.removeContents()
@@ -272,14 +272,14 @@ class ItemTooltipStat extends Component<HTMLElement, [ICustomStatDisplayDefiniti
 	}
 }
 
-namespace ItemTooltipStat {
+namespace ItemStat {
 	export class Wrapper extends Component {
-		public map!: Record<number, ItemTooltipStat>;
+		public map!: Record<number, ItemStat>;
 
 		protected override onMake (): void {
 			this.map = {};
 
-			this.classes.add(ItemTooltipStatClasses.Wrapper)
+			this.classes.add(ItemStatClasses.Wrapper)
 		}
 
 		public setItem (item: Item) {
@@ -324,7 +324,7 @@ namespace ItemTooltipStat {
 					...stat,
 					...custom,
 				};
-				const component = (this.map[stat.hash] ??= ItemTooltipStat.create([display])).appendTo(this);
+				const component = (this.map[stat.hash] ??= ItemStat.create([display])).appendTo(this);
 				const isVisible = component.set(display, item);
 				hasAnyVisible ||= isVisible;
 				if (isVisible)
@@ -339,4 +339,4 @@ namespace ItemTooltipStat {
 	}
 }
 
-export default ItemTooltipStat;
+export default ItemStat;
