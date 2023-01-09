@@ -70,6 +70,12 @@ export default class ItemPerks extends ItemSockets {
 				.event.subscribe("click", () => this.event.emit("showCollections"))
 				.appendTo(this.title);
 
+			// move socketed plugs first
+			for (const socket of this.sockets)
+				for (const plug of socket.plugs)
+					if (plug.plug?.socketed)
+						plug.prependTo(socket);
+
 			return;
 		}
 

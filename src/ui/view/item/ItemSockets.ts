@@ -159,8 +159,10 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 
 	public label!: Component<HTMLLabelElement>;
 	public description!: Component;
-	public effects!: Component;
 	public hash!: number;
+	public plug?: Plug;
+	public perk?: Perk;
+	public item?: Item;
 
 	protected override onMake (plug?: Plug, perk?: Perk, item?: Item): void {
 		super.onMake();
@@ -176,15 +178,14 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 			.classes.add(ItemSocketsClasses.PlugDescription)
 			.appendTo(this);
 
-		this.effects = Component.create()
-			.classes.add(ItemSocketsClasses.PlugEffects)
-			.appendTo(this);
-
 		if (plug) this.using(plug, perk, item);
 	}
 
 	public using (plug: Plug, perk?: Perk, item?: Item) {
 		this.hash = perk?.definition.hash ?? plug.definition?.hash ?? -1;
+		this.plug = plug;
+		this.perk = perk;
+		this.item = item;
 
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
 			.classes.toggle((plug.is(PlugType.Intrinsic) || plug.is(PlugType.Catalyst)) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
@@ -196,7 +197,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		this.setTooltip(ItemPlugTooltip, {
 			initialiser: tooltip => tooltip.setPlug(plug, perk, item),
 			differs: tooltip => tooltip.plug?.plugItemHash !== plug.plugItemHash,
-		})
+		});
 	}
 
 	public setName (name?: string) {
