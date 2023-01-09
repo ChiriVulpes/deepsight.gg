@@ -133,6 +133,14 @@
 		display: block;
 		animation: tooltip-hide .2s ease-in forwards;
 	}
+	
+	&-forced-1px-bigger {
+		padding-bottom: 1px;
+		
+		&::before {
+			bottom: 1px;
+		}
+	}
 }
 
 @keyframes tooltip-show {

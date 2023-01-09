@@ -15,6 +15,7 @@ export enum TooltipClasses {
 	Extra = "tooltip-extra",
 	Content = "tooltip-content",
 	Footer = "tooltip-footer",
+	Forced1pxBigger = "tooltip-forced-1px-bigger",
 }
 
 export class Tooltip extends Component {
@@ -95,7 +96,17 @@ namespace TooltipManager {
 		if (!tooltipsEnabled)
 			return;
 
-		initialiser(tooltip);
+		tooltip.classes.remove(TooltipClasses.Forced1pxBigger);
+		void Promise.resolve(initialiser(tooltip))
+			.then(async () => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				if ((window as any).chrome) {
+					await Async.sleep(1);
+					if (tooltip.element.clientHeight % 2 !== window.innerHeight % 2)
+						tooltip.classes.add(TooltipClasses.Forced1pxBigger);
+				}
+			});
+
 		tooltip.classes.remove(Classes.Hidden)
 			.appendTo(tooltipSurface);
 	}
