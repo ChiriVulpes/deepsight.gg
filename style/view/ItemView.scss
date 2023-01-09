@@ -55,12 +55,17 @@
 		@include view-swipe-animation;
 	}
 	
+	@at-root sleep, .view-item-stats-container {
+		@include view-swipe-animation;
+	}
+	
 	&-content {
 		display: grid;
 		grid-template-columns: 2fr 1.2fr;
 		gap: 120px;
 		align-self: flex-start;
 		padding-bottom: 10px;
+		overflow: hidden;
 	}
 	
 	@include vertical-or-tablet-or-mobile {
