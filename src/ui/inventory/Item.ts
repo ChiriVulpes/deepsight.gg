@@ -25,6 +25,7 @@ export enum ItemClasses {
 	IsMasterwork = "item-is-masterwork",
 	Masterwork = "item-masterwork",
 	MasterworkSpinny = "item-masterwork-spinny",
+	MasterworkShiftedDueToJunkBorder = "item-masterwork-shifted-due-to-junk-border",
 	Shaped = "item-shaped",
 	Deepsight = "item-deepsight",
 	DeepsightHasPattern = "item-deepsight-has-pattern",
@@ -206,6 +207,7 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
+				.classes.toggle(displayJunkBorder, ItemClasses.MasterworkShiftedDueToJunkBorder)
 				.append(Component.create()
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
