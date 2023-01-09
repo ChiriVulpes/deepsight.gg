@@ -24,7 +24,7 @@ export default IFilter.async(async () => {
 		suggestedValueHint: "weapon type name",
 		suggestedValues: types,
 		apply: (value, item) => {
-			item.definition.itemTypeDisplayNameLowerCase ??= item.definition.itemTypeDisplayName.toLowerCase();
+			item.definition.itemTypeDisplayNameLowerCase ??= (item.definition.itemTypeDisplayName ?? "Unknown").toLowerCase();
 
 			return item.definition.itemTypeDisplayNameLowerCase.startsWith(value);
 		},

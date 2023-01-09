@@ -1,7 +1,7 @@
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
-import Button from "ui/form/Button";
+import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 import type FilterManager from "ui/inventory/filter/FilterManager";
@@ -48,6 +48,7 @@ export enum ItemFilterClasses {
 	FilterChipButtonValueHasIcon = "item-filter-chip-button-value-has-icon",
 	FilterChipButtonValueHasMaskIcon = "item-filter-chip-button-value-has-mask-icon",
 	FilterChipButtonValueHint = "item-filter-chip-button-value-hint",
+	FilterChipButtonSelected = "item-filter-chip-button-selected",
 }
 
 export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
@@ -277,9 +278,34 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			void this.openDrawer();
 		}
 
-		if (this.input.isFocused() && event.useOverInput("Escape")) {
-			this.closeDrawer();
-			this.reset(true);
+		if (this.input.isFocused()) {
+			if (event.useOverInput("Escape")) {
+				this.closeDrawer();
+				this.reset(true);
+			}
+
+			if (event.useOverInput("ArrowUp")) {
+				this.selectUp();
+			}
+
+			if (event.useOverInput("ArrowDown")) {
+				this.selectDown();
+			}
+
+			if (this.currentSelection) {
+				if (event.useOverInput("ArrowLeft")) {
+					this.selectLeft();
+				}
+
+				if (event.useOverInput("ArrowRight")) {
+					this.selectRight();
+				}
+
+				if (event.useOverInput(" ") || event.useOverInput("Enter")) {
+					this.currentSelection.event.emit(new MouseEvent("click"));
+					return;
+				}
+			}
 		}
 
 		if (this.drawer.isOpen() && event.useOverInput("Enter")) {
@@ -317,6 +343,59 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		void this.openDrawer();
 		this.cleanup();
 		this.filterChips();
+	}
+
+	private _visibleChips?: FilterChipButton[];
+	private get visibleChips () {
+		return this._visibleChips ??= this.suggestedChips.filter(chip => !chip.classes.has(Classes.Hidden));
+	}
+
+	private currentSelection?: FilterChipButton;
+	private getCurrentSelection (from: "front" | "end") {
+		return this.currentSelection ??= this.getSelectionFrom(from === "front" ? "end" : "front");
+	}
+
+	private getSelectionFrom (from: "front" | "end") {
+		return from === "front" ? this.visibleChips[0] : this.visibleChips[this.visibleChips.length - 1];
+	}
+
+	private findSelection (getSortIndex: (rect: DOMRect, currentBox: DOMRect) => number, currentBox: DOMRect) {
+		for (const filter of this.visibleChips)
+			filter.getRect(true);
+
+		const sorted = this.visibleChips.sort((a, b) => getSortIndex(b.getRect(), currentBox) - getSortIndex(a.getRect(), currentBox));
+		return getSortIndex(sorted[0].getRect(), currentBox) < 0 ? undefined : sorted[0];
+	}
+
+	private select (from: "front" | "end", getSortIndex: (rect: DOMRect, currentBox: DOMRect) => number, defaultToFrom = true) {
+		delete this._visibleChips;
+		const currentSelection = this.getCurrentSelection("end");
+		const currentBox = currentSelection.getRect(true);
+		const selection = this.findSelection(getSortIndex, currentBox)
+			?? (defaultToFrom ? this.getSelectionFrom(from) : undefined);
+
+		if (selection) {
+			this.currentSelection?.classes.remove(ItemFilterClasses.FilterChipButtonSelected, ButtonClasses.Selected);
+			this.currentSelection = selection;
+			this.currentSelection?.classes.add(ItemFilterClasses.FilterChipButtonSelected, ButtonClasses.Selected);
+			this.currentSelection?.element.scrollIntoView({ block: "center" });
+		}
+	}
+
+	private selectUp () {
+		this.select("end", (rect, currentBox) => currentBox.top < rect.bottom ? -1000000 : (100000 - Math.abs(rect.bottom - currentBox.top)) * 10000 - Math.abs(rect.centerX - currentBox.centerX));
+	}
+
+	private selectDown () {
+		this.select("front", (rect, currentBox) => currentBox.bottom > rect.top ? -1000000 : (100000 - Math.abs(rect.top - currentBox.bottom)) * 10000 - Math.abs(rect.centerX - currentBox.centerX));
+	}
+
+	private selectLeft () {
+		this.select("end", (rect, currentBox) => currentBox.centerY !== rect.centerY ? -10000000 : currentBox.left < rect.right ? -1000000 : 10000 - (Math.abs(rect.centerX - currentBox.centerX)), false);
+	}
+
+	private selectRight () {
+		this.select("front", (rect, currentBox) => currentBox.centerY !== rect.centerY ? -10000000 : currentBox.right > rect.left ? -1000000 : 10000 - (Math.abs(currentBox.centerX - rect.centerX)), false);
 	}
 
 	private toggleChip (filter: IFilter, value?: string) {
@@ -487,6 +566,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	}
 
 	private filterChips () {
+		this.currentSelection?.classes.remove(ItemFilterClasses.FilterChipButtonSelected, ButtonClasses.Selected);
+		delete this.currentSelection;
+
 		const editingChip = this.getEditingChip();
 		const currentChips = this.filterer.getFilterIds();
 

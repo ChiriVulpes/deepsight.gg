@@ -299,7 +299,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	private rect?: DOMRect;
-	public getRect () {
+	public getRect (uncache = false) {
+		if (uncache)
+			delete this.rect;
+
 		return this.rect ??= this.element.getBoundingClientRect();
 	}
 

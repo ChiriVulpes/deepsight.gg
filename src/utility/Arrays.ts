@@ -38,28 +38,6 @@ namespace Arrays {
 		return true;
 	}
 
-	Object.defineProperty(Array.prototype, "findLast", {
-		value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
-			if (this.length > 0)
-				for (let i = this.length - 1; i >= 0; i--)
-					if (predicate(this[i], i, this))
-						return this[i];
-
-			return undefined;
-		},
-	});
-
-	Object.defineProperty(Array.prototype, "findLastIndex", {
-		value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
-			if (this.length > 0)
-				for (let i = this.length - 1; i >= 0; i--)
-					if (predicate(this[i], i, this))
-						return i;
-
-			return -1;
-		},
-	});
-
 	export function tuple<VALUES extends any[]> (...values: VALUES): VALUES {
 		return values;
 	}
@@ -70,6 +48,30 @@ namespace Arrays {
 
 	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | ""> {
 		return !!value;
+	}
+
+	export function applyPrototypes () {
+		Object.defineProperty(Array.prototype, "findLast", {
+			value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
+				if (this.length > 0)
+					for (let i = this.length - 1; i >= 0; i--)
+						if (predicate(this[i], i, this))
+							return this[i];
+
+				return undefined;
+			},
+		});
+
+		Object.defineProperty(Array.prototype, "findLastIndex", {
+			value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
+				if (this.length > 0)
+					for (let i = this.length - 1; i >= 0; i--)
+						if (predicate(this[i], i, this))
+							return i;
+
+				return -1;
+			},
+		});
 	}
 }
 
