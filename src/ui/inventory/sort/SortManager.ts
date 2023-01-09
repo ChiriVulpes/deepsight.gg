@@ -2,6 +2,7 @@ import type Item from "model/models/items/Item";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
+import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
 import SortDeepsight from "ui/inventory/sort/sorts/SortDeepsight";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
 import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
@@ -28,6 +29,7 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Source]: SortSource,
 	[Sort.Shaped]: SortShaped,
 	[Sort.AmmoType]: SortAmmoType,
+	[Sort.DamageType]: SortDamageType,
 };
 
 for (const [type, sort] of Object.entries(sortMap))
