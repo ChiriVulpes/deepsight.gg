@@ -178,6 +178,10 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 				.appendTo(this);
 		}
 
+		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
+		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
+		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
+
 		if (!shaped) {
 			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
 			if (item.hasDeepsight())
@@ -186,16 +190,19 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
 					.appendTo(this);
 
-			if (item.deepsight?.pattern)
+			if (item.deepsight?.pattern) {
 				Component.create()
-					.classes.add(ItemClasses.DeepsightPattern)
-					.classes.toggle(item.deepsight.pattern.progress.complete, ItemClasses.DeepsightPatternUnlocked)
-					.appendTo(Component.create()
-						.classes.add(ItemClasses.DeepsightHasPattern)
-						.appendTo(this));
+					.classes.add(ItemClasses.DeepsightHasPattern)
+					.appendTo(this);
+
+				if (!displayJunkBorder)
+					Component.create()
+						.classes.add(ItemClasses.DeepsightPattern)
+						.classes.toggle(item.deepsight.pattern.progress.complete, ItemClasses.DeepsightPatternUnlocked)
+						.appendTo(this);
+			}
 		}
 
-		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
 		if (item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Masterwork)
@@ -203,13 +210,13 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.appendTo(this);
 
-		else if (wishlisted && Store.items.settingsDisplayWishlistedHighlights)
+		else if (displayWishlistedBorder)
 			Component.create()
 				.classes.add(ItemClasses.Wishlist)
 				.append(Component.create())
 				.appendTo(this);
 
-		if (wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights)
+		if (displayJunkBorder)
 			Component.create()
 				.classes.add(ItemClasses.WishlistNoMatch)
 				.append(Component.create())

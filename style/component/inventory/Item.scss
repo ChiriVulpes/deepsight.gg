@@ -168,6 +168,10 @@
 					
 		> * {
 			@include icon(url("/image/svg/wishlisted.svg"), color(foreground-0));
+			
+			.item-deepsight-has-pattern ~ & {
+				display: none;
+			}
 		}
 		
 		&::before {
@@ -240,8 +244,12 @@
 			background-image: url("/image/deepsight.png");
 		}
 		
-		&-pattern:not(&-pattern-unlocked) {
-			@include icon(url("/image/svg/shaped.svg"), color(foreground));
+		&-pattern {
+			&:not(&-pattern-unlocked) {
+				@include icon(url("/image/svg/shaped.svg"), color(foreground));
+			}
+			
+			z-index: 2;
 		}
 			
 		&-pattern-unlocked {
