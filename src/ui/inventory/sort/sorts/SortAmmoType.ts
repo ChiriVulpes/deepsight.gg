@@ -14,6 +14,6 @@ export default ISort.create({
 			return undefined;
 
 		return Component.create()
-			.classes.add("item-ammo-type", `item-ammo-type-${ammoType === DestinyAmmunitionType.Primary ? "primary" : ammoType === DestinyAmmunitionType.Special ? "special" : "heavy"}`);
+			.classes.add("item-sort-ammo-type", `item-sort-ammo-type-${ammoType === DestinyAmmunitionType.Primary ? "primary" : ammoType === DestinyAmmunitionType.Special ? "special" : "heavy"}`);
 	},
 });
