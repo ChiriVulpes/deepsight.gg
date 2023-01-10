@@ -249,7 +249,7 @@
 		}
 		
 		&-pattern {
-			&:not(&-pattern-unlocked) {
+			&:not(&-unlocked) {
 				@include icon(url("/image/svg/shaped.svg"), color(foreground));
 			}
 			
