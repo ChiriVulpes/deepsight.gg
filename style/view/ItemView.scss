@@ -671,6 +671,7 @@
 	}
 	
 	&-primary-info {
+		
 		display: grid;
 		grid-template-columns: minmax(min-content, 1fr) auto;
 		grid-template-rows: auto auto auto auto 1fr;
@@ -686,6 +687,13 @@
 			height: 100%;
 			background: currentColor;
 			opacity: .3;
+		}
+		
+		&:last-child {
+			grid-column: 2;
+			&::after {
+				content: none;
+			}
 		}
 		
 		&-power-label, &-ammo, &-tracker {

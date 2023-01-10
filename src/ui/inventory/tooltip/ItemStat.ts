@@ -335,6 +335,7 @@ namespace ItemStat {
 				this.map[+stat].classes.toggle(!statDisplays[+stat], Classes.Hidden);
 
 			this.classes.toggle(!hasAnyVisible, Classes.Hidden);
+			return hasAnyVisible;
 		}
 	}
 }

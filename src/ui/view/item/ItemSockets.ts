@@ -67,18 +67,24 @@ export default abstract class ItemSockets extends Card<[Item]> {
 		const components: ItemSocket[] = [];
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
-				const socketComponent = this.addSocket()
-					.classes.add(...this.socketClasses);
-
-				components.push(socketComponent);
+				let socketComponent: ItemSocket | undefined;
 
 				for (const plug of socket.plugs) {
 					if (!socket.state && plug.is(PlugType.Enhanced))
 						continue;
 
+					if (!plug.definition?.displayProperties.name)
+						continue;
+
+					socketComponent ??= this.addSocket()
+						.classes.add(...this.socketClasses);
+
 					socketComponent.addPlug(plug, undefined, this.item)
 						.classes.add(...this.plugClasses);
 				}
+
+				if (socketComponent)
+					components.push(socketComponent);
 			}
 		}
 

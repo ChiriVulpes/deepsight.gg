@@ -105,36 +105,39 @@ const itemViewBase = View.create({
 			.classes.add(ItemViewClasses.StatsContainer)
 			.appendTo(view.content);
 
-		const { DestinyDamageTypeDefinition } = manifest;
+		const energy = item.instance?.energy;
+
+		const { DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = manifest;
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
+		const energyType = await DestinyEnergyTypeDefinition.get(energy?.energyTypeHash);
 
 		const character = inventory?.getCharacter(item.character);
-		const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
-		if (damageType)
-			Component.create()
-				.classes.add(ItemViewClasses.PrimaryInfo)
-				.append(Component.create()
-					.classes.add(ItemViewClasses.PrimaryInfoPowerLabel)
-					.text.set("POWER"))
-				.append(Component.create()
-					.classes.add(ItemViewClasses.PrimaryInfoElement, `${ItemViewClasses.PrimaryInfoElement}-${damageTypeName}`)
-					.style.set("--icon", Display.icon(damageType))
-					.style.set("--colour", ElementTypes.getColour(damageTypeName)))
-				.append(Component.create()
-					.classes.add(ItemViewClasses.PrimaryInfoPower)
-					.text.set(`${item.getPower() || character?.power || 0}`))
-				.append(ItemAmmo.create()
-					.classes.add(ItemViewClasses.PrimaryInfoAmmo)
-					.setItem(item))
-				.append(ItemStatTracker.create()
-					.classes.add(ItemViewClasses.PrimaryInfoTracker)
-					.setItem(item))
-				.appendTo(statsContainer);
+		const elementTypeName = (damageType?.displayProperties.name ?? energyType?.displayProperties.name ?? "Unknown").toLowerCase();
+		Component.create()
+			.classes.add(ItemViewClasses.PrimaryInfo)
+			.append(Component.create()
+				.classes.add(ItemViewClasses.PrimaryInfoPowerLabel)
+				.text.set("POWER"))
+			.append(Component.create()
+				.classes.add(ItemViewClasses.PrimaryInfoElement, `${ItemViewClasses.PrimaryInfoElement}-${elementTypeName}`)
+				.style.set("--icon", Display.icon(damageType) ?? Display.icon(energyType))
+				.style.set("--colour", ElementTypes.getColour(elementTypeName)))
+			.append(Component.create()
+				.classes.add(ItemViewClasses.PrimaryInfoPower)
+				.text.set(`${item.getPower() || character?.power || 0}`))
+			.append(ItemAmmo.create()
+				.classes.add(ItemViewClasses.PrimaryInfoAmmo)
+				.setItem(item))
+			.append(ItemStatTracker.create()
+				.classes.add(ItemViewClasses.PrimaryInfoTracker)
+				.setItem(item))
+			.appendTo(statsContainer);
 
-		ItemStat.Wrapper.create()
-			.classes.add(ItemViewClasses.Stats)
-			.appendTo(statsContainer)
-			.setItem(item);
+		const stats = ItemStat.Wrapper.create()
+			.classes.add(ItemViewClasses.Stats);
+
+		if (stats.setItem(item))
+			stats.appendTo(statsContainer);
 	},
 });
 
