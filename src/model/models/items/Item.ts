@@ -218,8 +218,10 @@ class Item {
 			sockets: [],
 		};
 
+		// deepsight has to finish first because pattern presence is used by plugs
+		await Deepsight.apply(manifest, profile, item);
+
 		await Promise.all([
-			Deepsight.apply(manifest, profile, item),
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
 		]);
@@ -251,8 +253,9 @@ class Item {
 					.length ?? 0) >= 2);
 	}
 
-	public hasDeepsight () {
-		const objectiveComplete = this.deepsight?.attunement?.progress.complete ?? false;
+	public async hasDeepsight () {
+		const attunement = await this.deepsight?.attunement;
+		const objectiveComplete = attunement?.progress.complete ?? false;
 		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress.complete ?? false);
 		return !this.deepsight?.attunement ? false
 			: objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns;

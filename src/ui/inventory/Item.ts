@@ -184,8 +184,9 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
 
 		if (!shaped) {
-			const objectiveComplete = item.deepsight?.attunement?.progress.complete ?? false;
-			if (item.hasDeepsight())
+			const attunement = await item.deepsight?.attunement;
+			const objectiveComplete = attunement?.progress.complete ?? false;
+			if (await item.hasDeepsight())
 				Component.create()
 					.classes.add(ItemClasses.Deepsight)
 					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)

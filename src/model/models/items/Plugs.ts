@@ -5,7 +5,7 @@ import Objectives from "model/models/items/Objectives";
 import Manifest from "model/models/Manifest";
 import Maths from "utility/maths/Maths";
 
-export interface Socket extends Socket.ISocketInit {
+export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
 }
 
 export class Socket {
@@ -20,13 +20,23 @@ export class Socket {
 		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
 	}
 
-	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit) {
+	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit, index?: number) {
 		const socket = new Socket();
 		Object.assign(socket, init);
 		delete socket.objectives;
 
-		const { DestinyPlugSetDefinition } = manifest;
-		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash, item?.bucket !== "collections"))
+		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition } = manifest;
+
+		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
+		if (item?.deepsight?.pattern && index !== undefined) {
+			const recipeItem = await DestinyInventoryItemDefinition.get(item.definition.inventory?.recipeItemHash);
+			const recipeSocket = recipeItem?.sockets?.socketEntries[index];
+			if (recipeSocket) {
+				plugSetHash = recipeSocket.randomizedPlugSetHash ?? recipeSocket.reusablePlugSetHash;
+			}
+		}
+
+		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash, item?.bucket !== "collections"))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
 
 		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
@@ -102,7 +112,11 @@ export enum PlugType {
 	DeepsightResonance = 2 ** 15,
 }
 
-export interface Plug extends DestinyItemPlugBase { }
+type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
+type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
+type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY : never]: DestinyItemPlugBase[KEY] };
+
+export interface Plug extends PlugBaseStuff, ItemSocketEntryPlugStuff, SharedStuff { }
 export class Plug {
 
 	public static async resolveFromHash (manifest: Manifest, hash: number, enabled: boolean) {
@@ -235,7 +249,7 @@ namespace Plugs {
 					category: socketCategories?.find(category => category.socketIndexes.includes(i)),
 					plugs: plugs[i] ?? [],
 					objectives: objectivesByPlug,
-				}, item)));
+				}, item, i)));
 
 			item.sockets = sockets;
 

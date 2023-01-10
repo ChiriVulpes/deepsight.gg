@@ -21,6 +21,8 @@ export enum ItemSocketsClasses {
 	PlugEnhanced = "view-item-socket-plug-enhanced",
 	PlugEffects = "view-item-socket-plug-effects",
 	PlugExotic = "view-item-socket-plug-exotic",
+	PlugRequiredLevel = "view-item-socket-plug-required-level",
+	PlugRequiredLevelWrapper = "view-item-socket-plug-required-level-wrapper",
 	Socketed = "view-item-socket-plug-socketed",
 	Header = "view-item-sockets-header",
 	Title = "view-item-sockets-title",
@@ -70,7 +72,7 @@ export default abstract class ItemSockets extends Card<[Item]> {
 				let socketComponent: ItemSocket | undefined;
 
 				for (const plug of socket.plugs) {
-					if (!socket.state && plug.is(PlugType.Enhanced))
+					if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
 						continue;
 
 					if (!plug.definition?.displayProperties.name)
@@ -187,7 +189,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		if (plug) this.using(plug, perk, item);
 	}
 
-	public using (plug: Plug, perk?: Perk, item?: Item) {
+	public using (plug: Plug, perk?: Perk, item?: Item, displayRequiredLevels = false) {
 		this.hash = perk?.definition.hash ?? plug.definition?.hash ?? -1;
 		this.plug = plug;
 		this.perk = perk;
@@ -199,6 +201,14 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 			.setIcon(Display.icon(perk?.definition) ?? Display.icon(plug.definition))
 			.setName(Display.name(perk?.definition) ?? Display.name(plug.definition) ?? "Unknown")
 			.setDescription(Display.description(perk?.definition) ?? Display.description(plug.definition));
+
+		if (item?.deepsight?.pattern && !item.instance && plug.is(PlugType.Perk))
+			Component.create()
+				.classes.add(ItemSocketsClasses.PlugRequiredLevelWrapper)
+				.append(Component.create()
+					.classes.add(ItemSocketsClasses.PlugRequiredLevel)
+					.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`))
+				.appendTo(this);
 
 		this.setTooltip(ItemPlugTooltip, {
 			initialiser: tooltip => tooltip.setPlug(plug, perk, item),

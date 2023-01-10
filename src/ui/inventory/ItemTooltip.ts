@@ -368,9 +368,10 @@ class ItemTooltip extends Tooltip {
 			this.deepsightPatternRequiredUnit.text.set("extractions");
 		}
 
-		this.deepsightProgressBar.classes.toggle(!item.deepsight?.attunement, Classes.Hidden);
-		if (item.deepsight?.attunement) {
-			const progress = (item.deepsight.attunement.progress.progress ?? 0) / item.deepsight.attunement.progress.completionValue;
+		const attunement = await item.deepsight?.attunement;
+		this.deepsightProgressBar.classes.toggle(!attunement, Classes.Hidden);
+		if (attunement) {
+			const progress = (attunement.progress.progress ?? 0) / attunement.progress.completionValue;
 			this.deepsightProgressBar.style.set("--progress", `${progress}`);
 			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}

@@ -189,6 +189,7 @@
 			grid-template-columns: auto 1fr;
 			grid-template-rows: auto auto;
 			.button-icon-inner {
+				grid-column: 1;
 				grid-row: 1/3;
 				width: 3.8em;
 				height: 3.8em;
@@ -279,7 +280,14 @@
 				position: relative;
 				
 				.button-icon-inner {
+					&::before {
+						z-index: 1;
+					}
+					
 					> :first-child {
+						position: absolute;
+						z-index: 1;
+						inset: 0;
 						&::before {
 							content: "";
 							display: block;
@@ -287,7 +295,7 @@
 							top: 0px;
 							left: -7px;
 							border: 9px solid transparent;
-							border-bottom-color: #ffed9f;
+							border-bottom-color: #ffe262;
 							border-bottom-width: 13px;
 							transform: scaleX(.8);
 						}
@@ -300,7 +308,7 @@
 							top: 15px;
 							border: 3px solid transparent;
 							border-bottom-width: 0;
-							border-top-color: #ffed9f;
+							border-top-color: #ffe262;
 							border-top-width: 70px;
 							-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 50%);
 							mask-image: linear-gradient(to bottom, black 30%, transparent 50%);
@@ -311,11 +319,46 @@
 					> :last-child {
 						position: absolute;
 						inset: 0;
-						background: radial-gradient(circle at bottom, #ffed9fdd, transparent 70%);
+						background: radial-gradient(circle at bottom, #ffe262dd, transparent 70%);
 						overflow: hidden;
 						border-radius: 100px;
 					}
 				}
+			}
+			
+			&-required-level {
+				&-wrapper {
+					grid-column: 1;
+					grid-row: 1/3;
+					position: relative;
+					width: 3.8em;
+					height: 3.8em;
+					padding: 5px;
+					z-index: 1;
+					
+					&::before {
+						content: "";
+						background: color(background-2, .9);
+						border: 1px solid color(background-4);
+						transform: rotate(45deg);
+						bottom: 0;
+						right: 0;
+					}
+				}
+				
+				&, &-wrapper::before {
+					display: block;
+					position: absolute;
+					width: 23px;
+					height: 23px;
+				}
+				
+				text-align: center;
+				font-family: $font-title;
+				font-weight: 700;
+				font-size: 20px;
+				right: 1px;
+				bottom: 2px;
 			}
 			
 			&-socketed {
