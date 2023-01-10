@@ -14,6 +14,11 @@ The highest power 1 or 2 item(s) in each slot displays with a special animation.
 
 ![image](https://user-images.githubusercontent.com/6081834/209422574-9c48fc61-18ae-4fc6-83fc-0596dc85b836.png)
 
+## Details View
+Right clicking on weapons displays the perks and stats of weapons, just like in-game.
+
+![image](https://user-images.githubusercontent.com/6081834/211501897-bf3a5ad2-d8c0-44cb-827d-48a5759de14d.png)
+
 ## Persistent, highly-customisable sort/filter
 ### Weapon Sorts 
 - Power
@@ -84,17 +89,13 @@ When creating a wishlist, you can select any number of perks in each column.
 - If one perk is selected in a column, that means a weapon will match your wishlist only if it has that exact perk in that column.
 - If more than one perk is selected in a column, that means a weapon will match your wishlist only if it has one or more of the perks you've selected in that column.
 
-![image](https://user-images.githubusercontent.com/6081834/209422859-d9012d7b-b035-4ff2-aede-0d2c85ec023e.png)
+![image](https://user-images.githubusercontent.com/6081834/211508234-b3e24069-f7c2-4e0d-a85f-2d6a9630ace0.png)
 ![image](https://user-images.githubusercontent.com/6081834/209422767-4de63ccf-fe5c-4319-96bd-e34182504aa3.png)
 
 ## Player Overview
 Hovering over your bungie display name and code displays a player overview, including all characters' equipped items, and their average power. It also displays all characters' highest power items — this is the average that drops will be based around.
 
 ![image](https://user-images.githubusercontent.com/6081834/209422787-568c23c2-2217-452b-a4ea-4dee06c08ed6.png)
-
-## Coming (hopefully) soon:
-- Better mobile support.
-- Switch perks and mods in-app.
 
 ## Notes & Credits
 deepsight.gg would not exist without the prior art of other community-made Destiny apps (mainly [Destiny Item Manager](https://app.destinyitemmanager.com/) and [Braytech](https://bray.tech/)) and the amazing resources that are:
