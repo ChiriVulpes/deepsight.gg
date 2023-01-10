@@ -95,10 +95,10 @@ const itemViewBase = View.create({
 
 		Component.create()
 			.classes.add(ItemViewClasses.PerksModsTraits)
-			.append(ItemPerks.create([item])
+			.append(ItemPerks.create([item, inventory])
 				.event.subscribe("showCollections", () => ItemView.showCollections(item)))
 			// .append(ItemMods.create([item]))
-			.append(ItemIntrinsics.create([item]))
+			.append(ItemIntrinsics.create([item, inventory]))
 			.appendTo(view.content);
 
 		const statsContainer = Component.create()

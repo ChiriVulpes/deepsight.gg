@@ -1,4 +1,5 @@
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
+import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { Perk, Plug, Socket } from "model/models/items/Plugs";
 import { PlugType } from "model/models/items/Plugs";
@@ -29,17 +30,19 @@ export enum ItemSocketsClasses {
 	TitleButton = "view-item-sockets-title-button",
 }
 
-export default abstract class ItemSockets extends Card<[Item]> {
+export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 	private addedSockets!: ItemSocket[];
 	public item!: Item;
+	public inventory!: Inventory;
 
 	protected get socketClasses (): string[] { return []; }
 	protected get plugClasses (): string[] { return []; }
 
-	protected override async onMake (item: Item) {
-		super.onMake(item);
+	protected override async onMake (item: Item, inventory: Inventory) {
+		super.onMake(item, inventory);
 		this.item = item;
+		this.inventory = inventory;
 		this.classes.add(ItemSocketsClasses.Main);
 		this.header.classes.add(ItemSocketsClasses.Header);
 		this.title.classes.add(ItemSocketsClasses.Title)

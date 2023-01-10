@@ -66,7 +66,7 @@ export default class ItemPerks extends ItemSockets {
 			Button.create()
 				.classes.add(ItemSocketsClasses.TitleButton, ItemPerksClasses.ButtonWishlistPerks)
 				.classes.toggle(this.wishlists?.length === 0, ItemPerksClasses.MarkedAsJunk)
-				.text.set(this.wishlists?.length === 0 ? "Marked as Junk" : "Wishlist Perks")
+				.text.set(this.item.shaped ? "Weapon Level Perk Unlocks" : this.wishlists?.length === 0 ? "Marked as Junk" : "Wishlist Perks")
 				.event.subscribe("click", () => this.event.emit("showCollections"))
 				.appendTo(this.title);
 
@@ -76,6 +76,11 @@ export default class ItemPerks extends ItemSockets {
 					if (plug.plug?.socketed)
 						plug.prependTo(socket);
 
+			return;
+		}
+
+		if (this.inventory.craftedItems.has(this.item.definition.hash)) {
+			delete Store.items[`item${this.item.definition.hash}PerkWishlists`];
 			return;
 		}
 
