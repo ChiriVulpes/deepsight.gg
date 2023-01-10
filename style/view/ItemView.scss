@@ -184,6 +184,7 @@
 			background: none;
 			border: none;
 			margin: 0;
+			@include transition(out, opacity);
 			
 			display: grid;
 			grid-template-columns: auto 1fr;
@@ -335,6 +336,7 @@
 					height: 3.8em;
 					padding: 5px;
 					z-index: 1;
+					@include transition(out, opacity);
 					
 					&::before {
 						content: "";
@@ -465,12 +467,22 @@
 			}
 		}
 		
-		@at-root :is(#{&}-wishlisting, #{&}-viewing-wishlist) .view-item-socket-plug:not(.view-item-socket-plug-selected) {
-			--perk-background: transparent;
-		}
-		
-		@at-root :is(#{&}-wishlisting, #{&}-viewing-wishlist) .view-item-socket-plug-selected {
-			--perk-background: #{color(perk-wishlisted, .85)};
+		@at-root :is(#{&}-wishlisting, #{&}-viewing-wishlist) {
+			.view-item-socket-plug {
+				&:not(.view-item-socket-plug-selected) {
+					--perk-background: transparent;
+				}
+				
+				&-selected {
+					--perk-background: #{color(perk-wishlisted, .85)};
+				}
+				
+				&-enhanced, &-required-level-wrapper {
+					opacity: 0;
+					pointer-events: none;
+					user-select: none;
+				}
+			}
 		}
 	}
 	
