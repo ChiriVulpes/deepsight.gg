@@ -221,6 +221,7 @@ class Item {
 		await Promise.all([
 			Deepsight.apply(manifest, profile, item),
 			Plugs.apply(manifest, profile, item),
+			Stats.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);

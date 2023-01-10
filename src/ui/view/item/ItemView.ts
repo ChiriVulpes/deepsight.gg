@@ -59,12 +59,12 @@ enum ItemViewClasses {
 
 const itemViewBase = View.create({
 	models: (item: Item | string) =>
-		[Manifest, Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))] as const,
+		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))] as const,
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
 	noDestinationButton: true,
-	initialise: async (view, manifest, itemResult) => {
+	initialise: async (view, manifest, inventory, itemResult) => {
 		LoadingManager.end(view.definition.id);
 
 		const item = itemResult!;
@@ -108,9 +108,9 @@ const itemViewBase = View.create({
 		const { DestinyDamageTypeDefinition } = manifest;
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
 
-		const primaryStat = item.getPower();
+		const character = inventory?.getCharacter(item.character);
 		const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
-		if (primaryStat && damageType)
+		if (damageType)
 			Component.create()
 				.classes.add(ItemViewClasses.PrimaryInfo)
 				.append(Component.create()
@@ -122,7 +122,7 @@ const itemViewBase = View.create({
 					.style.set("--colour", ElementTypes.getColour(damageTypeName)))
 				.append(Component.create()
 					.classes.add(ItemViewClasses.PrimaryInfoPower)
-					.text.set(`${item.getPower()}`))
+					.text.set(`${item.getPower() || character?.power || 0}`))
 				.append(ItemAmmo.create()
 					.classes.add(ItemViewClasses.PrimaryInfoAmmo)
 					.setItem(item))
@@ -140,7 +140,7 @@ const itemViewBase = View.create({
 
 type ItemViewBase = typeof itemViewBase;
 interface ItemViewClass extends ItemViewBase { }
-class ItemViewClass extends View.Handler<readonly [typeof Manifest, Model.Impl<Item | undefined>], [item: string | Item]> {
+class ItemViewClass extends View.Handler<readonly [typeof Manifest, Model.Impl<Inventory>, Model.Impl<Item | undefined>], [item: string | Item]> {
 	public showCollections (item: Item) {
 		this.show(`collections/hash:${item.definition.hash}`);
 	}

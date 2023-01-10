@@ -50,16 +50,16 @@ namespace Stats {
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? [])
 			.concat(item.definition.investmentStats);
 
-		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats;
+		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats ?? item.definition.stats.stats;
 		if (stats)
 			for (const intrinsic of intrinsicStats)
 				if (intrinsic && !intrinsic.isConditionallyActive)
 					stats[intrinsic.statTypeHash] ??= { statHash: intrinsic.statTypeHash, value: intrinsic.value };
 
-		const masterworkStats = Socket.filterByPlugs(sockets, PlugType.Masterwork)
+		const masterworkStats = item.bucket === "collections" ? [] : Socket.filterByPlugs(sockets, PlugType.Masterwork)
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
-		const modStats = Socket.filterExcludePlugs(sockets, PlugType.Intrinsic | PlugType.Masterwork)
+		const modStats = item.bucket === "collections" ? [] : Socket.filterExcludePlugs(sockets, PlugType.Intrinsic | PlugType.Masterwork)
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const result: Record<number, IStat> = {};
