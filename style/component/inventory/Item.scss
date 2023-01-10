@@ -218,6 +218,7 @@
 	&-deepsight {
 		$deepsight: color(deepsight);
 		box-shadow: inset 0 0 0 2px $deepsight;
+		z-index: 2;
 		
 		&-attuned {
 			&::before {
