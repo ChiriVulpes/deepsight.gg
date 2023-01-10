@@ -16,6 +16,7 @@ export enum ItemPerksClasses {
 	Main = "view-item-perks",
 	ButtonWishlistPerks = "view-item-perks-button-wishlist-perks",
 	MarkedAsJunk = "view-item-perks-button-wishlist-perks-marked-as-junk",
+	Shaped = "view-item-perks-button-wishlist-perks-shaped",
 
 	ViewingWishlist = "view-item-perks-viewing-wishlist",
 	Wishlisting = "view-item-perks-wishlisting",
@@ -66,6 +67,7 @@ export default class ItemPerks extends ItemSockets {
 			Button.create()
 				.classes.add(ItemSocketsClasses.TitleButton, ItemPerksClasses.ButtonWishlistPerks)
 				.classes.toggle(this.wishlists?.length === 0, ItemPerksClasses.MarkedAsJunk)
+				.classes.toggle(!!this.item.shaped, ItemPerksClasses.Shaped)
 				.text.set(this.item.shaped ? "Weapon Level Perk Unlocks" : this.wishlists?.length === 0 ? "Marked as Junk" : "Wishlist Perks")
 				.event.subscribe("click", () => this.event.emit("showCollections"))
 				.appendTo(this.title);

@@ -494,10 +494,10 @@
 		}
 	}
 	
-	&-perks-button-wishlist-perks-marked-as-junk {
-		
-		&:not(:hover, :focus-visible) {
-			color: color(wishlist-color-no-match);
+	&-perks-button-wishlist-perks {
+		filter: drop-shadow(0px 2px 1px color(background-0)) drop-shadow(0px 2px 3px color(background-0, .5));
+		&:not(:hover, :focus-visible, :active, .active) {
+			color: var(--color, #{color(accent-0)});
 		}
 		
 		&::after {
@@ -506,15 +506,25 @@
 			width: .85em;
 			height: .85em;
 			background: currentColor;
-			-webkit-mask-image: url("/image/svg/delete.svg");
+			-webkit-mask-image: var(--image, url("/image/svg/wishlisted.svg"));
 			-webkit-mask-size: contain;
 			-webkit-mask-repeat: no-repeat;
-			mask-image: url("/image/svg/delete.svg");
+			mask-image: var(--image, url("/image/svg/wishlisted.svg"));
 			mask-size: contain;
 			mask-repeat: no-repeat;
 			position: relative;
 			order: -1;
 			padding-right: .5em;
+		}
+		
+		&-marked-as-junk {
+			--color: #{color(wishlist-color-no-match)};
+			--image: url("/image/svg/delete.svg");
+		}
+		
+		&-shaped {
+			--image: url("/image/svg/shaped.svg");
+			--color: #{color(shaped)};
 		}
 	}
 	
