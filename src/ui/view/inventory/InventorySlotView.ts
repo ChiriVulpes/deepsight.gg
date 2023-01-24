@@ -1,21 +1,21 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
-import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
 import { PostmasterId } from "model/models/items/Item";
 import { Classes, InventoryClasses } from "ui/Classes";
-import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
-import type { IDraggableEvents } from "ui/form/Draggable";
-import Draggable from "ui/form/Draggable";
 import Drawer from "ui/form/Drawer";
-import BucketComponent from "ui/inventory/Bucket";
+import type BucketComponent from "ui/inventory/bucket/Bucket";
+import CharacterBucket from "ui/inventory/bucket/CharacterBucket";
+import PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
+import VaultBucket from "ui/inventory/bucket/VaultBucket";
+import DraggableItem from "ui/inventory/DraggableItemComponent";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
-import ItemComponent, { ItemClasses } from "ui/inventory/Item";
+import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -28,18 +28,9 @@ export enum InventorySlotViewClasses {
 	Content = "view-inventory-slot-content",
 	Footer = "view-inventory-slot-footer",
 	CharacterBuckets = "view-inventory-slot-character-buckets",
-	CharacterBucket = "view-inventory-slot-character-bucket",
-	CharacterBucketEmblem = "view-inventory-slot-character-bucket-emblem",
-	CharacterBucketEquipped = "view-inventory-slot-character-bucket-equipped",
-	CharacterBucketInventory = "view-inventory-slot-character-bucket-inventory",
 	VaultBuckets = "view-inventory-slot-vault-buckets",
 	VaultBucketsCombined = "view-inventory-slot-vault-buckets-combined",
-	VaultBucket = "view-inventory-slot-vault-bucket",
 	PostmasterBuckets = "view-inventory-slot-postmaster-buckets",
-	PostmasterBucket = "view-inventory-slot-postmaster-bucket",
-	PostmasterBucketEngrams = "view-inventory-slot-postmaster-bucket-engrams",
-	PostmasterBucketWarning = "view-inventory-slot-postmaster-bucket-warning",
-	PostmasterBucketEmptySlot = "view-inventory-slot-postmaster-bucket-empty-slot",
 	SlotPendingRemoval = "view-inventory-slot-pending-removal",
 	HighestPower = "view-inventory-slot-highest-power",
 	ItemMoving = "view-inventory-slot-item-moving",
@@ -52,87 +43,6 @@ export enum InventorySlotViewClasses {
 	Hint = "view-inventory-slot-hint",
 	HintIcon = "view-inventory-slot-hint-icon",
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out",
-}
-
-class CharacterBucket extends BucketComponent<[]> {
-
-	public character!: Character;
-	public equippedSlot!: Component;
-
-	protected override onMake (): void {
-		super.onMake();
-		this.classes.add(InventorySlotViewClasses.CharacterBucket);
-
-		Component.create()
-			.classes.add(InventorySlotViewClasses.CharacterBucketEmblem, InventoryClasses.Slot)
-			.appendTo(this.header);
-
-		this.equippedSlot = Component.create()
-			.classes.add(InventorySlotViewClasses.CharacterBucketEquipped, InventoryClasses.Slot)
-			.appendTo(this);
-
-		this.content.classes.add(InventorySlotViewClasses.CharacterBucketInventory);
-	}
-
-	public setCharacter (character: Character) {
-		this.character = character;
-		void this.initialiseFromCharacter(character);
-		return this;
-	}
-}
-
-class VaultBucket extends BucketComponent<[Character?]> {
-
-	public character?: Character;
-
-	protected override onMake (character?: Character): void {
-		super.onMake(character);
-		this.character = character;
-		this.classes.add(InventorySlotViewClasses.VaultBucket);
-		this.icon.style.set("--icon", "url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")");
-		this.title.text.add("Vault");
-		const className = character?.class?.displayProperties.name;
-		if (className)
-			this.title.text.add(` (${className})`);
-	}
-}
-
-class PostmasterBucket extends BucketComponent<[]> {
-
-	public character!: Character;
-	public engrams!: Component;
-
-	protected override onMake (): void {
-		super.onMake();
-		this.classes.add(InventorySlotViewClasses.PostmasterBucket);
-
-		this.engrams = Component.create()
-			.classes.add(InventorySlotViewClasses.PostmasterBucketEngrams);
-
-		this.element.insertBefore(this.engrams.element, this.content.element);
-
-		this.icon.style.set("--icon", "url(\"/image/svg/postmaster.svg\")");
-		this.title.text.add("Postmaster");
-	}
-
-	public setCharacter (character: Character) {
-		this.character = character;
-		return this;
-	}
-}
-
-interface IInteractableItemEvents extends ComponentEvents<typeof ItemComponent>, IDraggableEvents {
-	transfer: Event;
-}
-
-class DraggableItem extends ItemComponent {
-
-	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
-
-	protected override async onMake (item: Item, inventory: Inventory) {
-		await super.onMake(item, inventory);
-		new Draggable(this.element);
-	}
 }
 
 interface IInventorySlotViewDefinition {
@@ -284,8 +194,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private update () {
-		// if (Bungie.apiDown)
-		// 	return ErrorView.show();
 
 		this.updateCharacters();
 		this.updateItems();
@@ -404,8 +312,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
 				const itemComponent = this.itemMap.get(item);
-				// if (!item.equipped && itemComponent?.parent() && !itemComponent.parent()!.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
-				// 	itemComponent = this.transferringItemMap.get(item);
 
 				if (!itemComponent)
 					// item not included in view
@@ -445,37 +351,12 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					slot.remove();
 		}
 
-		// for (const [item, newComponent] of [...this.transferringItemMap]) {
-		// 	const existing = this.itemMap.get(item);
-		// 	if (document.contains(newComponent.element) && !document.contains(existing?.element ?? null)) {
-		// 		this.itemMap.set(item, newComponent);
-		// 		this.transferringItemMap.delete(item);
-		// 	}
-		// }
-
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventorySlotViewClasses.HighestPower);
 
-		for (const postmaster of Object.values(this.postmasters)) {
-			const postmasterItems = postmaster.content.element.childElementCount;
-			const engrams = postmaster.engrams.element.childElementCount;
-			postmaster
-				.classes.toggle(!postmasterItems && !engrams, Classes.Hidden)
-				.classes.toggle(postmasterItems > 15, InventorySlotViewClasses.PostmasterBucketWarning);
-
-			if (postmasterItems)
-				for (let i = postmasterItems; i < 21; i++)
-					Component.create()
-						.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
-						.appendTo(postmaster.content);
-
-			if (engrams)
-				for (let i = engrams; i < 10; i++)
-					Component.create()
-						.classes.add(InventoryClasses.Slot, InventorySlotViewClasses.PostmasterBucketEmptySlot)
-						.appendTo(postmaster.engrams);
-		}
+		for (const postmaster of Object.values(this.postmasters))
+			postmaster.update();
 	}
 
 	private filter () {
@@ -494,32 +375,49 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 						: [this.characters[bucketId]];
 	}
 
+	private onGlobalKeydown (event: IKeyEvent) {
+		if (!document.contains(this.element)) {
+			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
+			return;
+		}
+
+		if (this.hintsDrawer.isOpen() && event.useOverInput("Escape")) {
+			this.hintsDrawer.close(true);
+		}
+
+		if (this.filterer.isFiltered() && event.use("Escape")) {
+			this.filterer.reset();
+		}
+	}
+
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
-		const component = !item.canTransfer() ? ItemComponent.create([item, this.inventory]) : DraggableItem.create([item, this.inventory]);
-		return !item.canTransfer() ? component : (component as DraggableItem)
-			.event.subscribe("moveStart", event => {
+		if (!item.canTransfer())
+			return ItemComponent.create([item, this.inventory]);
+
+		return DraggableItem.create([item, this.inventory, {
+			createItemPlaceholder: item => {
+				this.itemMoving?.remove();
+				this.itemMoving = item.appendTo(this);
+			},
+			disposeItemPlaceholder: item => {
+				if (this.itemMoving === item)
+					delete this.itemMoving;
+			},
+			moveStart: event => {
 				if (window.innerWidth <= 800)
 					return event.preventDefault();
 
 				if (item.equipped)
 					return event.preventDefault();
 
-				component.classes.add(InventorySlotViewClasses.ItemMovingOriginal);
 				const bucketComponents = this.getBucket(item.bucket);
 
 				for (const bucketComponent of bucketComponents)
 					bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
-
-				this.itemMoving?.remove();
-				this.itemMoving = ItemComponent.create([item, this.inventory])
-					.classes.add(InventorySlotViewClasses.ItemMoving)
-					.setTooltipPadding(40)
-					.appendTo(this);
-			})
-			.event.subscribe("move", event => {
-				this.itemMoving?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
+			},
+			move: event => {
 				for (const [dropBucketId] of this.bucketEntries) {
 					if (dropBucketId === "inventory" || PostmasterId.is(dropBucketId))
 						continue;
@@ -528,13 +426,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					for (const component of components)
 						component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
 				}
-			})
-			.event.subscribe("moveEnd", async event => {
-				this.itemMoving?.event.emit("mouseout", new MouseEvent("mouseout"));
-				this.itemMoving?.remove();
-				delete this.itemMoving;
-
-				component.classes.remove(InventorySlotViewClasses.ItemMovingOriginal);
+			},
+			moveEnd: async event => {
 				const bucketComponents = this.getBucket(item.bucket);
 				for (const bucketComponent of bucketComponents)
 					bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
@@ -561,22 +454,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				if (dropBucketId)
 					// update this item component's bucket so future clicks transfer to the right place
 					await item.transferToBucket(dropBucketId);
-			});
-	}
-
-	private onGlobalKeydown (event: IKeyEvent) {
-		if (!document.contains(this.element)) {
-			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
-			return;
-		}
-
-		if (this.hintsDrawer.isOpen() && event.useOverInput("Escape")) {
-			this.hintsDrawer.close(true);
-		}
-
-		if (this.filterer.isFiltered() && event.use("Escape")) {
-			this.filterer.reset();
-		}
+			},
+		}]);
 	}
 }
 

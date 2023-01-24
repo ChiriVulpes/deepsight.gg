@@ -9,7 +9,7 @@ import Display from "ui/bungie/DisplayProperties";
 import { InventoryClasses } from "ui/Classes";
 import Component from "ui/Component";
 import Details from "ui/Details";
-import ItemComponent from "ui/inventory/Item";
+import ItemComponent from "ui/inventory/ItemComponent";
 import Loadable from "ui/Loadable";
 import View from "ui/View";
 

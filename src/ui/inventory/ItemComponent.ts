@@ -47,7 +47,7 @@ export interface IItemComponentCharacterHandler {
 	getCharacter (id?: CharacterId): Character;
 }
 
-export default class ItemComponent extends Button<[Item, IItemComponentCharacterHandler?]> {
+export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[Item, IItemComponentCharacterHandler?, ...ARGS]> {
 
 	public item!: Item;
 	public extra!: Component;
@@ -55,8 +55,8 @@ export default class ItemComponent extends Button<[Item, IItemComponentCharacter
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
 
-	protected override async onMake (item: Item, inventory?: Inventory) {
-		super.onMake(item, inventory);
+	protected override async onMake (item: Item, inventory?: Inventory, ...args: ARGS) {
+		super.onMake(item, inventory, ...args);
 
 		this.inventory = inventory;
 

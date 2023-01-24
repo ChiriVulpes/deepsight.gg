@@ -10,7 +10,7 @@ import Display from "ui/bungie/DisplayProperties";
 import BaseComponent from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
-import ItemComponent from "ui/inventory/Item";
+import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";

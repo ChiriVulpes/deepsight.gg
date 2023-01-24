@@ -10,7 +10,7 @@ import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import ElementTypes from "ui/inventory/ElementTypes";
-import ItemComponent from "ui/inventory/Item";
+import ItemComponent from "ui/inventory/ItemComponent";
 import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";

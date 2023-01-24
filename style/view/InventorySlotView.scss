@@ -320,55 +320,6 @@
 		}
 	}
 	
-	&-item-moving {
-		&-original {
-			opacity: 0.5;
-			transform: none;
-			&::before {
-				animation: item-moving-original-animation 1.5s linear infinite;
-				@include blur-disables-animation;
-				@keyframes item-moving-original-animation {
-					0% {
-						inset: -3px;
-						opacity: 1;
-					}
-					30% {
-						inset: -5px;
-						opacity: 0.7;
-					}
-					50% {
-						inset: -6px;
-						opacity: 0;
-					}
-					70% {
-						inset: 2px;
-						opacity: 0;
-					}
-					100% {
-						inset: -3px;
-						opacity: 1;
-					}
-				}
-			}
-			
-			&::after {
-				background: none;
-			}
-		}
-		
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 1;
-		width: calc(var(--slot-size) - var(--slot-padding) * 2);
-		height: calc(var(--slot-size) - var(--slot-padding) * 2);
-		transform: var(--transform) translate(-50%, -50%);
-		transition-property: background, border, color;
-		&::before, &::after {
-			content: none;
-		}
-	}
-	
 	&-bucket-drop-target:not(&-bucket-moving-from) {
 		filter: brightness(1.1);
 		&::before {

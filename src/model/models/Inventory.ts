@@ -7,7 +7,7 @@ import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { CharacterId, IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
 import FocusManager from "ui/FocusManager";
-import type { IItemComponentCharacterHandler } from "ui/inventory/Item";
+import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
