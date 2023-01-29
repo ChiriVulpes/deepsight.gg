@@ -83,6 +83,10 @@
 		
 		.view-inventory-slot-hints {
 			--icon: url("/image/svg/help.svg");
+			
+			@include vertical-or-tablet-or-mobile {
+				display: none;
+			}
 		}
 		
 		@include mobile {
@@ -395,7 +399,7 @@
 	
 	&-postmaster-bucket {
 		&s {
-			--slot-size: calc(var(--bucket-inventory-inner-width) / 7);
+			--slot-size: calc((var(--bucket-inventory-inner-width) - var(--card-content-padding, 8px) * 2) / 7);
 			display: grid;
 			grid-template-rows: repeat(3, 1fr);
 				
