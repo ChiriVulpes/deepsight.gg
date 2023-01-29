@@ -30,6 +30,7 @@
 	
 	&-icon {
 		background: var(--icon);
+		background-color: var(--background-color);
 		background-size: contain;
 		background-repeat: no-repeat;
 		background-position: center;
@@ -44,6 +45,10 @@
 	&-borderless {
 		&::after {
 			content: none;
+		}
+		
+		.item-icon {
+			background-color: transparent;
 		}
 	}
 	
@@ -63,6 +68,7 @@
 	@each $tier in $tiers {
 		&-tier-#{$tier} {
 			--border-color: #{color(tier-#{$tier})};
+			--background-color: #{color(tier-#{$tier}-background)};
 			&:where(:hover, :active, :focus-visible) {
 				--border-color: #{color(tier-#{$tier}-active)};
 			}
