@@ -31,12 +31,12 @@ export default class SettingsInformationDisplay extends Card<[]> {
 				Store.items.settingsToggleExtra = checked ? true : undefined)
 			.appendTo(this.content);
 
-		Checkbox.create([!Store.items.settingsClearItemFilterOnSwitchingViews])
-			.tweak(checkbox => checkbox.label.text.set("Persistent Item Filter"))
-			.tweak(checkbox => checkbox.description.text.set("When reloading the page or switching between views (ie, from Kinetic to Special), any filters are retained."))
-			.event.subscribe("update", ({ checked }) =>
-				Store.items.settingsClearItemFilterOnSwitchingViews = !checked ? true : undefined)
-			.appendTo(this.content);
+		// Checkbox.create([!Store.items.settingsClearItemFilterOnSwitchingViews])
+		// 	.tweak(checkbox => checkbox.label.text.set("Persistent Item Filter"))
+		// 	.tweak(checkbox => checkbox.description.text.set("When reloading the page or switching between views (ie, from Kinetic to Special), any filters are retained."))
+		// 	.event.subscribe("update", ({ checked }) =>
+		// 		Store.items.settingsClearItemFilterOnSwitchingViews = !checked ? true : undefined)
+		// 	.appendTo(this.content);
 
 		Checkbox.create([Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns])
 			.tweak(checkbox => checkbox.label.text.set("Only Show Deepsight Pattern Border"))
