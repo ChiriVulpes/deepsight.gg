@@ -1,4 +1,5 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
+import type Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
@@ -45,9 +46,9 @@ export enum InventorySlotViewClasses {
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out",
 }
 
-interface IInventorySlotViewDefinition {
+export interface IInventorySlotViewDefinition {
 	sort: SortManager;
-	slot: BucketHashes;
+	slot?: BucketHashes;
 	filter: FilterManager;
 	separateVaults?: true;
 }
@@ -55,7 +56,7 @@ interface IInventorySlotViewDefinition {
 class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
 
 type InventorySlotViewArgs = [Inventory];
-class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
+export class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
 
 	public static hasExisted = false;
 	public static current?: InventorySlotView;
@@ -65,14 +66,15 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	public characterBucketsContainer!: Component;
 	public vaultBucketsContainer!: Component;
 	public postmasterBucketsContainer!: Component;
-	public characters!: Record<CharacterId, CharacterBucket>;
+	public characters!: Partial<Record<BucketHashes, Record<CharacterId, CharacterBucket>>>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
-	public vaults!: Record<CharacterId, VaultBucket>;
+	public vaults!: Partial<Record<BucketHashes, Record<CharacterId, VaultBucket>>>;
 	public bucketEntries!: [OwnedBucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public hintsDrawer!: Drawer;
 	public equipped!: Record<`${bigint}`, ItemComponent>;
+	public sorter!: ItemSort;
 	public filterer!: ItemFilter;
 
 	protected override async onMake (inventory: Inventory) {
@@ -109,34 +111,13 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 		this.sort = this.sort.bind(this);
 		this.filter = this.filter.bind(this);
+		this.preUpdateInit();
 		this.update();
 
 		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
 
-		ItemSort.create([this.super.definition.sort])
-			.event.subscribe("sort", this.sort)
-			.tweak(itemSort => itemSort.button
-				.classes.remove(ButtonClasses.Main)
-				.classes.add(View.Classes.FooterButton)
-				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
-			.tweak(itemSort => itemSort.label.classes.add(View.Classes.FooterButtonLabel))
-			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
-			.appendTo(this.super.footer);
-
 		await FilterManager.init();
-		this.filterer = ItemFilter.create([this.super.definition.filter])
-			.event.subscribe("filter", this.filter)
-			.event.subscribe("submit", () =>
-				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
-			.tweak(itemFilter => itemFilter.button
-				.classes.remove(ButtonClasses.Main)
-				.classes.add(View.Classes.FooterButton)
-				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
-			.tweak(itemFilter => itemFilter.label.classes.add(View.Classes.FooterButtonLabel))
-			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
-			.appendTo(this.super.footer);
-
-		this.filter();
+		this.initSortAndFilter();
 
 		this.hints = Component.create()
 			.classes.add(InventorySlotViewClasses.Hints)
@@ -193,8 +174,35 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
-	private update () {
+	protected preUpdateInit () { }
 
+	protected initSortAndFilter () {
+		this.sorter = ItemSort.create([this.super.definition.sort])
+			.event.subscribe("sort", this.sort)
+			.tweak(itemSort => itemSort.button
+				.classes.remove(ButtonClasses.Main)
+				.classes.add(View.Classes.FooterButton)
+				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemSort => itemSort.label.classes.add(View.Classes.FooterButtonLabel))
+			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
+			.appendTo(this.super.footer);
+
+		this.filterer = ItemFilter.create([this.super.definition.filter])
+			.event.subscribe("filter", this.filter)
+			.event.subscribe("submit", () =>
+				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
+			.tweak(itemFilter => itemFilter.button
+				.classes.remove(ButtonClasses.Main)
+				.classes.add(View.Classes.FooterButton)
+				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemFilter => itemFilter.label.classes.add(View.Classes.FooterButtonLabel))
+			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
+			.appendTo(this.super.footer);
+
+		this.filter();
+	}
+
+	private update () {
 		this.updateCharacters();
 		this.updateItems();
 		this.sort();
@@ -215,7 +223,8 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				continue;
 
 			for (const item of bucket.items) {
-				const excluded = item.definition.inventory?.bucketTypeHash !== this.super.definition.slot && !PostmasterId.is(item.bucket);
+				const excluded = !PostmasterId.is(item.bucket)
+					&& (this.super.definition.slot !== undefined && item.definition.inventory?.bucketTypeHash !== this.super.definition.slot);
 
 				if (this.itemMap.has(item)) {
 					if (excluded)
@@ -234,45 +243,80 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		}
 	}
 
-	private updateCharacters () {
+	protected updateCharacters () {
 		this.characters ??= {};
 		this.vaults ??= {};
 		this.postmasters ??= {};
+
+		const slot = this.super.definition.slot;
+		if (!slot)
+			return;
+
+		const result = this.generateSortedBuckets(slot);
+		if (result.changed) {
+			this.characterBucketsContainer.append(...result.buckets.flatMap(({ character }) => character));
+			this.vaultBucketsContainer.append(...result.buckets.flatMap(({ vault }) => vault));
+			this.postmasterBucketsContainer.append(...result.buckets.flatMap(({ postmaster }) => postmaster));
+		}
+	}
+
+	protected generateSortedBuckets (slot: BucketHashes) {
+		const oldCharacterBuckets = Object.values(this.characters[slot] ?? {});
+		const oldPostmasterBuckets = Object.values(this.postmasters ?? {});
+		const oldVaultBuckets = Object.values(this.vaults[slot] ?? {});
+
+		const characters = this.characters[slot] ??= {};
+		const vaults = this.vaults[slot] ??= {};
 
 		const singleVaultBucket = this.super.definition.separateVaults ? undefined : VaultBucket.create([]);
 		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventorySlotViewClasses.VaultBucketsCombined);
 
 		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
-				character: this.characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
+				character: characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
 				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
-				vault: this.vaults[character.characterId as CharacterId] ??= (singleVaultBucket ?? VaultBucket.create([character])),
+				vault: vaults[character.characterId as CharacterId] ??= singleVaultBucket ?? VaultBucket.create([character]),
 			}));
 
-		const oldCharacterBuckets = [...this.characterBucketsContainer.children<CharacterBucket>()];
 		for (const oldCharacterBucket of oldCharacterBuckets)
 			if (!characterBucketsSorted.some(({ character }) => oldCharacterBucket === character))
 				// this character was deleted
 				oldCharacterBucket.remove();
 
-		const oldPostmasterBuckets = [...this.postmasterBucketsContainer.children<PostmasterBucket>()];
 		for (const oldPostmasterBucket of oldPostmasterBuckets)
 			if (!characterBucketsSorted.some(({ postmaster }) => oldPostmasterBucket === postmaster))
 				// this character was deleted
 				oldPostmasterBucket.remove();
 
+		for (const oldVaultBucket of oldVaultBuckets)
+			if (!characterBucketsSorted.some(({ vault }) => oldVaultBucket === vault))
+				// this character was deleted
+				oldVaultBucket.remove();
+
 		this.currentCharacter = characterBucketsSorted[0]?.character;
 
 		const charactersChanged = characterBucketsSorted.length !== oldCharacterBuckets.length
 			|| oldCharacterBuckets.some((bucket, i) => bucket.character.characterId !== characterBucketsSorted[i]?.character.character?.characterId);
-		if (charactersChanged) {
-			this.characterBucketsContainer.append(...characterBucketsSorted.map(({ character }) => character));
-			this.vaultBucketsContainer.append(...characterBucketsSorted.map(({ vault }) => vault));
-			this.postmasterBucketsContainer.append(...characterBucketsSorted.map(({ postmaster }) => postmaster));
-		}
+
+		return {
+			current: characterBucketsSorted[0]?.character,
+			changed: charactersChanged,
+			buckets: characterBucketsSorted,
+			oldCharacterBuckets,
+			oldPostmasterBuckets,
+			oldVaultBuckets,
+		};
 	}
 
-	private sort () {
+	protected sort () {
+		if (this.super.definition.slot)
+			this.sortSlot(this.super.definition.slot);
+
+		for (const postmaster of Object.values(this.postmasters))
+			postmaster.update();
+	}
+
+	protected sortSlot (slot: BucketHashes) {
 		const highestPowerSlot: Component[] = [];
 		let highestPower = 0;
 		for (const [bucketId, bucket] of this.bucketEntries) {
@@ -282,11 +326,19 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
 			if (bucketId === "vault")
-				bucketComponents = Object.values(this.vaults);
-			else if (PostmasterId.is(bucketId))
+				bucketComponents = Object.values(this.vaults[slot] ?? {});
+
+			else if (PostmasterId.is(bucketId)) {
+				const postmasterBucket = this.postmasters[bucketId];
+				if (!postmasterBucket) {
+					console.warn(`Unknown postmaster character '${bucketId}'`);
+					continue;
+				}
+
 				bucketComponents = [this.postmasters[bucketId]];
-			else {
-				const characterBucket = this.characters[bucketId];
+
+			} else {
+				const characterBucket = this.characters[slot]?.[bucketId];
 				if (!characterBucket) {
 					console.warn(`Unknown character '${bucketId}'`);
 					continue;
@@ -303,6 +355,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
 
+			if (!bucketComponents.length)
+				continue;
+
 			const slots = bucketComponents.flatMap(component => [
 				...component.content.children(),
 				...component instanceof PostmasterBucket ? component.engrams.children() : [],
@@ -311,6 +366,10 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
+				if (item.definition.inventory?.bucketTypeHash !== slot)
+					// item excluded from view
+					continue;
+
 				const itemComponent = this.itemMap.get(item);
 
 				if (!itemComponent)
@@ -323,13 +382,13 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 
 				const slotWrapper = item.reference.bucketHash === BucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
 					: bucketComponent.content;
-				const slot = item.equipped ? equippedComponent! : Component.create()
+				const slotComponent = item.equipped ? equippedComponent! : Component.create()
 					.classes.add(InventoryClasses.Slot)
 					.appendTo(slotWrapper);
 
 				itemComponent
 					.setSortedBy(this.super.definition.sort)
-					.appendTo(slot);
+					.appendTo(slotComponent);
 
 				if (item.equipped)
 					this.equipped[bucketId as `${bigint}`] = itemComponent;
@@ -338,9 +397,9 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 					const power = item.getPower();
 					if (power > highestPower) {
 						highestPower = power;
-						highestPowerSlot.splice(0, Infinity, slot);
+						highestPowerSlot.splice(0, Infinity, slotComponent);
 					} else if (power === highestPower) {
-						highestPowerSlot.push(slot);
+						highestPowerSlot.push(slotComponent);
 					}
 				}
 			}
@@ -354,9 +413,6 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventorySlotViewClasses.HighestPower);
-
-		for (const postmaster of Object.values(this.postmasters))
-			postmaster.update();
 	}
 
 	private filter () {
@@ -368,14 +424,18 @@ class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotVie
 	}
 
 	private getBucket (bucketId: BucketId) {
-		return bucketId === "vault" ? Object.values(this.vaults)
+		const slot = this.super.definition.slot;
+		if (!slot)
+			return [];
+
+		return bucketId === "vault" ? Object.values(this.vaults[slot] ?? {}).flat()
 			: bucketId === "inventory" ? [this.currentCharacter]
 				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
 					: bucketId === "collections" ? []
-						: [this.characters[bucketId]];
+						: !this.characters[slot] ? [] : [this.characters[slot]![bucketId]];
 	}
 
-	private onGlobalKeydown (event: IKeyEvent) {
+	protected onGlobalKeydown (event: IKeyEvent) {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
 			return;
@@ -464,4 +524,5 @@ export default new View.Factory()
 	.using(Inventory.createTemporary())
 	.define<IInventorySlotViewDefinition>()
 	.initialise((view, model) =>
-		view.make(InventorySlotView, model));
+		view.make(InventorySlotView, model))
+	.wrapper<InventorySlotView & View.WrapperComponent<[Model<Inventory>], [], IInventorySlotViewDefinition & View.IViewBase<[]>>>();

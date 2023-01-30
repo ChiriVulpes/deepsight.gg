@@ -8,8 +8,8 @@ import { EventManager } from "utility/EventManager";
 
 namespace View {
 
-	export type Initialiser<MODELS extends readonly Model<any, any>[], ARGS extends any[], DEFINITION extends IViewBase<ARGS>> =
-		(api: WrapperComponent<MODELS, ARGS, DEFINITION>, ...requirements: Model.Resolve<MODELS>) => any;
+	export type Initialiser<MODELS extends readonly Model<any, any>[], ARGS extends any[], DEFINITION extends IViewBase<ARGS>, WRAPPER extends WrapperComponent<MODELS, ARGS, DEFINITION> = WrapperComponent<MODELS, ARGS, DEFINITION>> =
+		(api: WRAPPER, ...requirements: Model.Resolve<MODELS>) => any;
 
 	export interface IViewBase<ARGS extends any[]> {
 		id: string;
@@ -24,12 +24,12 @@ namespace View {
 	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =
 		Omit<FROM, keyof PROVIDED> & Partial<Pick<FROM, Extract<keyof PROVIDED, keyof FROM>>>;
 
-	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
+	export type IView<MODELS extends readonly Model<any, any>[] = [], OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}, WRAPPER extends WrapperComponent<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION> = WrapperComponent<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>> = PartialProvided<DEFINITION, PROVIDED_DEFINITION> & {
 		models?: MODELS | ((...args: ARGS) => MODELS);
-		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>;
+		initialise?: Initialiser<readonly [...OTHER_MODELS, ...MODELS], ARGS, DEFINITION, WRAPPER>;
 	};
 
-	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}> {
+	export class Factory<OTHER_MODELS extends readonly Model<any, any>[] = [], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>, HELPER = {}, PROVIDED_DEFINITION extends Partial<DEFINITION> = {}, WRAPPER extends WrapperComponent<OTHER_MODELS, ARGS, DEFINITION> = WrapperComponent<OTHER_MODELS, ARGS, DEFINITION>> {
 		private otherModels = [] as any as OTHER_MODELS;
 		public using<ADDITIONAL_MODELS extends readonly Model<any, any>[]> (...models: ADDITIONAL_MODELS) {
 			(this.otherModels as any as Model<any, any>[]).push(...models);
@@ -40,6 +40,10 @@ namespace View {
 		public initialise (initialiser: Initialiser<OTHER_MODELS, ARGS, DEFINITION>) {
 			this.initialisers.push(initialiser);
 			return this;
+		}
+
+		public wrapper<WRAPPER extends WrapperComponent<OTHER_MODELS, ARGS, DEFINITION>> (): Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION, WRAPPER> {
+			return this as any;
 		}
 
 		public define<EXTENDED_DEFINITION> () {
@@ -58,7 +62,7 @@ namespace View {
 		}
 
 		public clone () {
-			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION> & HELPER;
+			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION, WRAPPER> & HELPER;
 			this.definition = { ...this.definition };
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			this.otherModels = [...this.otherModels] as any;
@@ -66,11 +70,11 @@ namespace View {
 			return clone;
 		}
 
-		public create<MODELS extends readonly Model<any, any>[]> (definition: IView<MODELS, OTHER_MODELS, ARGS, DEFINITION, PROVIDED_DEFINITION>) {
-			return new Handler<[...OTHER_MODELS, ...MODELS], ARGS, DEFINITION>({
+		public create (definition: IView<[], OTHER_MODELS, ARGS, DEFINITION, PROVIDED_DEFINITION, WRAPPER>) {
+			return new Handler<OTHER_MODELS, ARGS, DEFINITION>({
 				...this.definition,
 				...definition,
-				models: [...this.otherModels, ...(definition.models ?? []) as MODELS],
+				models: this.otherModels,
 				initialise: async (component, ...requirements) => {
 					for (const initialiser of [...this.initialisers, definition.initialise]) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument

@@ -46,8 +46,12 @@ export interface ISortManagerConfiguration {
 interface SortManager extends ISortManagerConfiguration { }
 class SortManager {
 
-	private readonly current: ISort[];
+	private current!: ISort[];
 	public constructor (configuration: ISortManagerConfiguration) {
+		this.initialise(configuration);
+	}
+
+	public initialise (configuration: ISortManagerConfiguration) {
 		Object.assign(this, configuration);
 
 		let sort: readonly Sort[] = (Store.get(`sort-${this.id}`) as (keyof typeof Sort)[] ?? [])
@@ -57,7 +61,7 @@ class SortManager {
 		if (!sort.length)
 			sort = this.default;
 
-		this.current = sort.map(sortType => sortMap[sortType])
+		this.current = sort.map(sortType => sortMap[sortType]);
 	}
 
 	public get () {

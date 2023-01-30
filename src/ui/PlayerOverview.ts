@@ -175,7 +175,7 @@ namespace PlayerOverview {
 			const highestPowerItems: Partial<Record<BucketHashes, Item>> = {};
 			for (const item of bucket.items) {
 				const view = slotViews.find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
-				if (!view)
+				if (!view?.definition.slot)
 					continue;
 
 				if (item.equipped)
@@ -221,6 +221,9 @@ namespace PlayerOverview {
 			let i = 0;
 
 			for (const view of slotViews) {
+				if (!view.definition.slot)
+					continue;
+
 				let name = view.definition.name ?? "Unknown View";
 				if (typeof name === "function")
 					name = name();

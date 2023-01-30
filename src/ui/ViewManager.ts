@@ -9,6 +9,7 @@ import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/InventoryClassItemView";
 import InventoryEnergyView from "ui/view/inventory/InventoryEnergyView";
+import InventoryEquipmentView from "ui/view/inventory/InventoryEquipmentView";
 import InventoryHelmetView from "ui/view/inventory/InventoryHelmetView";
 import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/InventoryLegsView";
@@ -28,6 +29,7 @@ declare global {
 const registry = Object.fromEntries([
 	AuthView,
 	// InventoryOverviewView,
+	InventoryEquipmentView,
 	InventoryKineticView,
 	InventoryEnergyView,
 	InventoryPowerView,
@@ -64,7 +66,7 @@ export default class ViewManager {
 
 	public static view?: View.WrapperComponent;
 
-	public static defaultView = InventoryKineticView;
+	public static defaultView = InventoryEquipmentView;
 
 	public static hasView () {
 		return !!this.view;
