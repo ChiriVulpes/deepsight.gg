@@ -145,9 +145,6 @@
 			
 			&-collections {
 				margin-left: auto;
-				@include vertical-or-tablet-or-mobile {
-					display: none;
-				}
 			}
 			
 			&-settings {
