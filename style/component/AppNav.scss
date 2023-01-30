@@ -172,7 +172,7 @@
 			display: none;
 		}
 		
-		@include tablet-or-mobile {
+		@mixin dropdown-mode {
 			position: fixed;
 			top: 0;
 			right: 0;
@@ -222,6 +222,16 @@
 				width: 100vw;
 				height: 100vh;
 				z-index: 1;
+			}
+		}
+		
+		@include tablet-or-mobile {
+			@include dropdown-mode;
+		}
+		
+		@include vertical {
+			.app-nav-compress & {
+				@include dropdown-mode;
 			}
 		}
 			

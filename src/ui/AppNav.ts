@@ -17,6 +17,7 @@ export enum ClassesAppNav {
 	Title = "app-nav-title",
 	IdentityContainer = "app-nav-identity-container",
 	Destinations = "app-nav-destinations",
+	Compress = "app-nav-compress",
 	DestinationsToggle = "app-nav-destinations-toggle",
 	DestinationsClose = "app-nav-destinations-close",
 	Destination = "app-nav-destination",
@@ -91,9 +92,15 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	}
 
 	private refreshDestinationButtons () {
+		let showing = 0;
 		for (const [id, destinationButton] of Object.entries(this.destinationButtons)) {
-			destinationButton.classes.toggle(viewManager.registry[id].displayDestinationButton?.() === false, Classes.Hidden);
+			const hidden = viewManager.registry[id].displayDestinationButton?.() === false;
+			destinationButton.classes.toggle(hidden, Classes.Hidden);
+			if (!hidden)
+				showing++;
 		}
+
+		this.classes.toggle(showing > 5, ClassesAppNav.Compress);
 	}
 
 	public showing (view: View.WrapperComponent) {
