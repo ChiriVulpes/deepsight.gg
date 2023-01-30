@@ -367,7 +367,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
-				if (item.definition.inventory?.bucketTypeHash !== slot)
+				if (item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket))
 					// item excluded from view
 					continue;
 
