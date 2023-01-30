@@ -1,5 +1,6 @@
 import type { BucketHashes } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import SortManager from "ui/inventory/sort/SortManager";
@@ -24,6 +25,8 @@ enum InventoryEquipmentViewClasses {
 	SectionCollapsed = "view-equipment-section-collapsed",
 	SectionTitle = "view-equipment-section-title",
 	SectionContent = "view-equipment-section-content",
+	SectionWeapons = "view-equipment-section-weapons",
+	SectionArmour = "view-equipment-section-armour",
 	SlotColumn = "view-equipment-slot-column",
 	SlotColumnTitle = "view-equipment-slot-column-title",
 }
@@ -32,6 +35,7 @@ interface IEquipmentSlotColumn {
 	slot: BucketHashes;
 	name: string;
 	component: Component;
+	section: InventoryEquipmentViewClasses;
 }
 
 class InventoryEquipmentView extends InventorySlotView {
@@ -50,6 +54,7 @@ class InventoryEquipmentView extends InventorySlotView {
 		const sections = [
 			{
 				name: "Weapons" as const,
+				class: InventoryEquipmentViewClasses.SectionWeapons,
 				collapsed: false,
 				views: [
 					InventoryKineticView,
@@ -59,6 +64,7 @@ class InventoryEquipmentView extends InventorySlotView {
 			},
 			{
 				name: "Armour" as const,
+				class: InventoryEquipmentViewClasses.SectionArmour,
 				collapsed: true,
 				views: [
 					InventoryHelmetView,
@@ -72,7 +78,7 @@ class InventoryEquipmentView extends InventorySlotView {
 
 		for (const section of sections) {
 			const sectionComponent = Component.create()
-				.classes.add(InventoryEquipmentViewClasses.Section)
+				.classes.add(InventoryEquipmentViewClasses.Section, section.class)
 				.classes.toggle(section.collapsed, InventoryEquipmentViewClasses.SectionCollapsed)
 				.append(Component.create()
 					.classes.add(InventoryEquipmentViewClasses.SectionTitle)
@@ -92,6 +98,7 @@ class InventoryEquipmentView extends InventorySlotView {
 
 				const component = Component.create()
 					.classes.add(InventoryEquipmentViewClasses.SlotColumn)
+					.classes.toggle(section.collapsed, Classes.Hidden)
 					.append(Component.create()
 						.classes.add(InventoryEquipmentViewClasses.SlotColumnTitle)
 						.text.set(name))
@@ -101,6 +108,7 @@ class InventoryEquipmentView extends InventorySlotView {
 					slot: view.definition.slot!,
 					name,
 					component,
+					section: section.class,
 				});
 			}
 		}
@@ -175,6 +183,10 @@ class InventoryEquipmentView extends InventorySlotView {
 		this.initSortAndFilter();
 		this.hints.appendTo(this.super.footer);
 		await Async.sleep(300);
+		const showingWeapons = this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed);
+		for (const column of this.columns)
+			column.component.classes.toggle(showingWeapons === (column.section === InventoryEquipmentViewClasses.SectionWeapons), Classes.Hidden);
+
 		this.loadingNewView = false;
 	}
 
