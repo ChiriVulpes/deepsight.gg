@@ -117,7 +117,7 @@
 			margin-bottom: 3px;
 		}
 		
-		@include desktop {
+		@include desktop-or-vertical {
 			&::before {
 				content: attr(data-name);
 				text-transform: uppercase;
@@ -170,7 +170,7 @@
 		width: var(--size);
 		height: var(--size);
 		
-		@include desktop {
+		@include desktop-or-vertical {
 			@at-root &, .player-overview-power-total-label {
 				&-equipped {
 					grid-row: 2;
@@ -218,7 +218,7 @@
 	}
 	
 	&-power {
-		@include desktop {
+		@include desktop-or-vertical {
 			&-equipped {
 				grid-row: 3;
 			}

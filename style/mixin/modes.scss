@@ -22,6 +22,12 @@
 	}
 }
 
+@mixin desktop-or-vertical {
+	@media (min-width: 1080px) {
+		@content;
+	}
+}
+
 @mixin vertical {
 	@media (min-width: 1080px) and (max-width: 1200px) {
 		@content;
