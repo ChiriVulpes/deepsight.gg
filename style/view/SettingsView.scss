@@ -78,10 +78,11 @@
 		width: 144px;
 		height: 81px;
 		margin: 4px;
-		canvas {
+		img, canvas, &-image {
 			position: absolute;
-			top: -1px;
-			left: -1px;
+			inset: -1px;
+			width: calc(100% + 2px);
+			height: calc(100% + 2px);
 			z-index: -1;
 		}
 		
