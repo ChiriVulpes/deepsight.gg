@@ -8,6 +8,13 @@ export default class SettingsInformationDisplay extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Inventory Display");
 
+		Checkbox.create([Store.items.settingsEquipmentView])
+			.tweak(checkbox => checkbox.label.text.set("Use Equipment Tab"))
+			.tweak(checkbox => checkbox.description.text.set("By default, deepsight.gg renders your inventories and vaults with more performant, individual tabs for each slot. IE, kinetic, energy, helmets, gauntlets, etc. However, you can choose to use the more resource-intensive Equipment view that renders everything."))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsEquipmentView = checked ? true : undefined)
+			.appendTo(this.content);
+
 		Checkbox.create([Store.items.settingsAlwaysShowExtra])
 			.tweak(checkbox => checkbox.label.text.set("Always Show Extra Information"))
 			.tweak(checkbox => checkbox.description.text.set("Additional information will always be displayed. On items — the relevant sort information. In tooltips — where applicable, a secondary tooltip detailing content in the main tooltip."))

@@ -20,6 +20,7 @@ import type { IInventorySlotViewDefinition } from "ui/view/inventory/InventorySl
 import { InventorySlotView } from "ui/view/inventory/InventorySlotView";
 import { FILTER_MANAGER_WEAPONS_DEFINITION, SORT_MANAGER_WEAPONS_DEFINITION } from "ui/view/inventory/InventoryWeaponView";
 import Async from "utility/Async";
+import Store from "utility/Store";
 
 enum InventoryEquipmentViewClasses {
 	Section = "view-equipment-section",
@@ -214,4 +215,5 @@ export default new View.Factory()
 		name: "Equipment",
 		sort: new SortManager(SORT_MANAGER_WEAPONS_DEFINITION),
 		filter: new FilterManager(FILTER_MANAGER_WEAPONS_DEFINITION),
+		displayDestinationButton: () => !!Store.items.settingsEquipmentView,
 	});

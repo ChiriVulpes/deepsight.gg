@@ -5,6 +5,7 @@ import Sort from "ui/inventory/sort/Sort";
 import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import InventorySlotView from "ui/view/inventory/InventorySlotView";
+import Store from "utility/Store";
 
 export const SORTS_INAPPLICABLE_ARMOUR = [Sort.Deepsight, Sort.Pattern, Sort.AmmoType, Sort.Shaped] as const;
 export const SORTS_DEFAULT_ARMOUR = [Sort.Power, Sort.Name, Sort.Energy] as const;
@@ -27,4 +28,5 @@ export default InventorySlotView.clone().configure({
 	sort: new SortManager(SORT_MANAGER_ARMOUR_DEFINITION),
 	filter: new FilterManager(FILTER_MANAGER_ARMOUR_DEFINITION),
 	separateVaults: true,
+	displayDestinationButton: () => !Store.items.settingsEquipmentView,
 });

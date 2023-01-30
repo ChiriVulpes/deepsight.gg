@@ -19,6 +19,7 @@ import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
+import Store from "utility/Store";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
 
@@ -66,14 +67,16 @@ export default class ViewManager {
 
 	public static view?: View.WrapperComponent;
 
-	public static defaultView = InventoryEquipmentView;
+	public static getDefaultView () {
+		return Store.items.settingsEquipmentView ? InventoryEquipmentView : InventoryKineticView;
+	}
 
 	public static hasView () {
 		return !!this.view;
 	}
 
 	public static showDefaultView () {
-		this.defaultView.show();
+		this.getDefaultView().show();
 	}
 
 	public static showByHash (hash: string | null): void {

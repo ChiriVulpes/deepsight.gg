@@ -18,6 +18,7 @@ namespace View {
 		initialiseDestinationButton?: (button: Button) => any;
 		noNav?: true;
 		noDestinationButton?: true;
+		displayDestinationButton?(): boolean;
 		redirectOnLoad?: true | string;
 	}
 

@@ -8,6 +8,7 @@ import TextLogo from "ui/TextLogo";
 import type View from "ui/View";
 import type ViewManager from "ui/ViewManager";
 import Bungie from "utility/endpoint/bungie/Bungie";
+import Store from "utility/Store";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
@@ -83,6 +84,16 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		}
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
+
+		this.refreshDestinationButtons = this.refreshDestinationButtons.bind(this);
+		Store.event.subscribe("setSettingsEquipmentView", this.refreshDestinationButtons);
+		this.refreshDestinationButtons();
+	}
+
+	private refreshDestinationButtons () {
+		for (const [id, destinationButton] of Object.entries(this.destinationButtons)) {
+			destinationButton.classes.toggle(viewManager.registry[id].displayDestinationButton?.() === false, Classes.Hidden);
+		}
 	}
 
 	public showing (view: View.WrapperComponent) {
