@@ -310,8 +310,8 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		delete this.rect;
 	}
 
-	public intersects (position: IVector2) {
-		const rect = this.getRect();
+	public intersects (position: IVector2, uncache = false) {
+		const rect = this.getRect(uncache);
 		if (position.x < rect.left || position.x >= rect.left + rect.width)
 			return false;
 		if (position.y < rect.top || position.y >= rect.top + rect.height)

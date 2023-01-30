@@ -2,6 +2,7 @@ import type { BucketHashes } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import { BucketClasses } from "ui/inventory/bucket/Bucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -188,6 +189,8 @@ class InventoryEquipmentView extends InventorySlotView {
 			column.component.classes.toggle(showingWeapons === (column.section === InventoryEquipmentViewClasses.SectionWeapons), Classes.Hidden);
 
 		this.loadingNewView = false;
+		for (const bucket of document.getElementsByClassName(`.${BucketClasses.Main}`))
+			bucket.component?.deref()?.uncacheRect();
 	}
 
 	protected override onGlobalKeydown (event: IKeyEvent): void {

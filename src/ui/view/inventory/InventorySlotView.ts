@@ -22,6 +22,7 @@ import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
+import Arrays from "utility/Arrays";
 import Store from "utility/Store";
 
 export enum InventorySlotViewClasses {
@@ -424,15 +425,11 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 	}
 
 	private getBucket (bucketId: BucketId) {
-		const slot = this.super.definition.slot;
-		if (!slot)
-			return [];
-
-		return bucketId === "vault" ? Object.values(this.vaults[slot] ?? {}).flat()
+		return bucketId === "vault" ? Object.values(this.vaults ?? {}).flatMap(vaults => Object.values(vaults))
 			: bucketId === "inventory" ? [this.currentCharacter]
 				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
 					: bucketId === "collections" ? []
-						: !this.characters[slot] ? [] : [this.characters[slot]![bucketId]];
+						: Object.values(this.characters).map(character => character[bucketId]).filter(Arrays.filterNullish);
 	}
 
 	protected onGlobalKeydown (event: IKeyEvent) {
@@ -484,7 +481,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 
 					const components = this.getBucket(dropBucketId);
 					for (const component of components)
-						component.classes.toggle(component.intersects(event.mouse), InventorySlotViewClasses.BucketDropTarget);
+						component.classes.toggle(component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`), InventorySlotViewClasses.BucketDropTarget);
 				}
 			},
 			moveEnd: async event => {
@@ -501,7 +498,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 					let intersections = false;
 					for (const component of components) {
 						component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
-						if (component.intersects(event.mouse))
+						if (component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`))
 							intersections = true;
 					}
 
