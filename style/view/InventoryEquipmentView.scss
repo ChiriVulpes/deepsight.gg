@@ -91,14 +91,18 @@
 		}
 		
 		&-weapons {
-			@include desktop {
+			.view-equipment-section-content {
+				grid-template-columns: repeat(3, 1fr) auto;
+			}
+			
+			@media (min-width: 1860px) { 
 				--character-columns: 5;
 			}
 		}
 		
 		.view-inventory-slot-character-bucket-inventory {
 			grid-template-rows: repeat(2, 1fr);
-			@include vertical-or-tablet {
+			@media (max-width: 1860px) {
 				grid-template-rows: repeat(3, 1fr);
 			}
 		}

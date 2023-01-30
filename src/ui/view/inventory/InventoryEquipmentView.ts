@@ -3,6 +3,8 @@ import Inventory from "model/models/Inventory";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { BucketClasses } from "ui/inventory/bucket/Bucket";
+import type PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
+import { PostmasterBucketClasses } from "ui/inventory/bucket/PostmasterBucket";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -34,7 +36,7 @@ enum InventoryEquipmentViewClasses {
 }
 
 interface IEquipmentSlotColumn {
-	slot: BucketHashes;
+	slot?: BucketHashes;
 	name: string;
 	component: Component;
 	section: InventoryEquipmentViewClasses;
@@ -45,6 +47,13 @@ class InventoryEquipmentView extends InventorySlotView {
 	public weaponsSection!: Component;
 	public armourSection!: Component;
 	public columns!: IEquipmentSlotColumn[];
+
+	protected override async onMake (inventory: Inventory): Promise<void> {
+		await super.onMake(inventory);
+
+		this.onMouseMove = this.onMouseMove.bind(this);
+		document.body.addEventListener("mousemove", this.onMouseMove);
+	}
 
 	protected override preUpdateInit (): void {
 		this.columns = [];
@@ -113,28 +122,57 @@ class InventoryEquipmentView extends InventorySlotView {
 					section: section.class,
 				});
 			}
-		}
 
-		this.onMouseMove = this.onMouseMove.bind(this);
-		document.body.addEventListener("mousemove", this.onMouseMove);
+			if (section.class === InventoryEquipmentViewClasses.SectionWeapons) {
+				const component = Component.create()
+					.classes.add(InventoryEquipmentViewClasses.SlotColumn)
+					.classes.toggle(section.collapsed, Classes.Hidden)
+					.append(Component.create()
+						.classes.add(InventoryEquipmentViewClasses.SlotColumnTitle)
+						.text.set("\xa0"))
+					.appendTo(sectionContent);
+
+				this.columns.push({
+					name: "Postmaster",
+					component,
+					section: section.class,
+				});
+			}
+		}
 	}
 
 	protected override updateCharacters () {
 		super.updateCharacters();
 
 		for (const column of this.columns) {
-			const result = this.generateSortedBuckets(column.slot);
-			if (result.changed) {
-				column.component.append(...result.buckets.map(({ character }) => character));
-				column.component.append(...result.buckets.map(({ vault }) => vault));
-				// this.postmasterBucketsContainer.append(...characterBucketsSorted.map(({ postmaster }) => postmaster));
+			if (!column.slot) {
+				const result = this.generateSortedPostmasters();
+				column.component.append(...result.postmasters);
+			} else {
+				const result = this.generateSortedBuckets(column.slot);
+				if (result.changed) {
+					column.component.append(...result.buckets.map(({ character }) => character));
+					column.component.append(...result.buckets.map(({ vault }) => vault));
+				}
 			}
 		}
 	}
 
 	protected override sort (): void {
-		for (const column of this.columns)
-			this.sortSlot(column.slot);
+		const postmasters: PostmasterBucket[] = [];
+
+		for (const column of this.columns) {
+			if (column.slot)
+				this.sortSlot(column.slot);
+
+			else
+				for (const bucket of column.component.children<PostmasterBucket>())
+					if (bucket.classes.has(PostmasterBucketClasses.Main))
+						postmasters.push(bucket);
+		}
+
+		for (const postmaster of postmasters)
+			postmaster.update();
 	}
 
 	private onMouseMove (event: MouseEvent): void {

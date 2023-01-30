@@ -1,5 +1,6 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
 import type Model from "model/Model";
+import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
@@ -261,9 +262,33 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		}
 	}
 
+	protected generateSortedPostmasters () {
+		const oldPostmasterBuckets = Object.values(this.postmasters ?? {});
+
+		const postmasters = (this.inventory.sortedCharacters ?? [])
+			.map(character => this.generatePostmasterBucket(character));
+
+		for (const oldPostmasterBucket of oldPostmasterBuckets)
+			if (!postmasters.some(postmaster => oldPostmasterBucket === postmaster))
+				// this character was deleted
+				oldPostmasterBucket.remove();
+
+		const charactersChanged = postmasters.length !== oldPostmasterBuckets.length
+			|| oldPostmasterBuckets.some((bucket, i) => bucket.character.characterId !== postmasters[i]?.character?.characterId);
+
+		return {
+			changed: charactersChanged,
+			postmasters,
+			oldPostmasterBuckets,
+		};
+	}
+
+	private generatePostmasterBucket (character: Character) {
+		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character);
+	}
+
 	protected generateSortedBuckets (slot: BucketHashes) {
 		const oldCharacterBuckets = Object.values(this.characters[slot] ?? {});
-		const oldPostmasterBuckets = Object.values(this.postmasters ?? {});
 		const oldVaultBuckets = Object.values(this.vaults[slot] ?? {});
 
 		const characters = this.characters[slot] ??= {};
@@ -272,10 +297,12 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		const singleVaultBucket = this.super.definition.separateVaults ? undefined : VaultBucket.create([]);
 		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventorySlotViewClasses.VaultBucketsCombined);
 
+		const { oldPostmasterBuckets } = this.generateSortedPostmasters();
+
 		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
 				character: characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
-				postmaster: this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character),
+				postmaster: this.generatePostmasterBucket(character),
 				vault: vaults[character.characterId as CharacterId] ??= singleVaultBucket ?? VaultBucket.create([character]),
 			}));
 
@@ -283,11 +310,6 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 			if (!characterBucketsSorted.some(({ character }) => oldCharacterBucket === character))
 				// this character was deleted
 				oldCharacterBucket.remove();
-
-		for (const oldPostmasterBucket of oldPostmasterBuckets)
-			if (!characterBucketsSorted.some(({ postmaster }) => oldPostmasterBucket === postmaster))
-				// this character was deleted
-				oldPostmasterBucket.remove();
 
 		for (const oldVaultBucket of oldVaultBuckets)
 			if (!characterBucketsSorted.some(({ vault }) => oldVaultBucket === vault))
