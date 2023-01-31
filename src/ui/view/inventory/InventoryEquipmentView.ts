@@ -231,6 +231,9 @@ class InventoryEquipmentView extends InventorySlotView {
 		this.loadingNewView = false;
 		for (const bucket of document.getElementsByClassName(`.${BucketClasses.Main}`))
 			bucket.component?.deref()?.uncacheRect();
+
+		for (const item of this.itemMap.values())
+			item.setSortedBy(this.super.definition.sort);
 	}
 
 	protected override onGlobalKeydown (event: IKeyEvent): void {
