@@ -93,6 +93,10 @@
 		&-weapons {
 			.view-equipment-section-content {
 				grid-template-columns: repeat(3, 1fr) auto;
+			
+				@include vertical-or-tablet {
+					grid-template-rows: auto 1fr;
+				}
 			}
 			
 			@media (min-width: 1860px) { 
@@ -142,6 +146,8 @@
 	}
 	
 	&-slot-column {
+		grid-row: 2;
+		
 		@at-root {
 			&:times(5) {
 				@include view-swipe-animation;
@@ -158,6 +164,33 @@
 			
 			@include vertical-or-tablet {
 				font-size: 30px;
+			}
+		}
+		
+		&-postmaster {
+			@include vertical-or-tablet {
+				grid-row: 1;
+				grid-column: 1/4;
+				
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 5px;
+				
+				.view-equipment-slot-column-title {
+					display: none;
+					grid-row: 3;
+				}
+				
+				.view-inventory-slot-postmaster-bucket {
+					display: block;
+					opacity: 0;
+					pointer-events: none;
+					user-select: none;
+					
+					&:nth-child(2) { grid-column: 1 }
+					&:nth-child(3) { grid-column: 2 }
+					&:nth-child(4) { grid-column: 3 }
+				}
 			}
 		}
 	}

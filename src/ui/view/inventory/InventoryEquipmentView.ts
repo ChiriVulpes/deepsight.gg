@@ -32,6 +32,7 @@ enum InventoryEquipmentViewClasses {
 	SectionWeapons = "view-equipment-section-weapons",
 	SectionArmour = "view-equipment-section-armour",
 	SlotColumn = "view-equipment-slot-column",
+	PostmasterColumn = "view-equipment-slot-column-postmaster",
 	SlotColumnTitle = "view-equipment-slot-column-title",
 }
 
@@ -125,7 +126,7 @@ class InventoryEquipmentView extends InventorySlotView {
 
 			if (section.class === InventoryEquipmentViewClasses.SectionWeapons) {
 				const component = Component.create()
-					.classes.add(InventoryEquipmentViewClasses.SlotColumn)
+					.classes.add(InventoryEquipmentViewClasses.SlotColumn, InventoryEquipmentViewClasses.PostmasterColumn)
 					.classes.toggle(section.collapsed, Classes.Hidden)
 					.append(Component.create()
 						.classes.add(InventoryEquipmentViewClasses.SlotColumnTitle)
