@@ -241,7 +241,7 @@ class InventoryEquipmentView extends InventorySlotView {
 		this.filterer.remove();
 		this.initSortAndFilter();
 		this.hints.appendTo(this.super.footer);
-		await Async.sleep(300);
+		await Async.sleep(400);
 		const showingWeapons = this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed);
 		for (const column of this.columns)
 			column.component.classes.toggle(showingWeapons === (column.section === InventoryEquipmentViewClasses.SectionWeapons), Classes.Hidden);
@@ -250,8 +250,7 @@ class InventoryEquipmentView extends InventorySlotView {
 		for (const bucket of document.getElementsByClassName(`.${BucketClasses.Main}`))
 			bucket.component?.deref()?.uncacheRect();
 
-		for (const item of this.itemMap.values())
-			item.setSortedBy(this.super.definition.sort);
+		this.sort();
 	}
 
 	protected override onGlobalKeydown (event: IKeyEvent): void {
