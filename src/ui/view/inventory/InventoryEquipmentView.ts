@@ -147,18 +147,34 @@ class InventoryEquipmentView extends InventorySlotView {
 	protected override updateCharacters () {
 		super.updateCharacters();
 
+		let weaponsBuckets = 0;
+		let armourBuckets = 0;
+
 		for (const column of this.columns) {
 			if (!column.slot) {
 				const result = this.generateSortedPostmasters();
 				column.component.append(...result.postmasters);
 			} else {
-				const result = this.generateSortedBuckets(column.slot);
+				const armourSection = column.section === InventoryEquipmentViewClasses.SectionArmour;
+				const result = this.generateSortedBuckets(column.slot, armourSection);
+
+				weaponsBuckets = Math.max(weaponsBuckets, result.buckets.length + 1);
+				armourBuckets = Math.max(armourBuckets, result.buckets.length * 2);
+
 				if (result.changed) {
-					column.component.append(...result.buckets.map(({ character }) => character));
-					column.component.append(...result.buckets.map(({ vault }) => vault));
+					if (armourSection) {
+						column.component.append(...result.buckets.flatMap(({ character, vault }) => [character, vault]));
+
+					} else {
+						column.component.append(...result.buckets.map(({ character }) => character));
+						column.component.append(...result.buckets.map(({ vault }) => vault));
+					}
 				}
 			}
 		}
+
+		this.weaponsSection.style.set("--buckets", `${weaponsBuckets}`);
+		this.armourSection.style.set("--buckets", `${armourBuckets}`);
 	}
 
 	protected override sort (): void {
@@ -250,7 +266,7 @@ class InventoryEquipmentView extends InventorySlotView {
 
 	protected override onItemMoveStart (item: Item, event: Event & { mouse: IVector2; }): void {
 		this.weaponsSection.element.lastElementChild?.scrollTo({ top: 0, behavior: "smooth" });
-		this.armourSection.element.lastElementChild?.scrollTo({ top: 0, behavior: "smooth" });
+		// this.armourSection.element.lastElementChild?.scrollTo({ top: 0, behavior: "smooth" });
 	}
 }
 

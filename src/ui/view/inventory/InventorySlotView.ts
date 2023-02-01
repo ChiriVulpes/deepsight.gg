@@ -288,14 +288,14 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character);
 	}
 
-	protected generateSortedBuckets (slot: BucketHashes) {
+	protected generateSortedBuckets (slot: BucketHashes, separateVaults: boolean | undefined = this.super.definition.separateVaults) {
 		const oldCharacterBuckets = Object.values(this.characters[slot] ?? {});
 		const oldVaultBuckets = Object.values(this.vaults[slot] ?? {});
 
 		const characters = this.characters[slot] ??= {};
 		const vaults = this.vaults[slot] ??= {};
 
-		const singleVaultBucket = this.super.definition.separateVaults ? undefined : VaultBucket.create([]);
+		const singleVaultBucket = separateVaults ? undefined : VaultBucket.create([]);
 		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventorySlotViewClasses.VaultBucketsCombined);
 
 		const { oldPostmasterBuckets } = this.generateSortedPostmasters();

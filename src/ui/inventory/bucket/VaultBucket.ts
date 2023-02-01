@@ -1,8 +1,10 @@
 import type Character from "model/models/Characters";
+import Component from "ui/Component";
 import BucketComponent from "ui/inventory/bucket/Bucket";
 
 export enum VaultBucketClasses {
 	Main = "view-inventory-slot-vault-bucket",
+	Class = "view-inventory-slot-vault-bucket-class",
 }
 
 export default class VaultBucket extends BucketComponent<[Character?]> {
@@ -17,6 +19,9 @@ export default class VaultBucket extends BucketComponent<[Character?]> {
 		this.title.text.add("Vault");
 		const className = character?.class?.displayProperties.name;
 		if (className)
-			this.title.text.add(` (${className})`);
+			Component.create()
+				.classes.add(VaultBucketClasses.Class)
+				.text.set(` (${className})`)
+				.appendTo(this.title);
 	}
 }
