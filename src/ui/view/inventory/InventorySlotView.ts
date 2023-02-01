@@ -24,6 +24,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
+import type { IVector2 } from "utility/maths/Vector2";
 import Store from "utility/Store";
 
 export enum InventorySlotViewClasses {
@@ -469,6 +470,10 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		}
 	}
 
+	protected onItemMoveStart (item: Item, event: Event & { mouse: IVector2 }) {
+
+	}
+
 	private itemMoving?: ItemComponent;
 	private createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
@@ -495,6 +500,8 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 
 				for (const bucketComponent of bucketComponents)
 					bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
+
+				this.onItemMoveStart(item, event);
 			},
 			move: event => {
 				for (const [dropBucketId] of this.bucketEntries) {

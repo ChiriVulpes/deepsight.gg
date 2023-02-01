@@ -1,5 +1,6 @@
 import type { BucketHashes } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
+import type Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { BucketClasses } from "ui/inventory/bucket/Bucket";
@@ -22,6 +23,7 @@ import type { IInventorySlotViewDefinition } from "ui/view/inventory/InventorySl
 import { InventorySlotView } from "ui/view/inventory/InventorySlotView";
 import { FILTER_MANAGER_WEAPONS_DEFINITION, SORT_MANAGER_WEAPONS_DEFINITION } from "ui/view/inventory/InventoryWeaponView";
 import Async from "utility/Async";
+import type { IVector2 } from "utility/maths/Vector2";
 import Store from "utility/Store";
 
 enum InventoryEquipmentViewClasses {
@@ -244,6 +246,11 @@ class InventoryEquipmentView extends InventorySlotView {
 
 		if (event.use("ArrowRight"))
 			this.showArmour();
+	}
+
+	protected override onItemMoveStart (item: Item, event: Event & { mouse: IVector2; }): void {
+		this.weaponsSection.element.lastElementChild?.scrollTo({ top: 0, behavior: "smooth" });
+		this.armourSection.element.lastElementChild?.scrollTo({ top: 0, behavior: "smooth" });
 	}
 }
 
