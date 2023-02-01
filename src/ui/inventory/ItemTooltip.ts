@@ -13,6 +13,8 @@ import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
@@ -177,6 +179,23 @@ class ItemTooltip extends Tooltip {
 		this.hintInspect = Hint.create([IInput.get("MouseRight")])
 			.tweak(hint => hint.label.text.set("Details"))
 			.appendTo(this.hints);
+
+		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
+		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
+		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
+		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
+	}
+
+	protected onGlobalKeydown (event: IKeyEvent) {
+		if (event.use("Control")) {
+			this.hintInspect.label.text.set("Collections");
+		}
+	}
+
+	protected onGlobalKeyup (event: IKeyEvent) {
+		if (event.use("Control")) {
+			this.hintInspect.label.text.set("Details");
+		}
 	}
 
 	public async setItem (item: Item, inventory?: Inventory) {

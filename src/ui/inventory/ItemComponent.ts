@@ -293,6 +293,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			return;
 
 		event.preventDefault();
-		viewManager.showItem(this.item);
+		if (event.ctrlKey)
+			viewManager.showCollections(this.item);
+		else
+			viewManager.showItem(this.item);
 	}
 }

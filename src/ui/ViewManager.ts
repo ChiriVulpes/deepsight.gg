@@ -135,6 +135,10 @@ export default class ViewManager {
 		ItemView.show(item);
 	}
 
+	public static showCollections (item: Item) {
+		ItemView.showCollections(item);
+	}
+
 	public static showItemTooltip (item: Item) {
 		ItemTooltipView.show(item);
 	}
