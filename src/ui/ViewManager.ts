@@ -2,6 +2,7 @@ import { APP_NAME } from "Constants";
 import type Model from "model/Model";
 import type Item from "model/models/items/Item";
 import View from "ui/View";
+import AboutView from "ui/view/AboutView";
 import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
 import ErrorView from "ui/view/ErrorView";
@@ -44,6 +45,7 @@ const registry = Object.fromEntries([
 	ItemView,
 	ErrorView,
 	ItemTooltipView,
+	AboutView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));

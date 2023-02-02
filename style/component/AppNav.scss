@@ -41,43 +41,15 @@
 		transition-delay: $delay * 2;
 	}
 	
-	@at-root .app-nav-logo-container, .app-nav-title, .app-nav-identity-container, .app-nav-destination {
+	@at-root .app-info-container, .app-nav-identity-container, .app-nav-destination {
 		@include transition(.2s, transform);
 		transition-timing-function: cubic-bezier(0,0,.4,1);
 	}
 	
 	&.hidden {
-		:where(.app-nav-logo-container, .app-nav-title, .app-nav-identity-container, .app-nav-destination) {
+		:where(.app-info-container, .app-nav-identity-container, .app-nav-destination) {
 			@include transition(.4s);
 			transform: translateY(-50px);
-		}
-	}
-	
-	&-logo {
-		&-container {
-			position: relative;
-			width: var(--nav-height);
-		}
-		
-		margin: 10px;
-		
-		.bungie-api-down & {
-			background-image: url("/image/logo-api-down.png");
-		}
-	}
-	
-	&-title {
-		font-family: $font-title;
-		font-size: .9em;
-		line-height: 1.05em;
-		font-weight: 100;
-		width: 65px !important;
-		height: fit-content;
-		align-self: center;
-		margin-right: 30px;
-		transition-delay: $delay;
-		.text-logo-sight::before {
-			content: none;
 		}
 	}
 	

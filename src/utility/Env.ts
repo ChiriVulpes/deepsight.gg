@@ -4,6 +4,8 @@ export interface IEnvironment {
 	DEEPSIGHT_BUNGIE_CLIENT_ID: string;
 	DEEPSIGHT_BUNGIE_API_KEY: string;
 	DEEPSIGHT_BUNGIE_API_SECRET: string;
+	DEEPSIGHT_BUILD_NUMBER?: string;
+	DEEPSIGHT_BUILD_SHA?: string;
 }
 
 interface Env extends Readonly<IEnvironment> { }

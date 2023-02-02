@@ -89,3 +89,33 @@ kbd {
 	padding: 0 .4em .1em;
 	font-family: inherit;
 }
+
+:root:not(.bungie-api-down) .show-if-api-down {
+	display: none;
+}
+
+.warning-text {
+	color: color(bad);
+}
+
+.small-text {
+	font-size: 11px;
+	opacity: .5;
+}
+
+h3 {
+	font-family: $font-title;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	margin: 0;
+	margin-bottom: -10px;
+}
+
+h3 + p {
+	opacity: .7;
+	margin-top: 10px;
+}
+
+h3 + p + p {
+	margin-top: -12px;
+}

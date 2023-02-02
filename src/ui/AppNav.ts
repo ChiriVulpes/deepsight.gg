@@ -1,20 +1,14 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
-import Loadable from "ui/Loadable";
-import LoadingManager from "ui/LoadingManager";
 import PlayerOverview from "ui/PlayerOverview";
-import TextLogo from "ui/TextLogo";
 import type View from "ui/View";
+import AppInfo from "ui/view/appnav/AppInfo";
 import type ViewManager from "ui/ViewManager";
-import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
-	LogoContainer = "app-nav-logo-container",
-	Logo = "app-nav-logo",
-	Title = "app-nav-title",
 	IdentityContainer = "app-nav-identity-container",
 	Destinations = "app-nav-destinations",
 	Compress = "app-nav-compress",
@@ -35,19 +29,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
 
-		const logo = Loadable.create(LoadingManager.model)
-			.onReady(() => Component.create()
-				.classes.add(ClassesAppNav.Logo, Classes.Logo))
-			.classes.add(ClassesAppNav.LogoContainer)
-			.setSimple()
-			.setPersistent()
-			.appendTo(this);
-
-		Bungie.event.subscribe("apiDown", () => logo.attributes.set("title", "Bungie's API seems to be erroring. I promise it's not my fault, maybe!"));
-		Bungie.event.subscribe("querySuccess", () => logo.attributes.remove("title"));
-
-		TextLogo.create()
-			.classes.add(ClassesAppNav.Title)
+		AppInfo.create()
 			.appendTo(this);
 
 		PlayerOverview.create()

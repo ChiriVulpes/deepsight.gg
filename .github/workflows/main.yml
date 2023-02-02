@@ -27,6 +27,8 @@ jobs:
           DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
           DEEPSIGHT_BUNGIE_API_KEY: ${{ secrets.DEEPSIGHT_BUNGIE_API_KEY }}
           DEEPSIGHT_BUNGIE_API_SECRET: ${{ secrets.DEEPSIGHT_BUNGIE_API_SECRET }}
+          DEEPSIGHT_BUILD_NUMBER: ${{ github.run_number }}
+          DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run build
       
       - name: Deploy to GitHub Pages

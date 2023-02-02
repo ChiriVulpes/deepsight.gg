@@ -10,6 +10,10 @@ function env<KEY extends keyof IEnvironment> (key: KEY, orElse?: IEnvironment[KE
 	return result as IEnvironment[KEY];
 }
 
+function optional<KEY extends keyof IEnvironment> (key: KEY) {
+	return process.env[key] as IEnvironment[KEY];
+}
+
 let environment: IEnvironment | undefined;
 export default Task("env", _ => {
 	environment ??= {
@@ -17,6 +21,8 @@ export default Task("env", _ => {
 		DEEPSIGHT_BUNGIE_CLIENT_ID: env("DEEPSIGHT_BUNGIE_CLIENT_ID"),
 		DEEPSIGHT_BUNGIE_API_KEY: env("DEEPSIGHT_BUNGIE_API_KEY"),
 		DEEPSIGHT_BUNGIE_API_SECRET: env("DEEPSIGHT_BUNGIE_API_SECRET"),
+		DEEPSIGHT_BUILD_NUMBER: optional("DEEPSIGHT_BUILD_NUMBER"),
+		DEEPSIGHT_BUILD_SHA: optional("DEEPSIGHT_BUILD_SHA"),
 	};
 
 	return fs.writeFile("docs/env.json", JSON.stringify(environment));

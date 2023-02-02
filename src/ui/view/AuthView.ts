@@ -4,7 +4,9 @@ import Button, { ButtonClasses } from "ui/form/Button";
 import Label from "ui/Label";
 import TextLogo from "ui/TextLogo";
 import View from "ui/View";
+import Async from "utility/Async";
 import Bungie from "utility/endpoint/bungie/Bungie";
+import Env from "utility/Env";
 
 export enum AuthViewClasses {
 	Logo = "view-auth-logo",
@@ -21,8 +23,11 @@ export default View.create({
 	name: null,
 	noNav: true,
 	noDestinationButton: true,
-	initialise: view => view
-		.tweak(view => view.content
+	initialise: view => {
+		if (Bungie.authenticated && Env.DEEPSIGHT_ENVIRONMENT !== "dev")
+			return Async.sleep(1).then(() => viewManager.showDefaultView());
+
+		view.tweak(view => view.content
 
 			.append(Component.create()
 				.classes.add(AuthViewClasses.Header)
@@ -41,18 +46,19 @@ export default View.create({
 				.text.set("Authenticate with Bungie")
 				.event.subscribe("click", () =>
 					void Bungie.authenticate("start").catch(err => console.error(err)))))
-		.tweak(view => view.footer
-			.append(Component.create("nav")
-				.classes.add(AuthViewClasses.Nav)
-				.append(Component.create("span")
-					.text.set("Made with 🤍 by ")
-					.append(Component.create("a")
-						.attributes.set("href", "https://chiri.works")
-						.text.set("Chiri")))
-				.append(Component.create("span")
-					.text.set("Open source on ")
-					.append(Component.create("a")
-						.attributes.set("href", "https://github.com/ChiriVulpes/deepsight.gg")
-						.text.set("GitHub"))))
-			.appendTo(view)),
+			.tweak(view => view.footer
+				.append(Component.create("nav")
+					.classes.add(AuthViewClasses.Nav)
+					.append(Component.create("span")
+						.text.set("Made with 🤍 by ")
+						.append(Component.create("a")
+							.attributes.set("href", "https://chiri.works")
+							.text.set("Chiri")))
+					.append(Component.create("span")
+						.text.set("Open source on ")
+						.append(Component.create("a")
+							.attributes.set("href", "https://github.com/ChiriVulpes/deepsight.gg")
+							.text.set("GitHub"))))
+				.appendTo(view));
+	},
 });
