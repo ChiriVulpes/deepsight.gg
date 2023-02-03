@@ -133,6 +133,7 @@ namespace View {
 		Loadable = "view-loadable",
 		Title = "view-title",
 		Subtitle = "view-subtitle",
+		Subview = "view-subview",
 	}
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>]> {

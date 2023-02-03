@@ -85,7 +85,7 @@ export default View.create({
 		if (!isEngram)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
-				.text.set("Inspect")
+				.text.set("Details")
 				.event.subscribe("click", () => ItemView.show(item))
 				.appendTo(buttons);
 	},

@@ -5,29 +5,13 @@
 	
 	&-content {
 		overflow-y: auto;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 20px;
-		align-items: flex-start;
-		align-content: flex-start;
 	}
-	
-	&-details {
-		max-width: 500px;
-		
-		background: color(background-0, .2);
-		backdrop-filter: blur(10px);
-		padding: 0 25px;
-		border-left: 3px solid color(background-4, .5);
-		
-		&-summary {
-			font-size: 28px;
-			text-transform: none;
-			letter-spacing: normal;
-		}
-		
-		@at-root &:times(20) {
-			@include view-swipe-animation;
-		}
-	}
+}
+
+.documentation-card:times(30) {
+	@include view-swipe-animation;
+}
+
+.documentation-section-heading:times(30) {
+	@include view-swipe-animation;
 }

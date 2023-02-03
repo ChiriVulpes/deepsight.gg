@@ -62,7 +62,7 @@ const itemViewBase = View.create({
 		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))] as const,
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
-	name: (item: Item | string) => typeof item === "string" ? "Inspect Item" : item.definition.displayProperties.name,
+	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,
 	noDestinationButton: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
 		LoadingManager.end(view.definition.id);

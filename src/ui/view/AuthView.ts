@@ -4,6 +4,7 @@ import Button, { ButtonClasses } from "ui/form/Button";
 import Label from "ui/Label";
 import TextLogo from "ui/TextLogo";
 import View from "ui/View";
+import AboutView from "ui/view/AboutView";
 import Async from "utility/Async";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
@@ -15,6 +16,8 @@ export enum AuthViewClasses {
 	State = "view-auth-state",
 	AuthButton = "view-auth-button-auth",
 	Nav = "view-auth-nav",
+	Splash = "view-auth-splash",
+	About = "view-auth-about",
 }
 
 export default View.create({
@@ -27,38 +30,30 @@ export default View.create({
 		if (Bungie.authenticated && Env.DEEPSIGHT_ENVIRONMENT !== "dev")
 			return Async.sleep(1).then(() => viewManager.showDefaultView());
 
-		view.tweak(view => view.content
-
+		view.content
 			.append(Component.create()
-				.classes.add(AuthViewClasses.Header)
+				.classes.add(AuthViewClasses.Splash)
 				.append(Component.create()
-					.classes.add(AuthViewClasses.Logo, Classes.Logo))
-				.append(TextLogo.create()
-					.classes.add(AuthViewClasses.Title)))
+					.classes.add(AuthViewClasses.Header)
+					.append(Component.create()
+						.classes.add(AuthViewClasses.Logo, Classes.Logo))
+					.append(TextLogo.create()
+						.classes.add(AuthViewClasses.Title)))
 
-			.append(Label.create()
-				.classes.add(AuthViewClasses.State)
-				.tweak(_ => _.label.text.set("Account"))
-				.tweak(_ => _.content.text.set("Not Authenticated")))
+				.append(Label.create()
+					.classes.add(AuthViewClasses.State)
+					.tweak(_ => _.label.text.set("Account"))
+					.tweak(_ => _.content.text.set("Not Authenticated")))
 
-			.append(Button.create()
-				.classes.add(AuthViewClasses.AuthButton, ButtonClasses.Attention)
-				.text.set("Authenticate with Bungie")
-				.event.subscribe("click", () =>
-					void Bungie.authenticate("start").catch(err => console.error(err)))))
-			.tweak(view => view.footer
-				.append(Component.create("nav")
-					.classes.add(AuthViewClasses.Nav)
-					.append(Component.create("span")
-						.text.set("Made with 🤍 by ")
-						.append(Component.create("a")
-							.attributes.set("href", "https://chiri.works")
-							.text.set("Chiri")))
-					.append(Component.create("span")
-						.text.set("Open source on ")
-						.append(Component.create("a")
-							.attributes.set("href", "https://github.com/ChiriVulpes/deepsight.gg")
-							.text.set("GitHub"))))
-				.appendTo(view));
+				.append(Button.create()
+					.classes.add(AuthViewClasses.AuthButton, ButtonClasses.Attention)
+					.text.set("Authenticate with Bungie")
+					.event.subscribe("click", () =>
+						void Bungie.authenticate("start").catch(err => console.error(err)))));
+
+		view.content.append(Component.create()
+			.classes.add(AuthViewClasses.About)
+			.append(View.WrapperComponent.create([AboutView])
+				.classes.add(View.Classes.Subview)));
 	},
 });

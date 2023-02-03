@@ -21,6 +21,11 @@
 	justify-content: center;
 	overflow: hidden;
 	
+	&-subview {
+		position: relative;
+		height: initial;
+	}
+	
 	&-hidden {
 		pointer-events: none;
 	}

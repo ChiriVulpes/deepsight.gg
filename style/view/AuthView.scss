@@ -2,13 +2,20 @@
 	background: color(background-2);
 	perspective: 500px;
 	perspective-origin: center center;
-	grid-template-rows: 1fr;
+	
 	&-content {
 		grid-row: 1;
+		display: grid;
+		grid-template-rows: 100vh auto;
+		padding: 0;
+	}
+	
+	&-splash {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		overflow-y: visible;
 		margin-left: -100px;
+		align-self: center;
 		
 		width: fit-content;
 		height: fit-content;
@@ -186,5 +193,12 @@
 		row-gap: 5px;
 		opacity: .8;
 		justify-content: right;
+	}
+	
+	&-about {
+		background: color(background-2, .7);
+		padding: 50px 0;
+		min-height: 100vh;
+		box-sizing: border-box;
 	}
 }
