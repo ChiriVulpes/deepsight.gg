@@ -201,4 +201,22 @@
 		min-height: 100vh;
 		box-sizing: border-box;
 	}
+	
+	&-scroll-down-hint {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		font-family: $font-title;
+		font-size: 20px;
+		letter-spacing: 0.05em;
+		padding: 5px 0;
+		z-index: -1;
+		@include transition(.1s, opacity);
+		
+		&.hidden {
+			display: block;
+			opacity: 0;
+		}
+	}
 }

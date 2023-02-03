@@ -18,6 +18,7 @@ export enum AuthViewClasses {
 	Nav = "view-auth-nav",
 	Splash = "view-auth-splash",
 	About = "view-auth-about",
+	ScrollDownHint = "view-auth-scroll-down-hint",
 }
 
 export default View.create({
@@ -51,9 +52,18 @@ export default View.create({
 					.event.subscribe("click", () =>
 						void Bungie.authenticate("start").catch(err => console.error(err)))));
 
+		const scrollDownHint = Component.create()
+			.classes.add(AuthViewClasses.ScrollDownHint)
+			.text.set("Not convinced? Scroll down!")
+			.appendTo(view.content);
+
 		view.content.append(Component.create()
 			.classes.add(AuthViewClasses.About)
 			.append(View.WrapperComponent.create([AboutView])
 				.classes.add(View.Classes.Subview)));
+
+		view.content.event.subscribe("scroll", () => {
+			scrollDownHint.classes.toggle(view.content.element.scrollTop > 0, Classes.Hidden);
+		});
 	},
 });
