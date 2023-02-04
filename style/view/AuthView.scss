@@ -28,6 +28,7 @@
 		
 		@include mobile {
 			grid-template-columns: 1fr;
+			margin-left: 0;
 			
 			> * {
 				grid-column: 1;
@@ -200,6 +201,7 @@
 		padding: 50px 0;
 		min-height: 100vh;
 		box-sizing: border-box;
+		height: fit-content;
 	}
 	
 	&-scroll-down-hint {
@@ -212,6 +214,7 @@
 		letter-spacing: 0.05em;
 		padding: 5px 0;
 		z-index: -1;
+		text-align: center;
 		@include transition(.1s, opacity);
 		
 		&.hidden {

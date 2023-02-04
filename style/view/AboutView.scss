@@ -5,6 +5,11 @@
 	
 	&-content {
 		overflow-y: auto;
+		padding: 0 150px;
+		
+		@include tablet-or-mobile {
+			padding: 0;
+		}
 	}
 }
 
