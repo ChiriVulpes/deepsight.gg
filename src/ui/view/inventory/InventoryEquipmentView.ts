@@ -54,8 +54,8 @@ class InventoryEquipmentView extends InventorySlotView {
 	protected override async onMake (inventory: Inventory): Promise<void> {
 		await super.onMake(inventory);
 
-		this.onMouseMove = this.onMouseMove.bind(this);
-		document.body.addEventListener("mousemove", this.onMouseMove);
+		// this.onMouseMove = this.onMouseMove.bind(this);
+		// document.body.addEventListener("mousemove", this.onMouseMove);
 	}
 
 	protected override preUpdateInit (): void {
@@ -91,15 +91,22 @@ class InventoryEquipmentView extends InventorySlotView {
 		];
 
 		for (const section of sections) {
+			const sectionName = section.name.toLowerCase() as Lowercase<(typeof section)["name"]>;
 			const sectionComponent = Component.create()
 				.classes.add(InventoryEquipmentViewClasses.Section, section.class)
 				.classes.toggle(section.collapsed, InventoryEquipmentViewClasses.SectionCollapsed)
 				.append(Component.create()
 					.classes.add(InventoryEquipmentViewClasses.SectionTitle)
 					.text.set(section.name))
+				.event.subscribe("click", () => {
+					if (sectionName === "weapons")
+						this.showWeapons();
+					else
+						this.showArmour();
+				})
 				.appendTo(this.super.content);
 
-			this[`${section.name.toLowerCase() as Lowercase<(typeof section)["name"]>}Section`] = sectionComponent;
+			this[`${sectionName}Section`] = sectionComponent;
 
 			const sectionContent = Component.create()
 				.classes.add(InventoryEquipmentViewClasses.SectionContent)
@@ -194,27 +201,27 @@ class InventoryEquipmentView extends InventorySlotView {
 			postmaster.update();
 	}
 
-	private onMouseMove (event: MouseEvent): void {
-		if (!document.contains(this.element))
-			return document.body.removeEventListener("mousemove", this.onMouseMove);
+	// private onMouseMove (event: MouseEvent): void {
+	// 	if (!document.contains(this.element))
+	// 		return document.body.removeEventListener("mousemove", this.onMouseMove);
 
-		const target = event.target as HTMLElement | undefined;
-		if (!target?.closest(`.${View.Classes.Content}`))
-			return;
+	// 	const target = event.target as HTMLElement | undefined;
+	// 	if (!target?.closest(`.${View.Classes.Content}`))
+	// 		return;
 
-		if (event.clientX > window.innerWidth - 100 && this.armourSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
-			this.showArmour();
-		}
+	// 	if (event.clientX > window.innerWidth - 100 && this.armourSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
+	// 		this.showArmour();
+	// 	}
 
-		if (event.clientX < 100 && this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
-			this.showWeapons();
-		}
-	}
+	// 	if (event.clientX < 100 && this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
+	// 		this.showWeapons();
+	// 	}
+	// }
 
 	private loadingNewView = false;
 
 	private showWeapons () {
-		if (this.loadingNewView)
+		if (this.loadingNewView || !this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed))
 			return;
 
 		this.weaponsSection.classes.remove(InventoryEquipmentViewClasses.SectionCollapsed);
@@ -225,7 +232,7 @@ class InventoryEquipmentView extends InventorySlotView {
 	}
 
 	private showArmour () {
-		if (this.loadingNewView)
+		if (this.loadingNewView || !this.armourSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed))
 			return;
 
 		this.weaponsSection.classes.add(InventoryEquipmentViewClasses.SectionCollapsed);

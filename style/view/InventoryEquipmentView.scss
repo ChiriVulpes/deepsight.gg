@@ -15,11 +15,13 @@
 		
 		&-collapsed {
 			max-width: 40px;
+			cursor: pointer;
+			
 			&::before {
 				content: "";
 				position: absolute;
 				inset: -10px;
-				background: linear-gradient(to var(--direction, left), transparent, #{color(background-1, .5)});
+				background: linear-gradient(to var(--direction, left), var(--gradient-1, transparent), var(--gradient-2, #{color(background-1, .5)}));
 			}
 			
 			&:first-child {
@@ -32,6 +34,27 @@
 			&:last-child {
 				&::before {
 					right: calc(100% - 70px);
+				}
+			}
+			
+			&:hover:not(:active) {
+				.view-equipment-section-title {
+					opacity: 1;
+				}
+			}
+			
+			&:hover, &:active {
+				.view-equipment-section-title {
+					transition-duration: 0s;
+				}
+			}
+			
+			&:active {
+				--gradient-1: #{color(background-1, .4)};
+				--gradient-2: #{color(background-1, .9)};
+				transition-duration: 0s;
+				.view-equipment-section-title {
+					top: -28px;
 				}
 			}
 		}
@@ -77,7 +100,7 @@
 			letter-spacing: .5em;
 			font-weight: 500;
 			font-size: 36px;
-			@include transition(out, opacity);
+			@include transition(out, opacity, top);
 		}
 		
 		&:first-child &-title {
