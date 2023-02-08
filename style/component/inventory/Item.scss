@@ -1,3 +1,12 @@
+$z-index-watermark: 100;
+$z-index-item-border: 300;
+$z-index-masterwork: 500;
+$z-index-wishlist: 600;
+$z-index-extra: 800;
+$z-index-shaped: 900;
+$z-index-deepsight: 900;
+$z-index-loading: 1000;
+
 .item {
     width: 100%;
     height: 100%;
@@ -17,6 +26,7 @@
 		display: block;
 		position: absolute;
 		inset: 0;
+		z-index: $z-index-item-border;
 		box-shadow: inset 0 0 0 1px var(--border-color);
 		@include transition(out, background, box-shadow);
 	}
@@ -79,12 +89,12 @@
 		position: absolute;
 		inset: 0;
 		background-size: cover;
-		z-index: 1;
 	}
 	
 	&-source-watermark {
 		inset: 1px;
 		background-image: var(--watermark);
+		z-index: $z-index-watermark;
 	}
 	
 	&-masterwork {
@@ -94,6 +104,7 @@
 		background: radial-gradient(ellipse at bottom center, #ffe16766 10%, transparent 30%);
 		background-size: 300% 100%;
 		background-position: center;
+		z-index: $z-index-masterwork;
 		
 		.item-deepsight ~ &, &-shifted-due-to-junk-border {
 			inset: 2px;
@@ -168,6 +179,15 @@
 		}
 	}
 	
+	&-not-acquired {
+		filter: grayscale(.4);
+		&::after {
+			background: color(background-1, .4);
+			box-shadow: inset 0 0 0 1px color(background-1, .4),
+					    inset 0 0 0 1px var(--border-color);
+		}
+	}
+	
 	&-wishlist {
 		box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border),
 					inset 0 0 0 4px color(wishlist-tooltip-border, .5);
@@ -212,10 +232,15 @@
 				border-right: calc(var(--slot-size) * .45) solid transparent;
 			}
 		}
+		
+		&, &-no-match {
+			z-index: $z-index-wishlist;
+		}
 	}
 	
 	&-shaped {
 		background-image: url("/image/shaped.png");
+		z-index: $z-index-shaped;
 		> * {
 			@include icon(url("/image/svg/shaped.svg"), color(shaped));
 		}
@@ -224,7 +249,7 @@
 	&-deepsight {
 		$deepsight: color(deepsight);
 		box-shadow: inset 0 0 0 2px $deepsight;
-		z-index: 2;
+		z-index: $z-index-deepsight;
 		
 		&-attuned {
 			&::before {
@@ -260,7 +285,7 @@
 				@include icon(url("/image/svg/shaped.svg"), color(foreground));
 			}
 			
-			z-index: 2;
+			z-index: $z-index-deepsight;
 		}
 			
 		&-pattern-unlocked {
@@ -307,6 +332,7 @@
 		font-weight: 500;
 		text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 1px 1px black;
 		text-align: right;
+		z-index: $z-index-extra;
 		
 		&::before {
 			content: "";
@@ -470,7 +496,7 @@
 	}
 	
 	&-loading {
-		z-index: 1;
+		z-index: $z-index-loading;
 		background: color(background-0, .8);
 	}
 	

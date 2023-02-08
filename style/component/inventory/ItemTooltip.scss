@@ -139,7 +139,7 @@
 		}
 	}
 	
-	&-deepsight, &-wishlist {
+	&-deepsight, &-wishlist, &-note {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
@@ -226,6 +226,12 @@
 				mask-image: url("/image/svg/wishlisted.svg");
 			}
 		}
+	}
+	
+	&-note {
+		font-size: 15px;
+		background: color(tooltip-note-background, .85);
+		border-color: color(tooltip-note-border);
 	}
 		
 	&-progress-bar {

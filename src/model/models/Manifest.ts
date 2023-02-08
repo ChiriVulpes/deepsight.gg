@@ -194,7 +194,8 @@ const Manifest = Model.create("manifest", {
 
 		return allComponentNames;
 	},
-	process: componentNames => Object.fromEntries(componentNames
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
 		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as Manifest,
 	reset: async componentNames => {
 		if (componentNames)

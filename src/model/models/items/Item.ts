@@ -1,5 +1,6 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
-import { BucketHashes, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
+import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
 import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
@@ -147,6 +148,25 @@ export interface IItemInit {
 	shaped?: IWeaponShaped;
 	stats?: IStats;
 	tier?: DestinyItemTierTypeDefinition;
+	/**
+	 * - None: 0
+	 * - NotAcquired: 1  
+	 * If this flag is set, you have not yet obtained this collectible.
+	 * - Obscured: 2  
+	 * If this flag is set, the item is "obscured" to you: you can/should use the alternate item hash found in DestinyCollectibleDefinition.stateInfo.obscuredOverrideItemHash when displaying this collectible instead of the default display info.
+	 * - Invisible: 4  
+	 * If this flag is set, the collectible should not be shown to the user.  
+	 * Please do consider honoring this flag. It is used - for example - to hide items that a person didn't get from the Eververse. I can't prevent these from being returned in definitions, because some people may have acquired them and thus they should show up: but I would hate for people to start feeling some variant of a Collector's Remorse about these items, and thus increasing their purchasing based on that compulsion. That would be a very unfortunate outcome, and one that I wouldn't like to see happen. So please, whether or not I'm your mom, consider honoring this flag and don't show people invisible collectibles.
+	 * - CannotAffordMaterialRequirements: 8  
+	 * If this flag is set, the collectible requires payment for creating an instance of the item, and you are lacking in currency. Bring the benjamins next time. Or spinmetal. Whatever.
+	 * - InventorySpaceUnavailable: 16  
+	 * If this flag is set, you can't pull this item out of your collection because there's no room left in your inventory.
+	 * - UniquenessViolation: 32  
+	 * If this flag is set, you already have one of these items and can't have a second one.
+	 * - PurchaseDisabled: 64  
+	 * If this flag is set, the ability to pull this item out of your collection has been disabled.
+	 */
+	collectibleState?: number;
 }
 
 export interface IItem extends IItemInit {
@@ -208,7 +228,7 @@ class Item {
 		return new Item(item);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile, definition: DestinyInventoryItemDefinition) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, definition: DestinyInventoryItemDefinition) {
 		const item: IItemInit = {
 			id: `hash:${definition.hash}` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
@@ -224,6 +244,7 @@ class Item {
 		await Promise.all([
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
+			Collectibles.apply(profile, item),
 		]);
 
 		return new Item(item);
@@ -241,8 +262,15 @@ class Item {
 		return this.sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? []);
 	}
 
+	public collectibleState!: number;
+
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
+		this.collectibleState ??= DestinyCollectibleState.None;
+	}
+
+	public isNotAcquired () {
+		return !!(this.collectibleState & DestinyCollectibleState.NotAcquired);
 	}
 
 	public isMasterwork () {

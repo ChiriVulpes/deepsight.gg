@@ -49,6 +49,7 @@ enum ItemTooltipClasses {
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
 	Wishlist = "item-tooltip-wishlist",
 	Wishlisted = "item-tooltip-wishlisted",
+	Note = "item-tooltip-note",
 	Hints = "item-tooltip-hints",
 }
 
@@ -76,6 +77,7 @@ class ItemTooltip extends Tooltip {
 	public deepsightProgressBar!: Component;
 	public deepsightProgressValue!: Component;
 	public wishlist!: Component;
+	public note!: Component;
 	public stats!: ItemStat.Wrapper;
 	public hints!: Component;
 	public hintVault!: Hint;
@@ -160,6 +162,10 @@ class ItemTooltip extends Tooltip {
 
 		this.wishlist = Component.create()
 			.classes.add(ItemTooltipClasses.Wishlist)
+			.appendTo(this.content);
+
+		this.note = Component.create()
+			.classes.add(ItemTooltipClasses.Note)
 			.appendTo(this.content);
 
 		this.hints = Component.create()
@@ -403,6 +409,14 @@ class ItemTooltip extends Tooltip {
 					: wishlists.length === 0 ? "This item does not match a wishlisted roll."
 						: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
 							: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
+
+		this.note.classes.add(Classes.Hidden);
+
+		const shaped = item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !inventory?.craftedItems.has(item.definition.hash);
+		if (item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress.progress) {
+			this.note.classes.remove(Classes.Hidden);
+			this.note.text.set("This item has has not been acquired.");
+		}
 
 		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";

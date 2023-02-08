@@ -15,7 +15,7 @@ namespace Collections {
 		return sources[source.hash] ??= Model.createDynamic("Daily", async () => {
 			const manifest = await Manifest.await();
 			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
-			const profile = await Profile(DestinyComponentType.Records).await();
+			const profile = await Profile(DestinyComponentType.Records, DestinyComponentType.Collectibles).await();
 
 			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", source.iconWatermark)
 				.then(items => items

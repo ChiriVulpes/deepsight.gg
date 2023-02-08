@@ -36,6 +36,7 @@ export enum ItemClasses {
 	WishlistNoMatch = "item-wishlist-no-match",
 	Extra = "item-extra",
 	Loading = "item-loading",
+	NotAcquired = "item-not-acquired",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -154,6 +155,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			.appendTo(this);
 
 		const shaped = item.shaped || (item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !this.inventory?.craftedItems.has(item.definition.hash));
+		this.classes.toggle(item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress.progress, ItemClasses.NotAcquired);
 		if (shaped && !item.isMasterwork())
 			Component.create()
 				.classes.add(ItemClasses.Shaped)
