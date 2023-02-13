@@ -10,7 +10,7 @@ namespace Collectibles {
 
 	export function apply (profile: ICollectiblesProfile, item: IItemInit) {
 		const collectible = profile.profileCollectibles?.data?.collectibles[item.definition.collectibleHash!]
-			?? Object.values(profile.characterCollectibles?.data ?? {})[0].collectibles[item.definition.collectibleHash!];
+			?? Object.values(profile.characterCollectibles?.data ?? {})[0]?.collectibles[item.definition.collectibleHash!];
 		item.collectibleState = collectible?.state;
 	}
 }
