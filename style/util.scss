@@ -14,6 +14,9 @@
 	@if (length($transition-properties) > 0) {
 		transition: all $duration $timing-function;
 		transition-property: $transition-properties;
+        :root:not(.focused) & {
+            transition: none;
+        }
 	}
 
 	@else {
