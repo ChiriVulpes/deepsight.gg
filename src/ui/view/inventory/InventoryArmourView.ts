@@ -7,7 +7,7 @@ import SortManager from "ui/inventory/sort/SortManager";
 import InventorySlotView from "ui/view/inventory/InventorySlotView";
 import Store from "utility/Store";
 
-export const SORTS_INAPPLICABLE_ARMOUR = [Sort.Deepsight, Sort.Pattern, Sort.AmmoType, Sort.Shaped] as const;
+export const SORTS_INAPPLICABLE_ARMOUR = [Sort.Deepsight, Sort.Pattern, Sort.AmmoType, Sort.Shaped, Sort.WeaponType] as const;
 export const SORTS_DEFAULT_ARMOUR = [Sort.Power, Sort.Name, Sort.Energy] as const;
 export const FILTERS_INAPPLICABLE_ARMOUR = [Filter.Ammo, Filter.WeaponType, Filter.Perk, Filter.Shaped] as const;
 
