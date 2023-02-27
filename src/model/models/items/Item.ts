@@ -294,7 +294,8 @@ class Item {
 	}
 
 	public canTransfer () {
-		return !this.definition.doesPostmasterPullHaveSideEffects && this.reference.bucketHash !== BucketHashes.Engrams;
+		return (!PostmasterId.is(this.bucket) || !this.definition.doesPostmasterPullHaveSideEffects)
+			&& this.reference.bucketHash !== BucketHashes.Engrams;
 	}
 
 	public getPower () {
