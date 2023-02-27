@@ -427,7 +427,7 @@ class Item {
 
 				this.bucket = result.bucket;
 				this.equipped = result.equipped;
-				this.trustTransferUntil = Date.now() + Time.seconds(45);
+				this.trustTransferUntil = Date.now() + Time.seconds(Store.items.settingsTrustTransfersUntil ?? 45);
 				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });
 
 			} catch (error) {
