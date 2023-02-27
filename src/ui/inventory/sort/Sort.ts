@@ -17,6 +17,7 @@ enum Sort {
 	Source,
 	AmmoType,
 	DamageType,
+	WeaponType,
 }
 
 export default Sort;

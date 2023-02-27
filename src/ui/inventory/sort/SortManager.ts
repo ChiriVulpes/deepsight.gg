@@ -14,6 +14,7 @@ import SortShaped from "ui/inventory/sort/sorts/SortShaped";
 import SortSource from "ui/inventory/sort/sorts/SortSource";
 import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
+import SortWeaponType from "ui/inventory/sort/sorts/SortWeaponType";
 import Store from "utility/Store";
 
 const sortMap: Record<Sort, ISort> = {
@@ -30,6 +31,7 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Shaped]: SortShaped,
 	[Sort.AmmoType]: SortAmmoType,
 	[Sort.DamageType]: SortDamageType,
+	[Sort.WeaponType]: SortWeaponType,
 };
 
 for (const [type, sort] of Object.entries(sortMap))
