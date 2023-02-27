@@ -184,7 +184,7 @@ export class Plug {
 		if (!type && plug.definition?.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods))
 			type |= PlugType.Mod;
 
-		if (!type && plug.definition?.tooltipStyle === "build") { // Ugh
+		if (!type && (plug.definition?.tooltipStyle === "build" || plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
 			type |= PlugType.Perk;
 			if (plug.definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
 				type |= PlugType.Enhanced;
