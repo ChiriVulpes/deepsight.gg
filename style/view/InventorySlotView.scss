@@ -207,6 +207,12 @@
 			margin-left: calc(-20px + var(--bucket-inventory-padding));
 			margin-right: calc(0px - min(20px, var(--view-padding-x)) + var(--bucket-inventory-padding));
 			padding-bottom: calc(var(--bucket-inventory-padding) + var(--card-gap-y));
+			
+			&::after {
+				// fix when none have items
+				content: "";
+				width: var(--slot-size);
+			}
 		}
 		
 		&-equipped {
