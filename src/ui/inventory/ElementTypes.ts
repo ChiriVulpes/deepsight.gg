@@ -4,6 +4,7 @@ namespace ElementTypes {
 		solar: 0xf0631e,
 		void: 0xb185df,
 		stasis: 0x4d88ff,
+		strand: 0x35e366,
 	};
 
 	export function getColour (element?: string): `#${string}` | undefined {

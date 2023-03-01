@@ -110,6 +110,7 @@ export enum PlugType {
 	Catalyst = 2 ** 13,
 	EmptyCatalyst = 2 ** 14,
 	DeepsightResonance = 2 ** 15,
+	CraftingTransfusers = 2 ** 16,
 }
 
 type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
@@ -171,6 +172,9 @@ export class Plug {
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
 			type |= PlugType.EmptyCatalyst;
+
+		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel)
+			type |= PlugType.CraftingTransfusers;
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
 			type |= PlugType.DeepsightResonance;
