@@ -1,7 +1,7 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
 import Sort from "ui/inventory/sort/Sort";
 import SortManager from "ui/inventory/sort/SortManager";
-import InventoryArmourView, { SORTS_DEFAULT_ARMOUR, SORTS_INAPPLICABLE_ARMOUR } from "ui/view/inventory/InventoryArmourView";
+import InventoryArmourView, { SORTS_DEFAULT_ARMOUR, SORTS_INAPPLICABLE_ARMOUR } from "ui/view/inventory/slot/InventoryArmourSlotView";
 
 export default InventoryArmourView.create({
 	id: "class-item",

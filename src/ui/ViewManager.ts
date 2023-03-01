@@ -6,21 +6,21 @@ import AboutView from "ui/view/AboutView";
 import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
 import ErrorView from "ui/view/ErrorView";
-import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
-import InventoryChestView from "ui/view/inventory/InventoryChestView";
-import InventoryClassItemView from "ui/view/inventory/InventoryClassItemView";
-import InventoryEnergyView from "ui/view/inventory/InventoryEnergyView";
-import InventoryEquipmentView from "ui/view/inventory/InventoryEquipmentView";
-import InventoryHelmetView from "ui/view/inventory/InventoryHelmetView";
-import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
-import InventoryLegsView from "ui/view/inventory/InventoryLegsView";
-import InventoryPowerView from "ui/view/inventory/InventoryPowerView";
+import InventoryArmourView from "ui/view/inventory/equipment/InventoryArmourView";
+import InventoryWeaponsView from "ui/view/inventory/equipment/InventoryWeaponsView";
+import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
+import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
+import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
+import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
+import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
+import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
+import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
+import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
 import ItemView from "ui/view/item/ItemView";
 import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
-import Store from "utility/Store";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
 
@@ -30,8 +30,8 @@ declare global {
 
 const registry = Object.fromEntries([
 	AuthView,
-	// InventoryOverviewView,
-	InventoryEquipmentView,
+	InventoryWeaponsView,
+	InventoryArmourView,
 	InventoryKineticView,
 	InventoryEnergyView,
 	InventoryPowerView,
@@ -70,7 +70,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return Store.items.settingsEquipmentView ? InventoryEquipmentView : InventoryKineticView;
+		return InventoryWeaponsView;
 	}
 
 	public static hasView () {

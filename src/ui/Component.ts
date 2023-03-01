@@ -253,6 +253,36 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
+	public insertToBefore (componentOrParentNode: ParentNode | AnyComponent, pivot: ChildNode | AnyComponent) {
+		if (componentOrParentNode instanceof Component<Element>)
+			componentOrParentNode = componentOrParentNode.element;
+
+		if (pivot instanceof Component<Element>)
+			pivot = pivot.element;
+
+		if (componentOrParentNode && (!pivot || pivot.parentElement === componentOrParentNode))
+			componentOrParentNode.insertBefore(this.element, pivot);
+		else
+			this.element.remove();
+
+		return this;
+	}
+
+	public insertToAfter (componentOrParentNode: ParentNode | AnyComponent, pivot: ChildNode | AnyComponent) {
+		if (componentOrParentNode instanceof Component<Element>)
+			componentOrParentNode = componentOrParentNode.element;
+
+		if (pivot instanceof Component<Element>)
+			pivot = pivot.element;
+
+		if (componentOrParentNode && (!pivot || pivot.parentElement === componentOrParentNode))
+			componentOrParentNode.insertBefore(this.element, pivot.nextSibling);
+		else
+			this.element.remove();
+
+		return this;
+	}
+
 	public remove () {
 		this.element.remove();
 	}

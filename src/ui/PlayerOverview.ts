@@ -15,14 +15,14 @@ import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
-import InventoryArmsView from "ui/view/inventory/InventoryArmsView";
-import InventoryChestView from "ui/view/inventory/InventoryChestView";
-import InventoryClassItemView from "ui/view/inventory/InventoryClassItemView";
-import InventoryEnergyView from "ui/view/inventory/InventoryEnergyView";
-import InventoryHelmetView from "ui/view/inventory/InventoryHelmetView";
-import InventoryKineticView from "ui/view/inventory/InventoryKineticView";
-import InventoryLegsView from "ui/view/inventory/InventoryLegsView";
-import InventoryPowerView from "ui/view/inventory/InventoryPowerView";
+import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
+import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
+import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
+import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
+import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
+import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
+import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
+import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
 import Maths from "utility/maths/Maths";
 
 export enum PlayerOverviewClasses {

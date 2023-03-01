@@ -211,4 +211,52 @@
 		// 	right: 17px;
 		// }
 	}
+	
+	&-destination {
+		width: fit-content;
+		white-space: nowrap;
+	}
+	
+	&-destination-children {
+		background: color(background-1, .9);
+		display: flex;
+		max-width: 0px;
+		@include transition(out, max-width, max-height);
+		transition-delay: 0.5s;
+		overflow: hidden;
+		
+		.app-nav-destination {
+			@include transition(out, height, margin, opacity, padding);
+			align-self: center;
+		}
+		
+		.app-nav-destination:where(:hover, :focus-visible, .active, .app-nav-destination-child-active) + &, &:hover, &:focus-within {
+			max-width: 600px;
+			max-height: 300px;
+			@include transition(in);
+			transition-delay: 0s;
+		}
+		
+		@include vertical-or-tablet {
+			flex-direction: column;
+			max-height: 0px;
+			max-width: 600px;
+			height: fit-content;
+			
+			.app-nav-destination:not(:hover, :focus-visible) + &:not(:hover, :focus-within) {
+				.app-nav-destination:not(.active) {
+					height: 0px;
+					margin-top: 0px;
+					margin-bottom: 0px;
+					padding-top: 0px;
+					padding-bottom: 0px;
+					opacity: 0;
+				}
+			}
+			
+			.app-nav-destination:not(:hover, :focus-visible, .app-nav-destination-child-active) + &:not(:hover, :focus-within) {
+				max-height: 0px;
+			}
+		}
+	}
 }

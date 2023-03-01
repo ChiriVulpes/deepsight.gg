@@ -21,7 +21,7 @@ export default class VaultBucket extends BucketComponent<[Character?]> {
 		if (className)
 			Component.create()
 				.classes.add(VaultBucketClasses.Class)
-				.text.set(` (${className})`)
+				.text.set(`\xa0 (${className})`)
 				.appendTo(this.title);
 	}
 }

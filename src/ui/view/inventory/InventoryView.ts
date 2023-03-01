@@ -27,7 +27,7 @@ import Arrays from "utility/Arrays";
 import type { IVector2 } from "utility/maths/Vector2";
 import Store from "utility/Store";
 
-export enum InventorySlotViewClasses {
+export enum InventoryViewClasses {
 	Main = "view-inventory-slot",
 	Content = "view-inventory-slot-content",
 	Footer = "view-inventory-slot-footer",
@@ -49,20 +49,20 @@ export enum InventorySlotViewClasses {
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out",
 }
 
-export interface IInventorySlotViewDefinition {
+export interface IInventoryViewDefinition {
 	sort: SortManager;
 	slot?: BucketHashes;
 	filter: FilterManager;
 	separateVaults?: true;
 }
 
-class InventorySlotViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventorySlotViewDefinition> { }
+class InventoryViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventoryViewDefinition> { }
 
-type InventorySlotViewArgs = [Inventory];
-export class InventorySlotView extends Component.makeable<HTMLElement, InventorySlotViewArgs>().of(InventorySlotViewWrapper) {
+type InventoryViewArgs = [Inventory];
+export class InventoryView extends Component.makeable<HTMLElement, InventoryViewArgs>().of(InventoryViewWrapper) {
 
-	public static hasExisted = false;
-	public static current?: InventorySlotView;
+	public static hasExisted?: true;
+	public static current?: InventoryView;
 
 	public inventory!: Inventory;
 	public currentCharacter!: CharacterBucket;
@@ -81,24 +81,24 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 	public filterer!: ItemFilter;
 
 	protected override async onMake (inventory: Inventory) {
-		InventorySlotView.hasExisted = true;
-		InventorySlotView.current = this;
+		InventoryView.hasExisted = true;
+		InventoryView.current = this;
 		this.inventory = inventory;
-		inventory.setShouldSkipCharacters(() => !InventorySlotView.current);
+		inventory.setShouldSkipCharacters(() => !InventoryView.current);
 
-		this.classes.add(InventorySlotViewClasses.Main);
-		this.super.content.classes.add(InventorySlotViewClasses.Content);
+		this.classes.add(InventoryViewClasses.Main);
+		this.super.content.classes.add(InventoryViewClasses.Content);
 
 		this.characterBucketsContainer = Component.create()
-			.classes.add(InventorySlotViewClasses.CharacterBuckets)
+			.classes.add(InventoryViewClasses.CharacterBuckets)
 			.appendTo(this.super.content);
 
 		this.vaultBucketsContainer = Component.create()
-			.classes.add(InventorySlotViewClasses.VaultBuckets)
+			.classes.add(InventoryViewClasses.VaultBuckets)
 			.appendTo(this.super.content);
 
 		this.postmasterBucketsContainer = Component.create()
-			.classes.add(InventorySlotViewClasses.PostmasterBuckets)
+			.classes.add(InventoryViewClasses.PostmasterBuckets)
 			.appendTo(this.super.content);
 
 		this.equipped = {};
@@ -108,8 +108,8 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		inventory.event.subscribe("update", this.update);
 		this.event.subscribe("hide", () => {
 			inventory.event.unsubscribe("update", this.update);
-			if (InventorySlotView.current === this)
-				delete InventorySlotView.current;
+			if (InventoryView.current === this)
+				delete InventoryView.current;
 		});
 
 		this.sort = this.sort.bind(this);
@@ -117,21 +117,21 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		this.preUpdateInit();
 		this.update();
 
-		this.super.footer.classes.add(InventorySlotViewClasses.Footer);
+		this.super.footer.classes.add(InventoryViewClasses.Footer);
 
 		await FilterManager.init();
 		this.initSortAndFilter();
 
 		this.hints = Component.create()
-			.classes.add(InventorySlotViewClasses.Hints)
+			.classes.add(InventoryViewClasses.Hints)
 			.event.subscribe("mouseenter", () => this.hintsDrawer.open("mouse"))
 			.event.subscribe("mouseleave", () => this.hintsDrawer.close("mouse"))
 			.appendTo(this.super.footer);
 
 		Button.create()
 			.classes.remove(ButtonClasses.Main)
-			.classes.add(InventorySlotViewClasses.HintsButton, View.Classes.FooterButton)
-			.addIcon(icon => icon.classes.add(InventorySlotViewClasses.HintIcon))
+			.classes.add(InventoryViewClasses.HintsButton, View.Classes.FooterButton)
+			.addIcon(icon => icon.classes.add(InventoryViewClasses.HintIcon))
 			.tweak(button => button.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
 			.append(Component.create()
 				.classes.add(View.Classes.FooterButtonLabel)
@@ -143,30 +143,30 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 			.appendTo(this.hints);
 
 		this.hintsDrawer = Drawer.create()
-			.classes.add(InventorySlotViewClasses.HintsDrawer)
+			.classes.add(InventoryViewClasses.HintsDrawer)
 			.appendTo(this.hints);
 
 		this.hintsDrawer.createPanel()
 			.append(Component.create("p")
-				.classes.add(InventorySlotViewClasses.Hint)
+				.classes.add(InventoryViewClasses.Hint)
 				.append(Component.create("kbd")
 					.text.set("F1"))
 				.text.add("\xa0 Player overview"))
 			.append(Component.create("p")
-				.classes.add(InventorySlotViewClasses.Hint)
+				.classes.add(InventoryViewClasses.Hint)
 				.classes.toggle(!!Store.items.settingsAlwaysShowExtra, Classes.Hidden)
 				.append(Component.create("kbd")
 					.text.set("E"))
 				.text.add("\xa0 More information"))
 			.append(Component.create("p")
-				.classes.add(InventorySlotViewClasses.Hint)
+				.classes.add(InventoryViewClasses.Hint)
 				.append(Component.create("kbd")
 					.text.set("Ctrl"))
 				.append(Component.create("kbd")
 					.text.set("S"))
 				.text.add("\xa0 Configure sort"))
 			.append(Component.create("p")
-				.classes.add(InventorySlotViewClasses.Hint)
+				.classes.add(InventoryViewClasses.Hint)
 				.append(Component.create("kbd")
 					.text.set("Ctrl"))
 				.append(Component.create("kbd")
@@ -296,7 +296,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 		const vaults = this.vaults[slot] ??= {};
 
 		const singleVaultBucket = separateVaults ? undefined : VaultBucket.create([]);
-		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventorySlotViewClasses.VaultBucketsCombined);
+		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventoryViewClasses.VaultBucketsCombined);
 
 		const { oldPostmasterBuckets } = this.generateSortedPostmasters();
 
@@ -377,7 +377,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 					currentlyEquipped?.remove();
 			}
 
-			equippedComponent?.classes.remove(InventorySlotViewClasses.HighestPower);
+			equippedComponent?.classes.remove(InventoryViewClasses.HighestPower);
 
 			if (!bucketComponents.length)
 				continue;
@@ -387,7 +387,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 				...component instanceof PostmasterBucket ? component.engrams.children() : [],
 			]);
 			for (const slot of slots)
-				slot.classes.add(InventorySlotViewClasses.SlotPendingRemoval);
+				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
 				if (item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket))
@@ -430,19 +430,19 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 
 			// clean up old slots
 			for (const slot of slots)
-				if (slot.classes.has(InventorySlotViewClasses.SlotPendingRemoval))
+				if (slot.classes.has(InventoryViewClasses.SlotPendingRemoval))
 					slot.remove();
 		}
 
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
-				slot.classes.add(InventorySlotViewClasses.HighestPower);
+				slot.classes.add(InventoryViewClasses.HighestPower);
 	}
 
 	private filter () {
 		for (const [item, component] of this.itemMap) {
 			const filteredOut = !this.super.definition.filter.apply(item);
-			component.classes.toggle(filteredOut, InventorySlotViewClasses.ItemFilteredOut)
+			component.classes.toggle(filteredOut, InventoryViewClasses.ItemFilteredOut)
 				.attributes.toggle(filteredOut, "tabindex", "-1");
 		}
 	}
@@ -499,7 +499,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 				const bucketComponents = this.getBucket(item.bucket);
 
 				for (const bucketComponent of bucketComponents)
-					bucketComponent.classes.add(InventorySlotViewClasses.BucketMovingFrom);
+					bucketComponent.classes.add(InventoryViewClasses.BucketMovingFrom);
 
 				this.onItemMoveStart(item, event);
 			},
@@ -510,13 +510,13 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 
 					const components = this.getBucket(dropBucketId);
 					for (const component of components)
-						component.classes.toggle(component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`), InventorySlotViewClasses.BucketDropTarget);
+						component.classes.toggle(component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`), InventoryViewClasses.BucketDropTarget);
 				}
 			},
 			moveEnd: async event => {
 				const bucketComponents = this.getBucket(item.bucket);
 				for (const bucketComponent of bucketComponents)
-					bucketComponent.classes.remove(InventorySlotViewClasses.BucketMovingFrom);
+					bucketComponent.classes.remove(InventoryViewClasses.BucketMovingFrom);
 
 				let dropBucketId: DestinationBucketId | undefined;
 				for (const [bucketId] of this.bucketEntries) {
@@ -526,7 +526,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 					const components = this.getBucket(bucketId);
 					let intersections = false;
 					for (const component of components) {
-						component.classes.remove(InventorySlotViewClasses.BucketDropTarget);
+						component.classes.remove(InventoryViewClasses.BucketDropTarget);
 						if (component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`))
 							intersections = true;
 					}
@@ -548,7 +548,7 @@ export class InventorySlotView extends Component.makeable<HTMLElement, Inventory
 
 export default new View.Factory()
 	.using(Inventory.createTemporary())
-	.define<IInventorySlotViewDefinition>()
+	.define<IInventoryViewDefinition>()
 	.initialise((view, model) =>
-		view.make(InventorySlotView, model))
-	.wrapper<InventorySlotView & View.WrapperComponent<[Model<Inventory>], [], IInventorySlotViewDefinition & View.IViewBase<[]>>>();
+		view.make(InventoryView, model))
+	.wrapper<InventoryView & View.WrapperComponent<[Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>>();

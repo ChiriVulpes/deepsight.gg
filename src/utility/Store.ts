@@ -19,7 +19,6 @@ export interface ILocalStorage extends ILocalStorageBase {
 	bungieAccessTokenRefreshToken?: string;
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
-	settingsEquipmentView?: true;
 	settingsToggleExtra?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
