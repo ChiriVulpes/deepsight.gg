@@ -53,6 +53,8 @@ const profileResponseComponentMap = makeProfileResponseComponentMap({
 		DestinyComponentType.ItemPerks,
 	] as const,
 	characterCurrencyLookups: DestinyComponentType.CurrencyLookups as const,
+	profileCommendations: DestinyComponentType.SocialCommendations as const,
+	characterLoadouts: DestinyComponentType.CharacterLoadouts as const,
 });
 
 type Writable<T> = { -readonly [P in keyof T]: T[P] };
@@ -67,6 +69,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 				continue;
 
 			const applicable = typeof applicableComponents === "number" ? applicableComponents === type
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 				: (applicableComponents as readonly DestinyComponentType[]).includes(type);
 
 			if (applicable)
