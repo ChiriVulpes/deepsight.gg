@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import path from "path";
-import { ITaskApi } from "./TaskRunner";
+import type { ITaskApi } from "./TaskRunner";
 
 export type TaskFunction<T> = (api: ITaskApi) => T;
 
@@ -38,7 +38,7 @@ namespace Task {
 
 			childProcess.on("error", reject);
 			childProcess.on("exit", code => {
-				if (code === 1) reject("Error code 1");
+				if (code) reject(`Error code ${code}`);
 				else resolve();
 			});
 		});

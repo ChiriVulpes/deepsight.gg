@@ -7,7 +7,7 @@ import { elapsed, stopwatch } from "./utilities/Time";
 
 const options = process.env.DEEPSIGHT_ENVIRONMENT === "dev"
 	? ["--inlineSourceMap", "--inlineSources", "--incremental"]
-	: [];
+	: ["--pretty"];
 
 class Reformatter {
 	private lastStart?: Stopwatch;
