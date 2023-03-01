@@ -4,7 +4,8 @@ import Task from "./utilities/Task";
 
 export default Task("install", async () => {
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install");
-	await Task.cli({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest");
+	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev")
+		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest");
 
 	await fetch("https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/master/generated-enums.ts")
 		.then(response => response.text())
