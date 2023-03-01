@@ -23,7 +23,7 @@ export default Task("manifest", async () => {
 		.then(json => (json as Manifest).Response);
 
 	const savedVersion = await fs.readFile("static/testiny/.v", "utf8").catch(() => "<no saved manifest>");
-	const bungieVersion = `${manifest.version}-1.deepsight.gg`;
+	const bungieVersion = `${manifest.version}-9.deepsight.gg`;
 	if (bungieVersion === savedVersion)
 		return;
 
