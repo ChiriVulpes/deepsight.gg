@@ -407,5 +407,27 @@
 		"season": 19,
 		"year": 5,
 		"seasonHash": 2809059432
+	},
+	"29": {
+		"id": "lightfall",
+		"displayProperties": {
+			"name": "Lightfall",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinyMilestoneDefinition_67326996f903b5961421421e60ba128c.png"
+		},
+		"iconWatermark": "/common/destiny2_content/icons/849de2c6bd5e9b8ced8abe8cca56d724.png",
+		"iconWatermarkShelved": "/common/destiny2_content/icons/a568c77f423d1b49aeccbce0e7af79f6.png",
+		"expansion": true,
+		"year": 6
+	},
+	"30": {
+		"id": "defiance",
+		"displayProperties": {
+			"name": "Season of Defiance",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_50d80a655bccddfd26e954dbfc3b9746.png"
+		},
+		"iconWatermark": "/common/destiny2_content/icons/e6af18ae79b74e76dab327ec183f8228.png",
+		"season": 20,
+		"year": 6,
+		"seasonHash": 2758726568
 	}
 }
