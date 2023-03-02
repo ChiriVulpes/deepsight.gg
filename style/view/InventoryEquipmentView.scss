@@ -29,22 +29,18 @@
 		}
 	}
 		
-	&-weapons-content {
-		.view-equipment-section-content {
-			grid-template-columns: repeat(3, 1fr) auto;
-			
-			@media (max-width: 1400px) {
-				grid-template-rows: repeat(calc(2 + var(--buckets)), auto);
-			}
+	@at-root .view-weapons-content {
+		grid-template-columns: repeat(3, 1fr) auto;
+		
+		@media (max-width: 1400px) {
+			grid-template-rows: repeat(calc(2 + var(--buckets)), auto);
 		}
 	}
 	
-	&-armour-content {
+	@at-root .view-armour-content {
 		@media (max-width: 1400px) {
-			.view-equipment-section-content {
-				padding-right: 5px;
-				column-gap: 10px;
-			}
+			padding-right: 5px;
+			column-gap: 10px;
 			
 			.view-inventory-slot-character-bucket {
 				grid-template-columns: auto 1fr;
