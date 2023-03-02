@@ -24,10 +24,12 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	protected static override defaultType = "nav";
 
 	private destinationButtons!: Record<string, Button>;
+	private destinationDropdownWrappers!: Component[];
 	private destinationsWrapper!: Component;
 
 	protected override onMake (viewManager: typeof ViewManager): void {
 		this.destinationButtons = {};
+		this.destinationDropdownWrappers = [];
 
 		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
 
@@ -83,10 +85,11 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				continue;
 			}
 
-			Component.create()
+			this.destinationDropdownWrappers.push(Component.create()
 				.classes.add(ClassesAppNav.DestinationChildren)
 				.append(...destinationButtons)
-				.insertToAfter(this.destinationsWrapper, parentViewDestinationButton);
+				.insertToAfter(this.destinationsWrapper, parentViewDestinationButton)
+				.prepend(parentViewDestinationButton));
 		}
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
@@ -111,11 +114,14 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 	public showing (view: View.WrapperComponent) {
 		for (const button of Object.values(this.destinationButtons))
-			button.classes.remove(Classes.Active, ClassesAppNav.DestinationChildActive);
+			button.classes.remove(Classes.Active);
+
+		for (const wrapper of this.destinationDropdownWrappers)
+			wrapper.classes.remove(ClassesAppNav.DestinationChildActive);
 
 		this.destinationButtons[view.definition.id]?.classes.add(Classes.Active);
 		if (view.definition.parentViewId)
-			this.destinationButtons[view.definition.parentViewId]?.classes.add(ClassesAppNav.DestinationChildActive);
+			this.destinationButtons[view.definition.id]?.parent()?.classes.add(ClassesAppNav.DestinationChildActive);
 
 		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, !view.definition.noNav);
 		this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
