@@ -591,4 +591,30 @@ $z-index-loading: 1000;
 			}
 		}
 	}
+	
+	&-weapon-type-icon {
+		display: inline-block;
+		position: relative;
+		width: 2em;
+		height: 1em;
+		justify-self: flex-end;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			background: currentColor;
+			-webkit-mask-image: var(--icon);
+			-webkit-mask-size: contain;
+			-webkit-mask-repeat: no-repeat;
+			-webkit-mask-position: center;
+			mask-image: var(--icon);
+			mask-size: contain;
+			mask-repeat: no-repeat;
+			mask-position: center;
+		}
+		
+	    filter: drop-shadow(0 1px 1px #000) drop-shadow(0 0 2px #000a);
+	}
 }

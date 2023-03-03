@@ -144,6 +144,12 @@
 		}
 	}
 	
+	&-chip-WeaponType, &-chip-button-WeaponType .item-filter-chip-button-value-has-mask-icon {
+		&::before {
+			width: 2em;
+		}
+	}
+	
 	&-reset {
 		grid-column: 3;
 		grid-row: 1/5;

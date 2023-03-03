@@ -1,6 +1,7 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
+import { getWeaponTypeMaskIconPath } from "ui/inventory/sort/sorts/SortWeaponType";
 import Arrays from "utility/Arrays";
 
 declare module "bungie-api-ts/destiny2/interfaces" {
@@ -17,6 +18,8 @@ export default IFilter.async(async () => {
 		.map(item => item.definition.itemTypeDisplayName)
 		.filter(Arrays.filterFalsy))];
 
+	const typesLowerCase = types.map(type => type.toLowerCase());
+
 	return ({
 		id: Filter.WeaponType,
 		prefix: "type:",
@@ -27,6 +30,11 @@ export default IFilter.async(async () => {
 			item.definition.itemTypeDisplayNameLowerCase ??= (item.definition.itemTypeDisplayName ?? "Unknown").toLowerCase();
 
 			return item.definition.itemTypeDisplayNameLowerCase.startsWith(value);
+		},
+		maskIcon: item => {
+			item = item.toLowerCase();
+			const matching = typesLowerCase.filter(type => type.startsWith(item));
+			return matching.length === 1 ? getWeaponTypeMaskIconPath(matching[0]) : undefined;
 		},
 	});
 });

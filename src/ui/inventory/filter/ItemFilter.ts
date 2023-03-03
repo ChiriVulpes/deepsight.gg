@@ -79,6 +79,7 @@ class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: st
 
 		this.classes.add(ItemFilterClasses.FilterChipButton)
 			.classes.toggle(this.shouldHideByDefault, Classes.Hidden)
+			.classes.add(`${ItemFilterClasses.FilterChipButton}-${Filter[filter.id]}`)
 			.attributes.set("data-id", this.id)
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonPrefix)
@@ -495,6 +496,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			const maskIcon = IFilter.icon(value, filter.maskIcon);
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
+				.classes.add(`${ItemFilterClasses.FilterChip}-${Filter[filter.id]}`)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
 				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipValueHasIcon)
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)
