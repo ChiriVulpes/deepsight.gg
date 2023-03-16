@@ -32,10 +32,12 @@ export default Task("manifest", async () => {
 	await fs.mkdir("static/testiny").catch(() => { });
 
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
-		Log.info(`Downloading manifest ${key}...`);
-		await new Promise(resolve => https.get(`https://www.bungie.net/${manifest.jsonWorldComponentContentPaths.en[key]}`, response => response
+		do {
+			Log.info(`Downloading manifest ${key}...`);
+		} while (!await new Promise<boolean>(resolve => https.get(`https://www.bungie.net/${manifest.jsonWorldComponentContentPaths.en[key]}`, response => response
 			.pipe(fs.createWriteStream(`static/testiny/${key}.json`))
-			.on("finish", resolve)));
+			.on("finish", () => resolve(true))
+			.on("error", () => resolve(false))).on("error", () => resolve(false))));
 	}
 
 	await fs.writeFile("static/testiny/.v", bungieVersion);
