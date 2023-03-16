@@ -109,7 +109,7 @@
 	width: var(--tooltip-width);
 	// width: fit-content;
 	height: fit-content;
-	margin-left: calc(20px + var(--mouse-offset, 0px));
+	margin-left: calc(40px + var(--mouse-offset, 0px));
 	align-self: center;
 	justify-self: flex-start;
 	--tooltip-hidden-translation: 10px;
@@ -118,7 +118,7 @@
 		grid-column: 2;
 		justify-self: flex-end;
 		margin-left: 0;
-		margin-right: calc(20px + var(--mouse-offset, 0px));
+		margin-right: calc(40px + var(--mouse-offset, 0px));
 		--tooltip-hidden-translation: -10px;
 	}
 	

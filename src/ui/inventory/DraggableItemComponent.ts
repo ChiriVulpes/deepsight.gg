@@ -40,7 +40,7 @@ export default class DraggableItem extends ItemComponent<[IDraggableItemHandler]
 			this.classes.add(DraggableItemClasses.Moving);
 			movingPlaceholder = ItemComponent.create([item, inventory])
 				.classes.add(DraggableItemClasses.Placeholder)
-				.setTooltipPadding(40);
+				.setTooltipPadding(20);
 			handler.createItemPlaceholder(movingPlaceholder);
 		});
 
