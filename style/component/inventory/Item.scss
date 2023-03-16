@@ -319,7 +319,7 @@ $z-index-loading: 1000;
 	}
 	
 	&-extra {
-		:root:not(.show-extra-info) & {
+		:root:not(.show-extra-info) .item:not(:hover, :focus-visible) &:not(.item-extra-empty) {
 			display: none;
 		}
 		
@@ -344,6 +344,18 @@ $z-index-loading: 1000;
 			inset: 1px;
 			:where(.item-masterwork, .item-deepsight) ~ & {
 				inset: 2px;
+			}
+		}
+		
+		&-empty {
+			&::before {
+				background: none;
+				position: relative;
+				grid-row: 1;
+			}
+			&::after {
+				content: "";
+				grid-row: 2;
 			}
 		}
 	}

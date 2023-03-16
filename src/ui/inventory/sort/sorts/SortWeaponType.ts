@@ -7,9 +7,11 @@ export default ISort.create({
 	id: Sort.WeaponType,
 	name: "Weapon Type",
 	sort: (a, b) => a.definition.itemTypeDisplayName.localeCompare(b.definition.itemTypeDisplayName),
-	render: item => Component.create()
-		.classes.add("item-weapon-type-icon")
-		.style.set("--icon", getWeaponTypeMaskIconPath(item)),
+	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+	render: item => ![BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons].includes(item.definition.inventory?.bucketTypeHash!) ? undefined
+		: Component.create()
+			.classes.add("item-weapon-type-icon")
+			.style.set("--icon", getWeaponTypeMaskIconPath(item)),
 });
 
 export function getWeaponTypeMaskIconPath (item: Item | string) {

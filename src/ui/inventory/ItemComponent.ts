@@ -1,4 +1,4 @@
-import { DestinyItemType } from "bungie-api-ts/destiny2";
+import { BucketHashes, DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -35,8 +35,10 @@ export enum ItemClasses {
 	Wishlist = "item-wishlist",
 	WishlistNoMatch = "item-wishlist-no-match",
 	Extra = "item-extra",
+	ExtraEmpty = "item-extra-empty",
 	Loading = "item-loading",
 	NotAcquired = "item-not-acquired",
+	Quantity = "item-quantity",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -269,6 +271,17 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			if (++extra === 3)
 				return;
 		}
+
+		if (this.rerenderId !== rerenderId)
+			// something else is causing this to rerender
+			return;
+
+		if (this.item.reference.quantity > 1)
+			this.extra.append(Component.create()
+				.classes.add(ItemClasses.Quantity)
+				.text.set(`x${this.item.reference.quantity}`));
+
+		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === BucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
 	}
 
 	private async onClick (event: MouseEvent) {
