@@ -29,4 +29,9 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 			.append(Component.create())
 			.tweak(tweaker));
 	}
+
+	public click () {
+		this.element.click();
+		return this;
+	}
 }

@@ -1,5 +1,6 @@
 import Model from "model/Model";
 import GetMembershipsForCurrentUser from "utility/endpoint/bungie/endpoint/user/GetMembershipsForCurrentUser";
+import Store from "utility/Store";
 
 const Memberships = Model.create("memberships", {
 	cache: "Session",
@@ -9,15 +10,19 @@ const Memberships = Model.create("memberships", {
 
 export default Memberships;
 
-export const DestinyMembership = Model.create("destiny membership", {
-	cache: false,
-	resetTime: "Daily",
-	generate: async () => {
-		const membership = await Memberships.await();
-		const destinyMembership = membership.destinyMemberships[0];
-		if (!destinyMembership)
-			throw new Error("No Destiny membership");
+export async function getCurrentDestinyMembership () {
+	const memberships = await Memberships.await();
+	if (Store.items.destinyMembershipType === undefined) {
+		const firstMembership = memberships.destinyMemberships[0];
+		if (!firstMembership.crossSaveOverride)
+			return firstMembership;
 
-		return destinyMembership;
-	},
-});
+		return memberships.destinyMemberships.find(membership => membership.membershipType === firstMembership.crossSaveOverride)
+			?? firstMembership;
+	}
+
+	const selectedMembership = memberships.destinyMemberships.find(membership => membership.membershipType === Store.items.destinyMembershipType)
+		?? memberships.destinyMemberships[0];
+
+	return selectedMembership;
+}

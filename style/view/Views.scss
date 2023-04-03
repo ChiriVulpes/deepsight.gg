@@ -73,6 +73,29 @@
 		opacity: .6;
 		margin-top: -.5em;
 		margin-bottom: .2em;
+		position: relative;
+		
+		&-small {
+			text-transform: none;
+			letter-spacing: .3em;
+			font-family: $font-sans-serif;
+			font-size: 16pt;
+			margin-left: .1em;
+			font-weight: 100;
+			opacity: .8;
+			padding-bottom: 10px;
+			
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				width: 1.3em;
+				height: 4px;
+				background: currentColor;
+			}
+		}
 	}
 	
 	&-footer {

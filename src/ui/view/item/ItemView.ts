@@ -73,7 +73,7 @@ const itemViewBase = View.create({
 
 		view.classes.toggle(!item.instance, ItemViewClasses.ItemDefinition)
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
-			.setSubtitle(subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
+			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
 
 		ItemComponent.create([item])
 			.classes.remove(ButtonClasses.Main)

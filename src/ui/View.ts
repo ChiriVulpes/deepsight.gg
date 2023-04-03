@@ -234,9 +234,9 @@ namespace View {
 			return this;
 		}
 
-		public setSubtitle (tweak?: (component: Component) => any) {
+		public setSubtitle (type: "caps" | "small", tweak?: (component: Component) => any) {
 			this.header.classes.remove(BaseClasses.Hidden);
-			this.subtitle.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			this.subtitle.classes.add(`${Classes.Subtitle}-${type}`).classes.remove(BaseClasses.Hidden).tweak(tweak);
 			return this;
 		}
 

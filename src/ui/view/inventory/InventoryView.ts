@@ -89,6 +89,12 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		this.classes.add(InventoryViewClasses.Main);
 		this.super.content.classes.add(InventoryViewClasses.Content);
 
+		if (!this.inventory.sortedCharacters?.length) {
+			this.super.setTitle(title => title.text.set("No Guardians Found..."));
+			this.super.setSubtitle("small", subtitle => subtitle.text.set("Your ghost continues its search..."));
+			return;
+		}
+
 		this.characterBucketsContainer = Component.create()
 			.classes.add(InventoryViewClasses.CharacterBuckets)
 			.appendTo(this.super.content);

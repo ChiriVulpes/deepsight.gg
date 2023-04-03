@@ -1,7 +1,7 @@
 import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import { DestinyMembership } from "model/models/Memberships";
+import { getCurrentDestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Time from "utility/Time";
 
@@ -124,7 +124,7 @@ function mergeProfileKey (key: DestinyComponentName, value1: any, value2: any): 
 	return value1 ?? value2;
 }
 
-export default function <COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in DestinyComponentName as (
+function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in DestinyComponentName as (
 	((typeof profileResponseComponentMap)[PROFILE_RESPONSE_KEY] extends infer COMPONENTS ?
 		COMPONENTS extends readonly DestinyComponentType[] ? COMPONENTS[number] : COMPONENTS
 		: never
@@ -175,7 +175,7 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 				}
 
 			api.emitProgress(1 / 3, "Fetching profile");
-			const membership = await DestinyMembership.await();
+			const membership = await getCurrentDestinyMembership();
 			const newData = await GetProfile.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
@@ -207,3 +207,16 @@ export default function <COMPONENTS extends DestinyComponentType[]> (...componen
 		return result;
 	});
 }
+
+namespace Profile {
+	export function reset () {
+		for (const component of Object.values(profileResponseComponentMap).flat()) {
+			if (component) {
+				models[component] ??= new ComponentModel(component);
+				void models[component]?.reset();
+			}
+		}
+	}
+}
+
+export default Profile;

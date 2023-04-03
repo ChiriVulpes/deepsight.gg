@@ -1,5 +1,5 @@
 import type Item from "model/models/items/Item";
-import { DestinyMembership } from "model/models/Memberships";
+import { getCurrentDestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
 
@@ -16,7 +16,7 @@ export interface Response {
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/EquipItem/")
 	.request(async (item: Item, character: `${bigint}`) => {
-		const membership = await DestinyMembership.await();
+		const membership = await getCurrentDestinyMembership();
 
 		return {
 			method: "POST",
