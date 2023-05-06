@@ -324,8 +324,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			if (node instanceof Component)
 				node = node.element;
 
-			return this.element.contains(node);
+			if (!this.element.contains(node))
+				return false;
 		}
+
+		return true;
 	}
 
 	private rect?: DOMRect;
