@@ -10,7 +10,7 @@ import URL from "utility/URL";
 
 void screen?.orientation?.lock("portrait-primary").catch(() => { });
 
-export default class FluffiestVaultManager {
+export default class DeepsightGG {
 
 	public constructor () {
 		void this.main();
