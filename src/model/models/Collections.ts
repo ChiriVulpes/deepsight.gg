@@ -17,7 +17,7 @@ namespace Collections {
 			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
 			const profile = await Profile(DestinyComponentType.Records, DestinyComponentType.Collectibles).await();
 
-			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", source.iconWatermark)
+			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", typeof source.iconWatermark === "string" ? source.iconWatermark : "?")
 				.then(items => items
 					.filter(item => item.displayProperties.name && item.equippable
 						&& !item.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies)

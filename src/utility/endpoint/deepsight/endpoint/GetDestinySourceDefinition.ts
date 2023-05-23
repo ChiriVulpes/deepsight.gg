@@ -4,8 +4,8 @@ import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 export interface DestinySourceDefinition {
 	id: string;
 	displayProperties: DestinyDisplayPropertiesDefinition;
-	iconWatermark: string;
-	iconWatermarkShelved?: string;
+	iconWatermark: string | { item: number };
+	iconWatermarkShelved?: string | { item: number };
 	event?: true | number;
 	eventCard?: DestinyEventCardDefinition;
 	expansion?: true;

@@ -60,7 +60,7 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-10.deepsight.gg`;
+		return `${manifest.version}-11.deepsight.gg`;
 	},
 	async generate (api) {
 		await Model.cacheDB.dispose();
@@ -72,6 +72,10 @@ const Manifest = Model.create("manifest", {
 		const customComponentNames = Object.keys(customComponents) as (keyof AllCustomManifestComponents)[];
 
 		const sources = Object.values(customComponents.DestinySourceDefinition);
+		const sourcesRequiringWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermark && typeof source.iconWatermark !== "string")
+			.map(source => [(source.iconWatermark as { item: number }).item, source]));
+		const sourcesRequiringShelvedWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermarkShelved && typeof source.iconWatermarkShelved !== "string")
+			.map(source => [(source.iconWatermarkShelved as { item: number }).item, source]));
 
 		const allComponentNames = [...bungieComponentNames, ...customComponentNames];
 
@@ -141,26 +145,23 @@ const Manifest = Model.create("manifest", {
 			await Model.cacheDB.transaction([cacheKey], async transaction => {
 				await transaction.clear(cacheKey);
 
-				const replaceWatermarksByItemHash: Record<number, DestinySourceDefinition> = cacheKey !== "manifest [DestinyInventoryItemDefinition]" ? {}
-					: Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
-						.map(itemHash => [itemHash, source])));
-
 				for (const key of Object.keys(data)) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 					const definition = (data as any)[key];
+
 					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
-						// fix red war items that don't have watermarks for some reason
 						const itemDef = definition as DestinyInventoryItemDefinition;
-						const replacementSource = replaceWatermarksByItemHash[itemDef.hash];
-						if (replacementSource) {
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-							(itemDef as any).iconWatermark = replacementSource.iconWatermark;
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-							(itemDef as any).iconWatermarkShelved = replacementSource.iconWatermarkShelved;
-						} else if (!itemDef.iconWatermark && itemDef.quality?.displayVersionWatermarkIcons.length) {
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-							(itemDef as any).iconWatermark = itemDef.quality.displayVersionWatermarkIcons[0];
-						}
+						const source = sourcesRequiringWatermarks[key];
+						if (source)
+							source.iconWatermark = itemDef.iconWatermark
+								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
+								?? itemDef.iconWatermarkShelved;
+
+						const shelvedSource = sourcesRequiringShelvedWatermarks[key];
+						if (shelvedSource)
+							shelvedSource.iconWatermarkShelved = itemDef.iconWatermarkShelved
+								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
+								?? itemDef.iconWatermark;
 					}
 
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -170,6 +171,10 @@ const Manifest = Model.create("manifest", {
 
 			console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 		}
+
+		const replaceWatermarksByItemHash: Record<number, DestinySourceDefinition> =
+			Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
+				.map(itemHash => [itemHash, source])));
 
 		await Model.cacheDB.transaction(customComponentNames.map(CacheComponentKey.get), async transaction => {
 			for (let i = 0; i < customComponentNames.length; i++) {
@@ -190,6 +195,29 @@ const Manifest = Model.create("manifest", {
 
 				console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 			}
+		});
+
+		await Model.cacheDB.transaction(["manifest [DestinyInventoryItemDefinition]"], async transaction => {
+			const startTime = performance.now();
+			console.info("Updating item watermarks");
+
+			for (const item of await transaction.all("manifest [DestinyInventoryItemDefinition]")) {
+				// fix red war items that don't have watermarks for some reason
+				const replacementSource = replaceWatermarksByItemHash[item.hash];
+				if (replacementSource) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+					(item as any).iconWatermark = replacementSource.iconWatermark;
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+					(item as any).iconWatermarkShelved = replacementSource.iconWatermarkShelved;
+				} else if (!item.iconWatermark && item.quality?.displayVersionWatermarkIcons.length) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+					(item as any).iconWatermark = item.quality.displayVersionWatermarkIcons[0];
+				}
+
+				await transaction.set("manifest [DestinyInventoryItemDefinition]", `${item.hash}`, item);
+			}
+
+			console.info(`Finished updating item watermarks after ${elapsed(performance.now() - startTime)}`);
 		});
 
 		return allComponentNames;

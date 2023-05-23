@@ -12,7 +12,7 @@
 			"name": "The Dawning",
 			"icon": "/image/svg/dawning.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/d91c738e8179465a165e35f7a249701b.png",
+		"iconWatermark": { "item": 3400256755 },
 		"event": 2302439334
 	},
 	"1": {
@@ -21,7 +21,7 @@
 			"name": "Crimson Days",
 			"icon": "/img/svg/crimsondays.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/f80e5bb37ddd09573fd768af932075b4.png",
+		"iconWatermark": { "item": 263371512 },
 		"event": true
 	},
 	"2": {
@@ -30,7 +30,7 @@
 			"name": "Guardian Games",
 			"icon": "/image/svg/guardiangames.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/97c65a76255ef764a9a98f24e50b859d.png",
+		"iconWatermark": { "item": 294129361 },
 		"event": 3461628897
 	},
 	"3": {
@@ -39,7 +39,7 @@
 			"name": "Solstice",
 			"icon": ""
 		},
-		"iconWatermark": "/common/destiny2_content/icons/24ee3aca8624643ed02b684b2f7ef78b.png",
+		"iconWatermark": { "item": 516735972 },
 		"event": 3841872876
 	},
 	"4": {
@@ -48,7 +48,7 @@
 			"name": "Festival of the Lost",
 			"icon": "/image/svg/festivalofthelost.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/215100c99216b9c0bd83b9daa50ace45.png",
+		"iconWatermark": { "item": 528834068 },
 		"event": 3265920761
 	},
 	"5": {
@@ -57,8 +57,8 @@
 			"name": "The Red War",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/races/cabal_red-legion.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/0dac2f181f0245cfc64494eccb7db9f7.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/dd71a9a48c4303fd8546433d63e46cc7.png",
+		"iconWatermark": { "item": 2362471601 },
+		"iconWatermarkShelved": { "item": 1006783454 },
 		"expansion": true,
 		"season": 1,
 		"year": 1,
@@ -125,8 +125,8 @@
 			"name": "Curse of Osiris",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/factions/faction_osiris.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/591f14483308beaad3278c3cd397e284.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/50d36366595897d49b5d33e101c8fd07.png",
+		"iconWatermark": { "item": 3373357627 },
+		"iconWatermarkShelved": { "item": 3373357627 },
 		"expansion": true,
 		"season": 2,
 		"year": 1,
@@ -138,8 +138,8 @@
 			"name": "Warmind",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/warmind.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/e10338777d1d8633e073846e613a1c1f.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/aaa61f6c70478d87de0df41e5709a773.png",
+		"iconWatermark": { "item": 1229016681 },
+		"iconWatermarkShelved": { "item": 1229016681 },
 		"expansion": true,
 		"season": 3,
 		"year": 1,
@@ -151,8 +151,8 @@
 			"name": "Forsaken",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/0669efb55951e8bc9e99f3989eacc861.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/02478e165d7d8d2a9f39c2796e7aac12.png",
+		"iconWatermark": { "item": 3148574214 },
+		"iconWatermarkShelved": { "item": 3148574214 },
 		"expansion": true,
 		"year": 2
 	},
@@ -162,8 +162,8 @@
 			"name": "Season of the Outlaw",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/0669efb55951e8bc9e99f3989eacc861.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/02478e165d7d8d2a9f39c2796e7aac12.png",
+		"iconWatermark": { "item": 3148574214 },
+		"iconWatermarkShelved": { "item": 3148574214 },
 		"season": 4,
 		"year": 2,
 		"seasonHash": 2026773320
@@ -174,8 +174,8 @@
 			"name": "Season of the Forge",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/factions/black_armory_forge.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/bbddbe06ab72b61e708afc4fdbe15d95.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/c23c9ec8709fecad87c26b64f5b2b9f5.png",
+		"iconWatermark": { "item": 227918506 },
+		"iconWatermarkShelved": { "item": 227918506 },
 		"season": 5,
 		"year": 2,
 		"seasonHash": 2236269318
@@ -186,8 +186,8 @@
 			"name": "Season of the Drifter",
 			"icon": ""
 		},
-		"iconWatermark": "/common/destiny2_content/icons/f9110e633634d112cff72a67159e3b12.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/e4a1a5aaeb9f65cc5276fd4d86499c70.png",
+		"iconWatermark": { "item": 527607311 },
+		"iconWatermarkShelved": { "item": 527607311 },
 		"season": 6,
 		"year": 2,
 		"seasonHash": 2891088360
@@ -198,8 +198,8 @@
 			"name": "Season of Opulence",
 			"icon": ""
 		},
-		"iconWatermark": "/common/destiny2_content/icons/785e5a64153cabd5637d68dcccb7fea6.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/69bb11f24279c7a270c6fac3317005b2.png",
+		"iconWatermark": { "item": 258623695 },
+		"iconWatermarkShelved": { "item": 258623695 },
 		"season": 7,
 		"year": 2,
 		"seasonHash": 4275747712
@@ -210,8 +210,8 @@
 			"name": "Shadowkeep",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/shadowkeep.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/8aae1c411642683d341b2c4f16a7130c.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/ee3f5bb387298acbdb03c01940701e63.png",
+		"iconWatermark": { "item": 613601972 },
+		"iconWatermarkShelved": { "item": 613601972 },
 		"expansion": true,
 		"year": 3
 	},
@@ -221,8 +221,8 @@
 			"name": "Season of the Undying",
 			"icon": "/image/svg/undying.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/d4141b2247cf999c73d3dc409f9d00f7.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/82a8d6f2b1e4ee14e853d4ffbe031406.png",
+		"iconWatermark": { "item": 55722088 },
+		"iconWatermarkShelved": { "item": 55722088 },
 		"season": 8,
 		"year": 3,
 		"seasonHash": 1743682818
@@ -233,8 +233,8 @@
 			"name": "Season of Dawn",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/dawn.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/ac012e11fa8bb032b923ad85e2ffb29c.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/9b7e4bbc576fd15fbf44dfa259f8b86a.png",
+		"iconWatermark": { "item": 2422240131 },
+		"iconWatermarkShelved": { "item": 2422240131 },
 		"season": 9,
 		"year": 3,
 		"seasonHash": 1743682819
@@ -245,7 +245,8 @@
 			"name": "Season of the Worthy",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-worthy.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/3d335ddc3ec6668469aae60baad8548d.png",
+		"iconWatermark": { "item": 3394806033 },
+		"iconWatermarkShelved": { "item": 3394806033 },
 		"season": 10,
 		"year": 3,
 		"seasonHash": 2809059425,
@@ -259,7 +260,8 @@
 			"name": "Season of Arrivals",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/arrivals.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/796813aa6cf8afe55aed4efc2f9c609b.png",
+		"iconWatermark": { "item": 609666430 },
+		"iconWatermarkShelved": { "item": 609666430 },
 		"season": 11,
 		"year": 3,
 		"seasonHash": 2809059424
@@ -270,7 +272,8 @@
 			"name": "Beyond Light",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/beyond-light.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/0aff1f4463f6f44e9863370ab1ce6983.png",
+		"iconWatermark": { "item": 296637832 },
+		"iconWatermarkShelved": { "item": 296637832 },
 		"expansion": true,
 		"year": 4
 	},
@@ -280,7 +283,8 @@
 			"name": "Season of the Hunt",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-hunt.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/2347cc2407b51e1debbac020bfcd0224.png",
+		"iconWatermark": { "item": 3180169828 },
+		"iconWatermarkShelved": { "item": 3180169828 },
 		"season": 12,
 		"year": 4,
 		"seasonHash": 2809059427,
@@ -296,7 +300,8 @@
 			"name": "Season of the Chosen",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-chosen.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/6a52f7cd9099990157c739a8260babea.png",
+		"iconWatermark": { "item": 4198587027 },
+		"iconWatermarkShelved": { "item": 4198587027 },
 		"season": 13,
 		"year": 4,
 		"seasonHash": 2809059426
@@ -307,7 +312,8 @@
 			"name": "Season of the Splicer",
 			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/splicer.svg"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/b07d89064a1fc9a8e061f59b7c747fa5.png",
+		"iconWatermark": { "item": 352241391 },
+		"iconWatermarkShelved": { "item": 352241391 },
 		"season": 14,
 		"year": 4,
 		"seasonHash": 2809059429
@@ -318,7 +324,7 @@
 			"name": "Season of the Lost",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_265abf1e776ea726de1f1459392727b6.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/4368a3e344977c5551407845ede830c2.png",
+		"iconWatermark": { "item": 30317211 },
 		"season": 15,
 		"year": 4,
 		"seasonHash": 2809059428,
@@ -341,7 +347,7 @@
 			"name": "Bungie 30th Anniversary",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/80362442a7f4bee0beca7ad100e5dbbf.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/dd4dd93c5606998595d9e5a06d5bfc9c.png",
+		"iconWatermark": { "item": 1538938257 },
 		"expansion": true,
 		"year": 4
 	},
@@ -351,8 +357,8 @@
 			"name": "The Witch Queen",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/e17d13013bad7d53c47b0231b9784e1e.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/4fe83598190610f122497d22579a1fd9.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/d05833668bcb5ae25344dd4538b1e0b2.png",
+		"iconWatermark": { "item": 2814111722 },
+		"iconWatermarkShelved": { "item": 2814111722 },
 		"expansion": true,
 		"year": 5
 	},
@@ -362,7 +368,7 @@
 			"name": "Season of the Risen",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_0f47a186cf0cb88d2388d811a6ec89cb.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/b0406992c49c84bdc5febad94048dc01.png",
+		"iconWatermark": { "item": 1055855089 },
 		"season": 16,
 		"year": 5,
 		"seasonHash": 2809059431,
@@ -381,7 +387,7 @@
 			"name": "Season of the Haunted",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_3847a7f2241ce39588bfc2c85239b055.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/81edbfbf0bacf8e2117c00d1d6115f1b.png",
+		"iconWatermark": { "item": 1842527157 },
 		"season": 17,
 		"year": 5,
 		"seasonHash": 2809059430
@@ -392,7 +398,7 @@
 			"name": "Season of Plunder",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/f359d68324ae21522c299983ff1ef9f2.png",
+		"iconWatermark": { "item": 3964346177 },
 		"season": 18,
 		"year": 5,
 		"seasonHash": 2809059433
@@ -403,7 +409,7 @@
 			"name": "Season of the Seraph",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/1a68ada4fb21371c5f2b7e2eae1ebce8.png",
+		"iconWatermark": { "item": 2189114025 },
 		"season": 19,
 		"year": 5,
 		"seasonHash": 2809059432
@@ -414,8 +420,8 @@
 			"name": "Lightfall",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinyMilestoneDefinition_67326996f903b5961421421e60ba128c.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/849de2c6bd5e9b8ced8abe8cca56d724.png",
-		"iconWatermarkShelved": "/common/destiny2_content/icons/a568c77f423d1b49aeccbce0e7af79f6.png",
+		"iconWatermark": { "item": 1781477733 },
+		"iconWatermarkShelved": { "item": 1781477733 },
 		"expansion": true,
 		"year": 6
 	},
@@ -425,9 +431,20 @@
 			"name": "Season of Defiance",
 			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_50d80a655bccddfd26e954dbfc3b9746.png"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/e6af18ae79b74e76dab327ec183f8228.png",
+		"iconWatermark": { "item": 874852815 },
 		"season": 20,
 		"year": 6,
 		"seasonHash": 2758726568
+	},
+	"31": {
+		"id": "deep",
+		"displayProperties": {
+			"name": "Season of the Deep",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_f82759315a8d05fc597778d2086acee4.png"
+		},
+		"iconWatermark": { "item": 1748123668 },
+		"season": 21,
+		"year": 6,
+		"seasonHash": 2758726569
 	}
 }
