@@ -259,7 +259,7 @@
 			}
 		}
 		
-		@include hidden(":visible-within");
+		@include hidden(":focus-within");
 		@supports selector(:has(:focus-visible)) {
 			@include hidden(":has(:focus-visible)");
 		}
