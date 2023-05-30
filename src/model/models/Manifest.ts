@@ -60,7 +60,7 @@ const Manifest = Model.create("manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-11.deepsight.gg`;
+		return `${manifest.version}-12.deepsight.gg`;
 	},
 	async generate (api) {
 		await Model.cacheDB.dispose();

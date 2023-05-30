@@ -4,7 +4,7 @@
 		"displayProperties": {
 			"name": "Destiny 2"
 		},
-		"iconWatermark": "/common/destiny2_content/icons/4b6352a0fa6f68cd2b8ce5c3ba18747c.png"
+		"iconWatermark": { "item": 4258405681 }
 	},
 	"0": {
 		"id": "dawning",
