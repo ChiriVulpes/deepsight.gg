@@ -181,7 +181,9 @@ namespace PlayerOverview {
 				if (item.equipped)
 					equippedItems[view.definition.slot] = item;
 
-				if ((item.instance?.primaryStat?.value ?? 0) > (highestPowerItems[view.definition.slot]?.instance?.primaryStat?.value ?? 0))
+				const highestPower = highestPowerItems[view.definition.slot]?.instance?.primaryStat?.value ?? 0;
+				const itemPower = item.instance?.primaryStat?.value ?? 0;
+				if (itemPower > highestPower || (itemPower === highestPower && item.equipped))
 					highestPowerItems[view.definition.slot] = item;
 			}
 
