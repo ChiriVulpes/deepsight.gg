@@ -22,6 +22,26 @@ declare global {
 		 * predicate. If it is not provided, undefined is used instead.
 		 */
 		findLastIndex (predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): number;
+		/**
+		 * Sorts an array in place.
+		 * This method mutates the array and returns a reference to the same array.
+		 * 
+		 * @param sorters You may provide any number of sorter functions. 
+		 * If no functions are provided, the elements are sorted in ascending, ASCII character order.
+		 * 
+		 * Each sorter function is used in sequence until a difference is found between a set of two items.
+		 * 
+		 * When a sorter function accepts 2 parameters, it is assumed to be a normal sorter function which will compare
+		 * the given set of two items. It is expected to return a negative value if the first argument is less than 
+		 * the second argument, zero if they're equal, and a positive value otherwise.
+		 * ```ts
+		 * [11,2,22,1].sort((a, b) => a - b)
+		 * ```
+		 * 
+		 * When a sorter function accepts 1 parameter, it is assumed to be a "mapper" function.
+		 * The mapper will be called for each of the two items to compare, and then the produced numbers of each will be compared.
+		 */
+		sort (...sorters: (((a: T, b: T) => number))[]): this;
 	}
 }
 
@@ -29,6 +49,8 @@ namespace Arrays {
 	export function remove (array: any[] | undefined, value: any) {
 		if (!array)
 			return false;
+
+		array.sort
 
 		const index = array.indexOf(value);
 		if (index === -1)
@@ -70,6 +92,32 @@ namespace Arrays {
 							return i;
 
 				return -1;
+			},
+		});
+
+		const originalSort = Array.prototype.sort;
+		Object.defineProperty(Array.prototype, "sort", {
+			value (this: any[], ...sorters: (((a: any, b: any) => number) | ((item: any) => number))[]) {
+				if (this.length <= 1)
+					return this;
+
+				if (!sorters.length)
+					return originalSort.call(this);
+
+				return originalSort.call(this, (a, b) => {
+					for (const sorter of sorters) {
+						if (sorter.length === 1) {
+							const mapper = sorter as (item: any) => number;
+							const sortValue = mapper(b) - mapper(a);
+							if (sortValue) return sortValue;
+						} else {
+							const sortValue = sorter(a, b);
+							if (sortValue) return sortValue;
+						}
+					}
+
+					return 0;
+				});
 			},
 		});
 	}

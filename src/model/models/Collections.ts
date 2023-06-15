@@ -59,8 +59,15 @@ namespace Collections {
 				map.set(name, new Set([itemB]));
 			}
 
+			let useItemDefs: DestinyInventoryItemDefinition[];
+			if (Debug.collectionsDuplicates && issues.size > 0) {
+				useItemDefs = [...issues.values()];
+			} else {
+				useItemDefs = [...map.values()].flatMap(items => [...items.values()]);
+			}
+
 			// eslint-disable-next-line no-constant-condition
-			return Promise.all([...Debug.collectionsDuplicates && issues.size > 0 ? issues.values() : [...map.values()].flatMap(items => [...items.values()])]
+			return Promise.all(useItemDefs
 				.map(item => Item.createFake(manifest, profile, item)));
 		})
 	}

@@ -1,4 +1,4 @@
-import type { DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
@@ -148,6 +148,7 @@ export interface IItemInit {
 	shaped?: IWeaponShaped;
 	stats?: IStats;
 	tier?: DestinyItemTierTypeDefinition;
+	collectible?: DestinyCollectibleDefinition;
 	/**
 	 * - None: 0
 	 * - NotAcquired: 1  
@@ -185,7 +186,8 @@ namespace Item {
 	export interface IItemProfile extends
 		Deepsight.IDeepsightProfile,
 		Plugs.IPlugsProfile,
-		Stats.IStatsProfile { }
+		Stats.IStatsProfile,
+		Collectibles.ICollectiblesProfile { }
 }
 
 interface Item extends IItem { }
@@ -223,6 +225,7 @@ class Item {
 			Deepsight.apply(manifest, profile, item),
 			Source.apply(manifest, item),
 			Tier.apply(manifest, item),
+			Collectibles.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);
@@ -244,7 +247,7 @@ class Item {
 		await Promise.all([
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
-			Collectibles.apply(profile, item),
+			Collectibles.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);
