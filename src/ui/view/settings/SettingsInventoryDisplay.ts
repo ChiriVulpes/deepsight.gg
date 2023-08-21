@@ -31,13 +31,6 @@ export default class SettingsInformationDisplay extends Card<[]> {
 		// 		Store.items.settingsClearItemFilterOnSwitchingViews = !checked ? true : undefined)
 		// 	.appendTo(this.content);
 
-		Checkbox.create([Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns])
-			.tweak(checkbox => checkbox.label.text.set("Only Show Deepsight Pattern Border"))
-			.tweak(checkbox => checkbox.description.text.set("Items that have deepsight resonance and no pattern to unlock will no longer display with a red border."))
-			.event.subscribe("update", ({ checked }) =>
-				Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns = checked ? true : undefined)
-			.appendTo(this.content);
-
 		Checkbox.create([Store.items.settingsDisplayWishlistedHighlights])
 			.tweak(checkbox => checkbox.label.text.set("Highlight Items Matching Wishlists"))
 			.tweak(checkbox => checkbox.description.text.set("Items that exactly match a wishlist you've created will be highlighted with a teal border."))

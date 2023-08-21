@@ -74,8 +74,6 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternOutOf!: Component;
 	public deepsightPatternRequired!: Component;
 	public deepsightPatternRequiredUnit!: Component;
-	public deepsightProgressBar!: Component;
-	public deepsightProgressValue!: Component;
 	public wishlist!: Component;
 	public note!: Component;
 	public stats!: ItemStat.Wrapper;
@@ -150,15 +148,6 @@ class ItemTooltip extends Tooltip {
 				.append(this.deepsightPatternRequiredUnit = Component.create()
 					.classes.add(ItemTooltipClasses.DeepsightPatternRequiredUnit)))
 			.appendTo(this.deepsight);
-
-		this.deepsightProgressBar = Component.create()
-			.classes.add(ItemTooltipClasses.DeepsightProgressBar, ItemTooltipClasses.ProgressBar)
-			.text.add("Attunement Progress")
-			.appendTo(this.deepsight);
-
-		this.deepsightProgressValue = Component.create()
-			.classes.add(ItemTooltipClasses.DeepsightProgressValue)
-			.appendTo(this.deepsightProgressBar);
 
 		this.wishlist = Component.create()
 			.classes.add(ItemTooltipClasses.Wishlist)
@@ -375,7 +364,7 @@ class ItemTooltip extends Tooltip {
 		}
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
-		this.deepsight.classes.toggle(!item.deepsight?.attunement && !showPattern, Classes.Hidden);
+		this.deepsight.classes.toggle(!item.deepsight?.resonance && !showPattern, Classes.Hidden);
 
 		this.deepsightPattern.classes.toggle(!showPattern, Classes.Hidden);
 		if (showPattern) {
@@ -383,7 +372,7 @@ class ItemTooltip extends Tooltip {
 			this.deepsightPatternLabel
 				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
 					: complete ? "This weapon's Pattern is unlocked."
-						: !item.deepsight?.attunement ? "This weapon can be shaped." : "Attune to extract the Pattern.");
+						: !item.deepsight?.resonance ? "This weapon can be shaped." : "Pattern available to extract.");
 
 			this.deepsightPatternNumber.classes.toggle(complete, Classes.Hidden);
 			this.deepsightPatternOutOf.classes.toggle(complete, Classes.Hidden);
@@ -391,14 +380,6 @@ class ItemTooltip extends Tooltip {
 			this.deepsightPatternRequired.text.set(`${item.deepsight!.pattern!.progress.completionValue}`);
 			this.deepsightPatternRequiredUnit.classes.toggle(complete, Classes.Hidden);
 			this.deepsightPatternRequiredUnit.text.set("extractions");
-		}
-
-		const attunement = await item.deepsight?.attunement;
-		this.deepsightProgressBar.classes.toggle(!attunement, Classes.Hidden);
-		if (attunement) {
-			const progress = (attunement.progress.progress ?? 0) / attunement.progress.completionValue;
-			this.deepsightProgressBar.style.set("--progress", `${progress}`);
-			this.deepsightProgressValue.text.set(`${Math.floor(progress * 100)}%`);
 		}
 
 		const wishlists = !item.instance || item.shaped ? undefined : await item.getMatchingWishlists();

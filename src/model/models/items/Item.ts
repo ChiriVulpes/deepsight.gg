@@ -284,16 +284,13 @@ class Item {
 					.length ?? 0) >= 2);
 	}
 
-	public async hasDeepsight () {
-		const attunement = await this.deepsight?.attunement;
-		const objectiveComplete = attunement?.progress.complete ?? false;
+	public hasDeepsight () {
 		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress.complete ?? false);
-		return !this.deepsight?.attunement ? false
-			: objectiveComplete || hasIncompletePattern || !Store.items.settingsNoDeepsightBorderOnItemsWithoutPatterns;
+		return !this.deepsight?.resonance ? false : hasIncompletePattern;
 	}
 
 	public hasPattern () {
-		return !!(this.deepsight?.attunement && this.deepsight?.pattern && !this.deepsight.pattern.progress.complete);
+		return !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress.complete);
 	}
 
 	public canTransfer () {

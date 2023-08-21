@@ -24,7 +24,6 @@ export interface ILocalStorage extends ILocalStorageBase {
 	settingsToggleExtra?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
-	settingsNoDeepsightBorderOnItemsWithoutPatterns?: true;
 	settingsBackgroundBlur?: true;
 	settingsBackgroundFollowMouse?: true;
 	settingsBackground?: string;

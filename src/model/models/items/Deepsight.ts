@@ -1,9 +1,8 @@
 import type { DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
-import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
+import { DestinyObjectiveUiStyle, ItemState, PlugCategoryHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
 import type Manifest from "model/models/Manifest";
-import type { PromiseOr } from "utility/Type";
 
 export interface IWeaponShaped {
 	level?: Objectives.IObjective;
@@ -16,7 +15,7 @@ export interface IDeepsightPattern {
 }
 
 export interface IDeepsight {
-	attunement?: PromiseOr<Objectives.IObjective | undefined>;
+	resonance?: boolean;
 	pattern?: IDeepsightPattern;
 }
 
@@ -32,12 +31,10 @@ namespace Deepsight {
 	}
 
 	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
-		const result: IDeepsight = {
-			attunement: resolveAttunement(item),
+		return {
+			resonance: await resolveResonance(item),
 			pattern: await resolvePattern(manifest, profile, item),
 		};
-		void Promise.resolve(result.attunement).then(attunement => result.attunement = attunement);
-		return result;
 	}
 
 	async function resolveShaped (item: IItemInit) {
@@ -52,12 +49,9 @@ namespace Deepsight {
 		};
 	}
 
-	async function resolveAttunement (item: IItemInit) {
-		if (!(item.reference.state & ItemState.HighlightedObjective))
-			return undefined;
-
-		return findObjective(item, objective =>
-			objective.definition?.uiStyle === DestinyObjectiveUiStyle.Highlighted);
+	async function resolveResonance (item: IItemInit) {
+		const sockets = await item.sockets;
+		return sockets?.some(socket => socket?.socketedPlug?.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories);
 	}
 
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {

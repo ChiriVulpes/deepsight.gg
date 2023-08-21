@@ -31,7 +31,6 @@ export enum ItemClasses {
 	DeepsightHasPattern = "item-deepsight-has-pattern",
 	DeepsightPattern = "item-deepsight-pattern",
 	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
-	DeepsightAttuned = "item-deepsight-attuned",
 	Wishlist = "item-wishlist",
 	WishlistNoMatch = "item-wishlist-no-match",
 	Extra = "item-extra",
@@ -188,12 +187,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
 
 		if (!shaped) {
-			const attunement = await item.deepsight?.attunement;
-			const objectiveComplete = attunement?.progress.complete ?? false;
-			if (await item.hasDeepsight())
+			if (item.hasDeepsight())
 				Component.create()
 					.classes.add(ItemClasses.Deepsight)
-					.classes.toggle(objectiveComplete, ItemClasses.DeepsightAttuned)
 					.appendTo(this);
 
 			if (item.deepsight?.pattern) {

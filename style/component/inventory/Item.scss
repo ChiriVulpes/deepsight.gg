@@ -251,28 +251,28 @@ $z-index-loading: 1000;
 		box-shadow: inset 0 0 0 2px $deepsight;
 		z-index: $z-index-deepsight;
 		
-		&-attuned {
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				bottom: 0;
-				right: 0;
-				border-bottom: calc(var(--slot-size) * .45) solid $deepsight;
-				border-left: calc(var(--slot-size) * .45) solid transparent;
-			}
-			&::after {
-				content: "!";
-				display: block;
-				position: absolute;
-				bottom: 3px;
-				right: 0;
-				font-size: 1.2em;
-				width: 33%;
-				height: 33%;
-				font-weight: 600;
-			}
-		}
+		// &-attuned {
+		// 	&::before {
+		// 		content: "";
+		// 		display: block;
+		// 		position: absolute;
+		// 		bottom: 0;
+		// 		right: 0;
+		// 		border-bottom: calc(var(--slot-size) * .45) solid $deepsight;
+		// 		border-left: calc(var(--slot-size) * .45) solid transparent;
+		// 	}
+		// 	&::after {
+		// 		content: "!";
+		// 		display: block;
+		// 		position: absolute;
+		// 		bottom: 3px;
+		// 		right: 0;
+		// 		font-size: 1.2em;
+		// 		width: 33%;
+		// 		height: 33%;
+		// 		font-weight: 600;
+		// 	}
+		// }
 		
 		&-has-pattern {
 			position: absolute;
