@@ -79,7 +79,7 @@ export namespace IStatDistribution {
 	}
 
 	export function get (item: Item): IStatDistribution {
-		if (!item.stats || !ARMOUR_STAT_GROUPS.flat().some(stat => item.stats?.values[stat]?.intrinsic))
+		if (!item.stats || !ARMOUR_STAT_GROUPS.flat().some(stat => item.stats?.values[stat]?.roll))
 			return { overall: 0, groups: ARMOUR_STAT_GROUPS.map(_ => 0) };
 
 		const result: IStatDistribution = { overall: 0, groups: [] };
@@ -92,7 +92,7 @@ export namespace IStatDistribution {
 			let disabledStatsMax = ARMOUR_GROUP_STATS_MAX;
 			let stats = 0;
 			for (const stat of group) {
-				const statValue = item.stats.values[stat]?.intrinsic ?? 0;
+				const statValue = item.stats.values[stat]?.roll ?? 0;
 				if (!isEnabled(stat, item.definition.classType)) {
 					groupDisabledTotal += statValue;
 					continue;

@@ -41,6 +41,7 @@ export enum ItemStatClasses {
 	ValueComponentNegative = "item-stat-value-component-negative",
 	Combined = "item-stat-combined",
 	Intrinsic = "item-stat-intrinsic",
+	Random = "item-stat-random",
 	Masterwork = "item-stat-masterwork",
 	Mod = "item-stat-mod",
 	Formula = "item-stat-formula",
@@ -56,6 +57,8 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 			const armourStats = ARMOUR_STAT_GROUPS.flat();
 			const totalIntrinsic = armourStats.map(stat => item.stats?.values[stat]?.intrinsic ?? 0)
 				.reduce((a, b) => a + b, 0);
+			const totalRandom = armourStats.map(stat => item.stats?.values[stat]?.roll ?? 0)
+				.reduce((a, b) => a + b, 0);
 			const totalMasterwork = armourStats.map(stat => item.stats?.values[stat]?.masterwork ?? 0)
 				.reduce((a, b) => a + b, 0);
 			const totalMod = armourStats.map(stat => item.stats?.values[stat]?.mod ?? 0)
@@ -64,8 +67,9 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 				return undefined; // this item doesn't have armour stats
 
 			return {
-				value: totalIntrinsic + totalMasterwork + totalMod,
+				value: totalIntrinsic + totalRandom + totalMasterwork + totalMod,
 				intrinsic: totalIntrinsic,
+				roll: totalRandom,
 				masterwork: totalMasterwork,
 				mod: totalMod,
 			};
@@ -203,7 +207,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		this.classes.remove(Classes.Hidden);
 
-		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
+		if (display.roll === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);
 			this.combinedText.text.set(display.combinedText ?? render?.text);
 			this.intrinsicText.text.set(render?.text);
@@ -218,7 +222,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		let combinedValue = undefined;
 		if (combinedValue === undefined) {
-			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
+			combinedValue = display.combinedValue ?? (display.roll ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
 			if (combinedValue < (display.min ?? -Infinity))
 				combinedValue = display.min!;
 

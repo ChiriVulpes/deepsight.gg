@@ -16,6 +16,7 @@ export interface IStat {
 	bar: boolean;
 	value: number;
 	intrinsic: number;
+	roll: number;
 	masterwork: number;
 	mod: number;
 }
@@ -45,16 +46,17 @@ namespace Stats {
 		if (!statGroupDefinition)
 			return undefined;
 
+		const intrinsicStats = item.definition.investmentStats;
+
 		const sockets = (await item.sockets) ?? [];
-		const intrinsicStats = Socket.filterByPlugs(sockets, PlugType.Intrinsic)
-			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? [])
-			.concat(item.definition.investmentStats);
+		const statRolls = Socket.filterByPlugs(sockets, PlugType.Intrinsic)
+			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats ?? item.definition.stats.stats;
 		if (stats)
-			for (const intrinsic of intrinsicStats)
-				if (intrinsic && !intrinsic.isConditionallyActive)
-					stats[intrinsic.statTypeHash] ??= { statHash: intrinsic.statTypeHash, value: intrinsic.value };
+			for (const random of statRolls)
+				if (random && !random.isConditionallyActive)
+					stats[random.statTypeHash] ??= { statHash: random.statTypeHash, value: random.value };
 
 		const masterworkStats = item.bucket === "collections" ? [] : Socket.filterByPlugs(sockets, PlugType.Masterwork)
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
@@ -83,6 +85,7 @@ namespace Stats {
 				bar: !(display?.displayAsNumeric ?? false),
 				order: STAT_DISPLAY_ORDER[hash as Stat] ?? (displayIndex === -1 ? 10000 : displayIndex),
 				intrinsic: 0,
+				roll: 0,
 				mod: 0,
 				masterwork: 0,
 			};
@@ -105,6 +108,10 @@ namespace Stats {
 				if (hash === intrinsic?.statTypeHash && !intrinsic.isConditionallyActive)
 					stat.intrinsic += intrinsic.value;
 
+			for (const random of statRolls)
+				if (hash === random?.statTypeHash && !random.isConditionallyActive)
+					stat.roll += random.value;
+
 			for (const masterwork of masterworkStats)
 				if (hash === masterwork.statTypeHash && !masterwork.isConditionallyActive)
 					stat.masterwork += masterwork.value;
@@ -113,10 +120,11 @@ namespace Stats {
 				if (hash === mod?.statTypeHash && !mod.isConditionallyActive)
 					stat.mod += mod.value;
 
-			const { intrinsic, masterwork, mod } = stat;
-			stat.intrinsic = interpolate(intrinsic);
-			stat.mod = interpolate(intrinsic + mod) - stat.intrinsic;
-			stat.masterwork = interpolate(intrinsic + masterwork) - stat.intrinsic;
+			const { intrinsic, roll, masterwork, mod } = stat;
+			stat.intrinsic = interpolate(intrinsic + roll);
+			stat.roll = interpolate(roll);
+			stat.mod = interpolate(intrinsic + roll + mod) - stat.intrinsic;
+			stat.masterwork = interpolate(intrinsic + roll + masterwork) - stat.intrinsic;
 		}
 
 		return {
