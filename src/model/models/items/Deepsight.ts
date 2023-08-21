@@ -1,7 +1,8 @@
 import type { DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
-import { DestinyObjectiveUiStyle, ItemState, PlugCategoryHashes } from "bungie-api-ts/destiny2";
+import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
+import { PlugType } from "model/models/items/Plugs";
 import type Manifest from "model/models/Manifest";
 
 export interface IWeaponShaped {
@@ -16,6 +17,7 @@ export interface IDeepsightPattern {
 
 export interface IDeepsight {
 	resonance?: boolean;
+	activation?: boolean;
 	pattern?: IDeepsightPattern;
 }
 
@@ -33,6 +35,7 @@ namespace Deepsight {
 	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
 		return {
 			resonance: await resolveResonance(item),
+			activation: await resolveActivation(item),
 			pattern: await resolvePattern(manifest, profile, item),
 		};
 	}
@@ -51,7 +54,12 @@ namespace Deepsight {
 
 	async function resolveResonance (item: IItemInit) {
 		const sockets = await item.sockets;
-		return sockets?.some(socket => socket?.socketedPlug?.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories);
+		return sockets?.some(socket => socket?.socketedPlug?.is(PlugType.DeepsightResonance));
+	}
+
+	async function resolveActivation (item: IItemInit) {
+		const sockets = await item.sockets;
+		return sockets?.some(socket => socket?.socketedPlug?.is(PlugType.DeepsightActivation));
 	}
 
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {

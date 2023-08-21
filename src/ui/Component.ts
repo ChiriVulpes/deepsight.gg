@@ -230,7 +230,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public appendTo (componentOrParentNode: ParentNode | AnyComponent) {
-		if (componentOrParentNode instanceof Component<Element>)
+		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
 		if (componentOrParentNode)
@@ -242,7 +242,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public prependTo (componentOrParentNode: ParentNode | AnyComponent) {
-		if (componentOrParentNode instanceof Component<Element>)
+		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
 		if (componentOrParentNode)
@@ -254,10 +254,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public insertToBefore (componentOrParentNode: ParentNode | AnyComponent, pivot: ChildNode | AnyComponent) {
-		if (componentOrParentNode instanceof Component<Element>)
+		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
-		if (pivot instanceof Component<Element>)
+		if (pivot instanceof Component)
 			pivot = pivot.element;
 
 		if (componentOrParentNode && (!pivot || pivot.parentElement === componentOrParentNode))
@@ -269,10 +269,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 	}
 
 	public insertToAfter (componentOrParentNode: ParentNode | AnyComponent, pivot: ChildNode | AnyComponent) {
-		if (componentOrParentNode instanceof Component<Element>)
+		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
-		if (pivot instanceof Component<Element>)
+		if (pivot instanceof Component)
 			pivot = pivot.element;
 
 		if (componentOrParentNode && (!pivot || pivot.parentElement === componentOrParentNode))
@@ -557,10 +557,9 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 	public set (text?: string) {
 		const host = this.host.deref();
 		if (host) {
-			if (text === undefined)
-				this.remove();
-			else
-				host.element.textContent = text;
+			this.remove();
+			if (text !== undefined)
+				host.element.append(...this.createTextElements(text));
 		}
 		return host as HOST;
 	}
@@ -568,7 +567,7 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 	public add (text: string) {
 		const host = this.host.deref();
 		if (host)
-			host.element.appendChild(document.createTextNode(text));
+			host.element.append(...this.createTextElements(text));
 		return host as HOST;
 	}
 
@@ -576,9 +575,102 @@ export class TextManager<HOST extends Component<HTMLElement>> {
 		const host = this.host.deref();
 		if (host)
 			for (const child of [...host.element.childNodes])
-				if (child.nodeType === Node.TEXT_NODE)
+				if (child.nodeType === Node.TEXT_NODE || (child.nodeType === Node.ELEMENT_NODE && (child as HTMLElement).classList?.contains("text")))
 					child.remove();
 		return host as HOST;
+	}
+
+	private createTextElements (text: string): (HTMLElement | Text)[] {
+		const formatting = {
+			italic: false,
+			bold: false,
+			underline: false,
+			strikethrough: false,
+		};
+		const result = [];
+
+		let segment = "";
+		for (let i = 0; i < text.length; i++) {
+			if (text[i] !== "[" || (text[i + 2] !== "]" && (text[i + 1] !== "/" || text[i + 3] !== "]"))) {
+				segment += text[i];
+				continue;
+			}
+
+			// changing formatting
+			if (segment.length) {
+				result.push(this.wrapText(segment, formatting));
+			}
+
+			switch (text[i + 1]) {
+				case "b":
+					formatting.bold = true;
+					break;
+				case "i":
+					formatting.italic = true;
+					break;
+				case "u":
+					formatting.underline = true;
+					break;
+				case "s":
+					formatting.strikethrough = true;
+					break;
+				case "/":
+					switch (text[i + 2]) {
+						case "b":
+							formatting.bold = false;
+							break;
+						case "i":
+							formatting.italic = false;
+							break;
+						case "u":
+							formatting.underline = false;
+							break;
+						case "s":
+							formatting.strikethrough = false;
+							break;
+					}
+					i += 1;
+					break;
+				default:
+					segment += text[i];
+					continue;
+			}
+
+			i += 2;
+			segment = "";
+		}
+
+		const finalSegment = this.wrapText(segment, formatting);
+		if (!result.length && finalSegment.tagName === "SPAN")
+			return [document.createTextNode(segment)];
+
+		result.push(finalSegment);
+		return result;
+	}
+
+	private wrapText (text: string, { bold, italic, underline, strikethrough }: { bold?: boolean, italic?: boolean, underline?: boolean, strikethrough?: boolean }) {
+		let textWrapper: HTMLElement;
+		if (!bold && !italic && !underline && !strikethrough) {
+			textWrapper = document.createElement("span");
+			textWrapper.classList.add("text");
+		} else {
+			const formatting = [];
+			if (bold) formatting.push(document.createElement("b"));
+			if (italic) formatting.push(document.createElement("i"));
+			if (underline) formatting.push(document.createElement("u"));
+			if (strikethrough) formatting.push(document.createElement("s"));
+
+			for (const textElement of formatting)
+				textElement.classList.add("text");
+
+			for (let i = 1; i < formatting.length; i++)
+				formatting[i - 1].appendChild(formatting[i]);
+
+			textWrapper = formatting[0];
+		}
+
+		textWrapper.textContent = text;
+		return textWrapper;
 	}
 }
 
