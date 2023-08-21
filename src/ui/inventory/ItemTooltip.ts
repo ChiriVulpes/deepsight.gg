@@ -344,10 +344,11 @@ class ItemTooltip extends Tooltip {
 			if (!socket)
 				continue;
 
-			for (const perk of socket.socketedPlug.perks) {
-				if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
-					continue;
+			const plug = socket.socketedPlug;
+			const displayablePerks = socket.socketedPlug.perks
+				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden && perk.definition.isDisplayable);
 
+			for (const perk of displayablePerks) {
 				const socketComponent = Component.create()
 					.classes.add(ItemTooltipClasses.ModSocket)
 					.style.set("--socket-index", `${i++}`)
@@ -358,7 +359,7 @@ class ItemTooltip extends Tooltip {
 					.style.set("--icon", Display.icon(perk.definition))
 					.append(Component.create()
 						.classes.add(ItemTooltipClasses.ModName)
-						.text.set(Display.descriptionIfShortOrName(perk.definition) ?? "Unknown"))
+						.text.set(Display.descriptionIfShortOrName(perk.definition, displayablePerks.length === 1 ? plug.definition : undefined) ?? "Unknown"))
 					.appendTo(socketComponent);
 			}
 		}
