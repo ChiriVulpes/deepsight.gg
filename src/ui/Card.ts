@@ -12,8 +12,14 @@ export default class Card<ARGS extends readonly any[] = readonly any[]> extends 
 
 	public header!: Component;
 	public title!: Component;
-	public icon!: Component;
+	private _icon?: Component;
 	public content!: Component;
+
+	public get icon () {
+		return this._icon ??= Component.create()
+			.classes.add(CardClasses.Icon)
+			.appendTo(this.title);
+	}
 
 	protected override onMake (...args: ARGS) {
 		this.classes.add(CardClasses.Main);
@@ -25,10 +31,6 @@ export default class Card<ARGS extends readonly any[] = readonly any[]> extends 
 		this.title = Component.create()
 			.classes.add(CardClasses.Title)
 			.appendTo(this.header);
-
-		this.icon = Component.create()
-			.classes.add(CardClasses.Icon)
-			.appendTo(this.title);
 
 		this.content = Component.create()
 			.classes.add(CardClasses.Content)
