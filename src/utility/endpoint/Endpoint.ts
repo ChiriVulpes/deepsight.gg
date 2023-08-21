@@ -13,7 +13,9 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 			.then(response => response.text())
 			.then(text => {
 				if (path.endsWith(".json"))
-					return this.process(JSON.parse(text.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")) as T);
+					return this.process(JSON.parse(text
+						.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
+						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")) as T);
 
 				throw new Error("Unknown file type");
 			});

@@ -154,20 +154,22 @@
 		"iconWatermark": { "item": 3148574214 },
 		"iconWatermarkShelved": { "item": 3148574214 },
 		"expansion": true,
-		"year": 2
-	},
-	"9": {
-		"id": "outlaw",
-		"displayProperties": {
-			"name": "Season of the Outlaw",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
-		},
-		"iconWatermark": { "item": 3148574214 },
-		"iconWatermarkShelved": { "item": 3148574214 },
 		"season": 4,
 		"year": 2,
 		"seasonHash": 2026773320
 	},
+	// "9": {
+	// 	"id": "outlaw",
+	// 	"displayProperties": {
+	// 		"name": "Season of the Outlaw",
+	// 		"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
+	// 	},
+	// 	"iconWatermark": { "item": 3148574214 },
+	// 	"iconWatermarkShelved": { "item": 3148574214 },
+	// 	"season": 4,
+	// 	"year": 2,
+	// 	"seasonHash": 2026773320
+	// },
 	"10": {
 		"id": "forge",
 		"displayProperties": {
