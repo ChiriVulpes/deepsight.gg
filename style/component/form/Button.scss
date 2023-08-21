@@ -11,12 +11,12 @@
 	color: color(button-foreground);
 	outline: none;
 	transform: translateY(0);
-	letter-spacing: .02em;
+	letter-spacing: 0.02em;
 	font-weight: 300;
 	display: flex;
 	align-items: center;
 	@include transition(out, background, border, color, transform);
-	
+
 	&::before {
 		content: "";
 		display: block;
@@ -26,7 +26,7 @@
 		pointer-events: none;
 		@include transition(out, inset, box-shadow);
 	}
-	
+
 	&-attention {
 		&::after {
 			content: "";
@@ -39,30 +39,30 @@
 			@include blur-disables-animation;
 		}
 	}
-	
+
 	&:where(:hover, :active, :focus-visible, .button-selected) {
 		background: color(button-background-hover);
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
 		@include transition(in);
-		
+
 		&::before {
 			inset: -3px;
 			box-shadow: 0 0 0 2px color(button-border-hover);
 			@include transition(in);
 		}
-		
+
 		&::after {
 			animation-iteration-count: 1;
 		}
 	}
-	
+
 	&:where(:active) {
 		transform: translateY(2px);
 		@include transition(0s);
 		background: color(button-background-active);
 	}
-	
+
 	&-icon {
 		height: 1em;
 		width: 1em;
@@ -86,18 +86,18 @@
 			content: none;
 		}
 	}
-	
+
 	&-icon-inner {
 		position: relative;
 		width: 1.5em;
 		height: 1.5em;
-    	margin-right: .3em;
-				
+		margin-right: 0.3em;
+
 		&::before {
 			content: "";
 			display: block;
 			position: absolute;
-			inset: .2em;
+			inset: 0.2em;
 			background: currentColor;
 			-webkit-mask-image: var(--icon);
 			-webkit-mask-size: contain;
@@ -109,11 +109,11 @@
 			mask-position: center;
 		}
 	}
-	
+
 	&-description {
 		flex-basis: 100%;
 		font-style: italic;
-		font-size: .8em;
+		font-size: 0.8em;
 		color: color(foreground-2);
 		margin: 0 0 8px;
 		p {

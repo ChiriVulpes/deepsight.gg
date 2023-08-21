@@ -8,34 +8,32 @@
 	outline: none;
 	--value: 0;
 	--visual-min: 0;
-	
+
 	&::-webkit-slider-runnable-track {
 		// align-self: flex-start;
 		height: 1.2em;
 		$position: calc(var(--visual-min) * 100% + var(--value) * (100% * (1 - var(--visual-min))));
-		background: linear-gradient(to right, 
-			color(foreground-0) $position, 
-			#fff1 calc(#{$position} + 1px),
-		);
+		background: linear-gradient(to right, color(foreground-0) $position, #fff1 calc(#{$position} + 1px));
 	}
-	
+
 	&::-webkit-slider-thumb {
 		cursor: ew-resize;
 		-webkit-appearance: none;
 		height: 1.5em;
 		width: 1px;
-		margin-top: -.15em;
-		margin-left: calc(-.2em + .5em * var(--value) + var(--visual-min) * (100% * (1 - var(--value))));
+		margin-top: -0.15em;
+		margin-left: calc(-0.2em + 0.5em * var(--value) + var(--visual-min) * (100% * (1 - var(--value))));
 		background: color(foreground-2);
 		box-sizing: content-box;
 		background-clip: content-box;
-		border: .375em solid transparent;
+		border: 0.375em solid transparent;
 		border-bottom-color: white;
 		border-top: none;
 		@include transition(out, border, height, filter);
-		filter: drop-shadow(-1px 0 0 color(background-2)) drop-shadow(-2px 0 0 color(background-2)) drop-shadow(3px 0 0 color(background-2));
+		filter: drop-shadow(-1px 0 0 color(background-2)) drop-shadow(-2px 0 0 color(background-2))
+			drop-shadow(3px 0 0 color(background-2));
 	}
-	
+
 	&::before {
 		content: "";
 		display: block;
@@ -45,7 +43,7 @@
 		pointer-events: none;
 		@include transition(out, inset, box-shadow);
 	}
-	
+
 	&:where(:hover, :active, :focus-visible) {
 		&::before {
 			inset: -1px -3px;

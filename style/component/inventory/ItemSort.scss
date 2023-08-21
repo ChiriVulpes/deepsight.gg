@@ -2,15 +2,15 @@
 	&-button {
 		--icon: url("/image/svg/sort.svg");
 	}
-	
+
 	&-drawer {
 		&-sorts {
 			position: relative;
-			
+
 			&-heading {
 				text-transform: uppercase;
 				pointer-events: none;
-				font-size: .7em;
+				font-size: 0.7em;
 				margin: 2px 0;
 				padding: 3px;
 				border: none;
@@ -19,20 +19,20 @@
 				}
 			}
 		}
-		
+
 		&-sort {
 			@include transition(in, opacity);
-			
+
 			&s-heading ~ & {
 				opacity: 0.5;
 				@include transition(out);
 			}
-			
+
 			&:is(:hover, :active, :focus-visible, .sortable-moving) {
 				opacity: 1;
 				@include transition(in);
 			}
-			
+
 			&-options {
 				-webkit-mask-image: url("/image/svg/gear.svg");
 				mask-image: url("/image/svg/gear.svg");

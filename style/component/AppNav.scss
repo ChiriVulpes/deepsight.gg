@@ -6,11 +6,11 @@
 	height: var(--nav-height);
 	box-sizing: border-box;
 	display: flex;
-    z-index: 9999999;
+	z-index: 9999999;
 	user-select: none;
 	-webkit-user-select: none;
-	background: color(background-2, .3);
-	
+	background: color(background-2, 0.3);
+
 	&::before {
 		content: "";
 		display: block;
@@ -19,58 +19,59 @@
 		backdrop-filter: blur(10px);
 		z-index: -1;
 	}
-	
-	
+
 	// @media (max-width: 600px) {
 	// 	width: calc(100% - 17px);
 	// }
-	
+
 	&.hidden {
 		display: none;
 	}
-	
+
 	@at-root .has-app-nav {
 		--current-nav-height: var(--nav-height);
 	}
-	
-	$delay: .02s;
-	
+
+	$delay: 0.02s;
+
 	&-identity-container {
 		position: relative;
 		margin-right: 15px;
 		transition-delay: $delay * 2;
 	}
-	
-	@at-root .app-info-container, .app-nav-identity-container, .app-nav-destination {
-		@include transition(.2s, transform);
-		transition-timing-function: cubic-bezier(0,0,.4,1);
+
+	@at-root .app-info-container,
+		.app-nav-identity-container,
+		.app-nav-destination {
+		@include transition(0.2s, transform);
+		transition-timing-function: cubic-bezier(0, 0, 0.4, 1);
 	}
-	
+
 	&.hidden {
 		:where(.app-info-container, .app-nav-identity-container, .app-nav-destination) {
-			@include transition(.4s);
+			@include transition(0.4s);
 			transform: translateY(-50px);
 		}
 	}
-	
+
 	--destination-margin-x: 10px;
 	@include vertical-or-tablet-or-mobile {
 		--destination-margin-x: 3px;
 	}
-	
+
 	&-destinations {
 		flex-grow: 1;
 		display: flex;
 		// justify-content: flex-end;
 		margin-right: 10px;
-	
+
 		@at-root .app-nav-destination {
 			background: none;
 			border: none;
 			box-shadow: none;
 			color: color(foreground-2);
 			font-size: inherit;
-			letter-spacing: .04em;
+			letter-spacing: 0.04em;
 			font-weight: 600;
 			margin-right: var(--destination-margin-x);
 			margin-left: var(--destination-margin-x);
@@ -81,17 +82,17 @@
 			min-width: 77px;
 			width: fit-content;
 			// background-color: blueviolet;
-			
+
 			&:focus-visible {
 				outline: auto;
 			}
-			
+
 			@for $i from 1 through 20 {
 				&:nth-child(#{$i}) {
 					transition-delay: $delay * 2 + $delay * $i;
 				}
 			}
-			
+
 			&::before {
 				box-shadow: none;
 				top: auto;
@@ -103,22 +104,22 @@
 				background: currentColor;
 				@include transition(out, width);
 			}
-			
+
 			&:where(:hover, :active, .active, :focus-visible) {
 				color: color(foreground-0);
 			}
-			
+
 			&.active {
 				&::before {
 					width: 100%;
 					@include transition(in);
 				}
 			}
-			
+
 			&-collections {
 				margin-left: auto;
 			}
-			
+
 			&-settings {
 				margin-right: 0;
 				min-width: initial;
@@ -139,11 +140,12 @@
 				}
 			}
 		}
-		
-		&-toggle, &-close {
+
+		&-toggle,
+		&-close {
 			display: none;
 		}
-		
+
 		@mixin dropdown-mode {
 			position: fixed;
 			top: 0;
@@ -153,12 +155,12 @@
 			display: flex;
 			flex-direction: column;
 			z-index: 2;
-			
+
 			&.active {
-				background: color(background-4, .9);
+				background: color(background-4, 0.9);
 				backdrop-filter: blur(5px);
 			}
-			
+
 			&-toggle {
 				display: block;
 				--button-background: transparent;
@@ -167,25 +169,27 @@
 				align-self: flex-end;
 				height: 34px;
 				margin-top: 0;
-				
+
 				&::after {
 					content: "";
 					display: block;
 					height: 0.4em;
 					width: 1.5em;
-					box-shadow: 0 0.1em 0 currentColor, 0 -0.1em 0 currentColor;
+					box-shadow:
+						0 0.1em 0 currentColor,
+						0 -0.1em 0 currentColor;
 				}
 			}
-			
+
 			@at-root .app-nav-destination {
 				margin-right: 0;
 				align-self: flex-end;
 			}
-		
+
 			&:not(.active) .app-nav-destination {
 				display: none;
 			}
-			
+
 			&.active + &-close {
 				display: block;
 				position: fixed;
@@ -196,27 +200,27 @@
 				z-index: 1;
 			}
 		}
-		
+
 		@include tablet-or-mobile {
 			@include dropdown-mode;
 		}
-		
+
 		@include vertical {
 			.app-nav-compress & {
 				@include dropdown-mode;
 			}
 		}
-			
+
 		// @media (max-width: 600px) {
 		// 	right: 17px;
 		// }
 	}
-	
+
 	&-destination {
 		width: fit-content;
 		white-space: nowrap;
 	}
-	
+
 	&-destination-children {
 		display: flex;
 		flex-direction: column;
@@ -226,7 +230,7 @@
 		padding-top: 2px;
 		padding-bottom: 2px;
 		position: relative;
-		
+
 		&::before {
 			content: "";
 			display: block;
@@ -234,22 +238,24 @@
 			inset: 0;
 			backdrop-filter: blur(10px);
 		}
-		
+
 		.app-nav-destination {
 			@include transition(out, max-height, margin, opacity, padding);
 			align-self: center;
 			max-height: 50px;
 		}
-		
-		&:hover, &:focus-within {
+
+		&:hover,
+		&:focus-within {
 			@include transition(in);
 			transition-delay: 0s;
-			background: color(background-1, .9);
+			background: color(background-1, 0.9);
 		}
-		
+
 		@mixin hidden($selector) {
 			&:not(:hover):not(#{unquote($selector)}) .app-nav-destination:not(.active, :first-child),
-			&:not(:hover):not(#{unquote($selector)}).app-nav-destination-child-active .app-nav-destination:first-child:not(.active) {
+			&:not(:hover):not(#{unquote($selector)}).app-nav-destination-child-active
+				.app-nav-destination:first-child:not(.active) {
 				max-height: 0px;
 				margin-top: 0px;
 				margin-bottom: 0px;
@@ -258,7 +264,7 @@
 				opacity: 0;
 			}
 		}
-		
+
 		@include hidden(":focus-within");
 		@supports selector(:has(:focus-visible)) {
 			@include hidden(":has(:focus-visible)");

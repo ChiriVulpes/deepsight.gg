@@ -1,10 +1,10 @@
-.item-tooltip {		
+.item-tooltip {
 	@each $tier in $tiers {
 		&-tier-#{$tier} .tooltip-header {
-			background: color(tier-#{$tier}-background, .85);
+			background: color(tier-#{$tier}-background, 0.85);
 		}
 	}
-	
+
 	&-source-watermark {
 		position: absolute;
 		top: 0;
@@ -30,13 +30,13 @@
 			mask-repeat: no-repeat;
 		}
 	}
-	
+
 	.tooltip-header {
 		> * {
 			z-index: 1;
 		}
 	}
-	
+
 	&-masterwork .tooltip-header {
 		&::before {
 			content: "";
@@ -44,131 +44,131 @@
 			position: absolute;
 			inset: 0;
 			max-height: 69px;
-			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #D4B73C;
+			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #d4b73c;
 			background-size: 400% 400%;
 			animation: flash 2s linear infinite reverse;
 			@include blur-disables-animation;
-			-webkit-mask-image: 
-				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+			-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
 				url("/image/masterworktooltip.png");
-			mask-image: 
-				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+			mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
 				url("/image/masterworktooltip.png");
 		}
 	}
-	
+
 	&-content {
 		background: none;
 		padding: 0;
 	}
-	
+
 	&-primary-info {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		row-gap: .5em;
+		row-gap: 0.5em;
 		padding: var(--tooltip-padding);
 		background: color(tooltip-background);
 	}
-		
+
 	&-primary-stat {
 		font-size: 44px;
 		text-transform: uppercase;
 		font-weight: 700;
 		line-height: 28px;
-		letter-spacing: -.02em;
+		letter-spacing: -0.02em;
 		display: inline-flex;
 		margin: 4px 0;
-		
+
 		&-damage {
 			color: var(--colour);
 			display: flex;
 			&::before {
 				content: "";
 				display: inline-block;
-				width: .75em;
-				height: .75em;
+				width: 0.75em;
+				height: 0.75em;
 				align-self: center;
 				background: var(--icon);
 				background-size: contain;
-				margin-right: .15em;
+				margin-right: 0.15em;
 			}
 		}
-		
+
 		&::after {
 			content: "";
 			display: block;
 			width: 2px;
 			height: 90%;
 			align-self: center;
-			margin: 0 calc(32pt * .3);
+			margin: 0 calc(32pt * 0.3);
 			background: white;
 			opacity: 0.25;
 		}
 	}
-	
+
 	&-energy-type {
 		font-size: 1.1em;
 		line-height: 1em;
 	}
-	
+
 	&-energy {
 		display: flex;
 		text-transform: uppercase;
 		align-items: center;
-		
+
 		&-value {
 			display: flex;
 			font-size: 1.6em;
 			font-weight: 600;
-			margin-right: .25em;
-			transform: translateY(.03em);
+			margin-right: 0.25em;
+			transform: translateY(0.03em);
 			align-items: center;
 			color: var(--colour);
-			
+
 			&::before {
 				content: "";
 				display: block;
 				background: var(--icon);
 				background-size: contain;
 				background-repeat: no-repeat;
-				width: .6em;
-				height: .6em;
-				margin-right: .05em;
-				transform: translateY(-.03em);
+				width: 0.6em;
+				height: 0.6em;
+				margin-right: 0.05em;
+				transform: translateY(-0.03em);
 			}
 		}
 	}
-	
-	&-deepsight, &-wishlist, &-note {
+
+	&-deepsight,
+	&-wishlist,
+	&-note {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
-		background: color(deepsight-tooltip-background, .85);
+		gap: 0.5em;
+		background: color(deepsight-tooltip-background, 0.85);
 		border: 2px solid color(deepsight-tooltip-border);
 		border-left: none;
 		border-right: none;
 		padding: var(--tooltip-padding);
 	}
-	
+
 	&-deepsight {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 0.5em;
 		border-left: none;
 		border-right: none;
 		padding: var(--tooltip-padding);
-		
+
 		&-pattern {
 			display: flex;
-			gap: .5em;
+			gap: 0.5em;
 			align-items: center;
 			padding: 0 2px 2px;
 			font-size: 15px;
 			&::before {
 				content: "";
 				display: block;
-				width: .85em;
-				height: .85em;
+				width: 0.85em;
+				height: 0.85em;
 				background: currentColor;
 				-webkit-mask-image: url("/image/svg/shaped.svg");
 				-webkit-mask-size: contain;
@@ -179,31 +179,31 @@
 				position: relative;
 				top: 1px;
 			}
-			
+
 			&-number {
 				font-weight: 700;
 			}
-			
+
 			&-out-of {
 				display: flex;
 				align-items: center;
-				gap: .5em;
-				opacity: .5;
+				gap: 0.5em;
+				opacity: 0.5;
 			}
 		}
 	}
-	
+
 	&-wishlist {
 		font-size: 15px;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		
+
 		&::before {
 			content: "";
 			display: block;
-			width: .85em;
-			height: .85em;
+			width: 0.85em;
+			height: 0.85em;
 			background: currentColor;
 			-webkit-mask-image: url("/image/svg/delete.svg");
 			-webkit-mask-size: contain;
@@ -214,29 +214,29 @@
 			position: relative;
 			top: 1px;
 		}
-		
-		background: color(wishlist-tooltip-background-no-match, .85);
+
+		background: color(wishlist-tooltip-background-no-match, 0.85);
 		border-color: color(wishlist-tooltip-border-no-match);
 		&ed {
-			background: color(wishlist-tooltip-background, .85);
+			background: color(wishlist-tooltip-background, 0.85);
 			border-color: color(wishlist-tooltip-border);
-			
+
 			&::before {
 				-webkit-mask-image: url("/image/svg/wishlisted.svg");
 				mask-image: url("/image/svg/wishlisted.svg");
 			}
 		}
 	}
-	
+
 	&-note {
 		font-size: 15px;
-		background: color(tooltip-note-background, .85);
+		background: color(tooltip-note-background, 0.85);
 		border-color: color(tooltip-note-border);
 	}
-		
+
 	&-progress-bar {
 		color: color(foreground-0);
-		background: color(background-0, .55);
+		background: color(background-0, 0.55);
 		display: grid;
 		grid-template-columns: 1fr auto;
 		position: relative;
@@ -253,24 +253,26 @@
 			z-index: -1;
 		}
 	}
-	
+
 	&-weapon-level {
 		--progress-bar-background: #d35137;
-		text-shadow: 1px 2px .05em #0008;
+		text-shadow: 1px 2px 0.05em #0008;
 	}
-	
+
 	&-mod {
 		&s {
 			padding-top: 1px;
-			box-shadow: inset 0 1px rgba(#fff, .25), inset 0 1px color(tooltip-background);
+			box-shadow:
+				inset 0 1px rgba(#fff, 0.25),
+				inset 0 1px color(tooltip-background);
 			--mod-padding: 4px;
 		}
-		
+
 		position: relative;
 		display: flex;
 		align-items: center;
-		gap: .5em;
-		
+		gap: 0.5em;
+
 		&-socket {
 			display: grid;
 			grid-auto-flow: column;
@@ -279,27 +281,29 @@
 			padding: var(--tooltip-padding);
 			padding-top: var(--mod-padding);
 			padding-bottom: var(--mod-padding);
-			
+
 			&-definition {
 				display: flex;
 			}
-		
+
 			&-enhanced {
-				box-shadow: inset 1px 0 color(tooltip-background), inset 4px 0 #D4B73C;
-				background-image: linear-gradient(to right, rgba(#D4B73C, .25) 0%, transparent 40%);
+				box-shadow:
+					inset 1px 0 color(tooltip-background),
+					inset 4px 0 #d4b73c;
+				background-image: linear-gradient(to right, rgba(#d4b73c, 0.25) 0%, transparent 40%);
 				position: relative;
-				
+
 				&::before {
 					content: "";
 					display: block;
 					position: absolute;
 					inset: 0;
-					background: linear-gradient(-45deg, transparent 40%, rgba(#D4B73C, .1) 50%, transparent 65%);
+					background: linear-gradient(-45deg, transparent 40%, rgba(#d4b73c, 0.1) 50%, transparent 65%);
 					background-size: 500% 500%;
-					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * .5s);
+					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * 0.5s);
 					@include blur-disables-animation;
 				}
-				
+
 				&::after {
 					content: "";
 					display: block;
@@ -308,7 +312,7 @@
 					border: 3.5px solid transparent;
 					border-bottom-color: #ffed9f;
 					border-bottom-width: 4px;
-					transform: scaleX(.8)
+					transform: scaleX(0.8);
 				}
 
 				.item-tooltip-mod-socketed::after {
@@ -323,15 +327,15 @@
 					border-bottom-width: 0;
 					-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
 					mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
-					transform: scaleX(.9)
+					transform: scaleX(0.9);
 				}
 			}
 		}
-		
+
 		&-intrinsic {
 			background: color(tooltip-background-alt);
 		}
-		
+
 		&::before {
 			content: "";
 			width: 30px;
@@ -341,7 +345,7 @@
 			background-repeat: no-repeat;
 		}
 	}
-	
+
 	&-hints {
 		display: flex;
 		justify-content: flex-end;

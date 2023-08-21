@@ -11,18 +11,18 @@
 		background-repeat: no-repeat;
 		margin-top: 1px;
 	}
-	
+
 	&-label {
 		padding-left: 8px;
 		align-self: center;
 	}
-	
+
 	&-value {
 		color: color(tier-exotic);
 		align-self: center;
-		margin-left: .7em;
+		margin-left: 0.7em;
 	}
-	
+
 	.item-tooltip-weapon-level.hidden + & {
 		margin-top: -6px;
 	}

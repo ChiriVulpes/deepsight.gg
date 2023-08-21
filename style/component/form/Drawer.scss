@@ -1,7 +1,7 @@
 .drawer {
 	position: absolute;
 	display: grid;
-    grid-template-rows: 1fr;
+	grid-template-rows: 1fr;
 	left: 0;
 	bottom: 0;
 	height: max-content;
@@ -12,7 +12,7 @@
 	-webkit-user-select: none;
 	outline: none;
 	background: color(background-1);
-	@supports(backdrop-filter: blur(5px) brightness(1.5)) {
+	@supports (backdrop-filter: blur(5px) brightness(1.5)) {
 		&::before {
 			content: "";
 			display: block;
@@ -20,21 +20,21 @@
 			inset: 0;
 			backdrop-filter: blur(5px) brightness(1.5);
 		}
-		background: color(background-0, .9);
+		background: color(background-0, 0.9);
 	}
-	
+
 	&.hidden {
 		display: grid;
 		max-height: 0;
 		padding: 0;
 		@include transition(out);
 		transition-timing-function: ease-in;
-		
+
 		> * {
 			opacity: 0;
 		}
 	}
-	
+
 	@include mobile {
 		position: fixed;
 		top: var(--nav-height);
@@ -42,12 +42,12 @@
 		height: 100%;
 		max-height: none !important;
 		width: 100%;
-		
+
 		&.hidden {
 			top: 100%;
 		}
 	}
-		
+
 	&-panel {
 		padding: 10px 15px;
 		grid-row: 1;
@@ -63,12 +63,12 @@
 			transform: translateY(10px);
 			pointer-events: none;
 		}
-		
+
 		&-has-back {
 			padding-left: 35px;
 		}
 	}
-	
+
 	&-close {
 		position: absolute;
 		top: 8px;
@@ -77,10 +77,10 @@
 		width: 30px;
 		height: 20px;
 		z-index: 2;
-		
+
 		background: none;
 		border: none;
-		
+
 		&::after {
 			content: "";
 			display: block;
@@ -95,7 +95,7 @@
 			pointer-events: none;
 		}
 	}
-	
+
 	&-back {
 		position: absolute;
 		top: 8px;
@@ -104,10 +104,10 @@
 		width: 20px;
 		height: 30px;
 		z-index: 2;
-		
+
 		background: none;
 		border: none;
-		
+
 		&::after {
 			content: "";
 			display: block;

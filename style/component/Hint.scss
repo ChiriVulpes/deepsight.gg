@@ -1,11 +1,10 @@
 .hint {
 	display: flex;
 	gap: 2px;
-	
+
 	&-input {
-		
 		$size: 1.2em;
-		
+
 		&-modifier {
 			grid-row: 1;
 			grid-column: 1;
@@ -15,8 +14,9 @@
 			width: $size;
 			margin-right: calc($size / -1.5);
 			align-self: center;
-			
-			&::before, &::after {
+
+			&::before,
+			&::after {
 				content: "";
 				display: block;
 				grid-row: 1;
@@ -32,21 +32,33 @@
 				mask-position: center;
 			}
 		}
-		
+
 		&-mouse {
 			display: grid;
 			position: relative;
 			height: $size;
 			align-self: center;
-			--colour-left: currentColor; &left { --colour-left: #{color(accent-0)}; }
-			--colour-middle: currentColor; &middle { --colour-middle: #{color(accent-0)}; }
-			--colour-right: currentColor; &right { --colour-right: #{color(accent-0)}; }
-			
+			--colour-left: currentColor;
+			&left {
+				--colour-left: #{color(accent-0)};
+			}
+			--colour-middle: currentColor;
+			&middle {
+				--colour-middle: #{color(accent-0)};
+			}
+			--colour-right: currentColor;
+			&right {
+				--colour-right: #{color(accent-0)};
+			}
+
 			&-elements {
 				display: contents;
 			}
-			
-			&::before, &::after, &-elements::before, &-elements::after {
+
+			&::before,
+			&::after,
+			&-elements::before,
+			&-elements::after {
 				content: "";
 				display: block;
 				grid-row: 1;
@@ -60,24 +72,24 @@
 				mask-repeat: no-repeat;
 				mask-position: center;
 			}
-			
+
 			&::before {
 				-webkit-mask-image: url("/image/svg/mousemain.svg");
 				mask-image: url("/image/svg/mousemain.svg");
 			}
-			
+
 			&::after {
 				-webkit-mask-image: url("/image/svg/mouseleft.svg");
 				mask-image: url("/image/svg/mouseleft.svg");
 				background: var(--colour-left);
 			}
-			
+
 			&-elements::before {
 				-webkit-mask-image: url("/image/svg/mousemiddle.svg");
 				mask-image: url("/image/svg/mousemiddle.svg");
 				background: var(--colour-middle);
 			}
-			
+
 			&-elements::after {
 				-webkit-mask-image: url("/image/svg/mouseright.svg");
 				mask-image: url("/image/svg/mouseright.svg");

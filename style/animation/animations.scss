@@ -1,7 +1,7 @@
 $animation-duration-global: null;
 $animation-delay-global: null;
 
-@mixin animate-multi($duration: .3s, $delay: .2s) {
+@mixin animate-multi($duration: 0.3s, $delay: 0.2s) {
 	$split-selectors: str-split(#{&}, ",");
 	$selectors: ();
 	@each $selector in $split-selectors {
@@ -20,12 +20,12 @@ $animation-delay-global: null;
 				}
 			}
 		}
-		
+
 		@if not $added {
 			$selectors: append($selectors, $selector);
 		}
 	}
-	
+
 	$animation-duration-global: $duration !global;
 	$i: 0;
 	@each $selector in $selectors {

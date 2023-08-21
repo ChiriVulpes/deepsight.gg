@@ -4,28 +4,28 @@
 		padding-right: 1.5em;
 		padding-left: 1.5em;
 		background: color(tooltip-background);
-		border: 1px solid rgba(white, .25);
+		border: 1px solid rgba(white, 0.25);
 		border-left: none;
 		border-right: none;
 		display: grid;
 		grid-template-columns: auto 1fr repeat(3, auto);
-		column-gap: .5em;
+		column-gap: 0.5em;
 		row-gap: 2px;
 		align-items: center;
-		
+
 		&-other-stats {
 			display: contents;
 		}
 	}
-	
+
 	display: contents;
-	
+
 	&-label {
 		text-align: right;
 		color: color(foreground-2);
 		grid-column: 1;
 	}
-	
+
 	&-bar {
 		grid-column: 2;
 		background: #fff1;
@@ -41,7 +41,8 @@
 			flex-shrink: 0;
 			&-negative {
 				display: contents;
-				&::before, &::after {
+				&::before,
+				&::after {
 					position: relative;
 					content: "";
 					height: 50%;
@@ -56,70 +57,71 @@
 				}
 			}
 		}
-		
+
 		&-recoildirection {
 			background: none;
 			circle {
 				fill: #fff1;
 			}
-			
+
 			path {
 				fill: currentColor;
 			}
-			
+
 			line {
 				stroke: currentColor;
 				stroke-width: 0.1;
 			}
 		}
 	}
-	
+
 	&-masterwork {
 		color: #ceae32;
 	}
-	
+
 	&-mod {
 		color: #58a6ff;
 	}
-	
+
 	&-value {
 		display: flex;
-		gap: .5em;
+		gap: 0.5em;
 		text-align: right;
-		
+
 		&-component {
 			&:empty {
 				display: none;
 			}
 		}
-		
+
 		:root:not(.show-extra-info) & {
 			&-component {
 				display: none;
 			}
 		}
-		
+
 		&-component-negative {
 			color: #983232;
 			font-weight: 600;
 		}
 	}
-	
+
 	&-bar ~ &-value {
 		display: contents;
 	}
-		
+
 	:root.show-extra-info &-combined {
 		display: none;
 	}
-	
+
 	&-formula {
 		display: flex;
-		gap: .5em;
+		gap: 0.5em;
 	}
-	
+
 	&-distribution {
-		&-component, & .item-stat-combined {
+		&-component,
+		& .item-stat-combined {
 			background: linear-gradient(to right, #9e4949, #e04d4d 50%, #ff0 75%, #4eff13 100%);
 			background-size: 5000px 1px;
 			background-position: calc(var(--value) * -4800px + 3em);

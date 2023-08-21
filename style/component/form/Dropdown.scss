@@ -11,13 +11,13 @@
 	color: color(button-foreground);
 	outline: none;
 	transform: translateY(0);
-	letter-spacing: .02em;
+	letter-spacing: 0.02em;
 	font-weight: 300;
 	display: flex;
 	align-items: center;
 	z-index: 0;
 	@include transition(out, max-height, background, border, color, transform, z-index);
-	
+
 	&::before {
 		content: "";
 		display: block;
@@ -27,25 +27,25 @@
 		pointer-events: none;
 		@include transition(out, inset, box-shadow);
 	}
-	
+
 	&:where(:hover, :active, :focus-visible, :has(:focus-visible)) {
 		background: color(button-background-hover);
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
 		@include transition(in);
 		z-index: 1000;
-		
+
 		&::before {
 			inset: -3px;
 			box-shadow: 0 0 0 2px color(button-border-hover);
 			@include transition(in);
 		}
-		
+
 		&::after {
 			animation-iteration-count: 1;
 		}
 	}
-	
+
 	// &::before {
 	// 	content: "";
 	// 	display: block;
@@ -53,7 +53,7 @@
 	// 	inset: 0;
 	// 	backdrop-filter: blur(10px);
 	// }
-	
+
 	&-option {
 		@include transition(out, max-height, margin, opacity, padding, color);
 		align-self: center;
@@ -65,11 +65,11 @@
 		grid-column: 2;
 		color: color(foreground-2);
 		font-size: inherit;
-		letter-spacing: .04em;
+		letter-spacing: 0.04em;
 		font-weight: 600;
 		text-transform: uppercase;
 		position: relative;
-		
+
 		&::after {
 			content: "";
 			display: block;
@@ -82,24 +82,24 @@
 			background: currentColor;
 			@include transition(out, width);
 		}
-		
+
 		&-active {
 			&::after {
 				width: 100%;
 			}
 		}
-		
+
 		&:where(:hover, :active, :focus-visible) {
 			color: color(foreground-0);
 			transition-duration: 0s;
 		}
-	
+
 		&:where(:active) {
 			transform: translateY(2px);
 			@include transition(0s);
 		}
 	}
-	
+
 	&-container {
 		border-radius: 0;
 		position: absolute;
@@ -118,10 +118,11 @@
 		@include transition(out, max-height, background, border, color, transform);
 		height: fit-content;
 		overflow: hidden;
-	
+
 		@mixin hidden($selector) {
 			&:not(:hover):not(#{unquote($selector)}) .dropdown-option:not(.dropdown-option-active),
-			&:not(:hover):not(#{unquote($selector)}).dropdown-option-active .dropdown-option:not(.dropdown-option-active) {
+			&:not(:hover):not(#{unquote($selector)}).dropdown-option-active
+				.dropdown-option:not(.dropdown-option-active) {
 				max-height: 0px;
 				margin-top: 0px;
 				margin-bottom: 0px;
@@ -130,14 +131,15 @@
 				opacity: 0;
 			}
 		}
-		
+
 		@include hidden(":visible-within");
 		@supports selector(:has(:focus-visible)) {
 			@include hidden(":has(:focus-visible)");
 		}
 	}
-	
-	&:hover &-container, &:focus-within &-container {
+
+	&:hover &-container,
+	&:focus-within &-container {
 		@include transition(in);
 		transition-delay: 0s;
 		background: color(background-1);

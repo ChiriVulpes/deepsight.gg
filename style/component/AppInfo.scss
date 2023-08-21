@@ -2,7 +2,7 @@
 	&-container {
 		display: flex;
 	}
-	
+
 	&-drawer {
 		top: 0;
 		bottom: initial;
@@ -11,7 +11,7 @@
 		padding-left: 36px !important;
 		min-width: 400px;
 		padding-bottom: 6px;
-		
+
 		.drawer-close {
 			top: initial;
 			right: initial;
@@ -21,32 +21,32 @@
 				transform: rotate(225deg);
 				top: 6px;
 			}
-			
-			transition: opacity .3s ease-out;
+
+			transition: opacity 0.3s ease-out;
 		}
-		
+
 		.drawer-panel {
 			overflow: hidden;
 			padding-top: 0;
 		}
 	}
-	
+
 	&-logo {
 		&-container {
 			position: relative;
 			width: var(--nav-height);
 		}
-		
+
 		margin: 10px;
-		
+
 		.bungie-api-down & {
 			background-image: url("/image/logo-api-down.png");
 		}
 	}
-	
+
 	&-title {
 		font-family: $font-title;
-		font-size: .9em;
+		font-size: 0.9em;
 		line-height: 1.05em;
 		font-weight: 100;
 		width: 65px !important;
@@ -57,36 +57,36 @@
 			content: none;
 		}
 	}
-	
+
 	&-api-down-warning {
 		.warning-text {
 			text-transform: uppercase;
 			font-weight: 600;
 			font-family: $font-title;
 		}
-		
+
 		padding-top: 12px;
-		border-bottom: 2px solid color(background-4, .6);
+		border-bottom: 2px solid color(background-4, 0.6);
 	}
-	
+
 	&-row {
 		display: flex;
 		align-items: center;
 		gap: 20px;
-		
+
 		label {
 			font-style: italic;
 		}
 	}
-	
+
 	&-links {
-		border: 2px solid color(background-4, .6);
+		border: 2px solid color(background-4, 0.6);
 		padding-top: 16px;
 		margin-bottom: 16px;
 		border-left: none;
 		border-right: none;
 	}
-	
+
 	&-versions {
 		text-align: right;
 	}

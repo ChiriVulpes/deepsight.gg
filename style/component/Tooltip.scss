@@ -8,32 +8,32 @@
 		position: absolute;
 		inset: 0;
 		background: color(background-3);
-		@supports(backdrop-filter: blur(5px) brightness(1.5)) {
+		@supports (backdrop-filter: blur(5px) brightness(1.5)) {
 			backdrop-filter: blur(5px) brightness(1.5);
 			background: #fff4;
 		}
 		z-index: -1;
 	}
-	
+
 	--tooltip-width: 400px;
 	--tooltip-padding: 8px 12px;
-	
+
 	&-header {
 		position: relative;
-		background: color(background-4, .85);
+		background: color(background-4, 0.85);
 		padding: var(--tooltip-padding);
 		display: grid;
 		grid-template-columns: 1fr auto;
 	}
-	
+
 	&-footer {
-		background: color(tooltip-footer-background, .85);
+		background: color(tooltip-footer-background, 0.85);
 		padding: 4px 12px;
 		&:empty {
 			display: none;
 		}
 	}
-	
+
 	&-title {
 		padding-top: 4px;
 		margin: 0;
@@ -45,15 +45,15 @@
 		position: relative;
 		z-index: 1;
 	}
-	
+
 	&-subtitle {
 		color: color(foreground-1);
 	}
-	
+
 	&-extra {
-		color: color(foreground-1, .5);
+		color: color(foreground-1, 0.5);
 	}
-	
+
 	&-content {
 		background: color(tooltip-background);
 		padding: var(--tooltip-padding);
@@ -67,7 +67,7 @@
 	&-storage {
 		display: none;
 	}
-	
+
 	&-surface {
 		position: fixed;
 		width: 100vw;
@@ -97,7 +97,7 @@
 		grid-template-columns: repeat(3, 100vw);
 		grid-template-rows: repeat(3, 100vh);
 		justify-content: center;
-		
+
 		scrollbar-width: none;
 		&::-webkit-scrollbar {
 			display: none;
@@ -113,7 +113,7 @@
 	align-self: center;
 	justify-self: flex-start;
 	--tooltip-hidden-translation: 10px;
-	
+
 	.tooltip-reversed & {
 		grid-column: 2;
 		justify-self: flex-end;
@@ -121,22 +121,22 @@
 		margin-right: calc(40px + var(--mouse-offset, 0px));
 		--tooltip-hidden-translation: -10px;
 	}
-	
+
 	position: sticky;
 	bottom: 0;
 	top: 0;
 	left: 0;
 	right: 0;
-	animation: tooltip-show .2s ease-out;
-	
+	animation: tooltip-show 0.2s ease-out;
+
 	&.hidden {
 		display: block;
-		animation: tooltip-hide .2s ease-in forwards;
+		animation: tooltip-hide 0.2s ease-in forwards;
 	}
-	
+
 	&-forced-1px-bigger {
 		padding-bottom: 1px;
-		
+
 		&::before {
 			bottom: 1px;
 		}

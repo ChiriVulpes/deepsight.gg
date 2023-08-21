@@ -1,7 +1,7 @@
 .label-wrapper {
 	display: flex;
 	flex-direction: row;
-	
+
 	@at-root .label {
 		text-transform: uppercase;
 		&::after {

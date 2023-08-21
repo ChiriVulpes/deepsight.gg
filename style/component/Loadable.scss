@@ -1,5 +1,4 @@
 .loadable {
-	
 	&-loading {
 		color: color(foreground-2);
 		position: absolute;
@@ -10,12 +9,12 @@
 		max-height: 100%;
 		aspect-ratio: 1/1;
 		@include transition(in, opacity);
-		
+
 		&-hidden {
 			opacity: 0;
-			@include transition(.4s);
+			@include transition(0.4s);
 		}
-		
+
 		&-spinny {
 			position: absolute;
 			inset: 0;
@@ -49,7 +48,7 @@
 				}
 			}
 		}
-		
+
 		&-info {
 			position: absolute;
 			left: 50%;
@@ -59,13 +58,13 @@
 			font-weight: 300;
 			width: 50%;
 		}
-		
+
 		&-message {
 			width: fit-content;
 			margin: auto;
 			text-align: center;
 		}
-		
+
 		&-bar {
 			position: relative;
 			width: calc(100% - 100px);
@@ -74,12 +73,13 @@
 			margin: auto;
 			margin-bottom: 20px;
 			min-width: 300px;
-			
+
 			.loadable-loading.hidden & {
 				--progress: 1;
 			}
-			
-			&::before, &::after {
+
+			&::before,
+			&::after {
 				content: "";
 				display: block;
 				position: absolute;
@@ -88,9 +88,9 @@
 				left: 2px;
 				top: 2px;
 				background: currentColor;
-				transition: width .3s ease-out;
+				transition: width 0.3s ease-out;
 			}
-			
+
 			&::after {
 				background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
 				background-size: 600% 600%;

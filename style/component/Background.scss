@@ -8,16 +8,16 @@
 	overflow: scroll;
 	transform: scale(#{$scale});
 	transform-origin: center center;
-	
+
 	scrollbar-width: none;
 	&::-webkit-scrollbar {
 		display: none;
 	}
-	
+
 	&-blur {
 		filter: blur(calc(3px / #{$scale}));
 	}
-	
+
 	&::before {
 		content: "";
 		display: block;
@@ -28,7 +28,7 @@
 		background-size: cover;
 		background-position: center;
 	}
-	
+
 	&::after {
 		content: "";
 		display: block;

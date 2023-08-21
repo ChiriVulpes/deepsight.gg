@@ -3,7 +3,7 @@
 	grid-template-columns: auto 1fr;
 	align-items: center;
 	cursor: pointer;
-	
+
 	&-checkbox {
 		appearance: none;
 		-webkit-appearance: none;
@@ -20,12 +20,12 @@
 		outline: none;
 		position: relative;
 		border-radius: 0;
-		
+
 		&:where(:hover, :focus-visible) {
 			--current-inset: -5px;
 			--current-opacity: 1;
 		}
-	
+
 		&::before {
 			content: "";
 			display: block;
@@ -36,7 +36,7 @@
 			opacity: var(--current-opacity);
 			@include transition(out, inset, box-shadow, transform, opacity);
 		}
-	
+
 		&::after {
 			content: "";
 			display: block;
@@ -47,21 +47,23 @@
 			opacity: 0;
 			@include transition(out, inset, opacity);
 		}
-		
-		@at-root &:active, .checkbox-label:active + & {
+
+		@at-root &:active,
+			.checkbox-label:active + & {
 			--current-inset: 50%;
 			--current-opacity: 1;
-			&::before, &::active {
+			&::before,
+			&::active {
 				animation: none;
 				@include transition(in);
 			}
 		}
-		
+
 		&:checked {
-			$duration: .6s;
+			$duration: 0.6s;
 			&::before {
 				animation: checkbox-checked-effect $duration linear;
-				
+
 				@keyframes checkbox-checked-effect {
 					0% {
 						inset: 50%;
@@ -94,11 +96,11 @@
 					}
 					72% {
 						transform: rotate(180deg);
-						opacity: .5;
+						opacity: 0.5;
 						inset: -8px;
 					}
 					90% {
-						opacity: .5;
+						opacity: 0.5;
 						inset: -8px;
 					}
 					100% {
@@ -112,7 +114,7 @@
 				animation: checkbox-checked $duration linear;
 				inset: max(var(--current-inset), 2px);
 				opacity: 1;
-				
+
 				@keyframes checkbox-checked {
 					0% {
 						inset: 50%;
@@ -130,19 +132,19 @@
 			}
 		}
 	}
-	
+
 	&-label {
 		align-self: center;
-		margin: 0 1.4em 0 .4em;
+		margin: 0 1.4em 0 0.4em;
 	}
-	
+
 	&-description {
 		flex-basis: 100%;
 		font-style: italic;
-		font-size: .8em;
+		font-size: 0.8em;
 		color: color(foreground-2);
 		margin: 0 0 8px;
-		padding-top: .4em;
+		padding-top: 0.4em;
 		grid-column: 1/3;
 	}
 }

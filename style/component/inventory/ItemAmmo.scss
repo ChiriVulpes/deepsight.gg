@@ -7,21 +7,21 @@
 	align-self: center;
 	margin-top: -2px;
 	font-family: $font-title;
-	
+
 	&::before {
 		content: "";
 		display: inline-block;
-		height: calc(32pt * .75);
+		height: calc(32pt * 0.75);
 		aspect-ratio: 1312 / 937;
 		padding-right: 1px;
 		align-self: center;
 		background: var(--icon);
 		background-size: contain;
 		background-repeat: no-repeat;
-		margin-right: calc(32pt * .2);
+		margin-right: calc(32pt * 0.2);
 		width: fit-content;
 	}
-	
+
 	&-primary {
 		--icon: url("https://www.bungie.net/img/destiny_content/ammo_types/primary.png");
 	}

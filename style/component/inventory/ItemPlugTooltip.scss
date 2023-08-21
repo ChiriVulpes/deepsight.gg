@@ -2,15 +2,15 @@
 	&-description {
 		white-space: pre-wrap;
 	}
-	
+
 	&-perk {
-		background: color(perk-tooltip-background, .85);
+		background: color(perk-tooltip-background, 0.85);
 	}
-	
+
 	&-exotic {
-		background: color(tier-exotic-background, .85);
+		background: color(tier-exotic-background, 0.85);
 	}
-	
+
 	&-enhanced {
 		&::before {
 			content: "";
@@ -18,15 +18,13 @@
 			position: absolute;
 			inset: 0;
 			max-height: 69px;
-			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #D4B73C;
+			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #d4b73c;
 			background-size: 400% 400%;
 			animation: flash 2s linear infinite reverse;
 			@include blur-disables-animation;
-			-webkit-mask-image: 
-				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+			-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
 				url("/image/masterworktooltip.png");
-			mask-image: 
-				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+			mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
 				url("/image/masterworktooltip.png");
 		}
 	}
