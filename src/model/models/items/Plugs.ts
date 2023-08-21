@@ -179,7 +179,11 @@ export class Plug {
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
 			type |= PlugType.DeepsightResonance;
 
-		if (["item_type.armor", "item_type.ornament.armor", "item_type.weapon", "item_type.ornament.weapon"].some(traitId => plug.definition?.traitIds?.includes(traitId)))
+		if (["item_type.armor", "item_type.ornament.armor", "item_type.weapon", "item_type.ornament.weapon", "item.ornament.armor", "item.ornament.weapon", "item.armor.*"]
+			.some(traitId => plug.definition?.traitIds
+				?.some(checkId => false
+					|| checkId === traitId
+					|| (traitId.endsWith(".*") && checkId.startsWith(traitId.slice(0, -2))))))
 			type |= PlugType.Ornament;
 
 		if (plug.definition?.traitIds?.includes("item_type.exotic_catalyst"))

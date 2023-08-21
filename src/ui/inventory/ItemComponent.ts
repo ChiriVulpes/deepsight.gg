@@ -146,7 +146,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
-			&& item.definition.traitIds?.includes("item_type.armor");
+			&& item.definition.traitIds?.some(id => id === "item_type.armor" || id.startsWith("item.armor."));
 
 		Component.create()
 			.classes.add(ItemClasses.Icon)
