@@ -321,13 +321,13 @@ namespace PlayerOverview {
 				this.drawer.close(true);
 		}
 
-		private onKeyup () {
+		private onKeyup (event: IKeyEvent) {
 			if (!document.contains(this.element)) {
 				UiEventBus.unsubscribe("keyup", this.onKeyup);
 				return;
 			}
 
-			if (!this.element.contains(document.activeElement))
+			if (!this.element.contains(document.activeElement) && !event.matches("e"))
 				this.drawer.close(true);
 		}
 	}
