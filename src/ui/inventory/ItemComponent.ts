@@ -3,7 +3,6 @@ import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
-import { PlugType } from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -142,7 +141,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash, item.bucket !== "collections");
 		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
 
-		const ornament = item.getSockets(PlugType.Ornament)[0];
+		const ornament = item.getOrnament();
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
@@ -152,7 +151,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			.classes.add(ItemClasses.Icon)
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified)
-			.style.set("--icon", Display.icon(ornament?.socketedPlug?.definition) ?? Display.icon(item.definition))
+			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 
 		const shaped = item.shaped || (item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !this.inventory?.craftedItems.has(item.definition.hash));

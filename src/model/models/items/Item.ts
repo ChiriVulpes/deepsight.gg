@@ -312,7 +312,12 @@ class Item {
 	}
 
 	public getSockets (...types: PlugType[]) {
-		return types.flatMap(type => Socket.filterByPlugs(this.sockets, type));
+		return types.flatMap(type => Socket.filterType(this.sockets, type));
+	}
+
+	public getOrnament () {
+		const ornament = this.getSockets(PlugType.Ornament)[0]?.socketedPlug;
+		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
 	}
 
 	public update (item: Item) {

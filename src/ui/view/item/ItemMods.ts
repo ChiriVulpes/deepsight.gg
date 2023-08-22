@@ -11,6 +11,6 @@ export default class ItemMods extends ItemSockets {
 	}
 
 	protected override initialise () {
-		this.addSocketsByPlugType(PlugType.Mod);
+		this.addSocketsByType(PlugType.Mod);
 	}
 }

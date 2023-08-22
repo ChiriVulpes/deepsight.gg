@@ -264,7 +264,7 @@ class ItemTooltip extends Tooltip {
 
 		this.mods.removeContents();
 		for (const socket of item.getSockets(PlugType.Intrinsic)) {
-			if (socket.state?.isVisible === false || !socket.socketedPlug.definition?.displayProperties.name)
+			if (socket.state?.isVisible === false || !socket.socketedPlug?.definition?.displayProperties.name)
 				continue;
 
 			const socketComponent = Component.create()
@@ -345,8 +345,9 @@ class ItemTooltip extends Tooltip {
 				continue;
 
 			const plug = socket.socketedPlug;
-			const displayablePerks = socket.socketedPlug.perks
-				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden && perk.definition.isDisplayable);
+			const displayablePerks = socket.socketedPlug?.perks
+				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden && perk.definition.isDisplayable)
+				?? [];
 
 			for (const perk of displayablePerks) {
 				const socketComponent = Component.create()
@@ -359,7 +360,7 @@ class ItemTooltip extends Tooltip {
 					.style.set("--icon", Display.icon(perk.definition))
 					.append(Component.create()
 						.classes.add(ItemTooltipClasses.ModName)
-						.text.set(Display.descriptionIfShortOrName(perk.definition, displayablePerks.length === 1 ? plug.definition : undefined) ?? "Unknown"))
+						.text.set(Display.descriptionIfShortOrName(perk.definition, displayablePerks.length === 1 ? plug?.definition : undefined) ?? "Unknown"))
 					.appendTo(socketComponent);
 			}
 		}

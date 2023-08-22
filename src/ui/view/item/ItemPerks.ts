@@ -59,7 +59,7 @@ export default class ItemPerks extends ItemSockets {
 
 	protected override initialise () {
 		this.classes.add(ItemPerksClasses.Main);
-		this.sockets = this.addSocketsByPlugType(PlugType.Perk);
+		this.sockets = this.addSocketsByType(PlugType.Perk);
 
 		this.wishlists = Store.items[`item${this.item.definition.hash}PerkWishlists`];
 

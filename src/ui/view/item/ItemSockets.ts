@@ -64,7 +64,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 	protected abstract initialise (): void | Promise<void>;
 
-	protected addSocketsByPlugType (type: PlugType) {
+	protected addSocketsByType (type: PlugType) {
 		return this.addSockets(...this.item.getSockets(type));
 	}
 

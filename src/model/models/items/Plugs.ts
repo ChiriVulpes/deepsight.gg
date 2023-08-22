@@ -6,6 +6,7 @@ import Manifest from "model/models/Manifest";
 import Maths from "utility/maths/Maths";
 
 export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
+	type: PlugType;
 }
 
 export class Socket {
@@ -18,6 +19,16 @@ export class Socket {
 	public static filterExcludePlugs (sockets: (Socket | undefined)[], type: PlugType) {
 		const types = Maths.bits(type) as PlugType[];
 		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
+	}
+
+	public static filterType (sockets: (Socket | undefined)[], type: PlugType) {
+		const types = Maths.bits(type) as PlugType[];
+		return sockets.filter((socket): socket is Socket => types.every(type => socket?.is(type)));
+	}
+
+	public static filterExcludeType (sockets: (Socket | undefined)[], type: PlugType) {
+		const types = Maths.bits(type) as PlugType[];
+		return sockets.filter((socket): socket is Socket => types.every(type => socket?.isNot(type)));
 	}
 
 	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit, index?: number) {
@@ -42,7 +53,7 @@ export class Socket {
 		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
 		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
-		if (!socketedPlug && currentPlugHash !== undefined) {
+		if (!socketedPlug && currentPlugHash) {
 			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true);
 			if (socketedPlug)
 				socket.plugs.push(socketedPlug);
@@ -53,14 +64,17 @@ export class Socket {
 		if (socket.socketedPlug)
 			socket.socketedPlug.socketed = true;
 
-		for (const plug of socket.plugs)
+		for (const plug of socket.plugs) {
 			plug.objectives = await Objectives.resolve(manifest, init.objectives![plug.plugItemHash] ?? [], plug, item);
+			socket.type |= plug.type;
+		}
 
 		return socket;
 	}
 
 	public socketedPlug?: Plug;
 	public plugs!: Plug[];
+	public type = PlugType.None;
 
 	private constructor () { }
 
@@ -73,6 +87,16 @@ export class Socket {
 		return await Promise.resolve(DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
 			.then(plugSet => plugSet?.reusablePlugItems ?? [])
 			.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))));
+	}
+
+	public is (type: PlugType) {
+		const types = Maths.bits(type) as PlugType[];
+		return types.every(type => this.type & type);
+	}
+
+	public isNot (type: PlugType) {
+		const types = Maths.bits(type) as PlugType[];
+		return !types.some(type => this.type & type);
 	}
 }
 
@@ -168,7 +192,7 @@ export class Plug {
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Mementos)
 			type |= PlugType.Memento;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins)
+		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins || plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsEmpty)
 			type |= PlugType.DefaultOrnament;
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)

@@ -14,8 +14,8 @@ export default class ItemIntrinsics extends ItemSockets {
 	protected override get socketClasses () { return [ItemIntrinsicsClasses.IntrinsicSocket]; }
 
 	protected initialise () {
-		this.addSocketsByPlugType(PlugType.Intrinsic);
-		this.addSocketsByPlugType(PlugType.Origin);
+		this.addSocketsByType(PlugType.Intrinsic);
+		this.addSocketsByType(PlugType.Origin);
 		this.addPerksByPlugType(PlugType.Catalyst);
 	}
 }
