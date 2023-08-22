@@ -6,7 +6,6 @@ import Component from "ui/Component";
 import type { StatOrder } from "ui/inventory/Stat";
 import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, IStatDistribution, Stat } from "ui/inventory/Stat";
 import RecoilDirection from "ui/inventory/tooltip/stats/RecoilDirection";
-import type { GetterOfOr } from "utility/Type";
 
 enum CustomStat {
 	Total = -1,
@@ -17,6 +16,7 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	hash: number;
 	order: StatOrder;
 	name?: string;
+	group?: number;
 	min?: number;
 	max?: number;
 	bar?: boolean;
@@ -24,6 +24,7 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
+	render?(item: Item, stat: ICustomStatDisplayDefinition): boolean;
 	calculate?(item: Item, stat: ICustomStatDisplayDefinition): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
 	renderFormula?(item: Item, stat: ICustomStatDisplayDefinition): Component[];
 	renderBar?(bar: Component, item: Item, value: number): any;
@@ -33,6 +34,7 @@ export enum ItemStatClasses {
 	Wrapper = "item-stat-wrapper",
 	Main = "item-stat",
 	Label = "item-stat-label",
+	GroupLabel = "item-stat-group-label",
 	Bar = "item-stat-bar",
 	BarBlock = "item-stat-bar-block",
 	BarBlockNegative = "item-stat-bar-block-negative",
@@ -46,6 +48,7 @@ export enum ItemStatClasses {
 	Mod = "item-stat-mod",
 	Formula = "item-stat-formula",
 	Distribution = "item-stat-distribution-component",
+	DistributionGroupLabel = "item-stat-distribution-component-group-label",
 }
 
 const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
@@ -88,16 +91,19 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 				value: distribution.overall,
 				combinedValue: distribution.overall,
 				combinedText: `${Math.floor(distribution.overall * 100)}%`,
-				renderFormula: () => distribution.groups.map(groupValue => Component.create()
+				renderFormula: () => distribution.groups.map((groupValue, i) => Component.create()
 					.classes.add(ItemStatClasses.Distribution)
 					.text.set(`${Math.floor(groupValue * 100)}%`)
+					.append(Component.create("sup")
+						.classes.add(ItemStatClasses.DistributionGroupLabel)
+						.text.set(`${i + 1}`))
 					.style.set("--value", `${groupValue}`)),
 			};
 		},
 	},
 };
 
-type StatDisplayDef = GetterOfOr<Partial<ICustomStatDisplayDefinition> | false, [Item, ICustomStatDisplayDefinition]>;
+type StatDisplayDef = Partial<ICustomStatDisplayDefinition> | false;
 const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<Stat, StatDisplayDef>> = {
 	// undrendered
 	[Stat.Attack]: false,
@@ -107,20 +113,25 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Mystery1]: false,
 	[Stat.Mystery2]: false,
 	// // weapons
-	[Stat.AirborneEffectiveness]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : { name: "Airborne Aim" },
+	[Stat.AirborneEffectiveness]: {
+		name: "Airborne Aim",
+		render: item => item.definition.itemSubType !== DestinyItemSubType.Sword,
+	},
 	[Stat.RPM]: { name: "RPM", max: undefined },
 	[Stat.DrawTime]: { max: undefined },
-	[Stat.ChargeTime]: item => item.definition.itemSubType === DestinyItemSubType.Bow || item.definition.itemSubType === DestinyItemSubType.Sword ? false
-		: { bar: true },
+	[Stat.ChargeTime]: {
+		bar: true,
+		render: item => item.definition.itemSubType !== DestinyItemSubType.Bow && item.definition.itemSubType !== DestinyItemSubType.Sword,
+	},
 	[Stat.RecoilDirection]: {
 		bar: true,
 		renderBar: (bar, item, stat) => bar.removeContents()
 			.append(RecoilDirection(stat)),
 	},
-	[Stat.Magazine]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
-	[Stat.Zoom]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
-	[Stat.Stability]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
-	[Stat.Range]: item => item.definition.itemSubType === DestinyItemSubType.Sword ? false : {},
+	[Stat.Magazine]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Zoom]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Stability]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Range]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 	// armour
 	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
 	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
@@ -131,9 +142,17 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	...customStats,
 };
 
+for (const [stat, display] of Object.entries(customStatDisplays)) {
+	if (!display) continue;
+
+	const armourGroup = ARMOUR_STAT_GROUPS.findIndex(group => group.includes(+stat));
+	if (armourGroup !== -1) display.group = armourGroup;
+}
+
 class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 	public stat!: ICustomStatDisplayDefinition;
+	public groupLabel?: Component;
 	public label!: Component;
 	public bar?: Component;
 	public intrinsicBar?: Component;
@@ -153,6 +172,11 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			?? this.stat.name
 			?? this.stat.definition?.displayProperties.name.replace(/\s+/g, "")
 			?? `${this.stat.hash}`;
+
+		this.groupLabel = stat.group === undefined ? undefined : Component.create()
+			.text.set(`${stat.group + 1}`)
+			.classes.add(ItemStatClasses.GroupLabel)
+			.appendTo(this);
 
 		this.label = Component.create()
 			.classes.add(ItemStatClasses.Label)
@@ -206,6 +230,13 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 		}
 
 		this.classes.remove(Classes.Hidden);
+
+		if (display.group !== undefined && this.groupLabel) {
+			const distribution = IStatDistribution.get(item);
+			if (distribution.overall) {
+				this.groupLabel.style.set("--value", `${distribution.groups[display.group]}`);
+			}
+		}
 
 		if (display.roll === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);
@@ -315,13 +346,11 @@ namespace ItemStat {
 
 			stats.sort((a, b) => (a.order as number) - (b.order as number));
 
+			const renderedGroups = new Set<number | undefined>();
 			const statDisplays: Record<number, ICustomStatDisplayDefinition | undefined> = {};
 			for (const stat of stats) {
-				let custom = customStatDisplays[stat.hash as Stat];
-				if (typeof custom === "function")
-					custom = custom(item, stat);
-
-				if (custom === false)
+				const custom = customStatDisplays[stat.hash as Stat];
+				if (!custom || custom.render?.(item, stat) === false)
 					continue;
 
 				const display = {
@@ -333,6 +362,9 @@ namespace ItemStat {
 				hasAnyVisible ||= isVisible;
 				if (isVisible)
 					statDisplays[stat.hash] = display;
+
+				component.groupLabel?.classes.toggle(renderedGroups.has(custom.group), Classes.Hidden);
+				renderedGroups.add(custom.group);
 			}
 
 			for (const stat of Object.keys(this.map))
