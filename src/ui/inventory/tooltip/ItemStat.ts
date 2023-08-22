@@ -238,7 +238,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			}
 		}
 
-		if (display.roll === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
+		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);
 			this.combinedText.text.set(display.combinedText ?? render?.text);
 			this.intrinsicText.text.set(render?.text);
@@ -253,7 +253,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		let combinedValue = undefined;
 		if (combinedValue === undefined) {
-			combinedValue = display.combinedValue ?? (display.roll ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
+			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
 			if (combinedValue < (display.min ?? -Infinity))
 				combinedValue = display.min!;
 
