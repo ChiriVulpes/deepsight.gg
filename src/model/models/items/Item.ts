@@ -247,6 +247,7 @@ class Item {
 		await Promise.all([
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
+			Source.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
 		]);
 
