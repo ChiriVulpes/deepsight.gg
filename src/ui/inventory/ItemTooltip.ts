@@ -373,9 +373,10 @@ class ItemTooltip extends Tooltip {
 			this.deepsightPatternLabel
 				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
 					: complete ? "This weapon's pattern is unlocked."
-						: item.deepsight?.resonance ? "This [b]Pattern[/b] can be extracted."
-							: item.deepsight?.activation ? "This [b]Pattern[/b] can be [b]Activated[/b]."
-								: "You have extracted this pattern.");
+						: item.bucket === "collections" ? "This weapon can be shaped."
+							: item.deepsight?.resonance ? "This [b]Pattern[/b] can be extracted."
+								: item.deepsight?.activation ? "This [b]Pattern[/b] can be [b]Activated[/b]."
+									: "You have extracted this pattern.");
 
 			this.deepsightPatternNumber.classes.toggle(complete, Classes.Hidden);
 			this.deepsightPatternOutOf.classes.toggle(complete, Classes.Hidden);
