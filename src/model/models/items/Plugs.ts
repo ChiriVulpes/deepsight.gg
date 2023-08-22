@@ -180,7 +180,7 @@ export class Plug {
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
 			type |= PlugType.Shader;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworks)
+		if (plug.definition?.plug?.uiPlugLabel === "masterwork") // Ugh
 			type |= PlugType.Masterwork;
 
 		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworksTrackers)
