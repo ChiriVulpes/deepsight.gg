@@ -4,6 +4,8 @@ import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import type CharacterBucket from "ui/inventory/bucket/CharacterBucket";
+import { CharacterBucketClasses } from "ui/inventory/bucket/CharacterBucket";
 import type PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
 import { PostmasterBucketClasses } from "ui/inventory/bucket/PostmasterBucket";
 import View from "ui/View";
@@ -112,14 +114,18 @@ export class InventoryEquipmentView extends InventoryView {
 	}
 
 	protected override sort (): void {
+		const characters: CharacterBucket[] = [];
 		const postmasters: PostmasterBucket[] = [];
 
 		let postmasterColumn: IEquipmentSlotColumn | undefined;
 		for (const column of this.columns) {
-			if (column.slot)
+			if (column.slot) {
 				this.sortSlot(column.slot);
+				for (const bucket of column.component.children<CharacterBucket>())
+					if (bucket.classes.has(CharacterBucketClasses.Main))
+						characters.push(bucket);
 
-			else {
+			} else {
 				postmasterColumn = column;
 				for (const bucket of column.component.children<PostmasterBucket>())
 					if (bucket.classes.has(PostmasterBucketClasses.Main))
@@ -135,6 +141,9 @@ export class InventoryEquipmentView extends InventoryView {
 		}
 
 		postmasterColumn?.component.classes.toggle(!postmasterVisible, Classes.Hidden);
+
+		for (const character of characters)
+			character.update();
 	}
 
 	// private onMouseMove (event: MouseEvent): void {

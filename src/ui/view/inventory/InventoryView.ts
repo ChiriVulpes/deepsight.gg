@@ -342,6 +342,9 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		if (this.super.definition.slot)
 			this.sortSlot(this.super.definition.slot);
 
+		for (const character of Object.values(this.characters[this.super.definition.slot!] ?? {}))
+			character.update();
+
 		for (const postmaster of Object.values(this.postmasters))
 			postmaster.update();
 	}

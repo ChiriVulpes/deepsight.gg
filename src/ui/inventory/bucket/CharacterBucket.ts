@@ -8,6 +8,7 @@ export enum CharacterBucketClasses {
 	Emblem = "view-inventory-slot-character-bucket-emblem",
 	Equipped = "view-inventory-slot-character-bucket-equipped",
 	Inventory = "view-inventory-slot-character-bucket-inventory",
+	EmptySlot = "view-inventory-slot-character-bucket-empty-slot",
 }
 
 export default class CharacterBucket extends BucketComponent<[]> {
@@ -34,5 +35,15 @@ export default class CharacterBucket extends BucketComponent<[]> {
 		this.character = character;
 		void this.initialiseFromCharacter(character);
 		return this;
+	}
+
+	public update () {
+		const slotItems = this.content.element.childElementCount;
+
+		if (slotItems)
+			for (let i = slotItems; i < 9; i++)
+				Component.create()
+					.classes.add(InventoryClasses.Slot, CharacterBucketClasses.EmptySlot)
+					.appendTo(this.content);
 	}
 }
