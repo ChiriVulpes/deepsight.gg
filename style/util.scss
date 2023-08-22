@@ -80,3 +80,5 @@
 @function str-trim ($str) {
     @return str-trim-start(str-trim-end($str));
 }
+
+@import "util/gradient-mix";

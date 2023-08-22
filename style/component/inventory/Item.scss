@@ -520,14 +520,9 @@ $z-index-loading: 1000;
 
 	&-stat-distribution {
 		&-value {
-			background: linear-gradient(to right, #9e4949, #e04d4d 50%, #ff0 75%, #4eff13 100%);
-			background-size: 5000px 1px;
-			background-position: calc(var(--value) * -4800px + 3em);
-			background-clip: text;
-			-webkit-background-clip: text;
-			color: transparent;
+			color: gradient-mix(in lch, var(--value), #9e4949, #e04d4d 50%, #ff0 75%, #4eff13);
 			text-shadow: none;
-			font-weight: 700;
+			font-weight: 600;
 		}
 		filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 1px #000);
 	}
