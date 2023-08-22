@@ -82,6 +82,9 @@ namespace Deepsight {
 			return undefined;
 		}
 
+		if (!progress.objectives[0].completionValue)
+			return undefined;
+
 		return {
 			record: record!,
 			progress: progress.objectives[0],
