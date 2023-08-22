@@ -1,7 +1,7 @@
 import ansi from "ansicolor";
 import dotenv from "dotenv";
 import Log from "./Log";
-import { TaskFunction } from "./Task";
+import type { TaskFunction } from "./Task";
 import { stopwatch } from "./Time";
 
 try {
@@ -96,7 +96,9 @@ const taskApi: ITaskApi = {
 		if (debouncedTask.count <= 1) {
 			debouncedTask.count++;
 			debouncedTask.promise = debouncedTask.promise.then(async () => {
-				await this.run(task);
+				try {
+					await this.run(task);
+				} catch { }
 				debouncedTask!.count--;
 			});
 		}
