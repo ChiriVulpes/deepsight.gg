@@ -8,9 +8,9 @@ import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";
-import Button, { ButtonClasses } from "ui/form/Button";
+import Button from "ui/form/Button";
 import ElementTypes from "ui/inventory/ElementTypes";
-import ItemComponent from "ui/inventory/ItemComponent";
+import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
@@ -76,9 +76,11 @@ const itemViewBase = View.create({
 			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
 
 		ItemComponent.create([item])
-			.classes.remove(ButtonClasses.Main)
+			.classes.remove(ItemClasses.NotAcquired)
 			.classes.add(ItemViewClasses.Item)
 			.clearTooltip()
+			.setDisableInteractions()
+			.event.subscribe("mouseenter", () => console.log(Display.name(item.definition), item))
 			.prependTo(view.header);
 
 		Component.create("p")

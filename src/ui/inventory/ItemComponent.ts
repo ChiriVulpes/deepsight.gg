@@ -11,6 +11,7 @@ import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
+import Async from "utility/Async";
 import Store from "utility/Store";
 
 export enum ItemClasses {
@@ -55,6 +56,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	public loadingSpinny?: Component;
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
+	private sorter?: WeakRef<SortManager>;
 
 	protected override async onMake (item: Item, inventory?: Inventory, ...args: ARGS) {
 		super.onMake(item, inventory, ...args);
@@ -66,6 +68,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		this.loadEnd = this.loadEnd.bind(this);
 		this.onClick = this.onClick.bind(this);
 		this.onContextMenu = this.onContextMenu.bind(this);
+		this.rerenderExtra = this.rerenderExtra.bind(this);
 
 		this.event.subscribe("click", this.onClick);
 		this.event.subscribe("contextmenu", this.onContextMenu);
@@ -224,6 +227,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 				.append(Component.create())
 				.appendTo(this);
 
+		void Async.debounce(this.rerenderExtra);
 		this.extra.appendTo(this);
 
 		this.loadingSpinny = Component.create()
@@ -235,7 +239,8 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	}
 
 	public setSortedBy (sorter: SortManager) {
-		void this.rerenderExtra(sorter);
+		this.sorter = new WeakRef(sorter);
+		void Async.debounce(this.rerenderExtra);
 		return this;
 	}
 
@@ -244,13 +249,17 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		return this;
 	}
 
-	private rerenderId?: number;
-	private async rerenderExtra (sorter: SortManager) {
-		const rerenderId = this.rerenderId = Math.random();
+	private disableInteractions?: true;
+	public setDisableInteractions () {
+		this.disableInteractions = true;
+		return this;
+	}
+
+	private async rerenderExtra () {
 		this.extra.removeContents();
 
 		let extra = 0;
-		for (const sort of sorter.get()) {
+		for (const sort of this.sorter?.deref()?.get() ?? []) {
 			if (!sort.render)
 				continue;
 
@@ -258,18 +267,10 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			if (!rendered)
 				continue;
 
-			if (this.rerenderId !== rerenderId)
-				// something else is causing this to rerender
-				return;
-
 			this.extra.append(rendered);
 			if (++extra === 3)
 				return;
 		}
-
-		if (this.rerenderId !== rerenderId)
-			// something else is causing this to rerender
-			return;
 
 		if (this.item.reference.quantity > 1)
 			this.extra.append(Component.create()
@@ -286,6 +287,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		if (this.item.equipped)
 			return;
 
+		if (this.disableInteractions)
+			return;
+
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
 			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
@@ -300,6 +304,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 	private onContextMenu (event: MouseEvent) {
 		if (window.innerWidth <= 800)
+			return;
+
+		if (this.disableInteractions)
 			return;
 
 		event.preventDefault();
