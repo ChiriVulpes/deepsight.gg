@@ -448,5 +448,16 @@
 		"season": 21,
 		"year": 6,
 		"seasonHash": 2758726569
+	},
+	"32": {
+		"id": "witch",
+		"displayProperties": {
+			"name": "Season of the Witch",
+			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_fdbb36bb7f4f81c0170ca0b2cced22d6.png"
+		},
+		"iconWatermark": { "item": 1875512595 },
+		"season": 22,
+		"year": 6,
+		"seasonHash": 2758726570
 	}
 }
