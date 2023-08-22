@@ -350,7 +350,7 @@ namespace ItemStat {
 			const statDisplays: Record<number, ICustomStatDisplayDefinition | undefined> = {};
 			for (const stat of stats) {
 				const custom = customStatDisplays[stat.hash as Stat];
-				if (!custom || custom.render?.(item, stat) === false)
+				if (custom === false || custom?.render?.(item, stat) === false)
 					continue;
 
 				const display = {
@@ -363,8 +363,8 @@ namespace ItemStat {
 				if (isVisible)
 					statDisplays[stat.hash] = display;
 
-				component.groupLabel?.classes.toggle(renderedGroups.has(custom.group), Classes.Hidden);
-				renderedGroups.add(custom.group);
+				component.groupLabel?.classes.toggle(renderedGroups.has(custom?.group), Classes.Hidden);
+				renderedGroups.add(custom?.group);
 			}
 
 			for (const stat of Object.keys(this.map))
