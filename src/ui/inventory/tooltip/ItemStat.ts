@@ -133,12 +133,12 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Stability]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 	[Stat.Range]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 	// armour
-	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
-	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
-	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
-	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
-	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
-	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX, displayEntireFormula: true },
+	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX },
 	...customStats,
 };
 
