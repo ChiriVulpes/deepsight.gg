@@ -8,7 +8,7 @@ import InventorySlotView from "ui/view/inventory/slot/InventorySlotView";
 
 export const SORTS_DEFAULT_ARMOUR = [Sort.Power, Sort.Name, Sort.Energy] as const;
 export const SORTS_INAPPLICABLE_ARMOUR = [Sort.Deepsight, Sort.Pattern, Sort.AmmoType, Sort.Shaped, Sort.WeaponType, Sort.Quantity, Sort.DamageType] as const;
-export const FILTERS_INAPPLICABLE_ARMOUR = [Filter.Ammo, Filter.WeaponType, Filter.Perk, Filter.Shaped] as const;
+export const FILTERS_INAPPLICABLE_ARMOUR = [Filter.Ammo, Filter.WeaponType, Filter.Perk, Filter.Shaped, Filter.Element] as const;
 
 export const VIEW_ID_ARMOUR = "armour";
 export const VIEW_NAME_ARMOUR = "Armour";

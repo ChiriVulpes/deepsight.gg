@@ -7,16 +7,20 @@ import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
 import ErrorView from "ui/view/ErrorView";
 import InventoryArmourView from "ui/view/inventory/equipment/InventoryArmourView";
+import InventoryEquipmentView from "ui/view/inventory/equipment/InventoryEquipmentView";
 import InventoryWeaponsView from "ui/view/inventory/equipment/InventoryWeaponsView";
 import InventoryInventoryView from "ui/view/inventory/InventoryInventoryView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
 import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
+import InventoryGhostView from "ui/view/inventory/slot/InventoryGhostView";
 import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
 import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
+import InventoryShipView from "ui/view/inventory/slot/InventoryShipView";
+import InventorySparrowView from "ui/view/inventory/slot/InventorySparrowView";
 import ItemView from "ui/view/item/ItemView";
 import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
@@ -41,6 +45,10 @@ const registry = Object.fromEntries([
 	InventoryChestView,
 	InventoryLegsView,
 	InventoryClassItemView,
+	InventoryEquipmentView,
+	InventoryGhostView,
+	InventorySparrowView,
+	InventoryShipView,
 	InventoryInventoryView,
 	CollectionsView,
 	SettingsView,

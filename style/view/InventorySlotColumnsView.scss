@@ -28,7 +28,8 @@
 		}
 	}
 
-	@at-root .view-weapons-content {
+	@at-root .view-weapons-content,
+		.view-equipment-content {
 		grid-template-columns: repeat(3, 1fr) auto;
 
 		@media (max-width: 1400px) {

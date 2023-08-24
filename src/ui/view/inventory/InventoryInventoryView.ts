@@ -5,6 +5,7 @@ import View from "ui/View";
 import ConsumablesBucket from "ui/inventory/bucket/ConsumablesBucket";
 import InventoryBucket from "ui/inventory/bucket/InventoryBucket";
 import ModificationsBucket from "ui/inventory/bucket/ModificationsBucket";
+import Filter from "ui/inventory/filter/Filter";
 import type { IFilterManagerConfiguration } from "ui/inventory/filter/FilterManager";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import Sort from "ui/inventory/sort/Sort";
@@ -27,7 +28,13 @@ export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.DamageType,
 	Sort.WeaponType,
 ] as const;
-export const FILTERS_INAPPLICABLE_INVENTORY = [] as const;
+export const FILTERS_INAPPLICABLE_INVENTORY = [
+	Filter.Ammo,
+	Filter.WeaponType,
+	Filter.Element,
+	Filter.Perk,
+	Filter.Shaped,
+] as const;
 
 export const VIEW_ID_INVENTORY = "inventory";
 export const VIEW_NAME_INVENTORY = "Inventory";
