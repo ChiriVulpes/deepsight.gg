@@ -8,6 +8,12 @@ import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetCustomMani
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 import Env from "utility/Env";
 
+declare module "bungie-api-ts/destiny2" {
+	interface DestinyRecordDefinition {
+		recordTypeName?: string;
+	}
+}
+
 type Indices<COMPONENT_NAME extends AllComponentNames> =
 	{
 		DestinySourceDefinition: "iconWatermark" | "id";

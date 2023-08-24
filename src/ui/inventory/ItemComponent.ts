@@ -10,6 +10,7 @@ import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import type SortManager from "ui/inventory/sort/SortManager";
+import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
 import Loadable from "ui/Loadable";
 import Async from "utility/Async";
 import Store from "utility/Store";
@@ -34,10 +35,10 @@ export enum ItemClasses {
 	Wishlist = "item-wishlist",
 	WishlistNoMatch = "item-wishlist-no-match",
 	Extra = "item-extra",
+	ExtraInfo = "item-extra-info",
 	ExtraEmpty = "item-extra-empty",
 	Loading = "item-loading",
 	NotAcquired = "item-not-acquired",
-	Quantity = "item-quantity",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -258,8 +259,12 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	private async rerenderExtra () {
 		this.extra.removeContents();
 
+		const sorts = this.sorter?.deref()?.get().slice() ?? [];
+		if (this.item.reference.quantity > 1 && !sorts.includes(SortQuantity))
+			sorts.push(SortQuantity);
+
 		let extra = 0;
-		for (const sort of this.sorter?.deref()?.get() ?? []) {
+		for (const sort of sorts) {
 			if (!sort.render)
 				continue;
 
@@ -267,15 +272,11 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			if (!rendered)
 				continue;
 
-			this.extra.append(rendered);
+			rendered.classes.add(ItemClasses.ExtraInfo)
+				.appendTo(this.extra);
 			if (++extra === 3)
 				return;
 		}
-
-		if (this.item.reference.quantity > 1)
-			this.extra.append(Component.create()
-				.classes.add(ItemClasses.Quantity)
-				.text.set(`x${this.item.reference.quantity}`));
 
 		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === BucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
 	}

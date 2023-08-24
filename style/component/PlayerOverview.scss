@@ -207,13 +207,15 @@
 	}
 
 	&-power {
+		background: none;
+		grid-row: auto !important;
 		@include desktop-or-vertical {
 			&-equipped {
-				grid-row: 3;
+				grid-row: 3 !important;
 			}
 
 			&-highest-power {
-				grid-row: 5;
+				grid-row: 5 !important;
 			}
 		}
 
@@ -274,6 +276,7 @@
 			opacity: 0.6;
 			font-size: 0.95em;
 			font-weight: 500;
+			background: none;
 		}
 
 		&::after {

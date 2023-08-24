@@ -9,6 +9,7 @@ import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
 import SortName from "ui/inventory/sort/sorts/SortName";
 import SortPattern from "ui/inventory/sort/sorts/SortPattern";
 import SortPower from "ui/inventory/sort/sorts/SortPower";
+import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
 import SortRarity from "ui/inventory/sort/sorts/SortRarity";
 import SortShaped from "ui/inventory/sort/sorts/SortShaped";
 import SortSource from "ui/inventory/sort/sorts/SortSource";
@@ -32,6 +33,7 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.AmmoType]: SortAmmoType,
 	[Sort.DamageType]: SortDamageType,
 	[Sort.WeaponType]: SortWeaponType,
+	[Sort.Quantity]: SortQuantity,
 };
 
 for (const [type, sort] of Object.entries(sortMap))

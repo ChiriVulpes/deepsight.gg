@@ -9,37 +9,38 @@
 	--card-gap-y: 4px;
 	--bucket-inventory-padding: 4px;
 	--slot-size-optimisation: -5px;
-	--slot-size: min(75px, (100vh
-		- var(--nav-height) /* nav */
-		- var(--footer-height) /* footer */
-		- var(--card-title-height) * 3 /* bucket titles */
-		- var(--card-gap-y) * 2 /* bucket gap */
-		- (var(--view-padding-top) + var(--view-padding-bottom)) /* view padding */
-		- var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */
-		- var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
-		) / 9);
+	--slot-size: min(
+		75px,
+		(
+				100vh - var(--nav-height) /* nav */ - var(--footer-height) /* footer */ - var(--card-title-height) * 3
+					/* bucket titles */ - var(--card-gap-y) * 2 /* bucket gap */ -
+					(var(--view-padding-top) + var(--view-padding-bottom)) /* view padding */ -
+					var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */ -
+					var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
+			) / 9
+	);
 	--slot-padding: 3px;
 	font-family: $font-sans-serif, sans-serif;
 	font-weight: 400;
-	letter-spacing: .02em;
-	
+	letter-spacing: 0.02em;
+
 	@include vertical-or-tablet {
-		--slot-size: min(78px, (100vw
-			- 120px
-			- var(--nav-height) /* nav */
-			- var(--footer-height) /* footer */
-			- var(--card-title-height) * 3 /* bucket titles */
-			- var(--card-gap-y) * 2 /* bucket gap */
-			- (var(--view-padding-top) + var(--view-padding-bottom)) /* view padding */
-			- var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */
-			- var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
-			) / 9);
+		--slot-size: min(
+			78px,
+			(
+					100vw - 120px - var(--nav-height) /* nav */ - var(--footer-height) /* footer */ -
+						var(--card-title-height) * 3 /* bucket titles */ - var(--card-gap-y) * 2 /* bucket gap */ -
+						(var(--view-padding-top) + var(--view-padding-bottom)) /* view padding */ -
+						var(--bucket-inventory-padding) * 2 * 3 /* bucket inventory padding */ -
+						var(--slot-size-optimisation) /* optimise for chrome with bookmarks bar on 1080p */
+				) / 9
+		);
 	}
-	
+
 	@media (max-width: 1000px) {
 		--slot-size: 70px;
 	}
-	
+
 	@include mobile {
 		--view-padding-x: 12px;
 		--slot-size: calc((100vw - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) * 3) / 4);
@@ -79,14 +80,75 @@ html .hidden {
 	width: var(--slot-size);
 	height: var(--slot-size);
 	box-sizing: border-box;
+
+	&-empty {
+		opacity: 0.2;
+		position: relative;
+		position: relative;
+		aspect-ratio: 1/1;
+		&,
+		:where(&) &-borders2 {
+			&::before,
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: min(20%, 8px);
+				width: 20%;
+				height: 20%;
+				border: 1px solid;
+			}
+		}
+
+		&::before {
+			border-bottom: none;
+			border-right: none;
+		}
+		&::after {
+			border-bottom: none;
+			border-left: none;
+			left: auto;
+		}
+		&-borders2 {
+			&::before {
+				border-top: none;
+				border-right: none;
+				top: auto;
+			}
+			&::after {
+				border-top: none;
+				border-left: none;
+				left: auto;
+				top: auto;
+			}
+		}
+
+		&-simple,
+		&-simple &-borders2 {
+			&::before,
+			&::after {
+				content: none;
+			}
+		}
+
+		&-simple {
+			opacity: 0.1;
+			&::before {
+				content: "";
+				width: auto;
+				height: auto;
+				border: 1px solid;
+			}
+		}
+	}
 }
 
 kbd {
 	font-style: normal;
 	border: 1px solid currentColor;
 	background: color(background-3);
-	border-radius: .4em;
-	padding: 0 .4em .1em;
+	border-radius: 0.4em;
+	padding: 0 0.4em 0.1em;
 	font-family: inherit;
 }
 
@@ -100,7 +162,7 @@ kbd {
 
 .small-text {
 	font-size: 11px;
-	opacity: .5;
+	opacity: 0.5;
 }
 
 h3 {
@@ -112,7 +174,7 @@ h3 {
 }
 
 h3 + p {
-	opacity: .7;
+	opacity: 0.7;
 	margin-top: 10px;
 }
 

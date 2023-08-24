@@ -11,9 +11,9 @@ export default ISort.create({
 		const { DestinyDamageTypeDefinition } = await Manifest.await();
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash);
 		if (damageType !== undefined)
-			return Component.create()
-				.classes.add("item-sort-damage-type", `item-sort-damage-type-${damageType.displayProperties.name.toLowerCase() ?? "unknown"}`)
-				.style.set("--icon", `url("https://www.bungie.net${damageType.displayProperties.icon}")`);
+			return Component.create("img")
+				.attributes.set("src", `https://www.bungie.net${damageType.displayProperties.icon}`)
+				.classes.add("item-sort-damage-type", `item-sort-damage-type-${damageType.displayProperties.name.toLowerCase() ?? "unknown"}`);
 
 		return undefined;
 	},

@@ -1,13 +1,13 @@
 import type Character from "model/models/Characters";
-import { Classes, InventoryClasses } from "ui/Classes";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/Bucket";
 
 export enum PostmasterBucketClasses {
 	Main = "view-inventory-slot-postmaster-bucket",
 	Engrams = "view-inventory-slot-postmaster-bucket-engrams",
 	Warning = "view-inventory-slot-postmaster-bucket-warning",
-	EmptySlot = "view-inventory-slot-postmaster-bucket-empty-slot",
 }
 
 export default class PostmasterBucket extends BucketComponent<[]> {
@@ -41,14 +41,16 @@ export default class PostmasterBucket extends BucketComponent<[]> {
 
 		if (postmasterItems)
 			for (let i = postmasterItems; i < 21; i++)
-				Component.create()
-					.classes.add(InventoryClasses.Slot, PostmasterBucketClasses.EmptySlot)
+				Slot.create()
+					.setEmpty()
+					.setSimple()
 					.appendTo(this.content);
 
 		if (engrams)
 			for (let i = engrams; i < 10; i++)
-				Component.create()
-					.classes.add(InventoryClasses.Slot, PostmasterBucketClasses.EmptySlot)
+				Slot.create()
+					.setEmpty()
+					.setSimple()
 					.appendTo(this.engrams);
 	}
 }

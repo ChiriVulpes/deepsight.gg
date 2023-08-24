@@ -8,6 +8,7 @@ import CollectionsView from "ui/view/collections/CollectionsView";
 import ErrorView from "ui/view/ErrorView";
 import InventoryArmourView from "ui/view/inventory/equipment/InventoryArmourView";
 import InventoryWeaponsView from "ui/view/inventory/equipment/InventoryWeaponsView";
+import InventoryInventoryView from "ui/view/inventory/InventoryInventoryView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
@@ -40,6 +41,7 @@ const registry = Object.fromEntries([
 	InventoryChestView,
 	InventoryLegsView,
 	InventoryClassItemView,
+	InventoryInventoryView,
 	CollectionsView,
 	SettingsView,
 	ItemView,

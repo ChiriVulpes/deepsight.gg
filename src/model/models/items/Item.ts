@@ -21,7 +21,7 @@ import type { PromiseOr } from "utility/Type";
 
 export type CharacterId = `${bigint}`;
 export type PostmasterId = `postmaster:${CharacterId}`;
-export type DestinationBucketId = CharacterId | "vault" | "inventory";
+export type DestinationBucketId = CharacterId | "vault" | "consumables" | "modifications";
 export type OwnedBucketId = DestinationBucketId | PostmasterId;
 export type BucketId = OwnedBucketId | "collections";
 export namespace PostmasterId {
@@ -35,7 +35,7 @@ export namespace PostmasterId {
 }
 export namespace CharacterId {
 	export function is (id: BucketId): id is CharacterId {
-		return id !== "vault" && id !== "inventory" && id !== "collections" && !PostmasterId.is(id);
+		return id !== "vault" && id !== "consumables" && id !== "modifications" && id !== "collections" && !PostmasterId.is(id);
 	}
 }
 
@@ -193,11 +193,11 @@ namespace Item {
 interface Item extends IItem { }
 class Item {
 
-	public static id (reference: DestinyItemComponent): ItemId {
-		return reference.itemInstanceId as `${bigint}` ?? `hash:${reference.itemHash}`;
+	public static id (reference: DestinyItemComponent, occurrence: number): ItemId {
+		return reference.itemInstanceId as `${bigint}` ?? `hash:${reference.itemHash}:${reference.bucketHash}:${occurrence}`;
 	}
 
-	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: BucketId) {
+	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: BucketId, occurrence: number) {
 		const { DestinyInventoryItemDefinition } = manifest;
 
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
@@ -206,13 +206,18 @@ class Item {
 			return undefined;
 		}
 
-		if (definition.nonTransferrable && reference.bucketHash !== BucketHashes.LostItems && reference.bucketHash !== BucketHashes.Engrams) {
-			console.debug(`Skipping "${definition.displayProperties.name}", non-transferrable`);
+		const invOrVault = reference.bucketHash === BucketHashes.Modifications ? "modifications" : reference.bucketHash === BucketHashes.Consumables ? "consumables" : "vault";
+		if ((bucket === "vault" || bucket === "consumables" || bucket === "modifications") && invOrVault !== bucket) {
 			return undefined;
 		}
 
+		// if (definition.nonTransferrable && reference.bucketHash !== BucketHashes.LostItems && reference.bucketHash !== BucketHashes.Engrams) {
+		// 	console.debug(`Skipping "${definition.displayProperties.name}", non-transferrable`);
+		// 	return undefined;
+		// }
+
 		const item: IItemInit = {
-			id: Item.id(reference),
+			id: Item.id(reference, occurrence),
 			reference,
 			definition,
 			bucket,
@@ -233,7 +238,7 @@ class Item {
 
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, definition: DestinyInventoryItemDefinition) {
 		const item: IItemInit = {
-			id: `hash:${definition.hash}` as ItemId,
+			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
 			definition,
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -257,7 +262,7 @@ class Item {
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
 	public get character () {
-		return this.bucket === "vault" || this.bucket === "inventory" || this.bucket === "collections" ? undefined
+		return this.bucket === "vault" || this.bucket === "consumables" || this.bucket === "modifications" || this.bucket === "collections" ? undefined
 			: PostmasterId.is(this.bucket) ? PostmasterId.character(this.bucket)
 				: this.bucket;
 	}
@@ -354,7 +359,7 @@ class Item {
 	}
 
 	public transferToBucket (bucket: DestinationBucketId) {
-		if (bucket === "inventory")
+		if (bucket === "consumables" || bucket === "modifications")
 			throw new Error("Inventory transfer not implemented yet");
 
 		if (bucket === "vault")

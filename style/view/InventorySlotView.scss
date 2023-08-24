@@ -271,18 +271,6 @@
 				}
 			}
 		}
-
-		&-empty-slot {
-			opacity: 0.2;
-			position: relative;
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				inset: 8px;
-				box-shadow: inset 0 0 0 1px currentColor;
-			}
-		}
 	}
 
 	&-highest-power {
@@ -524,18 +512,6 @@
 		}
 		&:nth-child(3) {
 			grid-row: 3;
-		}
-
-		&-empty-slot {
-			opacity: 0.2;
-			position: relative;
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				inset: 8px;
-				box-shadow: inset 0 0 0 1px currentColor;
-			}
 		}
 
 		.bucket-title,

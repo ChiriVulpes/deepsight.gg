@@ -72,9 +72,12 @@ namespace Deepsight {
 		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null, item.bucket !== "collections")
 			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name, item.bucket !== "collections");
 
+		if (record?.recordTypeName !== "Weapon Pattern")
+			return undefined;
+
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const progress = profile.profileRecords?.data?.records[record?.hash!];
-		if (!progress)
+		const progress = profile.profileRecords?.data?.records[record?.hash];
+		if (!progress?.objectives)
 			return undefined;
 
 		if (progress.objectives.length !== 1) {
@@ -86,7 +89,7 @@ namespace Deepsight {
 			return undefined;
 
 		return {
-			record: record!,
+			record: record,
 			progress: progress.objectives[0],
 		};
 	}

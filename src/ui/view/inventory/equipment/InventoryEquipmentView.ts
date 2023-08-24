@@ -10,7 +10,8 @@ import type PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
 import { PostmasterBucketClasses } from "ui/inventory/bucket/PostmasterBucket";
 import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
-import { InventoryView } from "ui/view/inventory/InventoryView";
+import InventoryView from "ui/view/inventory/InventoryView";
+import Arrays from "utility/Arrays";
 import type { IVector2 } from "utility/maths/Vector2";
 
 export enum InventoryEquipmentViewClasses {
@@ -25,7 +26,7 @@ export enum InventoryEquipmentViewClasses {
 }
 
 interface IEquipmentSlotColumn {
-	slot?: BucketHashes;
+	slot?: Arrays.Or<Arrays.Or<BucketHashes>>;
 	name: string;
 	component: Component;
 }
@@ -92,19 +93,21 @@ export class InventoryEquipmentView extends InventoryView {
 				const result = this.generateSortedPostmasters();
 				column.component.append(...result.postmasters);
 			} else {
-				const result = this.generateSortedBuckets(column.slot);
+				for (const slot of Arrays.resolve(column.slot)) {
+					const result = this.generateSortedBuckets(slot);
 
-				if (this.super.definition.separateVaults) {
-					buckets = Math.max(buckets, result.buckets.length * 2);
-					if (result.changed) {
-						column.component.append(...result.buckets.flatMap(({ character, vault }) => [character, vault]));
-					}
+					if (this.super.definition.separateVaults) {
+						buckets = Math.max(buckets, result.buckets.length * 2);
+						if (result.changed) {
+							column.component.append(...result.buckets.flatMap(({ character, vault }) => [character, vault]));
+						}
 
-				} else {
-					buckets = Math.max(buckets, result.buckets.length + 1);
-					if (result.changed) {
-						column.component.append(...result.buckets.map(({ character }) => character));
-						column.component.append(...result.buckets.map(({ vault }) => vault));
+					} else {
+						buckets = Math.max(buckets, result.buckets.length + 1);
+						if (result.changed) {
+							column.component.append(...result.buckets.map(({ character }) => character));
+							column.component.append(...result.buckets.map(({ vault }) => vault));
+						}
 					}
 				}
 			}
@@ -120,10 +123,12 @@ export class InventoryEquipmentView extends InventoryView {
 		let postmasterColumn: IEquipmentSlotColumn | undefined;
 		for (const column of this.columns) {
 			if (column.slot) {
-				this.sortSlot(column.slot);
-				for (const bucket of column.component.children<CharacterBucket>())
-					if (bucket.classes.has(CharacterBucketClasses.Main))
-						characters.push(bucket);
+				for (const slot of Arrays.resolve(column.slot)) {
+					this.sortSlot(slot);
+					for (const bucket of column.component.children<CharacterBucket>())
+						if (bucket.classes.has(CharacterBucketClasses.Main))
+							characters.push(bucket);
+				}
 
 			} else {
 				postmasterColumn = column;
@@ -145,23 +150,6 @@ export class InventoryEquipmentView extends InventoryView {
 		for (const character of characters)
 			character.update();
 	}
-
-	// private onMouseMove (event: MouseEvent): void {
-	// 	if (!document.contains(this.element))
-	// 		return document.body.removeEventListener("mousemove", this.onMouseMove);
-
-	// 	const target = event.target as HTMLElement | undefined;
-	// 	if (!target?.closest(`.${View.Classes.Content}`))
-	// 		return;
-
-	// 	if (event.clientX > window.innerWidth - 100 && this.armourSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
-	// 		this.showArmour();
-	// 	}
-
-	// 	if (event.clientX < 100 && this.weaponsSection.classes.has(InventoryEquipmentViewClasses.SectionCollapsed)) {
-	// 		this.showWeapons();
-	// 	}
-	// }
 
 	protected override onItemMoveStart (item: Item, event: Event & { mouse: IVector2; }): void {
 		this.super.definition.onItemMoveStart?.(this, this.super, item, event);

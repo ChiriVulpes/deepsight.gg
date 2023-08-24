@@ -40,17 +40,21 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	const profile = await ProfileQuery.await();
 
 	const initialisedItems = new Set<string>();
+	const occurrences: Record<string, number> = {};
 
 	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
 		api.emitProgress(2 / 3 + 1 / 3 * (initialisedItems.size / (profile.profileInventory?.data?.items.length ?? 1)), "Loading items");
-		const itemId = Item.id(reference);
-		if (initialisedItems.has(itemId))
+		if (reference.itemInstanceId !== undefined && initialisedItems.has(reference.itemInstanceId))
 			return undefined; // already initialised in another bucket
 
-		initialisedItems.add(itemId);
-		const result = await Item.resolve(manifest, profile, reference, bucket);
-		if (!result)
-			initialisedItems.delete(itemId);
+		occurrences[`${reference.itemHash}:${reference.bucketHash}`] ??= 0;
+		const occurrence = occurrences[`${reference.itemHash}:${reference.bucketHash}`]++;
+
+		if (reference.itemInstanceId !== undefined)
+			initialisedItems.add(reference.itemInstanceId);
+		const result = await Item.resolve(manifest, profile, reference, bucket, occurrence);
+		if (!result && reference.itemInstanceId !== undefined)
+			initialisedItems.delete(reference.itemInstanceId);
 
 		return result;
 	}
@@ -88,8 +92,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		}
 	}
 
-	buckets.inventory = await createBucket("inventory", profileItems
-		.filter(item => item.bucketHash === BucketHashes.Modifications || item.bucketHash === BucketHashes.Consumables));
+	buckets.consumables = await createBucket("consumables", profileItems);
+	buckets.modifications = await createBucket("modifications", profileItems);
 	buckets.vault = await createBucket("vault", profileItems);
 
 	return buckets;

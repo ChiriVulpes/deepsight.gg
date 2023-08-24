@@ -46,6 +46,17 @@ declare global {
 }
 
 namespace Arrays {
+
+	export type Or<T> = T | T[];
+
+	export function resolve<T = never> (or?: Or<T>): T[] {
+		return Array.isArray(or) ? or : or === undefined ? [] : [or];
+	}
+
+	export function slice<T> (or: Or<T>): T[] {
+		return Array.isArray(or) ? or.slice() : or === undefined ? [] : [or];
+	}
+
 	export function remove (array: any[] | undefined, value: any) {
 		if (!array)
 			return false;

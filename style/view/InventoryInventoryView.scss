@@ -1,0 +1,25 @@
+.view-inventory-inventory {
+	&-bucket {
+		grid-column: 1;
+		&-content {
+			display: grid;
+			grid-template-columns: repeat(10, auto);
+			grid-template-rows: repeat(5, auto);
+		}
+	}
+
+	&-vault-buckets {
+		grid-column: 2;
+		grid-template-rows: 1fr 1fr;
+		gap: var(--card-gap-x);
+	}
+
+	&-postmaster-buckets {
+		grid-column: 3;
+	}
+
+	&-vault-buckets,
+	&-postmaster-buckets {
+		grid-row: 1/3;
+	}
+}

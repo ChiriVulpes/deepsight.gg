@@ -3,10 +3,10 @@ import FilterManager from "ui/inventory/filter/FilterManager";
 import Sort from "ui/inventory/sort/Sort";
 import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
 import SortManager from "ui/inventory/sort/SortManager";
-import InventorySlotView from "ui/view/inventory/InventoryView";
+import InventorySlotView from "ui/view/inventory/slot/InventorySlotView";
 
 export const SORTS_DEFAULT_WEAPONS = [Sort.Pattern, Sort.Power, Sort.Name] as const;
-export const SORTS_INAPPLICABLE_WEAPONS = [Sort.Energy, Sort.StatTotal, Sort.StatDistribution] as const;
+export const SORTS_INAPPLICABLE_WEAPONS = [Sort.Energy, Sort.StatTotal, Sort.StatDistribution, Sort.Quantity] as const;
 export const FILTERS_INAPPLICABLE_WEAPONS = [] as const;
 
 export const VIEW_ID_WEAPONS = "weapons";

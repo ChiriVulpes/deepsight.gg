@@ -5,13 +5,13 @@ import Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import Sources from "model/models/Sources";
 import type Item from "model/models/items/Item";
-import { InventoryClasses } from "ui/Classes";
 import Component from "ui/Component";
 import Details from "ui/Details";
 import Loadable from "ui/Loadable";
 import View from "ui/View";
 import Display from "ui/bungie/DisplayProperties";
 import ItemComponent from "ui/inventory/ItemComponent";
+import Slot from "ui/inventory/Slot";
 
 export enum CollectionsViewClasses {
 	Bucket = "view-collections-bucket",
@@ -135,7 +135,6 @@ function addItems (component: Component, items: Item[], inventory: Inventory) {
 			item => 999 - (bucketOrder.indexOf(item.definition.inventory?.bucketTypeHash!) + 1),
 			(a, b) => (a.collectible?.index ?? 0) - (b.collectible?.index ?? 0),
 			(a, b) => (Display.name(a.definition) ?? "").localeCompare(Display.name(b.definition) ?? ""))
-		.map(item => Component.create()
-			.classes.add(InventoryClasses.Slot)
+		.map(item => Slot.create()
 			.append(ItemComponent.create([item, inventory]))));
 }

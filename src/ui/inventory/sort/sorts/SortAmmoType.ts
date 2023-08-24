@@ -13,7 +13,10 @@ export default ISort.create({
 		if (!ammoType)
 			return undefined;
 
-		return Component.create()
-			.classes.add("item-sort-ammo-type", `item-sort-ammo-type-${ammoType === DestinyAmmunitionType.Primary ? "primary" : ammoType === DestinyAmmunitionType.Special ? "special" : "heavy"}`);
+		const ammoTypeName = ammoType === DestinyAmmunitionType.Primary ? "primary" : ammoType === DestinyAmmunitionType.Special ? "special" : "heavy";
+
+		return Component.create("img")
+			.attributes.set("src", `https://www.bungie.net/img/destiny_content/ammo_types/${ammoTypeName}.png`)
+			.classes.add("item-sort-ammo-type", `item-sort-ammo-type-${ammoTypeName}`);
 	},
 });

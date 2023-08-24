@@ -8,5 +8,7 @@ export default ISort.create({
 	sort: (a, b) => a.definition.displayProperties.name.localeCompare(b.definition.displayProperties.name),
 	render: item => PostmasterId.is(item.bucket) ? undefined : Component.create()
 		.classes.add("item-name")
-		.text.set(`${item.definition.displayProperties.name}`),
+		.append(Component.create("span")
+			.classes.add("item-name-text")
+			.text.set(`${item.definition.displayProperties.name}`)),
 });

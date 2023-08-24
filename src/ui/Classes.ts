@@ -9,6 +9,5 @@ export enum Classes {
 }
 
 export enum InventoryClasses {
-	Slot = "slot",
 	Item = "item",
 }

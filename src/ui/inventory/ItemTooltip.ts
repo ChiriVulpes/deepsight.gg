@@ -24,12 +24,16 @@ enum ItemTooltipClasses {
 	Masterwork = "item-tooltip-masterwork",
 	PrimaryInfo = "item-tooltip-primary-info",
 	PrimaryStat = "item-tooltip-primary-stat",
+	PrimaryStatValue = "item-tooltip-primary-stat-value",
+	PrimaryStatLabel = "item-tooltip-primary-stat-label",
 	PrimaryStatDamage = "item-tooltip-primary-stat-damage",
+	PrimaryStatHasElementRight = "item-tooltip-primary-stat-has-element-right",
 	Energy = "item-tooltip-energy",
 	EnergyValue = "item-tooltip-energy-value",
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
+	Description = "item-tooltip-description",
 	Mods = "item-tooltip-mods",
 	Mod = "item-tooltip-mod",
 	ModSocket = "item-tooltip-mod-socket",
@@ -59,12 +63,15 @@ class ItemTooltip extends Tooltip {
 	public source!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
+	public primaryStatValue!: Component;
+	public primaryStatLabel!: Component;
 	public ammoType!: ItemAmmo;
 	public energy!: Component;
 	public energyValue!: Component;
 	public weaponLevel!: Component;
 	public weaponLevelLabel!: Component;
 	public weaponLevelProgress!: Component;
+	public description!: Component;
 	public statTracker!: ItemStatTracker;
 	public mods!: Component;
 	public deepsight!: Component;
@@ -99,6 +106,15 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.PrimaryStat)
 			.appendTo(this.primaryInfo);
 
+		this.primaryStatValue = Component.create()
+			.classes.add(ItemTooltipClasses.PrimaryStatValue)
+			.appendTo(this.primaryStat);
+
+		this.primaryStatLabel = Component.create()
+			.classes.add(ItemTooltipClasses.PrimaryStatLabel)
+			.text.set("Power")
+			.appendTo(this.primaryStat);
+
 		this.ammoType = ItemAmmo.create()
 			.appendTo(this.primaryInfo);
 
@@ -121,6 +137,10 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.primaryInfo);
 
 		this.statTracker = ItemStatTracker.create()
+			.appendTo(this.primaryInfo);
+
+		this.description = Component.create()
+			.classes.add(ItemTooltipClasses.Description)
 			.appendTo(this.primaryInfo);
 
 		this.stats = ItemStat.Wrapper.create()
@@ -201,7 +221,7 @@ class ItemTooltip extends Tooltip {
 
 		const character = inventory?.getCharacter(item.character);
 
-		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition, DestinyClassDefinition } = await Manifest.await();
+		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.removeWhere(cls => cls.startsWith("item-tooltip-tier-"))
 			.classes.add(`item-tooltip-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
@@ -217,37 +237,36 @@ class ItemTooltip extends Tooltip {
 		if (item.source?.displayProperties.icon)
 			this.source.style.set("--icon", `url("${item.source.displayProperties.icon}")`);
 
-		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
-
 		const primaryStat = item.getPower();
+		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
+		const energy = item.instance?.energy;
+		const ammoType = item.definition.equippingBlock?.ammoType;
+
 		this.primaryStat
 			.classes.toggle(!primaryStat && damageType === undefined, Classes.Hidden)
-			.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
+			.classes.toggle(!!ammoType || !!energy, ItemTooltipClasses.PrimaryStatHasElementRight)
+			.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"));
+
+		this.primaryStatValue
 			.text.set(`${primaryStat || character?.power || "0"}`)
-			.style.remove("--icon")
-			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
+			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage)
+			.style.remove("--icon");
 
 		if (damageType !== undefined) {
 			const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
-			this.primaryStat
+			this.primaryStatValue
 				.classes.add(`item-tooltip-energy-type-${damageTypeName}`)
 				.style.set("--icon", Display.icon(damageType))
 				.style.set("--colour", ElementType.getColour(damageTypeName));
 		}
 
+		this.primaryStatLabel.classes.toggle(!!item.definition.equippingBlock?.ammoType || energy !== undefined, Classes.Hidden);
+
 		this.ammoType.setItem(item);
 
-		const energy = item.instance?.energy;
 		this.energy.classes.toggle(energy === undefined, Classes.Hidden);
-		if (energy !== undefined) {
-			const energyType = await DestinyEnergyTypeDefinition.get(energy.energyTypeHash);
-			const energyTypeName = (energyType?.displayProperties.name ?? "Unknown").toLowerCase();
-			this.energyValue.text.set(`${energy.energyCapacity}`)
-				.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"))
-				.classes.add(`item-tooltip-energy-type-${energyTypeName}`)
-				.style.set("--icon", Display.icon(energyType))
-				.style.set("--colour", ElementType.getColour(energyTypeName));
-		}
+		if (energy !== undefined)
+			this.energyValue.text.set(`${energy.energyCapacity}`);
 
 		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);
 		if (item.shaped) {
@@ -257,6 +276,10 @@ class ItemTooltip extends Tooltip {
 			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.progress.progress ?? 0}`);
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
 		}
+
+		const description = Display.description(item.definition);
+		this.description.classes.toggle(!description, Classes.Hidden)
+			.text.set(description);
 
 		this.statTracker.setItem(item);
 
@@ -409,10 +432,9 @@ class ItemTooltip extends Tooltip {
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
 		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
-		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram || item.bucket === "collections", Classes.Hidden);
-		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections", Classes.Hidden);
+		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
-		this.hintInspect.classes.toggle(isEngram, Classes.Hidden);
 	}
 }
 

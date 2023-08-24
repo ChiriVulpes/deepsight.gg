@@ -1,12 +1,11 @@
 import { BucketHashes } from "bungie-api-ts/destiny2";
-import type Model from "model/Model";
 import type Character from "model/models/Characters";
-import Inventory from "model/models/Inventory";
+import type Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
 import { PostmasterId } from "model/models/items/Item";
-import { Classes, InventoryClasses } from "ui/Classes";
+import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
@@ -18,6 +17,7 @@ import DraggableItem from "ui/inventory/DraggableItemComponent";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
+import Slot from "ui/inventory/Slot";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -51,15 +51,38 @@ export enum InventoryViewClasses {
 
 export interface IInventoryViewDefinition {
 	sort: SortManager;
-	slot?: BucketHashes;
+	slot?: Arrays.Or<Arrays.Or<BucketHashes>>;
 	filter: FilterManager;
 	separateVaults?: true;
+}
+
+export namespace IInventoryViewDefinition {
+	export function resolveSlotId (slot: Arrays.Or<BucketHashes>) {
+		return Array.isArray(slot) ? slot.join(",") : slot;
+	}
+
+	export function resolveSlotIds (slot?: IInventoryViewDefinition["slot"]) {
+		return Arrays.resolve(slot).map(slot => Array.isArray(slot) ? slot.join(",") : slot);
+	}
+
+	const handledBuckets = new Set([
+		BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons,
+		BucketHashes.Helmet, BucketHashes.Gauntlets, BucketHashes.ChestArmor, BucketHashes.LegArmor, BucketHashes.ClassArmor,
+		BucketHashes.LostItems, BucketHashes.Engrams,
+		BucketHashes.Consumables,
+		BucketHashes.Ghost, BucketHashes.Vehicle, BucketHashes.Ships,
+	]);
+	export function isLeftoverModificationsVaultItem (item: Item) {
+		return item.bucket === "vault"
+			&& (!item.definition.inventory?.bucketTypeHash
+				|| !handledBuckets.has(item.definition.inventory.bucketTypeHash));
+	}
 }
 
 class InventoryViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventoryViewDefinition> { }
 
 type InventoryViewArgs = [Inventory];
-export class InventoryView extends Component.makeable<HTMLElement, InventoryViewArgs>().of(InventoryViewWrapper) {
+export default class InventoryView extends Component.makeable<HTMLElement, InventoryViewArgs>().of(InventoryViewWrapper) {
 
 	public static hasExisted?: true;
 	public static current?: InventoryView;
@@ -69,9 +92,11 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 	public characterBucketsContainer!: Component;
 	public vaultBucketsContainer!: Component;
 	public postmasterBucketsContainer!: Component;
-	public characters!: Partial<Record<BucketHashes, Record<CharacterId, CharacterBucket>>>;
+	public consumablesBucket?: BucketComponent;
+	public modificationsBucket?: BucketComponent;
+	public characters!: Partial<Record<BucketHashes | string, Record<CharacterId, CharacterBucket>>>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
-	public vaults!: Partial<Record<BucketHashes, Record<CharacterId, VaultBucket>>>;
+	public vaults!: Partial<Record<BucketHashes | string, Record<CharacterId, VaultBucket>>>;
 	public bucketEntries!: [OwnedBucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
@@ -228,27 +253,31 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		}
 
 		for (const [bucketId, bucket] of this.bucketEntries) {
-			if (bucketId === "inventory")
+			this.updateBucketItems(bucketId, bucket);
+		}
+	}
+
+	protected updateBucketItems (bucketId: OwnedBucketId, bucket: Bucket) {
+		for (const item of bucket.items) {
+			const excluded = !PostmasterId.is(item.bucket)
+				&& this.super.definition.slot !== undefined
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				&& !Arrays.resolve(this.super.definition.slot).includes(item.definition.inventory?.bucketTypeHash!)
+				&& !(bucketId === "vault" && item.bucket === "vault");
+
+			if (this.itemMap.has(item)) {
+				if (excluded)
+					// this item was transferred from postmaster and should not be in this view
+					this.itemMap.delete(item);
+
+				// don't create a new item component if one already exists for this item
+				continue;
+			}
+
+			if (excluded)
 				continue;
 
-			for (const item of bucket.items) {
-				const excluded = !PostmasterId.is(item.bucket)
-					&& (this.super.definition.slot !== undefined && item.definition.inventory?.bucketTypeHash !== this.super.definition.slot);
-
-				if (this.itemMap.has(item)) {
-					if (excluded)
-						// this item was transferred from postmaster and should not be in this view
-						this.itemMap.delete(item);
-
-					// don't create a new item component if one already exists for this item
-					continue;
-				}
-
-				if (excluded)
-					continue;
-
-				this.itemMap.set(item, this.createItemComponent(item));
-			}
+			this.itemMap.set(item, this.createItemComponent(item));
 		}
 	}
 
@@ -257,15 +286,17 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		this.vaults ??= {};
 		this.postmasters ??= {};
 
-		const slot = this.super.definition.slot;
-		if (!slot)
+		const slots = this.super.definition.slot;
+		if (!slots)
 			return;
 
-		const result = this.generateSortedBuckets(slot);
-		if (result.changed) {
-			this.characterBucketsContainer.append(...result.buckets.flatMap(({ character }) => character));
-			this.vaultBucketsContainer.append(...result.buckets.flatMap(({ vault }) => vault));
-			this.postmasterBucketsContainer.append(...result.buckets.flatMap(({ postmaster }) => postmaster));
+		for (const slot of Arrays.resolve(slots)) {
+			const result = this.generateSortedBuckets(slot);
+			if (result.changed) {
+				this.characterBucketsContainer.append(...result.buckets.flatMap(({ character }) => character));
+				this.vaultBucketsContainer.append(...result.buckets.flatMap(({ vault }) => vault));
+				this.postmasterBucketsContainer.append(...result.buckets.flatMap(({ postmaster }) => postmaster));
+			}
 		}
 	}
 
@@ -294,12 +325,14 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character);
 	}
 
-	protected generateSortedBuckets (slot: BucketHashes, separateVaults: boolean | undefined = this.super.definition.separateVaults) {
-		const oldCharacterBuckets = Object.values(this.characters[slot] ?? {});
-		const oldVaultBuckets = Object.values(this.vaults[slot] ?? {});
+	protected generateSortedBuckets (slot: Arrays.Or<BucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults) {
+		const id = IInventoryViewDefinition.resolveSlotId(slot);
 
-		const characters = this.characters[slot] ??= {};
-		const vaults = this.vaults[slot] ??= {};
+		const oldCharacterBuckets = Object.values(this.characters[id] ?? {});
+		const oldVaultBuckets = Object.values(this.vaults[id] ?? {});
+
+		const characters = this.characters[id] ??= {};
+		const vaults = this.vaults[id] ??= {};
 
 		const singleVaultBucket = separateVaults ? undefined : VaultBucket.create([]);
 		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventoryViewClasses.VaultBucketsCombined);
@@ -339,27 +372,39 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 	}
 
 	protected sort () {
-		if (this.super.definition.slot)
-			this.sortSlot(this.super.definition.slot);
+		for (const slot of Arrays.resolve(this.super.definition.slot)) {
+			const id = IInventoryViewDefinition.resolveSlotId(slot);
+			this.sortSlot(slot);
 
-		for (const character of Object.values(this.characters[this.super.definition.slot!] ?? {}))
-			character.update();
+			for (const character of Object.values(this.characters[id] ?? {}))
+				character.update();
+		}
 
 		for (const postmaster of Object.values(this.postmasters))
 			postmaster.update();
 	}
 
-	protected sortSlot (slot: BucketHashes) {
+	protected sortSlot (slot: Arrays.Or<BucketHashes>) {
+		const id = IInventoryViewDefinition.resolveSlotId(slot);
 		const highestPowerSlot: Component[] = [];
 		let highestPower = 0;
 		for (const [bucketId, bucket] of this.bucketEntries) {
-			if (bucketId === "inventory")
-				continue;
-
 			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
-			if (bucketId === "vault")
-				bucketComponents = Object.values(this.vaults[slot] ?? {});
+			if (bucketId === "modifications") {
+				if (!this.modificationsBucket || slot !== BucketHashes.Modifications)
+					continue;
+
+				bucketComponents = [this.modificationsBucket];
+
+			} else if (bucketId === "consumables") {
+				if (!this.consumablesBucket || slot !== BucketHashes.Consumables)
+					continue;
+
+				bucketComponents = [this.consumablesBucket];
+
+			} else if (bucketId === "vault")
+				bucketComponents = Object.values(this.vaults[id] ?? {});
 
 			else if (PostmasterId.is(bucketId)) {
 				const postmasterBucket = this.postmasters[bucketId];
@@ -371,7 +416,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 				bucketComponents = [this.postmasters[bucketId]];
 
 			} else {
-				const characterBucket = this.characters[slot]?.[bucketId];
+				const characterBucket = this.characters[id]?.[bucketId];
 				if (!characterBucket) {
 					console.warn(`Unknown character '${bucketId}'`);
 					continue;
@@ -399,7 +444,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
 			for (const item of this.super.definition.sort.sort(bucket.items)) {
-				if (item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket))
+				if (item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === BucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)))
 					// item excluded from view
 					continue;
 
@@ -415,8 +460,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 
 				const slotWrapper = item.reference.bucketHash === BucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
 					: bucketComponent.content;
-				const slotComponent = item.equipped ? equippedComponent! : Component.create()
-					.classes.add(InventoryClasses.Slot)
+				const slotComponent = item.equipped ? equippedComponent! : Slot.create()
 					.appendTo(slotWrapper);
 
 				itemComponent
@@ -428,7 +472,9 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 
 				if (!PostmasterId.is(item.bucket)) {
 					const power = item.getPower();
-					if (power > highestPower) {
+					// eslint-disable-next-line no-empty
+					if (!power) {
+					} else if (power > highestPower) {
 						highestPower = power;
 						highestPowerSlot.splice(0, Infinity, slotComponent);
 					} else if (power === highestPower) {
@@ -457,11 +503,11 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 	}
 
 	private getBucket (bucketId: BucketId) {
-		return bucketId === "vault" ? Object.values(this.vaults ?? {}).flatMap(vaults => Object.values(vaults))
-			: bucketId === "inventory" ? [this.currentCharacter]
+		return bucketId === "vault" ? Object.values(this.vaults ?? {}).flatMap(vaults => Object.values(vaults ?? {}))
+			: bucketId === "consumables" || bucketId === "modifications" ? [this.currentCharacter]
 				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
 					: bucketId === "collections" ? []
-						: Object.values(this.characters).map(character => character[bucketId]).filter(Arrays.filterNullish);
+						: Object.values(this.characters).map(character => character?.[bucketId]).filter(Arrays.filterNullish);
 	}
 
 	protected onGlobalKeydown (event: IKeyEvent) {
@@ -484,7 +530,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 	}
 
 	private itemMoving?: ItemComponent;
-	private createItemComponent (item: Item) {
+	protected createItemComponent (item: Item) {
 		item.event.subscribe("bucketChange", this.update);
 		if (!item.canTransfer())
 			return ItemComponent.create([item, this.inventory]);
@@ -514,7 +560,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 			},
 			move: event => {
 				for (const [dropBucketId] of this.bucketEntries) {
-					if (dropBucketId === "inventory" || PostmasterId.is(dropBucketId))
+					if (dropBucketId === "consumables" || dropBucketId === "modifications" || PostmasterId.is(dropBucketId))
 						continue;
 
 					const components = this.getBucket(dropBucketId);
@@ -529,7 +575,7 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 
 				let dropBucketId: DestinationBucketId | undefined;
 				for (const [bucketId] of this.bucketEntries) {
-					if (bucketId === "inventory" || PostmasterId.is(bucketId))
+					if (bucketId === "consumables" || bucketId === "modifications" || PostmasterId.is(bucketId))
 						continue;
 
 					const components = this.getBucket(bucketId);
@@ -553,11 +599,3 @@ export class InventoryView extends Component.makeable<HTMLElement, InventoryView
 		}]);
 	}
 }
-
-
-export default new View.Factory()
-	.using(Inventory.createTemporary())
-	.define<IInventoryViewDefinition>()
-	.initialise((view, model) =>
-		view.make(InventoryView, model))
-	.wrapper<InventoryView & View.WrapperComponent<[Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>>();

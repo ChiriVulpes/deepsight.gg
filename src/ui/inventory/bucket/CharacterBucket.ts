@@ -1,6 +1,6 @@
 import type Character from "model/models/Characters";
-import { InventoryClasses } from "ui/Classes";
-import Component from "ui/Component";
+import type Component from "ui/Component";
+import Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/Bucket";
 
 export enum CharacterBucketClasses {
@@ -8,7 +8,6 @@ export enum CharacterBucketClasses {
 	Emblem = "view-inventory-slot-character-bucket-emblem",
 	Equipped = "view-inventory-slot-character-bucket-equipped",
 	Inventory = "view-inventory-slot-character-bucket-inventory",
-	EmptySlot = "view-inventory-slot-character-bucket-empty-slot",
 }
 
 export default class CharacterBucket extends BucketComponent<[]> {
@@ -20,12 +19,12 @@ export default class CharacterBucket extends BucketComponent<[]> {
 		super.onMake();
 		this.classes.add(CharacterBucketClasses.Main);
 
-		Component.create()
-			.classes.add(CharacterBucketClasses.Emblem, InventoryClasses.Slot)
+		Slot.create()
+			.classes.add(CharacterBucketClasses.Emblem)
 			.appendTo(this.header);
 
-		this.equippedSlot = Component.create()
-			.classes.add(CharacterBucketClasses.Equipped, InventoryClasses.Slot)
+		this.equippedSlot = Slot.create()
+			.classes.add(CharacterBucketClasses.Equipped)
 			.appendTo(this);
 
 		this.content.classes.add(CharacterBucketClasses.Inventory);
@@ -42,8 +41,8 @@ export default class CharacterBucket extends BucketComponent<[]> {
 
 		if (slotItems)
 			for (let i = slotItems; i < 9; i++)
-				Component.create()
-					.classes.add(InventoryClasses.Slot, CharacterBucketClasses.EmptySlot)
+				Slot.create()
+					.setEmpty()
 					.appendTo(this.content);
 	}
 }
