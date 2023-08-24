@@ -30,8 +30,7 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	if (bucketId !== "collections")
 		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
 
-	const hash = itemId.slice(5);
-	const itemDef = await DestinyInventoryItemDefinition.get(hash);
+	const itemDef = await DestinyInventoryItemDefinition.get(itemId);
 
 	api.emitProgress(1);
 	if (!itemDef)
@@ -147,7 +146,7 @@ type ItemViewBase = typeof itemViewBase;
 interface ItemViewClass extends ItemViewBase { }
 class ItemViewClass extends View.Handler<readonly [typeof Manifest, Model.Impl<Inventory>, Model.Impl<Item | undefined>], [item: string | Item]> {
 	public showCollections (item: Item) {
-		this.show(`collections/hash:${item.definition.hash}`);
+		this.show(`collections/${item.definition.hash}`);
 	}
 }
 
