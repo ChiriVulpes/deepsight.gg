@@ -1,7 +1,7 @@
 import Component from "ui/Component";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import SortManager from "ui/inventory/sort/SortManager";
-import InventoryEquipmentView, { InventoryEquipmentViewClasses } from "ui/view/inventory/equipment/InventoryEquipmentView";
+import InventoryEquipmentView, { InventorySlotColumnsViewClasses } from "ui/view/inventory/equipment/InventorySlotColumnsView";
 import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
 import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
@@ -19,9 +19,9 @@ export default InventoryEquipmentView.clone().create({
 	filter: new FilterManager(FILTER_MANAGER_WEAPONS_DEFINITION),
 	preUpdateInit (view, wrapper) {
 		const component = Component.create()
-			.classes.add(InventoryEquipmentViewClasses.SlotColumn, InventoryEquipmentViewClasses.PostmasterColumn)
+			.classes.add(InventorySlotColumnsViewClasses.SlotColumn, InventorySlotColumnsViewClasses.PostmasterColumn)
 			.append(Component.create()
-				.classes.add(InventoryEquipmentViewClasses.SlotColumnTitle)
+				.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
 				.text.set("\xa0"))
 			.appendTo(wrapper.content);
 

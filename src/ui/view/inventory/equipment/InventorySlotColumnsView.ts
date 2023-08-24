@@ -14,41 +14,41 @@ import InventoryView from "ui/view/inventory/InventoryView";
 import Arrays from "utility/Arrays";
 import type { IVector2 } from "utility/maths/Vector2";
 
-export enum InventoryEquipmentViewClasses {
-	Content = "view-equipment-content",
-	SectionTitle = "view-equipment-section-title",
-	SectionContent = "view-equipment-section-content",
-	SectionWeapons = "view-equipment-section-weapons",
-	SectionArmour = "view-equipment-section-armour",
-	SlotColumn = "view-equipment-slot-column",
-	PostmasterColumn = "view-equipment-slot-column-postmaster",
-	SlotColumnTitle = "view-equipment-slot-column-title",
+export enum InventorySlotColumnsViewClasses {
+	Content = "view-slot-columns-content",
+	SectionTitle = "view-slot-columns-section-title",
+	SectionContent = "view-slot-columns-section-content",
+	SectionWeapons = "view-slot-columns-section-weapons",
+	SectionArmour = "view-slot-columns-section-armour",
+	SlotColumn = "view-slot-columns-slot-column",
+	PostmasterColumn = "view-slot-columns-slot-column-postmaster",
+	SlotColumnTitle = "view-slot-columns-slot-column-title",
 }
 
-interface IEquipmentSlotColumn {
+interface ISlotColumn {
 	slot?: Arrays.Or<Arrays.Or<BucketHashes>>;
 	name: string;
 	component: Component;
 }
 
-export interface IInventoryEquipmentViewDefinition extends IInventoryViewDefinition {
+export interface IInventorySlotColumnsViewDefinition extends IInventoryViewDefinition {
 	childViews: View.Handler<readonly [Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>[];
-	preUpdateInit?(view: InventoryEquipmentView, wrapper: InventoryEquipmentViewWrapper): any;
-	onItemMoveStart?(view: InventoryEquipmentView, wrapper: InventoryEquipmentViewWrapper, item: Item, event: Event & { mouse: IVector2 }): any;
+	preUpdateInit?(view: InventorySlotColumnsView, wrapper: InventorySlotColumnsViewWrapper): any;
+	onItemMoveStart?(view: InventorySlotColumnsView, wrapper: InventorySlotColumnsViewWrapper, item: Item, event: Event & { mouse: IVector2 }): any;
 }
 
-class InventoryEquipmentViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<any[]> & IInventoryEquipmentViewDefinition> { }
+class InventorySlotColumnsViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<any[]> & IInventorySlotColumnsViewDefinition> { }
 
-export class InventoryEquipmentView extends InventoryView {
+export class InventorySlotColumnsView extends InventoryView {
 
-	public override super!: InventoryEquipmentViewWrapper;
+	public override super!: InventorySlotColumnsViewWrapper;
 
-	public columns!: IEquipmentSlotColumn[];
+	public columns!: ISlotColumn[];
 
 	protected override async onMake (inventory: Inventory): Promise<void> {
 		await super.onMake(inventory);
 
-		this.super.content.classes.add(InventoryEquipmentViewClasses.Content);
+		this.super.content.classes.add(InventorySlotColumnsViewClasses.Content);
 
 		// this.onMouseMove = this.onMouseMove.bind(this);
 		// document.body.addEventListener("mousemove", this.onMouseMove);
@@ -67,9 +67,9 @@ export class InventoryEquipmentView extends InventoryView {
 				name = name();
 
 			const component = Component.create()
-				.classes.add(InventoryEquipmentViewClasses.SlotColumn)
+				.classes.add(InventorySlotColumnsViewClasses.SlotColumn)
 				.append(Component.create()
-					.classes.add(InventoryEquipmentViewClasses.SlotColumnTitle)
+					.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
 					.text.set(name))
 				.appendTo(this.super.content);
 
@@ -120,7 +120,7 @@ export class InventoryEquipmentView extends InventoryView {
 		const characters: CharacterBucket[] = [];
 		const postmasters: PostmasterBucket[] = [];
 
-		let postmasterColumn: IEquipmentSlotColumn | undefined;
+		let postmasterColumn: ISlotColumn | undefined;
 		for (const column of this.columns) {
 			if (column.slot) {
 				for (const slot of Arrays.resolve(column.slot)) {
@@ -158,7 +158,7 @@ export class InventoryEquipmentView extends InventoryView {
 
 export default new View.Factory()
 	.using(Inventory.createTemporary())
-	.define<IInventoryEquipmentViewDefinition>()
+	.define<IInventorySlotColumnsViewDefinition>()
 	.initialise((view, model) =>
-		view.make(InventoryEquipmentView, model))
-	.wrapper<InventoryEquipmentView & View.WrapperComponent<[Model<Inventory>], [], IInventoryEquipmentViewDefinition & View.IViewBase<[]>>>();
+		view.make(InventorySlotColumnsView, model))
+	.wrapper<InventorySlotColumnsView & View.WrapperComponent<[Model<Inventory>], [], IInventorySlotColumnsViewDefinition & View.IViewBase<[]>>>();

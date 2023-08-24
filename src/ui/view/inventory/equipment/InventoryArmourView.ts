@@ -1,6 +1,6 @@
 import FilterManager from "ui/inventory/filter/FilterManager";
 import SortManager from "ui/inventory/sort/SortManager";
-import InventoryEquipmentView from "ui/view/inventory/equipment/InventoryEquipmentView";
+import InventoryEquipmentView from "ui/view/inventory/equipment/InventorySlotColumnsView";
 import { FILTER_MANAGER_ARMOUR_DEFINITION, SORT_MANAGER_ARMOUR_DEFINITION, VIEW_ID_ARMOUR, VIEW_NAME_ARMOUR } from "ui/view/inventory/slot/InventoryArmourSlotView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
