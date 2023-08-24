@@ -1,4 +1,5 @@
 import type Character from "model/models/Characters";
+import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Slot from "ui/inventory/Slot";
@@ -18,6 +19,7 @@ export default class PostmasterBucket extends BucketComponent<[]> {
 	protected override onMake (): void {
 		super.onMake();
 		this.classes.add(PostmasterBucketClasses.Main);
+		this.setDisplayMode(CardClasses.DisplayModeSection)
 
 		this.engrams = Component.create()
 			.classes.add(PostmasterBucketClasses.Engrams);

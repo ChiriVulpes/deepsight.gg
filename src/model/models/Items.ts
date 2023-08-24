@@ -14,6 +14,8 @@ export const ITEM_WEAPON_MOD = 610365472;
 
 export class Bucket {
 
+	public capacity?: number;
+
 	public constructor (public readonly id: BucketId, public readonly items: Item[]) {
 	}
 }
@@ -21,6 +23,7 @@ export class Bucket {
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 3);
 	const manifest = await Manifest.await();
+	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(BucketHashes.General);
 
 	const ProfileQuery = Profile(
 		DestinyComponentType.CharacterInventories,
@@ -69,7 +72,12 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			items.push(item);
 		}
 
-		return new Bucket(id, items);
+		const bucket = new Bucket(id, items);
+
+		if (id === "vault")
+			bucket.capacity = vaultBucket?.itemCount;
+
+		return bucket;
 	}
 
 	const profileItems = profile.profileInventory?.data?.items ?? [];

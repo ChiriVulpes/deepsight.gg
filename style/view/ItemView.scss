@@ -83,63 +83,6 @@
 
 	&-socket {
 		&s {
-			padding-right: 15px;
-
-			&-header {
-				background: none;
-				-webkit-mask-image: none;
-				mask-image: none;
-
-				&::before,
-				&::after {
-					content: none;
-				}
-			}
-
-			&-title {
-				background: none;
-				box-shadow: none;
-				backdrop-filter: none;
-				&::after {
-					opacity: 0;
-				}
-
-				justify-content: flex-start;
-				letter-spacing: inherit;
-				font-family: $font-title;
-				font-size: 14pt;
-				font-weight: 200;
-				border-bottom: 2px solid currentColor;
-				padding-left: 0;
-				padding-right: 0;
-				color: color(foreground-0, 0.5);
-				padding-top: 10px;
-
-				&-button {
-					background: none;
-					padding: 0 calc(8px - 0.1em) 0 8px;
-					border: none;
-					text-transform: uppercase;
-					color: color(accent-0);
-					font-weight: 800;
-					letter-spacing: 0.1em;
-					margin: 0;
-					margin-left: auto;
-
-					&:where(:focus-visible, :hover) {
-						color: color(foreground-0);
-					}
-
-					& ~ & {
-						margin-left: 8px;
-					}
-
-					&:last-child {
-						margin-right: -8px;
-					}
-				}
-			}
-
 			&-container {
 				width: 100%;
 			}

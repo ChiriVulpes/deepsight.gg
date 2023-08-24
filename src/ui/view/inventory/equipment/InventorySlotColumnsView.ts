@@ -8,6 +8,8 @@ import type CharacterBucket from "ui/inventory/bucket/CharacterBucket";
 import { CharacterBucketClasses } from "ui/inventory/bucket/CharacterBucket";
 import type PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
 import { PostmasterBucketClasses } from "ui/inventory/bucket/PostmasterBucket";
+import type VaultBucket from "ui/inventory/bucket/VaultBucket";
+import { VaultBucketClasses } from "ui/inventory/bucket/VaultBucket";
 import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
@@ -91,10 +93,11 @@ export class InventorySlotColumnsView extends InventoryView {
 		for (const column of this.columns) {
 			if (!column.slot) {
 				const result = this.generateSortedPostmasters();
-				column.component.append(...result.postmasters);
+				if (result.changed)
+					column.component.append(...result.postmasters);
 			} else {
 				for (const slot of Arrays.resolve(column.slot)) {
-					const result = this.generateSortedBuckets(slot);
+					const result = this.generateSortedBuckets(slot, undefined, true);
 
 					if (this.super.definition.separateVaults) {
 						buckets = Math.max(buckets, result.buckets.length * 2);
@@ -119,15 +122,18 @@ export class InventorySlotColumnsView extends InventoryView {
 	protected override sort (): void {
 		const characters: CharacterBucket[] = [];
 		const postmasters: PostmasterBucket[] = [];
+		const vaults: VaultBucket[] = [];
 
 		let postmasterColumn: ISlotColumn | undefined;
 		for (const column of this.columns) {
 			if (column.slot) {
 				for (const slot of Arrays.resolve(column.slot)) {
 					this.sortSlot(slot);
-					for (const bucket of column.component.children<CharacterBucket>())
+					for (const bucket of column.component.children<CharacterBucket | VaultBucket>())
 						if (bucket.classes.has(CharacterBucketClasses.Main))
-							characters.push(bucket);
+							characters.push(bucket as CharacterBucket);
+						else if (bucket.classes.has(VaultBucketClasses.Main))
+							vaults.push(bucket as VaultBucket);
 				}
 
 			} else {
@@ -149,6 +155,9 @@ export class InventorySlotColumnsView extends InventoryView {
 
 		for (const character of characters)
 			character.update();
+
+		for (const vault of vaults)
+			vault.update(this.inventory);
 	}
 
 	protected override onItemMoveStart (item: Item, event: Event & { mouse: IVector2; }): void {

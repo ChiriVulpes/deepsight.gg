@@ -5,7 +5,7 @@ import type { Perk, Plug, Socket } from "model/models/items/Plugs";
 import { PlugType } from "model/models/items/Plugs";
 import { TierHashes } from "model/models/items/Tier";
 import Display from "ui/bungie/DisplayProperties";
-import Card from "ui/Card";
+import Card, { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -25,9 +25,6 @@ export enum ItemSocketsClasses {
 	PlugRequiredLevel = "view-item-socket-plug-required-level",
 	PlugRequiredLevelWrapper = "view-item-socket-plug-required-level-wrapper",
 	Socketed = "view-item-socket-plug-socketed",
-	Header = "view-item-sockets-header",
-	Title = "view-item-sockets-title",
-	TitleButton = "view-item-sockets-title-button",
 }
 
 export default abstract class ItemSockets extends Card<[Item, Inventory]> {
@@ -44,9 +41,8 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		this.item = item;
 		this.inventory = inventory;
 		this.classes.add(ItemSocketsClasses.Main);
-		this.header.classes.add(ItemSocketsClasses.Header);
-		this.title.classes.add(ItemSocketsClasses.Title)
-			.text.set(this.getTitle());
+		this.setDisplayMode(CardClasses.DisplayModeSection);
+		this.title.text.set(this.getTitle());
 
 		this.addedSockets = [];
 		await this.initialise();

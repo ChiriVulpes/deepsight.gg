@@ -1,4 +1,5 @@
 import { PlugType } from "model/models/items/Plugs";
+import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
@@ -65,7 +66,7 @@ export default class ItemPerks extends ItemSockets {
 
 		if (this.item.instance) {
 			Button.create()
-				.classes.add(ItemSocketsClasses.TitleButton, ItemPerksClasses.ButtonWishlistPerks)
+				.classes.add(CardClasses.TitleButton, CardClasses.DisplayModeSectionTitleButton, ItemPerksClasses.ButtonWishlistPerks)
 				.classes.toggle(this.wishlists?.length === 0, ItemPerksClasses.MarkedAsJunk)
 				.classes.toggle(!!this.item.shaped, ItemPerksClasses.Shaped)
 				.text.set(this.item.shaped ? "Weapon Level Perk Unlocks" : this.wishlists?.length === 0 ? "Marked as Junk" : "Wishlist Perks")
@@ -165,7 +166,7 @@ export default class ItemPerks extends ItemSockets {
 				.classes.add(ItemPerksClasses.WishlistButtonConfirmIcon));
 
 		this.wishlistButton = Button.create("div")
-			.classes.add(ItemSocketsClasses.TitleButton, ItemPerksClasses.WishlistButtonAdd)
+			.classes.add(CardClasses.TitleButton, CardClasses.DisplayModeSectionTitleButton, ItemPerksClasses.WishlistButtonAdd)
 			.classes.toggle(this.wishlists?.length === 0, ItemPerksClasses.MarkedAsJunk)
 			.attributes.set("tabindex", "0")
 			.attributes.set("role", "button")

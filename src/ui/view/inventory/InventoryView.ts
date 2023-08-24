@@ -325,7 +325,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character);
 	}
 
-	protected generateSortedBuckets (slot: Arrays.Or<BucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults) {
+	protected generateSortedBuckets (slot: Arrays.Or<BucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults, skipPostmasters = false) {
 		const id = IInventoryViewDefinition.resolveSlotId(slot);
 
 		const oldCharacterBuckets = Object.values(this.characters[id] ?? {});
@@ -337,12 +337,12 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		const singleVaultBucket = separateVaults ? undefined : VaultBucket.create([]);
 		this.vaultBucketsContainer.classes.toggle(!this.super.definition.separateVaults, InventoryViewClasses.VaultBucketsCombined);
 
-		const { oldPostmasterBuckets } = this.generateSortedPostmasters();
+		const { oldPostmasterBuckets } = skipPostmasters ? { oldPostmasterBuckets: undefined } : this.generateSortedPostmasters();
 
 		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
 				character: characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
-				postmaster: this.generatePostmasterBucket(character),
+				postmaster: skipPostmasters ? undefined : this.generatePostmasterBucket(character),
 				vault: vaults[character.characterId as CharacterId] ??= singleVaultBucket ?? VaultBucket.create([character]),
 			}));
 
@@ -378,6 +378,9 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 			for (const character of Object.values(this.characters[id] ?? {}))
 				character.update();
+
+			for (const vault of Object.values(this.vaults[id] ?? {}))
+				vault.update(this.inventory);
 		}
 
 		for (const postmaster of Object.values(this.postmasters))

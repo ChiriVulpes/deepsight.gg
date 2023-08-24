@@ -470,6 +470,11 @@
 			}
 		}
 
+		&-quantity {
+			flex-grow: 1;
+			text-align: right;
+		}
+
 		&:last-child {
 			--card-gap-y: 0px;
 		}
@@ -506,6 +511,7 @@
 
 		grid-template-columns: 1fr;
 		grid-template-rows: auto auto 1fr;
+		padding-right: 0;
 
 		&:nth-child(2) {
 			grid-row: 2;
@@ -555,27 +561,30 @@
 		}
 
 		&-warning {
-			.bucket-header {
-				&::before,
-				&::after {
-					background: #361010;
-					animation: postmaster-background-intensity 0.7s linear infinite reverse;
-					@include blur-disables-animation;
-					@keyframes postmaster-background-intensity {
-						to {
-							background: #501515;
-						}
+			&::after {
+				content: "";
+				display: block;
+				grid-row: 2/4;
+				background: linear-gradient(to bottom, #f003, transparent);
+				position: absolute;
+				inset: 0;
+				opacity: 0;
+				z-index: -1;
+				animation: postmaster-background-intensity 0.7s linear infinite reverse;
+				@include blur-disables-animation;
+				@keyframes postmaster-background-intensity {
+					to {
+						opacity: 1;
 					}
 				}
 			}
 
 			.bucket-title {
-				box-shadow: inset 0 0 0 1px #8f3333;
-				animation: postmaster-box-shadow-intensity 0.7s linear infinite reverse;
+				animation: postmaster-color-intensity 0.7s linear infinite reverse;
 				@include blur-disables-animation;
-				@keyframes postmaster-box-shadow-intensity {
+				@keyframes postmaster-color-intensity {
 					to {
-						box-shadow: inset 0 0 0 1px #d13f3f;
+						color: #f00;
 					}
 				}
 			}
