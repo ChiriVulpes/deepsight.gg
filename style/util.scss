@@ -1,28 +1,26 @@
 @mixin transition($duration, $transition-properties...) {
     $timing-function: ease-in-out;
-    
+
     @if $duration == in {
-        $duration: .1s;
+        $duration: 0.1s;
         $timing-function: ease-in;
     } @else if $duration == out {
-        $duration: .3s;
+        $duration: 0.3s;
         $timing-function: ease-out;
     } @else if type-of($duration) != number {
         @error "Unknown duration value '#{$duration}'";
     }
-    
-	@if (length($transition-properties) > 0) {
-		transition: all $duration $timing-function;
-		transition-property: $transition-properties;
+
+    @if (length($transition-properties) > 0) {
+        transition: all $duration $timing-function;
+        transition-property: $transition-properties;
         :root:not(.focused, :hover) & {
             transition: none;
         }
-	}
-
-	@else {
-		transition-duration: $duration;
+    } @else {
+        transition-duration: $duration;
         transition-timing-function: $timing-function;
-	}
+    }
 }
 
 @mixin blur-disables-animation {
@@ -35,7 +33,7 @@
     // empty array/list
     $split-arr: ();
     // first index of separator in string
-    $index : str-index($string, $separator);
+    $index: str-index($string, $separator);
     // loop through string
     @while $index != null {
         // get the substring from the first character to the separator
@@ -45,7 +43,7 @@
         // remove item and separator from string
         $string: str-slice($string, $index + 1);
         // find new index of separator
-        $index : str-index($string, $separator);
+        $index: str-index($string, $separator);
     }
     // add the remaining string to list (the last item)
     $split-arr: append($split-arr, $string);
@@ -61,23 +59,23 @@
     @return str-slice($string, str-length($string) - str-length($substring) + 1) == $substring;
 }
 
-@function str-trim-start ($str) {
-    @if (str-slice($str, 1, 1) == ' ') {
+@function str-trim-start($str) {
+    @if (str-slice($str, 1, 1) == " ") {
         @return str-trim-start(str-slice($str, 2));
     } @else {
         @return $str;
     }
 }
 
-@function str-trim-end ($str) {
-    @if (str-slice($str, str-length($str), -1) == ' ') {
+@function str-trim-end($str) {
+    @if (str-slice($str, str-length($str), -1) == " ") {
         @return str-trim-end(str-slice($str, 1, -2));
     } @else {
         @return $str;
     }
 }
 
-@function str-trim ($str) {
+@function str-trim($str) {
     @return str-trim-start(str-trim-end($str));
 }
 

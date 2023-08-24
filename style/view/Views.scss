@@ -1,4 +1,4 @@
-@mixin view-swipe-animation($duration: .6s, $delay: .03s) {
+@mixin view-swipe-animation($duration: 0.6s, $delay: 0.03s) {
 	@include animate-multi($duration, $delay) {
 		.view & {
 			@include animation-swipe-up-in;
@@ -20,25 +20,25 @@
 	grid-template-rows: calc(var(--current-nav-height) + var(--view-padding-top)) auto 1fr auto;
 	justify-content: center;
 	overflow: hidden;
-	
+
 	&-subview {
 		position: relative;
 		height: initial;
 	}
-	
+
 	&-hidden {
 		pointer-events: none;
 	}
-	
+
 	&-loadable {
 		display: contents;
 	}
-	
+
 	&-header {
 		grid-row: 2;
-    	padding: 0 var(--view-padding-x);
+		padding: 0 var(--view-padding-x);
 	}
-	
+
 	&-content {
 		max-width: 100%;
 		max-height: 100%;
@@ -50,41 +50,41 @@
 		align-self: center;
 		grid-row: 3;
 		z-index: 1;
-	
+
 		@include mobile {
 			padding-bottom: 60px;
 		}
 	}
-	
+
 	&-title {
 		font-size: 44pt;
 		font-weight: 600;
 		text-transform: uppercase;
 		font-family: $font-title;
 		line-height: 1em;
-		margin-bottom: .15em;
+		margin-bottom: 0.15em;
 	}
-	
+
 	&-subtitle {
 		font-size: 22pt;
 		font-weight: 400;
 		text-transform: uppercase;
 		font-family: $font-title;
-		opacity: .6;
-		margin-top: -.5em;
-		margin-bottom: .2em;
+		opacity: 0.6;
+		margin-top: -0.5em;
+		margin-bottom: 0.2em;
 		position: relative;
-		
+
 		&-small {
 			text-transform: none;
-			letter-spacing: .3em;
+			letter-spacing: 0.3em;
 			font-family: $font-sans-serif;
 			font-size: 16pt;
-			margin-left: .1em;
+			margin-left: 0.1em;
 			font-weight: 100;
-			opacity: .8;
+			opacity: 0.8;
 			padding-bottom: 10px;
-			
+
 			&::after {
 				content: "";
 				display: block;
@@ -97,14 +97,14 @@
 			}
 		}
 	}
-	
+
 	&-footer {
 		height: var(--footer-height);
 		display: flex;
 		align-items: center;
 		z-index: 2;
 		grid-row: 4;
-		
+
 		&-button {
 			background: none;
 			border: none;
@@ -112,58 +112,64 @@
 			cursor: pointer;
 			display: grid;
 			grid-template-columns: auto 1fr;
-    		grid-template-rows: 1fr max-content max-content 1fr;
+			grid-template-rows: 1fr max-content max-content 1fr;
 			align-items: center;
 			z-index: 2;
 			text-align: left;
 			position: relative;
 			height: 100%;
 			@include transition(out, background);
-					
+
 			&:active {
 				padding-top: 3px;
 				@include transition(in);
 			}
-			
-			&:hover, &:focus-visible, &:active {
-				background: color(background-0, .65);
+
+			&:hover,
+			&:focus-visible,
+			&:active {
+				background: color(background-0, 0.65);
 			}
-				
+
 			&-icon {
 				grid-row: 1/5;
 				color: color(foreground-2);
 				border-radius: 1em;
 				background: color(background-6);
 				border: 2px solid currentColor;
-				margin: 0 .8em 0 .5em;
+				margin: 0 0.8em 0 0.5em;
 				@include transition(out, background, color, transform);
-				
+
 				> * {
 					position: absolute;
 					inset: 0;
 					opacity: 0;
 					transform: scale(0.5);
 					@include transition(out, transform, opacity);
-					
-					&::before, &::after {
+
+					&::before,
+					&::after {
 						content: "";
 						display: block;
 						position: absolute;
-						width: .2em;
-						height: .2em;
-						border-radius: .2em;
+						width: 0.2em;
+						height: 0.2em;
+						border-radius: 0.2em;
 						background: currentColor;
 					}
-					
+
 					$position: -4px;
 					$position-2: calc(100% + 2px);
-					$duration: .2s;
+					$duration: 0.2s;
 					&:nth-child(1)::before {
 						top: $position;
 						left: $position;
 						animation: top-left-to-bottom-right $duration linear;
 						@keyframes top-left-to-bottom-right {
-							to { top: $position-2; left: $position-2 }
+							to {
+								top: $position-2;
+								left: $position-2;
+							}
 						}
 					}
 					&:nth-child(1)::after {
@@ -171,8 +177,14 @@
 						right: $position;
 						animation: top-right-to-bottom-left $duration linear;
 						@keyframes top-right-to-bottom-left {
-							50% { top: $position-2; right: $position }
-							100% { top: $position-2; right: $position-2 }
+							50% {
+								top: $position-2;
+								right: $position;
+							}
+							100% {
+								top: $position-2;
+								right: $position-2;
+							}
 						}
 					}
 					&:nth-child(2)::before {
@@ -180,7 +192,10 @@
 						right: $position;
 						animation: bottom-right-to-top-left $duration linear;
 						@keyframes bottom-right-to-top-left {
-							to { bottom: $position-2; right: $position-2 }
+							to {
+								bottom: $position-2;
+								right: $position-2;
+							}
 						}
 					}
 					&:nth-child(2)::after {
@@ -188,58 +203,66 @@
 						left: $position;
 						animation: bottom-left-to-top-right $duration linear;
 						@keyframes bottom-left-to-top-right {
-							50% { bottom: $position-2; left: $position }
-							100% { bottom: $position-2; left: $position-2 }
+							50% {
+								bottom: $position-2;
+								left: $position;
+							}
+							100% {
+								bottom: $position-2;
+								left: $position-2;
+							}
 						}
 					}
 				}
-				
+
 				.view-footer-button:where(:hover, :focus-visible, :active) & {
 					color: color(foreground-0);
 					background: color(background-7);
 					transform: scale(1.25);
 					@include transition(in);
-					
+
 					> * {
 						transform: scale(1);
 						opacity: 1;
 						@include transition(in);
 					}
 				}
-				
+
 				.view-footer-button:active & {
 					transform: scale(1.25);
 					background: color(background-6);
 					> * {
-						&::before, &::after {
+						&::before,
+						&::after {
 							animation: none;
 						}
 					}
 				}
 			}
-			
+
 			&-label {
 				grid-row: 2;
 				text-transform: uppercase;
-				font-size: .7em;
+				font-size: 0.7em;
 				font-weight: 500;
-				letter-spacing: .1em;
+				letter-spacing: 0.1em;
 				line-height: 1em;
-				margin-top: .1em;
+				margin-top: 0.1em;
 				color: color(foreground-2);
 				align-self: flex-end;
 			}
-			
+
 			:where(&-text) {
 				grid-row: 3;
-				font-size: .9em;
+				font-size: 0.9em;
 				line-height: 1em;
 				padding-top: 2px;
 			}
 		}
 	}
-	
-	&-header, &-footer {
+
+	&-header,
+	&-footer {
 		@include view-swipe-animation;
 	}
 }

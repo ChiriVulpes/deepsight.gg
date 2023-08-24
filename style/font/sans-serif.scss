@@ -1,17 +1,19 @@
-@include googleFont("Open+Sans", 
-	300, 300 italic,
-	400, 400 italic,
-	500, 500 italic,
-	600, 600 italic,
-	700, 700 italic,
-	800, 800 italic,
+@include googleFont(
+	"Open+Sans",
+	300,
+	300 italic,
+	400,
+	400 italic,
+	500,
+	500 italic,
+	600,
+	600 italic,
+	700,
+	700 italic,
+	800,
+	800 italic
 );
 $font-sans-serif: "Open Sans";
 
-@include googleFont("DM+Sans", 
-	400, 400 italic,
-	500, 500 italic,
-	600, 600 italic,
-	700, 700 italic,
-);
+@include googleFont("DM+Sans", 400, 400 italic, 500, 500 italic, 600, 600 italic, 700, 700 italic);
 $font-title: "DM Sans";

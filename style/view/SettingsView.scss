@@ -7,25 +7,26 @@
 		row-gap: 30px;
 		column-gap: 40px;
 	}
-	
+
 	.card {
 		width: max(500px, 30%);
 		max-width: 100%;
 	}
-	
+
 	@media (max-width: 1600px) {
 		&-content {
 			flex-direction: row;
 		}
-		
+
 		@media (min-width: 1080px) {
 			.card {
 				max-width: calc((100vw - var(--view-padding-x) * 2 - 40px) / 2);
 			}
 		}
 	}
-	
-	@at-root sleep:times(2), .card:times(30) {
+
+	@at-root sleep:times(2),
+		.card:times(30) {
 		@include view-swipe-animation;
 	}
 }
@@ -35,17 +36,17 @@
 	min-height: 100px;
 	margin-bottom: 10px;
 	scroll-behavior: smooth;
-	
+
 	&-wrapper {
 		display: contents;
 	}
-	
+
 	display: block;
 	display: flex;
 	flex-direction: row;
 	overflow-x: scroll;
 	overflow-y: hidden;
-	
+
 	&-wallpaper {
 		&-source {
 			position: relative;
@@ -60,40 +61,42 @@
 				z-index: -1;
 				background: linear-gradient(to right, #{color(background-4)}, transparent);
 			}
-			
+
 			&-label {
 				position: sticky;
 				left: 0;
 				width: fit-content;
 				padding: 4px 10px 0;
 			}
-			
+
 			&-list {
 				display: flex;
 				flex-direction: row;
 				padding-bottom: 4px;
 			}
 		}
-		
+
 		width: 144px;
 		height: 81px;
 		margin: 4px;
-		img, canvas, &-image {
+		img,
+		canvas,
+		&-image {
 			position: absolute;
 			inset: -1px;
 			width: calc(100% + 2px);
 			height: calc(100% + 2px);
 			z-index: -1;
 		}
-		
+
 		&:first-child {
 			margin-left: 10px;
 		}
-		
+
 		&:last-child {
 			margin-right: 10px;
 		}
-		
+
 		&::after {
 			content: "";
 			display: block;
@@ -103,19 +106,19 @@
 			width: calc(100% + 2px);
 			height: calc(100% + 2px);
 			background: transparent;
-			box-shadow: inset 0 0 0 1px color(foreground-0, .1);
+			box-shadow: inset 0 0 0 1px color(foreground-0, 0.1);
 			@include transition(out, background, opacity);
 		}
-		
+
 		&:where(:hover, :focus-within, .button-selected)::after {
-			background: color(foreground-0, .1);
-			box-shadow: inset 0 0 0 1px color(foreground-0, .2);
+			background: color(foreground-0, 0.1);
+			box-shadow: inset 0 0 0 1px color(foreground-0, 0.2);
 			@include transition(in);
 		}
-		
+
 		&:active::after {
 			background: color(background-1);
-			opacity: .4;
+			opacity: 0.4;
 			@include transition(0s);
 		}
 	}
