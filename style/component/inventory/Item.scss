@@ -486,7 +486,7 @@ $z-index-loading: 1000;
 
 	&-sort-stat-total {
 		position: relative;
-		padding-left: 1em;
+		padding-left: calc(1em + 3px) !important;
 		width: fit-content;
 		justify-self: flex-end;
 
@@ -496,7 +496,7 @@ $z-index-loading: 1000;
 			display: block;
 			position: absolute;
 			height: 0.2em;
-			left: 0;
+			left: 3px;
 			background: currentColor;
 			box-shadow: 0 1px 1px #000a;
 		}
