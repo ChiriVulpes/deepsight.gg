@@ -1,9 +1,9 @@
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
-import ExtraInfoManager from "ui/ExtraInfoManager";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
 import Sortable from "ui/form/Sortable";
+import ItemComponent from "ui/inventory/ItemComponent";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
@@ -231,14 +231,13 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.drawer.open();
 		this.drawer.showPanel(this.mainPanel);
-		if (window.innerWidth > 800)
-			ExtraInfoManager.show(ItemSortClasses.Main);
+		ItemComponent.showExtra(ItemSortClasses.Main);
 		this.focusDrawer();
 	}
 
 	private closeDrawer () {
 		this.drawer.close(true);
-		ExtraInfoManager.hide(ItemSortClasses.Main);
+		ItemComponent.hideExtra(ItemSortClasses.Main);
 	}
 
 	private focusDrawer () {

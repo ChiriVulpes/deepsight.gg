@@ -9,36 +9,41 @@ class ExtraInfoManager {
 				if (Store.items.settingsToggleExtra)
 					this.toggle("KEY");
 				else
-					this.show("KEY");
+					this.enable("KEY");
 		});
 		UiEventBus.subscribe("keyup", event => {
 			if (!Store.items.settingsToggleExtra && event.use("e"))
-				this.hide("KEY");
+				this.disable("KEY");
 		});
 
 		if (Store.items.settingsAlwaysShowExtra)
-			this.show("settingsAlwaysShowExtra");
+			document.documentElement.classList.add("show-extra-info");
 
-		Store.event.subscribe("setSettingsAlwaysShowExtra", ({ value }) => this.toggle("settingsAlwaysShowExtra", !!value));
+		Store.event.subscribe("setSettingsAlwaysShowExtra", ({ value }) => this.update());
 	}
 
-	private showers = new Set<string>();
-	public show (id: string) {
-		this.showers.add(id);
-		document.documentElement.classList.add("show-extra-info");
+	private enablers = new Set<string>();
+	private enable (id: string) {
+		this.enablers.add(id);
+		this.update();
+		document.documentElement.classList.toggle("show-extra-info", !Store.items.settingsAlwaysShowExtra);
 	}
 
-	public hide (id: string) {
-		this.showers.delete(id);
-		if (!this.showers.size)
-			document.documentElement.classList.remove("show-extra-info");
+	private disable (id: string) {
+		this.enablers.delete(id);
+		if (!this.enablers.size)
+			this.update();
 	}
 
-	public toggle (id: string, newState = !this.showers.has(id)) {
+	private update () {
+		document.documentElement.classList.toggle("show-extra-info", !!Store.items.settingsAlwaysShowExtra === !this.enablers.size);
+	}
+
+	private toggle (id: string, newState = !this.enablers.has(id)) {
 		if (newState)
-			this.show(id);
+			this.enable(id);
 		else
-			this.hide(id);
+			this.disable(id);
 	}
 }
 

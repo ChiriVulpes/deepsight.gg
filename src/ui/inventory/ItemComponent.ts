@@ -52,6 +52,25 @@ export interface IItemComponentCharacterHandler {
 
 export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[Item, IItemComponentCharacterHandler?, ...ARGS]> {
 
+	private static readonly showers = new Set<string>();
+	public static showExtra (id: string) {
+		ItemComponent.showers.add(id);
+		document.documentElement.classList.add("show-item-extra-info");
+	}
+
+	public static hideExtra (id: string) {
+		ItemComponent.showers.delete(id);
+		if (!ItemComponent.showers.size)
+			document.documentElement.classList.remove("show-item-extra-info");
+	}
+
+	public static toggleExtra (id: string, newState = !ItemComponent.showers.has(id)) {
+		if (newState)
+			ItemComponent.showExtra(id);
+		else
+			ItemComponent.hideExtra(id);
+	}
+
 	public item!: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
