@@ -8,6 +8,15 @@
 		display: grid;
 		grid-template-rows: 100vh auto;
 		padding: 0;
+
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			backdrop-filter: blur(5px);
+			z-index: -1;
+		}
 	}
 
 	&-splash {
@@ -193,7 +202,6 @@
 		height: $height * 3;
 		background-size: $width $height;
 		background-repeat: no-repeat;
-		filter: blur(5px);
 		opacity: 0.2;
 	}
 
