@@ -98,6 +98,7 @@
 		grid-template-columns: repeat(3, 100vw);
 		grid-template-rows: repeat(3, 100vh);
 		justify-content: center;
+		--tooltip-hidden-translation: 10px;
 
 		scrollbar-width: none;
 		&::-webkit-scrollbar {
@@ -132,7 +133,6 @@
 		grid-column: 3;
 		align-self: center;
 		justify-self: flex-start;
-		--tooltip-hidden-translation: 10px;
 		margin-left: calc(40px + var(--mouse-offset, 0px));
 
 		&.hidden {
@@ -146,8 +146,17 @@
 			justify-self: flex-end;
 			margin-left: 0;
 			margin-right: calc(40px + var(--mouse-offset, 0px));
-			--tooltip-hidden-translation: -10px;
 		}
+	}
+
+	&-extra {
+		:root:not(.show-extra-info) & {
+			opacity: 0;
+		}
+	}
+
+	&-reversed {
+		--tooltip-hidden-translation: -10px;
 	}
 }
 
