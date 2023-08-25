@@ -109,7 +109,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				showing++;
 		}
 
-		this.classes.toggle(showing > 5, ClassesAppNav.Compress);
+		this.classes.toggle(showing > 6, ClassesAppNav.Compress);
 	}
 
 	public showing (view: View.WrapperComponent) {
