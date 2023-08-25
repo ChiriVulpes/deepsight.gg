@@ -6,21 +6,44 @@
 			grid-template-columns: repeat(10, auto);
 			grid-template-rows: repeat(5, auto);
 			overflow: hidden;
+			justify-content: start;
 		}
 	}
 
 	&-content {
 		--card-gap-x: 10px;
+		grid-template-rows: auto;
+		align-content: start;
 	}
 
 	&-vault-buckets {
 		grid-column: 2;
 		grid-template-rows: 1fr 1fr;
 		gap: var(--card-gap-x);
+
+		@include vertical-or-tablet {
+			display: contents;
+
+			.view-inventory-slot-vault-bucket {
+				grid-column: 1;
+
+				&:nth-child(1) {
+					grid-row: 4;
+				}
+				&:nth-child(2) {
+					grid-row: 6;
+				}
+			}
+		}
 	}
 
 	&-postmaster-buckets {
 		grid-column: 3;
+
+		@include vertical-or-tablet {
+			grid-row: 2;
+			grid-column: 1;
+		}
 	}
 
 	&-vault-buckets,
