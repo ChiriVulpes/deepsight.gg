@@ -61,24 +61,46 @@ export interface IStatDistribution {
 	groups: number[];
 }
 
-export namespace IStatDistribution {
+export const IStatDistribution = new class StatDistributionManager {
 
-	export function isEnabled (stat: Stat, classType: DestinyClass) {
-		return Store.get<boolean>(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`) ?? true;
+	private readonly enabled: Partial<Record<DestinyClass, Partial<Record<Stat, boolean>>>> = {};
+	private readonly preferred: Partial<Record<DestinyClass, Partial<Record<Stat, number>>>> = {};
+
+	public isEnabled (stat: Stat, classType: DestinyClass) {
+		let enabled = this.enabled[classType]?.[stat];
+		if (enabled === undefined) {
+			this.enabled[classType] ??= {};
+			this.enabled[classType]![stat] = enabled = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`) ?? true;
+		}
+		return enabled;
 	}
-	export function setIsEnabled (stat: Stat, classType: DestinyClass, enabled: boolean) {
+
+	public getPreferredValue (stat: Stat, classType: DestinyClass) {
+		let preferred = this.preferred[classType]?.[stat];
+		if (preferred === undefined) {
+			this.preferred[classType] ??= {};
+			this.preferred[classType]![stat] = preferred = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
+		}
+		return preferred;
+	}
+
+	public setIsEnabled (stat: Stat, classType: DestinyClass, enabled: boolean) {
+		if (this.isEnabled(stat, classType) === enabled)
+			return;
+
+		this.enabled[classType]![stat] = enabled;
 		Store.set(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`, enabled);
 	}
 
-	export function getPreferredValue (stat: Stat, classType: DestinyClass) {
-		return Store.get<number>(`preferredStatDistribution.${classType}.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
-	}
+	public setPreferredValue (stat: Stat, classType: DestinyClass, value: number) {
+		if (this.getPreferredValue(stat, classType) === value)
+			return;
 
-	export function setPreferredValue (stat: Stat, classType: DestinyClass, value: number) {
+		this.preferred[classType]![stat] = value;
 		Store.set(`preferredStatDistribution.${classType}.${Stat[stat]}`, value);
 	}
 
-	export function get (item: Item): IStatDistribution {
+	public get (item: Item): IStatDistribution {
 		if (!item.stats || !ARMOUR_STAT_GROUPS.flat().some(stat => item.stats?.values[stat]?.roll))
 			return { overall: 0, groups: ARMOUR_STAT_GROUPS.map(_ => 0) };
 
@@ -93,13 +115,13 @@ export namespace IStatDistribution {
 			let stats = 0;
 			for (const stat of group) {
 				const statValue = item.stats.values[stat]?.roll ?? 0;
-				if (!isEnabled(stat, item.definition.classType)) {
+				if (!this.isEnabled(stat, item.definition.classType)) {
 					groupDisabledTotal += statValue;
 					continue;
 				}
 
 				disabledStatsMax -= statValue;
-				const nearness = 1 - Math.abs(getPreferredValue(stat, item.definition.classType) - statValue) / ARMOUR_STAT_MAX;
+				const nearness = 1 - Math.abs(this.getPreferredValue(stat, item.definition.classType) - statValue) / ARMOUR_STAT_MAX;
 				groupEnabledNearnessTotal += nearness;
 				stats++;
 			}
@@ -119,4 +141,4 @@ export namespace IStatDistribution {
 		result.overall = total / groups;
 		return result;
 	}
-}
+};
