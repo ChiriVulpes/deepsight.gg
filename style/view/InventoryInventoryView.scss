@@ -5,6 +5,7 @@
 			display: grid;
 			grid-template-columns: repeat(10, auto);
 			grid-template-rows: repeat(5, auto);
+			overflow: hidden;
 		}
 	}
 
