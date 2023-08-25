@@ -212,7 +212,7 @@ namespace Model {
 
 					const subscriptions = new Map<Model<any>, AnyFunction>();
 
-					let lastMessage: string[];
+					let lastMessage: string[] = [];
 					const api: IModelGenerationApi = {
 						emitProgress: (progress, messages: Arrays.Or<string>, bubbled = false) => {
 							messages = Arrays.resolve(messages);
