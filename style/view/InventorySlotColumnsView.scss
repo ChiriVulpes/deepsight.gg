@@ -10,6 +10,8 @@
 		max-height: 100%;
 		column-gap: 20px;
 		height: auto;
+		align-content: start;
+		min-height: 100%;
 
 		@include vertical-or-tablet {
 			column-gap: 5px;
