@@ -83,14 +83,11 @@
 		&-damage {
 			color: var(--colour);
 			display: flex;
-			&::before {
-				content: "";
+			&-icon {
 				display: inline-block;
 				width: 0.75em;
 				height: 0.75em;
 				align-self: center;
-				background: var(--icon);
-				background-size: contain;
 				margin-right: 0.15em;
 			}
 		}

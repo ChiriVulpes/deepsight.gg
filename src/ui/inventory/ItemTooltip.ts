@@ -27,6 +27,7 @@ enum ItemTooltipClasses {
 	PrimaryStatValue = "item-tooltip-primary-stat-value",
 	PrimaryStatLabel = "item-tooltip-primary-stat-label",
 	PrimaryStatDamage = "item-tooltip-primary-stat-damage",
+	PrimaryStatDamageIcon = "item-tooltip-primary-stat-damage-icon",
 	PrimaryStatHasElementRight = "item-tooltip-primary-stat-has-element-right",
 	Energy = "item-tooltip-energy",
 	EnergyValue = "item-tooltip-energy-value",
@@ -64,6 +65,7 @@ class ItemTooltip extends Tooltip {
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
 	public primaryStatValue!: Component;
+	public primaryStatDamageIcon!: Component<HTMLImageElement>;
 	public primaryStatLabel!: Component;
 	public ammoType!: ItemAmmo;
 	public energy!: Component;
@@ -109,6 +111,10 @@ class ItemTooltip extends Tooltip {
 		this.primaryStatValue = Component.create()
 			.classes.add(ItemTooltipClasses.PrimaryStatValue)
 			.appendTo(this.primaryStat);
+
+		this.primaryStatDamageIcon = Component.create("img")
+			.classes.add(ItemTooltipClasses.PrimaryStatDamageIcon)
+			.appendTo(this.primaryStatValue);
 
 		this.primaryStatLabel = Component.create()
 			.classes.add(ItemTooltipClasses.PrimaryStatLabel)
@@ -256,8 +262,10 @@ class ItemTooltip extends Tooltip {
 			const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
 			this.primaryStatValue
 				.classes.add(`item-tooltip-energy-type-${damageTypeName}`)
-				.style.set("--icon", Display.icon(damageType))
+				.style.set("--icon",)
 				.style.set("--colour", ElementType.getColour(damageTypeName));
+
+			this.primaryStatDamageIcon.attributes.set("src", Display.icon(damageType, false))
 		}
 
 		this.primaryStatLabel.classes.toggle(!!item.definition.equippingBlock?.ammoType || energy !== undefined, Classes.Hidden);

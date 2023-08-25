@@ -3,9 +3,9 @@ import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2"
 export type DisplayPropertied = DestinyDisplayPropertiesDefinition | { displayProperties: DestinyDisplayPropertiesDefinition };
 
 namespace Display {
-	export function icon (url?: string): string | undefined;
-	export function icon (displayProperties?: DisplayPropertied): string | undefined;
-	export function icon (displayProperties?: DisplayPropertied | string) {
+	export function icon (url?: string, wrapped?: boolean): string | undefined;
+	export function icon (displayProperties?: DisplayPropertied, wrapped?: boolean): string | undefined;
+	export function icon (displayProperties?: DisplayPropertied | string, wrapped = true) {
 		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
 		if (!url)
@@ -13,7 +13,7 @@ namespace Display {
 
 		if (!url.startsWith("https://www.bungie.net"))
 			url = `https://www.bungie.net${url}`;
-		return `url("${url}")`;
+		return wrapped ? `url("${url}")` : url;
 	}
 
 	export function name (displayProperties?: DisplayPropertied) {
