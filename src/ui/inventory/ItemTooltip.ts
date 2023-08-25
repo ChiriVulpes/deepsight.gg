@@ -255,14 +255,14 @@ class ItemTooltip extends Tooltip {
 
 		this.primaryStatValue
 			.text.set(`${primaryStat || character?.power || "0"}`)
-			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage)
-			.style.remove("--icon");
+			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
+
+		this.primaryStatDamageIcon.classes.toggle(damageType === undefined, Classes.Hidden);
 
 		if (damageType !== undefined) {
 			const damageTypeName = (damageType?.displayProperties.name ?? "Unknown").toLowerCase();
 			this.primaryStatValue
 				.classes.add(`item-tooltip-energy-type-${damageTypeName}`)
-				.style.set("--icon",)
 				.style.set("--colour", ElementType.getColour(damageTypeName));
 
 			this.primaryStatDamageIcon.attributes.set("src", Display.icon(damageType, false))
