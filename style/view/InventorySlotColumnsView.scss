@@ -25,8 +25,17 @@
 			}
 		}
 
-		.view-inventory-slot-vault-bucket-class {
-			display: none;
+		.view-inventory-slot-vault-bucket {
+			padding-right: 0;
+			&-class {
+				display: none;
+			}
+
+			@include vertical {
+				.bucket-title {
+					font-size: 14px;
+				}
+			}
 		}
 	}
 
@@ -41,8 +50,19 @@
 
 	@at-root .view-armour-content {
 		@media (max-width: 1400px) {
-			padding-right: 5px;
-			column-gap: 10px;
+			--view-padding-right: 5px;
+			padding-right: var(--view-padding-right);
+			--column-gap: 10px;
+			column-gap: var(--column-gap);
+			--intended-items-x: calc(3 * 5);
+			--slot-size: calc(
+				(
+					(
+							100vw - var(--bucket-inventory-padding) * 2 * 5 - var(--column-gap) * 4 -
+								var(--view-padding-x) - var(--view-padding-right) - 3px * var(--intended-items-x)
+						) / var(--intended-items-x)
+				)
+			);
 
 			.view-inventory-slot-character-bucket {
 				grid-template-columns: auto 1fr;
