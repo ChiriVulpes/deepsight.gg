@@ -9,13 +9,24 @@ export enum TooltipClasses {
 	Reversed = "tooltip-reversed",
 
 	Main = "tooltip",
+	Wrapper = "tooltip-wrapper",
+	Extra = "tooltip-extra",
 	Header = "tooltip-header",
 	Title = "tooltip-title",
 	Subtitle = "tooltip-subtitle",
-	Extra = "tooltip-extra",
+	Tier = "tooltip-tier",
 	Content = "tooltip-content",
 	Footer = "tooltip-footer",
 	Forced1pxBigger = "tooltip-forced-1px-bigger",
+}
+
+export class TooltipWrapper extends Component<HTMLElement, [Tooltip]> {
+	public tooltip!: Tooltip;
+
+	protected override onMake (tooltip: Tooltip): void {
+		this.classes.add(TooltipClasses.Wrapper);
+		this.tooltip = tooltip.appendTo(this);
+	}
 }
 
 export class Tooltip extends Component {
@@ -23,12 +34,22 @@ export class Tooltip extends Component {
 	public header!: Component;
 	public title!: Component<HTMLHeadingElement>;
 	public subtitle!: Component;
-	public extra!: Component;
+	public tier!: Component;
 	public content!: Component;
 	public footer!: Component;
+	public wrapper!: TooltipWrapper;
+	private _extra?: Tooltip;
+
+	public get extra (): Tooltip {
+		return this._extra ??= Tooltip.create()
+			.classes.add(TooltipClasses.Extra)
+			.appendTo(this.wrapper);
+	}
 
 	protected override onMake (): void {
 		this.classes.add(TooltipClasses.Main);
+
+		this.wrapper = TooltipWrapper.create([this]);
 
 		this.header = Component.create("header")
 			.classes.add(TooltipClasses.Header)
@@ -42,8 +63,8 @@ export class Tooltip extends Component {
 			.classes.add(TooltipClasses.Subtitle)
 			.appendTo(this.header);
 
-		this.extra = Component.create()
-			.classes.add(TooltipClasses.Extra)
+		this.tier = Component.create()
+			.classes.add(TooltipClasses.Tier)
 			.appendTo(this.header);
 
 		this.content = Component.create()
@@ -82,8 +103,10 @@ namespace TooltipManager {
 		let tooltip: TOOLTIP | undefined;
 		return {
 			get () {
-				return tooltip ??= initialiser(Tooltip.create()
-					.appendTo(tooltipStorage));
+				if (tooltip) return tooltip;
+				tooltip = initialiser(Tooltip.create());
+				tooltip.wrapper.appendTo(tooltipStorage);
+				return tooltip;
 			},
 			createRaw: () => initialiser(Tooltip.create()),
 		};
@@ -107,7 +130,8 @@ namespace TooltipManager {
 				}
 			});
 
-		tooltip.classes.remove(Classes.Hidden)
+		tooltip.wrapper
+			.classes.remove(Classes.Hidden)
 			.appendTo(tooltipSurface);
 	}
 
@@ -121,12 +145,12 @@ namespace TooltipManager {
 			}
 
 			if (childComponent !== current)
-				hide(childComponent as Tooltip);
+				hide((childComponent as TooltipWrapper).tooltip);
 		}
 	}
 
 	export function hide (tooltip: Tooltip) {
-		if (tooltip.classes.has(Classes.Hidden))
+		if (tooltip.wrapper.classes.has(Classes.Hidden))
 			// already hiding
 			return;
 
@@ -134,9 +158,9 @@ namespace TooltipManager {
 		const hideLock = (tooltip as any).TOOLTIP_HIDE_LOCK = Math.random();
 		const persistTooltips = document.documentElement.classList.contains("persist-tooltips");
 		if (!persistTooltips)
-			tooltip.classes.add(Classes.Hidden);
+			tooltip.wrapper.classes.add(Classes.Hidden);
 		void Async.sleep(500).then(() => {
-			if (!tooltip.classes.has(Classes.Hidden))
+			if (!tooltip.wrapper.classes.has(Classes.Hidden))
 				// tooltip has been shown again, don't touch
 				return;
 
@@ -146,7 +170,7 @@ namespace TooltipManager {
 				return;
 
 			if (!persistTooltips)
-				tooltip.appendTo(tooltipStorage);
+				tooltip.wrapper.appendTo(tooltipStorage);
 		});
 	}
 

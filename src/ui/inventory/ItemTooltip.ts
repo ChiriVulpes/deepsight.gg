@@ -1,20 +1,21 @@
-import { BucketHashes, ItemPerkVisibility } from "bungie-api-ts/destiny2";
+import { BucketHashes } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import { PlugType } from "model/models/items/Plugs";
-import Manifest from "model/models/Manifest";
-import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
+import TooltipManager, { Tooltip } from "ui/TooltipManager";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
+import Display from "ui/bungie/DisplayProperties";
 import ElementType from "ui/inventory/ElementTypes";
 import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
-import TooltipManager, { Tooltip } from "ui/TooltipManager";
-import type { IKeyEvent } from "ui/UiEventBus";
-import UiEventBus from "ui/UiEventBus";
+import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
 
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
@@ -35,14 +36,6 @@ enum ItemTooltipClasses {
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
 	Description = "item-tooltip-description",
-	Mods = "item-tooltip-mods",
-	Mod = "item-tooltip-mod",
-	ModSocket = "item-tooltip-mod-socket",
-	ModSocketEnhanced = "item-tooltip-mod-socket-enhanced",
-	ModSocketDefinition = "item-tooltip-mod-socket-definition",
-	ModSocketed = "item-tooltip-mod-socketed",
-	ModName = "item-tooltip-mod-name",
-	Intrinsic = "item-tooltip-mod-intrinsic",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPattern = "item-tooltip-deepsight-pattern",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
@@ -55,7 +48,10 @@ enum ItemTooltipClasses {
 	Wishlist = "item-tooltip-wishlist",
 	Wishlisted = "item-tooltip-wishlisted",
 	Note = "item-tooltip-note",
+	NoteHeading = "item-tooltip-note-heading",
 	Hints = "item-tooltip-hints",
+	Flavour = "item-tooltip-flavour",
+	RandomRollHeading = "item-tooltip-random-roll-heading",
 }
 
 class ItemTooltip extends Tooltip {
@@ -75,7 +71,7 @@ class ItemTooltip extends Tooltip {
 	public weaponLevelProgress!: Component;
 	public description!: Component;
 	public statTracker!: ItemStatTracker;
-	public mods!: Component;
+	public mods!: ItemTooltipMods;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
 	public deepsightPatternLabel!: Component;
@@ -91,6 +87,12 @@ class ItemTooltip extends Tooltip {
 	public hintPullToCharacter!: Hint;
 	public hintEquipToCharacter!: Hint;
 	public hintInspect!: Hint;
+	public flavour!: Component;
+	public detailedMods!: ItemTooltipMods;
+	public randomRollHeading!: Component;
+	public randomMods!: ItemTooltipMods;
+	public randomHints!: Component;
+	public hintCollections!: Hint;
 
 	protected override onMake () {
 		this.classes.add(ItemTooltipClasses.Main);
@@ -152,8 +154,7 @@ class ItemTooltip extends Tooltip {
 		this.stats = ItemStat.Wrapper.create()
 			.appendTo(this.content);
 
-		this.mods = Component.create()
-			.classes.add(ItemTooltipClasses.Mods)
+		this.mods = ItemTooltipMods.create()
 			.appendTo(this.content);
 
 		this.deepsight = Component.create()
@@ -201,6 +202,30 @@ class ItemTooltip extends Tooltip {
 			.tweak(hint => hint.label.text.set("Details"))
 			.appendTo(this.hints);
 
+		this.extra.content.classes.add(ItemTooltipClasses.Content);
+
+		this.flavour = this.extra.title
+			.classes.add(ItemTooltipClasses.Flavour);
+
+		this.detailedMods = ItemTooltipMods.create()
+			.setDetailed()
+			.appendTo(this.extra.content);
+
+		this.randomRollHeading = Component.create()
+			.classes.add(ItemTooltipClasses.Note, ItemTooltipClasses.NoteHeading)
+			.appendTo(this.extra.content);
+
+		this.randomMods = ItemTooltipMods.create()
+			.appendTo(this.extra.content);
+
+		this.randomHints = Component.create()
+			.classes.add(ItemTooltipClasses.Hints)
+			.appendTo(this.extra.footer);
+
+		this.hintCollections = Hint.create([IInput.get("MouseRight", "Shift")])
+			.tweak(hint => hint.label.text.set("Collections"))
+			.appendTo(this.randomHints);
+
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
@@ -237,7 +262,7 @@ class ItemTooltip extends Tooltip {
 		this.subtitle.removeContents();
 
 		this.subtitle.text.set(item.definition.itemTypeDisplayName ?? "Unknown");
-		this.extra.text.set(item.definition.inventory?.tierTypeName);
+		this.tier.text.set(item.definition.inventory?.tierTypeName);
 
 		this.source.classes.toggle(!item.source?.displayProperties.icon, Classes.Hidden);
 		if (item.source?.displayProperties.icon)
@@ -293,108 +318,7 @@ class ItemTooltip extends Tooltip {
 
 		this.stats.setItem(item);
 
-		this.mods.removeContents();
-		for (const socket of item.getSockets(PlugType.Intrinsic)) {
-			if (socket.state?.isVisible === false || !socket.socketedPlug?.definition?.displayProperties.name)
-				continue;
-
-			const socketComponent = Component.create()
-				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
-				.appendTo(this.mods);
-
-			Component.create()
-				.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
-				.style.set("--icon", Display.icon(socket?.socketedPlug?.definition))
-				.text.set(Display.name(socket?.socketedPlug?.definition))
-				.appendTo(socketComponent);
-		}
-
-		for (const socket of this.item.getSockets(PlugType.Catalyst))
-			for (const plug of socket.plugs)
-				for (const perk of plug.perks) {
-					if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
-						continue;
-
-					const socketComponent = Component.create()
-						.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
-						.appendTo(this.mods);
-
-					Component.create()
-						.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
-						.style.set("--icon", Display.icon(perk?.definition))
-						.text.set(Display.name(perk?.definition))
-						.appendTo(socketComponent);
-				}
-
-		for (const socket of item.getSockets(PlugType.Origin)) {
-			const socketComponent = Component.create()
-				.classes.add(ItemTooltipClasses.ModSocket, ItemTooltipClasses.Intrinsic)
-				.appendTo(this.mods);
-
-			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
-				Component.create()
-					.classes.add(ItemTooltipClasses.Mod)
-					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
-					.style.set("--icon", Display.icon(plug.definition))
-					.append(!plug?.socketed ? undefined : Component.create()
-						.classes.add(ItemTooltipClasses.ModName)
-						.text.set(Display.name(plug.definition) ?? "Unknown"))
-					.appendTo(socketComponent);
-			}
-		}
-
-		let i = 0;
-		for (const socket of item.getSockets(PlugType.Perk)) {
-			if (!socket)
-				continue;
-
-			const socketComponent = Component.create()
-				.classes.add(ItemTooltipClasses.ModSocket)
-				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipClasses.ModSocketEnhanced)
-				.classes.toggle(socket.state === undefined, ItemTooltipClasses.ModSocketDefinition)
-				.style.set("--socket-index", `${i++}`)
-				.appendTo(this.mods);
-
-			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed) - Number(a.socketed))) {
-				if (!socket.state && plug.is(PlugType.Enhanced))
-					// skip enhanced perks (duplicates) if this is an item definition (ie no actual socket state)
-					continue;
-
-				Component.create()
-					.classes.add(ItemTooltipClasses.Mod)
-					.classes.toggle(!!plug?.socketed, ItemTooltipClasses.ModSocketed)
-					.style.set("--icon", Display.icon(plug.definition))
-					.append(!plug?.socketed || (!socket.state && socket.plugs.length > 1) ? undefined : Component.create()
-						.classes.add(ItemTooltipClasses.ModName)
-						.text.set(Display.name(plug.definition) ?? "Unknown"))
-					.appendTo(socketComponent);
-			}
-		}
-
-		for (const socket of item.getSockets(PlugType.Mod)) {
-			if (!socket)
-				continue;
-
-			const plug = socket.socketedPlug;
-			const displayablePerks = socket.socketedPlug?.perks
-				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden && perk.definition.isDisplayable)
-				?? [];
-
-			for (const perk of displayablePerks) {
-				const socketComponent = Component.create()
-					.classes.add(ItemTooltipClasses.ModSocket)
-					.style.set("--socket-index", `${i++}`)
-					.appendTo(this.mods);
-
-				Component.create()
-					.classes.add(ItemTooltipClasses.Mod, ItemTooltipClasses.ModSocketed)
-					.style.set("--icon", Display.icon(perk.definition))
-					.append(Component.create()
-						.classes.add(ItemTooltipClasses.ModName)
-						.text.set(Display.descriptionIfShortOrName(perk.definition, displayablePerks.length === 1 ? plug?.definition : undefined) ?? "Unknown"))
-					.appendTo(socketComponent);
-			}
-		}
+		this.mods.setItem(item);
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
 		this.deepsight.classes.toggle(!item.deepsight?.resonance && !showPattern, Classes.Hidden);
@@ -443,6 +367,27 @@ class ItemTooltip extends Tooltip {
 		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
+
+		this.flavour.text.set(item.definition.flavorText);
+		this.detailedMods.setItem(item);
+
+		this.randomRollHeading.classes.add(Classes.Hidden);
+		this.randomMods.remove();
+		const randomMods = this.randomMods = ItemTooltipMods.create();
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		if ([BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons].includes(item.definition.inventory?.bucketTypeHash!)) {
+			if (this.randomMods === randomMods && item.collections?.hasRandomRolls()) {
+				this.randomRollHeading.classes.remove(Classes.Hidden)
+					.text.set(item.shaped ? "This item can be shaped with the following perks:"
+						: "This item can roll the following perks:");
+
+				randomMods
+					.setShaped(!!item.shaped)
+					.setItem(item.collections, PlugType.Perk)
+					.insertToAfter(this.extra.content, this.randomRollHeading);
+			}
+		}
 	}
 }
 

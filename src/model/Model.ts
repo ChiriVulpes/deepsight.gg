@@ -1,18 +1,20 @@
 import type { ICachedModel, IModelCache } from "model/ModelCacheDatabase";
 import ModelCacheDatabase from "model/ModelCacheDatabase";
+import Arrays from "utility/Arrays";
 import Database from "utility/Database";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
+import type { AnyFunction } from "utility/Type";
 
 export interface IModelEvents<R> {
 	loading: Event;
 	loaded: { value: R };
 	errored: { error: Error };
-	loadUpdate: { progress: number, message?: string };
+	loadUpdate: { progress: number, messages: string[] };
 }
 
 export interface IModelGenerationApi {
-	emitProgress (progress: number, message?: string): void;
+	emitProgress (progress: number, messages?: string | string[]): void;
 	subscribeProgress (model: Model<any>, amount: number, from?: number): this;
 	subscribeProgressAndWait<R> (model: Model<any, R>, amount: number, from?: number): Promise<R>;
 }
@@ -95,7 +97,7 @@ namespace Model {
 		private value?: R | Promise<R>;
 		private cacheTime?: number;
 		private version?: string | number;
-		private _loadingInfo?: { progress: number, message?: string };
+		private _loadingInfo?: { progress: number, messages: string[] };
 		private loadId = loadId;
 		private errored = false;
 
@@ -208,18 +210,37 @@ namespace Model {
 						return resolve(this.event.waitFor("loaded")
 							.then(({ value }) => value));
 
+					const subscriptions = new Map<Model<any>, AnyFunction>();
+
+					let lastMessage: string[];
 					const api: IModelGenerationApi = {
-						emitProgress: (progress, message) => {
-							this._loadingInfo = { progress, message };
-							this.event.emit("loadUpdate", { progress, message });
+						emitProgress: (progress, messages: Arrays.Or<string>, bubbled = false) => {
+							messages = Arrays.resolve(messages);
+							this._loadingInfo = { progress, messages };
+							// console.debug(`Load progress ${Math.floor(progress * 100)}%: ${messages.join(" ") || "Loading"}`);
+							if (!bubbled) {
+								lastMessage = messages;
+								for (const [model, handleSubUpdate] of [...subscriptions]) {
+									model.event.unsubscribe("loadUpdate", handleSubUpdate);
+									subscriptions.delete(model);
+								}
+							}
+							this.event.emit("loadUpdate", { progress, messages });
 						},
 						subscribeProgress: (model, amount, from = 0) => {
 							if (model.loading) {
-								const handleSubUpdate = ({ progress: subAmount, message }: IModelEvents<any>["loadUpdate"]) =>
-									api.emitProgress(from + subAmount * amount, message);
+								if (subscriptions.has(model))
+									return api;
+
+								const handleSubUpdate = ({ progress: subAmount, messages }: IModelEvents<any>["loadUpdate"]) =>
+									// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+									(api.emitProgress as any)(from + subAmount * amount, [...messages, ...lastMessage].filter(m => m), true);
 								model.event.subscribe("loadUpdate", handleSubUpdate);
-								model.event.subscribeOnce("loaded", () =>
-									model.event.unsubscribe("loadUpdate", handleSubUpdate));
+								subscriptions.set(model, handleSubUpdate);
+								model.event.subscribeOnce("loaded", () => {
+									model.event.unsubscribe("loadUpdate", handleSubUpdate);
+									subscriptions.delete(model);
+								});
 							}
 
 							return api;

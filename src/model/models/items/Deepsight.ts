@@ -68,9 +68,9 @@ namespace Deepsight {
 		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")
 			return undefined;
 
-		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash, item.bucket !== "collections");
-		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null, item.bucket !== "collections")
-			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name, item.bucket !== "collections");
+		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
+		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
+			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
 		if (record?.recordTypeName !== "Weapon Pattern")
 			return undefined;

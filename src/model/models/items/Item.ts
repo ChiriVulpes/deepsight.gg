@@ -168,6 +168,7 @@ export interface IItemInit {
 	 * If this flag is set, the ability to pull this item out of your collection has been disabled.
 	 */
 	collectibleState?: number;
+	collections?: Item;
 }
 
 export interface IItem extends IItemInit {
@@ -231,9 +232,14 @@ class Item {
 			Source.apply(manifest, item),
 			Tier.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
+			this.addCollections(manifest, profile, item),
 		]);
 
 		return new Item(item);
+	}
+
+	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, item: IItemInit) {
+		item.collections = await Item.createFake(manifest, profile, item.definition);
 	}
 
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, definition: DestinyInventoryItemDefinition) {
@@ -276,6 +282,10 @@ class Item {
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
 		this.collectibleState ??= DestinyCollectibleState.None;
+	}
+
+	public hasRandomRolls () {
+		return this.getSockets(PlugType.Perk).some(socket => socket.plugs.length > 1);
 	}
 
 	public isNotAcquired () {

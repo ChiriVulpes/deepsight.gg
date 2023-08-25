@@ -2,6 +2,7 @@
 // APPEARANCE
 
 .tooltip {
+	position: relative;
 	&::before {
 		content: "";
 		display: block;
@@ -50,7 +51,7 @@
 		color: color(foreground-1);
 	}
 
-	&-extra {
+	&-tier {
 		color: color(foreground-1, 0.5);
 	}
 
@@ -104,41 +105,48 @@
 		}
 	}
 
-	grid-row: 2;
-	grid-column: 3;
 	width: var(--tooltip-width);
 	// width: fit-content;
 	height: fit-content;
-	margin-left: calc(40px + var(--mouse-offset, 0px));
-	align-self: center;
-	justify-self: flex-start;
-	--tooltip-hidden-translation: 10px;
-
-	.tooltip-reversed & {
-		grid-column: 2;
-		justify-self: flex-end;
-		margin-left: 0;
-		margin-right: calc(40px + var(--mouse-offset, 0px));
-		--tooltip-hidden-translation: -10px;
-	}
-
-	position: sticky;
-	bottom: 0;
-	top: 0;
-	left: 0;
-	right: 0;
-	animation: tooltip-show 0.2s ease-out;
-
-	&.hidden {
-		display: block;
-		animation: tooltip-hide 0.2s ease-in forwards;
-	}
 
 	&-forced-1px-bigger {
 		padding-bottom: 1px;
 
 		&::before {
 			bottom: 1px;
+		}
+	}
+
+	&-wrapper {
+		display: flex;
+		gap: 10px;
+		position: sticky;
+		bottom: 0;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: fit-content;
+		width: fit-content;
+		animation: tooltip-show 0.2s ease-out;
+		grid-row: 2;
+		grid-column: 3;
+		align-self: center;
+		justify-self: flex-start;
+		--tooltip-hidden-translation: 10px;
+		margin-left: calc(40px + var(--mouse-offset, 0px));
+
+		&.hidden {
+			display: flex;
+			animation: tooltip-hide 0.2s ease-in forwards;
+		}
+
+		.tooltip-reversed & {
+			flex-direction: row-reverse;
+			grid-column: 2;
+			justify-self: flex-end;
+			margin-left: 0;
+			margin-right: calc(40px + var(--mouse-offset, 0px));
+			--tooltip-hidden-translation: -10px;
 		}
 	}
 }

@@ -9,13 +9,16 @@ namespace Source {
 	}
 
 	async function resolve ({ DestinySourceDefinition }: Manifest, item: IItemInit) {
-		const source = await DestinySourceDefinition.get("iconWatermark", item.definition.iconWatermark);
-		if (source)
-			return source;
+		if (!item.definition.iconWatermark)
+			return undefined;
 
 		// skip engrams
 		if (item.definition.itemType === DestinyItemType.Engram || item.definition.traitHashes?.includes(1465704995))
 			return undefined;
+
+		const source = await DestinySourceDefinition.get("iconWatermark", item.definition.iconWatermark);
+		if (source)
+			return source;
 
 		console.warn(`Unable to determine source of '${item.definition.displayProperties.name}' (${item.definition.hash})`, item);
 		return undefined;

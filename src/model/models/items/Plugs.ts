@@ -22,6 +22,9 @@ export class Socket {
 	}
 
 	public static filterType (sockets: (Socket | undefined)[], type: PlugType) {
+		if (!type)
+			return [];
+
 		const types = Maths.bits(type) as PlugType[];
 		return sockets.filter((socket): socket is Socket => types.every(type => socket?.is(type)));
 	}
@@ -47,7 +50,7 @@ export class Socket {
 			}
 		}
 
-		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash, item?.bucket !== "collections"))
+		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
 
 		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
@@ -138,6 +141,12 @@ export enum PlugType {
 	DeepsightActivation = 2 ** 17,
 }
 
+export namespace PlugType {
+	export const ALL: PlugType = Object.values(PlugType)
+		.filter((value): value is number => typeof value === "number")
+		.reduce((p, v) => p | v, 0);
+}
+
 type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
 type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
 type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY : never]: DestinyItemPlugBase[KEY] };
@@ -207,11 +216,7 @@ export class Plug {
 		if (plug.plugItemHash === 1961918267)
 			type |= PlugType.DeepsightActivation;
 
-		if (["item_type.armor", "item_type.ornament.armor", "item_type.weapon", "item_type.ornament.weapon", "item.ornament.armor", "item.ornament.weapon", "item.armor.*"]
-			.some(traitId => plug.definition?.traitIds
-				?.some(checkId => false
-					|| checkId === traitId
-					|| (traitId.endsWith(".*") && checkId.startsWith(traitId.slice(0, -2))))))
+		if (plug.definition && this.isOrnament(plug.definition))
 			type |= PlugType.Ornament;
 
 		if (plug.definition?.traitIds?.includes("item_type.exotic_catalyst"))
@@ -230,6 +235,27 @@ export class Plug {
 			type |= PlugType.Mod;
 
 		return type;
+	}
+
+	private static isOrnament (definition: DestinyInventoryItemDefinition) {
+		if (!definition.traitIds) return false;
+
+		for (const traitId of definition.traitIds) {
+			switch (traitId) {
+				case "item_type.armor":
+				case "item_type.ornament.armor":
+				case "item_type.weapon":
+				case "item_type.ornament.weapon":
+				case "item.ornament.armor":
+				case "item.ornament.weapon":
+					return true;
+				default:
+					if (traitId.startsWith("item.armor"))
+						return true;
+			}
+		}
+
+		return false;
 	}
 
 	public socketed!: boolean;

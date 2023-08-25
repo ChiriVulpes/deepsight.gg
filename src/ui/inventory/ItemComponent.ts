@@ -161,8 +161,8 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		this.classes.toggle(borderless, ItemClasses.Borderless);
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
-		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash, item.bucket !== "collections");
-		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`);
+		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
+		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties?.name ?? "Common")?.toLowerCase()}`);
 
 		const ornament = item.getOrnament();
 
@@ -330,7 +330,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			return;
 
 		event.preventDefault();
-		if (event.ctrlKey)
+		if (event.shiftKey)
 			viewManager.showCollections(this.item);
 		else
 			viewManager.showItem(this.item);

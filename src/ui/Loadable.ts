@@ -128,7 +128,7 @@ namespace Loadable {
 				}
 
 				progress += model.loadingInfo?.progress ?? 0;
-				message ??= model.loadingInfo?.message;
+				message ??= model.loadingInfo?.messages[0];
 			}
 
 			progress /= this.models.length;

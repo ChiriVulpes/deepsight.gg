@@ -204,6 +204,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		await lastOperation;
 		lastOperation = undefined;
 
+		api.emitProgress(3 / 3);
 		return result;
 	});
 }

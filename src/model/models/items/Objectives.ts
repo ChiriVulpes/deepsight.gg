@@ -21,7 +21,7 @@ namespace Objectives {
 			hash: objective.objectiveHash,
 			progress: objective,
 			plug,
-			definition: await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash, item?.bucket !== "collections")!,
+			definition: await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
 		})))
 	}
 }

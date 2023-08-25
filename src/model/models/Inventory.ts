@@ -6,6 +6,7 @@ import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { CharacterId, IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
+import Manifest from "model/models/Manifest";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
@@ -89,20 +90,24 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		if (this.shouldSkipCharacters?.() ?? false)
 			return this;
 
+		progress?.subscribeProgress(Manifest, 1 / 4);
+		await Manifest.await();
+		progress?.emitProgress(1 / 4, "Loading manifest cache");
+		await Manifest.loadCache();
+
+		progress?.emitProgress(2 / 4, "Loading characters");
+		progress?.subscribeProgress(ProfileCharacters, 1 / 4, 2 / 4);
 		const charactersLoadedPromise = ProfileCharacters.await();
-
-		if (!this.characters) {
-			progress?.subscribeProgress(ProfileCharacters, 1 / 2);
+		if (!this.characters)
 			await charactersLoadedPromise;
-		}
 
+		progress?.emitProgress(2 / 4, "Loading items");
+		progress?.subscribeProgress(Items, 1 / 4, 3 / 4);
 		const itemsLoadedPromise = Items.await();
-		if (!this.buckets) {
-			progress?.subscribeProgress(Items, 1 / 2, 1 / 2);
+		if (!this.buckets)
 			await itemsLoadedPromise;
-		}
 
-		progress?.emitProgress(2 / 2);
+		progress?.emitProgress(4 / 4);
 		return this as Required<this>;
 	}
 

@@ -37,7 +37,7 @@
 		}
 	}
 
-	&-masterwork .tooltip-header {
+	&-masterwork > .tooltip-header {
 		&::before {
 			content: "";
 			display: block;
@@ -239,6 +239,10 @@
 		font-size: 15px;
 		background: color(tooltip-note-background, 0.85);
 		border-color: color(tooltip-note-border);
+
+		&-heading {
+			border-bottom: none;
+		}
 	}
 
 	&-progress-bar {
@@ -273,12 +277,35 @@
 				inset 0 1px rgba(#fff, 0.25),
 				inset 0 1px color(tooltip-background);
 			--mod-padding: 4px;
+
+			.item-tooltip-note + & {
+				box-shadow: none;
+				padding-top: 0;
+			}
 		}
 
 		position: relative;
-		display: flex;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-rows: 1fr auto;
 		align-items: center;
-		gap: 0.5em;
+		column-gap: 0.5em;
+
+		&s-detailed & {
+			align-items: start;
+		}
+
+		&-name,
+		&-description {
+			grid-column: 2;
+		}
+
+		&-description {
+			font-size: 12px;
+			opacity: 0.7;
+			margin-top: -2px;
+			white-space: pre-wrap;
+		}
 
 		&-socket {
 			display: grid;
@@ -350,6 +377,38 @@
 			background: var(--icon);
 			background-size: contain;
 			background-repeat: no-repeat;
+			grid-row: 1/3;
+		}
+
+		&-required-level {
+			grid-column: 1;
+			grid-row: 1;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+
+			z-index: 1;
+			&::before {
+				content: "";
+				background: color(background-2, 0.9);
+				border: 1px solid color(background-4);
+				transform: rotate(45deg);
+				bottom: -2px;
+				right: -1px;
+				position: absolute;
+				width: 12px;
+				height: 12px;
+				z-index: -1;
+			}
+
+			text-align: center;
+			font-family: $font-title;
+			font-weight: 700;
+			font-size: 12px;
+			width: 12px;
+			height: 12px;
+			right: 8px;
+			bottom: 1px;
 		}
 	}
 
@@ -362,5 +421,13 @@
 	&-description {
 		white-space: pre-wrap;
 		grid-column: 1/3;
+	}
+
+	&-flavour {
+		text-transform: none;
+		font-style: italic;
+		font-size: inherit;
+		line-height: 1.2em;
+		white-space: pre-wrap;
 	}
 }

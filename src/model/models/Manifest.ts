@@ -60,6 +60,10 @@ type Manifest = {
 	[COMPONENT_NAME in AllComponentNames]: ManifestItem<COMPONENT_NAME>;
 };
 
+interface ManifestModel extends Model<Manifest> {
+	loadCache (): Promise<void>;
+}
+
 const manifestCacheModelKey = "manifest cache";
 
 const Manifest = Model.create("manifest", {
@@ -230,7 +234,7 @@ const Manifest = Model.create("manifest", {
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as Manifest,
+		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as any as Manifest,
 	reset: async componentNames => {
 		if (componentNames)
 			for (const componentName of componentNames)
@@ -238,7 +242,7 @@ const Manifest = Model.create("manifest", {
 
 		await Model.cacheDB.delete("models", manifestCacheModelKey);
 	},
-});
+}) as any as ManifestModel;
 
 export default Manifest;
 
@@ -266,8 +270,23 @@ function updateManifestCache () {
 
 type ManifestItemCache<COMPONENT_NAME extends AllComponentNames = AllComponentNames> = Record<string, Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME> | undefined> | undefined>;
 
+let manifestCacheState: boolean | undefined;
 let setLoadedManifestCache: () => void;
-let loadedManifestCache: Promise<void> | undefined;
+const loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache = resolve);
+Manifest.loadCache = async () => {
+	if (manifestCacheState !== undefined) return;
+
+	manifestCacheState = false;
+	console.debug("Loading manifest cache");
+	const manifestCache = await ManifestCacheModel.await();
+	const manifest = await Manifest.await();
+	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [AllComponentNames, ManifestItemCache][])
+		(manifest[componentName] as ManifestItem<AllComponentNames>).updateCache(manifestItemCache);
+
+	manifestCacheState = true;
+	setLoadedManifestCache();
+	console.debug("Loaded manifest cache");
+};
 
 export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
@@ -299,16 +318,7 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 	}
 
 	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {
-		if (!loadedManifestCache) {
-			loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache = resolve);
-			const manifestCache = await ManifestCacheModel.await();
-			const manifest = await Manifest.await();
-			for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [AllComponentNames, ManifestItemCache][])
-				(manifest[componentName] as ManifestItem<AllComponentNames>).updateCache(manifestItemCache);
-
-			setLoadedManifestCache();
-		}
-
+		void Manifest.loadCache();
 		await loadedManifestCache;
 
 		if (memoryCacheKey in this.memoryCache)
@@ -317,8 +327,8 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		const promise = this.stagedTransaction.get(this.componentName, `${key}`, index as string | undefined)
 			.then(value => {
 				if (cached) {
+					this.memoryCache[memoryCacheKey] = value ?? {} as never;
 					updateManifestCache();
-					this.memoryCache[memoryCacheKey] = value;
 				}
 
 				return value;
