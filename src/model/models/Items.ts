@@ -57,8 +57,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	let lastForcedTimeoutForStyle = Date.now();
 
 	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
-		if (Date.now() - lastForcedTimeoutForStyle > 100) {
-			await Async.sleep(5);
+		if (Date.now() - lastForcedTimeoutForStyle > 10) {
+			await Async.sleep(1);
 			lastForcedTimeoutForStyle = Date.now();
 		}
 
