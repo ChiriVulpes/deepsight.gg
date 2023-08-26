@@ -21,6 +21,8 @@ export enum ItemTooltipModsClasses {
 
 export default class ItemTooltipMods extends Component {
 
+	public randomRollHeading!: Component;
+
 	protected override onMake (): void {
 		this.classes.add(ItemTooltipModsClasses.Main);
 	}
@@ -43,13 +45,14 @@ export default class ItemTooltipMods extends Component {
 		return this.classes.has(ItemTooltipModsClasses.Shaped);
 	}
 
-	public setItem (item: Item, type: PlugType = PlugType.ALL) {
+	public setItem (item: Item, type: PlugType = PlugType.ALL, exclude = PlugType.None) {
 		this.removeContents();
-		this.addPerks(item, PlugType.Catalyst & type, ItemTooltipModsClasses.Intrinsic);
-		this.addSockets(item, PlugType.Intrinsic & type, ItemTooltipModsClasses.Intrinsic);
-		this.addSockets(item, PlugType.Origin & type, ItemTooltipModsClasses.Intrinsic);
-		this.addSockets(item, PlugType.Perk & type);
-		this.addPerks(item, PlugType.Mod & type);
+
+		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
+		this.addSockets(item, PlugType.Intrinsic & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
+		this.addSockets(item, PlugType.Origin & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
+		this.addSockets(item, PlugType.Perk & type & ~exclude);
+		this.addPerks(item, PlugType.Mod & type & ~exclude);
 		return this;
 	}
 
@@ -115,7 +118,7 @@ export default class ItemTooltipMods extends Component {
 					.style.set("--icon", Display.icon(plug.definition))
 					.appendTo(socketComponent);
 
-				if (plug?.socketed && (socket.state || socket.plugs.length === 1)) {
+				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.type & PlugType.Intrinsic))) {
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModName)
 						.text.set(Display.name(plug.definition) ?? "Unknown")

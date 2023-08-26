@@ -318,7 +318,9 @@ class ItemTooltip extends Tooltip {
 
 		this.stats.setItem(item);
 
-		this.mods.setItem(item);
+		this.mods
+			.setShaped(item.bucket === "collections")
+			.setItem(item);
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
 		this.deepsight.classes.toggle(!item.deepsight?.resonance && !showPattern, Classes.Hidden);
@@ -369,23 +371,25 @@ class ItemTooltip extends Tooltip {
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
 
 		this.flavour.text.set(item.definition.flavorText);
-		this.detailedMods.setItem(item);
 
 		this.randomRollHeading.classes.add(Classes.Hidden);
-		this.randomMods.remove();
-		const randomMods = this.randomMods = ItemTooltipMods.create();
+		this.randomMods.classes.add(Classes.Hidden);
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		if ([BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons].includes(item.definition.inventory?.bucketTypeHash!)) {
-			if (this.randomMods === randomMods && item.collections?.hasRandomRolls()) {
+		if (item.bucket === "collections") {
+			this.detailedMods.setItem(item, PlugType.ALL, PlugType.Perk);
+
+		} else {
+			this.detailedMods.setItem(item);
+
+			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+			if ([BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons].includes(item.definition.inventory?.bucketTypeHash!) && item.collections?.hasRandomRolls()) {
 				this.randomRollHeading.classes.remove(Classes.Hidden)
 					.text.set(item.shaped ? "This item can be shaped with the following perks:"
 						: "This item can roll the following perks:");
 
-				randomMods
+				this.randomMods.classes.remove(Classes.Hidden)
 					.setShaped(!!item.shaped)
-					.setItem(item.collections, PlugType.Perk)
-					.insertToAfter(this.extra.content, this.randomRollHeading);
+					.setItem(item.collections, PlugType.Perk);
 			}
 		}
 	}
