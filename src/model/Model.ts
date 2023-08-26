@@ -107,6 +107,10 @@ namespace Model {
 			return this.modelVersion;
 		}
 
+		public getCacheTime () {
+			return this.cacheTime ?? Date.now();
+		}
+
 		public get loading () {
 			return this.value === undefined
 				|| this.value instanceof Promise

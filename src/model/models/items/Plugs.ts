@@ -50,11 +50,18 @@ export class Socket {
 			}
 		}
 
-		const plugs = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
+		type PlugRaw = DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition;
+		const plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
 
-		socket.plugs = await Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
 		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
+
+		// plugs[0] = await Plug.resolve(manifest, plugs[0] as PlugRaw);
+		// if (plugs[0].type & PlugType.Shader) {
+		// 	socket.socketedPlug = plugs[0];
+
+		// } else {
+		socket.plugs = await Promise.all(plugs.map(plug => /*plug instanceof Plug ? plug :*/ Plug.resolve(manifest, plug)));
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
 		if (!socketedPlug && currentPlugHash) {
 			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true);
@@ -63,6 +70,7 @@ export class Socket {
 		}
 
 		socket.socketedPlug = socketedPlug;
+		// }
 
 		if (socket.socketedPlug)
 			socket.socketedPlug.socketed = true;
@@ -151,6 +159,12 @@ type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof De
 type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
 type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY : never]: DestinyItemPlugBase[KEY] };
 
+interface PlugDef {
+	definition?: DestinyInventoryItemDefinition;
+	type: PlugType;
+	perks: Perk[];
+}
+
 export interface Plug extends PlugBaseStuff, ItemSocketEntryPlugStuff, SharedStuff { }
 export class Plug {
 
@@ -164,75 +178,102 @@ export class Plug {
 		});
 	}
 
+	private static plugDefsCacheTime = 0;
+	private static plugDefs: Record<number, PlugDef> = {};
+
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
 		const plug = new Plug();
 		Object.assign(plug, plugBase);
 		plug.socketed = false;
-		const { DestinyInventoryItemDefinition } = manifest;
-		plug.definition = await DestinyInventoryItemDefinition.get(plug.plugItemHash);
-		plug.type = Plug.resolvePlugType(plug);
-		plug.perks = await Promise.all((plug.definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk)));
+
+		const manifestCacheTime = Manifest.getCacheTime();
+		if (Plug.plugDefsCacheTime < manifestCacheTime) {
+			Plug.plugDefsCacheTime = manifestCacheTime;
+			Plug.plugDefs = {};
+		}
+
+		const plugDef = Plug.plugDefs[plug.plugItemHash] ??= await Plug.resolvePlugDef(manifest, plug.plugItemHash);
+		Object.assign(plug, plugDef);
 		return plug;
 	}
 
-	public static resolvePlugType (plug: Plug) {
+	private static async resolvePlugDef (manifest: Manifest, hash: number): Promise<PlugDef> {
+
+		const { DestinyInventoryItemDefinition } = manifest;
+		const definition = await DestinyInventoryItemDefinition.get(hash);
+
+		return {
+			definition,
+			type: !definition ? PlugType.None : Plug.resolvePlugType(definition),
+			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
+		};
+	}
+
+	public static initialisedPlugTypes: Partial<Record<keyof typeof PlugType, number>> = {};
+
+	public static resolvePlugType (definition: DestinyInventoryItemDefinition) {
 		let type = PlugType.None;
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Intrinsics) {
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Intrinsics) {
 			type |= PlugType.Intrinsic | PlugType.Trait;
-			if (plug.definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
+			if (definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
 				type |= PlugType.Enhanced;
 		}
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Origins)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Origins)
 			type |= PlugType.Origin | PlugType.Trait;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
 			type |= PlugType.Shader;
 
-		if (plug.definition?.plug?.uiPlugLabel === "masterwork") // Ugh
+		if (definition.plug?.uiPlugLabel === "masterwork") // Ugh
 			type |= PlugType.Masterwork;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworksTrackers)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworksTrackers)
 			type |= PlugType.Tracker;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsFrameIdentifiers)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsFrameIdentifiers)
 			type |= PlugType.Shaped;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Mementos)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Mementos)
 			type |= PlugType.Memento;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins || plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsEmpty)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins || definition.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsEmpty)
 			type |= PlugType.DefaultOrnament;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
 			type |= PlugType.EmptyCatalyst;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel)
 			type |= PlugType.CraftingTransfusers;
 
-		if (plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
 			type |= PlugType.DeepsightResonance;
 
-		if (plug.plugItemHash === 1961918267)
+		if (definition.hash === 1961918267)
 			type |= PlugType.DeepsightActivation;
 
-		if (plug.definition && this.isOrnament(plug.definition))
+		if (definition && this.isOrnament(definition))
 			type |= PlugType.Ornament;
 
-		if (plug.definition?.traitIds?.includes("item_type.exotic_catalyst"))
+		if (definition.traitIds?.includes("item_type.exotic_catalyst"))
 			type |= PlugType.Catalyst;
 
-		if (!type && plug.definition?.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods))
+		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods))
 			type |= PlugType.Mod;
 
-		if (!type && (plug.definition?.tooltipStyle === "build" || plug.definition?.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
+		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
 			type |= PlugType.Perk;
-			if (plug.definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
+			if (definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
 				type |= PlugType.Enhanced;
 		}
 
-		if (!type && plug.definition?.itemCategoryHashes?.includes(ItemCategoryHashes.WeaponMods))
+		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.WeaponMods))
 			type |= PlugType.Mod;
+
+		for (const t of Maths.bits(type) as PlugType[]) {
+			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType] ??= 0;
+			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType]!++;
+		}
 
 		return type;
 	}
@@ -294,6 +335,14 @@ namespace Plugs {
 
 	export interface IPlugsProfile {
 		itemComponents?: DestinyItemComponentSetOfint64,
+	}
+
+	export function resetInitialisedPlugTypes () {
+		Plug.initialisedPlugTypes = {};
+	}
+
+	export function logInitialisedPlugTypes () {
+		console.debug("Initialised plugs:", Plug.initialisedPlugTypes);
 	}
 
 	export async function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {

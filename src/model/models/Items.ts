@@ -3,6 +3,7 @@ import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
+import Plugs from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import Profile from "model/models/Profile";
 import Async from "utility/Async";
@@ -98,6 +99,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		return bucket;
 	}
 
+	Plugs.resetInitialisedPlugTypes();
+
 	const profileItems = profile.profileInventory?.data?.items ?? [];
 
 	const buckets = {} as Record<BucketId, Bucket>;
@@ -122,6 +125,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	buckets.modifications = await createBucket("modifications", profileItems);
 	buckets.vault = await createBucket("vault", profileItems);
 
+	Plugs.logInitialisedPlugTypes();
 	api.emitProgress(4 / 4);
 
 	return buckets;
