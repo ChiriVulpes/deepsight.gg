@@ -61,7 +61,7 @@ export default class ItemTooltipMods extends Component {
 
 		let i = 0;
 		for (const socket of item.getSockets(type)) {
-			if (!socket || socket.state?.isVisible === false)
+			if (!socket.state || socket.state.isVisible === false || !Display.name(socket.socketedPlug?.definition))
 				continue;
 
 			const plug = socket.socketedPlug;
@@ -97,7 +97,7 @@ export default class ItemTooltipMods extends Component {
 	private addSockets (item: Item, type: PlugType, socketClass?: ItemTooltipModsClasses) {
 		let i = 0;
 		for (const socket of item.getSockets(type)) {
-			if (!socket || socket.state?.isVisible === false || (item.bucket === "collections" && this.isDetailed() && socket.plugs.length > 1))
+			if (!socket || socket.state?.isVisible === false || !Display.name(socket.socketedPlug?.definition) || (item.bucket === "collections" && this.isDetailed() && socket.plugs.length > 1))
 				continue;
 
 			const socketComponent = Component.create()
