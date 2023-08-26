@@ -1,4 +1,4 @@
-import { DestinyItemSubType } from "bungie-api-ts/destiny2";
+import { DestinyItemSubType, ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { IStat } from "model/models/items/Stats";
 import { Classes } from "ui/Classes";
@@ -34,6 +34,7 @@ export enum ItemStatClasses {
 	Wrapper = "item-stat-wrapper",
 	Main = "item-stat",
 	Label = "item-stat-label",
+	LabelMasterwork = "item-stat-label-masterwork",
 	GroupLabel = "item-stat-group-label",
 	Bar = "item-stat-bar",
 	BarBlock = "item-stat-bar-block",
@@ -237,6 +238,8 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 				this.groupLabel.style.set("--value", `${distribution.groups[display.group]}`);
 			}
 		}
+
+		this.label.classes.toggle(!!display.masterwork && (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ?? false), ItemStatClasses.LabelMasterwork);
 
 		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);

@@ -24,6 +24,10 @@
 		text-align: right;
 		color: color(foreground-2);
 		grid-column: 2;
+		&-masterwork {
+			font-weight: 600;
+			color: color(stat-masterwork);
+		}
 	}
 
 	&-distribution &-label {
@@ -109,7 +113,7 @@
 					top: 50%;
 					width: calc(100% * var(--value) * -1);
 					margin-left: calc(100% * var(--value));
-					background: #983232;
+					background: color(stat-negative);
 					flex-shrink: 0;
 				}
 				&::after {
@@ -137,12 +141,12 @@
 
 	&-masterwork {
 		grid-column: 5;
-		color: #ceae32;
+		color: color(stat-masterwork-bar);
 	}
 
 	&-mod {
 		grid-column: 6;
-		color: #58a6ff;
+		color: color(stat-mod);
 	}
 
 	&-value {
@@ -163,7 +167,7 @@
 		}
 
 		&-component-negative {
-			color: #983232;
+			color: color(stat-negative);
 			font-weight: 600;
 		}
 	}

@@ -225,7 +225,7 @@ export class Plug {
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
 			type |= PlugType.Shader;
 
-		if (definition.plug?.uiPlugLabel === "masterwork") // Ugh
+		if (definition.plug?.plugCategoryIdentifier.includes(".masterworks.")) // Ugh
 			type |= PlugType.Masterwork;
 
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworksTrackers)
