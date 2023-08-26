@@ -137,6 +137,9 @@ export default class ItemTooltipMods extends Component {
 						.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`)
 						.appendTo(plugComponent);
 				}
+
+				if (this.isDetailed())
+					break;
 			}
 		}
 	}
