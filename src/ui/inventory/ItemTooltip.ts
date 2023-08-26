@@ -233,13 +233,13 @@ class ItemTooltip extends Tooltip {
 	}
 
 	protected onGlobalKeydown (event: IKeyEvent) {
-		if (event.use("Control")) {
+		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Collections");
 		}
 	}
 
 	protected onGlobalKeyup (event: IKeyEvent) {
-		if (event.use("Control")) {
+		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Details");
 		}
 	}
