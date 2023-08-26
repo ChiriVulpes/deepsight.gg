@@ -286,7 +286,8 @@
 
 		position: relative;
 		display: grid;
-		grid-template-columns: auto 1fr;
+		grid-template-columns: auto;
+		grid-auto-columns: 1fr;
 		grid-template-rows: 1fr auto;
 		align-items: center;
 		column-gap: 0.5em;
@@ -407,7 +408,7 @@
 			font-size: 12px;
 			width: 12px;
 			height: 12px;
-			right: 8px;
+			right: 0;
 			bottom: 1px;
 		}
 	}
