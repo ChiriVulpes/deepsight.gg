@@ -370,6 +370,8 @@ class ItemTooltip extends Tooltip {
 		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
 
+		const flavour = !!item.definition.flavorText;
+		this.flavour.classes.toggle(!flavour, Classes.Hidden);
 		this.flavour.text.set(item.definition.flavorText);
 
 		this.randomRollHeading.classes.add(Classes.Hidden);
@@ -392,6 +394,8 @@ class ItemTooltip extends Tooltip {
 					.setItem(item.collections, PlugType.Perk);
 			}
 		}
+
+		this.extra.classes.toggle(!flavour && !this.detailedMods.hasContents(), Classes.Hidden);
 	}
 }
 
