@@ -1,4 +1,4 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { BucketHashes, ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -382,7 +382,7 @@ class ItemTooltip extends Tooltip {
 			this.detailedMods.setItem(item);
 
 			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-			if ([BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons].includes(item.definition.inventory?.bucketTypeHash!) && item.collections?.hasRandomRolls()) {
+			if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) && item.collections?.hasRandomRolls()) {
 				this.randomRollHeading.classes.remove(Classes.Hidden)
 					.text.set(item.shaped ? "This item can be shaped with the following perks:"
 						: "This item can roll the following perks:");
