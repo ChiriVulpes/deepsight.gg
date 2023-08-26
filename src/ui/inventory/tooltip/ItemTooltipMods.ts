@@ -97,7 +97,7 @@ export default class ItemTooltipMods extends Component {
 	private addSockets (item: Item, type: PlugType, socketClass?: ItemTooltipModsClasses) {
 		let i = 0;
 		for (const socket of item.getSockets(type)) {
-			if (!socket || socket.state?.isVisible === false)
+			if (!socket || socket.state?.isVisible === false || (item.bucket === "collections" && this.isDetailed() && socket.plugs.length > 1))
 				continue;
 
 			const socketComponent = Component.create()
