@@ -359,10 +359,14 @@ class Item {
 		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
 	}
 
+	public get shouldTrustTransfer () {
+		return this.trustTransferUntil < Date.now();
+	}
+
 	public update (item: Item) {
 		this.id = item.id;
 		this.reference = item.reference;
-		if (this.trustTransferUntil < Date.now() || !this.bucketHistory?.includes(item.bucket)) {
+		if (this.shouldTrustTransfer || !this.bucketHistory?.includes(item.bucket)) {
 			delete this.bucketHistory;
 			this.bucket = item.bucket;
 			this.equipped = item.equipped;

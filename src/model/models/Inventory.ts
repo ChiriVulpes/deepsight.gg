@@ -1,3 +1,4 @@
+import type { BucketHashes } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import type Character from "model/models/Characters";
@@ -5,7 +6,8 @@ import { ProfileCharacters } from "model/models/Characters";
 import type { Bucket } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { CharacterId, IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
+import type { IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
+import { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
@@ -56,6 +58,9 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 	public constructor () {
 		this.onItemBucketChange = this.onItemBucketChange.bind(this);
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		(window as any).inventory = this;
 
 		const disposed = this.event.waitFor("dispose");
 		Items.event.until(disposed, event => event
@@ -115,9 +120,33 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		this.craftedItems.clear(); // crafted items will be re-initialised through updateItem
 		this.items ??= {};
 		this.buckets = buckets;
-		for (const [bucketId, bucket] of Object.entries(this.buckets))
+		const iterableBuckets = Object.entries(this.buckets) as [OwnedBucketId, Bucket][];
+		for (const [bucketId, bucket] of iterableBuckets)
 			for (let i = 0; i < bucket.items.length; i++)
 				this.updateItem(bucketId, bucket, i);
+
+		for (const [bucketId, bucket] of iterableBuckets) {
+			if (!CharacterId.is(bucketId)) continue;
+
+			const equipped: Partial<Record<BucketHashes, Item>> = {};
+			for (const item of bucket.items) {
+				if (!item.equipped) continue;
+
+				const bucketHash = item.definition.inventory?.bucketTypeHash as BucketHashes;
+				if (!equipped[bucketHash]) {
+					equipped[bucketHash] = item;
+					continue;
+				}
+
+				if (item.shouldTrustTransfer) {
+					// replace equipped item
+					delete equipped[bucketHash]!.equipped;
+					equipped[bucketHash] = item;
+				} else {
+					delete item.equipped;
+				}
+			}
+		}
 
 		this.event.emit("update");
 		LoadingManager.end("inventory");
@@ -141,10 +170,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		const buckets = this.buckets!;
 		if (item.bucket !== bucketId) {
 			buckets[item.bucket as OwnedBucketId].items.push(item);
-			buckets[bucketId as OwnedBucketId].items.splice(itemIndex, 1);
+			bucket.items.splice(itemIndex, 1);
 			itemIndex--;
 		} else {
-			buckets[bucketId as OwnedBucketId]!.items[itemIndex] = items[item.id] = item;
+			bucket.items[itemIndex] = items[item.id] = item;
 		}
 	}
 
