@@ -9,6 +9,7 @@ import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
 import type Manifest from "model/models/Manifest";
+import Arrays from "utility/Arrays";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
@@ -49,7 +50,7 @@ enum TransferType {
 
 interface ITransferArgs {
 	[TransferType.PullFromPostmaster]: [],
-	[TransferType.TransferToVault]: [],
+	[TransferType.TransferToVault]: [ifNotCharacter?: CharacterId],
 	[TransferType.TransferToCharacterFromVault]: [character: CharacterId],
 	// [TransferType.TransferToInventoryFromVault]: [],
 	[TransferType.Equip]: [character: CharacterId],
@@ -92,7 +93,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		},
 	},
 	[TransferType.TransferToVault]: {
-		applicable: item => CharacterId.is(item.bucket),
+		applicable: (item, ifNotCharacter) => CharacterId.is(item.bucket) && item.bucket !== ifNotCharacter,
 		transfer: async item => {
 			if (!CharacterId.is(item.bucket))
 				throw new Error("Not in character bucket");
@@ -114,7 +115,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 			await TransferItem.query(item, characterId);
 			return {
 				bucket: characterId,
-				undo: TransferType.TransferToVault,
+				undo: [TransferType.TransferToVault],
 			};
 		},
 	},
@@ -128,7 +129,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 			return {
 				bucket: characterId,
 				equipped: true,
-				undo: TransferType.TransferToVault,
+				undo: [TransferType.TransferToVault],
 			};
 		},
 	},
@@ -384,7 +385,7 @@ class Item {
 
 		return this.transfer(
 			TransferType.PullFromPostmaster,
-			...CharacterId.is(this.bucket) ? [TransferType.TransferToVault as const] : [],
+			...CharacterId.is(this.bucket) ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
 			[TransferType.TransferToCharacterFromVault, character],
 		);
 	}
@@ -392,7 +393,7 @@ class Item {
 	public transferToVault () {
 		return this.transfer(
 			TransferType.PullFromPostmaster,
-			TransferType.TransferToVault,
+			[TransferType.TransferToVault],
 		);
 	}
 
@@ -406,6 +407,7 @@ class Item {
 	public equip (character: CharacterId) {
 		return this.transfer(
 			TransferType.PullFromPostmaster,
+			[TransferType.TransferToVault, character],
 			[TransferType.TransferToCharacterFromVault, character],
 			[TransferType.Equip, character],
 		);

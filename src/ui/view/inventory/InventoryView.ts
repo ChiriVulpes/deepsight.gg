@@ -3,8 +3,8 @@ import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
-import { PostmasterId } from "model/models/items/Item";
+import type { BucketId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
+import { CharacterId, PostmasterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
@@ -566,9 +566,12 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					if (dropBucketId === "consumables" || dropBucketId === "modifications" || PostmasterId.is(dropBucketId))
 						continue;
 
-					const components = this.getBucket(dropBucketId);
-					for (const component of components)
-						component.classes.toggle(component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`), InventoryViewClasses.BucketDropTarget);
+					const buckets = this.getBucket(dropBucketId);
+					for (const bucket of buckets)
+						for (const { component } of bucket.getDropTargets())
+							component.classes.toggle(
+								component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`),
+								InventoryViewClasses.BucketDropTarget);
 				}
 			},
 			moveEnd: async event => {
@@ -577,16 +580,22 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					bucketComponent.classes.remove(InventoryViewClasses.BucketMovingFrom);
 
 				let dropBucketId: DestinationBucketId | undefined;
+				let dropEquipped = false;
 				for (const [bucketId] of this.bucketEntries) {
 					if (bucketId === "consumables" || bucketId === "modifications" || PostmasterId.is(bucketId))
 						continue;
 
-					const components = this.getBucket(bucketId);
+					const buckets = this.getBucket(bucketId);
 					let intersections = false;
-					for (const component of components) {
-						component.classes.remove(InventoryViewClasses.BucketDropTarget);
-						if (component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`))
-							intersections = true;
+					for (const bucket of buckets) {
+						for (const { component, equipped } of bucket.getDropTargets()) {
+
+							component.classes.remove(InventoryViewClasses.BucketDropTarget);
+							if (component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
+								intersections = true;
+								dropEquipped = equipped;
+							}
+						}
 					}
 
 					if (!intersections)
@@ -595,8 +604,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					dropBucketId = bucketId;
 				}
 
-				if (dropBucketId)
-					// update this item component's bucket so future clicks transfer to the right place
+				if (!dropBucketId)
+					return;
+
+				// update this item component's bucket so future clicks transfer to the right place
+				if (dropEquipped && CharacterId.is(dropBucketId))
+					await item.equip(dropBucketId);
+				else
 					await item.transferToBucket(dropBucketId);
 			},
 		}]);

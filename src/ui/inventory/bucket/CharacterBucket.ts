@@ -28,6 +28,8 @@ export default class CharacterBucket extends BucketComponent<[]> {
 			.appendTo(this);
 
 		this.content.classes.add(CharacterBucketClasses.Inventory);
+		this.registerDropTarget(this.content);
+		this.registerDropTarget(this.equippedSlot, true);
 	}
 
 	public setCharacter (character: Character) {
