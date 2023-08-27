@@ -24,7 +24,7 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
-	render?(item: Item, stat: ICustomStatDisplayDefinition): boolean;
+	render?(item: Item, stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[]): boolean;
 	calculate?(item: Item, stat: ICustomStatDisplayDefinition): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
 	renderFormula?(item: Item, stat: ICustomStatDisplayDefinition): Component[];
 	renderBar?(bar: Component, item: Item, value: number): any;
@@ -104,6 +104,14 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 	},
 };
 
+const renderArmourStat = (item: Item, _: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[]) =>
+	ARMOUR_STAT_GROUPS.flat()
+		.map(stat => allStats.find(display => display.hash === stat))
+		.some(display => {
+			const cdisplay = display?.calculate?.(item, display) ?? display;
+			return cdisplay?.combinedValue ?? (cdisplay?.intrinsic ?? 0) + (cdisplay?.masterwork ?? 0) + (cdisplay?.mod ?? 0);
+		});
+
 type StatDisplayDef = Partial<ICustomStatDisplayDefinition> | false;
 const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<Stat, StatDisplayDef>> = {
 	// undrendered
@@ -113,7 +121,10 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.InventorySize]: false,
 	[Stat.Mystery1]: false,
 	[Stat.Mystery2]: false,
-	// // weapons
+	[Stat.GhostEnergyCapacity]: false,
+	[Stat.ModCost]: false,
+
+	// weapons
 	[Stat.AirborneEffectiveness]: {
 		name: "Airborne Aim",
 		render: item => item.definition.itemSubType !== DestinyItemSubType.Sword,
@@ -133,13 +144,15 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Zoom]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 	[Stat.Stability]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 	[Stat.Range]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
+
 	// armour
-	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX },
-	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX },
-	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX },
-	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX },
-	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX },
-	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX },
+	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+
 	...customStats,
 };
 
@@ -353,7 +366,7 @@ namespace ItemStat {
 			const statDisplays: Record<number, ICustomStatDisplayDefinition | undefined> = {};
 			for (const stat of stats) {
 				const custom = customStatDisplays[stat.hash as Stat];
-				if (custom === false || custom?.render?.(item, stat) === false)
+				if (custom === false || custom?.render?.(item, stat, stats) === false)
 					continue;
 
 				const display = {

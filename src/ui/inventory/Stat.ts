@@ -1,7 +1,12 @@
 import type { DestinyClass } from "bungie-api-ts/destiny2";
+import { StatHashes } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import Store from "utility/Store";
 
+// for reference:
+StatHashes.Accuracy;
+
+// Don't use bungie-api/ts/destiny2.StatHashes because it's a const enum and we use the names for css classes
 export enum Stat {
 	// Unrendered
 	Attack = 1480404414,
@@ -31,6 +36,10 @@ export enum Stat {
 	Discipline = 1735777505,
 	Intellect = 144602215,
 	Strength = 4244567218,
+
+	// ghosts
+	GhostEnergyCapacity = 237763788,
+	ModCost = 514071887,
 }
 
 export type StatOrder = number | { after: Stat, before?: undefined } | { before: Stat, after?: undefined };

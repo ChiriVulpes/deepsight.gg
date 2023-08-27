@@ -258,7 +258,7 @@ export class Plug {
 		if (definition.traitIds?.includes("item_type.exotic_catalyst"))
 			type |= PlugType.Catalyst;
 
-		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods))
+		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods) || definition.itemTypeDisplayName?.endsWith("Ghost Mod"))
 			type |= PlugType.Mod;
 
 		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
