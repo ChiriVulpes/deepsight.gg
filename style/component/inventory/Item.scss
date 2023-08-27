@@ -583,10 +583,6 @@ $z-index-loading: 1000;
 			height: calc(var(--slot-size) * 0.8 - var(--slot-padding) * 2);
 			transform: var(--transform) translate(-50%, -50%);
 			transition-property: background, border, color;
-			// &::before,
-			// &::after {
-			// 	content: none;
-			// }
 		}
 	}
 

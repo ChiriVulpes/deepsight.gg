@@ -279,6 +279,7 @@ class Item {
 	}
 
 	public collectibleState!: number;
+	public fallbackItem?: Item;
 
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
@@ -411,6 +412,14 @@ class Item {
 			[TransferType.TransferToCharacterFromVault, character],
 			[TransferType.Equip, character],
 		);
+	}
+
+	public async unequip () {
+		if (!this.character || !this.fallbackItem) {
+			// TODO notify
+		} else {
+			return this.character && this.fallbackItem?.equip(this.character);
+		}
 	}
 
 	public pullFromPostmaster () {

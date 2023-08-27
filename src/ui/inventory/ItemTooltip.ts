@@ -247,7 +247,7 @@ class ItemTooltip extends Tooltip {
 	public async setItem (item: Item, inventory?: Inventory) {
 		this.item = item;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		(window as any).item = item;
+		(window as any).$i = (window as any).item = item;
 		console.log(Display.name(item.definition), item);
 
 		const character = inventory?.getCharacter(item.character);

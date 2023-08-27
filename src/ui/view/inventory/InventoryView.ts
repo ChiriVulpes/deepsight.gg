@@ -5,6 +5,7 @@ import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
 import { CharacterId, PostmasterId } from "model/models/items/Item";
+import { TierIndex } from "model/models/items/Tier";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
@@ -391,6 +392,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		const id = IInventoryViewDefinition.resolveSlotId(slot);
 		const highestPowerSlot: Component[] = [];
 		let highestPower = 0;
+		const sortedBucketItems: Partial<Record<OwnedBucketId, Item[]>> = {};
 		for (const [bucketId, bucket] of this.bucketEntries) {
 			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
@@ -446,13 +448,10 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			for (const slot of slots)
 				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
-			for (const item of this.super.definition.sort.sort(bucket.items)) {
-				if (item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === BucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)))
-					// item excluded from view
-					continue;
-
+			const sortedItems = sortedBucketItems[bucketId] = this.super.definition.sort.sort(bucket.items)
+				.filter(item => !(item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === BucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)) && this.itemMap.get(item)));
+			for (const item of sortedItems) {
 				const itemComponent = this.itemMap.get(item);
-
 				if (!itemComponent)
 					// item not included in view
 					continue;
@@ -495,6 +494,11 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		if (highestPowerSlot.length < 3)
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventoryViewClasses.HighestPower);
+
+		for (const equipped of Object.values(this.equipped)) {
+			equipped.item.fallbackItem = sortedBucketItems[equipped.item.character!]?.find(item => (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary) && item !== equipped.item)
+				?? sortedBucketItems.vault?.find(item => (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary));
+		}
 	}
 
 	private filter () {

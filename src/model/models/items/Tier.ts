@@ -2,15 +2,23 @@ import type { IItemInit } from "model/models/items/Item";
 import type Manifest from "model/models/Manifest";
 
 export enum TierHashes {
-	// I don't know why there's three of these
-	Basic1 = 1801258597,
-	Basic2 = 3340296461,
-	Basic3 = 3772930460,
-
-	Common = 2395677314,
+	Basic = 3772930460,
+	Common = 3340296461, // internally also called basic for some reason
+	Uncommon = 2395677314, // internally called common for some reason
 	Rare = 2127292149,
 	Legendary = 4008398120,
 	Exotic = 2759499571,
+	AmazingOmgWtfActuallyWaitThisIsApparentlyJustAnotherBasic = 1801258597,
+}
+
+export enum TierIndex {
+	Basic,
+	Common, // internally also called basic for some reason
+	Uncommon, // internally called common for some reason
+	Rare,
+	Legendary,
+	Exotic,
+	AmazingOmgWtfActuallyWaitThisIsApparentlyJustAnotherBasic,
 }
 
 namespace Tier {

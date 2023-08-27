@@ -68,7 +68,9 @@ const itemViewBase = View.create({
 
 		const item = itemResult!;
 
-		console.log(item.definition.displayProperties.name, item);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		(window as any).$i = (window as any).item = item;
+		console.log(Display.name(item.definition), item);
 
 		view.classes.toggle(!item.instance, ItemViewClasses.ItemDefinition)
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
@@ -79,7 +81,11 @@ const itemViewBase = View.create({
 			.classes.add(ItemViewClasses.Item)
 			.clearTooltip()
 			.setDisableInteractions()
-			.event.subscribe("mouseenter", () => console.log(Display.name(item.definition), item))
+			.event.subscribe("mouseenter", () => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(window as any).$i = (window as any).item = item;
+				console.log(Display.name(item.definition), item);
+			})
 			.prependTo(view.header);
 
 		Component.create("p")
