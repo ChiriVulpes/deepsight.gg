@@ -590,16 +590,15 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					let intersections = false;
 					for (const bucket of buckets) {
 						for (const { component, equipped } of bucket.getDropTargets()) {
-
 							component.classes.remove(InventoryViewClasses.BucketDropTarget);
-							if (component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
+							if (!intersections && !dropBucketId && component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
 								intersections = true;
 								dropEquipped = equipped;
 							}
 						}
 					}
 
-					if (!intersections)
+					if (!intersections || dropBucketId)
 						continue;
 
 					dropBucketId = bucketId;
@@ -611,11 +610,14 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				if (item.bucket === dropBucketId && item.equipped === dropEquipped)
 					return;
 
-				// update this item component's bucket so future clicks transfer to the right place
-				if (dropEquipped && CharacterId.is(dropBucketId))
-					await item.equip(dropBucketId);
-				else
-					await item.transferToBucket(dropBucketId);
+				if (CharacterId.is(dropBucketId)) {
+					if (dropEquipped)
+						return item.equip(dropBucketId);
+					else if (item.equipped && item.bucket === dropBucketId)
+						return item.unequip();
+				}
+
+				await item.transferToBucket(dropBucketId);
 			},
 		}]);
 	}
