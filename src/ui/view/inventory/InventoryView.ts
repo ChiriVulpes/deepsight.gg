@@ -555,9 +555,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				if (window.innerWidth <= 800)
 					return event.preventDefault();
 
-				if (item.equipped)
-					return event.preventDefault();
-
 				const bucketComponents = this.getBucket(item.bucket);
 
 				for (const bucketComponent of bucketComponents)
@@ -609,6 +606,9 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				}
 
 				if (!dropBucketId)
+					return;
+
+				if (item.bucket === dropBucketId && item.equipped === dropEquipped)
 					return;
 
 				// update this item component's bucket so future clicks transfer to the right place

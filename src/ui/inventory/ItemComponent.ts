@@ -304,9 +304,6 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		if (window.innerWidth <= 800)
 			return viewManager.showItemTooltip(this.item);
 
-		if (this.item.equipped)
-			return;
-
 		if (this.disableInteractions)
 			return;
 
@@ -315,10 +312,13 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
 		else {
 			const character = this.item.character ?? this.inventory?.currentCharacter.characterId as CharacterId;
-			if (CharacterId.is(this.item.bucket))
-				await this.item.equip(character);
-			else
+			if (!CharacterId.is(this.item.bucket))
 				await this.item.transferToCharacter(character);
+
+			else if (this.item.equipped)
+				await this.item.unequip();
+			else
+				await this.item.equip(character);
 		}
 	}
 

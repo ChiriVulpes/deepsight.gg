@@ -86,6 +86,7 @@ class ItemTooltip extends Tooltip {
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
 	public hintEquipToCharacter!: Hint;
+	public hintUnequipFromCharacter!: Hint;
 	public hintInspect!: Hint;
 	public flavour!: Component;
 	public detailedMods!: ItemTooltipMods;
@@ -189,6 +190,10 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.footer);
 
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
+			.appendTo(this.hints);
+
+		this.hintUnequipFromCharacter = Hint.create([IInput.get("MouseLeft")])
+			.tweak(hint => hint.label.text.set("Unequip"))
 			.appendTo(this.hints);
 
 		this.hintPullToCharacter = Hint.create([IInput.get("MouseLeft")])
@@ -366,9 +371,10 @@ class ItemTooltip extends Tooltip {
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
 		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
-		this.hintVault.classes.toggle(item.bucket === "vault" || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
+		this.hintVault.classes.toggle(item.bucket === "vault" || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
+		this.hintUnequipFromCharacter.classes.toggle(!CharacterId.is(item.bucket) || !item.equipped, Classes.Hidden);
 
 		const flavour = !!item.definition.flavorText;
 		this.flavour.classes.toggle(!flavour, Classes.Hidden);

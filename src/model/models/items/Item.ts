@@ -44,16 +44,16 @@ enum TransferType {
 	PullFromPostmaster,
 	TransferToVault,
 	TransferToCharacterFromVault,
-	// TransferToInventoryFromVault,
 	Equip,
+	Unequip,
 }
 
 interface ITransferArgs {
 	[TransferType.PullFromPostmaster]: [],
 	[TransferType.TransferToVault]: [ifNotCharacter?: CharacterId],
 	[TransferType.TransferToCharacterFromVault]: [character: CharacterId],
-	// [TransferType.TransferToInventoryFromVault]: [],
 	[TransferType.Equip]: [character: CharacterId],
+	[TransferType.Unequip]: [],
 }
 
 type Transfer = {
@@ -120,16 +120,37 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		},
 	},
 	[TransferType.Equip]: {
-		applicable: item => CharacterId.is(item.bucket),
+		applicable: item => CharacterId.is(item.bucket) && !item.equipped,
 		transfer: async (item, characterId) => {
 			if (!CharacterId.is(item.bucket))
 				throw new Error("Not in character bucket");
+
+			if (item.equipped)
+				throw new Error("Already equipped");
 
 			await EquipItem.query(item, characterId);
 			return {
 				bucket: characterId,
 				equipped: true,
 				undo: [TransferType.TransferToVault],
+			};
+		},
+	},
+	[TransferType.Unequip]: {
+		applicable: item => CharacterId.is(item.bucket) && !!item.equipped,
+		transfer: async item => {
+			if (!CharacterId.is(item.bucket))
+				throw new Error("Not in character bucket");
+
+			if (!item.equipped)
+				throw new Error("Not equipped");
+
+			const characterId = item.bucket;
+
+			await item.unequip();
+			return {
+				bucket: characterId,
+				undo: [TransferType.Equip, characterId],
 			};
 		},
 	},
@@ -386,6 +407,7 @@ class Item {
 
 		return this.transfer(
 			TransferType.PullFromPostmaster,
+			TransferType.Unequip,
 			...CharacterId.is(this.bucket) ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
 			[TransferType.TransferToCharacterFromVault, character],
 		);
@@ -394,6 +416,7 @@ class Item {
 	public transferToVault () {
 		return this.transfer(
 			TransferType.PullFromPostmaster,
+			TransferType.Unequip,
 			[TransferType.TransferToVault],
 		);
 	}
@@ -405,9 +428,13 @@ class Item {
 			return this.transferToVault();
 	}
 
-	public equip (character: CharacterId) {
+	public async equip (character: CharacterId) {
+		if (this.bucket === character && this.equipped)
+			return;
+
 		return this.transfer(
 			TransferType.PullFromPostmaster,
+			TransferType.Unequip,
 			[TransferType.TransferToVault, character],
 			[TransferType.TransferToCharacterFromVault, character],
 			[TransferType.Equip, character],
@@ -415,10 +442,15 @@ class Item {
 	}
 
 	public async unequip () {
+		await this.transferrable();
 		if (!this.character || !this.fallbackItem) {
 			// TODO notify
 		} else {
-			return this.character && this.fallbackItem?.equip(this.character);
+			this.event.emit("loadStart");
+			this._transferPromise = this.fallbackItem.equip(this.character);
+			await this._transferPromise;
+			delete this._transferPromise;
+			this.event.emit("loadEnd");
 		}
 	}
 
