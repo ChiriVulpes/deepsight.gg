@@ -50,8 +50,6 @@ function emitKeyEvent (e: RawEvent) {
 	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup";
 	if (eventType === "keydown")
 		state[eventKey] = Date.now();
-	else
-		delete state[eventKey];
 
 	let cancelInput = false;
 	const event: IKeyEvent & Partial<IKeyUpEvent> = {
