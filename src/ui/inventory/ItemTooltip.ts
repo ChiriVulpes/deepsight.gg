@@ -19,6 +19,7 @@ import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
 
 enum ItemTooltipClasses {
 	Main = "item-tooltip",
+	Extra = "item-tooltip-extra",
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
 	SourceWatermark = "item-tooltip-source-watermark",
@@ -213,6 +214,7 @@ class ItemTooltip extends Tooltip {
 			.tweak(hint => hint.label.text.set("Details"))
 			.appendTo(this.hints);
 
+		this.extra.classes.add(ItemTooltipClasses.Extra);
 		this.extra.content.classes.add(ItemTooltipClasses.Content);
 
 		this.flavour = this.extra.title

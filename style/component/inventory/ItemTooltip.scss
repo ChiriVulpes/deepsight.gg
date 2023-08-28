@@ -1,4 +1,9 @@
 .item-tooltip {
+	&,
+	&-extra {
+		--tooltip-width: 440px;
+	}
+
 	@each $tier in $tiers {
 		&-tier-#{$tier} .tooltip-header {
 			background: color(tier-#{$tier}-background, 0.85);
@@ -313,32 +318,6 @@
 					animation: flash 4s linear infinite reverse calc(var(--socket-index, 0) * 0.5s);
 					@include blur-disables-animation;
 				}
-
-				&::after {
-					content: "";
-					display: block;
-					position: absolute;
-					left: 8px;
-					border: 3.5px solid transparent;
-					border-bottom-color: #ffed9f;
-					border-bottom-width: 4px;
-					transform: scaleX(0.8);
-				}
-
-				.item-tooltip-mod-socketed::after {
-					content: "";
-					display: block;
-					position: absolute;
-					left: -2px;
-					top: 1px;
-					border: 1.5px solid transparent;
-					border-top-color: #ffed9f;
-					border-top-width: 20px;
-					border-bottom-width: 0;
-					-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
-					mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
-					transform: scaleX(0.9);
-				}
 			}
 		}
 
@@ -366,8 +345,8 @@
 			z-index: 1;
 			&::before {
 				content: "";
-				background: color(background-2, 0.9);
-				border: 1px solid color(background-4);
+				background: var(--required-level-background, #{color(background-2, 0.9)});
+				border: 1px solid var(--required-level-border, #{color(background-4)});
 				transform: rotate(45deg);
 				bottom: -2px;
 				right: -1px;
@@ -385,6 +364,55 @@
 			height: 12px;
 			right: 0;
 			bottom: 1px;
+			color: var(--required-level-color, inherit);
+		}
+
+		&-enhanced {
+			--required-level-background: #685a00;
+			--required-level-border: #ccae28;
+
+			&-arrow {
+				position: absolute;
+				top: 0;
+				left: 0;
+
+				&::before,
+				&::after {
+					content: "";
+					display: block;
+					position: absolute;
+					z-index: 1;
+				}
+
+				&::before {
+					left: -1px;
+					top: -4px;
+					border: 3.5px solid transparent;
+					border-bottom-color: #ffed9f;
+					border-bottom-width: 4px;
+					transform: scaleX(0.8);
+
+					.item-tooltip-mod-intrinsic & {
+						left: -4px;
+					}
+				}
+
+				&::after {
+					left: 1px;
+					top: 1px;
+					border: 1.5px solid transparent;
+					border-top-color: #ffed9f;
+					border-top-width: 20px;
+					border-bottom-width: 0;
+					-webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+					mask-image: linear-gradient(to bottom, black 30%, transparent 90%);
+					transform: scaleX(0.9);
+
+					.item-tooltip-mod-intrinsic & {
+						left: -2px;
+					}
+				}
+			}
 		}
 	}
 

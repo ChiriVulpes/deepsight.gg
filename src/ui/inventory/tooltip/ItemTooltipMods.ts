@@ -9,14 +9,16 @@ export enum ItemTooltipModsClasses {
 	Detailed = "item-tooltip-mods-detailed",
 	Shaped = "item-tooltip-mods-shaped",
 	Mod = "item-tooltip-mod",
+	ModEnhanced = "item-tooltip-mod-enhanced",
+	ModEnhancedArrow = "item-tooltip-mod-enhanced-arrow",
 	ModSocket = "item-tooltip-mod-socket",
+	ModIntrinsic = "item-tooltip-mod-intrinsic",
 	ModSocketEnhanced = "item-tooltip-mod-socket-enhanced",
 	ModSocketDefinition = "item-tooltip-mod-socket-definition",
 	ModSocketed = "item-tooltip-mod-socketed",
 	ModName = "item-tooltip-mod-name",
 	ModRequiredLevel = "item-tooltip-mod-required-level",
 	ModDescription = "item-tooltip-mod-description",
-	Intrinsic = "item-tooltip-mod-intrinsic",
 }
 
 export default class ItemTooltipMods extends Component {
@@ -48,9 +50,9 @@ export default class ItemTooltipMods extends Component {
 	public setItem (item: Item, type: PlugType = PlugType.ALL, exclude = PlugType.None) {
 		this.removeContents();
 
-		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
-		this.addSockets(item, PlugType.Intrinsic & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
-		this.addSockets(item, PlugType.Origin & type & ~exclude, ItemTooltipModsClasses.Intrinsic);
+		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
+		this.addSockets(item, PlugType.Intrinsic & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
+		this.addSockets(item, PlugType.Origin & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
 		this.addSockets(item, PlugType.Perk & type & ~exclude);
 		this.addPerks(item, PlugType.Mod & type & ~exclude);
 		return this;
@@ -106,21 +108,29 @@ export default class ItemTooltipMods extends Component {
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipModsClasses.ModSocket, ...socketClass ? [socketClass] : [])
-				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"), ItemTooltipModsClasses.ModSocketEnhanced)
+				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Enhanced | PlugType.Perk)), ItemTooltipModsClasses.ModSocketEnhanced)
 				.classes.toggle(socket.state === undefined, ItemTooltipModsClasses.ModSocketDefinition)
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this);
 
 			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed && item.bucket !== "collections") - Number(a.socketed && item.bucket !== "collections"))) {
-				if (!socket.state && plug.is(PlugType.Enhanced))
-					// skip enhanced perks (duplicates) if this is an item definition (ie no actual socket state)
+				if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
+					// skip enhanced intrinsics (duplicates) if this is an item definition (ie no actual socket state)
 					continue;
+
+				const isEnhanced = plug.is(PlugType.Enhanced);
 
 				const plugComponent = Component.create()
 					.classes.add(ItemTooltipModsClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipModsClasses.ModSocketed)
+					.classes.toggle(isEnhanced, ItemTooltipModsClasses.ModEnhanced)
 					.style.set("--icon", Display.icon(plug.definition))
 					.appendTo(socketComponent);
+
+				if (isEnhanced)
+					Component.create()
+						.classes.add(ItemTooltipModsClasses.ModEnhancedArrow)
+						.appendTo(plugComponent);
 
 				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.type & PlugType.Intrinsic))) {
 					Component.create()
