@@ -19,15 +19,7 @@
 			height: 20px;
 			left: 21px;
 			top: 3px;
-			background: currentColor;
-			-webkit-mask-image: var(--icon);
-			-webkit-mask-size: contain;
-			-webkit-mask-position: center;
-			-webkit-mask-repeat: no-repeat;
-			mask-image: var(--icon);
-			mask-size: contain;
-			mask-position: center;
-			mask-repeat: no-repeat;
+			@include mask-icon;
 		}
 	}
 
@@ -172,13 +164,7 @@
 				display: block;
 				width: 0.85em;
 				height: 0.85em;
-				background: currentColor;
-				-webkit-mask-image: url("/image/svg/shaped.svg");
-				-webkit-mask-size: contain;
-				-webkit-mask-repeat: no-repeat;
-				mask-image: url("/image/svg/shaped.svg");
-				mask-size: contain;
-				mask-repeat: no-repeat;
+				@include mask-icon(shaped);
 				position: relative;
 				top: 1px;
 			}
@@ -211,13 +197,7 @@
 			display: block;
 			width: 0.85em;
 			height: 0.85em;
-			background: currentColor;
-			-webkit-mask-image: url("/image/svg/delete.svg");
-			-webkit-mask-size: contain;
-			-webkit-mask-repeat: no-repeat;
-			mask-image: url("/image/svg/delete.svg");
-			mask-size: contain;
-			mask-repeat: no-repeat;
+			@include mask-icon(delete);
 			position: relative;
 			top: 1px;
 		}
@@ -229,8 +209,7 @@
 			border-color: color(wishlist-tooltip-border);
 
 			&::before {
-				-webkit-mask-image: url("/image/svg/wishlisted.svg");
-				mask-image: url("/image/svg/wishlisted.svg");
+				@include mask-icon(wishlisted);
 			}
 		}
 	}
@@ -426,5 +405,14 @@
 		font-size: inherit;
 		line-height: 1.2em;
 		white-space: pre-wrap;
+	}
+
+	&-locked {
+		width: 1.3em;
+		height: 1.3em;
+		color: color(foreground-0);
+		@include mask-icon(lock);
+		order: 2;
+		margin-left: 0.2em;
 	}
 }

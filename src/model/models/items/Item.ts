@@ -12,13 +12,14 @@ import type Manifest from "model/models/Manifest";
 import Arrays from "utility/Arrays";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
+import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 import Time from "utility/Time";
-import type { PromiseOr } from "utility/Type";
+import type { Mutable, PromiseOr } from "utility/Type";
 
 export type CharacterId = `${bigint}`;
 export type PostmasterId = `postmaster:${CharacterId}`;
@@ -295,6 +296,15 @@ class Item {
 				: this.bucket;
 	}
 
+	private _owner!: CharacterId;
+
+	/**
+	 * The character this item is in the inventory of, or the current character if the item is somewhere else
+	 */
+	public get owner () {
+		return this.character ?? this._owner;
+	}
+
 	public get objectives () {
 		return this.sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? []);
 	}
@@ -359,14 +369,39 @@ class Item {
 		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
 	}
 
-	public get shouldTrustTransfer () {
+	public shouldTrustTransfer () {
 		return this.trustTransferUntil < Date.now();
+	}
+
+	public isLocked () {
+		return !!(this.reference.state & ItemState.Locked);
+	}
+
+	private settingLocked?: Promise<void>;
+	public async setLocked (locked = true) {
+		await this.settingLocked;
+
+		if (this.isLocked() !== locked)
+			await (this.settingLocked = (async () => {
+				let err: Error | undefined;
+				await SetLockState.query(this, locked).catch((e: Error) => err = e);
+				locked = !err ? locked : !locked;
+				const mutableRef = this.reference as Mutable<DestinyItemComponent>;
+				if (locked)
+					mutableRef.state |= ItemState.Locked;
+				else
+					mutableRef.state &= ~ItemState.Locked;
+			})());
+
+		delete this.settingLocked;
+
+		return locked;
 	}
 
 	public update (item: Item) {
 		this.id = item.id;
 		this.reference = item.reference;
-		if (this.shouldTrustTransfer || !this.bucketHistory?.includes(item.bucket)) {
+		if (this.shouldTrustTransfer() || !this.bucketHistory?.includes(item.bucket)) {
 			delete this.bucketHistory;
 			this.bucket = item.bucket;
 			this.equipped = item.equipped;

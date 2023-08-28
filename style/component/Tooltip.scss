@@ -52,6 +52,8 @@
 	}
 
 	&-tier {
+		display: flex;
+		align-items: center;
 		color: color(foreground-1, 0.5);
 	}
 

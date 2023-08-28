@@ -74,6 +74,8 @@ export default class Inventory implements IItemComponentCharacterHandler {
 					.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 						new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
 				this.characters = Object.fromEntries(this.sortedCharacters.map(character => [character.characterId, character]));
+				for (const item of Object.values(this.items ?? {}))
+					item["_owner"] = this.sortedCharacters[0].characterId as CharacterId;
 			}));
 
 		this.await = this.await.bind(this);
@@ -138,7 +140,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 					continue;
 				}
 
-				if (item.shouldTrustTransfer) {
+				if (item.shouldTrustTransfer()) {
 					// replace equipped item
 					delete equipped[bucketHash]!.equipped;
 					equipped[bucketHash] = item;
@@ -158,6 +160,8 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		let item = bucket.items[itemIndex];
 		// use old item if it exists
 		item = items[item.id]?.update(item) ?? item;
+
+		item["_owner"] = this.sortedCharacters?.[0].characterId as CharacterId;
 
 		if (item.shaped)
 			this.craftedItems.add(item.definition.hash);

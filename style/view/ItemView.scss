@@ -30,6 +30,9 @@
 	}
 
 	&-title {
+		display: flex;
+		gap: 0.3em;
+		align-items: center;
 		@include mobile {
 			font-size: 28pt;
 		}
@@ -764,6 +767,49 @@
 
 		&-tracker {
 			margin-top: 24px;
+		}
+	}
+
+	&-lock-button {
+		width: 0.7em;
+		height: 0.7em;
+		border-radius: 1em;
+		border: none;
+		--button-background: #{color(background-7)};
+		--button-background-hover: #{color(background-9)};
+		--button-background-active: #{color(background-4)};
+		display: grid;
+		align-items: center;
+		justify-items: center;
+		padding: 0;
+
+		&::before {
+			border-radius: 1em;
+		}
+
+		&::after {
+			content: "";
+			display: block;
+			width: 0.55em;
+			height: 0.55em;
+			margin-top: -0.06em;
+			color: color(background-4);
+			@include transition(out, background);
+			@include mask-icon(unlock);
+		}
+
+		&-locked::after {
+			@include mask-icon(lock);
+		}
+
+		&:hover::after {
+			color: color(background-6);
+			@include transition(in);
+		}
+
+		&:active::after {
+			color: color(background-2);
+			@include transition(in);
 		}
 	}
 }

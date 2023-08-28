@@ -13,20 +13,36 @@ export interface IKeyEvent {
 	cancelInput (): void;
 }
 
+export interface IKeyUpEvent extends IKeyEvent {
+	usedAnotherKeyDuring: boolean;
+}
+
 export interface IUiEventBusEvents {
 	keydown: IKeyEvent;
-	keyup: IKeyEvent;
+	keyup: IKeyUpEvent;
 }
 
 const UiEventBus = EventManager.make<IUiEventBusEvents>();
 
-function emitKeyEvent (e: KeyboardEvent) {
+type RawEvent = Partial<KeyboardEvent> & Partial<MouseEvent> & (KeyboardEvent | MouseEvent);
+
+let lastUp = 0;
+const state: Record<string, number | undefined> = {};
+
+function emitKeyEvent (e: RawEvent) {
 	const input = (e.target as HTMLElement).closest<HTMLElement>("input[type=text], textarea, [contenteditable]");
 	let usedByInput = !!input;
 
+	const eventKey = e.key ?? `Mouse${e.button === 0 ? "Left" : e.button === 1 ? "Middle" : e.button === 2 ? "Right" : (e.button ?? "?")}`;
+	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup";
+	if (eventType === "keydown")
+		state[eventKey] = Date.now();
+	else
+		delete state[eventKey];
+
 	let cancelInput = false;
-	const event: IKeyEvent = {
-		key: e.key,
+	const event: IKeyEvent & Partial<IKeyUpEvent> = {
+		key: eventKey,
 		ctrl: e.ctrlKey,
 		shift: e.shiftKey,
 		alt: e.altKey,
@@ -55,7 +71,7 @@ function emitKeyEvent (e: KeyboardEvent) {
 			return matches;
 		},
 		matches: (key, ...modifiers) => {
-			if (e.key !== key)
+			if (eventKey !== key)
 				return false;
 
 			if (!modifiers.every(modifier => event[modifier]))
@@ -64,15 +80,26 @@ function emitKeyEvent (e: KeyboardEvent) {
 			return true;
 		},
 		cancelInput: () => cancelInput = true,
+	};
+
+	if (eventType === "keyup") {
+		event.usedAnotherKeyDuring = lastUp > (state[eventKey] ?? 0);
+		delete state[eventKey];
 	}
 
-	UiEventBus.emit(e.type as "keydown" | "keyup", event);
+	UiEventBus.emit(eventType, event);
 
-	if ((event.used && !usedByInput) || (usedByInput && cancelInput))
+	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault();
+		if (eventType === "keyup")
+			lastUp = Date.now();
+	}
 }
 
 document.addEventListener("keydown", emitKeyEvent);
 document.addEventListener("keyup", emitKeyEvent);
+
+document.addEventListener("mousedown", emitKeyEvent);
+document.addEventListener("mouseup", emitKeyEvent);
 
 export default UiEventBus;

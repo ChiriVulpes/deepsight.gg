@@ -8,7 +8,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
-import type { IKeyEvent } from "ui/UiEventBus";
+import type { IKeyEvent, IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Display from "ui/bungie/DisplayProperties";
 import ElementType from "ui/inventory/ElementTypes";
@@ -22,6 +22,7 @@ enum ItemTooltipClasses {
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
 	SourceWatermark = "item-tooltip-source-watermark",
+	Locked = "item-tooltip-locked",
 	Masterwork = "item-tooltip-masterwork",
 	PrimaryInfo = "item-tooltip-primary-info",
 	PrimaryStat = "item-tooltip-primary-stat",
@@ -58,6 +59,7 @@ class ItemTooltip extends Tooltip {
 
 	public item?: Item;
 	public source!: Component;
+	public locked!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
 	public primaryStatValue!: Component;
@@ -102,6 +104,10 @@ class ItemTooltip extends Tooltip {
 		this.source = Component.create()
 			.classes.add(ItemTooltipClasses.SourceWatermark, Classes.Hidden)
 			.appendTo(this.header);
+
+		this.locked = Component.create()
+			.classes.add(ItemTooltipClasses.Locked, Classes.Hidden)
+			.appendTo(this.tier);
 
 		this.primaryInfo = Component.create()
 			.classes.add(ItemTooltipClasses.PrimaryInfo)
@@ -243,9 +249,13 @@ class ItemTooltip extends Tooltip {
 		}
 	}
 
-	protected onGlobalKeyup (event: IKeyEvent) {
+	protected onGlobalKeyup (event: IKeyUpEvent) {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Details");
+
+			if (!event.usedAnotherKeyDuring)
+				void this.item?.setLocked(!this.item.isLocked())
+					.then(locked => this.locked.classes.toggle(!locked, Classes.Hidden));
 		}
 	}
 
@@ -268,6 +278,8 @@ class ItemTooltip extends Tooltip {
 
 		this.subtitle.text.set(item.definition.itemTypeDisplayName ?? "Unknown");
 		this.tier.text.set(item.definition.inventory?.tierTypeName);
+
+		this.locked.classes.toggle(!item.isLocked(), Classes.Hidden);
 
 		this.source.classes.toggle(!item.source?.displayProperties.icon, Classes.Hidden);
 		if (item.source?.displayProperties.icon)

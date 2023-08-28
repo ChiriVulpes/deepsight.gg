@@ -45,6 +45,8 @@ enum ItemViewClasses {
 	FlavourText = "view-item-flavour-text",
 	PerksModsTraits = "view-item-perks-mods-traits",
 	ButtonViewInCollections = "view-item-button-view-in-collections",
+	LockButton = "view-item-lock-button",
+	LockButtonLocked = "view-item-lock-button-locked",
 
 	StatsContainer = "view-item-stats-container",
 	Stats = "view-item-stats",
@@ -75,6 +77,18 @@ const itemViewBase = View.create({
 		view.classes.toggle(!item.instance, ItemViewClasses.ItemDefinition)
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
 			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
+
+		if (item.bucket !== "collections") {
+			const lockButton = Button.create()
+				.classes.add(ItemViewClasses.LockButton)
+				.classes.toggle(item.isLocked(), ItemViewClasses.LockButtonLocked)
+				.event.subscribe("click", async () => {
+					lockButton.classes.toggle(ItemViewClasses.LockButtonLocked);
+					const locked = await item.setLocked(lockButton.classes.has(ItemViewClasses.LockButtonLocked));
+					lockButton.classes.toggle(locked, ItemViewClasses.LockButtonLocked);
+				})
+				.appendTo(view.title);
+		}
 
 		ItemComponent.create([item])
 			.classes.remove(ItemClasses.NotAcquired)

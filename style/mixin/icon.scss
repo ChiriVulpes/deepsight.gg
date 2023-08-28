@@ -1,0 +1,21 @@
+@mixin mask-icon($path: var(--icon)) {
+	@if type-of($path) == "string" and str-slice($path, 1, 4) != "var(" {
+		@if str-slice($path, 1, 1) != "/" {
+			$path: "/image/svg/#{$path}";
+		}
+		@if str-slice($path, -4) != ".svg" {
+			$path: "#{$path}.svg";
+		}
+		$path: url("#{$path}");
+	}
+
+	background: currentColor;
+	-webkit-mask-image: $path;
+	-webkit-mask-size: contain;
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	mask-image: $path;
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+}
