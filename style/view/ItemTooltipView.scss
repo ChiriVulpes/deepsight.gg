@@ -21,6 +21,13 @@
 			content: "";
 			background: color(tooltip-background);
 		}
+
+		.tooltip-header,
+		.tooltip-content {
+			width: 100%;
+			box-sizing: border-box;
+			min-width: 0;
+		}
 	}
 
 	&-button {

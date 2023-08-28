@@ -9,17 +9,19 @@ export enum PostmasterBucketClasses {
 	Main = "view-inventory-slot-postmaster-bucket",
 	Engrams = "view-inventory-slot-postmaster-bucket-engrams",
 	Warning = "view-inventory-slot-postmaster-bucket-warning",
+	Class = "view-inventory-slot-postmaster-bucket-class",
 }
 
-export default class PostmasterBucket extends BucketComponent<[]> {
+export default class PostmasterBucket extends BucketComponent<[Character]> {
 
 	public character!: Character;
 	public engrams!: Component;
 
-	protected override onMake (): void {
-		super.onMake();
+	protected override onMake (character: Character): void {
+		super.onMake(character);
 		this.classes.add(PostmasterBucketClasses.Main);
 		this.setDisplayMode(CardClasses.DisplayModeSection)
+		this.character = character;
 
 		this.engrams = Component.create()
 			.classes.add(PostmasterBucketClasses.Engrams);
@@ -27,12 +29,13 @@ export default class PostmasterBucket extends BucketComponent<[]> {
 		this.element.insertBefore(this.engrams.element, this.content.element);
 
 		this.icon.style.set("--icon", "url(\"/image/svg/postmaster.svg\")");
-		this.title.text.add("Postmaster");
-	}
-
-	public setCharacter (character: Character) {
-		this.character = character;
-		return this;
+		this.title.text.set("Postmaster");
+		const className = character?.class?.displayProperties.name;
+		if (className)
+			Component.create()
+				.classes.add(PostmasterBucketClasses.Class)
+				.text.set(`\xa0 (${className})`)
+				.appendTo(this.title);
 	}
 
 	public update () {

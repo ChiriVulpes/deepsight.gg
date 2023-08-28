@@ -47,11 +47,9 @@ export default class CharacterBucket extends BucketComponent<[]> {
 
 	public update () {
 		const slotItems = this.content.element.childElementCount;
-
-		if (slotItems)
-			for (let i = slotItems; i < 9; i++)
-				Slot.create()
-					.setEmpty()
-					.appendTo(this.content);
+		for (let i = slotItems; i < 9; i++)
+			Slot.create()
+				.setEmpty()
+				.appendTo(this.content);
 	}
 }

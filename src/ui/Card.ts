@@ -29,6 +29,9 @@ export default class Card<ARGS extends readonly any[] = readonly any[]> extends 
 	public content!: Component;
 
 	public get icon () {
+		if (this._icon?.element.parentElement !== this.title.element)
+			delete this._icon;
+
 		return this._icon ??= Component.create()
 			.classes.add(CardClasses.Icon)
 			.classes.add(this.classes.has(CardClasses.DisplayModeBlock) ? CardClasses.DisplayModeBlockIcon : CardClasses.DisplayModeSectionIcon)

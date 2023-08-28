@@ -323,7 +323,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	}
 
 	private generatePostmasterBucket (character: Character) {
-		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([]).setCharacter(character);
+		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([character]);
 	}
 
 	protected generateSortedBuckets (slot: Arrays.Or<BucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults, skipPostmasters = false) {

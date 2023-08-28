@@ -17,6 +17,11 @@
 			column-gap: 5px;
 		}
 
+		@include mobile {
+			display: flex;
+			flex-direction: column;
+		}
+
 		.view-inventory-slot-character-bucket {
 			grid-column: initial;
 			grid-row: initial;
@@ -151,6 +156,11 @@
 						grid-column: 3;
 					}
 				}
+			}
+
+			@include mobile {
+				display: flex;
+				flex-direction: column;
 			}
 		}
 	}

@@ -18,6 +18,10 @@
 			display: flex;
 			flex-direction: row;
 			gap: 20px;
+
+			@include mobile {
+				flex-direction: column;
+			}
 		}
 	}
 

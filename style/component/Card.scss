@@ -138,6 +138,10 @@
 				opacity: 0;
 			}
 
+			@include mobile {
+				backdrop-filter: blur(30px);
+			}
+
 			justify-content: flex-start;
 			letter-spacing: inherit;
 			font-family: $font-title;
