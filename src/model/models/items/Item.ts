@@ -377,12 +377,16 @@ class Item {
 		return !!(this.reference.state & ItemState.Locked);
 	}
 
+	public isChangingLockState () {
+		return !!this.settingLocked;
+	}
+
 	private settingLocked?: Promise<void>;
 	public async setLocked (locked = true) {
 		await this.settingLocked;
 
-		if (this.isLocked() !== locked)
-			await (this.settingLocked = (async () => {
+		if (this.isLocked() !== locked) {
+			this.settingLocked = (async () => {
 				let err: Error | undefined;
 				await SetLockState.query(this, locked).catch((e: Error) => err = e);
 				locked = !err ? locked : !locked;
@@ -391,27 +395,34 @@ class Item {
 					mutableRef.state |= ItemState.Locked;
 				else
 					mutableRef.state &= ~ItemState.Locked;
-			})());
+			})();
 
-		delete this.settingLocked;
+			this.update(this);
+			await this.settingLocked;
+			delete this.settingLocked;
+			this.update(this);
+		}
 
 		return locked;
 	}
 
 	public update (item: Item) {
-		this.id = item.id;
-		this.reference = item.reference;
-		if (this.shouldTrustTransfer() || !this.bucketHistory?.includes(item.bucket)) {
-			delete this.bucketHistory;
-			this.bucket = item.bucket;
-			this.equipped = item.equipped;
+		if (item !== this) {
+			this.id = item.id;
+			this.reference = item.reference;
+			if (this.shouldTrustTransfer() || !this.bucketHistory?.includes(item.bucket)) {
+				delete this.bucketHistory;
+				this.bucket = item.bucket;
+				this.equipped = item.equipped;
+			}
+			this.instance = item.instance;
+			this.sockets = item.sockets;
+			this.source = item.source;
+			this.deepsight = item.deepsight;
+			this.shaped = item.shaped;
+			this.stats = item.stats;
 		}
-		this.instance = item.instance;
-		this.sockets = item.sockets;
-		this.source = item.source;
-		this.deepsight = item.deepsight;
-		this.shaped = item.shaped;
-		this.stats = item.stats;
+
 		this.event.emit("update", { item: this });
 		return this;
 	}

@@ -156,6 +156,10 @@ kbd {
 	display: none;
 }
 
+:root:not(.show-extra-info) .show-if-extra-info {
+	display: none;
+}
+
 .warning-text {
 	color: color(bad);
 }

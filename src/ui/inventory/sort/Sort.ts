@@ -19,6 +19,7 @@ enum Sort {
 	DamageType,
 	WeaponType,
 	Quantity,
+	Locked,
 }
 
 export default Sort;

@@ -22,6 +22,7 @@ export interface ILocalStorage extends ILocalStorageBase {
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
 	settingsToggleExtra?: true;
+	settingsDisplayLocksOnItems?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
 	settingsBackgroundBlur?: true;

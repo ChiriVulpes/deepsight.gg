@@ -3,6 +3,7 @@ import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
+import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/inventory/filter/filters/FilterMasterwork";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
@@ -43,6 +44,7 @@ class FilterManager {
 			[Filter.Source]: await FilterSource(),
 			[Filter.Shaped]: FilterShaped,
 			[Filter.Masterwork]: FilterMasterwork,
+			[Filter.Locked]: FilterLocked,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

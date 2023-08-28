@@ -24,6 +24,7 @@ enum ItemTooltipClasses {
 	ProgressBar = "item-tooltip-progress-bar",
 	SourceWatermark = "item-tooltip-source-watermark",
 	Locked = "item-tooltip-locked",
+	Unlocked = "item-tooltip-unlocked",
 	Masterwork = "item-tooltip-masterwork",
 	PrimaryInfo = "item-tooltip-primary-info",
 	PrimaryStat = "item-tooltip-primary-stat",
@@ -257,9 +258,13 @@ class ItemTooltip extends Tooltip {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Details");
 
-			if (!event.usedAnotherKeyDuring && this.awaitingShiftForLock)
+			if (!event.usedAnotherKeyDuring && this.awaitingShiftForLock) {
+				this.locked.classes.add(ItemTooltipClasses.Unlocked)
+					.classes.remove(Classes.Hidden);
 				void this.item?.setLocked(!this.item.isLocked())
-					.then(locked => this.locked.classes.toggle(!locked, Classes.Hidden));
+					.then(locked => this.locked.classes.remove(ItemTooltipClasses.Unlocked)
+						.classes.toggle(!locked, Classes.Hidden));
+			}
 
 			this.awaitingShiftForLock = false;
 		}

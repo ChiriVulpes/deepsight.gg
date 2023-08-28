@@ -435,12 +435,14 @@
 		white-space: pre-wrap;
 	}
 
-	&-locked {
-		width: 1.3em;
-		height: 1.3em;
-		color: color(foreground-0);
-		@include mask-icon(lock);
-		order: 2;
-		margin-left: 0.2em;
+	@each $icon in lock, unlock {
+		&-#{$icon}ed {
+			width: 1.3em;
+			height: 1.3em;
+			color: color(foreground-0);
+			@include mask-icon($icon);
+			order: 2;
+			margin-left: 0.2em;
+		}
 	}
 }

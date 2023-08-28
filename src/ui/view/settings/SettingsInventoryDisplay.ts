@@ -24,6 +24,13 @@ export default class SettingsInformationDisplay extends Card<[]> {
 				Store.items.settingsToggleExtra = checked ? true : undefined)
 			.appendTo(this.content);
 
+		Checkbox.create([Store.items.settingsDisplayLocksOnItems])
+			.tweak(checkbox => checkbox.label.text.set("Always Display Locks on Items"))
+			.tweak(checkbox => checkbox.description.text.set("Display a lock in the centre left of locked items even when extra information isn't shown."))
+			.event.subscribe("update", ({ checked }) =>
+				Store.items.settingsDisplayLocksOnItems = checked ? true : undefined)
+			.appendTo(this.content);
+
 		// Checkbox.create([!Store.items.settingsClearItemFilterOnSwitchingViews])
 		// 	.tweak(checkbox => checkbox.label.text.set("Persistent Item Filter"))
 		// 	.tweak(checkbox => checkbox.description.text.set("When reloading the page or switching between views (ie, from Kinetic to Special), any filters are retained."))

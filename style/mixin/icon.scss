@@ -1,6 +1,6 @@
 @mixin mask-icon($path: var(--icon)) {
-	@if type-of($path) == "string" and str-slice($path, 1, 4) != "var(" {
-		@if str-slice($path, 1, 1) != "/" {
+	@if type-of($path) == "string" and str-slice($path, 1, 4) != "var(" and str-slice($path, 1, 4) != "url(" {
+		@if str-slice($path, 1, 1) != "/" and str-slice($path, 1, 4) != "http" {
 			$path: "/image/svg/#{$path}";
 		}
 		@if str-slice($path, -4) != ".svg" {

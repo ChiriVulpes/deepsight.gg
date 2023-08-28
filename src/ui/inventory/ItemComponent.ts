@@ -39,6 +39,8 @@ export enum ItemClasses {
 	ExtraEmpty = "item-extra-empty",
 	Loading = "item-loading",
 	NotAcquired = "item-not-acquired",
+	Locked = "item-locked",
+	Unlocked = "item-unlocked",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -203,6 +205,12 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 				.style.set("--icon", `url("${item.source.displayProperties.icon}")`)
 				.appendTo(this);
 		}
+
+		if ((item.isLocked() || item.isChangingLockState()))
+			Component.create()
+				.classes.add(item.isChangingLockState() ? ItemClasses.Unlocked : ItemClasses.Locked)
+				.classes.toggle(!Store.items.settingsDisplayLocksOnItems, Classes.ShowIfExtraInfo)
+				.appendTo(this);
 
 		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
 		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
