@@ -8,22 +8,13 @@
 		display: grid;
 		grid-template-rows: 100vh auto;
 		padding: 0;
-
-		&::before {
-			content: "";
-			display: block;
-			position: absolute;
-			inset: 0;
-			backdrop-filter: blur(5px);
-			z-index: -1;
-		}
+		overflow-x: hidden;
 	}
 
 	&-splash {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		overflow-y: visible;
-		margin-left: -100px;
 		align-self: center;
 
 		width: fit-content;
@@ -65,11 +56,6 @@
 		@media (max-width: 580px) {
 			width: 88px;
 		}
-
-		@media (max-width: 540px) {
-			width: 128px;
-			align-self: center;
-		}
 	}
 
 	&-title {
@@ -79,14 +65,23 @@
 		margin-left: -3px;
 		font-weight: 300;
 		font-family: $font-title;
+		margin-right: 60px;
 
 		@media (max-width: 800px) {
 			font-size: 40pt;
+			margin-right: 50px;
 		}
 
 		@media (max-width: 580px) {
 			font-size: 32pt;
+			margin-right: 50px;
 		}
+	}
+
+	&-state,
+	&-button-auth {
+		grid-column: 1/3;
+		justify-self: center;
 	}
 
 	&-logo,
@@ -104,6 +99,7 @@
 		left: -10%;
 		transform: translateX(-50%) translateY(-50%) translateZ(-500px) rotateX(25deg) rotateY(-5deg) rotateZ(15deg);
 		transform-origin: center center;
+		z-index: -2;
 
 		$sc-vault: url(https://user-images.githubusercontent.com/6081834/209422574-9c48fc61-18ae-4fc6-83fc-0596dc85b836.png);
 		$sc-collections: url(https://user-images.githubusercontent.com/6081834/209422841-14113e21-dafc-47c4-97f5-8c3b39fb9428.png);
@@ -203,6 +199,15 @@
 		background-size: $width $height;
 		background-repeat: no-repeat;
 		opacity: 0.2;
+	}
+
+	&::after {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		backdrop-filter: blur(5px);
+		z-index: -1;
 	}
 
 	&-footer {

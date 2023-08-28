@@ -75,15 +75,15 @@ namespace Model {
 		return new Impl(name, model);
 	}
 
-	export function createTemporary<T> (generate: IModel<T, T>["generate"]) {
-		return new Impl("", {
+	export function createTemporary<T> (generate: IModel<T, T>["generate"], name = "") {
+		return new Impl(name, {
 			cache: false,
 			generate,
 		});
 	}
 
-	export function createDynamic<T> (resetTime: Exclude<IModel<T, T>["resetTime"], undefined>, generate: IModel<T, T>["generate"]) {
-		return new Impl("", {
+	export function createDynamic<T> (resetTime: Exclude<IModel<T, T>["resetTime"], undefined>, generate: IModel<T, T>["generate"], name = "") {
+		return new Impl(name, {
 			cache: "Memory",
 			resetTime,
 			generate,
@@ -158,11 +158,11 @@ namespace Model {
 			if (includeExpired || this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
 				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
-				this.value = (this.model.process?.(cached.value) ?? cached.value) as R;
+				this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;
-				this.event.emit("loaded", { value: this.value });
-				return this.value;
+				this.event.emit("loaded", { value: this.value ?? undefined as any as R });
+				return this.value ?? undefined as any as R;
 			}
 
 			// we don't purge the data anymore so that deepsight.gg can show your inventory even if bungie's api is down
@@ -270,7 +270,7 @@ namespace Model {
 				});
 
 				this.errored = false;
-				this.value = promise;
+				this.value = promise ?? null;
 
 				return undefined;
 			}
@@ -278,12 +278,12 @@ namespace Model {
 			if (this.value instanceof Promise)
 				return undefined;
 
-			return this.value;
+			return this.value ?? undefined;
 		}
 
 		protected async set (value: T) {
 			const filtered = (this.model.process?.(value) ?? value) as R;
-			this.value = filtered;
+			this.value = (filtered ?? null) as R;
 			this.cacheTime = Date.now();
 			this.version = await this.getModelVersion();
 			this.loadId = loadId;
@@ -303,7 +303,7 @@ namespace Model {
 		}
 
 		public async await () {
-			return this.get() ?? this.value as R | Promise<R>;
+			return this.get() ?? (await Promise.resolve(this.value)) ?? undefined as any as R | Promise<R>;
 		}
 	}
 }

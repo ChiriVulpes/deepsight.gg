@@ -5,7 +5,9 @@ export enum ButtonClasses {
 	Icon = "button-icon",
 	InnerIcon = "button-icon-inner",
 	Attention = "button-attention",
+	LaserFocus = "button-laser-focus",
 	Selected = "button-selected",
+	Primary = "button-primary",
 }
 
 export default class Button<ARGS extends any[] = []> extends Component<HTMLButtonElement, ARGS> {
@@ -28,6 +30,24 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 			.append(Component.create())
 			.append(Component.create())
 			.tweak(tweaker));
+	}
+
+	public setPrimary () {
+		return this.classes.add(ButtonClasses.Primary);
+	}
+
+	public setLaserFocus () {
+		Component.create()
+			.classes.add(ButtonClasses.LaserFocus)
+			.appendTo(this);
+		return this;
+	}
+
+	public setAttention () {
+		Component.create()
+			.classes.add(ButtonClasses.Attention)
+			.appendTo(this);
+		return this;
 	}
 
 	public click () {

@@ -96,6 +96,10 @@ $colors: (
 		$referenced-var: str-slice($color, 9, str-length($color) - 1);
 		--#{$name}: var(--#{$referenced-var});
 		--#{$name}-rgb: var(--#{$referenced-var}-rgb);
+	} @else if str-starts-with($color, "var(") {
+		$referenced-var: str-slice($color, 7, str-length($color) - 1);
+		--#{$name}: var(--#{$referenced-var});
+		--#{$name}-rgb: var(--#{$referenced-var}-rgb);
 	} @else {
 		--#{$name}: #{$color};
 	}

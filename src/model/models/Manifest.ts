@@ -300,7 +300,7 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 	public get (key?: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
 	public get (index: Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true) {
+	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true): any {
 		if (typeof key === "boolean")
 			cached = key, key = undefined;
 
@@ -312,7 +312,7 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 
 		const memoryCacheKey = `${index ?? "/"}:${key}`;
 		if (this.memoryCache[memoryCacheKey])
-			return this.memoryCache[memoryCacheKey];
+			return this.memoryCache[memoryCacheKey] ?? undefined;
 
 		return this.resolve(memoryCacheKey, key, index, cached);
 	}
@@ -322,16 +322,16 @@ export class ManifestItem<COMPONENT_NAME extends AllComponentNames> {
 		await loadedManifestCache;
 
 		if (memoryCacheKey in this.memoryCache)
-			return this.memoryCache[memoryCacheKey];
+			return this.memoryCache[memoryCacheKey] ?? undefined;
 
 		const promise = this.stagedTransaction.get(this.componentName, `${key}`, index as string | undefined)
 			.then(value => {
 				if (cached) {
-					this.memoryCache[memoryCacheKey] = value ?? {} as never;
+					this.memoryCache[memoryCacheKey] = value ?? null as never;
 					updateManifestCache();
 				}
 
-				return value;
+				return value ?? undefined;
 			});
 
 		if (cached)

@@ -114,7 +114,7 @@ namespace Loadable {
 			});
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
-			this.initialiser(...this.models.map(model => model["value"]) as any)
+			this.initialiser(...this.models.map(model => model["value"] ?? undefined) as any)
 				.appendTo(this);
 		}
 

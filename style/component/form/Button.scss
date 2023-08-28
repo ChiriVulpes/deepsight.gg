@@ -6,7 +6,8 @@
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
-	background: color(button-background);
+	--opacity: 1;
+	background: color(button-background, var(--opacity));
 	border: 1px solid color(button-border);
 	color: color(button-foreground);
 	outline: none;
@@ -28,20 +29,18 @@
 	}
 
 	&-attention {
-		&::after {
-			content: "";
-			display: block;
-			position: absolute;
-			inset: 0;
-			background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
-			background-size: 600% 600%;
-			animation: flash 3s linear infinite;
-			@include blur-disables-animation;
-		}
+		display: block;
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(-45deg, transparent 40%, #fff9 50%, transparent 60%);
+		background-size: 600% 600%;
+		background-position-y: center;
+		animation: flash 3s linear infinite;
+		@include blur-disables-animation;
 	}
 
 	&:where(:hover, :active, :focus-visible, .button-selected) {
-		background: color(button-background-hover);
+		background: color(button-background-hover, var(--opacity));
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
 		@include transition(in);
@@ -60,7 +59,7 @@
 	&:where(:active) {
 		transform: translateY(2px);
 		@include transition(0s);
-		background: color(button-background-active);
+		background: color(button-background-active, var(--opacity));
 	}
 
 	&-icon {
@@ -118,6 +117,122 @@
 		margin: 0 0 8px;
 		p {
 			margin: 2px 0 0;
+		}
+	}
+
+	&-primary {
+		text-transform: uppercase;
+		font-size: 1.4em;
+		letter-spacing: 0.2em;
+		--opacity: 0.3;
+		padding: 10px 70px;
+		border-width: 2px;
+		border-color: color(button-border, 0.5);
+		&::after {
+			z-index: -1;
+			content: "";
+			position: absolute;
+			inset: 0;
+			backdrop-filter: blur(5px);
+		}
+	}
+
+	@at-root {
+		@property --animated-width {
+			syntax: "<number>";
+			inherits: false;
+			initial-value: 0;
+		}
+	}
+
+	&-laser-focus {
+		top: calc(50% - 1px);
+		left: 50%;
+		transform: translateX(-50%);
+		height: 2px;
+		width: 0%;
+		position: absolute;
+		background: currentColor;
+		opacity: 0;
+		z-index: -1;
+		pointer-events: none;
+		animation:
+			laser-focus-width 4s linear infinite 1s,
+			laser-focus-opacity 4s linear infinite 1s;
+
+		@keyframes laser-focus-width {
+			0% {
+				--animated-width: 0;
+			}
+
+			5% {
+				--animated-width: 1;
+			}
+
+			100% {
+				--animated-width: 0;
+			}
+		}
+
+		@keyframes laser-focus-opacity {
+			0% {
+				opacity: 0;
+			}
+
+			5% {
+				opacity: 0.3;
+			}
+
+			100% {
+				opacity: 0;
+			}
+		}
+
+		.button:where(:hover, :focus-visible) & {
+			opacity: 0.4;
+			width: 100%;
+			animation: none;
+		}
+
+		&,
+		&::before,
+		&::after {
+			@include transition(0.5s, width, opacity);
+		}
+
+		&::before,
+		&::after {
+			content: "";
+			position: absolute;
+			width: calc(0px + 1000px * var(--animated-width, 0));
+			height: 2px;
+			top: 0;
+			background: linear-gradient(to var(--direction, right), currentColor, transparent);
+			animation: laser-focus-width 4s linear infinite 1s;
+		}
+
+		&::before {
+			--direction: left;
+			right: 100%;
+		}
+		&::after {
+			left: 100%;
+		}
+
+		.button:where(:hover, :focus-visible) & {
+			width: 100%;
+
+			&::before,
+			&::after {
+				animation: none;
+				width: 500px;
+			}
+
+			&,
+			&::before,
+			&::after {
+				@include transition(0.3s);
+			}
 		}
 	}
 }

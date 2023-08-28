@@ -116,7 +116,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.super.content.classes.add(InventoryViewClasses.Content);
 
 		if (!this.inventory.sortedCharacters?.length) {
-			this.super.setTitle(title => title.text.set("No Guardians Found..."));
+			this.super.setTitle(title => title.text.set("No Guardians Were Found..."));
 			this.super.setSubtitle("small", subtitle => subtitle.text.set("Your ghost continues its search..."));
 			return;
 		}

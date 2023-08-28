@@ -1,6 +1,6 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
-import Button, { ButtonClasses } from "ui/form/Button";
+import Button from "ui/form/Button";
 import Label from "ui/Label";
 import TextLogo from "ui/TextLogo";
 import View from "ui/View";
@@ -47,8 +47,11 @@ export default View.create({
 					.tweak(_ => _.content.text.set("Not Authenticated")))
 
 				.append(Button.create()
-					.classes.add(AuthViewClasses.AuthButton, ButtonClasses.Attention)
-					.text.set("Authenticate with Bungie")
+					.classes.add(AuthViewClasses.AuthButton)
+					.setPrimary()
+					.setAttention()
+					.setLaserFocus()
+					.text.set("Authenticate")
 					.event.subscribe("click", () =>
 						void Bungie.authenticate("start").catch(err => console.error(err)))));
 

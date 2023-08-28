@@ -39,6 +39,7 @@
 	}
 
 	&-subtitle {
+		grid-row: 2;
 		@include mobile {
 			font-size: 17pt;
 			margin-top: -0.3em;
@@ -62,7 +63,8 @@
 	}
 
 	@at-root sleep,
-		.view-item-stats-container {
+		.view-item-stats-container,
+		.button-primary {
 		@include view-swipe-animation;
 	}
 
@@ -770,7 +772,7 @@
 		height: 0.7em;
 		border-radius: 1em;
 		border: none;
-		--button-background: #{color(background-7)};
+		@include override-color(button-background, color(background-7));
 		--button-background-hover: #{color(background-9)};
 		--button-background-active: #{color(background-4)};
 		display: grid;
@@ -806,5 +808,10 @@
 			color: color(background-2);
 			@include transition(in);
 		}
+	}
+
+	// return to collections button
+	.button-primary {
+		margin-top: 50px;
 	}
 }

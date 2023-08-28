@@ -60,15 +60,30 @@ enum ItemViewClasses {
 
 const itemViewBase = View.create({
 	models: (item: Item | string) =>
-		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api))] as const,
+		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api), "resolveItemURL")] as const,
 	id: "item",
-	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.id}`,
+	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.bucket === "collections" ? item.definition.hash : item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,
 	noDestinationButton: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
 		LoadingManager.end(view.definition.id);
 
-		const item = itemResult!;
+		const item = itemResult;
+		if (!item) {
+			view.setTitle(title => title.text.set("No Item Was Found..."));
+			view.setSubtitle("small", subtitle => subtitle.text.set("Your ghost continues its search..."));
+
+			const content = Component.create()
+				.appendTo(view.content);
+
+			Button.create()
+				.text.set("View Collections")
+				.setPrimary()
+				.setAttention()
+				.event.subscribe("click", () => viewManager.showCollections())
+				.appendTo(content);
+			return;
+		}
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).$i = (window as any).item = item;
