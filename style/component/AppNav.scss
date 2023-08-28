@@ -219,12 +219,36 @@
 
 		@mixin dropdown-mode {
 			&-children {
-				display: contents;
+				flex-basis: 100%;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				gap: 1em;
+				row-gap: 0;
+				background: none !important;
+				margin-bottom: 10px;
+				padding-left: 20px;
 				&::before {
-					display: none;
+					backdrop-filter: none;
+					top: 45px;
+					left: 10px;
+					width: 4px;
+					height: calc(100% - 45px);
+					background: #fff3;
+				}
+
+				> :first-child {
+					flex-basis: 100%;
+					justify-content: left;
+					margin-left: -20px;
+				}
+
+				.app-nav-destination {
+					margin-bottom: 0;
 				}
 			}
 
+			margin-left: 0;
 			margin-right: 0;
 			align-self: flex-end;
 
@@ -235,8 +259,10 @@
 				margin-right: 0;
 				padding: 10px;
 				display: flex;
-				flex-direction: column;
+				flex-wrap: wrap;
 				z-index: 2;
+				justify-content: flex-start;
+				gap: 1em;
 
 				&.active {
 					background: color(background-4, 0.9);
@@ -248,7 +274,7 @@
 					--button-background: transparent;
 					--button-border: transparent;
 					width: fit-content;
-					align-self: flex-end;
+					margin-left: auto;
 					height: 34px;
 					margin-top: 0;
 
@@ -276,6 +302,12 @@
 					height: 100vh;
 					z-index: 1;
 				}
+			}
+
+			&-settings {
+				position: absolute;
+				top: 4px;
+				left: 10px;
 			}
 		}
 
