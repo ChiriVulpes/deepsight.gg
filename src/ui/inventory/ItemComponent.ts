@@ -307,6 +307,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		if (this.disableInteractions)
 			return;
 
+		if (!event.use("MouseLeft"))
+			return;
+
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
 			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
@@ -327,6 +330,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			return;
 
 		if (this.disableInteractions)
+			return;
+
+		if (!event.use("MouseRight"))
 			return;
 
 		event.preventDefault();

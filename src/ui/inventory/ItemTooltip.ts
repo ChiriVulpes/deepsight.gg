@@ -245,9 +245,11 @@ class ItemTooltip extends Tooltip {
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
 	}
 
+	private awaitingShiftForLock = false;
 	protected onGlobalKeydown (event: IKeyEvent) {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Collections");
+			this.awaitingShiftForLock = true;
 		}
 	}
 
@@ -255,9 +257,11 @@ class ItemTooltip extends Tooltip {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Details");
 
-			if (!event.usedAnotherKeyDuring)
+			if (!event.usedAnotherKeyDuring && this.awaitingShiftForLock)
 				void this.item?.setLocked(!this.item.isLocked())
 					.then(locked => this.locked.classes.toggle(!locked, Classes.Hidden));
+
+			this.awaitingShiftForLock = false;
 		}
 	}
 

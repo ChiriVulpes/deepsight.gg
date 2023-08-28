@@ -1,5 +1,7 @@
 import { EventManager } from "utility/EventManager";
 
+type Modifier = "ctrl" | "shift" | "alt";
+
 export interface IKeyEvent {
 	key: string;
 	ctrl: boolean;
@@ -7,9 +9,9 @@ export interface IKeyEvent {
 	alt: boolean;
 	used: boolean;
 	input: HTMLElement | null;
-	use (key: string, ...modifiers: ("ctrl" | "shift" | "alt")[]): boolean;
-	useOverInput (key: string, ...modifiers: ("ctrl" | "shift" | "alt")[]): boolean;
-	matches (key: string, ...modifiers: ("ctrl" | "shift" | "alt")[]): boolean;
+	use (key: string, ...modifiers: Modifier[]): boolean;
+	useOverInput (key: string, ...modifiers: Modifier[]): boolean;
+	matches (key: string, ...modifiers: Modifier[]): boolean;
 	cancelInput (): void;
 }
 
@@ -26,14 +28,25 @@ const UiEventBus = EventManager.make<IUiEventBusEvents>();
 
 type RawEvent = Partial<KeyboardEvent> & Partial<MouseEvent> & (KeyboardEvent | MouseEvent);
 
-let lastUp = 0;
+let lastUsed = 0;
 const state: Record<string, number | undefined> = {};
+
+const mouseKeyMap: Record<string, string> = {
+	[0]: "MouseLeft",
+	[1]: "MouseMiddle",
+	[2]: "MouseRight",
+	[3]: "Mouse3",
+	[4]: "Mouse4",
+	[5]: "Mouse5",
+	// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+	[`${undefined}`]: "Mouse?",
+};
 
 function emitKeyEvent (e: RawEvent) {
 	const input = (e.target as HTMLElement).closest<HTMLElement>("input[type=text], textarea, [contenteditable]");
 	let usedByInput = !!input;
 
-	const eventKey = e.key ?? `Mouse${e.button === 0 ? "Left" : e.button === 1 ? "Middle" : e.button === 2 ? "Right" : (e.button ?? "?")}`;
+	const eventKey = e.key ?? mouseKeyMap[e.button!];
 	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup";
 	if (eventType === "keydown")
 		state[eventKey] = Date.now();
@@ -83,7 +96,7 @@ function emitKeyEvent (e: RawEvent) {
 	};
 
 	if (eventType === "keyup") {
-		event.usedAnotherKeyDuring = lastUp > (state[eventKey] ?? 0);
+		event.usedAnotherKeyDuring = lastUsed > (state[eventKey] ?? 0);
 		delete state[eventKey];
 	}
 
@@ -91,8 +104,7 @@ function emitKeyEvent (e: RawEvent) {
 
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault();
-		if (eventType === "keyup")
-			lastUp = Date.now();
+		lastUsed = Date.now();
 	}
 }
 
@@ -101,5 +113,57 @@ document.addEventListener("keyup", emitKeyEvent);
 
 document.addEventListener("mousedown", emitKeyEvent);
 document.addEventListener("mouseup", emitKeyEvent);
+document.addEventListener("click", emitKeyEvent);
+
+declare global {
+	interface MouseEvent {
+		used: boolean;
+		use (key: string, ...modifiers: Modifier[]): boolean;
+		matches (key: string, ...modifiers: Modifier[]): boolean;
+	}
+	interface PointerEvent {
+		used: boolean;
+		use (key: string, ...modifiers: Modifier[]): boolean;
+		matches (key: string, ...modifiers: Modifier[]): boolean;
+	}
+}
+
+interface MouseEventInternal extends MouseEvent {
+	_used?: boolean;
+}
+
+Object.defineProperty(MouseEvent.prototype, "used", {
+	get (this: MouseEventInternal) {
+		return this._used ?? false;
+	},
+});
+
+Object.defineProperty(MouseEvent.prototype, "use", {
+	value: function (this: MouseEventInternal, key: string, ...modifiers: Modifier[]) {
+		if (this._used)
+			return false;
+
+		const matches = this.matches(key, ...modifiers);
+		if (matches) {
+			this._used = true;
+			// allow click & contextmenu handlers to be considered "used" for IKeyUpEvents
+			lastUsed = Date.now();
+		}
+
+		return matches;
+	},
+});
+
+Object.defineProperty(MouseEvent.prototype, "matches", {
+	value: function (this: MouseEventInternal, key: string, ...modifiers: Modifier[]) {
+		if (mouseKeyMap[this.button] !== key)
+			return false;
+
+		if (!modifiers.every(modifier => this[`${modifier}Key`]))
+			return false;
+
+		return true;
+	},
+});
 
 export default UiEventBus;
