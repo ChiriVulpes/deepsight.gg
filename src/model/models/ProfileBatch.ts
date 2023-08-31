@@ -54,6 +54,7 @@ const ProfileBatch = Model.createDynamic(Time.seconds(30), async api => {
 		// Characters
 		DestinyComponentType.Characters,
 		DestinyComponentType.ProfileProgression,
+		DestinyComponentType.CharacterLoadouts,
 
 		// Items
 		DestinyComponentType.CharacterInventories,
