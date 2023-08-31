@@ -2,8 +2,6 @@
 	&-bucket {
 		grid-column: 1;
 		&-content {
-			--slot-size: calc((100vw - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) - 3px * 5) / 5);
-
 			display: grid;
 			grid-template-columns: repeat(10, auto);
 			grid-template-rows: repeat(5, auto);
@@ -11,6 +9,7 @@
 			justify-content: start;
 
 			@include mobile {
+				--slot-size: calc((100vw - var(--view-padding-x) * 2 - var(--bucket-inventory-padding) - 3px * 5) / 5);
 				grid-template-columns: repeat(5, auto);
 				grid-template-rows: repeat(10, auto);
 			}
