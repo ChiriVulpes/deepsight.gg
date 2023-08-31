@@ -80,6 +80,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 				this.characters = Object.fromEntries(this.sortedCharacters.map(character => [character.characterId, character]));
 				for (const item of Object.values(this.items ?? {}))
 					item["_owner"] = this.sortedCharacters[0].characterId as CharacterId;
+
+				for (const character of this.sortedCharacters)
+					for (const loadout of character.loadouts)
+						loadout.setInventory(this);
 			}));
 
 		if (FocusManager.focused)
