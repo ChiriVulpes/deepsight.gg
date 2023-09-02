@@ -187,4 +187,12 @@ export default class Drawer extends Component {
 		this.panels.clear();
 		return this;
 	}
+
+	public removePanels () {
+		for (const panel of this.panels)
+			panel.remove();
+
+		this.panels.clear();
+		return this;
+	}
 }

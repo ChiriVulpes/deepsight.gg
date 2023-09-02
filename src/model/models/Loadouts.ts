@@ -4,6 +4,7 @@ import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { ItemId } from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
+import Bound from "utility/decorator/Bound";
 
 export interface ILoadoutsProfile {
 	characterLoadouts?: DictionaryComponentResponse<DestinyLoadoutsComponent> | undefined;
@@ -25,7 +26,6 @@ export class Loadout {
 
 	public constructor (loadout: DestinyLoadoutComponent) {
 		Object.assign(this, loadout);
-		this.onInventoryUpdate = this.onInventoryUpdate.bind(this);
 	}
 
 	public setInventory (inventory: Inventory) {
@@ -35,6 +35,7 @@ export class Loadout {
 		this.onInventoryUpdate();
 	}
 
+	@Bound
 	private onInventoryUpdate () {
 		for (const component of this.items) {
 			component.item = this.inventory?.items?.[component.itemInstanceId as ItemId];
