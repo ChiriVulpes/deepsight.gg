@@ -6,10 +6,10 @@ import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { Bucket, CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
-import Display from "ui/bungie/DisplayProperties";
 import BaseComponent from "ui/Component";
-import Button, { ButtonClasses } from "ui/form/Button";
+import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
+import InfoBlock from "ui/InfoBlock";
 import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import Loadable from "ui/Loadable";
@@ -36,10 +36,9 @@ export enum PlayerOverviewClasses {
 	IdentityCode = "player-overview-identity-code",
 	Drawer = "player-overview-drawer",
 	Panel = "player-overview-drawer-panel",
-	CharacterButtons = "player-overview-character-buttons",
-	CharacterButton = "player-overview-character-button",
-	CharacterButtonPower = "player-overview-character-button-power",
-	CharacterButtonClassName = "player-overview-character-button-class-name",
+	ClassSelection = "player-overview-class-selection",
+	CharacterPicker = "player-overview-character-picker",
+	CharacterPickerButton = "player-overview-character-picker-button",
 	Slot = "player-overview-slot",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
@@ -60,6 +59,11 @@ namespace PlayerOverview {
 	export class Component extends BaseComponent<HTMLElement, [UserMembershipData, Inventory]> {
 		public drawer!: Drawer;
 		private inventory!: Inventory;
+		public currencyOverview!: InfoBlock;
+		public classSelection!: BaseComponent;
+		public statsOverview!: InfoBlock;
+		public characterPicker!: ClassPicker<CharacterId>;
+		private panels!: Record<CharacterId, BaseComponent>;
 
 		public displayName!: string;
 		public code!: string;
@@ -87,6 +91,29 @@ namespace PlayerOverview {
 				.classes.add(PlayerOverviewClasses.Drawer)
 				.appendTo(this);
 
+			this.currencyOverview = InfoBlock.create()
+				.appendTo(this.drawer);
+
+			this.classSelection = BaseComponent.create()
+				.classes.add(PlayerOverviewClasses.ClassSelection)
+				.appendTo(this.drawer);
+
+			this.characterPicker = (ClassPicker.create([]) as ClassPicker<CharacterId>)
+				.classes.add(PlayerOverviewClasses.CharacterPicker)
+				.event.subscribe("selectClass", event => {
+					const panel = this.panels[event.option];
+					if (!panel) {
+						console.error(`Selected unknown option '${event.option}'`);
+						return;
+					}
+
+					this.drawer.showPanel(this.panels[event.option]);
+				})
+				.appendTo(this.classSelection);
+
+			this.statsOverview = InfoBlock.create()
+				.appendTo(this.drawer);
+
 			inventory.event.subscribe("update", this.update);
 			inventory.event.subscribe("itemUpdate", this.update);
 			this.update();
@@ -105,20 +132,20 @@ namespace PlayerOverview {
 		private previous?: Record<DestinyClass, string[]>;
 		@Bound
 		public update () {
-			this.drawer.removeContents();
+			this.drawer.removePanels();
+			this.panels = {};
+			this.updateCharacters();
+			this.statsOverview.appendTo(this.drawer);
+			this.drawer.enable();
+		}
 
-			const characterButtons = BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.CharacterButtons)
-				.appendTo(this.drawer);
-
+		private updateCharacters () {
 			const characters = this.inventory.sortedCharacters ?? [];
 			if (!characters.length) {
 				console.warn("No characters found");
 				this.drawer.disable();
 				return;
 			}
-
-			this.drawer.enable();
 
 			let first = true;
 			for (const character of characters) {
@@ -129,26 +156,16 @@ namespace PlayerOverview {
 				}
 
 				const panel = this.createPanel(character, bucket);
-				const button = Button.create()
-					.classes.add(PlayerOverviewClasses.CharacterButton)
-					.classes.toggle(first, ButtonClasses.Selected)
-					.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
-					.append(BaseComponent.create()
-						.text.set(Display.name(character.class))
-						.classes.add(PlayerOverviewClasses.CharacterButtonClassName))
-					.append(ItemPowerLevel.create([character.light])
-						.classes.add(PlayerOverviewClasses.CharacterButtonPower))
-					.event.subscribe("click", () => {
-						this.character = character.characterId as CharacterId;
-						this.drawer.showPanel(panel);
-						for (const otherButton of this.drawer.element.getElementsByClassName(PlayerOverviewClasses.CharacterButton))
-							otherButton.classList.remove(ButtonClasses.Selected);
-						button.classes.add(ButtonClasses.Selected);
-					})
-					.appendTo(characterButtons);
+				this.panels[character.characterId as CharacterId] = panel;
+				const className = character.class?.displayProperties.name ?? "Unknown";
+				this.characterPicker.addOption({
+					id: character.characterId as CharacterId,
+					background: `https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}`,
+					icon: `https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg`,
+				});
 
-				if (this.character === character.characterId)
-					this.drawer.showPanel(panel);
+				if (first)
+					void this.characterPicker.setCurrent(character.characterId as CharacterId);
 
 				if (first && !this.character)
 					this.character = character.characterId as CharacterId;
