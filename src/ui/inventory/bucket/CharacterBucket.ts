@@ -38,7 +38,7 @@ export default class CharacterBucket extends BucketComponent<[]> {
 		this.icon.style.set("--icon",
 			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
 
-		this.title.text.add(className);
+		this.title.text.set(className);
 
 		this.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
 			.style.set("--emblem", `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);

@@ -7,6 +7,16 @@
 		// this is some kind of circle thing that i think i can do with css math nowadays given i have the angle
 		// but you see, in addition to that, also i'm dumb. so instead here have a multiplier
 		--wipe-animation-size-multiplier: 1.4285714285714286;
+		background: var(--background);
+		border: none;
+		justify-content: center;
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			border: 1px solid #888;
+			mix-blend-mode: color-dodge;
+		}
 
 		&-current {
 			grid-column: 2;
@@ -20,6 +30,13 @@
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
 			grid-template-rows: repeat(3, 1fr);
+		}
+
+		.button-icon-inner {
+			margin: 0;
+			width: 80%;
+			height: 80%;
+			transform: rotate(-45deg);
 		}
 	}
 }

@@ -68,8 +68,6 @@ namespace PlayerOverview {
 		public displayName!: string;
 		public code!: string;
 
-		private character!: CharacterId;
-
 		protected override onMake (memberships: UserMembershipData, inventory: Inventory): void {
 			this.classes.add(PlayerOverviewClasses.Main);
 			this.inventory = inventory;
@@ -127,6 +125,11 @@ namespace PlayerOverview {
 			UiEventBus.subscribe("keyup", this.onKeyup);
 
 			viewManager.event.subscribe("show", () => this.drawer.close(true));
+
+			this.drawer.event.subscribe("openDrawer", () => {
+				if (inventory.sortedCharacters?.[0].characterId)
+					void this.characterPicker.setCurrent(inventory.sortedCharacters?.[0].characterId as CharacterId);
+			});
 		}
 
 		private previous?: Record<DestinyClass, string[]>;
@@ -140,14 +143,15 @@ namespace PlayerOverview {
 		}
 
 		private updateCharacters () {
-			const characters = this.inventory.sortedCharacters ?? [];
+			const characters = (this.inventory.sortedCharacters ?? []).slice()
+				// sort characters by active option so that the active option stays the visible panel
+				.sort((a, b) => a.characterId === this.characterPicker.currentOption ? -1 : b.characterId === this.characterPicker.currentOption ? 1 : 0);
 			if (!characters.length) {
 				console.warn("No characters found");
 				this.drawer.disable();
 				return;
 			}
 
-			let first = true;
 			for (const character of characters) {
 				const bucket = this.inventory.getCharacterBuckets(character.characterId as CharacterId);
 				if (!bucket) {
@@ -163,14 +167,6 @@ namespace PlayerOverview {
 					background: `https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}`,
 					icon: `https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg`,
 				});
-
-				if (first)
-					void this.characterPicker.setCurrent(character.characterId as CharacterId);
-
-				if (first && !this.character)
-					this.character = character.characterId as CharacterId;
-
-				first = false;
 			}
 		}
 

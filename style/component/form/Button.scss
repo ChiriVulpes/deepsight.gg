@@ -114,14 +114,7 @@
 			position: absolute;
 			inset: 0.2em;
 			background: currentColor;
-			-webkit-mask-image: var(--icon);
-			-webkit-mask-size: contain;
-			-webkit-mask-repeat: no-repeat;
-			-webkit-mask-position: center;
-			mask-image: var(--icon);
-			mask-size: contain;
-			mask-repeat: no-repeat;
-			mask-position: center;
+			@include mask-icon;
 		}
 	}
 
@@ -260,10 +253,10 @@
 		inset: 0;
 		background-image: linear-gradient(
 			var(--wipe-animation-angle),
-			transparent 33.3%,
-			white 33.3%,
-			white 66.6%,
-			transparent 66.6%
+			transparent 30%,
+			white 30%,
+			white 70%,
+			transparent 70%
 		);
 		background-size: calc(300% * var(--wipe-animation-size-multiplier))
 			calc(300% * var(--wipe-animation-size-multiplier));
