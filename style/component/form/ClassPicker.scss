@@ -1,4 +1,8 @@
+@use "sass:math";
+
 .class-picker {
+	margin: 30px;
+	position: relative;
 	&-button {
 		transform: rotate(45deg);
 		padding: 0;
@@ -10,12 +14,23 @@
 		background: var(--background);
 		border: none;
 		justify-content: center;
+		margin: 0;
+		@include transition(in, margin);
 		&::after {
 			content: "";
 			position: absolute;
 			inset: 0;
-			border: 1px solid #888;
+			border: 2px solid #888;
 			mix-blend-mode: color-dodge;
+		}
+
+		&-preview {
+			position: absolute;
+			inset: -1px;
+			background: #444;
+			z-index: 1;
+			opacity: 0;
+			@include transition(in, opacity);
 		}
 
 		&-current {
@@ -24,19 +39,61 @@
 			width: 70px;
 		}
 
-		&-wrapper {
-			grid-column: 1;
-			grid-row: 1/4;
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			grid-template-rows: repeat(3, 1fr);
-		}
-
 		.button-icon-inner {
 			margin: 0;
 			width: 80%;
-			height: 80%;
+			height: 60%;
 			transform: rotate(-45deg);
+			&::before {
+				inset: 0;
+			}
+		}
+
+		&-wrapper {
+			--size: 100%;
+			position: absolute;
+			top: calc(0% - (var(--size) - 100%) / 2);
+			right: 100%;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			grid-template-rows: repeat(3, 1fr);
+			aspect-ratio: 1/1;
+			height: var(--size);
+			@include transition(in, height, top, right);
+
+			.class-picker:not(:hover, :focus-within) & {
+				--size: 50%;
+			}
+
+			&-2 {
+				--size: 150%;
+				right: 103%;
+
+				.class-picker-button {
+					margin: -3px;
+
+					&:nth-child(1) {
+						grid-column: 3;
+						grid-row: 1;
+					}
+					&:nth-child(2) {
+						grid-column: 3;
+						grid-row: 3;
+					}
+				}
+
+				.class-picker:not(:hover, :focus-within) & {
+					--size: 50%;
+					right: 115%;
+
+					.class-picker-button {
+						margin: 0;
+						&-preview {
+							opacity: 1;
+						}
+					}
+				}
+			}
 		}
 	}
 }
