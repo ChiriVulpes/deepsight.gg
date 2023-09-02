@@ -337,7 +337,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 		const characterBucketsSorted = (this.inventory.sortedCharacters ?? [])
 			.map(character => ({
-				character: characters[character.characterId as CharacterId] ??= CharacterBucket.create([]).setCharacter(character),
+				character: (characters[character.characterId as CharacterId] ??= CharacterBucket.create([])).setCharacter(character),
 				postmaster: skipPostmasters ? undefined : this.generatePostmasterBucket(character),
 				vault: vaults[character.characterId as CharacterId] ??= singleVaultBucket ?? VaultBucket.create([character]),
 			}));
