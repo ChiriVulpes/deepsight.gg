@@ -46,9 +46,16 @@ export default class ClassPicker<ID extends string = string> extends Component<H
 	}
 
 	public addOption (option: Omit<IClassPickerOption<ID>, "button">) {
-		if (this.options.some(existing => existing.id === option.id))
+		const existingOption = this.options.find(existing => existing.id === option.id);
+		if (existingOption) {
 			// already has this option
+			existingOption.background = option.background;
+			existingOption.icon = option.icon;
+			existingOption.button?.setAppearance(option);
+			if (this.currentOption === option.id)
+				this.currentButton.setAppearance(option);
 			return this;
+		}
 
 		this.options.push(option);
 		const button = (option as IClassPickerOption<ID>).button = ClassPickerButton.create()
@@ -116,6 +123,7 @@ export class ClassPickerButton extends Button {
 	protected override onMake (): void {
 		super.onMake();
 		this.classes.add(ClassPickerClasses.Button);
+		this.addIcon();
 	}
 
 	public setAppearance (option?: IClassPickerOption<string>) {

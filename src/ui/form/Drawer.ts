@@ -159,6 +159,9 @@ export default class Drawer extends Component {
 		if (this.isDisabled())
 			return;
 
+		if (!this.classes.has(Classes.Hidden))
+			return;
+
 		this.classes.remove(Classes.Hidden);
 		this.attributes.remove("inert");
 		this.event.emit("openDrawer", { reason });
