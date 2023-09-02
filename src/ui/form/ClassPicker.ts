@@ -5,8 +5,15 @@ import Button from "ui/form/Button";
 export enum ClassPickerClasses {
 	Main = "class-picker",
 	Button = "class-picker-button",
+	ButtonPreview = "class-picker-button-preview",
 	ButtonCurrent = "class-picker-button-current",
 	OptionsWrapper = "class-picker-button-wrapper",
+	OptionsWrapper2 = "class-picker-button-wrapper-2",
+	OptionsWrapper3 = "class-picker-button-wrapper-3",
+	OptionsWrapper4 = "class-picker-button-wrapper-4",
+	OptionsWrapper9 = "class-picker-button-wrapper-9",
+	OptionsWrapperBorders1 = "class-picker-button-wrapper-borders1",
+	OptionsWrapperBorders2 = "class-picker-button-wrapper-borders2",
 }
 
 export interface IClassPickerOption<ID extends string = string> {
@@ -30,6 +37,8 @@ export default class ClassPicker<ID extends string = string> extends Component<H
 	public currentOption?: ID;
 	public options!: IClassPickerOption<ID>[];
 	public optionsWrapper!: Component;
+	public optionsWrapperBorders1!: Component;
+	public optionsWrapperBorders2!: Component;
 	private switchHandler?: ClassPickerOptionSwitchHandler<ID>;
 
 	protected override onMake (switchHandler?: ClassPickerOptionSwitchHandler<ID>): void {
@@ -43,6 +52,12 @@ export default class ClassPicker<ID extends string = string> extends Component<H
 		this.optionsWrapper = Component.create()
 			.classes.add(ClassPickerClasses.OptionsWrapper)
 			.appendTo(this);
+		this.optionsWrapperBorders1 = Component.create()
+			.classes.add(ClassPickerClasses.OptionsWrapperBorders1)
+			.appendTo(this.optionsWrapper);
+		this.optionsWrapperBorders2 = Component.create()
+			.classes.add(ClassPickerClasses.OptionsWrapperBorders2)
+			.appendTo(this.optionsWrapper);
 	}
 
 	public addOption (option: Omit<IClassPickerOption<ID>, "button">) {
@@ -71,7 +86,18 @@ export default class ClassPicker<ID extends string = string> extends Component<H
 				await this.setCurrent(option.id);
 			})
 			.appendTo(this.optionsWrapper);
+
+		this.updateOptionsWrapper();
 		return this;
+	}
+
+	private updateOptionsWrapper () {
+		this.optionsWrapper.classes.remove(ClassPickerClasses.OptionsWrapper2, ClassPickerClasses.OptionsWrapper3, ClassPickerClasses.OptionsWrapper4, ClassPickerClasses.OptionsWrapper9);
+		const count = this.optionsWrapper.element.childElementCount - 2;
+		if (count > 1)
+			this.optionsWrapper.classes.add(ClassPickerClasses[`OptionsWrapper${count > 4 ? 9 : count as 2 | 3 | 4}`]);
+		this.optionsWrapperBorders1.appendTo(this.optionsWrapper);
+		this.optionsWrapperBorders2.appendTo(this.optionsWrapper);
 	}
 
 	private settingCurrent?: Promise<any>;
@@ -95,6 +121,7 @@ export default class ClassPicker<ID extends string = string> extends Component<H
 			if (!currentOption) {
 				chosenOption.button.remove();
 				delete chosenOption.button;
+				this.updateOptionsWrapper();
 			} else {
 				chosenOption.button.setAppearance(currentOption);
 				currentOption.button = chosenOption.button;
@@ -124,6 +151,9 @@ export class ClassPickerButton extends Button {
 		super.onMake();
 		this.classes.add(ClassPickerClasses.Button);
 		this.addIcon();
+		Component.create()
+			.classes.add(ClassPickerClasses.ButtonPreview)
+			.appendTo(this);
 	}
 
 	public setAppearance (option?: IClassPickerOption<string>) {
