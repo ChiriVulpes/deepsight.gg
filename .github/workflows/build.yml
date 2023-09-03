@@ -39,6 +39,8 @@ jobs:
           jekyll: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
   deploy:
+    needs: build
     uses: ./.github/workflows/deploy.yml
     
