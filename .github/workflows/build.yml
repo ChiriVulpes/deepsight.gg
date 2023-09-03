@@ -1,8 +1,8 @@
-name: Deploy Beta
+name: Build
 
 on:
   push:
-    branches: [ beta ]
+    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,11 +29,12 @@ jobs:
           DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run build
       
-      - name: Deploy to GitHub Pages
+      - name: Prepare for GitHub Pages
         if: success()
-        uses: crazy-max/ghaction-github-pages@v2
+        uses: crazy-max/ghaction-github-pages@v3
         with:
-          target_branch: build-beta
+          fqdn: deepsight.gg
+          target_branch: build
           build_dir: docs
           jekyll: false
         env:
