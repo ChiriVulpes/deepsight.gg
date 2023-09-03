@@ -21,6 +21,11 @@ jobs:
         with:
           ref: build-beta
           path: beta
+          
+      - name: Clear git
+        run: |
+          rm -rf .git
+          rm -rf beta/.git
       
       - name: Prepare for GitHub Pages
         if: success()
