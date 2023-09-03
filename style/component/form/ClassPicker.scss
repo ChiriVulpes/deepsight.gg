@@ -15,7 +15,7 @@
 		border: none;
 		justify-content: center;
 		margin: 0;
-		@include transition(in, margin);
+		@include transition(in, margin, opacity);
 		&::after {
 			content: "";
 			position: absolute;
@@ -26,11 +26,21 @@
 
 		&-preview {
 			position: absolute;
-			inset: -1px;
-			background: #444;
-			z-index: 1;
-			opacity: 0;
-			@include transition(in, opacity);
+			inset: 0;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset: -1px;
+				background: #444;
+				z-index: 1;
+				opacity: 0;
+				@include transition(in, opacity);
+
+				.class-picker:not(:hover, :focus-within) .class-picker-button-wrapper & {
+					opacity: 1;
+				}
+			}
 		}
 
 		&-current {
@@ -88,8 +98,44 @@
 
 					.class-picker-button {
 						margin: 0;
-						&-preview {
-							opacity: 1;
+					}
+				}
+			}
+
+			&-4,
+			&-3 {
+				--size: 150%;
+				right: 150%;
+
+				.class-picker-button {
+					margin: -3px;
+
+					&:nth-child(1) {
+						grid-column: 2;
+						grid-row: 1;
+					}
+					&:nth-child(2) {
+						grid-column: 3;
+						grid-row: 2;
+					}
+					&:nth-child(3) {
+						grid-column: 2;
+						grid-row: 3;
+					}
+					&:nth-child(4) {
+						grid-column: 1;
+						grid-row: 2;
+					}
+				}
+
+				.class-picker:not(:hover, :focus-within) & {
+					--size: 50%;
+					right: 130%;
+
+					.class-picker-button {
+						margin: 0;
+						&:not(:nth-child(2)) {
+							opacity: 0;
 						}
 					}
 				}

@@ -16,20 +16,20 @@ export enum ClassPickerClasses {
 	OptionsWrapperBorders2 = "class-picker-button-wrapper-borders2",
 }
 
-export interface IClassPickerOption<ID extends string = string> {
+export interface IClassPickerOption<ID extends string | number = string | number> {
 	button?: ClassPickerButton;
 	id: ID;
 	background: string;
-	icon: string;
+	icon?: string;
 }
 
-export interface IClassPickerEvents<ID extends string = string> extends ComponentEvents {
+export interface IClassPickerEvents<ID extends string | number = string | number> extends ComponentEvents {
 	selectClass: { option: ID, button: ClassPickerButton };
 }
 
-export type ClassPickerOptionSwitchHandler<ID extends string = string> = (optionId: ID) => any;
+export type ClassPickerOptionSwitchHandler<ID extends string | number = string | number> = (optionId: ID) => any;
 
-export default class ClassPicker<ID extends string = string> extends Component<HTMLElement, [ClassPickerOptionSwitchHandler<ID>?]> {
+export default class ClassPicker<ID extends string | number = string | number> extends Component<HTMLElement, [ClassPickerOptionSwitchHandler<ID>?]> {
 
 	public override readonly event!: ComponentEventManager<this, IClassPickerEvents<ID>>;
 
@@ -150,19 +150,21 @@ export class ClassPickerButton extends Button {
 	protected override onMake (): void {
 		super.onMake();
 		this.classes.add(ClassPickerClasses.Button);
-		this.addIcon();
 		Component.create()
 			.classes.add(ClassPickerClasses.ButtonPreview)
 			.appendTo(this);
 	}
 
-	public setAppearance (option?: IClassPickerOption<string>) {
+	public setAppearance (option?: IClassPickerOption<string | number>) {
 		if (!option) {
 			this.style.remove("--background");
-			this.style.remove("--icon");
+			this.innerIcon?.remove();
 		} else {
 			this.style.set("--background", `url("${option.background}")`);
-			this.style.set("--icon", `url("${option.icon}")`);
+			if (option.icon)
+				this.addIcon(icon => icon.style.set("--icon", `url("${option.icon!}")`));
+			else
+				this.innerIcon?.remove();
 		}
 
 		return this;
