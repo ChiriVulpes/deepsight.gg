@@ -1,10 +1,8 @@
-name: CI
+name: Deploy Beta
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ beta ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,7 +33,7 @@ jobs:
         if: success()
         uses: crazy-max/ghaction-github-pages@v2
         with:
-          target_branch: build
+          target_branch: build-beta
           build_dir: docs
           jekyll: false
         env:

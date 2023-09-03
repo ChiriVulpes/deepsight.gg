@@ -1,0 +1,40 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.4.0
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Build
+        env:
+          DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
+          DEEPSIGHT_BUNGIE_API_KEY: ${{ secrets.DEEPSIGHT_BUNGIE_API_KEY }}
+          DEEPSIGHT_BUNGIE_API_SECRET: ${{ secrets.DEEPSIGHT_BUNGIE_API_SECRET }}
+          DEEPSIGHT_BUILD_NUMBER: ${{ github.run_number }}
+          DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
+        run: npm run build
+      
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: build
+          build_dir: docs
+          jekyll: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
