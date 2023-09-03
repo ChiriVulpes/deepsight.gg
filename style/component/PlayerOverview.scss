@@ -69,7 +69,7 @@
 			justify-items: center;
 
 			grid-row: 1;
-			grid-column: 3;
+			grid-column: 2/4;
 		}
 
 		@include mobile {
@@ -108,6 +108,52 @@
 		}
 	}
 
+	&-class-selection {
+		grid-row: 1;
+		grid-column: 2;
+	}
+
+	&-character-picker {
+		z-index: 2;
+	}
+
+	&-character-settings {
+		grid-column: 1;
+		grid-row: 1/6;
+		display: grid;
+		grid-template-rows: repeat(3, 130px);
+
+		&::before {
+			content: "";
+		}
+	}
+
+	&-subclass-picker {
+		.class-picker-button {
+			background: none;
+
+			&-preview {
+				overflow: hidden;
+				&::before {
+					content: "";
+					display: block;
+					position: absolute;
+					inset: calc((-100% * var(--wipe-animation-size-multiplier) + 100%) / 2);
+					transform: rotate(-45deg);
+					background: var(--background);
+					background-size: calc(100% + 6px);
+					background-repeat: no-repeat;
+					background-position: center;
+					@include transition(out, opacity);
+				}
+			}
+		}
+
+		&:not(:hover, :focus-within) .class-picker-button-wrapper .class-picker-button-preview::before {
+			opacity: 0;
+		}
+	}
+
 	&-slot {
 		display: contents;
 		@include tablet-or-mobile {
@@ -126,17 +172,6 @@
 				margin-right: var(--destination-margin-x);
 				margin-left: var(--destination-margin-x);
 				min-width: 77px;
-			}
-
-			&-overview::before {
-				text-transform: none;
-				padding: 0;
-				letter-spacing: inherit;
-				min-width: 130px;
-				margin-right: 15px;
-				margin-left: 0;
-				text-align: center;
-				background-color: transparent;
 			}
 		}
 

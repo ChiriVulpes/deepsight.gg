@@ -39,6 +39,8 @@ export enum PlayerOverviewClasses {
 	ClassSelection = "player-overview-class-selection",
 	CharacterPicker = "player-overview-character-picker",
 	CharacterPickerButton = "player-overview-character-picker-button",
+	CharacterSettings = "player-overview-character-settings",
+	SubclassPicker = "player-overview-subclass-picker",
 	Slot = "player-overview-slot",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
@@ -174,6 +176,25 @@ namespace PlayerOverview {
 			const panel = this.drawer.createPanel()
 				.classes.add(PlayerOverviewClasses.Panel);
 
+			const characterSettings = BaseComponent.create()
+				.classes.add(PlayerOverviewClasses.CharacterSettings)
+				.appendTo(panel);
+
+			const subclassPicker = (ClassPicker.create([]) as ClassPicker<number>)
+				.classes.add(PlayerOverviewClasses.SubclassPicker)
+				.event.subscribe("selectClass", event => {
+				})
+				.appendTo(characterSettings);
+
+			for (const subclass of this.inventory.buckets?.[`subclasses:${character.characterId as CharacterId}`]?.items ?? []) {
+				subclassPicker.addOption({
+					id: subclass.definition.hash,
+					background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,
+				});
+				if (subclass.equipped)
+					void subclassPicker.setCurrent(subclass.definition.hash, true);
+			}
+
 			const slotViews = [
 				InventoryKineticView,
 				InventoryEnergyView,
@@ -209,7 +230,6 @@ namespace PlayerOverview {
 
 			const slotComponent = BaseComponent.create()
 				.classes.add(PlayerOverviewClasses.Slot, PlayerOverviewClasses.OverviewSlot)
-				.attributes.set("data-name", `${this.displayName}#${this.code}`)
 				.appendTo(panel);
 
 			BaseComponent.create()
