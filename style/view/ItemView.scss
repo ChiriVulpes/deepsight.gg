@@ -457,7 +457,7 @@
 			width: 0.85em;
 			height: 0.85em;
 			background: currentColor;
-			@include mask-icon(var(--image, url("/image/svg/wishlisted.svg")));
+			@include mask-icon(var(--image, url("./image/svg/wishlisted.svg")));
 			position: relative;
 			order: -1;
 			padding-right: 0.5em;
@@ -465,11 +465,11 @@
 
 		&-marked-as-junk {
 			--color: #{color(wishlist-color-no-match)};
-			--image: url("/image/svg/delete.svg");
+			--image: url("./image/svg/delete.svg");
 		}
 
 		&-shaped {
-			--image: url("/image/svg/shaped.svg");
+			--image: url("./image/svg/shaped.svg");
 			--color: #{color(shaped)};
 		}
 	}
