@@ -245,24 +245,22 @@
 		}
 	}
 
-	--wipe-animation-length: 0.5s;
-	--wipe-animation-angle: 0deg;
-	--wipe-animation-size-multiplier: 1;
+	$default-length: 0.5s;
 	&-wipe-animation {
 		position: absolute;
 		inset: 0;
 		background-image: linear-gradient(
-			var(--wipe-animation-angle),
+			var(--wipe-animation-angle, 0deg),
 			transparent 30%,
 			white 30%,
 			white 70%,
 			transparent 70%
 		);
-		background-size: calc(300% * var(--wipe-animation-size-multiplier))
-			calc(300% * var(--wipe-animation-size-multiplier));
-		animation: button-wipe-animation-in calc(var(--wipe-animation-length) / 2) linear;
+		background-size: calc(300% * var(--wipe-animation-size-multiplier, 1))
+			calc(300% * var(--wipe-animation-size-multiplier, 1));
+		animation: button-wipe-animation-in calc(var(--wipe-animation-length, #{$default-length}) / 2) linear;
 		&-out {
-			animation: button-wipe-animation-out calc(var(--wipe-animation-length) / 2) linear;
+			animation: button-wipe-animation-out calc(var(--wipe-animation-length, #{$default-length}) / 2) linear;
 		}
 
 		@keyframes button-wipe-animation-in {
@@ -293,21 +291,22 @@
 	}
 
 	&-has-wipe-animation {
-		-webkit-mask-image: linear-gradient(var(--wipe-animation-angle), transparent 50%, black 50%);
-		-webkit-mask-size: calc(200% * var(--wipe-animation-size-multiplier))
-			calc(200% * var(--wipe-animation-size-multiplier));
+		-webkit-mask-image: linear-gradient(var(--wipe-animation-angle, 0deg), transparent 50%, black 50%);
+		-webkit-mask-size: calc(200% * var(--wipe-animation-size-multiplier, 1))
+			calc(200% * var(--wipe-animation-size-multiplier, 1));
 		-webkit-mask-position: 0% 0%;
-		mask-image: linear-gradient(var(--wipe-animation-angle), transparent 50%, black 50%);
-		mask-size: calc(200% * var(--wipe-animation-size-multiplier)) calc(200% * var(--wipe-animation-size-multiplier));
+		mask-image: linear-gradient(var(--wipe-animation-angle, 0deg), transparent 50%, black 50%);
+		mask-size: calc(200% * var(--wipe-animation-size-multiplier, 1))
+			calc(200% * var(--wipe-animation-size-multiplier, 1));
 		mask-position: 0% 0%;
-		animation: button-wipe-animation-in calc(var(--wipe-animation-length) / 4) linear
-			calc(var(--wipe-animation-length) / 4);
+		animation: button-wipe-animation-in calc(var(--wipe-animation-length, #{$default-length}) / 4) linear
+			calc(var(--wipe-animation-length, #{$default-length}) / 4);
 		&-out {
-			-webkit-mask-image: linear-gradient(var(--wipe-animation-angle), black 50%, transparent 50%);
-			mask-image: linear-gradient(var(--wipe-animation-angle), black 50%, transparent 50%);
+			-webkit-mask-image: linear-gradient(var(--wipe-animation-angle, 0deg), black 50%, transparent 50%);
+			mask-image: linear-gradient(var(--wipe-animation-angle, 0deg), black 50%, transparent 50%);
 			-webkit-mask-position: 100% 100%;
 			mask-position: 100% 100%;
-			animation: button-wipe-animation-out calc(var(--wipe-animation-length) / 4) linear;
+			animation: button-wipe-animation-out calc(var(--wipe-animation-length, #{$default-length}) / 4) linear;
 		}
 	}
 }

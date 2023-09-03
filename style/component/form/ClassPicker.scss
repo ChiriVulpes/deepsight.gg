@@ -3,18 +3,19 @@
 .class-picker {
 	margin: 30px;
 	position: relative;
+	// this is some kind of circle thing that i think i can do with css math nowadays given i have the angle
+	// but you see, in addition to that, also i'm dumb. so instead here have a multiplier
+	--wipe-animation-size-multiplier: 1.4285714285714286;
 	&-button {
 		transform: rotate(45deg);
 		padding: 0;
 		aspect-ratio: 1/1;
 		--wipe-animation-angle: -45deg;
-		// this is some kind of circle thing that i think i can do with css math nowadays given i have the angle
-		// but you see, in addition to that, also i'm dumb. so instead here have a multiplier
-		--wipe-animation-size-multiplier: 1.4285714285714286;
 		background: var(--background);
 		border: none;
 		justify-content: center;
 		margin: 0;
+		z-index: 1;
 		@include transition(in, margin, opacity);
 		&::after {
 			content: "";
@@ -73,6 +74,15 @@
 
 			.class-picker:not(:hover, :focus-within) & {
 				--size: 50%;
+			}
+
+			&::after {
+				content: "";
+				position: absolute;
+				left: 100%;
+				top: 0;
+				bottom: 0;
+				width: 100%;
 			}
 
 			&-2 {
@@ -136,6 +146,66 @@
 						margin: 0;
 						&:not(:nth-child(2)) {
 							opacity: 0;
+						}
+					}
+				}
+
+				.class-picker-button-wrapper-borders {
+					&1,
+					&2 {
+						display: contents;
+					}
+					&1,
+					&2 {
+						&::before,
+						&::after {
+							content: "";
+							display: block;
+							position: absolute;
+							inset: calc((-100% * var(--wipe-animation-size-multiplier) + 100%) / 2 * 1.2);
+							border: 1px solid white;
+							pointer-events: none;
+							transform: rotate(45deg);
+							border-image-source: linear-gradient(var(--angle), transparent 70%, #fff8);
+							border-image-slice: 1;
+							@include transition(in, opacity);
+
+							.class-picker:not(:hover, :focus-within) & {
+								opacity: 0;
+							}
+						}
+					}
+
+					&1 {
+						&::before {
+							grid-column: 2/3;
+							grid-row: 1/2;
+							border-bottom: none;
+							border-right: none;
+							--angle: -45deg;
+						}
+						&::after {
+							grid-column: 3/4;
+							grid-row: 2/3;
+							border-bottom: none;
+							border-left: none;
+							--angle: 45deg;
+						}
+					}
+					&2 {
+						&::before {
+							grid-column: 2/3;
+							grid-row: 3/4;
+							border-top: none;
+							border-left: none;
+							--angle: 135deg;
+						}
+						&::after {
+							grid-column: 1/2;
+							grid-row: 2/3;
+							border-top: none;
+							border-right: none;
+							--angle: 225deg;
 						}
 					}
 				}
