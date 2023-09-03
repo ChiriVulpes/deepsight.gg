@@ -38,4 +38,7 @@ jobs:
           build_dir: docs
           jekyll: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_2 }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    
