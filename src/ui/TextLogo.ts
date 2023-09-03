@@ -1,4 +1,5 @@
 import Component from "ui/Component";
+import Env from "utility/Env";
 
 enum TextLogoClasses {
 	Main = "text-logo",
@@ -6,6 +7,7 @@ enum TextLogoClasses {
 	Sight = "text-logo-sight",
 	Dot = "text-logo-dot",
 	Gg = "text-logo-gg",
+	NonProd = "text-logo-nonprod"
 }
 
 export default class TextLogo extends Component {
@@ -13,7 +15,10 @@ export default class TextLogo extends Component {
 		this.classes.add(TextLogoClasses.Main)
 			.append(Component.create("span")
 				.classes.add(TextLogoClasses.Deep)
-				.text.set("deep"))
+				.text.set("deep")
+				.append(Env.DEEPSIGHT_ENVIRONMENT === "prod" ? undefined : Component.create("span")
+					.classes.add(TextLogoClasses.NonProd)
+					.text.set(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? "est" : "er")))
 			.append(Component.create("span")
 				.classes.add(TextLogoClasses.Sight)
 				.text.set("sight"))

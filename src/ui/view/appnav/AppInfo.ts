@@ -85,7 +85,7 @@ export default class AppInfo extends Component {
 			.append(Component.create()
 				.classes.add(Classes.SmallText, AppInfoClasses.Versions)
 				.text.set("deepsight.gg /// ")
-				.text.add(Env.DEEPSIGHT_BUILD_NUMBER ? `build #${Env.DEEPSIGHT_BUILD_NUMBER} // ${Env.DEEPSIGHT_BUILD_SHA?.slice(0, 7) ?? ""}` : "unknown build"));
+				.text.add(Env.DEEPSIGHT_BUILD_NUMBER ? `${Env.DEEPSIGHT_ENVIRONMENT === "beta" ? "beta " : ""}build #${Env.DEEPSIGHT_BUILD_NUMBER} // ${Env.DEEPSIGHT_BUILD_SHA?.slice(0, 7) ?? ""}` : "unknown build"));
 
 		this.event.subscribe("click", () => appInfoDrawer.open("click"))
 			.event.subscribe("mouseenter", () => appInfoDrawer.open("mouse"))

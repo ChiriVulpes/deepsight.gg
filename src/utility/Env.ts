@@ -1,6 +1,6 @@
 
 export interface IEnvironment {
-	DEEPSIGHT_ENVIRONMENT: "dev" | "prod";
+	DEEPSIGHT_ENVIRONMENT: "dev" | "beta" | "prod";
 	DEEPSIGHT_BUNGIE_CLIENT_ID: string;
 	DEEPSIGHT_BUNGIE_API_KEY: string;
 	DEEPSIGHT_BUNGIE_API_SECRET: string;
