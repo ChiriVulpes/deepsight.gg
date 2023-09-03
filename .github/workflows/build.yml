@@ -23,7 +23,7 @@ jobs:
       - name: Calculate Run Number
         env:
           NUM: ${{ github.run_number }}
-        run: echo "BUILD_NUMBER::$(($NUM+447))" >> "$GITHUB_ENV"
+        run: echo "BUILD_NUMBER=$(($NUM+447))" >> "$GITHUB_ENV"
         
       - name: Build
         env:
