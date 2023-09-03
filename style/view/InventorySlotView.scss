@@ -78,7 +78,7 @@
 		}
 
 		.view-inventory-slot-hints {
-			--icon: url("/image/svg/help.svg");
+			--icon: url("./image/svg/help.svg");
 
 			@include vertical-or-tablet-or-mobile {
 				display: none;

@@ -8,5 +8,5 @@ export default IFilter.create({
 	matches: value => "shaped".startsWith(value),
 	apply: (value, item) => value === "" || !!item.shaped,
 	maskIcon: value => value === "" ? undefined
-		: "url(\"/image/svg/shaped.svg\")",
+		: "url(\"./image/svg/shaped.svg\")",
 });

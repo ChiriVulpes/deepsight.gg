@@ -1,6 +1,6 @@
 .item-sort {
 	&-button {
-		--icon: url("/image/svg/sort.svg");
+		--icon: url("./image/svg/sort.svg");
 	}
 
 	&-drawer {
@@ -34,8 +34,8 @@
 			}
 
 			&-options {
-				-webkit-mask-image: url("/image/svg/gear.svg");
-				mask-image: url("/image/svg/gear.svg");
+				-webkit-mask-image: url("./image/svg/gear.svg");
+				mask-image: url("./image/svg/gear.svg");
 			}
 		}
 	}

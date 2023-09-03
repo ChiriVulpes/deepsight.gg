@@ -6,49 +6,49 @@
 	"background_color": "#2e2929",
 	"categories": ["entertainment", "games", "productivity", "utilities"],
 	"lang": "en-us",
-	"start_url": "/",
+	"start_url": "./",
 	"theme_color": "#2e2929",
 	"display": "standalone",
 	"shortcuts": [
 		{
 			"name": "Kinetic Weapons",
 			"short_name": "Kinetic",
-			"url": "/#kinetic"
+			"url": "./#kinetic"
 		},
 		{
 			"name": "Energy Weapons",
 			"short_name": "Energy",
-			"url": "/#energy"
+			"url": "./#energy"
 		},
 		{
 			"name": "Power Weapons",
 			"short_name": "Power",
-			"url": "/#power"
+			"url": "./#power"
 		},
 		{
 			"name": "Helmet Armor",
 			"short_name": "Helmets",
-			"url": "/#helmet"
+			"url": "./#helmet"
 		},
 		{
 			"name": "Arms Armor",
 			"short_name": "Arms",
-			"url": "/#arms"
+			"url": "./#arms"
 		},
 		{
 			"name": "Chest Armor",
 			"short_name": "Chest",
-			"url": "/#chest"
+			"url": "./#chest"
 		},
 		{
 			"name": "Legs Armor",
 			"short_name": "Legs",
-			"url": "/#legs"
+			"url": "./#legs"
 		},
 		{
 			"name": "Class Items",
 			"short_name": "Class Items",
-			"url": "/#class-item"
+			"url": "./#class-item"
 		}
 	],
 	"icons": [

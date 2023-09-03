@@ -10,7 +10,7 @@
 		"id": "dawning",
 		"displayProperties": {
 			"name": "The Dawning",
-			"icon": "/image/svg/dawning.svg"
+			"icon": "./image/svg/dawning.svg"
 		},
 		"iconWatermark": { "item": 3400256755 },
 		"event": 2302439334
@@ -19,7 +19,7 @@
 		"id": "crimsondays",
 		"displayProperties": {
 			"name": "Crimson Days",
-			"icon": "/img/svg/crimsondays.svg"
+			"icon": "./img/svg/crimsondays.svg"
 		},
 		"iconWatermark": { "item": 263371512 },
 		"event": true
@@ -28,7 +28,7 @@
 		"id": "guardiangames",
 		"displayProperties": {
 			"name": "Guardian Games",
-			"icon": "/image/svg/guardiangames.svg"
+			"icon": "./image/svg/guardiangames.svg"
 		},
 		"iconWatermark": { "item": 294129361 },
 		"event": 3461628897
@@ -46,7 +46,7 @@
 		"id": "festivalofthelost",
 		"displayProperties": {
 			"name": "Festival of the Lost",
-			"icon": "/image/svg/festivalofthelost.svg"
+			"icon": "./image/svg/festivalofthelost.svg"
 		},
 		"iconWatermark": { "item": 528834068 },
 		"event": 3265920761
@@ -221,7 +221,7 @@
 		"id": "undying",
 		"displayProperties": {
 			"name": "Season of the Undying",
-			"icon": "/image/svg/undying.svg"
+			"icon": "./image/svg/undying.svg"
 		},
 		"iconWatermark": { "item": 55722088 },
 		"iconWatermarkShelved": { "item": 55722088 },

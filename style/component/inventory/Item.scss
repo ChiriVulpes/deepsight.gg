@@ -220,7 +220,7 @@ $z-index-loading: 1000;
 			inset 0 0 0 4px color(wishlist-tooltip-border, 0.5);
 
 		> * {
-			@include icon(url("/image/svg/wishlisted.svg"), color(foreground-0));
+			@include icon(url("./image/svg/wishlisted.svg"), color(foreground-0));
 
 			.item-deepsight-has-pattern ~ & {
 				display: none;
@@ -247,7 +247,7 @@ $z-index-loading: 1000;
 			}
 
 			> * {
-				@include icon(url("/image/svg/delete.svg"), color(background-3));
+				@include icon(url("./image/svg/delete.svg"), color(background-3));
 			}
 
 			&::before {
@@ -268,10 +268,10 @@ $z-index-loading: 1000;
 	}
 
 	&-shaped {
-		background-image: url("/image/shaped.png");
+		background-image: url("./image/shaped.png");
 		z-index: $z-index-shaped;
 		> * {
-			@include icon(url("/image/svg/shaped.svg"), color(shaped));
+			@include icon(url("./image/svg/shaped.svg"), color(shaped));
 		}
 	}
 
@@ -306,19 +306,19 @@ $z-index-loading: 1000;
 		&-has-pattern {
 			position: absolute;
 			inset: 0;
-			background-image: url("/image/deepsight.png");
+			background-image: url("./image/deepsight.png");
 		}
 
 		&-pattern {
 			&:not(&-unlocked) {
-				@include icon(url("/image/svg/shaped.svg"), color(foreground));
+				@include icon(url("./image/svg/shaped.svg"), color(foreground));
 			}
 
 			z-index: $z-index-deepsight;
 		}
 
 		&-pattern-unlocked {
-			@include icon(url("/image/svg/shaped.svg"), color(background-3));
+			@include icon(url("./image/svg/shaped.svg"), color(background-3));
 		}
 	}
 
@@ -362,7 +362,7 @@ $z-index-loading: 1000;
 			content: "";
 			display: block;
 			position: absolute;
-			background-image: url("/image/extra.png");
+			background-image: url("./image/extra.png");
 			background-size: cover;
 			z-index: -1;
 			inset: 1px;

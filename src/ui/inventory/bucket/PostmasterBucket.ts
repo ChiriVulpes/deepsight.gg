@@ -28,7 +28,7 @@ export default class PostmasterBucket extends BucketComponent<[Character]> {
 
 		this.element.insertBefore(this.engrams.element, this.content.element);
 
-		this.icon.style.set("--icon", "url(\"/image/svg/postmaster.svg\")");
+		this.icon.style.set("--icon", "url(\"./image/svg/postmaster.svg\")");
 		this.title.text.set("Postmaster");
 		const className = character?.class?.displayProperties.name;
 		if (className)

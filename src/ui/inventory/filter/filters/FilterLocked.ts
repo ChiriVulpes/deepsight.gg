@@ -10,5 +10,5 @@ export default IFilter.create({
 		|| item.isLocked()
 		|| item.isChangingLockState(),
 	maskIcon: value => value === "" ? undefined
-		: "url(\"/image/svg/lock.svg\")",
+		: "url(\"./image/svg/lock.svg\")",
 });

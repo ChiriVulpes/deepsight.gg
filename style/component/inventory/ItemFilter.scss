@@ -1,6 +1,6 @@
 .item-filter {
 	&-button {
-		--icon: url("/image/svg/filter.svg");
+		--icon: url("./image/svg/filter.svg");
 		cursor: text !important;
 		grid-template-columns: auto 1fr auto;
 	}

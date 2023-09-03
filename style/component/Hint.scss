@@ -22,11 +22,11 @@
 				grid-row: 1;
 				grid-column: 1;
 				background: currentColor;
-				-webkit-mask-image: url("/image/svg/shift.svg");
+				-webkit-mask-image: url("./image/svg/shift.svg");
 				-webkit-mask-size: contain;
 				-webkit-mask-repeat: no-repeat;
 				-webkit-mask-position: center;
-				mask-image: url("/image/svg/shift.svg");
+				mask-image: url("./image/svg/shift.svg");
 				mask-size: contain;
 				mask-repeat: no-repeat;
 				mask-position: center;
@@ -74,25 +74,25 @@
 			}
 
 			&::before {
-				-webkit-mask-image: url("/image/svg/mousemain.svg");
-				mask-image: url("/image/svg/mousemain.svg");
+				-webkit-mask-image: url("./image/svg/mousemain.svg");
+				mask-image: url("./image/svg/mousemain.svg");
 			}
 
 			&::after {
-				-webkit-mask-image: url("/image/svg/mouseleft.svg");
-				mask-image: url("/image/svg/mouseleft.svg");
+				-webkit-mask-image: url("./image/svg/mouseleft.svg");
+				mask-image: url("./image/svg/mouseleft.svg");
 				background: var(--colour-left);
 			}
 
 			&-elements::before {
-				-webkit-mask-image: url("/image/svg/mousemiddle.svg");
-				mask-image: url("/image/svg/mousemiddle.svg");
+				-webkit-mask-image: url("./image/svg/mousemiddle.svg");
+				mask-image: url("./image/svg/mousemiddle.svg");
 				background: var(--colour-middle);
 			}
 
 			&-elements::after {
-				-webkit-mask-image: url("/image/svg/mouseright.svg");
-				mask-image: url("/image/svg/mouseright.svg");
+				-webkit-mask-image: url("./image/svg/mouseright.svg");
+				mask-image: url("./image/svg/mouseright.svg");
 				background: var(--colour-right);
 			}
 		}
