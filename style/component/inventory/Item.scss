@@ -494,7 +494,7 @@ $z-index-loading: 1000;
 			height: 2em;
 			margin-left: 0.5em;
 			margin-right: -0.5em;
-			top: 0.1em;
+			top: -0.1em;
 			position: relative;
 			&::before {
 				content: "";
@@ -503,7 +503,7 @@ $z-index-loading: 1000;
 				height: 100%;
 				width: 1px;
 				left: 35%;
-				top: 15%;
+				top: 10%;
 				transform: rotate(25deg);
 				background: currentColor;
 			}
