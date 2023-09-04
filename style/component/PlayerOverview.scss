@@ -33,9 +33,10 @@
 		padding-right: 10px !important;
 		padding-bottom: 10px;
 		padding-top: calc(var(--nav-height) + 10px);
+		box-sizing: border-box;
 		z-index: -1;
 		grid-template-columns: 1fr auto auto 1fr;
-		gap: 50px;
+		gap: 200px;
 		width: 100%;
 
 		.drawer-close {
@@ -58,12 +59,9 @@
 
 		&-panel {
 			display: grid !important;
-			grid-template-rows: 0px;
-			// grid-template-rows: 20px;
-			grid-template-columns: max-content;
+			grid-template-columns: auto 180px auto auto;
+			grid-template-rows: auto 1fr;
 			overflow: initial;
-			column-gap: 0;
-			row-gap: 4px;
 			padding: 0;
 			height: fit-content;
 			justify-items: center;
@@ -119,9 +117,10 @@
 
 	&-character-settings {
 		grid-column: 1;
-		grid-row: 1/6;
+		grid-row: 1/3;
 		display: grid;
 		grid-template-rows: repeat(3, 130px);
+		justify-self: flex-start;
 
 		&::before {
 			content: "";
@@ -155,7 +154,45 @@
 	}
 
 	&-slot {
-		display: contents;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+
+		&-option {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			align-self: flex-start;
+		}
+
+		&-overview {
+			height: 82px;
+			align-items: end;
+			align-content: end;
+			padding-bottom: 10px;
+			width: 100%;
+			grid-column: 3;
+
+			.player-overview-slot-option {
+				align-self: flex-end;
+				margin: 0 -20px;
+				justify-self: center;
+			}
+		}
+
+		&-group {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			grid-column: 3;
+			&:last-child {
+				grid-row: 1/3;
+				grid-column: 4;
+				padding-left: 30px;
+			}
+		}
+
 		@include tablet-or-mobile {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
@@ -166,22 +203,9 @@
 			margin-bottom: 3px;
 		}
 
-		@include desktop-or-vertical {
-			&::before {
-				content: "";
-				margin-right: var(--destination-margin-x);
-				margin-left: var(--destination-margin-x);
-				min-width: 77px;
-			}
-		}
-
-		&-overview {
-			margin-bottom: 20px;
-			padding-top: 30px;
-		}
-
-		:where(.item-power-level) {
+		.item-power-level {
 			justify-self: initial;
+			grid-row: auto;
 
 			@include tablet-or-mobile {
 				font-size: 1.3em;
@@ -194,17 +218,8 @@
 		width: var(--size);
 		height: var(--size);
 
-		@include desktop-or-vertical {
-			@at-root &,
-				.player-overview-power-total-label {
-				&-equipped {
-					grid-row: 2;
-				}
-
-				&-highest-power {
-					grid-row: 4;
-				}
-			}
+		&-highest-power {
+			--size: 50px;
 		}
 
 		@include tablet-or-mobile {
@@ -213,7 +228,8 @@
 
 		&-same {
 			position: relative;
-			opacity: 0.2;
+			opacity: 0.1;
+			box-shadow: inset 0 0 0 2px currentColor;
 
 			&::before,
 			&::after {
@@ -223,18 +239,31 @@
 			}
 
 			&::before {
-				width: calc(var(--size) * 0.2);
-				height: calc(var(--size) * 0.3);
+				width: calc(var(--size) * 0.3);
+				height: calc(var(--size) * 0.21);
 				background: currentColor;
-				left: calc(var(--size) * 0.4);
-				top: calc(var(--size) * 0.5);
+				top: calc(var(--size) * 0.4);
+
+				.player-overview-slot-option:first-child & {
+					right: calc(var(--size) * 0.45);
+				}
+				.player-overview-slot-option:last-child & {
+					left: calc(var(--size) * 0.45);
+				}
 			}
 
 			&::after {
 				border: calc(var(--size) * 0.25) solid transparent;
-				border-bottom-color: currentColor;
-				left: calc(var(--size) * 0.5);
-				transform: translateX(-50%);
+				top: calc(var(--size) * 0.5);
+				transform: translateY(-50%);
+
+				.player-overview-slot-option:first-child & {
+					border-left-color: currentColor;
+					right: 0;
+				}
+				.player-overview-slot-option:last-child & {
+					border-right-color: currentColor;
+				}
 			}
 
 			@include tablet-or-mobile {
@@ -245,19 +274,22 @@
 
 	&-power {
 		background: none;
-		grid-row: auto !important;
-		@include desktop-or-vertical {
-			&-equipped {
-				grid-row: 3 !important;
-			}
 
-			&-highest-power {
-				grid-row: 5 !important;
+		&-highest-power {
+			font-size: 0.8em;
+			&:empty::before {
+				content: "hi";
+				opacity: 0;
 			}
 		}
 
 		&-total {
 			justify-self: flex-end;
+			font-size: 1em;
+
+			&.player-overview-power-equipped {
+				font-size: 1.4em;
+			}
 
 			&-label {
 				align-self: flex-end;
@@ -265,9 +297,13 @@
 				letter-spacing: 0.05em;
 				font-weight: 500;
 				text-transform: uppercase;
-				border-bottom: 2px solid;
 				width: 100%;
 				opacity: 0.6;
+				text-align: center;
+
+				&-equipped {
+					font-size: 1.2em;
+				}
 			}
 
 			@include tablet-or-mobile {

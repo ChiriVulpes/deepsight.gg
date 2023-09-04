@@ -41,7 +41,11 @@ export enum PlayerOverviewClasses {
 	CharacterPickerButton = "player-overview-character-picker-button",
 	CharacterSettings = "player-overview-character-settings",
 	SubclassPicker = "player-overview-subclass-picker",
+	SlotGroup = "player-overview-slot-group",
 	Slot = "player-overview-slot",
+	SlotOption = "player-overview-slot-option",
+	SlotOptionEquipped = "player-overview-slot-option-equipped",
+	SlotOptionHighestPower = "player-overview-slot-option-highest-power",
 	OverviewSlot = "player-overview-slot-overview",
 	Item = "player-overview-item",
 	ItemEquipped = "player-overview-item-equipped",
@@ -196,19 +200,24 @@ namespace PlayerOverview {
 			}
 
 			const slotViews = [
-				InventoryKineticView,
-				InventoryEnergyView,
-				InventoryPowerView,
-				InventoryHelmetView,
-				InventoryArmsView,
-				InventoryChestView,
-				InventoryLegsView,
-				InventoryClassItemView,
+				[
+					InventoryKineticView,
+					InventoryEnergyView,
+					InventoryPowerView,
+				],
+				[
+					InventoryHelmetView,
+					InventoryArmsView,
+					InventoryChestView,
+					InventoryLegsView,
+					InventoryClassItemView,
+				],
 			];
 			const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
 			const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
+
 			for (const item of bucket.flatMap(bucket => bucket.items)) {
-				const view = slotViews.find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
+				const view = slotViews.flat().find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
 				for (const slot of Arrays.resolve(view?.definition.slot)) {
 					const id = IInventoryViewDefinition.resolveSlotId(slot);
 					if (item.equipped)
@@ -232,23 +241,31 @@ namespace PlayerOverview {
 				.classes.add(PlayerOverviewClasses.Slot, PlayerOverviewClasses.OverviewSlot)
 				.appendTo(panel);
 
+			const slotOptionHighestPower = BaseComponent.create()
+				.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionHighestPower)
+				.appendTo(slotComponent);
+
+			const slotOptionEquipped = BaseComponent.create()
+				.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionEquipped)
+				.appendTo(slotComponent);
+
 			BaseComponent.create()
 				.text.add("Equipped")
 				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelEquipped)
-				.appendTo(slotComponent);
+				.appendTo(slotOptionEquipped);
 
 			ItemPowerLevel.create([currentPower])
 				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerEquipped)
-				.appendTo(slotComponent);
+				.appendTo(slotOptionEquipped);
 
 			BaseComponent.create()
-				.text.add("Maximum Power")
+				.text.add("Max")
 				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelHighestPower)
-				.appendTo(slotComponent);
+				.appendTo(slotOptionHighestPower);
 
 			ItemPowerLevel.create([maximisedPower])
 				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerHighestPower)
-				.appendTo(slotComponent);
+				.appendTo(slotOptionHighestPower);
 
 			const equippedLog: any[] = [];
 			const highestPowerLog: any[] = [];
@@ -256,69 +273,87 @@ namespace PlayerOverview {
 			const previous = this.previous![character.classType] ??= [];
 			let i = 0;
 
-			for (const view of slotViews) {
-				for (const slot of Arrays.resolve(view.definition.slot)) {
-					const id = IInventoryViewDefinition.resolveSlotId(slot);
+			for (let groupIndex = 0; groupIndex < slotViews.length; groupIndex++) {
+				const viewGroup = slotViews[groupIndex];
+				const groupColumn = BaseComponent.create()
+					.classes.add(PlayerOverviewClasses.SlotGroup)
+					.appendTo(panel);
 
-					let name = view.definition.name ?? "Unknown View";
-					if (typeof name === "function")
-						name = name();
+				for (const view of viewGroup) {
+					for (const slot of Arrays.resolve(view.definition.slot)) {
+						const id = IInventoryViewDefinition.resolveSlotId(slot);
 
-					const equippedItem = equippedItems[id];
-					if (!equippedItem) {
-						console.warn(`No equipped item for slot ${name}`);
-						continue;
-					}
+						let name = view.definition.name ?? "Unknown View";
+						if (typeof name === "function")
+							name = name();
 
-					const slotComponent = BaseComponent.create()
-						.classes.add(PlayerOverviewClasses.Slot)
-						.attributes.set("data-name", name)
-						.appendTo(panel);
+						const equippedItem = equippedItems[id];
+						if (!equippedItem) {
+							console.warn(`No equipped item for slot ${name}`);
+							continue;
+						}
 
-					if (previous[i++] !== equippedItem.reference.itemInstanceId) {
-						equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
-						previous[i - 1] = equippedItem.reference.itemInstanceId!;
-					}
+						const slotComponent = BaseComponent.create()
+							.classes.add(PlayerOverviewClasses.Slot)
+							.attributes.set("data-name", name)
+							.appendTo(groupColumn);
 
-					ItemComponent.create([equippedItem])
-						.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
-						.appendTo(slotComponent);
+						if (previous[i++] !== equippedItem.reference.itemInstanceId) {
+							equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
+							previous[i - 1] = equippedItem.reference.itemInstanceId!;
+						}
 
-					const equippedPower = equippedItem.instance?.primaryStat?.value ?? 0;
-					ItemPowerLevel.create([equippedPower, equippedPower - Math.floor(maximisedPower)])
-						.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerEquipped)
-						.appendTo(slotComponent);
+						const slotOptionEquipped = BaseComponent.create()
+							.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionEquipped);
 
-					const highestPowerItem = highestPowerItems[id];
-					if (!highestPowerItem) {
-						console.warn(`No highest power item for slot ${name}`);
-						continue;
-					}
+						const slotOptionHighestPower = BaseComponent.create()
+							.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionHighestPower);
 
-					if (highestPowerItem === equippedItem) {
-						BaseComponent.create()
-							.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower, PlayerOverviewClasses.ItemSame)
-							.appendTo(slotComponent);
+						if (groupIndex === 0)
+							slotComponent.append(slotOptionHighestPower, slotOptionEquipped);
+						else
+							slotComponent.append(slotOptionEquipped, slotOptionHighestPower);
 
-						BaseComponent.create()
+						ItemComponent.create([equippedItem])
+							.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
+							.appendTo(slotOptionEquipped);
+
+						const equippedPower = equippedItem.instance?.primaryStat?.value ?? 0;
+						ItemPowerLevel.create([equippedPower, equippedPower - Math.floor(maximisedPower)])
+							.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerEquipped)
+							.appendTo(slotOptionEquipped);
+
+						const highestPowerItem = highestPowerItems[id];
+						if (!highestPowerItem) {
+							console.warn(`No highest power item for slot ${name}`);
+							continue;
+						}
+
+						if (highestPowerItem === equippedItem) {
+							BaseComponent.create()
+								.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower, PlayerOverviewClasses.ItemSame)
+								.appendTo(slotOptionHighestPower);
+
+							BaseComponent.create()
+								.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
+								.appendTo(slotOptionHighestPower);
+							continue;
+						}
+
+						if (previous[i++] !== highestPowerItem.reference.itemInstanceId) {
+							highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
+							previous[i - 1] = highestPowerItem.reference.itemInstanceId!;
+						}
+
+						ItemComponent.create([highestPowerItem, this.inventory])
+							.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
+							.appendTo(slotOptionHighestPower);
+
+						const highestPowerPower = highestPowerItem.instance?.primaryStat?.value ?? 0;
+						ItemPowerLevel.create([highestPowerPower, highestPowerPower - Math.floor(maximisedPower)])
 							.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
-							.appendTo(slotComponent);
-						continue;
+							.appendTo(slotOptionHighestPower);
 					}
-
-					if (previous[i++] !== highestPowerItem.reference.itemInstanceId) {
-						highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
-						previous[i - 1] = highestPowerItem.reference.itemInstanceId!;
-					}
-
-					ItemComponent.create([highestPowerItem, this.inventory])
-						.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
-						.appendTo(slotComponent);
-
-					const highestPowerPower = highestPowerItem.instance?.primaryStat?.value ?? 0;
-					ItemPowerLevel.create([highestPowerPower, highestPowerPower - Math.floor(maximisedPower)])
-						.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
-						.appendTo(slotComponent);
 				}
 			}
 
