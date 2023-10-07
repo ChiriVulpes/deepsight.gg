@@ -140,12 +140,57 @@
 			&-line &-arrow {
 				position: absolute;
 				left: 10px;
-				top: calc(50% - var(--arrow-length) / 2);
+				top: calc(50% - var(--arrow-length) / 2 - 2px);
 				--arrow-width: 6.5px;
 				--arrow-height: 8.5px;
 				--arrow-length: 23px;
 				--arrow-middle-left: 3px;
 				--arrow-middle-top: 8px;
+			}
+		}
+		
+		&-table {
+			margin: -8px -12px;
+			width: calc(100% + 24px);
+			display: table;
+			&-row {
+				display: table-row;
+				
+				&:first-child {
+					text-align: center;
+				}
+				
+				&:nth-child(2n) {
+					background: #0004;
+				}
+			}
+			
+			&-row:first-child &-cell {
+				vertical-align: bottom;
+			}
+			
+			&-row:first-child &-cell:first-child {
+				text-align: left;
+			}
+			
+			&:last-child &-row:last-child &-cell {
+				padding-bottom: 8px;
+			}
+			
+			&-cell {
+				display: table-cell;
+				padding: .2em;
+				
+				&:first-child {
+					padding-left: 12px;
+				}
+				&:last-child {
+					padding-right: 12px;
+				}
+				
+				&-numeric {
+					text-align: right;
+				}
 			}
 		}
 	}

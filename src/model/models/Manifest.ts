@@ -304,7 +304,7 @@ const ClarityManifest = Model.create("clarityDatabase", {
 		return clarityComponentNames;
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
+	process: componentNames => (window as any).ClarityManifest = Object.fromEntries(componentNames
 		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as any as Manifest,
 	reset: async componentNames => {
 		if (componentNames)

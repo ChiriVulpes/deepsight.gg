@@ -3,21 +3,55 @@ import ClarityEndpoint from "utility/endpoint/clarity/ClarityEndpoint";
 export interface ClarityDescriptionTextComponent {
 	text: string;
 	linesContent?: undefined;
+	table?: undefined;
 	classNames?: string[];
 }
 
 export interface ClarityDescriptionLineComponent {
 	text?: undefined;
 	linesContent: ClarityDescriptionComponent[];
+	table?: undefined;
 	classNames?: string[];
 }
 
-export type ClarityDescriptionComponent = ClarityDescriptionTextComponent | ClarityDescriptionLineComponent;
+export interface ClarityDescriptionTableCell {
+	cellContent: string | ClarityDescriptionComponent[];
+	classNames?: string[];
+}
+
+export interface ClarityDescriptionTableRow {
+	rowContent: ClarityDescriptionTableCell[];
+	classNames?: string[];
+}
+
+export interface ClarityDescriptionTableComponent {
+	text?: undefined;
+	linesContent?: undefined;
+	table: ClarityDescriptionTableRow[];
+	classNames?: string[];
+	isFormula: boolean;
+}
+
+export interface ClarityDescriptionStatValues {
+	stat?: number[];
+	multiplier?: number[];
+}
+
+export interface ClarityDescriptionStat {
+	active?: ClarityDescriptionStatValues;
+	passive?: ClarityDescriptionStatValues;
+	weaponTypes?: string[];
+}
+
+export type ClarityDescriptionComponent = ClarityDescriptionTextComponent | ClarityDescriptionLineComponent | ClarityDescriptionTableComponent;
 
 export interface ClarityDescription {
 	hash: number;
 	name: string;
+	itemHash?: number;
+	itemName?: string;
 	lastUpload: number;
+	stats?: Record<string, ClarityDescriptionStat[]>;
 	type: string;
 	uploadedBy: string;
 	descriptions: Record<string, string | ClarityDescriptionComponent[]>;

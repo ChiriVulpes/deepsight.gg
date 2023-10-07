@@ -3,7 +3,7 @@ import type { Plug } from "model/models/items/Plugs";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Env from "utility/Env";
-import type { ClarityDescriptionComponent } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
+import type { ClarityDescriptionComponent, ClarityDescriptionTableCell, ClarityDescriptionTableRow } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
 export enum ItemClarityClasses {
 	Main = "item-plug-tooltip-clarity",
@@ -17,6 +17,10 @@ export enum ItemClarityClasses {
 	StackSizeSeparator = "item-plug-tooltip-clarity-stack-size-separator",
 	EnhancedArrow = "item-plug-tooltip-clarity-enhanced-arrow",
 	EnhancedLine = "item-plug-tooltip-clarity-enhanced-line",
+	Table = "item-plug-tooltip-clarity-table",
+	TableRow = "item-plug-tooltip-clarity-table-row",
+	TableCell = "item-plug-tooltip-clarity-table-cell",
+	TableCellNumeric = "item-plug-tooltip-clarity-table-cell-numeric",
 }
 
 export default class ItemClarity extends Component {
@@ -45,20 +49,32 @@ export default class ItemClarity extends Component {
 			.appendTo(this);
 	}
 
+	private settingPlug?: Promise<void>;
 	public async setPlug (plug: Plug) {
+		await this.settingPlug;
+
 		this.classes.add(Classes.Hidden);
 		this.description.removeContents();
+
+		let markPlugSet: () => void;
+		this.settingPlug = new Promise(resolve => markPlugSet = resolve);
 
 		const clarity = await ClarityManifest.await();
 		const clarityDescription = await clarity.ClarityDescriptions.get(plug.plugItemHash);
 
-		if (!clarityDescription?.descriptions.en?.length)
-			return false;
+		try {
+			if (!clarityDescription?.descriptions.en?.length)
+				return false;
 
-		this.classes.remove(Classes.Hidden);
-		appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en);
+			this.classes.remove(Classes.Hidden);
+			appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en);
 
-		return true;
+			return true;
+
+		} finally {
+			markPlugSet!();
+			delete this.settingPlug;
+		}
 	}
 }
 
@@ -77,14 +93,36 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 			.classes.toggle(isEnhancedEffect, ItemClarityClasses.EnhancedLine)
 			.classes.toggle(isLabel, ItemClarityClasses.Label)
 			.classes.toggle(isEnhancedArrow, ItemClarityClasses.EnhancedArrow)
+			.classes.toggle(!!component.table?.length, ItemClarityClasses.Table)
 			.classes.add(...isLine ? [ItemClarityClasses.Line] : [], ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? component.classNames ?? [] : [])
 			.tweak(appendClarityText, isEnhancedArrow ? "" : component.text ?? "", component.classNames ?? [])
 			.tweak(appendClarityDescriptionComponents, component.linesContent ?? [])
+			.tweak(appendClarityTableRowComponents, component.table ?? [])
 			.appendTo(parent);
 	}
 }
 
-const numericSplitRegex = /(?<![\d.])(?=\d)|(?<=[\d%x+])(?![\d%x+.])/g;
+function appendClarityTableRowComponents (parent: Component, rows: ClarityDescriptionTableRow[]) {
+	for (const row of rows) {
+		Component.create()
+			.classes.add(ItemClarityClasses.TableRow, ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? row.classNames ?? [] : [])
+			.tweak(appendClarityTableCellComponents, row.rowContent)
+			.appendTo(parent);
+	}
+}
+
+function appendClarityTableCellComponents (parent: Component, cells: ClarityDescriptionTableCell[]) {
+	for (const cell of cells) {
+		const cellContent = extractText(cell.cellContent).trim();
+		Component.create()
+			.classes.add(ItemClarityClasses.TableCell, ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? cell.classNames ?? [] : [])
+			.classes.toggle(!isNaN(parseFloat(cellContent)), ItemClarityClasses.TableCellNumeric)
+			.tweak(appendClarityDescriptionComponents, cellContent === "-" ? [] : cell.cellContent)
+			.appendTo(parent);
+	}
+}
+
+const numericSplitRegex = /(?<![\d.-])(?=\d|-\d)|(?<=[\d%x+])(?![\d%x+.])/g;
 const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g;
 function appendClarityText (parent: Component, text: string, classNames: string[]) {
 	const sections = text.split(numericSplitRegex);
