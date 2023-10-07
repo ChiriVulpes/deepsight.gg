@@ -29,6 +29,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(BucketHashes.General);
 
 	const ProfileQuery = Profile(
+		DestinyComponentType.Characters,
 		DestinyComponentType.CharacterInventories,
 		DestinyComponentType.CharacterEquipment,
 		DestinyComponentType.ProfileInventories,

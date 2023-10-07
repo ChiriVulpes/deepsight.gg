@@ -23,13 +23,49 @@ namespace Maths {
 		return result / nums.length;
 	}
 
-	export function bits (number: number) {
-		const result: number[] = [];
+	export function bits<FLAG_TYPE extends number> (number: FLAG_TYPE) {
+		const result = new BitsSet<FLAG_TYPE>();
 		for (let i = 52; i >= 0; i--) {
 			const v = 1 << i;
-			if (number & v) result.push(v);
+			if (number & v) result.add(v as FLAG_TYPE);
 		}
 		return result;
+	}
+
+	export class BitsSet<FLAG_TYPE extends number> extends Set<FLAG_TYPE> {
+		public everyIn (type?: FLAG_TYPE) {
+			const t = type ?? 0;
+			for (const bit of this)
+				if (!(t & bit))
+					return false;
+
+			return true;
+		}
+
+		public someIn (type?: FLAG_TYPE) {
+			const t = type ?? 0;
+			for (const bit of this)
+				if (t & bit)
+					return true;
+
+			return false;
+		}
+
+		public every (predicate: (type: FLAG_TYPE) => any) {
+			for (const bit of this)
+				if (!predicate(bit))
+					return false;
+
+			return true;
+		}
+
+		public some (predicate: (type: FLAG_TYPE) => any) {
+			for (const bit of this)
+				if (predicate(bit))
+					return true;
+
+			return false;
+		}
 	}
 }
 

@@ -12,25 +12,25 @@ export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
 export class Socket {
 
 	public static filterByPlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return sockets.filter((socket): socket is Socket.Socketed => types.every(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
+		const types = Maths.bits(type);
+		return sockets.filter((socket): socket is Socket.Socketed => types.everyIn(socket?.socketedPlug?.type ?? PlugType.None));
 	}
 
 	public static filterExcludePlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.some(type => (socket?.socketedPlug?.type ?? PlugType.None) & type));
+		const types = Maths.bits(type);
+		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.someIn(socket?.socketedPlug?.type ?? PlugType.None));
 	}
 
 	public static filterType (sockets: (Socket | undefined)[], type: PlugType) {
 		if (!type)
 			return [];
 
-		const types = Maths.bits(type) as PlugType[];
+		const types = Maths.bits(type);
 		return sockets.filter((socket): socket is Socket => types.every(type => socket?.is(type)));
 	}
 
 	public static filterExcludeType (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
+		const types = Maths.bits(type);
 		return sockets.filter((socket): socket is Socket => types.every(type => socket?.isNot(type)));
 	}
 
@@ -101,13 +101,11 @@ export class Socket {
 	}
 
 	public is (type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return types.every(type => this.type & type);
+		return Maths.bits(type).everyIn(this.type);
 	}
 
 	public isNot (type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return !types.some(type => this.type & type);
+		return !Maths.bits(type).someIn(this.type);
 	}
 }
 
@@ -270,7 +268,7 @@ export class Plug {
 		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.WeaponMods))
 			type |= PlugType.Mod;
 
-		for (const t of Maths.bits(type) as PlugType[]) {
+		for (const t of Maths.bits(type)) {
 			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType] ??= 0;
 			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType]!++;
 		}
@@ -308,13 +306,13 @@ export class Plug {
 	private constructor () { }
 
 	public is (type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return types.every(type => this.type & type);
+		const types = Maths.bits(type);
+		return types.everyIn(this.type);
 	}
 
 	public isNot (type: PlugType) {
-		const types = Maths.bits(type) as PlugType[];
-		return !types.some(type => this.type & type);
+		const types = Maths.bits(type);
+		return !types.someIn(this.type);
 	}
 }
 
