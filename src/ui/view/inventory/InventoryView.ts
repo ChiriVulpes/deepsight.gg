@@ -10,6 +10,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Drawer from "ui/form/Drawer";
+import { Hint, IInput } from "ui/Hints";
 import type BucketComponent from "ui/inventory/bucket/Bucket";
 import CharacterBucket from "ui/inventory/bucket/CharacterBucket";
 import PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
@@ -181,28 +182,20 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.hintsDrawer.createPanel()
 			.append(Component.create("p")
 				.classes.add(InventoryViewClasses.Hint)
-				.append(Component.create("kbd")
-					.text.set("F1"))
+				.append(Hint.create([IInput.get("KeyF1")]))
 				.text.add("\xa0 Player overview"))
 			.append(Component.create("p")
 				.classes.add(InventoryViewClasses.Hint)
 				.classes.toggle(!!Store.items.settingsAlwaysShowExtra, Classes.Hidden)
-				.append(Component.create("kbd")
-					.text.set("E"))
+				.append(Hint.create([IInput.get("KeyE")]))
 				.text.add("\xa0 More information"))
 			.append(Component.create("p")
 				.classes.add(InventoryViewClasses.Hint)
-				.append(Component.create("kbd")
-					.text.set("Ctrl"))
-				.append(Component.create("kbd")
-					.text.set("S"))
+				.append(Hint.create([IInput.get("KeyS", "Ctrl")]))
 				.text.add("\xa0 Configure sort"))
 			.append(Component.create("p")
 				.classes.add(InventoryViewClasses.Hint)
-				.append(Component.create("kbd")
-					.text.set("Ctrl"))
-				.append(Component.create("kbd")
-					.text.set("F"))
+				.append(Hint.create([IInput.get("KeyF", "Ctrl")]))
 				.text.add("\xa0 Configure filter"));
 
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);

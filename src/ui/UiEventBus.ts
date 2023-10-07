@@ -13,6 +13,7 @@ export interface IKeyEvent {
 	useOverInput (key: string, ...modifiers: Modifier[]): boolean;
 	matches (key: string, ...modifiers: Modifier[]): boolean;
 	cancelInput (): void;
+	hovering (selector?: string): HTMLElement | undefined;
 }
 
 export interface IKeyUpEvent extends IKeyEvent {
@@ -91,6 +92,10 @@ function emitKeyEvent (e: RawEvent) {
 			return true;
 		},
 		cancelInput: () => cancelInput = true,
+		hovering: (selector) => {
+			const hovered = [...document.querySelectorAll<HTMLElement>(":hover")];
+			return selector ? hovered[hovered.length - 1]?.closest<HTMLElement>(selector) ?? undefined : hovered[hovered.length - 1];
+		},
 	};
 
 	if (eventType === "keyup") {

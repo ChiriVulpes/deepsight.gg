@@ -96,5 +96,24 @@
 				background: var(--colour-right);
 			}
 		}
+		
+		&-key {
+			display: inline-block;
+			position: relative;
+			height: fit-content;
+			font-style: normal;
+			border: 1px solid currentColor;
+			background: color(background-3);
+			border-radius: 0.4em;
+			font-family: inherit;
+			margin-right: 0.4em;
+	
+			&-name {
+				height: 0px;
+				margin: -0.2em 0.3em -0.2em;
+				display: inline-block;
+				position: relative;
+			}
+		}
 	}
 }

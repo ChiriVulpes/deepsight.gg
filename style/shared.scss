@@ -143,20 +143,15 @@ html .hidden {
 	}
 }
 
-kbd {
-	font-style: normal;
-	border: 1px solid currentColor;
-	background: color(background-3);
-	border-radius: 0.4em;
-	padding: 0 0.4em 0.1em;
-	font-family: inherit;
-}
-
 :root:not(.bungie-api-down) .show-if-api-down {
 	display: none;
 }
 
 :root:not(.show-extra-info) .show-if-extra-info {
+	display: none;
+}
+
+:root.show-extra-info .show-if-not-extra-info {
 	display: none;
 }
 

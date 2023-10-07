@@ -15,7 +15,7 @@ enum InputModifier {
 
 export type Modifier = keyof typeof InputModifier;
 
-export type InputCatalyst = keyof typeof InputMouse;
+export type InputCatalyst = keyof typeof InputMouse | `Key${string}`;
 export interface IInput {
 	catalyst: InputCatalyst;
 	modifiers: Set<Modifier>;
@@ -36,9 +36,11 @@ enum HintClasses {
 	HintInputMouse = "hint-input-mouse",
 	HintInputMouseElements = "hint-input-mouse-elements",
 	HintInputModifier = "hint-input-modifier",
+	HintInputKey = "hint-input-key",
+	HintInputKeyName = "hint-input-key-name",
 }
 
-export class Hint extends Component<HTMLElement, [IInput?]> {
+export class Hint extends Component<HTMLElement, [(IInput)?]> {
 
 	public input!: HintInput;
 	public label!: Component;
@@ -78,6 +80,13 @@ class HintInput extends Component<HTMLElement, [IInput?]> {
 			this.classes.add(HintClasses.HintInputMouse, `${HintClasses.HintInput}-${input.catalyst.toLowerCase()}`);
 			Component.create("i")
 				.classes.add(HintClasses.HintInputMouseElements)
+				.appendTo(this);
+		} else if (input.catalyst.startsWith("Key")) {
+			Component.create("kbd")
+				.classes.add(HintClasses.HintInputKey)
+				.append(Component.create("span")
+					.classes.add(HintClasses.HintInputKeyName)
+					.text.set(input.catalyst.slice(3)))
 				.appendTo(this);
 		}
 	}

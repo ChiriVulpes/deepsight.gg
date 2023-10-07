@@ -3,8 +3,11 @@ import Model from "model/Model";
 import type { IModelCache } from "model/ModelCacheDatabase";
 import type Database from "utility/Database";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
-import type { AllCustomManifestComponents } from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
-import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetCustomManifest";
+import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
+import GetClarityDatabase from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
+import GetClarityDatabaseVersions from "utility/endpoint/clarity/endpoint/GetClarityDatabaseVersions";
+import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
+import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 import Env from "utility/Env";
 
@@ -23,9 +26,10 @@ type Indices<COMPONENT_NAME extends AllComponentNames> =
 	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
 	: never;
 
-type AllComponentNames = keyof AllDestinyManifestComponents | keyof AllCustomManifestComponents;
+type BaseComponentNames = keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents;
+type AllComponentNames = BaseComponentNames | keyof AllClarityDatabaseComponents;
 type Component<COMPONENT_NAME extends AllComponentNames> =
-	(AllDestinyManifestComponents & AllCustomManifestComponents)[COMPONENT_NAME][number];
+	(AllDestinyManifestComponents & AllDeepsightManifestComponents & AllClarityDatabaseComponents)[COMPONENT_NAME][number];
 
 type ComponentKey<COMPONENT_NAME extends AllComponentNames = AllComponentNames> =
 	`manifest [${COMPONENT_NAME}]`;
@@ -57,10 +61,14 @@ function elapsed (elapsed: number) {
 }
 
 type Manifest = {
-	[COMPONENT_NAME in AllComponentNames]: ManifestItem<COMPONENT_NAME>;
+	[COMPONENT_NAME in BaseComponentNames]: ManifestItem<COMPONENT_NAME>;
 };
 
-interface ManifestModel extends Model<Manifest> {
+type ClarityManifest = {
+	[COMPONENT_NAME in keyof AllClarityDatabaseComponents]: ManifestItem<COMPONENT_NAME>;
+};
+
+interface ManifestModel<MANIFEST> extends Model<MANIFEST> {
 	loadCache (): Promise<void>;
 }
 
@@ -76,18 +84,18 @@ const Manifest = Model.create("manifest", {
 		await Model.cacheDB.dispose();
 
 		const manifest = await GetManifest.query();
-		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as AllComponentNames[];
+		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as BaseComponentNames[];
 
-		const customComponents = await GetCustomManifest.query();
-		const customComponentNames = Object.keys(customComponents) as (keyof AllCustomManifestComponents)[];
+		const deepsightComponents = await GetCustomManifest.query();
+		const deepsightComponentNames = Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[];
 
-		const sources = Object.values(customComponents.DestinySourceDefinition);
+		const sources = Object.values(deepsightComponents.DestinySourceDefinition);
 		const sourcesRequiringWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermark && typeof source.iconWatermark !== "string")
 			.map(source => [(source.iconWatermark as { item: number }).item, source]));
 		const sourcesRequiringShelvedWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermarkShelved && typeof source.iconWatermarkShelved !== "string")
 			.map(source => [(source.iconWatermarkShelved as { item: number }).item, source]));
 
-		const allComponentNames = [...bungieComponentNames, ...customComponentNames];
+		const allComponentNames = [...bungieComponentNames, ...deepsightComponentNames];
 
 		const totalLoad = allComponentNames.length * 2 + 1;
 
@@ -186,9 +194,9 @@ const Manifest = Model.create("manifest", {
 			Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
 				.map(itemHash => [itemHash, source])));
 
-		await Model.cacheDB.transaction(customComponentNames.map(CacheComponentKey.get), async transaction => {
-			for (let i = 0; i < customComponentNames.length; i++) {
-				const componentName = customComponentNames[i];
+		await Model.cacheDB.transaction(deepsightComponentNames.map(CacheComponentKey.get), async transaction => {
+			for (let i = 0; i < deepsightComponentNames.length; i++) {
+				const componentName = deepsightComponentNames[i];
 				const cacheKey = CacheComponentKey.get(componentName);
 
 				const startTime = performance.now();
@@ -198,7 +206,7 @@ const Manifest = Model.create("manifest", {
 				await transaction.clear(cacheKey);
 
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				for (const [itemId, itemValue] of Object.entries(customComponents[componentName])) {
+				for (const [itemId, itemValue] of Object.entries(deepsightComponents[componentName])) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 					await transaction.set(cacheKey, itemId, itemValue);
 				}
@@ -242,9 +250,72 @@ const Manifest = Model.create("manifest", {
 
 		await Model.cacheDB.delete("models", manifestCacheModelKey);
 	},
-}) as any as ManifestModel;
+}) as any as ManifestModel<Manifest>;
 
 export default Manifest;
+
+const ClarityManifest = Model.create("clarityDatabase", {
+	cache: "Global",
+	version: async () => {
+		const versions = await GetClarityDatabaseVersions.query();
+		return `${Object.entries(versions)
+			.map(([name, version]) => `${name}.${version}`)
+			.sort()
+			.join(",")}-0.deepsight.gg`;
+	},
+	async generate (api) {
+		const clarityComponents = await GetClarityDatabase.query();
+		const clarityComponentNames = Object.keys(clarityComponents) as (keyof AllClarityDatabaseComponents)[];
+
+		const cacheKeys = clarityComponentNames.map(CacheComponentKey.get);
+
+		await Model.cacheDB.upgrade((database, transaction) => {
+			for (const cacheKey of cacheKeys) {
+				if (database.objectStoreNames.contains(cacheKey))
+					database.deleteObjectStore(cacheKey);
+
+				database.createObjectStore(cacheKey);
+			}
+		});
+
+		const totalLoad = clarityComponentNames.length;
+
+		await Model.cacheDB.transaction(clarityComponentNames.map(CacheComponentKey.get), async transaction => {
+			for (let i = 0; i < clarityComponentNames.length; i++) {
+				const componentName = clarityComponentNames[i];
+				const cacheKey = CacheComponentKey.get(componentName);
+
+				const startTime = performance.now();
+				console.info(`Caching objects from ${cacheKey}`);
+				api.emitProgress(i / totalLoad, "Storing manifest");
+
+				await transaction.clear(cacheKey);
+
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				for (const [itemId, itemValue] of Object.entries(clarityComponents[componentName])) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+					await transaction.set(cacheKey, itemId, itemValue);
+				}
+
+				console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
+			}
+		});
+
+		return clarityComponentNames;
+	},
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
+		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as any as Manifest,
+	reset: async componentNames => {
+		if (componentNames)
+			for (const componentName of componentNames)
+				await Model.cacheDB.clear(CacheComponentKey.get(componentName));
+
+		await Model.cacheDB.delete("models", manifestCacheModelKey);
+	},
+}) as any as ManifestModel<ClarityManifest>;
+
+export { ClarityManifest };
 
 type ManifestCache = { [COMPONENT_NAME in AllComponentNames]: ManifestItemCache };
 
@@ -280,8 +351,11 @@ Manifest.loadCache = async () => {
 	console.debug("Loading manifest cache");
 	const manifestCache = await ManifestCacheModel.await();
 	const manifest = await Manifest.await();
-	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [AllComponentNames, ManifestItemCache][])
-		(manifest[componentName] as ManifestItem<AllComponentNames>).updateCache(manifestItemCache);
+	const clarityManifest = await ClarityManifest.await();
+	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [AllComponentNames, ManifestItemCache][]) {
+		(manifest[componentName as BaseComponentNames] as ManifestItem<BaseComponentNames>)?.updateCache(manifestItemCache as ManifestItemCache<BaseComponentNames>);
+		(clarityManifest[componentName as keyof AllClarityDatabaseComponents])?.updateCache(manifestItemCache as ManifestItemCache<keyof AllClarityDatabaseComponents>);
+	}
 
 	manifestCacheState = true;
 	setLoadedManifestCache();

@@ -28,4 +28,30 @@
 				url("./image/masterworktooltip.png");
 		}
 	}
+	
+	&-clarity {
+		background: color(tooltip-clarity-background);
+		padding: var(--tooltip-padding);
+		
+		border-top: color(tooltip-clarity-border) 2px solid;
+		
+		&-url {
+			color: color(tooltip-clarity-url);
+		}
+		
+		&-title {
+			display: flex;
+			position: relative;
+			align-items: center;
+			gap: 0.3em;
+			font-size: .8em;
+			color: color(tooltip-clarity-url);
+			margin-bottom: 0.5em;
+		}
+		
+		&-logo {
+			height: 1.4em;
+			position: relative;
+		}
+	}
 }

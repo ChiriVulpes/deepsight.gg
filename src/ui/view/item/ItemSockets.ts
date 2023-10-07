@@ -15,7 +15,7 @@ export enum ItemSocketsClasses {
 	Main = "view-item-sockets",
 	SocketsContainer = "view-item-sockets-container",
 	Socket = "view-item-socket",
-	Plug = "view-item-socket-plug",
+	Plug = "view-item-socket-plug", // search this string if you change it, had to dupe cuz circ dep
 	PlugSelected = "view-item-socket-plug-selected",
 	PlugName = "view-item-socket-plug-name",
 	PlugDescription = "view-item-socket-plug-description",

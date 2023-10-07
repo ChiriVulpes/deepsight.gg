@@ -7,6 +7,7 @@ export enum Classes {
 	SmallText = "small-text",
 	ShowIfAPIDown = "show-if-api-down",
 	ShowIfExtraInfo = "show-if-extra-info",
+	ShowIfNotExtraInfo = "show-if-not-extra-info",
 }
 
 export enum InventoryClasses {

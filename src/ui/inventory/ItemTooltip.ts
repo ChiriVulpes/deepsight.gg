@@ -17,7 +17,7 @@ import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
 
-enum ItemTooltipClasses {
+export enum ItemTooltipClasses {
 	Main = "item-tooltip",
 	Extra = "item-tooltip-extra",
 	Content = "item-tooltip-content",

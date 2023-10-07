@@ -4,17 +4,17 @@ import type { DestinyWallpaperDefinition } from "utility/endpoint/deepsight/endp
 import GetDestinyWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDestinyWallpaperDefinition";
 import Endpoint from "utility/endpoint/Endpoint";
 
-export interface AllCustomManifestComponents {
+export interface AllDeepsightManifestComponents {
 	DestinySourceDefinition: Record<number, DestinySourceDefinition>;
 	DestinyWallpaperDefinition: Record<number, DestinyWallpaperDefinition>;
 }
 
-export default (new class extends Endpoint<AllCustomManifestComponents> {
+export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 	public constructor () {
 		super("");
 	}
 
-	public override async query (): Promise<AllCustomManifestComponents> {
+	public override async query (): Promise<AllDeepsightManifestComponents> {
 		return {
 			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
 			DestinyWallpaperDefinition: await GetDestinyWallpaperDefinition.query(),
