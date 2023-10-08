@@ -220,14 +220,14 @@ function appendClarityText (parent: Component, text: string, classNames: string[
 		if (!section)
 			continue;
 
-		if (section === "?" || !isNaN(parseFloat(Strings.trimTextMatchingFromStart(section, "x")))) {
+		if (section[0] === "?" || !isNaN(parseFloat(Strings.trimTextMatchingFromStart(section, "x")))) {
 			Component.create("span")
 				.classes.add(ItemClarityClasses.Numeric)
-				.classes.toggle(section === "?", ItemClarityClasses.NumericUnknown)
-				.text.set(section === "?" ? "?"
+				.classes.toggle(section[0] === "?", ItemClarityClasses.NumericUnknown)
+				.text.set(section[0] === "?" ? section
 					: Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(section, "?"), "(?)"), "[?]"))
 				// sometimes numbers end in ? showing that it's an estimate, make that ? superscript
-				.append(section === "?" || !section.endsWith("?") && !section.endsWith("(?)") && !section.endsWith("[?]") ? undefined
+				.append(section[0] === "?" || !section.endsWith("?") && !section.endsWith("(?)") && !section.endsWith("[?]") ? undefined
 					: Component.create("span")
 						.classes.add(ItemClarityClasses.Estimate)
 						.text.set("?"))
