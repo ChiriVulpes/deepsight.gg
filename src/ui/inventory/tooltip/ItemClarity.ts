@@ -48,7 +48,7 @@ export default class ItemClarity extends Component {
 
 		Component.create("img")
 			.classes.add(ItemClarityClasses.Logo)
-			.attributes.set("src", "https://database-clarity.github.io/Description-editor/assets/clarityLogo-4d0d7661.png")
+			.attributes.set("src", "https://avatars.githubusercontent.com/u/117947315?s=48&v=4")
 			.appendTo(title);
 
 		Component.create("span")
@@ -89,7 +89,7 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 		const isLine = !!component.linesContent?.length;
 		const isLabel = isLine && extractText(component.linesContent![component.linesContent!.length - 1]).trimEnd().endsWith(":");
 		const isListItem = isLine && extractText(component.linesContent![0]).trimStart().startsWith("• ");
-		const isLabelledLine = isListItem && extractText(component).includes(": ");
+		const isLabelledLine = isLine && extractText(component).includes(": ");
 		const isEnhancedEffect = isLine && isLast && extractText(component.linesContent![0]).trimStart().startsWith("🡅");
 		const isEnhancedArrow = component.classNames?.includes("enhancedArrow") ?? false;
 		const isSpacer = component.classNames?.includes("spacer") ?? false;
@@ -204,9 +204,9 @@ function appendClarityLabelledLineComponents (parent: Component, content: Clarit
 }
 
 // use regular expressions to split out numbers, stack size separators `|`, and unknown values `(?)`
-const numericSplitNumericStart = /(?<![\w\d.!+%-])(?=[x+-]?[.\d])/;
+const numericSplitNumericStart = /(?:(?<![\w\d.!+%-])|(?<=\d(?:st|nd|rd|th)-))(?=[x+-]?[.\d])/;
 const numericSplitUnknownStart = /(?<![\w\d.!+%-])(?<![\d%+x][([])(?!\?[)\]])(?=\?)/;
-const numericSplitNumericEnd = /(?<=[\d?][%x°+]?(?:\(\?\)|\[\?\]|\?)?)(?<!\(\?|\[\?)(?![\d\w?%°+.]|\(\?\)|\[\?\])/;
+const numericSplitNumericEnd = /(?<=[\d?][%x°+]?(?:\(\?\)|\[\?\]|\?)?)(?<!\(\?|\[\?)(?![\dx?%°+.]|\(\?\)|\[\?\])/;
 const numericSplitRegex = Strings.mergeRegularExpressions("g", numericSplitNumericStart, numericSplitUnknownStart, numericSplitNumericEnd);
 const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g;
 const unknownValueSplitRegex = /(?=\(\?\)|\[\?\])|(?<=\(\?\)|\[\?\])/g;
