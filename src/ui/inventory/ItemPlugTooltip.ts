@@ -47,17 +47,11 @@ class ItemPlugTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.Hints)
 			.appendTo(this.footer);
 
-		Hint.create([IInput.get("MouseRight")])
-			.classes.add(Classes.ShowIfExtraInfo)
+		Hint.create([IInput.get("MouseMiddle")])
 			.tweak(hint => hint.label.text.add("Visit ")
 				.append(Component.create("span")
 					.classes.add(ItemPlugTooltipClasses.ClarityURL)
 					.text.set("d2clarity.com")))
-			.appendTo(this.hints);
-
-		Hint.create([IInput.get("KeyE")])
-			.classes.add(Classes.ShowIfNotExtraInfo)
-			.tweak(hint => hint.label.text.set("More Information"))
 			.appendTo(this.hints);
 
 		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
@@ -88,7 +82,7 @@ class ItemPlugTooltip extends Tooltip {
 	}
 
 	protected onGlobalKeyup (event: IKeyUpEvent) {
-		if (event.hovering(".view-item-socket-plug") && event.use("MouseRight")) {
+		if (this.clarity.isPresent && event.hovering(".view-item-socket-plug") && event.use("MouseMiddle")) {
 			window.open("https://www.d2clarity.com", "_blank");
 		}
 	}

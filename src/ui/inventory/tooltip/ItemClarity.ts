@@ -63,8 +63,12 @@ export default class ItemClarity extends Component {
 
 	public description!: Component;
 
+	public get isPresent () {
+		return !this.classes.has(Classes.Hidden);
+	}
+
 	protected override onMake (): void {
-		this.classes.add(ItemClarityClasses.Main, Classes.ShowIfExtraInfo);
+		this.classes.add(ItemClarityClasses.Main);
 
 		const title = Component.create()
 			.classes.add(ItemClarityClasses.Title)
@@ -79,6 +83,8 @@ export default class ItemClarity extends Component {
 			.classes.add(ItemClarityClasses.TitleName)
 			.text.set("Clarity")
 			.appendTo(title);
+
+		title.text.add(" / Community Insights")
 
 		this.description = Component.create()
 			.appendTo(this);
