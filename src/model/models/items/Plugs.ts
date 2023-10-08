@@ -259,7 +259,7 @@ export class Plug {
 		if (definition && this.isOrnament(definition))
 			type |= PlugType.Ornament;
 
-		if (definition.traitIds?.includes("item_type.exotic_catalyst"))
+		if (definition.traitIds?.includes("item_type.exotic_catalyst") || definition.traitIds?.includes("item.exotic_catalyst"))
 			type |= PlugType.Catalyst;
 
 		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods) || definition.itemTypeDisplayName?.endsWith("Ghost Mod"))

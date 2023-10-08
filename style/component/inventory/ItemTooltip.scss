@@ -307,6 +307,11 @@
 					inset 4px 0 #d4b73c;
 				background-image: linear-gradient(to right, rgba(#d4b73c, 0.25) 0%, transparent 40%);
 				position: relative;
+				
+				&.item-tooltip-mod-intrinsic {
+					background-color: transparent;
+					background-image: linear-gradient(to right, rgba(#574a0f, 0.85) 0%, color(tooltip-background-alt) 40%);
+				}
 
 				&::before {
 					content: "";

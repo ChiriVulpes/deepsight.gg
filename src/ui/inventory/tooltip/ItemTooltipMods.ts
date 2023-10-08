@@ -50,8 +50,8 @@ export default class ItemTooltipMods extends Component {
 	public setItem (item: Item, type: PlugType = PlugType.ALL, exclude = PlugType.None) {
 		this.removeContents();
 
-		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
 		this.addSockets(item, PlugType.Intrinsic & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
+		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
 		this.addSockets(item, PlugType.Origin & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
 		this.addSockets(item, PlugType.Perk & type & ~exclude);
 		this.addPerks(item, PlugType.Mod & type & ~exclude);
@@ -74,6 +74,7 @@ export default class ItemTooltipMods extends Component {
 			for (const perk of displayablePerks) {
 				const socketComponent = Component.create()
 					.classes.add(ItemTooltipModsClasses.ModSocket, ...socketClass ? [socketClass] : [])
+					.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Catalyst)), ItemTooltipModsClasses.ModSocketEnhanced)
 					.style.set("--socket-index", `${i++}`)
 					.appendTo(this);
 
@@ -81,10 +82,14 @@ export default class ItemTooltipMods extends Component {
 					: Display.descriptionIfShortOrName(perk.definition, plug?.definition) ?? "Unknown";
 				const description = Display.description(perk.definition);
 
+				const isEnhanced = plug?.is(PlugType.Catalyst) ?? false;
+
 				Component.create()
 					.classes.add(ItemTooltipModsClasses.Mod, ItemTooltipModsClasses.ModSocketed)
+					.classes.toggle(isEnhanced, ItemTooltipModsClasses.ModEnhanced)
 					.style.set("--icon", Display.icon(perk.definition))
-					.append(Component.create())
+					.append(!isEnhanced ? undefined : Component.create()
+						.classes.add(ItemTooltipModsClasses.ModEnhancedArrow))
 					.append(Component.create()
 						.classes.add(ItemTooltipModsClasses.ModName)
 						.text.set(name))
@@ -108,7 +113,7 @@ export default class ItemTooltipMods extends Component {
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipModsClasses.ModSocket, ...socketClass ? [socketClass] : [])
-				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Enhanced | PlugType.Perk)), ItemTooltipModsClasses.ModSocketEnhanced)
+				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Enhanced)), ItemTooltipModsClasses.ModSocketEnhanced)
 				.classes.toggle(socket.state === undefined, ItemTooltipModsClasses.ModSocketDefinition)
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this);
