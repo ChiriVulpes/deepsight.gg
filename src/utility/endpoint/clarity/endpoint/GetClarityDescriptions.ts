@@ -5,6 +5,7 @@ export interface ClarityDescriptionTextComponent {
 	linesContent?: undefined;
 	table?: undefined;
 	classNames?: string[];
+	formula?: string;
 }
 
 export interface ClarityDescriptionLineComponent {
@@ -12,6 +13,7 @@ export interface ClarityDescriptionLineComponent {
 	linesContent: ClarityDescriptionComponent[];
 	table?: undefined;
 	classNames?: string[];
+	formula?: undefined;
 }
 
 export interface ClarityDescriptionTableCell {
@@ -30,6 +32,7 @@ export interface ClarityDescriptionTableComponent {
 	table: ClarityDescriptionTableRow[];
 	classNames?: string[];
 	isFormula: boolean;
+	formula?: undefined;
 }
 
 export interface ClarityDescriptionStatValues {

@@ -38,6 +38,16 @@ namespace Strings {
 
 		return substring.trim();
 	}
+
+	export function extractFromSquareBrackets (string?: string | null) {
+		let substring = (string ?? "");
+		if (substring[0] === "[")
+			substring = substring.slice(1).trimStart();
+		if (substring[substring.length - 1] === "]")
+			substring = substring.slice(0, -1).trimEnd();
+
+		return substring;
+	}
 }
 
 export default Strings;

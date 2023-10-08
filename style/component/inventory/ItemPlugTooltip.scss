@@ -58,6 +58,10 @@
 			color: color(foreground, .7);
 			font-size: .95em;
 			margin-bottom: .3em;
+			
+			&-inline {
+				color: color(foreground, .85);
+			}
 		}
 		
 		&-numeric {
@@ -71,6 +75,7 @@
 			margin: -0.26em 0.1em;
 			display: inline-block;
 			vertical-align: top;
+			text-indent: 0;
 		}
 		
 		&-label &-stack-size-separator {
@@ -155,10 +160,7 @@
 			display: table;
 			&-row {
 				display: table-row;
-				
-				&:first-child {
-					text-align: center;
-				}
+				text-align: center;
 				
 				&:nth-child(2n) {
 					background: #0004;
@@ -167,9 +169,13 @@
 			
 			&-row:first-child &-cell {
 				vertical-align: bottom;
+				&-text {
+					font-weight: bold;
+					color: color(foreground, .6);
+				}
 			}
 			
-			&-row:first-child &-cell:first-child {
+			&_is-first-column-all-labels &-cell:first-child {
 				text-align: left;
 			}
 			
@@ -188,10 +194,61 @@
 					padding-right: 12px;
 				}
 				
-				&-numeric {
-					text-align: right;
+				&-text {
+					font-size: .65em;
+					text-transform: uppercase;
+					vertical-align: middle;
 				}
 			}
+		}
+		
+		&-label-pvevp {
+			font-size: .7em;
+			font-weight: bold;
+			margin-right: .2em;
+			vertical-align: top;
+		}
+		
+		&-line > &-label-pvevp {
+			margin-right: .6em;
+			vertical-align: middle;
+		}
+		
+		&-pvevp#{&}-line {
+			text-indent: -1.8em;
+			padding-left: 1.8em;
+		}
+		
+		&-pvevp:not(#{&}-line) {
+			font-weight: bold;
+		}
+		
+		&-pvp:not(#{&}-line) {
+			margin-left: .3em;
+		}
+		
+		&-label-pve {
+			color: #7da4ff;
+		}
+		
+		&-label-pvp {
+			color: #c94e52;
+		}
+		
+		&-estimate {
+			font-size: .7em;
+			font-weight: bold;
+			margin-right: .2em;
+			vertical-align: top;
+		}
+		
+		&-list-item {
+			text-indent: -.7em;
+			padding-left: .7em;
+		}
+		
+		&-spacer:last-child {
+			display: none;
 		}
 	}
 }
