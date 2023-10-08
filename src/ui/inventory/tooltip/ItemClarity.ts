@@ -222,9 +222,12 @@ function appendClarityLabelledLineComponents (parent: Component, content: Clarit
 }
 
 // use regular expressions to split out numbers, stack size separators `|`, and unknown values `(?)`
-const numericSplitRegex = /(?<![\w\d.!+%-])(?=\?)|(?<![\d.-])(?=\d|-\d)|(?<=\d[%x+]?\??|(?<![\w\d.!+%-])\?)(?![\d%x+.?])/g;
+const numericSplitNumericStart = /(?<![\w\d.!+%-])(?=[x+-]?[.\d])/;
+const numericSplitUnknownStart = /(?<![\w\d.!+%-])(?<![\d%+x][([])(?!\?[)\]])(?=\?)/;
+const numericSplitNumericEnd = /(?<=[\d?][%x°+]?(?:\(\?\)|\[\?\]|\?)?)(?<!\(\?|\[\?)(?![\d\w?%°+.]|\(\?\)|\[\?\])/;
+const numericSplitRegex = Strings.mergeRegularExpressions("g", numericSplitNumericStart, numericSplitUnknownStart, numericSplitNumericEnd);
 const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g;
-const unknownValueSplitRegex = /(?=\(\?\))|(?<=\(\?\))/g;
+const unknownValueSplitRegex = /(?=\(\?\)|\[\?\])|(?<=\(\?\)|\[\?\])/g;
 function appendClarityText (parent: Component, text: string, classNames: string[], isPVEVP: boolean) {
 	if (isPVEVP)
 		// pvp numeric values sometimes are wrapped in square brackets, we don't want them
@@ -235,14 +238,17 @@ function appendClarityText (parent: Component, text: string, classNames: string[
 		if (!section)
 			continue;
 
-		if (!isNaN(parseFloat(section))) {
+		if (section === "?" || !isNaN(parseFloat(Strings.trimTextMatchingFromStart(section, "x")))) {
 			Component.create("span")
 				.classes.add(ItemClarityClasses.Numeric)
-				.text.set(Strings.sliceTo(section, "?"))
+				.classes.toggle(section === "?", ItemClarityClasses.NumericUnknown)
+				.text.set(section === "?" ? "?"
+					: Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(section, "?"), "(?)"), "[?]"))
 				// sometimes numbers end in ? showing that it's an estimate, make that ? superscript
-				.append(!section.endsWith("?") ? undefined : Component.create("span")
-					.classes.add(ItemClarityClasses.Estimate)
-					.text.set("?"))
+				.append(section === "?" || !section.endsWith("?") && !section.endsWith("(?)") && !section.endsWith("[?]") ? undefined
+					: Component.create("span")
+						.classes.add(ItemClarityClasses.Estimate)
+						.text.set("?"))
 				.appendTo(parent);
 
 			continue;
@@ -261,7 +267,7 @@ function appendClarityText (parent: Component, text: string, classNames: string[
 
 			const sections = section.split(unknownValueSplitRegex);
 			for (const section of sections) {
-				if (section === "(?)") {
+				if (section === "(?)" || section === "[?]") {
 					Component.create("span")
 						.classes.add(ItemClarityClasses.Numeric, ItemClarityClasses.NumericUnknown)
 						.text.set("?")
@@ -303,7 +309,7 @@ function trimTextMatchingFromStart (content: ClarityDescriptionComponent | strin
 
 	if (typeof content === "string") {
 		for (const text of matching)
-			content = Strings.sliceAfter(content, text);
+			content = Strings.trimTextMatchingFromStart(content, text);
 		return content;
 	}
 

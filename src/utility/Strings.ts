@@ -29,6 +29,28 @@ namespace Strings {
 		return string.slice(index + substring.length);
 	}
 
+	export function trimTextMatchingFromStart (string: string, substring: string, startAt?: number) {
+		if (string.length < substring.length)
+			return string;
+
+		const index = string.indexOf(substring, startAt);
+		if (index !== 0)
+			return string;
+
+		return string.slice(index + substring.length);
+	}
+
+	export function trimTextMatchingFromEnd (string: string, substring: string, startAt?: number) {
+		if (string.length < substring.length)
+			return string;
+
+		const index = string.lastIndexOf(substring, startAt);
+		if (index !== string.length - substring.length)
+			return string;
+
+		return string.slice(0, index);
+	}
+
 	export function extractFromQuotes (string?: string | null) {
 		let substring = (string ?? "").trim();
 		if (substring[0] === '"')
@@ -47,6 +69,14 @@ namespace Strings {
 			substring = substring.slice(0, -1).trimEnd();
 
 		return substring;
+	}
+
+	export function mergeRegularExpressions (flags: string, ...expressions: RegExp[]) {
+		let exprString = "";
+		for (const expr of expressions)
+			exprString += "|" + expr.source;
+
+		return new RegExp(exprString.slice(1), flags);
 	}
 }
 
