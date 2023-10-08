@@ -19,6 +19,10 @@
 			margin-right: 20px;
 			transform: none;
 			cursor: default;
+			
+			.item-locked {
+				display: none;
+			}
 
 			@include mobile {
 				width: 56px;
