@@ -1,11 +1,12 @@
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
 
-export type DisplayPropertied = DestinyDisplayPropertiesDefinition | { displayProperties: DestinyDisplayPropertiesDefinition };
+export type DisplayPropertied = { readonly displayProperties: DestinyDisplayPropertiesDefinition };
+export type DisplayPropertiesOrD = DestinyDisplayPropertiesDefinition | DisplayPropertied;
 
 namespace Display {
 	export function icon (url?: string, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: DisplayPropertied, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: DisplayPropertied | string, wrapped = true) {
+	export function icon (displayProperties?: DisplayPropertiesOrD, wrapped?: boolean): string | undefined;
+	export function icon (displayProperties?: DisplayPropertiesOrD | string, wrapped = true) {
 		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
 		if (!url)
@@ -16,19 +17,19 @@ namespace Display {
 		return wrapped ? `url("${url}")` : url;
 	}
 
-	export function name (displayProperties?: DisplayPropertied) {
+	export function name (displayProperties?: DisplayPropertiesOrD) {
 		return displayProperties === undefined ? undefined
 			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
 				.name;
 	}
 
-	export function description (displayProperties?: DisplayPropertied) {
+	export function description (displayProperties?: DisplayPropertiesOrD) {
 		return displayProperties === undefined ? undefined
 			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
 				.description;
 	}
 
-	export function descriptionIfShortOrName (detailedDisplayProperties?: DisplayPropertied, simpleDisplayProperties?: DisplayPropertied) {
+	export function descriptionIfShortOrName (detailedDisplayProperties?: DisplayPropertiesOrD, simpleDisplayProperties?: DisplayPropertiesOrD) {
 		if (detailedDisplayProperties === undefined) {
 			if (simpleDisplayProperties === undefined)
 				return undefined;
@@ -48,7 +49,7 @@ namespace Display {
 		return simpleDisplayProperties?.name;
 	}
 
-	export function nameIfShortOrName (detailedDisplayProperties?: DisplayPropertied, simpleDisplayProperties?: DisplayPropertied) {
+	export function nameIfShortOrName (detailedDisplayProperties?: DisplayPropertiesOrD, simpleDisplayProperties?: DisplayPropertiesOrD) {
 		if (detailedDisplayProperties === undefined) {
 			if (simpleDisplayProperties === undefined)
 				return undefined;

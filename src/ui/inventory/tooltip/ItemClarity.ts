@@ -1,5 +1,11 @@
+import { DamageType, DestinyAmmunitionType, DestinyBreakerType, DestinyClass } from "bungie-api-ts/destiny2";
+import AmmoTypes from "model/models/AmmoTypes";
+import BreakerTypes from "model/models/BreakerTypes";
+import ClassTypes from "model/models/ClassTypes";
+import DamageTypes from "model/models/DamageTypes";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import EnumIcon from "ui/bungie/EnumIcon";
 import Env from "utility/Env";
 import Strings from "utility/Strings";
 import type { ClarityDescription, ClarityDescriptionComponent, ClarityDescriptionTableCell, ClarityDescriptionTableRow, ClarityDescriptionTextComponent } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
@@ -34,6 +40,24 @@ export enum ItemClarityClasses {
 	LabelPVE = "item-plug-tooltip-clarity-label-pve",
 	LabelPVP = "item-plug-tooltip-clarity-label-pvp",
 }
+
+const imageDefs = {
+	kinetic: [DamageTypes, DamageType.Kinetic] as const,
+	arc: [DamageTypes, DamageType.Arc] as const,
+	void: [DamageTypes, DamageType.Void] as const,
+	solar: [DamageTypes, DamageType.Thermal] as const,
+	stasis: [DamageTypes, DamageType.Stasis] as const,
+	strand: [DamageTypes, DamageType.Strand] as const,
+	primary: [AmmoTypes, DestinyAmmunitionType.Primary] as const,
+	special: [AmmoTypes, DestinyAmmunitionType.Special] as const,
+	heavy: [AmmoTypes, DestinyAmmunitionType.Heavy] as const,
+	titan: [ClassTypes, DestinyClass.Titan] as const,
+	hunter: [ClassTypes, DestinyClass.Hunter] as const,
+	warlock: [ClassTypes, DestinyClass.Warlock] as const,
+	barrier: [BreakerTypes, DestinyBreakerType.ShieldPiercing] as const,
+	overload: [BreakerTypes, DestinyBreakerType.Disruption] as const,
+	unstoppable: [BreakerTypes, DestinyBreakerType.Stagger] as const,
+};
 
 export default class ItemClarity extends Component {
 
@@ -95,6 +119,13 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 		const isSpacer = component.classNames?.includes("spacer") ?? false;
 		const isPVE = !parentClassNames?.includes("pve") && (component.classNames?.includes("pve") || singleChild?.classNames?.includes("pve") || false);
 		const isPVP = !parentClassNames?.includes("pvp") && (component.classNames?.includes("pvp") || singleChild?.classNames?.includes("pvp") || false);
+
+		const imageDef = component.classNames?.map(className => imageDefs[className as keyof typeof imageDefs]).find(def => def);
+		if (imageDef) {
+			(EnumIcon.create(imageDef) as EnumIcon)
+				.appendTo(parent);
+			continue;
+		}
 
 		if (isPVE || isPVP)
 			component = trimTextMatchingFromStart(component, "[PVE] ", "[PVP] ", "[PVE]", "[PVP]", "[PvE] ", "[PvP] ", "[PvE]", "[PvP]");

@@ -19,10 +19,11 @@ export interface IModelGenerationApi {
 	subscribeProgressAndWait<R> (model: Model<any, R>, amount: number, from?: number): Promise<R>;
 }
 
-export interface IModel<T, R> {
+export interface IModel<T, R, API = undefined> {
 	cache: "Global" | "Session" | "Memory" | false;
 	resetTime?: "Daily" | "Weekly" | number;
 	version?: string | number | (() => Promise<string | number | undefined>);
+	api?: API;
 	generate?(api: IModelGenerationApi): Promise<T>;
 	process?(value: T): R;
 	reset?(value?: T): any;
@@ -71,8 +72,8 @@ namespace Model {
 		event.emit("clearCache");
 	}
 
-	export function create<T, R = T> (name: string, model: IModel<T, R>) {
-		return new Impl(name, model);
+	export function create<T, R = T, API = undefined> (name: string, model: IModel<T, R, API>) {
+		return new Impl(name, model) as undefined extends API ? Impl<T, R> : Impl<T, R> & API;
 	}
 
 	export function createTemporary<T> (generate: IModel<T, T>["generate"], name = "") {
@@ -121,7 +122,9 @@ namespace Model {
 			return this._loadingInfo;
 		}
 
-		public constructor (private readonly name: string, private readonly model: IModel<T, R>) { }
+		public constructor (private readonly name: string, private readonly model: IModel<T, R, any>) {
+			Object.assign(this, model.api);
+		}
 
 		public isCacheValid (cacheTime = this.cacheTime, version = this.version) {
 			if (cacheTime === undefined)

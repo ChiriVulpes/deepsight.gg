@@ -1,5 +1,6 @@
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
-import Component from "ui/Component";
+import AmmoTypes from "model/models/AmmoTypes";
+import EnumIcon from "ui/bungie/EnumIcon";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({
@@ -8,15 +9,6 @@ export default ISort.create({
 	shortName: "Ammo",
 	sort: (a, b) =>
 		(a.definition.equippingBlock?.ammoType ?? DestinyAmmunitionType.None) - (b.definition.equippingBlock?.ammoType ?? DestinyAmmunitionType.None),
-	render: item => {
-		const ammoType = item.definition.equippingBlock?.ammoType;
-		if (!ammoType)
-			return undefined;
-
-		const ammoTypeName = ammoType === DestinyAmmunitionType.Primary ? "primary" : ammoType === DestinyAmmunitionType.Special ? "special" : "heavy";
-
-		return Component.create("img")
-			.attributes.set("src", `https://www.bungie.net/img/destiny_content/ammo_types/${ammoTypeName}.png`)
-			.classes.add("item-sort-ammo-type", `item-sort-ammo-type-${ammoTypeName}`);
-	},
+	render: item => EnumIcon.create([AmmoTypes, item.definition.equippingBlock?.ammoType])
+		.classes.add("item-sort-ammo-type"),
 });
