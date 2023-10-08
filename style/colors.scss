@@ -91,20 +91,24 @@ $colors: (
 	wishlist-tooltip-background-no-match: #4e690d
 );
 
-@mixin override-color($name, $color) {
+@mixin override-color($name, $color, $opacity: null) {
+	$rgba-var: var(--#{$name}-rgb);
 	@if type-of($color) == color {
-		--#{$name}: #{$color};
 		--#{$name}-rgb: #{red($color), green($color), blue($color)};
+		--#{$name}: #{if($opacity == null, $color, rgba($rgba-var, $opacity))};
 	} @else if str-starts-with($color, "color(") {
 		$referenced-var: str-slice($color, 9, str-length($color) - 1);
-		--#{$name}: var(--#{$referenced-var});
 		--#{$name}-rgb: var(--#{$referenced-var}-rgb);
+		--#{$name}: #{if($opacity == null, var(--#{$referenced-var}), rgba($rgba-var, $opacity))};
 	} @else if str-starts-with($color, "var(") {
 		$referenced-var: str-slice($color, 7, str-length($color) - 1);
-		--#{$name}: var(--#{$referenced-var});
 		--#{$name}-rgb: var(--#{$referenced-var}-rgb);
+		--#{$name}: #{if($opacity == null, var(--#{$referenced-var}), rgba($rgba-var, $opacity))};
 	} @else {
 		--#{$name}: #{$color};
+		@if $opacity != null {
+			@error "Can't use $opacity with this colour"
+		}
 	}
 }
 

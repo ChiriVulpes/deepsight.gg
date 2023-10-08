@@ -776,13 +776,22 @@
 		height: 0.7em;
 		border-radius: 1em;
 		border: none;
-		@include override-color(button-background, color(background-7));
-		--button-background-hover: #{color(background-9)};
-		--button-background-active: #{color(background-4)};
+		@include override-color(button-background, color(foreground-0));
+		@include override-color(button-background-hover, color(foreground-0));
+		@include override-color(button-background-active, color(foreground-0));
+		--opacity: .2;
 		display: grid;
 		align-items: center;
 		justify-items: center;
 		padding: 0;
+		
+		&:hover, &:focus-visible {
+			--opacity: .3;
+		}
+		
+		&:active {
+			--opacity: .15;
+		}
 
 		&::before {
 			border-radius: 1em;
@@ -794,7 +803,7 @@
 			width: 0.55em;
 			height: 0.55em;
 			margin-top: -0.06em;
-			color: color(background-4);
+			color: color(background-0, .4);
 			@include transition(out, background);
 			@include mask-icon(unlock);
 		}
@@ -804,12 +813,12 @@
 		}
 
 		&:hover::after {
-			color: color(background-6);
+			color: color(background-0, .3);
 			@include transition(in);
 		}
 
 		&:active::after {
-			color: color(background-2);
+			color: color(background-0, .5);
 			@include transition(in);
 		}
 	}
