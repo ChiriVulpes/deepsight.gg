@@ -2,7 +2,8 @@ import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, De
 import { ItemCategoryHashes, PlugCategoryHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
-import Manifest from "model/models/Manifest";
+import Manifest, { ClarityManifest } from "model/models/Manifest";
+import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 import Maths from "utility/maths/Maths";
 
 export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
@@ -159,6 +160,7 @@ type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof Dest
 
 interface PlugDef {
 	definition?: DestinyInventoryItemDefinition;
+	clarity?: ClarityDescription;
 	type: PlugType;
 	perks: Perk[];
 }
@@ -178,6 +180,8 @@ export class Plug {
 
 	private static plugDefsCacheTime = 0;
 	private static plugDefs: Record<number, PlugDef> = {};
+
+	public clarity?: ClarityDescription;
 
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
 		const plug = new Plug();
@@ -199,9 +203,11 @@ export class Plug {
 
 		const { DestinyInventoryItemDefinition } = manifest;
 		const definition = await DestinyInventoryItemDefinition.get(hash);
+		const clarity = definition && await (await ClarityManifest.await()).ClarityDescriptions.get(hash);
 
 		return {
 			definition,
+			clarity,
 			type: !definition ? PlugType.None : Plug.resolvePlugType(definition),
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};

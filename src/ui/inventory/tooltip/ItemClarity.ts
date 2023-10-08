@@ -1,10 +1,8 @@
-import { ClarityManifest } from "model/models/Manifest";
-import type { Plug } from "model/models/items/Plugs";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Env from "utility/Env";
 import Strings from "utility/Strings";
-import type { ClarityDescriptionComponent, ClarityDescriptionTableCell, ClarityDescriptionTableRow, ClarityDescriptionTextComponent } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
+import type { ClarityDescription, ClarityDescriptionComponent, ClarityDescriptionTableCell, ClarityDescriptionTableRow, ClarityDescriptionTextComponent } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
 export enum ItemClarityClasses {
 	Main = "item-plug-tooltip-clarity",
@@ -62,33 +60,17 @@ export default class ItemClarity extends Component {
 			.appendTo(this);
 	}
 
-	private settingPlug?: Promise<void>;
-	public async setPlug (plug: Plug) {
-		await this.settingPlug;
-
+	public set (clarityDescription?: ClarityDescription) {
 		this.classes.add(Classes.Hidden);
 		this.description.removeContents();
 
-		let markPlugSet: () => void;
-		this.settingPlug = new Promise(resolve => markPlugSet = resolve);
+		if (!clarityDescription?.descriptions.en?.length)
+			return false;
 
-		const clarity = await ClarityManifest.await();
-		const clarityDescription = await clarity.ClarityDescriptions.get(plug.plugItemHash);
+		this.classes.remove(Classes.Hidden);
+		appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en);
 
-		try {
-			if (!clarityDescription?.descriptions.en?.length)
-				return false;
-
-			this.classes.remove(Classes.Hidden);
-			console.log("Clarity description:", clarityDescription);
-			appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en);
-
-			return true;
-
-		} finally {
-			markPlugSet!();
-			delete this.settingPlug;
-		}
+		return true;
 	}
 }
 

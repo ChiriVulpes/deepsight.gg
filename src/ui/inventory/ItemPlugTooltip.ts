@@ -84,13 +84,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.header.classes.toggle(plug.is(PlugType.Enhanced) || plug.is(PlugType.Catalyst) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Enhanced);
 		this.header.classes.toggle((plug.is(PlugType.Intrinsic) || plug.is(PlugType.Catalyst)) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Exotic);
 
-		this.footer.classes.add(Classes.Hidden);
-		void this.clarity.setPlug(plug).then(clarity => {
-			if (!clarity)
-				return;
-
-			this.footer.classes.remove(Classes.Hidden);
-		});
+		this.footer.classes.toggle(!this.clarity.set(plug.clarity), Classes.Hidden);
 	}
 
 	protected onGlobalKeyup (event: IKeyUpEvent) {
