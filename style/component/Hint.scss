@@ -4,6 +4,7 @@
 
 	&-input {
 		$size: 1.2em;
+		height: 1em;
 
 		&-modifier {
 			grid-row: 1;
@@ -107,10 +108,12 @@
 			border-radius: 0.4em;
 			font-family: inherit;
 			margin-right: 0.4em;
+			height: 1.25em;
 	
 			&-name {
 				height: 0px;
-				margin: -0.2em 0.3em -0.2em;
+				margin: -0.2em 0.3em;
+				top: -0.1em;
 				display: inline-block;
 				position: relative;
 			}

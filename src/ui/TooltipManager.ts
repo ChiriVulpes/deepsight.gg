@@ -17,6 +17,7 @@ export enum TooltipClasses {
 	Tier = "tooltip-tier",
 	Content = "tooltip-content",
 	Footer = "tooltip-footer",
+	Hints = "tooltip-hints",
 	Forced1pxBigger = "tooltip-forced-1px-bigger",
 }
 
@@ -38,12 +39,19 @@ export class Tooltip extends Component {
 	public content!: Component;
 	public footer!: Component;
 	public wrapper!: TooltipWrapper;
+	private _hints?: Component;
 	private _extra?: Tooltip;
 
 	public get extra (): Tooltip {
 		return this._extra ??= Tooltip.create()
 			.classes.add(TooltipClasses.Extra)
 			.appendTo(this.wrapper);
+	}
+
+	public get hints (): Component {
+		return this._hints ??= Component.create()
+			.classes.add(TooltipClasses.Hints)
+			.appendTo(this.footer);
 	}
 
 	protected override onMake (): void {

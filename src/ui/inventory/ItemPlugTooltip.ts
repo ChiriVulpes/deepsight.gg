@@ -6,8 +6,7 @@ import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
-import { ItemTooltipClasses } from "ui/inventory/ItemTooltip";
-import ItemClarity from "ui/inventory/tooltip/ItemClarity";
+import ItemClarity, { ItemClarityDefinitions } from "ui/inventory/tooltip/ItemClarity";
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
 import type { IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -20,6 +19,9 @@ enum ItemPlugTooltipClasses {
 	Enhanced = "item-plug-tooltip-enhanced",
 	Exotic = "item-plug-tooltip-exotic",
 	ClarityURL = "item-plug-tooltip-clarity-url",
+	Extra = "item-plug-tooltip-extra",
+	ExtraHeader = "item-plug-tooltip-extra-header",
+	ExtraContent = "item-plug-tooltip-extra-content",
 }
 
 class ItemPlugTooltip extends Tooltip {
@@ -30,7 +32,8 @@ class ItemPlugTooltip extends Tooltip {
 
 	public description!: Component;
 	public clarity!: ItemClarity;
-	public hints!: Component;
+	public clarityDefinitions!: ItemClarityDefinitions;
+	public hintShowDefinitions!: Hint;
 
 	protected override onMake () {
 		this.classes.add(ItemPlugTooltipClasses.Main);
@@ -43,9 +46,10 @@ class ItemPlugTooltip extends Tooltip {
 		this.clarity = ItemClarity.create()
 			.insertToAfter(this, this.content);
 
-		this.hints = Component.create()
-			.classes.add(ItemTooltipClasses.Hints)
-			.appendTo(this.footer);
+		this.hintShowDefinitions = Hint.create([IInput.get("KeyE")])
+			.classes.add(Classes.ShowIfNotExtraInfo)
+			.tweak(hint => hint.label.text.set("Show Definitions"))
+			.appendTo(this.hints);
 
 		Hint.create([IInput.get("MouseMiddle")])
 			.tweak(hint => hint.label.text.add("Visit ")
@@ -53,6 +57,13 @@ class ItemPlugTooltip extends Tooltip {
 					.classes.add(ItemPlugTooltipClasses.ClarityURL)
 					.text.set("d2clarity.com")))
 			.appendTo(this.hints);
+
+		this.extra.classes.add(ItemPlugTooltipClasses.Extra);
+		this.extra.header.classes.add(ItemPlugTooltipClasses.ExtraHeader);
+		this.extra.content.classes.add(ItemPlugTooltipClasses.ExtraContent);
+
+		this.clarityDefinitions = ItemClarityDefinitions.create()
+			.appendTo(this.extra.content);
 
 		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
@@ -78,7 +89,11 @@ class ItemPlugTooltip extends Tooltip {
 		this.header.classes.toggle(plug.is(PlugType.Enhanced) || plug.is(PlugType.Catalyst) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Enhanced);
 		this.header.classes.toggle((plug.is(PlugType.Intrinsic) || plug.is(PlugType.Catalyst)) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Exotic);
 
-		this.footer.classes.toggle(!this.clarity.set(plug.clarity), Classes.Hidden);
+		this.clarity.set(plug.clarity);
+		this.clarityDefinitions.set(plug.clarity);
+		this.footer.classes.toggle(!this.clarity.isPresent, Classes.Hidden);
+		this.extra.classes.toggle(!this.clarityDefinitions.isPresent, Classes.Hidden);
+		this.hintShowDefinitions.classes.toggle(!this.clarityDefinitions.isPresent, Classes.Hidden);
 	}
 
 	protected onGlobalKeyup (event: IKeyUpEvent) {

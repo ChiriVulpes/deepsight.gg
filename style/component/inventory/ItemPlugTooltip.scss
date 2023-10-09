@@ -254,5 +254,30 @@
 		&-spacer:last-child {
 			display: none;
 		}
+		
+		&-definition {
+			padding: 16px 24px;
+			border-top: 2px solid color(foreground-0, 0.25);
+			&:first-child {
+				border: none;
+			}
+			
+			&-title {
+				margin: -.4em 0 .2em;
+				color: color(tooltip-clarity-term);
+				font-weight: bold;
+			}
+		}
+	}
+	
+	// clarity definitions tooltip header
+	&-extra {
+		&-header {
+			display: none;
+		}
+		
+		&-content {
+			padding: 0;
+		}
 	}
 }

@@ -2,6 +2,7 @@ import ClarityEndpoint from "utility/endpoint/clarity/ClarityEndpoint";
 
 export interface ClarityDescriptionTextComponent {
 	text: string;
+	title?: string | ClarityDescriptionComponent[];
 	linesContent?: undefined;
 	table?: undefined;
 	classNames?: string[];
@@ -10,6 +11,7 @@ export interface ClarityDescriptionTextComponent {
 
 export interface ClarityDescriptionLineComponent {
 	text?: undefined;
+	title?: string | ClarityDescriptionComponent[];
 	linesContent: ClarityDescriptionComponent[];
 	table?: undefined;
 	classNames?: string[];
@@ -19,11 +21,13 @@ export interface ClarityDescriptionLineComponent {
 export interface ClarityDescriptionTableCell {
 	cellContent: string | ClarityDescriptionComponent[];
 	classNames?: string[];
+	title?: string | ClarityDescriptionComponent[];
 }
 
 export interface ClarityDescriptionTableRow {
 	rowContent: ClarityDescriptionTableCell[];
 	classNames?: string[];
+	title?: string | ClarityDescriptionComponent[];
 }
 
 export interface ClarityDescriptionTableComponent {
@@ -33,6 +37,7 @@ export interface ClarityDescriptionTableComponent {
 	classNames?: string[];
 	isFormula: boolean;
 	formula?: undefined;
+	title?: undefined;
 }
 
 export interface ClarityDescriptionStatValues {

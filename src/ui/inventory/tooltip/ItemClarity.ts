@@ -39,6 +39,10 @@ export enum ItemClarityClasses {
 	LabelPVEVP = "item-plug-tooltip-clarity-label-pvevp",
 	LabelPVE = "item-plug-tooltip-clarity-label-pve",
 	LabelPVP = "item-plug-tooltip-clarity-label-pvp",
+	Definitions = "item-plug-tooltip-clarity-definitions",
+	Definition = "item-plug-tooltip-clarity-definition",
+	DefinitionTitle = "item-plug-tooltip-clarity-definition-title",
+	DefinitionTitleIndex = "item-plug-tooltip-clarity-definition-title-index",
 }
 
 const imageDefs = {
@@ -98,13 +102,58 @@ export default class ItemClarity extends Component {
 			return false;
 
 		this.classes.remove(Classes.Hidden);
-		appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en);
+		appendClarityDescriptionComponents(this.description, clarityDescription.descriptions.en, { index: 0 });
 
 		return true;
 	}
 }
 
-function appendClarityDescriptionComponents (parent: Component, content: string | ClarityDescriptionComponent[], parentClassNames?: string[]) {
+export class ItemClarityDefinitions extends Component {
+
+	public get isPresent () {
+		return !this.classes.has(Classes.Hidden);
+	}
+
+	protected override onMake (): void {
+		this.classes.add(ItemClarityClasses.Definitions);
+	}
+
+	public set (clarityDescription?: ClarityDescription) {
+		this.classes.add(Classes.Hidden);
+		this.removeContents();
+
+		let definitions;
+		// eslint-disable-next-line prefer-const
+		definitions = extractDefinitions(clarityDescription?.descriptions.en);
+		if (!definitions?.length)
+			return false;
+
+		// uncomment to test multiple definitions
+		// definitions = [...definitions.slice(), ...definitions.slice()];
+
+		this.classes.remove(Classes.Hidden);
+		for (let i = 0; i < definitions.length; i++) {
+			const definition = definitions[i];
+			Component.create()
+				.classes.add(ItemClarityClasses.Definition)
+				.classes.add(...classNames(definition))
+				.append(Component.create("p")
+					.classes.add(ItemClarityClasses.DefinitionTitle)
+					.append(Component.create("sup")
+						.classes.add(ItemClarityClasses.DefinitionTitleIndex)
+						.text.set(`${i + 1}`))
+					.text.add(definition.text ?? ""))
+				.tweak(appendClarityDescriptionComponents, definition.title, { index: 0 })
+				.appendTo(this);
+		}
+	}
+}
+
+interface DefinitionIndexTracker {
+	index: number;
+}
+
+function appendClarityDescriptionComponents (parent: Component, content: string | ClarityDescriptionComponent[], definitionIndex: DefinitionIndexTracker, parentClassNames?: string[]) {
 	if (typeof content === "string")
 		content = [{ text: content }];
 
@@ -147,19 +196,23 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 			.classes.toggle(isPVE, ItemClarityClasses.PVE)
 			.classes.toggle(isPVP, ItemClarityClasses.PVP)
 			.classes.toggle(isPVE || isPVP, ItemClarityClasses.PVEVP)
-			.classes.add(...isLine ? [ItemClarityClasses.Line] : [], ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? component.classNames ?? [] : [])
+			.classes.toggle(!!component.title, ItemClarityClasses.DefinitionTitle)
+			.classes.add(...isLine ? [ItemClarityClasses.Line] : [], ...classNames(component))
 			.append(!isPVE && !isPVP ? undefined : Component.create("span")
 				.classes.add(ItemClarityClasses.LabelPVEVP, isPVE ? ItemClarityClasses.LabelPVE : ItemClarityClasses.LabelPVP)
 				.text.set(isPVE ? "PVE" : "PVP"))
 			.tweak(appendClarityText, isEnhancedArrow ? "" : component.text ?? "", component.classNames ?? [], isPVP || isPVE)
-			.tweak(appendClarityDescriptionComponents, isLabelledLine ? [] : component.linesContent ?? [], [...isPVE ? ["pve"] : [], ...isPVP ? ["pvp"] : []])
-			.tweak(appendClarityTableRowComponents, component.table ?? [])
-			.tweak(appendClarityLabelledLineComponents, !isLabelledLine ? [] : component.linesContent!)
+			.tweak(appendClarityDescriptionComponents, isLabelledLine ? [] : component.linesContent ?? [], definitionIndex, [...isPVE ? ["pve"] : [], ...isPVP ? ["pvp"] : []])
+			.tweak(appendClarityTableRowComponents, component.table ?? [], definitionIndex)
+			.tweak(appendClarityLabelledLineComponents, !isLabelledLine ? [] : component.linesContent!, definitionIndex)
+			.append(!component.title ? undefined : Component.create("sup")
+				.classes.add(ItemClarityClasses.DefinitionTitleIndex)
+				.text.set(`${++definitionIndex.index}`))
 			.appendTo(parent);
 	}
 }
 
-function appendClarityTableRowComponents (parent: Component, rows: ClarityDescriptionTableRow[]) {
+function appendClarityTableRowComponents (parent: Component, rows: ClarityDescriptionTableRow[], definitionIndex: DefinitionIndexTracker) {
 	for (let c = 0; c < (rows[0]?.rowContent.length ?? 0); c++) {
 		// delete columns where all rows (which aren't the first label row) are empty or a dash
 		const shouldDeleteColumn = rows.every((row, i) => {
@@ -187,21 +240,26 @@ function appendClarityTableRowComponents (parent: Component, rows: ClarityDescri
 
 	for (const row of rows) {
 		Component.create()
-			.classes.add(ItemClarityClasses.TableRow, ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? row.classNames ?? [] : [])
-			.tweak(appendClarityTableCellComponents, row.rowContent)
+			.classes.add(ItemClarityClasses.TableRow, ...classNames(row))
+			.tweak(appendClarityTableCellComponents, row.rowContent, definitionIndex)
 			.appendTo(parent);
 	}
 }
 
-function appendClarityTableCellComponents (parent: Component, cells: ClarityDescriptionTableCell[]) {
+const empy: string[] = [];
+function classNames (component: { classNames?: string[] }) {
+	return Env.DEEPSIGHT_ENVIRONMENT === "dev" ? component.classNames?.map(c => `-clarity-${c}`) ?? empy : empy;
+}
+
+function appendClarityTableCellComponents (parent: Component, cells: ClarityDescriptionTableCell[], definitionIndex: DefinitionIndexTracker) {
 	for (const cell of cells) {
 		const cellContent = extractText(cell.cellContent).trim();
 
 		Component.create()
-			.classes.add(ItemClarityClasses.TableCell, ...Env.DEEPSIGHT_ENVIRONMENT === "dev" ? cell.classNames ?? [] : [])
+			.classes.add(ItemClarityClasses.TableCell, ...classNames(cell))
 			.classes.toggle(!isNaN(parseFloat(cellContent)), ItemClarityClasses.TableCellNumeric)
 			.classes.toggle(isNaN(parseFloat(cellContent)), ItemClarityClasses.TableCellText)
-			.tweak(appendClarityDescriptionComponents, cellContent === "-" ? [] : cell.cellContent)
+			.tweak(appendClarityDescriptionComponents, cellContent === "-" ? [] : cell.cellContent, definitionIndex)
 			.appendTo(parent);
 	}
 }
@@ -211,7 +269,7 @@ function appendClarityTableCellComponents (parent: Component, cells: ClarityDesc
  * This only detects `: ` instances in the `text` property in this level. 
  * If no `: ` was detected all content is appended directly to the parent.
  */
-function appendClarityLabelledLineComponents (parent: Component, content: ClarityDescriptionComponent[]) {
+function appendClarityLabelledLineComponents (parent: Component, content: ClarityDescriptionComponent[], definitionIndex: DefinitionIndexTracker) {
 	const label: ClarityDescriptionComponent[] = [];
 	const value: ClarityDescriptionComponent[] = [];
 	let split = false;
@@ -227,17 +285,17 @@ function appendClarityLabelledLineComponents (parent: Component, content: Clarit
 	}
 
 	if (!split) {
-		appendClarityDescriptionComponents(parent, content);
+		appendClarityDescriptionComponents(parent, content, definitionIndex);
 		return;
 	}
 
 	label.push({ text: ": " });
 	Component.create("span")
 		.classes.add(ItemClarityClasses.LabelInline)
-		.tweak(appendClarityDescriptionComponents, label)
+		.tweak(appendClarityDescriptionComponents, label, definitionIndex)
 		.appendTo(parent);
 
-	appendClarityDescriptionComponents(parent, value);
+	appendClarityDescriptionComponents(parent, value, definitionIndex);
 }
 
 // use regular expressions to split out numbers, stack size separators `|`, and unknown values `(?)`
@@ -315,6 +373,17 @@ function extractText (content: ClarityDescriptionComponent | string | ClarityDes
 	}
 
 	return result;
+}
+
+type ClarityDescriptionComponentWithText = ClarityDescriptionComponent & { title: string | ClarityDescriptionComponent[] };
+
+function extractDefinitions (content?: string | ClarityDescriptionComponent[]): ClarityDescriptionComponentWithText[];
+function extractDefinitions (content: ClarityDescriptionComponent | ClarityDescriptionComponent[]): ClarityDescriptionComponentWithText | ClarityDescriptionComponentWithText[];
+function extractDefinitions (content?: string | ClarityDescriptionComponent | ClarityDescriptionComponent[]): ClarityDescriptionComponentWithText | ClarityDescriptionComponentWithText[] {
+	if (Array.isArray(content))
+		return content.flatMap(component => extractDefinitions(component.linesContent ?? component));
+
+	return typeof content === "object" && content.text && content.title ? content as ClarityDescriptionComponentWithText : [];
 }
 
 function trimTextMatchingFromStart (content: ClarityDescriptionComponent, ...matching: string[]): ClarityDescriptionComponent;

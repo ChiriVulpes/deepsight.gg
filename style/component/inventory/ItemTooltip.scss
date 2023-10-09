@@ -421,12 +421,6 @@
 		}
 	}
 
-	&-hints {
-		display: flex;
-		justify-content: flex-end;
-		gap: 12px;
-	}
-
 	&-description {
 		white-space: pre-wrap;
 		grid-column: 1/3;

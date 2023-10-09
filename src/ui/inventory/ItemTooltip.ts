@@ -52,7 +52,6 @@ export enum ItemTooltipClasses {
 	Wishlisted = "item-tooltip-wishlisted",
 	Note = "item-tooltip-note",
 	NoteHeading = "item-tooltip-note-heading",
-	Hints = "item-tooltip-hints",
 	Flavour = "item-tooltip-flavour",
 	RandomRollHeading = "item-tooltip-random-roll-heading",
 }
@@ -86,7 +85,6 @@ class ItemTooltip extends Tooltip {
 	public wishlist!: Component;
 	public note!: Component;
 	public stats!: ItemStat.Wrapper;
-	public hints!: Component;
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
 	public hintEquipToCharacter!: Hint;
@@ -193,10 +191,6 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.Note)
 			.appendTo(this.content);
 
-		this.hints = Component.create()
-			.classes.add(ItemTooltipClasses.Hints)
-			.appendTo(this.footer);
-
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
 			.appendTo(this.hints);
 
@@ -232,13 +226,9 @@ class ItemTooltip extends Tooltip {
 		this.randomMods = ItemTooltipMods.create()
 			.appendTo(this.extra.content);
 
-		this.randomHints = Component.create()
-			.classes.add(ItemTooltipClasses.Hints)
-			.appendTo(this.extra.footer);
-
 		this.hintCollections = Hint.create([IInput.get("MouseRight", "Shift")])
 			.tweak(hint => hint.label.text.set("Collections"))
-			.appendTo(this.randomHints);
+			.appendTo(this.extra.hints);
 
 		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);

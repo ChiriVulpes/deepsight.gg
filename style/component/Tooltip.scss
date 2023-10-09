@@ -61,6 +61,12 @@
 		background: color(tooltip-background);
 		padding: var(--tooltip-padding);
 	}
+
+	&-hints {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+	}
 }
 
 ////////////////////////////////////
