@@ -79,6 +79,8 @@ html .hidden {
 	padding: var(--slot-padding);
 	width: var(--slot-size);
 	height: var(--slot-size);
+	content-visibility: auto;
+	contain-intrinsic-size: var(--slot-size) var(--slot-size);
 	box-sizing: border-box;
 
 	&-empty {
