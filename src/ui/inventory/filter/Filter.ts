@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { FilterChipButton } from "ui/inventory/filter/ItemFilter";
 
 enum Filter {
 	Shaped,
@@ -14,7 +15,10 @@ enum Filter {
 
 export default Filter;
 
-export type IFilterSuggestedValue = { name: string, icon: string };
+export type IFilterSuggestedValue = {
+	name: string;
+	icon: string;
+};
 
 export interface IFilter {
 	id: Filter;
@@ -23,6 +27,7 @@ export interface IFilter {
 	suggestedValueHint?: string;
 	matches?(filterValue: string): boolean;
 	apply (filterValue: string, item: Item): boolean;
+	tweakChip?(chip: FilterChipButton, filterValue: string): any;
 	colour: `#${string}` | number | ((value: string) => `#${string}` | number);
 	maskIcon?: string | ((filterValue: string) => string | undefined);
 	icon?: string | ((filterValue: string) => string | undefined);

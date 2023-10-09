@@ -55,7 +55,7 @@ export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
 	filter: Event;
 }
 
-class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string, isHint?: true]> {
+export class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string, isHint?: true]> {
 
 	public prefix!: string;
 	public value!: string;
@@ -200,10 +200,12 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			if (filter.suggestedValueHint)
 				this.suggestedChips.push(FilterChipButton.create([filter, filter.suggestedValueHint, undefined, true])
 					.event.subscribe("click", () => this.toggleChip(filter))
+					.tweak(filter.tweakChip, filter.suggestedValueHint)
 					.appendTo(suggestedFilters));
 
 			for (const value of filter.suggestedValues ?? [])
 				this.suggestedChips.push(FilterChipButton.create([filter, typeof value === "string" ? value : value.name, typeof value === "string" ? undefined : value.icon])
+					.tweak(filter.tweakChip, typeof value === "string" ? value : value.name)
 					.event.subscribe("click", () => this.toggleChip(filter, typeof value === "string" ? value : value.name))
 					.appendTo(suggestedFilters));
 		}
