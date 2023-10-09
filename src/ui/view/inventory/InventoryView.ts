@@ -215,7 +215,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
 
-		this.filterer = ItemFilter.create([this.super.definition.filter])
+		this.filterer = ItemFilter.getFor(this.super.definition.filter)
 			.event.subscribe("filter", this.filter)
 			.event.subscribe("submit", () =>
 				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())

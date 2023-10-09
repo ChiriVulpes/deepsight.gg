@@ -39,6 +39,9 @@
 	}
 
 	&-footer {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		
 		.item-sort,
 		.item-filter,
 		.view-inventory-slot-hints {
@@ -78,6 +81,7 @@
 		}
 
 		.view-inventory-slot-hints {
+			grid-column: 3;
 			--icon: url("./image/svg/help.svg");
 
 			@include vertical-or-tablet-or-mobile {

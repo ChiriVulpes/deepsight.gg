@@ -1,6 +1,7 @@
 import type Item from "model/models/items/Item";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
+import type ItemFilter from "ui/inventory/filter/ItemFilter";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
@@ -28,6 +29,9 @@ interface FilterManager extends IFilterManagerConfiguration { }
 class FilterManager {
 
 	private readonly current: IConfiguredFilter[] = [];
+
+	public uiComponent?: ItemFilter;
+
 	public constructor (configuration: IFilterManagerConfiguration) {
 		Object.assign(this, configuration);
 	}

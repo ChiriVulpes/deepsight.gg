@@ -116,6 +116,10 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 
 export default class ItemFilter extends Component<HTMLElement, [FilterManager]> {
 
+	public static getFor (filterer: FilterManager) {
+		return filterer.uiComponent ??= ItemFilter.create([filterer]);
+	}
+
 	public override readonly event!: ComponentEventManager<this, IItemFilterEvents>;
 
 	public filterer!: FilterManager;
