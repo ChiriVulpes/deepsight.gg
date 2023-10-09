@@ -44,12 +44,12 @@
 		.view-inventory-slot-hints {
 			position: relative;
 			height: 100%;
-			:where(&-drawer) {
+			&-drawer {
 				max-height: min(
 					70vh,
 					calc(
 						var(--footer-height) + var(--slot-size) * 6 + var(--card-title-height) * 2 +
-							var(--card-inventory-padding) * 4 + var(--card-gap-y) * 2 + var(--view-padding-bottom) +
+							var(--bucket-inventory-padding) * 4 + var(--card-gap-y) * 2 + var(--view-padding-bottom) +
 							var(--slot-size-optimisation)
 					)
 				);

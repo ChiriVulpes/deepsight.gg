@@ -37,6 +37,7 @@ export enum ItemClasses {
 	Extra = "item-extra",
 	ExtraInfo = "item-extra-info",
 	ExtraEmpty = "item-extra-empty",
+	ExtraOnlyOne = "item-extra-only-one",
 	Loading = "item-loading",
 	NotAcquired = "item-not-acquired",
 	Locked = "item-locked",
@@ -306,6 +307,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		}
 
 		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === BucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
+		this.extra.classes.toggle(extra === 1, ItemClasses.ExtraOnlyOne);
 	}
 
 	private async onClick (event: MouseEvent) {

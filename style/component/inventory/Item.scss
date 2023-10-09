@@ -613,11 +613,9 @@ $z-index-loading: 1000;
 		margin-right: 1px !important;
 	}
 
-	&-quantity,
-	&-power-level {
-		&:not(:has(+ .item-extra-info)) {
-			grid-row: 3;
-		}
+	&-extra-only-one &-quantity,
+	&-extra-only-one &-power-level {
+		grid-row: 3;
 	}
 
 	&-quantity {

@@ -39,7 +39,7 @@
 		@include blur-disables-animation;
 	}
 
-	&:where(:hover, :active, :focus-visible, .button-selected) {
+	&:hover, &:active, &:focus-visible, &.button-selected {
 		background: color(button-background-hover, var(--opacity));
 		border-color: color(button-border-hover);
 		color: color(button-foreground-hover);
@@ -69,7 +69,7 @@
 		padding: 0;
 		border: none;
 		background: color(button-icon-foreground);
-		&:where(:hover, :focus-within) {
+		&:hover, &:focus-within {
 			background: color(button-icon-foreground-hover);
 		}
 		&:active {
@@ -188,7 +188,7 @@
 			}
 		}
 
-		.button:where(:hover, :focus-visible) & {
+		.button:hover &, .button:focus-visible & {
 			opacity: 0.4;
 			width: 100%;
 			animation: none;
@@ -219,7 +219,7 @@
 			left: 100%;
 		}
 
-		.button:where(:hover, :focus-visible) & {
+		.button:hover &, .button:focus-visible & {
 			width: 100%;
 
 			&::before,
