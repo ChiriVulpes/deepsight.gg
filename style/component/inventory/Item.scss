@@ -613,8 +613,8 @@ $z-index-loading: 1000;
 		margin-right: 1px !important;
 	}
 
-	&-extra-only-one &-quantity,
-	&-extra-only-one &-power-level {
+	&-extra-none-after-quantity-or-power &-quantity,
+	&-extra-none-after-quantity-or-power &-power-level {
 		grid-row: 3;
 	}
 

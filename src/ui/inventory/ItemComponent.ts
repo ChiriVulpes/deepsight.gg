@@ -9,6 +9,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
+import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
 import Loadable from "ui/Loadable";
@@ -37,7 +38,7 @@ export enum ItemClasses {
 	Extra = "item-extra",
 	ExtraInfo = "item-extra-info",
 	ExtraEmpty = "item-extra-empty",
-	ExtraOnlyOne = "item-extra-only-one",
+	ExtraNoneAfterQuantityOrPower = "item-extra-none-after-quantity-or-power",
 	Loading = "item-loading",
 	NotAcquired = "item-not-acquired",
 	Locked = "item-locked",
@@ -292,6 +293,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			sorts.push(SortQuantity);
 
 		let extra = 0;
+		let encounteredQuantityOrPowerState = 0;
 		for (const sort of sorts) {
 			if (!sort.render)
 				continue;
@@ -300,6 +302,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			if (!rendered)
 				continue;
 
+			if (encounteredQuantityOrPowerState || sort.id === Sort.Quantity || sort.id === Sort.Power)
+				encounteredQuantityOrPowerState++;
+
 			rendered.classes.add(ItemClasses.ExtraInfo)
 				.appendTo(this.extra);
 			if (++extra === 3)
@@ -307,7 +312,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		}
 
 		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === BucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
-		this.extra.classes.toggle(extra === 1, ItemClasses.ExtraOnlyOne);
+		this.extra.classes.toggle(encounteredQuantityOrPowerState === 1, ItemClasses.ExtraNoneAfterQuantityOrPower);
 	}
 
 	private async onClick (event: MouseEvent) {
