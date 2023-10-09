@@ -231,7 +231,7 @@ function appendClarityTableRowComponents (parent: Component, rows: ClarityDescri
 			// make a note of tables where the first column of every row is a label (or empty)
 			const isFirstColumnAllLabels = rows.every((row, i) => {
 				const columnText = extractText(row.rowContent[c].cellContent).trim();
-				return !columnText || !parseFloat(columnText);
+				return !columnText || (!parseFloat(columnText) && !nonNumericNumberRegex.test(columnText));
 			});
 
 			parent.classes.toggle(isFirstColumnAllLabels, ItemClarityClasses.Table_IsFirstColumnAllLabels);
@@ -254,11 +254,12 @@ function classNames (component: { classNames?: string[] }) {
 function appendClarityTableCellComponents (parent: Component, cells: ClarityDescriptionTableCell[], definitionIndex: DefinitionIndexTracker) {
 	for (const cell of cells) {
 		const cellContent = extractText(cell.cellContent).trim();
+		const isNumeric = !isNaN(parseFloat(cellContent)) || nonNumericNumberRegex.test(cellContent.replace(unknownValueBracketsRegex, "?"));
 
 		Component.create()
 			.classes.add(ItemClarityClasses.TableCell, ...classNames(cell))
-			.classes.toggle(!isNaN(parseFloat(cellContent)), ItemClarityClasses.TableCellNumeric)
-			.classes.toggle(isNaN(parseFloat(cellContent)), ItemClarityClasses.TableCellText)
+			.classes.toggle(isNumeric, ItemClarityClasses.TableCellNumeric)
+			.classes.toggle(!isNumeric, ItemClarityClasses.TableCellText)
 			.tweak(appendClarityDescriptionComponents, cellContent === "-" ? [] : cell.cellContent, definitionIndex)
 			.appendTo(parent);
 	}
@@ -300,29 +301,34 @@ function appendClarityLabelledLineComponents (parent: Component, content: Clarit
 
 // use regular expressions to split out numbers, stack size separators `|`, and unknown values `(?)`
 const numericSplitNumericStart = /(?:(?<![\w\d.!+%-])|(?<=\d(?:st|nd|rd|th)-))(?=[x+-]?[.\d])/;
-const numericSplitUnknownStart = /(?<![\w\d.!+%-])(?<![\d%+x][([])(?!\?[)\]])(?=\?)/;
-const numericSplitNumericEnd = /(?<=[\d?][%x°+]?(?:\(\?\)|\[\?\]|\?)?)(?<!\(\?|\[\?)(?![\dx?%°+.]|\(\?\)|\[\?\])/;
+const numericSplitUnknownStart = /(?<![\w\d.!+%-])(?=\?)/;
+const numericSplitNumericEnd = /(?<=[\d?][%x°+]?\??)(?![\dx?%°+.])/;
 const numericSplitRegex = Strings.mergeRegularExpressions("g", numericSplitNumericStart, numericSplitUnknownStart, numericSplitNumericEnd);
 const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g;
-const unknownValueSplitRegex = /(?=\(\?\)|\[\?\])|(?<=\(\?\)|\[\?\])/g;
+const unknownValueBracketsRegex = /\(\?\)|\[\?\]/g;
+const nonNumericNumberRegex = /^\?$|x[\d?]|[\d?](?:th|[%°-])/;
 function appendClarityText (parent: Component, text: string, classNames: string[], isPVEVP: boolean) {
 	if (isPVEVP)
 		// pvp numeric values sometimes are wrapped in square brackets, we don't want them
 		text = Strings.extractFromSquareBrackets(text);
+
+	text = text.replace(unknownValueBracketsRegex, "?");
 
 	const sections = text.split(numericSplitRegex);
 	for (const section of sections) {
 		if (!section)
 			continue;
 
-		if (section[0] === "?" || !isNaN(parseFloat(Strings.trimTextMatchingFromStart(section, "x")))) {
+		const parsedFloat = !isNaN(parseFloat(Strings.trimTextMatchingFromStart(section, "x")));
+		const nonNumericNumber = nonNumericNumberRegex.test(section);
+		if (parsedFloat || nonNumericNumber) {
 			Component.create("span")
 				.classes.add(ItemClarityClasses.Numeric)
-				.classes.toggle(section[0] === "?", ItemClarityClasses.NumericUnknown)
-				.text.set(section[0] === "?" ? section
-					: Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(Strings.trimTextMatchingFromEnd(section, "?"), "(?)"), "[?]"))
+				.classes.toggle(nonNumericNumber, ItemClarityClasses.NumericUnknown)
+				.text.set(nonNumericNumber ? section
+					: Strings.trimTextMatchingFromEnd(section, "?"))
 				// sometimes numbers end in ? showing that it's an estimate, make that ? superscript
-				.append(section[0] === "?" || !section.endsWith("?") && !section.endsWith("(?)") && !section.endsWith("[?]") ? undefined
+				.append(nonNumericNumber || !section.endsWith("?") ? undefined
 					: Component.create("span")
 						.classes.add(ItemClarityClasses.Estimate)
 						.text.set("?"))
@@ -342,19 +348,7 @@ function appendClarityText (parent: Component, text: string, classNames: string[
 				continue;
 			}
 
-			const sections = section.split(unknownValueSplitRegex);
-			for (const section of sections) {
-				if (section === "(?)" || section === "[?]") {
-					Component.create("span")
-						.classes.add(ItemClarityClasses.Numeric, ItemClarityClasses.NumericUnknown)
-						.text.set("?")
-						.appendTo(parent);
-
-					continue;
-				}
-
-				parent.text.add(section);
-			}
+			parent.text.add(section);
 		}
 	}
 }
