@@ -5,6 +5,7 @@
 	&-input {
 		$size: 1.2em;
 		height: 1em;
+		display: flex;
 
 		&-modifier {
 			grid-row: 1;
@@ -109,6 +110,10 @@
 			font-family: inherit;
 			margin-right: 0.4em;
 			height: 1.25em;
+			
+			.hint-input-modifier + & {
+				margin-left: .3em;
+			}
 	
 			&-name {
 				height: 0px;
