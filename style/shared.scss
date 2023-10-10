@@ -82,6 +82,11 @@ html .hidden {
 	// content-visibility: auto;
 	// contain-intrinsic-size: var(--slot-size) var(--slot-size);
 	box-sizing: border-box;
+	
+	// TODO re-enable this but using a hover class added by html so it can still have a transition out (ugh)
+	// &:hover, &:has(:focus-visible) {
+	// 	content-visibility: visible;
+	// }
 
 	&-empty {
 		opacity: 0.2;
