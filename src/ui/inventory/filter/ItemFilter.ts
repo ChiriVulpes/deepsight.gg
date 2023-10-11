@@ -97,7 +97,9 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipButtonValueHasMaskIcon)
 				.text.set(value)
 				.style.set("--icon", typeof usedIcon === "string" ? usedIcon : undefined)
-				.tweak(!Array.isArray(usedIcon) ? undefined : EnumIcon.applyIconVar, ...(!Array.isArray(usedIcon) ? [] : usedIcon) as EnumModelIconPath))
+				.tweak(async valueSpan => Array.isArray(usedIcon)
+					&& !await EnumIcon.applyIconVar(valueSpan, ...usedIcon)
+					&& valueSpan.classes.remove(ItemFilterClasses.FilterChipButtonValueHasIcon, ItemFilterClasses.FilterChipButtonValueHasMaskIcon)))
 			.style.set("--colour", IFilter.colour(value, filter.colour));
 	}
 
@@ -518,7 +520,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)
 				.style.set("--colour", IFilter.colour(value, filter.colour))
 				.style.set("--icon", typeof usedIcon === "string" ? usedIcon : undefined)
-				.tweak(!Array.isArray(usedIcon) ? undefined : EnumIcon.applyIconVar, ...(!Array.isArray(usedIcon) ? [] : usedIcon) as EnumModelIconPath)
+				.tweak(async valueSpan => Array.isArray(usedIcon)
+					&& !await EnumIcon.applyIconVar(valueSpan, ...usedIcon)
+					&& valueSpan.classes.remove(ItemFilterClasses.FilterChipValueHasIcon, ItemFilterClasses.FilterChipValueHasMaskIcon))
 				.append(textNode = document.createTextNode(forceAddQuotes || value.includes(" ") ? `"${value}"` : value))
 				.appendTo(this.input);
 

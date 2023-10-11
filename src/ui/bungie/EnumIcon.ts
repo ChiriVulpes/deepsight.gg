@@ -11,14 +11,19 @@ export type EnumModelIconPath = [model: EnumModel<any, DisplayPropertied>, id: A
 
 export default class EnumIcon extends Component<HTMLElement, readonly [model: EnumModel<any, DisplayPropertied>, id: string | number | undefined]> {
 
-	public static async applyIconVar (component: Component, model: EnumModel<any, DisplayPropertied>, id: Arrays.Or<string | number> | undefined, varName = "--icon") {
-		return EnumIcon.applyIcon(model, id, iconPath => component.style.set(varName, `url(${iconPath})`));
+	public static async applyIconVar (component: Component, model: EnumModel<any, DisplayPropertied>, id: Arrays.Or<string | number> | undefined, varName = "--icon", onApply?: (applied: boolean) => any) {
+		const applied = await EnumIcon.applyIcon(model, id, iconPath => component.style.set(varName, `url(${iconPath})`));
+		onApply?.(applied);
+		return applied;
 	}
 
 	public static async applyIcon (model: EnumModel<any, DisplayPropertied>, id: Arrays.Or<string | number> | undefined, applicator: (path: string) => any) {
 		const iconPath = await this.getIconPath(model, id);
-		if (iconPath)
-			applicator(iconPath);
+		if (!iconPath)
+			return false;
+
+		applicator(iconPath);
+		return true;
 	}
 
 	private static async getIconPath (model: EnumModel<any, DisplayPropertied>, id: Arrays.Or<string | number> | undefined) {

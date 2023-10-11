@@ -150,8 +150,16 @@ const WeaponTypes = EnumModel.create("WeaponTypes", {
 				return byHash;
 
 			const nameLowerCase = `${hash!}`.toLowerCase();
-			return !nameLowerCase ? undefined // match none on zero length
-				: types.array.find(type => type.displayProperties.nameLowerCase!.startsWith(nameLowerCase));
+			if (!nameLowerCase)
+				// match none on zero length
+				return undefined;
+
+			const matching = types.array.filter(type => type.displayProperties.nameLowerCase!.startsWith(nameLowerCase));
+			if (matching.length > 1)
+				// return undefined on more than one match too
+				return undefined;
+
+			return matching[0];
 		}
 
 		hash = hash.map(hash => +hash);
