@@ -323,9 +323,13 @@ const ManifestCacheModel = Model.create(manifestCacheModelKey, {
 	cache: "Global",
 	generate: async () => {
 		const manifest = await Manifest.await();
+		const clarityManifest = await ClarityManifest.await();
 
-		return Object.fromEntries(Object.entries(manifest)
-			.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()])) as ManifestCache;
+		return Object.fromEntries(([] as [string, ManifestItem<AllComponentNames>][])
+			.concat(Object.entries(manifest)
+				.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()]))
+			.concat(Object.entries(clarityManifest)
+				.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()]))) as any as ManifestCache;
 	},
 });
 
