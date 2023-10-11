@@ -7,12 +7,6 @@ import type { IFilterSuggestedValue } from "ui/inventory/filter/Filter";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 import Arrays from "utility/Arrays";
 
-declare module "bungie-api-ts/destiny2/interfaces" {
-	interface DestinyDisplayPropertiesDefinition {
-		nameLowerCase?: string;
-	}
-}
-
 interface IFilterPerkSuggestedValue extends IFilterSuggestedValue {
 	plug: Plug;
 }

@@ -1,3 +1,7 @@
+import type EnumModel from "model/models/EnumModel";
+import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
+import type { EnumModelIconPath } from "ui/bungie/EnumIcon";
+import EnumIcon from "ui/bungie/EnumIcon";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
@@ -55,7 +59,7 @@ export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
 	filter: Event;
 }
 
-export class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string, isHint?: true]> {
+export class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string | EnumModelIconPath | EnumModel<any, DisplayPropertied>, isHint?: true]> {
 
 	public prefix!: string;
 	public value!: string;
@@ -64,13 +68,15 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 	public isHint!: boolean;
 	public shouldHideByDefault!: boolean;
 
-	protected override onMake (filter: IFilter, value: string, icon?: string, isHint?: true): void {
+	protected override onMake (filter: IFilter, value: string, icon?: string | EnumModelIconPath | EnumModel<any, DisplayPropertied>, isHint?: true): void {
 		super.onMake(filter, value, icon, isHint);
 		this.isHint = isHint ?? false;
 		this.shouldHideByDefault = !isHint && !!filter.suggestedValueHint && !!filter.suggestedValues?.length && filter.suggestedValues.length > 5;
 
 		icon ??= IFilter.icon(value, filter.icon);
 		const maskIcon = IFilter.icon(value, filter.maskIcon);
+
+		const usedIcon = icon ?? maskIcon;
 
 		this.prefix = filter.prefix;
 		this.value = value;
@@ -90,7 +96,8 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipButtonValueHasIcon)
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipButtonValueHasMaskIcon)
 				.text.set(value)
-				.style.set("--icon", icon ?? maskIcon))
+				.style.set("--icon", typeof usedIcon === "string" ? usedIcon : undefined)
+				.tweak(!Array.isArray(usedIcon) ? undefined : EnumIcon.applyIconVar, ...(!Array.isArray(usedIcon) ? [] : usedIcon) as EnumModelIconPath))
 			.style.set("--colour", IFilter.colour(value, filter.colour));
 	}
 
@@ -500,6 +507,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 			const icon = IFilter.icon(value, filter.icon);
 			const maskIcon = IFilter.icon(value, filter.maskIcon);
+
+			const usedIcon = icon ?? maskIcon;
+
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
 				.classes.add(`${ItemFilterClasses.FilterChip}-${Filter[filter.id]}`)
@@ -507,7 +517,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipValueHasIcon)
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)
 				.style.set("--colour", IFilter.colour(value, filter.colour))
-				.style.set("--icon", icon ?? maskIcon)
+				.style.set("--icon", typeof usedIcon === "string" ? usedIcon : undefined)
+				.tweak(!Array.isArray(usedIcon) ? undefined : EnumIcon.applyIconVar, ...(!Array.isArray(usedIcon) ? [] : usedIcon) as EnumModelIconPath)
 				.append(textNode = document.createTextNode(forceAddQuotes || value.includes(" ") ? `"${value}"` : value))
 				.appendTo(this.input);
 

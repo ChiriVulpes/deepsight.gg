@@ -1,5 +1,11 @@
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
 
+declare module "bungie-api-ts/destiny2/interfaces" {
+	interface DestinyDisplayPropertiesDefinition {
+		nameLowerCase?: string;
+	}
+}
+
 export type DisplayPropertied = { readonly displayProperties: DestinyDisplayPropertiesDefinition };
 export type DisplayPropertiesOrD = DestinyDisplayPropertiesDefinition | DisplayPropertied;
 

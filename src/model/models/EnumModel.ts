@@ -1,13 +1,14 @@
 import Model from "model/Model";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
+import type Arrays from "utility/Arrays";
 
 export interface EnumModelDefinition<ALL, INDIVIDUAL extends DisplayPropertied> {
 	generate (): Promise<ALL>;
-	get (id?: string | number): Promise<INDIVIDUAL | undefined>;
+	get (id?: Arrays.Or<string | number>): Promise<INDIVIDUAL | undefined>;
 }
 
 interface EnumModel<ALL, INDIVIDUAL extends DisplayPropertied> {
-	get (id?: string | number): Promise<INDIVIDUAL | undefined>;
+	get (id?: Arrays.Or<string | number>): Promise<INDIVIDUAL | undefined>;
 }
 
 class EnumModel<ALL, INDIVIDUAL extends DisplayPropertied> {

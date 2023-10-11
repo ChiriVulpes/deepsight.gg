@@ -1,6 +1,7 @@
-import { BucketHashes, ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import type Item from "model/models/items/Item";
+import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import WeaponTypes from "model/models/WeaponTypes";
 import Component from "ui/Component";
+import EnumIcon from "ui/bungie/EnumIcon";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({
@@ -11,16 +12,6 @@ export default ISort.create({
 	render: item => !item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? undefined
 		: Component.create()
 			.classes.add("item-weapon-type-icon")
-			.style.set("--icon", getWeaponTypeMaskIconPath(item)),
+			.tweak(component => EnumIcon.applyIcon(WeaponTypes, item.definition.itemCategoryHashes, iconPath =>
+				component.style.set("--icon", `url("${iconPath}")`))),
 });
-
-export function getWeaponTypeMaskIconPath (item: Item | string) {
-	let svgName = (typeof item === "string" ? item : item.definition.itemTypeDisplayName)
-		.toLowerCase()
-		.replace(/\W+/g, "_");
-
-	if (svgName === "grenade_launcher" && typeof item !== "string" && item.definition.inventory?.bucketTypeHash === BucketHashes.PowerWeapons)
-		svgName = "grenade_launcher_heavy";
-
-	return `url("image/svg/weapon/${svgName}.svg")`;
-}
