@@ -48,9 +48,9 @@ export class InventorySlotColumnsView extends InventoryView {
 	public columns!: ISlotColumn[];
 
 	protected override async onMake (inventory: Inventory): Promise<void> {
-		await super.onMake(inventory);
-
 		this.super.content.classes.add(InventorySlotColumnsViewClasses.Content);
+
+		await super.onMake(inventory);
 
 		// this.onMouseMove = this.onMouseMove.bind(this);
 		// document.body.addEventListener("mousemove", this.onMouseMove);
