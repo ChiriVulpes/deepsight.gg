@@ -1,4 +1,4 @@
-import type EnumModel from "model/models/EnumModel";
+import type EnumModel from "model/models/enum/EnumModel";
 import Component from "ui/Component";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import type Arrays from "utility/Arrays";

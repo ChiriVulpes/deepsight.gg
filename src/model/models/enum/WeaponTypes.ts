@@ -1,6 +1,6 @@
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
 import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import EnumModel from "model/models/EnumModel";
+import EnumModel from "model/models/enum/EnumModel";
 import type Arrays from "utility/Arrays";
 
 export interface DestinyWeaponTypeDefinition {

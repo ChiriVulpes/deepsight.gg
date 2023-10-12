@@ -1,8 +1,8 @@
 import { DamageType, DestinyAmmunitionType, DestinyBreakerType, DestinyClass } from "bungie-api-ts/destiny2";
-import AmmoTypes from "model/models/AmmoTypes";
-import BreakerTypes from "model/models/BreakerTypes";
-import ClassTypes from "model/models/ClassTypes";
-import DamageTypes from "model/models/DamageTypes";
+import AmmoTypes from "model/models/enum/AmmoTypes";
+import BreakerTypes from "model/models/enum/BreakerTypes";
+import ClassTypes from "model/models/enum/ClassTypes";
+import DamageTypes from "model/models/enum/DamageTypes";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import EnumIcon from "ui/bungie/EnumIcon";

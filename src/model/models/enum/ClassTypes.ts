@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { DestinyClassDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass } from "bungie-api-ts/destiny2";
-import EnumModel from "model/models/EnumModel";
+import EnumModel from "model/models/enum/EnumModel";
 import Manifest from "model/models/Manifest";
 
 export interface ClassTypesDefinition {

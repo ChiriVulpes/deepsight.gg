@@ -1,4 +1,4 @@
-import type EnumModel from "model/models/EnumModel";
+import type EnumModel from "model/models/enum/EnumModel";
 import type Item from "model/models/items/Item";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import type { EnumModelIconPath } from "ui/bungie/EnumIcon";

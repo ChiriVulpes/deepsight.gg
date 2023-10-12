@@ -1,6 +1,6 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
-import WeaponTypes from "model/models/WeaponTypes";
+import WeaponTypes from "model/models/enum/WeaponTypes";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 import Arrays from "utility/Arrays";
 

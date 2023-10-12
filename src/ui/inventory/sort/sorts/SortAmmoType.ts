@@ -1,5 +1,5 @@
 import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
-import AmmoTypes from "model/models/AmmoTypes";
+import AmmoTypes from "model/models/enum/AmmoTypes";
 import EnumIcon from "ui/bungie/EnumIcon";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 

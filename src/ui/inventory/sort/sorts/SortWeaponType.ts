@@ -1,5 +1,5 @@
 import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import WeaponTypes from "model/models/WeaponTypes";
+import WeaponTypes from "model/models/enum/WeaponTypes";
 import Component from "ui/Component";
 import EnumIcon from "ui/bungie/EnumIcon";
 import Sort, { ISort } from "ui/inventory/sort/Sort";

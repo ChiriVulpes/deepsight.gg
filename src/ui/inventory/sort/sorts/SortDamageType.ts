@@ -1,5 +1,5 @@
 import { DamageType } from "bungie-api-ts/destiny2";
-import DamageTypes from "model/models/DamageTypes";
+import DamageTypes from "model/models/enum/DamageTypes";
 import EnumIcon from "ui/bungie/EnumIcon";
 import Sort, { ISort } from "ui/inventory/sort/Sort";
 
