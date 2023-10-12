@@ -15,6 +15,7 @@ export default IFilter.async(async () => {
 	const inventory = await Inventory.createTemporary().await();
 	const perks = [...new Map(Object.values(inventory.items ?? {})
 		.flatMap(item => item.getSockets(PlugType.Perk, PlugType.Intrinsic))
+		.filter(socket => socket.isNot(PlugType.Exotic))
 		.flatMap(socket => socket.plugs)
 		.map((plug): IFilterPerkSuggestedValue | undefined => !Display.name(plug.definition) ? undefined : {
 			plug,

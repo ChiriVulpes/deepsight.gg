@@ -1,7 +1,8 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes, PlugCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes, PlugCategoryHashes, TraitHashes } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
+import { TierHashes } from "model/models/items/Tier";
 import Manifest, { ClarityManifest } from "model/models/Manifest";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 import Maths from "utility/maths/Maths";
@@ -13,12 +14,12 @@ export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
 export class Socket {
 
 	public static filterByPlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return sockets.filter((socket): socket is Socket.Socketed => types.everyIn(socket?.socketedPlug?.type ?? PlugType.None));
 	}
 
 	public static filterExcludePlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.someIn(socket?.socketedPlug?.type ?? PlugType.None));
 	}
 
@@ -26,12 +27,12 @@ export class Socket {
 		if (!type)
 			return [];
 
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return sockets.filter((socket): socket is Socket => types.every(type => socket?.is(type)));
 	}
 
 	public static filterExcludeType (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return sockets.filter((socket): socket is Socket => types.every(type => socket?.isNot(type)));
 	}
 
@@ -62,10 +63,10 @@ export class Socket {
 		// 	socket.socketedPlug = plugs[0];
 
 		// } else {
-		socket.plugs = await Promise.all(plugs.map(plug => /*plug instanceof Plug ? plug :*/ Plug.resolve(manifest, plug)));
+		socket.plugs = await Promise.all(plugs.map(plug => /*plug instanceof Plug ? plug :*/ Plug.resolve(manifest, plug, item)));
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
 		if (!socketedPlug && currentPlugHash) {
-			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true);
+			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true, item);
 			if (socketedPlug)
 				socket.plugs.push(socketedPlug);
 		}
@@ -102,11 +103,11 @@ export class Socket {
 	}
 
 	public is (type: PlugType) {
-		return Maths.bits(type).everyIn(this.type);
+		return Maths.bitsn(type).everyIn(this.type);
 	}
 
 	public isNot (type: PlugType) {
-		return !Maths.bits(type).someIn(this.type);
+		return !Maths.bitsn(type).someIn(this.type);
 	}
 }
 
@@ -125,34 +126,70 @@ export namespace Socket {
 	}
 }
 
-
-export enum PlugType {
-	None = 0,
-	Perk = 2 ** 0,
-	Trait = 2 ** 1,
-	Intrinsic = 2 ** 2,
-	Origin = 2 ** 3,
-	Enhanced = 2 ** 4,
-	Mod = 2 ** 5,
-	Shader = 2 ** 6,
-	Masterwork = 2 ** 7,
-	Tracker = 2 ** 8,
-	Shaped = 2 ** 9,
-	Ornament = 2 ** 10,
-	Memento = 2 ** 11,
-	DefaultOrnament = 2 ** 12,
-	Catalyst = 2 ** 13,
-	EmptyCatalyst = 2 ** 14,
-	DeepsightResonance = 2 ** 15,
-	CraftingTransfusers = 2 ** 16,
-	DeepsightActivation = 2 ** 17,
+enum PlugTypes {
+	None,
+	Perk,
+	Trait,
+	Intrinsic,
+	Origin,
+	Enhanced,
+	Exotic,
+	Mod,
+	Shader,
+	Masterwork,
+	Shaped,
+	Ornament,
+	Memento,
+	DefaultOrnament,
+	Catalyst,
+	EmptyCatalyst,
+	DeepsightResonance,
+	CraftingTransfusers,
+	DeepsightActivation,
+	Emote,
+	SubclassMod,
+	SubclassAspect,
+	SubclassFragment,
+	SubclassSuper,
+	SubclassGrenade,
+	SubclassMelee,
+	SubclassClassAbility,
+	SubclassMovement,
+	TransmatEffect,
+	Event,
+	Tracker,
+	Deprecated,
 }
 
-export namespace PlugType {
-	export const ALL: PlugType = Object.values(PlugType)
-		.filter((value): value is number => typeof value === "number")
-		.reduce((p, v) => p | v, 0);
+// export namespace PlugType {
+// 	export const ALL: PlugType = Object.values(PlugType)
+// 		.filter((value): value is number => typeof value === "number")
+// 		.reduce((p, v) => p | v, 0);
+// }
+
+interface IPlugType extends Record<keyof typeof PlugTypes, bigint> {
+	ALL: bigint;
 }
+
+const PlugType = Object.fromEntries(Object.entries(PlugTypes)
+	.filter(([key]) => isNaN(+key))
+	.flatMap(([key, bitIndex]) => {
+		const value = bitIndex === 0 ? 0n : 2n ** BigInt(bitIndex as number - 1);
+		return [
+			[key, value],
+			[value, key],
+		];
+	})) as IPlugType;
+
+PlugType.ALL = Object.values(PlugType)
+	.filter((value: bigint): value is bigint => typeof value === "bigint")
+	.reduce((p, v) => p | v, 0n);
+
+type PlugType = bigint;
+
+export { PlugType };
+
+console.log(PlugType);
 
 type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
 type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
@@ -168,38 +205,69 @@ interface PlugDef {
 export interface Plug extends PlugBaseStuff, ItemSocketEntryPlugStuff, SharedStuff { }
 export class Plug {
 
-	public static async resolveFromHash (manifest: Manifest, hash: number, enabled: boolean) {
+	static {
+		Object.assign(window, { Plug });
+	}
+
+	public static async resolveFromHash (manifest: Manifest, hash: number, enabled: boolean, item?: IItemInit) {
 		return Plug.resolve(manifest, {
 			plugItemHash: hash,
 			canInsert: true,
 			enabled,
-			insertFailIndexes: [],
-			enableFailIndexes: enabled ? [] : [-1],
-		});
+		} as DestinyItemPlugBase, item);
 	}
 
-	private static plugDefsCacheTime = 0;
-	private static plugDefs: Record<number, PlugDef> = {};
+	private static plugGenericCacheTime = 0;
+	private static plugGenericCache: Record<string, Plug> = {};
+
+	private static plugDefCacheTime = 0;
+	private static plugDefCache: Record<number, PlugDef> = {};
 
 	public clarity?: ClarityDescription;
 
-	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
+	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition, item?: IItemInit) {
+		const manifestCacheTime = Manifest.getCacheTime();
+
+		const genericHash = Plug.getGenericPlugHash(plugBase);
+		if (genericHash) {
+			if (Plug.plugGenericCacheTime < manifestCacheTime) {
+				Plug.plugGenericCacheTime = manifestCacheTime;
+				Plug.plugGenericCache = {};
+			}
+
+			const genericCached = this.plugGenericCache[genericHash];
+			if (genericCached)
+				return genericCached;
+		}
+
 		const plug = new Plug();
 		Object.assign(plug, plugBase);
 		plug.socketed = false;
 
-		const manifestCacheTime = Manifest.getCacheTime();
-		if (Plug.plugDefsCacheTime < manifestCacheTime) {
-			Plug.plugDefsCacheTime = manifestCacheTime;
-			Plug.plugDefs = {};
+		if (Plug.plugDefCacheTime < manifestCacheTime) {
+			Plug.plugDefCacheTime = manifestCacheTime;
+			Plug.plugDefCache = {};
 		}
 
-		const plugDef = Plug.plugDefs[plug.plugItemHash] ??= await Plug.resolvePlugDef(manifest, plug.plugItemHash);
+		const plugDef = Plug.plugDefCache[plug.plugItemHash] ??= await Plug.resolvePlugDef(manifest, plug.plugItemHash, item);
 		Object.assign(plug, plugDef);
+
+		if (genericHash)
+			this.plugGenericCache[genericHash] = plug;
+
 		return plug;
 	}
 
-	private static async resolvePlugDef (manifest: Manifest, hash: number): Promise<PlugDef> {
+	private static getGenericPlugHash (plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
+		if ("enabled" in plugBase)
+			return plugBase.enableFailIndexes?.length || plugBase.insertFailIndexes?.length ? undefined
+				: `${plugBase.plugItemHash}:${plugBase.enabled ? "enabled" : "disabled"}:${plugBase.canInsert ? "canInsert" : "noInsert"}`;
+
+		return plugBase.craftingRequirements?.materialRequirementHashes?.length || !plugBase.craftingRequirements?.unlockRequirements?.length ? undefined
+			: `${plugBase.plugItemHash}:${plugBase.currentlyCanRoll ? "currentlyCanRoll" : "currentlyCannotRoll"}:${plugBase.craftingRequirements?.requiredLevel ?? 0}`;
+	}
+
+	private static async resolvePlugDef (manifest: Manifest, hash: number, item?: IItemInit): Promise<PlugDef> {
 
 		const { DestinyInventoryItemDefinition } = manifest;
 		const definition = await DestinyInventoryItemDefinition.get(hash);
@@ -208,15 +276,19 @@ export class Plug {
 		return {
 			definition,
 			clarity,
-			type: !definition ? PlugType.None : Plug.resolvePlugType(definition),
+			type: !definition ? PlugType.None : Plug.resolvePlugType(definition, item),
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};
 	}
 
 	public static initialisedPlugTypes: Partial<Record<keyof typeof PlugType, number>> = {};
 
-	public static resolvePlugType (definition: DestinyInventoryItemDefinition) {
+	public static resolvePlugType (definition: DestinyInventoryItemDefinition, item?: IItemInit) {
 		let type = PlugType.None;
+
+		if (definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
+			return type;
+
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Intrinsics) {
 			type |= PlugType.Intrinsic | PlugType.Trait;
 			if (definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
@@ -253,6 +325,33 @@ export class Plug {
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
 			type |= PlugType.DeepsightResonance;
 
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Emote)
+			type |= PlugType.Emote;
+
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ShipSpawnfx)
+			type |= PlugType.TransmatEffect;
+
+		if (definition.traitHashes?.includes(TraitHashes.ItemPlugAspect) || definition.plug?.plugCategoryIdentifier.endsWith(".aspects"))
+			type |= PlugType.SubclassMod | PlugType.SubclassAspect;
+
+		else if (definition.traitHashes?.includes(TraitHashes.ItemPlugFragment) || definition.plug?.plugCategoryIdentifier.endsWith(".fragments"))
+			type |= PlugType.SubclassMod | PlugType.SubclassFragment;
+
+		else if (definition.plug?.plugCategoryIdentifier.endsWith(".class_abilities"))
+			type |= PlugType.SubclassMod | PlugType.SubclassClassAbility;
+
+		else if (definition.plug?.plugCategoryIdentifier.endsWith(".supers"))
+			type |= PlugType.SubclassMod | PlugType.SubclassSuper;
+
+		else if (definition.plug?.plugCategoryIdentifier.endsWith(".melee"))
+			type |= PlugType.SubclassMod | PlugType.SubclassMelee;
+
+		else if (definition.plug?.plugCategoryIdentifier.endsWith(".grenades"))
+			type |= PlugType.SubclassMod | PlugType.SubclassGrenade;
+
+		else if (definition.plug?.plugCategoryIdentifier.endsWith(".movement"))
+			type |= PlugType.SubclassMod | PlugType.SubclassMovement;
+
 		if (definition.hash === 1961918267)
 			type |= PlugType.DeepsightActivation;
 
@@ -262,8 +361,14 @@ export class Plug {
 		if (definition.traitIds?.includes("item_type.exotic_catalyst") || definition.traitIds?.includes("item.exotic_catalyst"))
 			type |= PlugType.Catalyst;
 
-		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods) || definition.itemTypeDisplayName?.endsWith("Ghost Mod"))
+		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods) || definition.itemTypeDisplayName?.endsWith("Ghost Mod") || definition.itemTypeDisplayName?.endsWith("Armor Mod"))
 			type |= PlugType.Mod;
+
+		if (definition.itemTypeDisplayName?.includes("Deprecated"))
+			type |= PlugType.Deprecated;
+
+		if (definition.plug?.plugCategoryIdentifier.startsWith("events."))
+			type |= PlugType.Event;
 
 		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
 			type |= PlugType.Perk;
@@ -271,13 +376,21 @@ export class Plug {
 				type |= PlugType.Enhanced;
 		}
 
+		if (definition.inventory?.tierTypeHash === TierHashes.Exotic || (type & PlugType.Intrinsic && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic))
+			type |= PlugType.Exotic;
+
 		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.WeaponMods))
 			type |= PlugType.Mod;
 
-		for (const t of Maths.bits(type)) {
-			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType] ??= 0;
-			Plug.initialisedPlugTypes[PlugType[t] as keyof typeof PlugType]!++;
+		for (const t of Maths.bitsn(type)) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			const key = (PlugType as any)[t.toString()] as keyof typeof PlugType;
+			Plug.initialisedPlugTypes[key] ??= 0;
+			Plug.initialisedPlugTypes[key]!++;
 		}
+
+		Plug.initialisedPlugTypes.ALL ??= 0;
+		Plug.initialisedPlugTypes.ALL++;
 
 		return type;
 	}
@@ -312,12 +425,12 @@ export class Plug {
 	private constructor () { }
 
 	public is (type: PlugType) {
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return types.everyIn(this.type);
 	}
 
 	public isNot (type: PlugType) {
-		const types = Maths.bits(type);
+		const types = Maths.bitsn(type);
 		return !types.someIn(this.type);
 	}
 }

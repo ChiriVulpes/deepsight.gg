@@ -1,6 +1,7 @@
 import type { DestinyInventoryComponent, DestinyItemComponent } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import DebugInfo from "model/models/DebugInfo";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
@@ -128,6 +129,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	Plugs.logInitialisedPlugTypes();
 	api.emitProgress(4 / 4);
+
+	DebugInfo.updateBuckets(buckets);
 
 	return buckets;
 });
