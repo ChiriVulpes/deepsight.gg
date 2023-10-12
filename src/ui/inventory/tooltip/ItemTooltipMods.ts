@@ -128,7 +128,7 @@ export default class ItemTooltipMods extends Component {
 					continue;
 
 				const isEnhanced = plug.is(PlugType.Enhanced);
-				if (isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
+				if (!item.shaped && isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
 					continue;
 
 				if (j++ && plug.is(PlugType.Exotic | PlugType.Intrinsic))
