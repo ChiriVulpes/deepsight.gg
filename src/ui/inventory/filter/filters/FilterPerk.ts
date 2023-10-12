@@ -60,6 +60,9 @@ export default IFilter.async(async () => {
 		},
 		tweakChip: (chip, filterValue) => {
 			const perk = getMatchingPerk(filterValue);
+			if (!perk?.plug)
+				return;
+
 			chip.setTooltip(ItemPlugTooltip, {
 				initialiser: tooltip => perk?.plug && tooltip.setPlug(perk.plug),
 				differs: tooltip => tooltip.plug?.plugItemHash !== perk?.plug.plugItemHash,
