@@ -67,7 +67,7 @@ export class Socket {
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
 		if (!socketedPlug && currentPlugHash) {
 			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true, item);
-			if (socketedPlug)
+			if (socketedPlug && socket.state)
 				socket.plugs.push(socketedPlug);
 		}
 
@@ -159,6 +159,8 @@ enum PlugTypes {
 	Event,
 	Tracker,
 	Deprecated,
+	Locked,
+	Enhancer,
 }
 
 // export namespace PlugType {
@@ -217,8 +219,8 @@ export class Plug {
 		} as DestinyItemPlugBase, item);
 	}
 
-	private static plugGenericCacheTime = 0;
-	private static plugGenericCache: Record<string, Plug> = {};
+	// private static plugGenericCacheTime = 0;
+	// private static plugGenericCache: Record<string, Plug> = {};
 
 	private static plugDefCacheTime = 0;
 	private static plugDefCache: Record<number, PlugDef> = {};
@@ -228,17 +230,18 @@ export class Plug {
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition, item?: IItemInit) {
 		const manifestCacheTime = Manifest.getCacheTime();
 
-		const genericHash = Plug.getGenericPlugHash(plugBase);
-		if (genericHash) {
-			if (Plug.plugGenericCacheTime < manifestCacheTime) {
-				Plug.plugGenericCacheTime = manifestCacheTime;
-				Plug.plugGenericCache = {};
-			}
+		// generic caching doesn't work bcuz we store socketed & objectives data on instances
+		// const genericHash = Plug.getGenericPlugHash(plugBase);
+		// if (genericHash) {
+		// 	if (Plug.plugGenericCacheTime < manifestCacheTime) {
+		// 		Plug.plugGenericCacheTime = manifestCacheTime;
+		// 		Plug.plugGenericCache = {};
+		// 	}
 
-			const genericCached = this.plugGenericCache[genericHash];
-			if (genericCached)
-				return genericCached;
-		}
+		// 	const genericCached = this.plugGenericCache[genericHash];
+		// 	if (genericCached)
+		// 		return genericCached;
+		// }
 
 		const plug = new Plug();
 		Object.assign(plug, plugBase);
@@ -252,20 +255,20 @@ export class Plug {
 		const plugDef = Plug.plugDefCache[plug.plugItemHash] ??= await Plug.resolvePlugDef(manifest, plug.plugItemHash, item);
 		Object.assign(plug, plugDef);
 
-		if (genericHash)
-			this.plugGenericCache[genericHash] = plug;
+		// if (genericHash)
+		// 	this.plugGenericCache[genericHash] = plug;
 
 		return plug;
 	}
 
-	private static getGenericPlugHash (plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
-		if ("enabled" in plugBase)
-			return plugBase.enableFailIndexes?.length || plugBase.insertFailIndexes?.length ? undefined
-				: `${plugBase.plugItemHash}:${plugBase.enabled ? "enabled" : "disabled"}:${plugBase.canInsert ? "canInsert" : "noInsert"}`;
+	// private static getGenericPlugHash (plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
+	// 	if ("enabled" in plugBase)
+	// 		return plugBase.enableFailIndexes?.length || plugBase.insertFailIndexes?.length ? undefined
+	// 			: `${plugBase.plugItemHash}:${plugBase.enabled ? "enabled" : "disabled"}:${plugBase.canInsert ? "canInsert" : "noInsert"}`;
 
-		return plugBase.craftingRequirements?.materialRequirementHashes?.length || !plugBase.craftingRequirements?.unlockRequirements?.length ? undefined
-			: `${plugBase.plugItemHash}:${plugBase.currentlyCanRoll ? "currentlyCanRoll" : "currentlyCannotRoll"}:${plugBase.craftingRequirements?.requiredLevel ?? 0}`;
-	}
+	// 	return plugBase.craftingRequirements?.materialRequirementHashes?.length || !plugBase.craftingRequirements?.unlockRequirements?.length ? undefined
+	// 		: `${plugBase.plugItemHash}:${plugBase.currentlyCanRoll ? "currentlyCanRoll" : "currentlyCannotRoll"}:${plugBase.craftingRequirements?.requiredLevel ?? 0}`;
+	// }
 
 	private static async resolvePlugDef (manifest: Manifest, hash: number, item?: IItemInit): Promise<PlugDef> {
 
@@ -297,6 +300,9 @@ export class Plug {
 
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Origins)
 			type |= PlugType.Origin | PlugType.Trait;
+
+		if (definition.hash === 2106726848 || definition.hash === 3665398231)
+			type |= PlugType.Trait | PlugType.Locked;
 
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
 			type |= PlugType.Shader;
@@ -369,6 +375,9 @@ export class Plug {
 
 		if (definition.plug?.plugCategoryIdentifier.startsWith("events."))
 			type |= PlugType.Event;
+
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers)
+			type |= PlugType.Enhancer;
 
 		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
 			type |= PlugType.Perk;

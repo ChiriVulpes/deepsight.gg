@@ -70,8 +70,15 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 			if (socket.state?.isVisible !== false) {
 				let socketComponent: ItemSocket | undefined;
 
+				let i = 0;
 				for (const plug of socket.plugs) {
 					if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
+						continue;
+
+					if (plug.is(PlugType.Locked))
+						continue;
+
+					if (i++ && plug.is(PlugType.Exotic | PlugType.Intrinsic))
 						continue;
 
 					if (!plug.definition?.displayProperties.name)

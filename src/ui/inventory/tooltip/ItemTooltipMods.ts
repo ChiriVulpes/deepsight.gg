@@ -118,12 +118,21 @@ export default class ItemTooltipMods extends Component {
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this);
 
+			let j = 0;
 			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed && item.bucket !== "collections") - Number(a.socketed && item.bucket !== "collections"))) {
 				if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
 					// skip enhanced intrinsics (duplicates) if this is an item definition (ie no actual socket state)
 					continue;
 
+				if (plug.is(PlugType.Locked))
+					continue;
+
 				const isEnhanced = plug.is(PlugType.Enhanced);
+				if (isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
+					continue;
+
+				if (j++ && plug.is(PlugType.Exotic | PlugType.Intrinsic))
+					continue;
 
 				const plugComponent = Component.create()
 					.classes.add(ItemTooltipModsClasses.Mod)
