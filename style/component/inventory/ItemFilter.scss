@@ -76,7 +76,7 @@
 	}
 
 	&-chip-button {
-		background-color: var(--colour, transparent);
+		background-color: var(--colour, transparent) !important;
 		border-color: var(--colour, transparent);
 		margin: 0;
 		font-size: 0.95em;
