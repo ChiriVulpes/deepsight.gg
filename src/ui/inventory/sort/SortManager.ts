@@ -52,9 +52,11 @@ export interface ISortManagerConfiguration {
 	readonly inapplicable: readonly (Sort | string)[];
 }
 
-interface SortManager extends ISortManagerConfiguration { }
+interface SortManager extends Omit<ISortManagerConfiguration, "inapplicable"> { }
 class SortManager {
 
+	private inapplicableIds: Sort[] = [];
+	private inapplicableRegExp: RegExp[] = [];
 	private static sortMap: Record<Sort | string, ISort> = BASE_SORT_MAP;
 
 	public static registerSort (id: string, sort: ISort) {
@@ -99,6 +101,10 @@ class SortManager {
 	private setConfiguration (configuration: ISortManagerConfiguration) {
 		Object.assign(this, configuration);
 
+		this.inapplicableIds = configuration.inapplicable.filter((sort): sort is number => typeof sort === "number");
+		this.inapplicableRegExp = configuration.inapplicable.filter((sort): sort is string => typeof sort === "string")
+			.map(regexString => new RegExp(`^${regexString}$`));
+
 		SortManager.onInit(() => {
 			let sort: readonly (Sort | string)[] = (Store.get(`sort-${this.id}`) as string[] ?? [])
 				.map((sortName): Sort | string => Sort[sortName as keyof typeof Sort] ?? sortName)
@@ -117,7 +123,9 @@ class SortManager {
 
 	public getDisabled () {
 		return Object.values(SortManager.sortMap)
-			.filter(sort => !this.current.includes(sort) && !this.inapplicable.includes(sort.id))
+			.filter(sort => !this.current.includes(sort)
+				&& !this.inapplicableIds.includes(sort.id as number)
+				&& !this.inapplicableRegExp.some(regex => regex.test(`${sort.id}`)))
 			.sort((a, b) => 0
 				|| (typeof a.id === "number" ? a.id : 99999999999) - (typeof b.id === "number" ? b.id : 99999999999)
 				|| `${a.id}`.localeCompare(`${b.id}`));

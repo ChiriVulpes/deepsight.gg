@@ -18,6 +18,7 @@ export const SORTS_INAPPLICABLE_EQUIPMENT = [
 	Sort.DamageType,
 	Sort.WeaponType,
 	Sort.Quantity,
+	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.Ammo,

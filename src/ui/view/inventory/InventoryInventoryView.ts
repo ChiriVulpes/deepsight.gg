@@ -26,6 +26,7 @@ export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.AmmoType,
 	Sort.DamageType,
 	Sort.WeaponType,
+	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.Ammo,
