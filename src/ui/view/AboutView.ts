@@ -17,16 +17,15 @@ export default View.create({
 			.append(DocumentationPage.create()
 
 				.addSection(section => section
-					.setTitle("Another Destiny 2 Vault Manager")
+					.setTitle("A New Destiny 2 Item Manager Approaches...")
 					.addCard(card => card
-						.addParagraph("Yes, yes, I know. Retreading ground that's already been tread. To be fair, though, the whole reason I did this is because there's stuff that I needed that DIM didn't handle — namely, sorting armour by stat distribution, and wishlisting specific rolls of weapons.")
-						.addParagraph("No, deepsight.gg is definitely not at the same level of development as Destiny Item Manager, but I'd like to think it handles the basics well! If you give it a try, thanks!")))
+						.addParagraph("deepsight.gg is an item manager for Destiny 2, made to look and feel like the in-game UI, providing functionality not before seen in other item managers. Using deepsight.gg, you can sort armour by your own customisable targeted stat distributions, you can easily add any number of wishlists for specific rolls of weapons, and more!")))
 
 				.addSection(section => section
 					.setTitle("Features")
 					.addCard(card => card
 						.setTitle("Slot Views")
-						.addParagraph("One view per slot — Kinetic, Energy, Power, Helmet, Arms, Chest, Legs, Class Item. This results in more items being displayable at one time, at a larger size, and allows quickly transferring them between characters and the vault. I know it's not like DIM — it's not supposed to be!")
+						.addParagraph("One view per slot — Kinetic, Energy, Power, Helmet, Arms, Chest, Legs, Class Item. This results in more items being displayable at one time, at a larger size, and allows quickly transferring them between characters and the vault.")
 						.addParagraph("All views display the postmaster for each character.")
 						.addParagraph("The highest power 1 or 2 item(s) in each slot displays with a special animation. Never dismantle these ones except for infusion, or you'll lower your drop power!")
 						.addImage("./image/about/slot-views.png"))
@@ -117,13 +116,13 @@ export default View.create({
 					.setTitle("FAQ")
 					.addCard(card => card
 						.setTitle("Will you ever add a view displaying everything, like DIM?")
-						.addParagraph("Probably not, mostly because it's not really possible to display that many items all at one time while keeping everything running smoothly. I'm not really interested in sacrificing deepsight.gg's quality and performance just so that more items can be displayed in a long list you have to scroll through anyway. The closest you're going to get is the opt-in Equipment view, which you can enable from the Settings tab."))
+						.addParagraph("Probably not, mostly because it's not really possible to display that many items all at one time without a cost to ease of use and aesthetics. I'm not really interested in sacrificing deepsight.gg's quality and performance just so that more items can be displayed in a long list you have to scroll through anyway."))
 					.addCard(card => card
 						.setTitle("Will you ever add support for loadouts, like DIM?")
-						.addParagraph("Initially, I planned to at some point implement a similar system in deepsight.gg, but after Bungie announced their own loadout system coming in Lightfall, I've decided to put that on hold. Later down the line, if there's a need, potentially. Don't count on it, though."))
+						.addParagraph("Coming soon... hopefully."))
 					.addCard(card => card
 						.setTitle("Why can't I...")
-						.addParagraph("deepsight.gg is made by Chiri Vulpes, a hobby project by a single developer, and it was primarily made for her own use cases — sorting her vault in a specific way, and wishlisting weapon rolls. She — or, well, I — would like to help a lot of other people get what they want out of a vault manager, too, but it takes a while to do this stuff, so you'll have to be patient!")))
+						.addParagraph("deepsight.gg is made by Chiri Vulpes, a hobby project by a single developer, and it was primarily made for her own use cases — sorting her vault in a specific way, and wishlisting weapon rolls. She — or, well, I — would like to help a lot of other people get what they want out of an item manager, too, but it takes a while to do this stuff, so you'll have to be patient!")))
 
 				.addSection(section => section)
 

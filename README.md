@@ -1,5 +1,5 @@
 # [deepsight.gg](https://deepsight.gg)
-### Another Destiny 2 Vault Manager
+### Another Destiny 2 Item Manager
 
 Yes, yes, I know. Retreading ground that's already been tread. To be fair, though, the whole reason I did this is because there's stuff that I needed that DIM didn't handle — namely, sorting armour by stat distribution, and wishlisting specific rolls of weapons.
 

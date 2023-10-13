@@ -42,7 +42,7 @@ export default class DocumentationCard extends Component {
 		Component.create("img")
 			.classes.add(DocumentationCardClasses.Image)
 			.attributes.set("src", image)
-			.attributes.set("loading", "lazy")
+			// .attributes.set("loading", "lazy")
 			.appendTo(this.imagery);
 
 		return this;
