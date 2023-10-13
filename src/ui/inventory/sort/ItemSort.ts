@@ -20,6 +20,9 @@ export enum ItemSortClasses {
 	DrawerPanel = "item-sort-drawer-panel",
 	Sorts = "item-sort-drawer-sorts",
 	Sort = "item-sort-drawer-sort",
+	SortTitle = "item-sort-drawer-sort-title",
+	SortIcon = "item-sort-drawer-sort-icon",
+	SortIconMask = "item-sort-drawer-sort-icon-mask",
 	SortOptions = "item-sort-drawer-sort-options",
 	SortsHeading = "item-sort-drawer-sorts-heading",
 }
@@ -38,10 +41,28 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 
 	public sort!: ISort;
 
+	public title!: Component;
+
+	public get icon () {
+		return Component.create("span")
+			.classes.add(ItemSortClasses.SortIcon, `item-sort-drawer-sort-${Sort[this.sort.id].toLowerCase()}-icon`)
+			.prependTo(this.title);
+	}
+
+	public get maskIcon () {
+		return Component.create("span")
+			.classes.add(ItemSortClasses.SortIconMask, `item-sort-drawer-sort-${Sort[this.sort.id].toLowerCase()}-icon`)
+			.prependTo(this.title);
+	}
+
 	protected override onMake (sort: ISort): void {
 		this.sort = sort;
 		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${Sort[sort.id].toLowerCase()}`)
-			.text.set(sort.name);
+
+		this.title = Component.create("span")
+			.classes.add(ItemSortClasses.SortTitle)
+			.text.set(sort.name)
+			.appendTo(this);
 
 		sort.renderSortable?.(this);
 

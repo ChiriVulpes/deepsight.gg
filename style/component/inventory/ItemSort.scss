@@ -40,10 +40,155 @@
 				opacity: 1;
 				@include transition(in);
 			}
+			
+			&-title {
+				display: grid;
+				grid-template-columns: minmax(1.4em, auto) 1fr;
+				align-items: center;
+				gap: 0.2em;
+			}
 
 			&-options {
 				-webkit-mask-image: url("./image/svg/gear.svg");
 				mask-image: url("./image/svg/gear.svg");
+			}
+			
+			&-icon, &-icon-mask {
+				display: flex;
+				justify-content: center;
+				&::before {
+					content: "";
+					display: block;
+					width: 1.1em;
+					height: 1.1em;
+					position: relative;
+				}
+			}
+			
+			&-icon::before {
+				@include icon;
+			}
+			
+			&-icon-mask::before {
+				@include mask-icon;
+			}
+			
+			&-locked-icon::before {
+				width: 1.1em;
+				height: 1.1em;
+				margin-right: -.1em;
+				margin-left: -.1em;
+				@include mask-icon(lock);
+			}
+			
+			&-ammotype-icon::before {
+				@include icon("/img/destiny_content/ammo_types/primary.png");
+			}
+			
+			&-pattern-icon, &-shaped-icon {
+				&::before {
+					width: .9em;
+					height: .9em;
+					@include mask-icon(shaped);
+				}
+			}
+			
+			&-weapontype-icon::before {
+				width: 1.2em;
+				height: 1.2em;
+			}
+			
+			&-power-icon::before {
+				width: .8em;
+				height: .8em;
+			}
+			
+			&-source-icon::before {
+				background-image: none;
+				height: 0;
+				width: 0;
+				border-top: .8em solid currentColor;
+				border-right: .8em solid transparent;
+			}
+			
+			&-name-icon {
+				position: relative;
+				height: 100%;
+				font-weight: bold;
+				font-size: 1.2em;
+				&::before {
+					background-image: none;
+					content: "T";
+					position: absolute;
+					top: -.15em;
+					left: .2em;
+				}
+				&::after {
+					content: "t";
+					position: absolute;
+					top: .15em;
+					left: .8em;
+					font-size: .8em;
+				}
+			}
+			
+			&-quantity-icon {
+				position: relative;
+				height: 100%;
+				font-weight: bold;
+				font-size: 1.2em;
+				text-align: center;
+				&::before {
+					background-image: none;
+					content: "x";
+					position: relative;
+					top: -.2em;
+				}
+			}
+			
+			&-energy-icon, &-masterwork-icon {
+				&::before {
+					@include icon(masterwork);
+				}
+			}
+			
+			&-statdistribution-icon {
+				font-weight: bold;
+				font-size: 1.1em;
+				
+				&::before {
+					display: none;
+				}
+			}
+			
+			&-stattotal-icon {
+				position: relative;
+				width: 1em;
+				height: 1em;
+				
+				&::before,
+				&::after {
+					content: "";
+					display: block;
+					position: absolute;
+					height: 0.3em;
+					left: .2em;
+					background: currentColor;
+					box-shadow: 0 1px 1px #000a;
+				}
+
+				&::before {
+					top: 0.1em;
+					width: 0.9em;
+				}
+				&::after {
+					bottom: 0.1em;
+					width: 0.7em;
+				}
+			}
+			
+			&-rarity-icon::before {
+				@include mask-icon("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/engram.svg");
 			}
 		}
 	}

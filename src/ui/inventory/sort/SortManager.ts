@@ -3,7 +3,6 @@ import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
 import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
-import SortDeepsight from "ui/inventory/sort/sorts/SortDeepsight";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
 import SortLocked from "ui/inventory/sort/sorts/SortLocked";
 import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
@@ -23,7 +22,6 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Name]: SortName,
 	[Sort.Power]: SortPower,
 	[Sort.Energy]: SortEnergy,
-	[Sort.Deepsight]: SortDeepsight,
 	[Sort.Pattern]: SortPattern,
 	[Sort.Masterwork]: SortMasterwork,
 	[Sort.Rarity]: SortRarity,

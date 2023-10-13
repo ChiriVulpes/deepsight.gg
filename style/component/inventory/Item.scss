@@ -165,7 +165,7 @@ $z-index-loading: 1000;
 		}
 	}
 
-	@mixin icon($icon, $color: color(foreground-0), $to: before) {
+	@mixin item-icon($icon, $color: color(foreground-0), $to: before) {
 		position: absolute;
 		inset: 0;
 		&::#{$to} {
@@ -179,28 +179,6 @@ $z-index-loading: 1000;
 			@include mask-icon($icon);
 			background: $color;
 			@content;
-		}
-	}
-
-	@mixin extra-icon($icon, $color: currentColor) {
-		position: relative;
-		width: fit-content;
-		justify-self: flex-end;
-		height: 60%;
-		aspect-ratio: 1/1;
-		min-height: 0;
-		background-color: #0007;
-		box-shadow: 0 0 0 3px #0007;
-		margin-right: 1px;
-
-		&::before {
-			content: "";
-			display: block;
-			position: absolute;
-			inset: 0;
-			background: $color;
-			box-shadow: 0 1px 1px #000a;
-			@include mask-icon($icon);
 		}
 	}
 
@@ -220,7 +198,7 @@ $z-index-loading: 1000;
 			inset 0 0 0 4px color(wishlist-tooltip-border, 0.5);
 
 		> * {
-			@include icon(url("./image/svg/wishlisted.svg"), color(foreground-0));
+			@include item-icon(url("./image/svg/wishlisted.svg"), color(foreground-0));
 
 			.item-deepsight-has-pattern ~ & {
 				display: none;
@@ -247,7 +225,7 @@ $z-index-loading: 1000;
 			}
 
 			> * {
-				@include icon(url("./image/svg/delete.svg"), color(background-3));
+				@include item-icon(url("./image/svg/delete.svg"), color(background-3));
 			}
 
 			&::before {
@@ -271,7 +249,7 @@ $z-index-loading: 1000;
 		background-image: url("./image/shaped.png");
 		z-index: $z-index-shaped;
 		> * {
-			@include icon(url("./image/svg/shaped.svg"), color(shaped));
+			@include item-icon(url("./image/svg/shaped.svg"), color(shaped));
 		}
 	}
 
@@ -311,14 +289,14 @@ $z-index-loading: 1000;
 
 		&-pattern {
 			&:not(&-unlocked) {
-				@include icon(url("./image/svg/shaped.svg"), color(foreground));
+				@include item-icon(url("./image/svg/shaped.svg"), color(foreground));
 			}
 
 			z-index: $z-index-deepsight;
 		}
 
 		&-pattern-unlocked {
-			@include icon(url("./image/svg/shaped.svg"), color(background-3));
+			@include item-icon(url("./image/svg/shaped.svg"), color(background-3));
 		}
 	}
 
@@ -424,14 +402,6 @@ $z-index-loading: 1000;
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
-	}
-
-	&-power-level {
-		display: flex;
-		width: fit-content;
-		justify-self: flex-end;
-		background: #0007;
-		padding: 0 3px;
 		&-icon {
 			&::before {
 				content: "";
@@ -439,7 +409,25 @@ $z-index-loading: 1000;
 				width: 0.6em;
 				height: 0.6em;
 				position: relative;
-				top: 0.3em;
+				top: -0.06em;
+				@include icon(masterwork);
+			}
+		}
+	}
+
+	&-power-level {
+		display: flex;
+		width: fit-content;
+		justify-self: flex-end;
+		align-items: center;
+		&-icon {
+			&::before {
+				content: "";
+				display: block;
+				width: 0.6em;
+				height: 0.6em;
+				position: relative;
+				top: -0.06em;
 				background: currentColor;
 				@include mask-icon(
 					"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/power2.svg"
@@ -490,29 +478,35 @@ $z-index-loading: 1000;
 	}
 
 	&-sort-stat-total {
+		display: flex;
+		align-items: center;
 		position: relative;
-		padding-left: calc(1em + 3px) !important;
-		width: fit-content;
 		justify-self: flex-end;
+		
+		&-icon {
+			position: relative;
+			width: .8em;
+			height: 1em;
+			
+			&::before,
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				height: 0.2em;
+				left: 1px;
+				background: currentColor;
+				box-shadow: 0 1px 1px #000a;
+			}
 
-		&::before,
-		&::after {
-			content: "";
-			display: block;
-			position: absolute;
-			height: 0.2em;
-			left: 3px;
-			background: currentColor;
-			box-shadow: 0 1px 1px #000a;
-		}
-
-		&::before {
-			top: 0.4em;
-			width: 0.8em;
-		}
-		&::after {
-			bottom: 0.4em;
-			width: 0.5em;
+			&::before {
+				top: 0.25em;
+				width: 0.6em;
+			}
+			&::after {
+				bottom: 0.25em;
+				width: 0.4em;
+			}
 		}
 	}
 
@@ -635,11 +629,11 @@ $z-index-loading: 1000;
 	@each $icon in lock, unlock {
 		&-#{$icon}ed {
 			z-index: 101;
-			@include icon($icon, #000a) {
+			@include item-icon($icon, #000a) {
 				bottom: calc(40% - 1px);
 				left: calc(6% - 0.5px);
 			}
-			@include icon($icon, $to: after) {
+			@include item-icon($icon, $to: after) {
 				bottom: 40%;
 			}
 		}

@@ -75,6 +75,7 @@ export default ISort.create({
 	shortName: "Stats",
 	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,
 	render: item => IStatDistribution.get(item).overall <= 0 ? undefined : StatDistributionDisplay.create([item]),
+	renderSortable: sortable => sortable.icon.text.set("%"),
 	renderSortableOptions: (wrapper, update) => Loadable.create(Inventory.createTemporary())
 		.onReady(inventory => {
 			const container = Component.create();

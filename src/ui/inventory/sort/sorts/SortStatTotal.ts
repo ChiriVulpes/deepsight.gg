@@ -7,6 +7,7 @@ export default ISort.create({
 	id: Sort.StatTotal,
 	name: "Stat Total",
 	sort: (a, b) => getStatTotal(b) - getStatTotal(a),
+	renderSortable: sortable => sortable.icon,
 	render: item => {
 		const total = getStatTotal(item);
 		if (!total)
@@ -14,6 +15,8 @@ export default ISort.create({
 
 		return Component.create()
 			.classes.add("item-sort-stat-total")
+			.append(Component.create("span")
+				.classes.add("item-sort-stat-total-icon"))
 			.text.set(`${getStatTotal(item)}`);
 	},
 });

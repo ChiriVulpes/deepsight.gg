@@ -6,7 +6,10 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 export default ISort.create({
 	id: Sort.DamageType,
 	name: "Damage Type",
+	shortName: "Damage",
 	sort: (a, b) => (b.instance?.damageType ?? DamageType.None) - (a.instance?.damageType ?? DamageType.None),
+	renderSortable: sortable => sortable.icon
+		.tweak(EnumIcon.applyIconVar, DamageTypes, DamageType.Kinetic),
 	render: item => EnumIcon.create([DamageTypes, item.instance?.damageTypeHash])
 		.classes.add("item-sort-damage-type"),
 });

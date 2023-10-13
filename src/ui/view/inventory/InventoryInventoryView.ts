@@ -18,7 +18,6 @@ export const SORTS_DEFAULT_INVENTORY = [Sort.Rarity, Sort.Name, Sort.Quantity] a
 export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.Power,
 	Sort.Energy,
-	Sort.Deepsight,
 	Sort.Pattern,
 	Sort.Shaped,
 	Sort.Masterwork,

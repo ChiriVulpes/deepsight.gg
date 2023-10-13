@@ -7,8 +7,10 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 export default ISort.create({
 	id: Sort.WeaponType,
 	name: "Weapon Type",
+	shortName: "Type",
 	sort: (a, b) => a.definition.itemTypeDisplayName.localeCompare(b.definition.itemTypeDisplayName),
-	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+	renderSortable: sortable => sortable.maskIcon
+		.tweak(EnumIcon.applyIconVar, WeaponTypes, ItemCategoryHashes.HandCannon),
 	render: item => !item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? undefined
 		: Component.create()
 			.classes.add("item-weapon-type-icon")

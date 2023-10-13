@@ -4,6 +4,7 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 export default ISort.create({
 	id: Sort.Shaped,
 	name: "Shaped",
+	renderSortable: sortable => sortable.icon,
 	sort: (a, b) => getSortIndex(b) - getSortIndex(a),
 });
 

@@ -5,5 +5,6 @@ export default ISort.create({
 	name: "Gives Pattern Progress",
 	shortName: "Pattern",
 	sort: (a, b) => Number(b.hasPattern()) - Number(a.hasPattern()),
+	renderSortable: sortable => sortable.icon,
 });
 

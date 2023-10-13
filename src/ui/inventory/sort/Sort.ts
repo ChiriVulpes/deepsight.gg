@@ -7,7 +7,6 @@ enum Sort {
 	Power,
 	Name,
 	Energy,
-	Deepsight,
 	Pattern,
 	Shaped,
 	Masterwork,

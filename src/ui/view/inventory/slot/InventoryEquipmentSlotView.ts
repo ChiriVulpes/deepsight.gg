@@ -10,7 +10,6 @@ export const SORTS_DEFAULT_EQUIPMENT = [Sort.Rarity, Sort.Masterwork, Sort.Name]
 export const SORTS_INAPPLICABLE_EQUIPMENT = [
 	Sort.Power,
 	Sort.Energy,
-	Sort.Deepsight,
 	Sort.Pattern,
 	Sort.Shaped,
 	Sort.StatTotal,
