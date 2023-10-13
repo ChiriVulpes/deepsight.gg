@@ -630,6 +630,10 @@ $z-index-loading: 1000;
 		display: block !important;
 		background: #0007;
 		padding: 0 3px;
+		
+		:root:not(.show-extra-info, .show-item-extra-info) .item:not(:hover, :focus-visible) & {
+			grid-row: 3;
+		}
 
 		&-max {
 			box-shadow:

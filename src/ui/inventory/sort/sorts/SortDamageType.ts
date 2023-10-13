@@ -10,6 +10,7 @@ export default ISort.create({
 	sort: (a, b) => (b.instance?.damageType ?? DamageType.None) - (a.instance?.damageType ?? DamageType.None),
 	renderSortable: sortable => sortable.icon
 		.tweak(EnumIcon.applyIconVar, DamageTypes, DamageType.Kinetic),
-	render: item => EnumIcon.create([DamageTypes, item.instance?.damageTypeHash])
-		.classes.add("item-sort-damage-type"),
+	render: item => !item.instance?.damageType ? undefined
+		: EnumIcon.create([DamageTypes, item.instance?.damageTypeHash])
+			.classes.add("item-sort-damage-type"),
 });

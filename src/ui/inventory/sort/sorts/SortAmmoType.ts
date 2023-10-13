@@ -10,6 +10,7 @@ export default ISort.create({
 	sort: (a, b) =>
 		(a.definition.equippingBlock?.ammoType ?? DestinyAmmunitionType.None) - (b.definition.equippingBlock?.ammoType ?? DestinyAmmunitionType.None),
 	renderSortable: sortable => sortable.icon,
-	render: item => EnumIcon.create([AmmoTypes, item.definition.equippingBlock?.ammoType])
-		.classes.add("item-sort-ammo-type"),
+	render: item => !item.definition.equippingBlock?.ammoType ? undefined
+		: EnumIcon.create([AmmoTypes, item.definition.equippingBlock?.ammoType])
+			.classes.add("item-sort-ammo-type"),
 });
