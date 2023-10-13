@@ -5,6 +5,7 @@ import type Arrays from "utility/Arrays";
 
 export enum EnumIconClasses {
 	Main = "enum-icon",
+	Mask = "enum-icon-mask",
 }
 
 export type EnumModelIconPath = [model: EnumModel<any, DisplayPropertied>, id: Arrays.Or<string | number> | undefined];

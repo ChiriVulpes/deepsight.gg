@@ -45,19 +45,19 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 
 	public get icon () {
 		return Component.create("span")
-			.classes.add(ItemSortClasses.SortIcon, `item-sort-drawer-sort-${Sort[this.sort.id].toLowerCase()}-icon`)
+			.classes.add(ItemSortClasses.SortIcon, `item-sort-drawer-sort-${this.sort.className ?? (typeof this.sort.id === "number" ? Sort[this.sort.id] : this.sort.id).toLowerCase()}-icon`)
 			.prependTo(this.title);
 	}
 
 	public get maskIcon () {
 		return Component.create("span")
-			.classes.add(ItemSortClasses.SortIconMask, `item-sort-drawer-sort-${Sort[this.sort.id].toLowerCase()}-icon`)
+			.classes.add(ItemSortClasses.SortIconMask, `item-sort-drawer-sort-${this.sort.className ?? (typeof this.sort.id === "number" ? Sort[this.sort.id] : this.sort.id).toLowerCase()}-icon`)
 			.prependTo(this.title);
 	}
 
 	protected override onMake (sort: ISort): void {
 		this.sort = sort;
-		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${Sort[sort.id].toLowerCase()}`)
+		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${sort.className ?? (typeof sort.id === "number" ? Sort[sort.id] : sort.id).toLowerCase()}`)
 
 		this.title = Component.create("span")
 			.classes.add(ItemSortClasses.SortTitle)

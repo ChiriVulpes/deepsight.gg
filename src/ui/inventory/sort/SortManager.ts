@@ -15,10 +15,11 @@ import SortShaped from "ui/inventory/sort/sorts/SortShaped";
 import SortSource from "ui/inventory/sort/sorts/SortSource";
 import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
+import GenerateStatsSorts from "ui/inventory/sort/sorts/SortStats";
 import SortWeaponType from "ui/inventory/sort/sorts/SortWeaponType";
 import Store from "utility/Store";
 
-const sortMap: Record<Sort, ISort> = {
+const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Name]: SortName,
 	[Sort.Power]: SortPower,
 	[Sort.Energy]: SortEnergy,
@@ -36,36 +37,78 @@ const sortMap: Record<Sort, ISort> = {
 	[Sort.Locked]: SortLocked,
 };
 
-for (const [type, sort] of Object.entries(sortMap))
+const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [
+	GenerateStatsSorts,
+];
+
+for (const [type, sort] of Object.entries(BASE_SORT_MAP))
 	if (+type !== sort.id)
 		throw new Error(`Sort ${Sort[+type as Sort]} implementation miscategorised`);
 
 export interface ISortManagerConfiguration {
 	id: string;
 	name: string;
-	readonly default: readonly Sort[];
-	readonly inapplicable: readonly Sort[];
+	readonly default: readonly (Sort | string)[];
+	readonly inapplicable: readonly (Sort | string)[];
 }
 
 interface SortManager extends ISortManagerConfiguration { }
 class SortManager {
 
-	private current!: ISort[];
-	public constructor (configuration: ISortManagerConfiguration) {
-		this.initialise(configuration);
+	private static sortMap: Record<Sort | string, ISort> = BASE_SORT_MAP;
+
+	public static registerSort (id: string, sort: ISort) {
+		if (this.sortMap[id])
+			throw new Error(`Attempted to dynamically re-register sort ${id}`);
+
+		this.sortMap[id] = sort;
 	}
 
-	public initialise (configuration: ISortManagerConfiguration) {
+	private static initialised = false;
+	private static onInitFunctions: (() => void)[] = [];
+	private static onInit (fn: () => void) {
+		if (SortManager.initialised)
+			fn();
+		else
+			SortManager.onInitFunctions.push(fn);
+	}
+
+	public static async init () {
+		if (SortManager.initialised)
+			return;
+
+		SortManager.initialised = true;
+		for (const gen of DYNAMIC_SORTS) {
+			for (const sort of await gen()) {
+				if (typeof sort.id === "number")
+					throw new Error(`Cannot dynamically register sorts with numeric IDs, registered ${sort.id}`);
+
+				this.registerSort(sort.id, sort);
+			}
+		}
+
+		for (const onInit of SortManager.onInitFunctions)
+			onInit();
+	}
+
+	private current!: ISort[];
+	public constructor (configuration: ISortManagerConfiguration) {
+		this.setConfiguration(configuration);
+	}
+
+	private setConfiguration (configuration: ISortManagerConfiguration) {
 		Object.assign(this, configuration);
 
-		let sort: readonly Sort[] = (Store.get(`sort-${this.id}`) as (keyof typeof Sort)[] ?? [])
-			.map(sortName => Sort[sortName])
-			.filter(sort => !isNaN(+sort));
+		SortManager.onInit(() => {
+			let sort: readonly (Sort | string)[] = (Store.get(`sort-${this.id}`) as string[] ?? [])
+				.map((sortName): Sort | string => Sort[sortName as keyof typeof Sort] ?? sortName)
+				.filter(sort => SortManager.sortMap[sort]);
 
-		if (!sort.length)
-			sort = this.default;
+			if (!sort.length)
+				sort = this.default;
 
-		this.current = sort.map(sortType => sortMap[sortType]);
+			this.current = sort.map(sortType => SortManager.sortMap[sortType]);
+		});
 	}
 
 	public get () {
@@ -73,14 +116,16 @@ class SortManager {
 	}
 
 	public getDisabled () {
-		return Object.values(sortMap)
+		return Object.values(SortManager.sortMap)
 			.filter(sort => !this.current.includes(sort) && !this.inapplicable.includes(sort.id))
-			.sort((a, b) => a.id - b.id);
+			.sort((a, b) => 0
+				|| (typeof a.id === "number" ? a.id : 99999999999) - (typeof b.id === "number" ? b.id : 99999999999)
+				|| `${a.id}`.localeCompare(`${b.id}`));
 	}
 
 	public set (sort: ISort[]) {
 		this.current.splice(0, Infinity, ...sort);
-		Store.set(`sort-${this.id}`, this.current.map(sort => Sort[sort.id]));
+		Store.set(`sort-${this.id}`, this.current.map(sort => typeof sort.id === "number" ? Sort[sort.id] : sort.id));
 	}
 
 	public sort (items: readonly Item[]) {

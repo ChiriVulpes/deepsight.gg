@@ -517,6 +517,19 @@ $z-index-loading: 1000;
 			font-weight: 600;
 		}
 	}
+	
+	&-extra-stat-wrapper {
+		display: flex;
+		align-items: center;
+		color: gradient-mix(in lch, var(--value), #9e4949, #e04d4d 20%, #ff0 40%, #4eff13 60%, #13efff);
+		
+		&::before {
+			content: "";
+			width: 1.2em;
+			height: 1.2em;
+			@include mask-icon;
+		}
+	}
 
 	&-loading {
 		z-index: $z-index-loading;

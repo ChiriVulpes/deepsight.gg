@@ -24,7 +24,8 @@ enum Sort {
 export default Sort;
 
 export interface ISort {
-	id: Sort;
+	id: Sort | string;
+	className?: string;
 	name: string;
 	shortName?: string;
 	sort (itemA: Item, itemB: Item): number;

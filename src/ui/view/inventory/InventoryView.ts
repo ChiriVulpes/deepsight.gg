@@ -21,7 +21,7 @@ import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
 import ItemSort from "ui/inventory/sort/ItemSort";
-import type SortManager from "ui/inventory/sort/SortManager";
+import SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
@@ -144,6 +144,8 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			if (InventoryView.current === this)
 				delete InventoryView.current;
 		});
+
+		await SortManager.init();
 
 		this.sort = this.sort.bind(this);
 		this.filter = this.filter.bind(this);
