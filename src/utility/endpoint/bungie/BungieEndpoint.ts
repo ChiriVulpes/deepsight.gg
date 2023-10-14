@@ -81,8 +81,10 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 				}
 			}
 
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			result._headers = headers!;
+			Object.defineProperty(result, "_headers", {
+				enumerable: false,
+				get: () => headers,
+			});
 			return result;
 		}
 

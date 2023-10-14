@@ -21,7 +21,10 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 						.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
 						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")) as T) as R & { _headers: Headers };
 
-					result._headers = headers;
+					Object.defineProperty(result, "_headers", {
+						enumerable: false,
+						get: () => headers,
+					});
 					return result;
 				}
 

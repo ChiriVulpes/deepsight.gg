@@ -15,10 +15,15 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 	}
 
 	public override async query (): Promise<AllDeepsightManifestComponents & { _headers: Headers }> {
-		return {
+		const result = {
 			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
 			DestinyWallpaperDefinition: await GetDestinyWallpaperDefinition.query(),
-			_headers: new Headers(),
-		};
+		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
+
+		Object.defineProperty(result, "_headers", {
+			enumerable: false,
+			get: () => new Headers(),
+		});
+		return result;
 	}
 })
