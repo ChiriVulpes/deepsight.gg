@@ -14,14 +14,17 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 		super(path, builder);
 	}
 
-	public override async query (...args: ARGS) {
+	public override async query (...args: ARGS): Promise<RESPONSE & { _headers: Headers }> {
 		const attempts = 3;
 		const lastAttempt = attempts - 1;
 		for (let attempt = 0; attempt < 3; attempt++) {
 			let error401d: Error | undefined;
+			let headers: Headers;
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const result = await this.fetch(undefined, ...args)
 				.then(response => {
+					headers = response.headers;
+
 					if (response.status === 401) {
 						error401d = new Error("Not authenticated");
 						return;
@@ -48,6 +51,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 								ErrorStatus: "SystemDisabled",
 								Message: "This system is temporarily disabled for maintenance.",
 								MessageData: {},
+								headers,
 							};
 						}
 
@@ -62,7 +66,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 						return ("Response" in data && data.Response ? data.Response : data) as any;
 					} catch (error) {
-						BungieEndpoint.event.emit("error", { error: error as Error, responseText: text });
+						BungieEndpoint.event.emit("error", { error: error as Error, responseText: text, headers });
 						throw error;
 					}
 				});
@@ -77,8 +81,12 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 				}
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			result._headers = headers!;
 			return result;
 		}
+
+		throw new Error("This should never happen");
 	}
 
 	protected override resolvePath (...args: ARGS): string {
@@ -112,7 +120,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 }
 
 interface BungieEndpoint<ARGS extends any[], RESPONSE> {
-	query (...args: ARGS): Promise<RESPONSE>;
+	query (...args: ARGS): Promise<RESPONSE & { _headers: Headers }>;
 }
 
 namespace BungieEndpoint {
@@ -120,7 +128,7 @@ namespace BungieEndpoint {
 	export interface IEvents {
 		validateAuthorisation: { setAuthorisationPromise (promise: Promise<void>): void; force?: true };
 		authenticationFailed: Event;
-		error: { error: Error; responseText: string };
+		error: { error: Error; responseText: string, headers: Headers };
 		apiDown: Event;
 		querySuccess: Event;
 	}

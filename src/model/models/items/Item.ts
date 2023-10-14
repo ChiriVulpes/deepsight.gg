@@ -18,7 +18,6 @@ import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoin
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
-import Time from "utility/Time";
 import type { Mutable, PromiseOr } from "utility/Type";
 
 export type CharacterId = `${bigint}`;
@@ -164,6 +163,7 @@ export interface IItemInit {
 	reference: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
 	bucket: BucketId;
+	lastModified: number;
 	instance?: DestinyItemInstanceComponent;
 	sockets?: PromiseOr<(Socket | undefined)[]>;
 	source?: DestinySourceDefinition;
@@ -211,7 +211,9 @@ namespace Item {
 		Deepsight.IDeepsightProfile,
 		Plugs.IPlugsProfile,
 		Stats.IStatsProfile,
-		Collectibles.ICollectiblesProfile { }
+		Collectibles.ICollectiblesProfile {
+		lastModified: Date;
+	}
 }
 
 interface Item extends IItem { }
@@ -246,6 +248,7 @@ class Item {
 			definition,
 			bucket,
 			instance: profile.itemComponents?.instances.data?.[reference.itemInstanceId!],
+			lastModified: profile.lastModified.getTime(),
 		};
 
 		await Promise.all([
@@ -273,6 +276,7 @@ class Item {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			bucket: "collections" as any,
 			sockets: [],
+			lastModified: Date.now(),
 		};
 
 		// deepsight has to finish first because pattern presence is used by plugs
@@ -369,8 +373,8 @@ class Item {
 		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
 	}
 
-	public shouldTrustTransfer () {
-		return this.trustTransferUntil < Date.now();
+	public shouldTrustBungie () {
+		return this.trustTransferUntil < this.lastModified;
 	}
 
 	public isLocked () {
@@ -410,7 +414,7 @@ class Item {
 		if (item !== this) {
 			this.id = item.id;
 			this.reference = item.reference;
-			if (this.shouldTrustTransfer() || !this.bucketHistory?.includes(item.bucket)) {
+			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket)) {
 				delete this.bucketHistory;
 				this.bucket = item.bucket;
 				this.equipped = item.equipped;
@@ -542,7 +546,7 @@ class Item {
 
 				this.bucket = result.bucket;
 				this.equipped = result.equipped;
-				this.trustTransferUntil = Date.now() + Time.seconds(Store.items.settingsTrustTransfersUntil ?? 45);
+				this.trustTransferUntil = Date.now();
 				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });
 
 			} catch (error) {

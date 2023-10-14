@@ -14,10 +14,11 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 		super("");
 	}
 
-	public override async query (): Promise<AllDeepsightManifestComponents> {
+	public override async query (): Promise<AllDeepsightManifestComponents & { _headers: Headers }> {
 		return {
 			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
 			DestinyWallpaperDefinition: await GetDestinyWallpaperDefinition.query(),
+			_headers: new Headers(),
 		};
 	}
 })

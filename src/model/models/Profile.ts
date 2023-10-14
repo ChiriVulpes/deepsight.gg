@@ -3,6 +3,7 @@ import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import { getCurrentDestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
+import Store from "utility/Store";
 import Time from "utility/Time";
 
 type DestinyComponentName = Exclude<keyof DestinyProfileResponse, "responseMintedTimestamp" | "secondaryComponentsMintedTimestamp">;
@@ -106,7 +107,9 @@ const models: Partial<Record<DestinyComponentType, ComponentModel | undefined>> 
 let lastOperation: Promise<void> | undefined;
 
 function mergeProfile (profileInto: DestinyProfileResponse, profileFrom: DestinyProfileResponse) {
-	for (const key of new Set([...Object.keys(profileInto), ...Object.keys(profileFrom)] as (DestinyComponentName)[])) {
+	const keys = new Set([...Object.keys(profileInto), ...Object.keys(profileFrom)] as (DestinyComponentName)[]);
+	keys.delete("_header" as DestinyComponentName);
+	for (const key of keys) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		(profileInto as Writable<DestinyProfileResponse>)[key] = mergeProfileKey(key, profileInto[key], profileFrom[key]);
 	}
@@ -133,7 +136,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		Extract<keyof { [KEY in Exclude<keyof COMPONENTS, "length"> as COMPONENTS[KEY] extends COMPONENTS_FOR_RESPONSE ? KEY : never]: COMPONENTS[KEY] }, string>
 	)] extends [never] ? never : PROFILE_RESPONSE_KEY
 	: never
-)]?: DestinyProfileResponse[PROFILE_RESPONSE_KEY] }> {
+)]?: DestinyProfileResponse[PROFILE_RESPONSE_KEY] } & { lastModified: Date }> {
 	components.sort();
 
 	for (const component of components)
@@ -141,8 +144,8 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return Model.createDynamic<DestinyProfileResponse>(Time.seconds(30), async api => {
-		const result = {} as DestinyProfileResponse;
+	return Model.createDynamic<DestinyProfileResponse & { lastModified: Date }>(Time.seconds(30), async api => {
+		const result = {} as DestinyProfileResponse & { lastModified: Date };
 
 		// only allow one profile query at a time
 		while (lastOperation)
@@ -179,6 +182,9 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 			const newData = await GetProfile.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
+			result.lastModified = new Date(newData._headers.get("Last-Modified") ?? Date.now());
+			Store.items.profileLastModified = result.lastModified.toISOString();
+
 			for (let i = 0; i < components.length; i++) {
 				const component = components[i];
 				api.emitProgress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
@@ -205,6 +211,8 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		lastOperation = undefined;
 
 		api.emitProgress(3 / 3);
+
+		result.lastModified ??= new Date(Store.items.profileLastModified ?? Date.now());
 		return result;
 	});
 }

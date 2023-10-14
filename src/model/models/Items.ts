@@ -1,12 +1,12 @@
 import type { DestinyInventoryComponent, DestinyItemComponent } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyComponentType } from "bungie-api-ts/destiny2";
+import { BucketHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DebugInfo from "model/models/DebugInfo";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
-import Profile from "model/models/Profile";
+import ProfileBatch from "model/models/ProfileBatch";
 import Async from "utility/Async";
 import Time from "utility/Time";
 
@@ -29,23 +29,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	api.emitProgress(1 / 4, "Loading manifest cache");
 	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(BucketHashes.General);
 
-	const ProfileQuery = Profile(
-		DestinyComponentType.Characters,
-		DestinyComponentType.CharacterInventories,
-		DestinyComponentType.CharacterEquipment,
-		DestinyComponentType.ProfileInventories,
-		DestinyComponentType.ItemInstances,
-		DestinyComponentType.ProfileProgression,
-		DestinyComponentType.ItemPlugObjectives,
-		DestinyComponentType.ItemStats,
-		DestinyComponentType.Records,
-		DestinyComponentType.ItemSockets,
-		DestinyComponentType.ItemReusablePlugs,
-		DestinyComponentType.ItemPlugStates,
-	);
-
-	api.subscribeProgress(ProfileQuery, 1 / 4, 2 / 4);
-	const profile = await ProfileQuery.await();
+	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);
+	const profile = await ProfileBatch.await();
 	api.emitProgress(3 / 4, "Loading items");
 
 	const initialisedItems = new Set<string>();

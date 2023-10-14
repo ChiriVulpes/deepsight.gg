@@ -1,8 +1,7 @@
 import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
-import Profile from "model/models/Profile";
+import ProfileBatch from "model/models/ProfileBatch";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
 
@@ -40,7 +39,7 @@ export default Character;
 
 export const ProfileCharacters = Model.createDynamic(Time.seconds(30), async progress => {
 	progress.emitProgress(0 / 2, "Fetching characters");
-	const profile = await Profile(DestinyComponentType.Characters, DestinyComponentType.ProfileProgression).await();
+	const profile = await ProfileBatch.await();
 
 	const manifest = await progress.subscribeProgressAndWait(Manifest, 1 / 2, 1 / 2);
 

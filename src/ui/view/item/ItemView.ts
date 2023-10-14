@@ -1,11 +1,10 @@
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type { BucketId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
-import Profile from "model/models/Profile";
+import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -22,7 +21,7 @@ import Objects from "utility/Objects";
 
 export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 4);
-	const profile = await api.subscribeProgressAndWait(Profile(DestinyComponentType.Records), 1 / 4, 1 / 4);
+	const profile = await api.subscribeProgressAndWait(ProfileBatch, 1 / 4, 1 / 4);
 	const inventory = await api.subscribeProgressAndWait(Inventory.createTemporary(), 1 / 4, 2 / 4);
 	const { DestinyInventoryItemDefinition } = manifest;
 

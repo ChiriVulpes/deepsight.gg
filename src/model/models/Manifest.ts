@@ -259,6 +259,7 @@ const ClarityManifest = Model.create("clarityDatabase", {
 	version: async () => {
 		const versions = await GetClarityDatabaseVersions.query();
 		return `${Object.entries(versions)
+			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
 			.join(",")}-0.deepsight.gg`;

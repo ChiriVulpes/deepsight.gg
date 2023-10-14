@@ -11,9 +11,10 @@ export default (new class extends Endpoint<AllClarityDatabaseComponents> {
 		super("");
 	}
 
-	public override async query (): Promise<AllClarityDatabaseComponents> {
+	public override async query (): Promise<AllClarityDatabaseComponents & { _headers: Headers }> {
 		return {
 			ClarityDescriptions: await GetClarityDescriptions.query(),
+			_headers: new Headers(),
 		};
 	}
 })

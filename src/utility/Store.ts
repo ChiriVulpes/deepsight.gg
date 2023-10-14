@@ -32,6 +32,7 @@ export interface ILocalStorage extends ILocalStorageBase {
 	settingsDisableDisplayNonWishlistedHighlights?: true;
 	settingsTrustTransfersUntil?: number;
 	itemFilter?: string;
+	profileLastModified?: string;
 }
 
 export type IStoreEvents =

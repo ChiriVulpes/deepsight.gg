@@ -140,7 +140,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 					continue;
 				}
 
-				if (item.shouldTrustTransfer()) {
+				if (item.shouldTrustBungie() && equipped[bucketHash]?.shouldTrustBungie()) {
 					// replace equipped item
 					delete equipped[bucketHash]!.equipped;
 					equipped[bucketHash] = item;

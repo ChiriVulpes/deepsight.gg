@@ -1,9 +1,9 @@
 import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "bungie-api-ts/destiny2";
-import { DestinyComponentType, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
-import Profile from "model/models/Profile";
+import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
@@ -15,7 +15,7 @@ namespace Collections {
 		return sources[source.hash] ??= Model.createDynamic("Daily", async () => {
 			const manifest = await Manifest.await();
 			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
-			const profile = await Profile(DestinyComponentType.Records, DestinyComponentType.Collectibles).await();
+			const profile = await ProfileBatch.await();
 
 			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", typeof source.iconWatermark === "string" ? source.iconWatermark : "?")
 				.then(items => items

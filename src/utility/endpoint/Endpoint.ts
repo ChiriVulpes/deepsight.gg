@@ -7,15 +7,23 @@ export interface EndpointRequest extends Omit<RequestInit, "headers" | "body"> {
 export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) { }
 
-	public async query (...args: ARGS): Promise<R> {
+	public async query (...args: ARGS): Promise<R & { _headers: Headers }> {
 		const path = this.resolvePath(...args);
+		let headers: Headers;
 		return this.fetch(path, ...args)
-			.then(response => response.text())
+			.then(response => {
+				headers = response.headers;
+				return response.text();
+			})
 			.then(text => {
-				if (path.endsWith(".json"))
-					return this.process(JSON.parse(text
+				if (path.endsWith(".json")) {
+					const result = this.process(JSON.parse(text
 						.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
-						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")) as T);
+						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")) as T) as R & { _headers: Headers };
+
+					result._headers = headers;
+					return result;
+				}
 
 				throw new Error("Unknown file type");
 			});
