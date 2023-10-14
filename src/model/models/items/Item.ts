@@ -3,6 +3,8 @@ import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, It
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
+import type { IPerk } from "model/models/items/Perks";
+import Perks from "model/models/items/Perks";
 import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
@@ -170,6 +172,7 @@ export interface IItemInit {
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
 	stats?: IStats;
+	perks?: IPerk[];
 	tier?: DestinyItemTierTypeDefinition;
 	collectible?: DestinyCollectibleDefinition;
 	/**
@@ -259,6 +262,7 @@ class Item {
 			Tier.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
 			this.addCollections(manifest, profile, item),
+			Perks.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);

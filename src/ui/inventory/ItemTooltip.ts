@@ -16,6 +16,8 @@ import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
+import ItemTooltipNotifications from "ui/inventory/tooltip/ItemTooltipNotifications";
+import ItemTooltipPerks from "ui/inventory/tooltip/ItemTooltipPerks";
 
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
@@ -74,7 +76,10 @@ class ItemTooltip extends Tooltip {
 	public weaponLevelProgress!: Component;
 	public description!: Component;
 	public statTracker!: ItemStatTracker;
+	public perks!: ItemTooltipPerks;
+	public stats!: ItemStat.Wrapper;
 	public mods!: ItemTooltipMods;
+	public notifications!: ItemTooltipNotifications;
 	public deepsight!: Component;
 	public deepsightPattern!: Component;
 	public deepsightPatternLabel!: Component;
@@ -84,7 +89,6 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternRequiredUnit!: Component;
 	public wishlist!: Component;
 	public note!: Component;
-	public stats!: ItemStat.Wrapper;
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
 	public hintEquipToCharacter!: Hint;
@@ -158,10 +162,16 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.Description)
 			.appendTo(this.primaryInfo);
 
+		this.perks = ItemTooltipPerks.create()
+			.appendTo(this.primaryInfo);
+
 		this.stats = ItemStat.Wrapper.create()
 			.appendTo(this.content);
 
 		this.mods = ItemTooltipMods.create()
+			.appendTo(this.content);
+
+		this.notifications = ItemTooltipNotifications.create()
 			.appendTo(this.content);
 
 		this.deepsight = Component.create()
@@ -190,6 +200,7 @@ class ItemTooltip extends Tooltip {
 		this.note = Component.create()
 			.classes.add(ItemTooltipClasses.Note)
 			.appendTo(this.content);
+
 
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
 			.appendTo(this.hints);
@@ -330,15 +341,21 @@ class ItemTooltip extends Tooltip {
 
 		const description = Display.description(item.definition);
 		this.description.classes.toggle(!description, Classes.Hidden)
-			.text.set(description);
+			.removeContents()
+			.append(Component.create()
+				.tweak(Display.applyDescription, description));
 
 		this.statTracker.setItem(item);
+
+		this.perks.setItem(item);
 
 		this.stats.setItem(item);
 
 		this.mods
 			.setShaped(item.bucket === "collections")
 			.setItem(item);
+
+		this.notifications.setItem(item);
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
 		this.deepsight.classes.toggle(!item.deepsight?.resonance && !showPattern, Classes.Hidden);

@@ -460,7 +460,7 @@ export class Perk {
 namespace Plugs {
 
 	export interface IPlugsProfile {
-		itemComponents?: DestinyItemComponentSetOfint64,
+		itemComponents?: DestinyItemComponentSetOfint64;
 	}
 
 	export function resetInitialisedPlugTypes () {

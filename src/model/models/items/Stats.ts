@@ -1,7 +1,6 @@
-import type { DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyItemComponentSetOfint64, DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
-import type Plugs from "model/models/items/Plugs";
 import { PlugType, Socket } from "model/models/items/Plugs";
 import type Manifest from "model/models/Manifest";
 import type { StatOrder } from "ui/inventory/Stat";
@@ -29,8 +28,9 @@ export interface IStats {
 
 namespace Stats {
 
-	export interface IStatsProfile extends
-		Plugs.IPlugsProfile { }
+	export interface IStatsProfile {
+		itemComponents?: DestinyItemComponentSetOfint64;
+	}
 
 	export async function apply (manifest: Manifest, profile: IStatsProfile, item: IItemInit) {
 		item.stats = await resolve(manifest, profile, item);
