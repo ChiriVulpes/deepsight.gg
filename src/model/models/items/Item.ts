@@ -358,7 +358,8 @@ class Item {
 	public getPower () {
 		const isValidStat = this.instance?.primaryStat?.statHash === StatHashes.Power
 			|| this.instance?.primaryStat?.statHash === StatHashes.Attack
-			|| this.instance?.primaryStat?.statHash === StatHashes.Defense;
+			|| this.instance?.primaryStat?.statHash === StatHashes.Defense
+			|| this.instance?.primaryStat?.statHash === StatHashes.Speed;
 		const primaryStatPower = isValidStat ? this.instance!.primaryStat.value : 0;
 		const itemLevelQualityPower = (this.instance?.itemLevel ?? 0) * 10 + (this.instance?.quality ?? 0);
 		return Math.max(primaryStatPower, itemLevelQualityPower);

@@ -161,6 +161,7 @@ enum PlugTypes {
 	Deprecated,
 	Locked,
 	Enhancer,
+	Sparrow,
 }
 
 // export namespace PlugType {
@@ -378,6 +379,9 @@ export class Plug {
 
 		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers)
 			type |= PlugType.Enhancer;
+
+		if (definition.itemCategoryHashes?.includes(ItemCategoryHashes.SparrowMods))
+			type |= PlugType.Perk | PlugType.Sparrow;
 
 		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
 			type |= PlugType.Perk;

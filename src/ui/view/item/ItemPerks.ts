@@ -1,3 +1,4 @@
+import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import { PlugType } from "model/models/items/Plugs";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
@@ -55,7 +56,8 @@ export default class ItemPerks extends ItemSockets {
 	private backupEditingWishlist?: IItemPerkWishlist;
 
 	protected getTitle () {
-		return "Weapon Perks";
+		return (this.item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Sparrows) ? "Vehicle" : "Weapon")
+			+ " Perks";
 	}
 
 	protected override initialise () {

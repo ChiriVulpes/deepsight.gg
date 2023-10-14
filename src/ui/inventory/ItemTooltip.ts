@@ -1,4 +1,4 @@
-import { BucketHashes, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { BucketHashes, ItemCategoryHashes, StatHashes } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -131,7 +131,6 @@ class ItemTooltip extends Tooltip {
 
 		this.primaryStatLabel = Component.create()
 			.classes.add(ItemTooltipClasses.PrimaryStatLabel)
-			.text.set("Power")
 			.appendTo(this.primaryStat);
 
 		this.ammoType = ItemAmmo.create()
@@ -322,7 +321,9 @@ class ItemTooltip extends Tooltip {
 			this.primaryStatDamageIcon.attributes.set("src", Display.icon(damageType, false))
 		}
 
-		this.primaryStatLabel.classes.toggle(!!item.definition.equippingBlock?.ammoType || energy !== undefined, Classes.Hidden);
+		this.primaryStatLabel
+			.text.set(this.item.instance?.primaryStat?.statHash === StatHashes.Speed ? "Speed" : "Power")
+			.classes.toggle(!!item.definition.equippingBlock?.ammoType || energy !== undefined, Classes.Hidden);
 
 		this.ammoType.setItem(item);
 
