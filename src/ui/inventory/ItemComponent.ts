@@ -63,7 +63,7 @@ export interface IItemComponentCharacterHandler {
 	getCharacter (id?: CharacterId): Character;
 }
 
-export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[Item, IItemComponentCharacterHandler?, ...ARGS]> {
+export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = [Item?, Inventory?]> extends Button<ARGS> {
 
 	private static readonly showers = new Set<string>();
 	public static showExtra (id: string) {
@@ -102,8 +102,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	public inventory?: Inventory;
 	private sorter?: WeakRef<SortManager>;
 
-	protected override async onMake (item: Item, inventory?: Inventory, ...args: ARGS) {
-		super.onMake(item, inventory, ...args);
+	protected override async onMake (...args: ARGS) {
+		super.onMake(...args);
+		const [item, inventory] = args;
 
 		this.tooltipPadding = 0;
 		this.classes.add(ItemClasses.Main);
@@ -113,8 +114,10 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		this.event.subscribe("click", this.onClick);
 		this.event.subscribe("contextmenu", this.onContextMenu);
 
-		const done = this.setItem(item);
-		await done;
+		if (item) {
+			const done = this.setItem(item);
+			await done;
+		}
 	}
 
 	private lastUpdatePromise?: Promise<void>;
@@ -148,7 +151,10 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		this.loadingSpinny?.classes.add(Classes.Hidden);
 	}
 
-	public setItem (item: Item) {
+	private settingItem?: Promise<void>;
+	public async setItem (item: Item, inventory?: Inventory) {
+		this.inventory = inventory ?? this.inventory;
+
 		if (item !== this.item) {
 			this.item?.event.unsubscribe("update", this.update);
 			this.item?.event.unsubscribe("loadStart", this.loadStart);
@@ -159,7 +165,12 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			this.item = item;
 		}
 
-		return this.renderItem(item);
+		while (this.settingItem)
+			await this.settingItem;
+
+		this.settingItem = this.renderItem(item);
+		await this.settingItem;
+		delete this.settingItem;
 	}
 
 	protected async renderItem (item: Item) {

@@ -1,32 +1,17 @@
-import type { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type { DestinyClass } from "bungie-api-ts/destiny2";
 import type { UserMembershipData } from "bungie-api-ts/user";
-import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
-import type Item from "model/models/items/Item";
-import type { Bucket, CharacterId } from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
 import BaseComponent from "ui/Component";
 import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
 import InfoBlock from "ui/InfoBlock";
-import ItemComponent from "ui/inventory/ItemComponent";
-import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
+import PlayerOverviewCharacterPanel from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
-import { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
-import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
-import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
-import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
-import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
-import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
-import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
-import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
-import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
-import Arrays from "utility/Arrays";
 import Bound from "utility/decorator/Bound";
-import Maths from "utility/maths/Maths";
+
 
 export enum PlayerOverviewClasses {
 	Main = "player-overview",
@@ -35,29 +20,9 @@ export enum PlayerOverviewClasses {
 	IdentityUsername = "player-overview-identity-username",
 	IdentityCode = "player-overview-identity-code",
 	Drawer = "player-overview-drawer",
-	Panel = "player-overview-drawer-panel",
 	ClassSelection = "player-overview-class-selection",
 	CharacterPicker = "player-overview-character-picker",
 	CharacterPickerButton = "player-overview-character-picker-button",
-	CharacterSettings = "player-overview-character-settings",
-	SubclassPicker = "player-overview-subclass-picker",
-	SlotGroup = "player-overview-slot-group",
-	Slot = "player-overview-slot",
-	SlotOption = "player-overview-slot-option",
-	SlotOptionEquipped = "player-overview-slot-option-equipped",
-	SlotOptionHighestPower = "player-overview-slot-option-highest-power",
-	OverviewSlot = "player-overview-slot-overview",
-	Item = "player-overview-item",
-	ItemEquipped = "player-overview-item-equipped",
-	ItemHighestPower = "player-overview-item-highest-power",
-	ItemSame = "player-overview-item-same",
-	Power = "player-overview-power",
-	PowerTotal = "player-overview-power-total",
-	PowerEquipped = "player-overview-power-equipped",
-	PowerHighestPower = "player-overview-power-highest-power",
-	PowerTotalLabel = "player-overview-power-total-label",
-	PowerTotalLabelEquipped = "player-overview-power-total-label-equipped",
-	PowerTotalLabelHighestPower = "player-overview-power-total-label-highest-power",
 }
 
 namespace PlayerOverview {
@@ -69,7 +34,7 @@ namespace PlayerOverview {
 		public classSelection!: BaseComponent;
 		public statsOverview!: InfoBlock;
 		public characterPicker!: ClassPicker<CharacterId>;
-		private panels!: Record<CharacterId, BaseComponent>;
+		private panels!: Record<CharacterId, PlayerOverviewCharacterPanel>;
 
 		public displayName!: string;
 		public code!: string;
@@ -118,6 +83,8 @@ namespace PlayerOverview {
 			this.statsOverview = InfoBlock.create()
 				.appendTo(this.drawer);
 
+			this.panels = {};
+
 			inventory.event.subscribe("update", this.update);
 			inventory.event.subscribe("itemUpdate", this.update);
 			this.update();
@@ -134,15 +101,12 @@ namespace PlayerOverview {
 
 			this.drawer.event.subscribe("openDrawer", () => {
 				if (inventory.sortedCharacters?.[0].characterId)
-					void this.characterPicker.setCurrent(inventory.sortedCharacters?.[0].characterId as CharacterId);
+					void this.characterPicker.setCurrent(inventory.sortedCharacters?.[0].characterId as CharacterId, true);
 			});
 		}
 
-		private previous?: Record<DestinyClass, string[]>;
 		@Bound
 		public update () {
-			this.drawer.removePanels();
-			this.panels = {};
 			this.updateCharacters();
 			this.statsOverview.appendTo(this.drawer);
 			this.drawer.enable();
@@ -154,19 +118,24 @@ namespace PlayerOverview {
 				.sort((a, b) => a.characterId === this.characterPicker.currentOption ? -1 : b.characterId === this.characterPicker.currentOption ? 1 : 0);
 			if (!characters.length) {
 				console.warn("No characters found");
+				this.drawer.removePanels();
+				this.panels = {};
 				this.drawer.disable();
 				return;
 			}
 
 			for (const character of characters) {
-				const bucket = this.inventory.getCharacterBuckets(character.characterId as CharacterId);
+				const bucket = this.inventory.buckets?.[character.characterId as CharacterId];
+
 				if (!bucket) {
 					console.warn(`No bucket found for the character ${character.characterId}`);
+					this.drawer.removePanel(this.panels[character.characterId as CharacterId]);
 					continue;
 				}
 
-				const panel = this.createPanel(character, bucket);
-				this.panels[character.characterId as CharacterId] = panel;
+				const panel = this.panels[character.characterId as CharacterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel);
+				panel.setBucket(this.inventory, character, bucket);
+
 				const className = character.class?.displayProperties.name ?? "Unknown";
 				this.characterPicker.addOption({
 					id: character.characterId as CharacterId,
@@ -174,198 +143,11 @@ namespace PlayerOverview {
 					icon: `https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg`,
 				});
 			}
-		}
 
-		private createPanel (character: Character, bucket: Bucket[]) {
-			const panel = this.drawer.createPanel()
-				.classes.add(PlayerOverviewClasses.Panel);
-
-			const characterSettings = BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.CharacterSettings)
-				.appendTo(panel);
-
-			const subclassPicker = (ClassPicker.create([]) as ClassPicker<number>)
-				.classes.add(PlayerOverviewClasses.SubclassPicker)
-				.event.subscribe("selectClass", event => {
-				})
-				.appendTo(characterSettings);
-
-			for (const subclass of this.inventory.buckets?.[`subclasses:${character.characterId as CharacterId}`]?.items ?? []) {
-				subclassPicker.addOption({
-					id: subclass.definition.hash,
-					background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,
-				});
-				if (subclass.equipped)
-					void subclassPicker.setCurrent(subclass.definition.hash, true);
-			}
-
-			const slotViews = [
-				[
-					InventoryKineticView,
-					InventoryEnergyView,
-					InventoryPowerView,
-				],
-				[
-					InventoryHelmetView,
-					InventoryArmsView,
-					InventoryChestView,
-					InventoryLegsView,
-					InventoryClassItemView,
-				],
-			];
-			const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
-			const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
-
-			for (const item of bucket.flatMap(bucket => bucket.items)) {
-				const view = slotViews.flat().find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
-				for (const slot of Arrays.resolve(view?.definition.slot)) {
-					const id = IInventoryViewDefinition.resolveSlotId(slot);
-					if (item.equipped)
-						equippedItems[id] = item;
-
-					const highestPower = highestPowerItems[id]?.instance?.primaryStat?.value ?? 0;
-					const itemPower = item.instance?.primaryStat?.value ?? 0;
-					if (itemPower > highestPower || (itemPower === highestPower && item.equipped))
-						highestPowerItems[id] = item;
-				}
-
-			}
-
-			const currentPower = Maths.average(...Object.values(equippedItems)
-				.map(item => item?.instance?.primaryStat?.value ?? 0));
-
-			const maximisedPower = Maths.average(...Object.values(highestPowerItems)
-				.map(item => item?.instance?.primaryStat?.value ?? 0));
-
-			const slotComponent = BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.Slot, PlayerOverviewClasses.OverviewSlot)
-				.appendTo(panel);
-
-			const slotOptionHighestPower = BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionHighestPower)
-				.appendTo(slotComponent);
-
-			const slotOptionEquipped = BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionEquipped)
-				.appendTo(slotComponent);
-
-			BaseComponent.create()
-				.text.add("Equipped")
-				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelEquipped)
-				.appendTo(slotOptionEquipped);
-
-			ItemPowerLevel.create([currentPower])
-				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerEquipped)
-				.appendTo(slotOptionEquipped);
-
-			BaseComponent.create()
-				.text.add("Max")
-				.classes.add(PlayerOverviewClasses.PowerTotalLabel, PlayerOverviewClasses.PowerTotalLabelHighestPower)
-				.appendTo(slotOptionHighestPower);
-
-			ItemPowerLevel.create([maximisedPower])
-				.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerTotal, PlayerOverviewClasses.PowerHighestPower)
-				.appendTo(slotOptionHighestPower);
-
-			const equippedLog: any[] = [];
-			const highestPowerLog: any[] = [];
-			this.previous ??= {} as any;
-			const previous = this.previous![character.classType] ??= [];
-			let i = 0;
-
-			for (let groupIndex = 0; groupIndex < slotViews.length; groupIndex++) {
-				const viewGroup = slotViews[groupIndex];
-				const groupColumn = BaseComponent.create()
-					.classes.add(PlayerOverviewClasses.SlotGroup)
-					.appendTo(panel);
-
-				for (const view of viewGroup) {
-					for (const slot of Arrays.resolve(view.definition.slot)) {
-						const id = IInventoryViewDefinition.resolveSlotId(slot);
-
-						let name = view.definition.name ?? "Unknown View";
-						if (typeof name === "function")
-							name = name();
-
-						const equippedItem = equippedItems[id];
-						if (!equippedItem) {
-							console.warn(`No equipped item for slot ${name}`);
-							continue;
-						}
-
-						const slotComponent = BaseComponent.create()
-							.classes.add(PlayerOverviewClasses.Slot)
-							.attributes.set("data-name", name)
-							.appendTo(groupColumn);
-
-						if (previous[i++] !== equippedItem.reference.itemInstanceId) {
-							equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
-							previous[i - 1] = equippedItem.reference.itemInstanceId!;
-						}
-
-						const slotOptionEquipped = BaseComponent.create()
-							.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionEquipped);
-
-						const slotOptionHighestPower = BaseComponent.create()
-							.classes.add(PlayerOverviewClasses.SlotOption, PlayerOverviewClasses.SlotOptionHighestPower);
-
-						if (groupIndex === 0)
-							slotComponent.append(slotOptionHighestPower, slotOptionEquipped);
-						else
-							slotComponent.append(slotOptionEquipped, slotOptionHighestPower);
-
-						ItemComponent.create([equippedItem])
-							.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemEquipped)
-							.appendTo(slotOptionEquipped);
-
-						const equippedPower = equippedItem.instance?.primaryStat?.value ?? 0;
-						ItemPowerLevel.create([equippedPower, equippedPower - Math.floor(maximisedPower)])
-							.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerEquipped)
-							.appendTo(slotOptionEquipped);
-
-						const highestPowerItem = highestPowerItems[id];
-						if (!highestPowerItem) {
-							console.warn(`No highest power item for slot ${name}`);
-							continue;
-						}
-
-						if (highestPowerItem === equippedItem) {
-							BaseComponent.create()
-								.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower, PlayerOverviewClasses.ItemSame)
-								.appendTo(slotOptionHighestPower);
-
-							BaseComponent.create()
-								.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
-								.appendTo(slotOptionHighestPower);
-							continue;
-						}
-
-						if (previous[i++] !== highestPowerItem.reference.itemInstanceId) {
-							highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
-							previous[i - 1] = highestPowerItem.reference.itemInstanceId!;
-						}
-
-						ItemComponent.create([highestPowerItem, this.inventory])
-							.classes.add(PlayerOverviewClasses.Item, PlayerOverviewClasses.ItemHighestPower)
-							.appendTo(slotOptionHighestPower);
-
-						const highestPowerPower = highestPowerItem.instance?.primaryStat?.value ?? 0;
-						ItemPowerLevel.create([highestPowerPower, highestPowerPower - Math.floor(maximisedPower)])
-							.classes.add(PlayerOverviewClasses.Power, PlayerOverviewClasses.PowerHighestPower)
-							.appendTo(slotOptionHighestPower);
-					}
-				}
-			}
-
-			if (equippedLog.length || highestPowerLog.length)
-				console.log(character.class.displayProperties.name,
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-					...!equippedLog.length ? [] : [`\n  Equipped Items - ${Math.floor(currentPower)}${currentPower % 1 ? ` ${(currentPower % 1) * 8}/8` : ""}`, ...equippedLog],
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-					...!highestPowerLog.length ? [] : [`\n\n  Highest Power Items - ${Math.floor(maximisedPower)}${maximisedPower % 1 ? ` ${(maximisedPower % 1) * 8}/8` : ""}`, ...highestPowerLog]
-				);
-
-			return panel;
+			// remove deleted characters
+			for (const option of [...this.characterPicker.options])
+				if (!characters.some(character => character.characterId === option.id))
+					this.characterPicker.removeOption(option.id);
 		}
 
 		@Bound
