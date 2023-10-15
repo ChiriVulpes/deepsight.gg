@@ -9,10 +9,18 @@ export enum ItemPowerLevelClasses {
 	DifferenceWorse = "item-power-level-difference-worse",
 }
 
-export default class ItemPowerLevel extends Component<HTMLElement, [number, number?]> {
-	protected override onMake (power: number, difference?: number): void {
-		this.classes.add(ItemPowerLevelClasses.Main)
-			.append(Component.create().classes.add(ItemPowerLevelClasses.Icon))
+export default class ItemPowerLevel extends Component<HTMLElement, [number?, number?]> {
+
+	protected override onMake (power?: number, difference?: number): void {
+		this.classes.add(ItemPowerLevelClasses.Main);
+		if (power !== undefined)
+			this.setPower(power, difference);
+	}
+
+	public setPower (power: number, difference?: number) {
+		this.removeContents();
+
+		this.append(Component.create().classes.add(ItemPowerLevelClasses.Icon))
 			.text.add(`${Math.floor(power)}`);
 
 		if (!Number.isInteger(power))

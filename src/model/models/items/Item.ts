@@ -219,7 +219,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 			return {
 				bucket: item.bucket.id,
 				equipped: true,
-				undo: [TransferType.TransferToVault],
+				undo: [TransferType.Unequip],
 			};
 		},
 	},

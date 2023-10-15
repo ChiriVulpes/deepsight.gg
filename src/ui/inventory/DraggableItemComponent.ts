@@ -23,7 +23,7 @@ export interface IDraggableItemHandler {
 	moveEnd (event: Event & { mouse: IVector2 }): any;
 }
 
-export default class DraggableItem extends ItemComponent<[IDraggableItemHandler]> {
+export default class DraggableItem extends ItemComponent<[Item, Inventory, IDraggableItemHandler]> {
 
 	public override readonly event!: ComponentEventManager<this, IInteractableItemEvents>;
 

@@ -16,6 +16,20 @@ export enum ButtonClasses {
 
 export default class Button<ARGS extends any[] = []> extends Component<HTMLButtonElement, ARGS> {
 
+	public static async animateWipeMultiple (buttons: Button[], initialiser: () => any) {
+		let readyCount = 0;
+		let setInitialised!: () => void;
+		const initialised = new Promise<void>(resolve => setInitialised = resolve);
+		const ready = () => {
+			readyCount++;
+			if (readyCount === buttons.length)
+				void Promise.resolve(initialiser()).then(setInitialised);
+			return initialised;
+		};
+
+		return Promise.all(buttons.map(button => button.animateWipe(ready)))
+	}
+
 	public static basic () {
 		return Button.create([]) as Button<[]>;
 	}
@@ -67,7 +81,7 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 				.appendTo(this);
 			this.classes.add(ButtonClasses.HasWipeAnimation);
 			await new Promise(resolve => wipe.event.subscribe("animationend", resolve));
-			initialiser();
+			await initialiser();
 			this.classes.add(ButtonClasses.HasWipeAnimationOut);
 			wipe.classes.add(ButtonClasses.WipeAnimationOut);
 			await new Promise(resolve => wipe.event.subscribe("animationend", resolve));

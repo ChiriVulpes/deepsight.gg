@@ -1,3 +1,4 @@
+import type Item from "model/models/items/Item";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -21,10 +22,11 @@ export interface IClassPickerOption<ID extends string | number = string | number
 	id: ID;
 	background: string;
 	icon?: string;
+	item?: Item;
 }
 
 export interface IClassPickerEvents<ID extends string | number = string | number> extends ComponentEvents {
-	selectClass: { option: ID, button: ClassPickerButton };
+	selectClass: { option: ID, button: ClassPickerButton, item?: Item, setPromise: (promise: Promise<any>) => void };
 }
 
 export type ClassPickerOptionSwitchHandler<ID extends string | number = string | number> = (optionId: ID) => any;
@@ -67,6 +69,7 @@ export default class ClassPicker<ID extends string | number = string | number> e
 			existingOption.background = option.background;
 			existingOption.icon = option.icon;
 			existingOption.button?.setAppearance(option);
+			existingOption.item = option.item;
 			if (this.currentOption === option.id)
 				this.currentButton.setAppearance(option);
 			return this;
@@ -91,6 +94,20 @@ export default class ClassPicker<ID extends string | number = string | number> e
 		return this;
 	}
 
+	public removeOption (id: ID) {
+		const index = this.options.findIndex(existing => existing.id === id);
+		if (index === -1)
+			return;
+
+		const option = this.options[index];
+		option.button?.remove();
+
+		this.options.splice(index, 1);
+
+		this.updateOptionsWrapper();
+		return this;
+	}
+
 	private updateOptionsWrapper () {
 		this.optionsWrapper.classes.remove(ClassPickerClasses.OptionsWrapper2, ClassPickerClasses.OptionsWrapper3, ClassPickerClasses.OptionsWrapper4, ClassPickerClasses.OptionsWrapper9);
 		const count = this.optionsWrapper.element.childElementCount - 2;
@@ -101,9 +118,12 @@ export default class ClassPicker<ID extends string | number = string | number> e
 	}
 
 	private settingCurrent?: Promise<any>;
-	public async setCurrent (id: ID, skipAnimation = false) {
+	public async setCurrent (id: ID, initial = false) {
 		while (this.settingCurrent)
 			await this.settingCurrent;
+
+		if (id === this.currentOption)
+			return;
 
 		const chosenOption = this.options.find(option => option.id === id);
 		if (!chosenOption?.button) {
@@ -111,11 +131,9 @@ export default class ClassPicker<ID extends string | number = string | number> e
 			return;
 		}
 
-
 		const currentOption = this.options.find(option => option.id === this.currentOption);
-		if (!currentOption || skipAnimation) {
+		if (!currentOption || initial) {
 			this.currentOption = id;
-			this.event.emit("selectClass", { option: id, button: chosenOption.button });
 
 			this.currentButton.setAppearance(chosenOption);
 			if (!currentOption) {
@@ -128,17 +146,22 @@ export default class ClassPicker<ID extends string | number = string | number> e
 				delete chosenOption.button;
 			}
 		} else {
-			await (this.settingCurrent = Promise.all([
-				this.currentButton.animateWipe(() => this.currentButton.setAppearance(chosenOption)),
-				chosenOption.button.animateWipe(() => {
-					this.currentOption = id;
-					this.event.emit("selectClass", { option: id, button: chosenOption.button! });
+			await (this.settingCurrent = Button.animateWipeMultiple([this.currentButton, chosenOption.button], async () => {
+				this.currentOption = id;
 
-					chosenOption.button!.setAppearance(currentOption);
-					currentOption.button = chosenOption.button;
-					delete chosenOption.button;
-				}),
-			]));
+				const button = chosenOption.button;
+
+				this.currentButton.setAppearance(chosenOption);
+				chosenOption.button!.setAppearance(currentOption);
+				currentOption.button = chosenOption.button;
+				delete chosenOption.button;
+
+				let promise: Promise<any> | undefined;
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises
+				this.event.emit("selectClass", { option: id, button: button!, item: chosenOption.item, setPromise: set => promise = set });
+
+				await promise;
+			}));
 		}
 
 		delete this.settingCurrent;

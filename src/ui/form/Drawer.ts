@@ -1,5 +1,5 @@
 import { Classes } from "ui/Classes";
-import type { ComponentEventManager, ComponentEvents } from "ui/Component";
+import type { AnyComponent, ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 
@@ -15,14 +15,14 @@ export enum DrawerClasses {
 export interface IDrawerEvents extends ComponentEvents {
 	openDrawer: { reason: string };
 	closeDrawer: Event;
-	showPanel: { panel: Component };
+	showPanel: { panel: AnyComponent };
 }
 
 export default class Drawer extends Component {
 
 	public override readonly event!: ComponentEventManager<this, IDrawerEvents>;
 
-	private panels!: Set<Component>;
+	private panels!: Set<AnyComponent>;
 	private openReasons!: Set<string>;
 	public closeButton!: Button;
 	public backButton!: Button;
@@ -108,8 +108,8 @@ export default class Drawer extends Component {
 		return panel;
 	}
 
-	public showPanel (panel: Component, showBackButton = false) {
-		let lastPanel: Component | undefined;
+	public showPanel (panel: AnyComponent, showBackButton = false) {
+		let lastPanel: AnyComponent | undefined;
 		for (const panel of this.panels) {
 			if (!panel.classes.has(Classes.Hidden)) {
 				lastPanel = panel;
@@ -196,6 +196,15 @@ export default class Drawer extends Component {
 			panel.remove();
 
 		this.panels.clear();
+		return this;
+	}
+
+	public removePanel (panel?: AnyComponent) {
+		if (panel) {
+			this.panels.delete(panel);
+			panel.remove();
+		}
+
 		return this;
 	}
 }
