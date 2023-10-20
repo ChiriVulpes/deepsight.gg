@@ -81,7 +81,7 @@ const Manifest = Model.create("manifest", {
 		return `${manifest.version}-13.deepsight.gg`;
 	},
 	async generate (api) {
-		await Model.cacheDB.dispose();
+		await ManifestCacheModel.reset();
 
 		const manifest = await GetManifest.query();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as BaseComponentNames[];
@@ -265,6 +265,8 @@ const ClarityManifest = Model.create("clarityDatabase", {
 			.join(",")}-0.deepsight.gg`;
 	},
 	async generate (api) {
+		await ManifestCacheModel.reset();
+
 		const clarityComponents = await GetClarityDatabase.query();
 		const clarityComponentNames = Object.keys(clarityComponents) as (keyof AllClarityDatabaseComponents)[];
 
