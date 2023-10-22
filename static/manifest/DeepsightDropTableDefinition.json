@@ -1,200 +1,208 @@
 {
-    "1191701339": { // Root of Nightmares: Normal
-        "rotationActivityHash": 2381413764,
-        "encounters": [
-            {
-                "displayProperties": {
-                    "name": "Cataclysm",
-                    "description": "Survive the Onslaught"
-                },
-                "dropTable": {
-                    "1491665733": {}, // Briar's Contempt
-                    "2972949637": {}, // Koraxis's Distress
-                    "135029084": {}, // Nessa's Oblation
-                    "3475635982": {}, // Helmet of Agony (titan helm)
-                    "630432767": {}, // Gauntlets of Agony (titan arms)
-                    "824228793": {}, // Plate of Agony (titan chest)
-                    "3810243376": {}, // Mask of Trepidation (hunter helm)
-                    "3608027009": {}, // Grips of Trepidation (hunter arms)
-                    "2787963735": {}, // Vest of Trepidation (hunter chest)
-                    "4123705451": {}, // Mask of Detestation (warlock helm)
-                    "2445962586": {}, // Wraps of Detestation (warlock arms)
-                    "2597227950": {}, // Robes of Detestation (warlock chest)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Scission",
-                    "description": "Enter the Root"
-                },
-                "dropTable": {
-                    "231031173": {}, // Mykel's Reverence
-                    "2972949637": {}, // Koraxis's Distress
-                    "135029084": {}, // Nessa's Oblation
-                    "1471212226": {}, // Acasia's Rejection
-                    "630432767": {}, // Gauntlets of Agony (titan arms)
-                    "824228793": {}, // Plate of Agony (titan chest)
-                    "3846650177": {}, // Greaves of Agony (titan legs)
-                    "3608027009": {}, // Grips of Trepidation (hunter arms)
-                    "2787963735": {}, // Vest of Trepidation (hunter chest)
-                    "807905267": {}, // Boots of Trepidation (hunter legs)
-                    "2445962586": {}, // Wraps of Detestation (warlock arms)
-                    "2597227950": {}, // Robes of Detestation (warlock chest)
-                    "3702434452": {}, // Boots of Detestation (warlock legs)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Macrocosm, Zo'Aurc, Explicator of Planets",
-                    "description": "Defeat the Explicator"
-                },
-                "dropTable": {
-                    "231031173": {}, // Mykel's Reverence
-                    "2972949637": {}, // Koraxis's Distress
-                    "484515708": {}, // Rufus's Fury
-                    "1471212226": {}, // Acasia's Rejection
-                    "824228793": {}, // Plate of Agony (titan chest)
-                    "3846650177": {}, // Greaves of Agony (titan legs)
-                    "2138394740": {}, // Mark of Agony (titan class item)
-                    "2787963735": {}, // Vest of Trepidation (hunter chest)
-                    "807905267": {}, // Boots of Trepidation (hunter legs)
-                    "621315878": {}, // Cloak of Trepidation (hunter class item)
-                    "2597227950": {}, // Robes of Detestation (warlock chest)
-                    "3702434452": {}, // Boots of Detestation (warlock legs)
-                    "2915322487": {}, // Bond of Detestation (warlock class item)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Nezarec, Final God of Pain",
-                    "description": "Defeat Nezarec"
-                },
-                "dropTable": {
-                    "3371017761": {}, // Conditional Finality
-                    "1491665733": {}, // Briar's Contempt
-                    "231031173": {}, // Mykel's Reverence
-                    "2972949637": {}, // Koraxis's Distress
-                    "484515708": {}, // Rufus's Fury
-                    "1471212226": {}, // Acasia's Rejection
-                    "135029084": {}, // Nessa's Oblation
-                    "3475635982": {}, // Helmet of Agony (titan helm)
-                    "3846650177": {}, // Greaves of Agony (titan legs)
-                    "2138394740": {}, // Mark of Agony (titan class item)
-                    "3810243376": {}, // Mask of Trepidation (hunter helm)
-                    "807905267": {}, // Boots of Trepidation (hunter legs)
-                    "621315878": {}, // Cloak of Trepidation (hunter class item)
-                    "4123705451": {}, // Mask of Detestation (warlock helm)
-                    "3702434452": {}, // Boots of Detestation (warlock legs)
-                    "2915322487": {}, // Bond of Detestation (warlock class item)
-                }
-            }
-        ],
-        "master": {
-            "activityHash": 2918919505,
-            "challengeDropTable": {
-                "1986287028": {}, // Mykel's Reverence (Adept)
-                "3493494807": {}, // Acasia's Dejection (Adept)
-                "342514437": {}, // Rufus's Fury (Adept)
-                "495442100": {}, // Koraxis's Distress (Adept)
-                "2890082420": {}, // Briar's Contempt (Adept)
-                "522366885": {}, // Nessa's Oblation (Adept)
-            }
-        }
-    },
-    "4103176774": { // Crota's End: Normal
-    "rotationActivityHash": 4179289725,
-        "encounters": [
-            {
-                "displayProperties": {
-                    "name": "The Abyss",
-                    "description": "Traverse the Abyss"
-                },
-                "dropTable": {
-                    "2828278545": {}, // Song of Ir Yût
-                    "1432682459": {}, // Fang of Ir Yût
-                    "833898322": {}, // Abyss Defiant
-                    "1328334240": {}, // Willbreaker's Watch (titan helm)
-                    "3189374833": {}, // Willbreaker's Fists (titan arms)
-                    "1261894567": {}, // Willbreaker's Resolve (titan chest)
-                    "859929450": {}, // Unyielding Casque (hunter helm)
-                    "441033139": {}, // Dogged Gage (hunter arms)
-                    "3714937821": {}, // Relentless Harness (hunter chest)
-                    "1964816829": {}, // Deathsinger's Gaze (warlock helm)
-                    "427348780": {}, // Deathsinger's Grip (warlock arms)
-                    "1386180724": {}, // Deathsinger's Mantle (warlock chest)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Oversoul Throne Bridge",
-                    "description": "Cross the Bridge"
-                },
-                "dropTable": {
-                    "3163900678": {}, // Swordbreaker
-                    "1432682459": {}, // Fang of Ir Yût
-                    "1098171824": {}, // Oversoul Edict
-                    "3189374833": {}, // Willbreaker's Fists (titan arms)
-                    "1261894567": {}, // Willbreaker's Resolve (titan chest)
-                    "3020524483": {}, // Willbreaker's Greaves (titan legs)
-                    "441033139": {}, // Dogged Gage (hunter arms)
-                    "3714937821": {}, // Relentless Harness (hunter chest)
-                    "175883909": {}, // Tireless Strides (hunter legs)
-                    "427348780": {}, // Deathsinger's Grip (warlock arms)
-                    "1386180724": {}, // Deathsinger's Mantle (warlock chest)
-                    "1497538390": {}, // Deathsinger's Herald (warlock legs)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Ir Yût, the Deathsinger",
-                    "description": "Defeat Ir Yût, the Deathsinger"
-                },
-                "dropTable": {
-                    "120706239": {}, // Word of Crota
-                    "2828278545": {}, // Song of Ir Yût
-                    "1098171824": {}, // Oversoul Edict
-                    "1261894567": {}, // Willbreaker's Resolve (titan chest)
-                    "3020524483": {}, // Willbreaker's Greaves (titan legs)
-                    "2401746614": {}, // Mark of the Pit (titan class item)
-                    "3714937821": {}, // Relentless Harness (hunter chest)
-                    "175883909": {}, // Tireless Strides (hunter legs)
-                    "1306415888": {}, // Shroud of Flies (hunter class item)
-                    "1386180724": {}, // Deathsinger's Mantle (warlock chest)
-                    "1497538390": {}, // Deathsinger's Herald (warlock legs)
-                    "2130010697": {}, // Bone Circlet (warlock class item)
-                }
-            },
-            {
-                "displayProperties": {
-                    "name": "Crota, Son of Oryx",
-                    "description": "Defeat Crota, Son of Oryx"
-                },
-                "dropTable": {
-                    "120706239": {}, // Word of Crota
-                    "833898322": {}, // Abyss Defiant
-                    "3163900678": {}, // Swordbreaker
-                    "1328334240": {}, // Willbreaker's Watch (titan helm)
-                    "3020524483": {}, // Willbreaker's Greaves (titan legs)
-                    "2401746614": {}, // Mark of the Pit (titan class item)
-                    "859929450": {}, // Unyielding Casque (hunter helm)
-                    "175883909": {}, // Tireless Strides (hunter legs)
-                    "1306415888": {}, // Shroud of Flies (hunter class item)
-                    "1964816829": {}, // Deathsinger's Gaze (warlock helm)
-                    "1497538390": {}, // Deathsinger's Herald (warlock legs)
-                    "2130010697": {}, // Bone Circlet (warlock class item)
-                }
-            }
-        ],
-        "master": {
-            "activityHash": 1507509200,
-            "challengeDropTable": {
-                "407511664": {}, // Song of Ir Yût (Adept)
-                "578105049": {}, // Oversoul Edict (Adept)
-                "3926103986": {}, // Word of Crota (Adept)
-                "3782662983": {}, // Abyss Defiant (Adept)
-                "128782990": {}, // Fang of Ir Yût (Adept)
-                "1239700299": {}, // Swordbreaker (Adept)
-            }
-        }
-    },
+	"1191701339": { // Root of Nightmares: Normal
+		"rotationActivityHash": 2381413764,
+		"phases": {
+			"3172054256": {
+				"index": 0,
+				"displayProperties": {
+					"name": "Cataclysm",
+					"description": "Survive the Onslaught"
+				},
+				"dropTable": {
+					"1491665733": {}, // Briar's Contempt
+					"2972949637": {}, // Koraxis's Distress
+					"135029084": {}, // Nessa's Oblation
+					"3475635982": {}, // Helmet of Agony (titan helm)
+					"630432767": {}, // Gauntlets of Agony (titan arms)
+					"824228793": {}, // Plate of Agony (titan chest)
+					"3810243376": {}, // Mask of Trepidation (hunter helm)
+					"3608027009": {}, // Grips of Trepidation (hunter arms)
+					"2787963735": {}, // Vest of Trepidation (hunter chest)
+					"4123705451": {}, // Mask of Detestation (warlock helm)
+					"2445962586": {}, // Wraps of Detestation (warlock arms)
+					"2597227950": {}, // Robes of Detestation (warlock chest)
+				}
+			},
+			"2224793617": {
+				"index": 1,
+				"displayProperties": {
+					"name": "Scission",
+					"description": "Enter the Root"
+				},
+				"dropTable": {
+					"231031173": {}, // Mykel's Reverence
+					"2972949637": {}, // Koraxis's Distress
+					"135029084": {}, // Nessa's Oblation
+					"1471212226": {}, // Acasia's Rejection
+					"630432767": {}, // Gauntlets of Agony (titan arms)
+					"824228793": {}, // Plate of Agony (titan chest)
+					"3846650177": {}, // Greaves of Agony (titan legs)
+					"3608027009": {}, // Grips of Trepidation (hunter arms)
+					"2787963735": {}, // Vest of Trepidation (hunter chest)
+					"807905267": {}, // Boots of Trepidation (hunter legs)
+					"2445962586": {}, // Wraps of Detestation (warlock arms)
+					"2597227950": {}, // Robes of Detestation (warlock chest)
+					"3702434452": {}, // Boots of Detestation (warlock legs)
+				}
+			},
+			"2184227225": {
+				"index": 2,
+				"displayProperties": {
+					"name": "Macrocosm",
+					"description": "Defeat the Explicator"
+				},
+				"dropTable": {
+					"231031173": {}, // Mykel's Reverence
+					"2972949637": {}, // Koraxis's Distress
+					"484515708": {}, // Rufus's Fury
+					"1471212226": {}, // Acasia's Rejection
+					"824228793": {}, // Plate of Agony (titan chest)
+					"3846650177": {}, // Greaves of Agony (titan legs)
+					"2138394740": {}, // Mark of Agony (titan class item)
+					"2787963735": {}, // Vest of Trepidation (hunter chest)
+					"807905267": {}, // Boots of Trepidation (hunter legs)
+					"621315878": {}, // Cloak of Trepidation (hunter class item)
+					"2597227950": {}, // Robes of Detestation (warlock chest)
+					"3702434452": {}, // Boots of Detestation (warlock legs)
+					"2915322487": {}, // Bond of Detestation (warlock class item)
+				}
+			},
+			"2779782231": {
+				"index": 3,
+				"displayProperties": {
+					"name": "Nezarec",
+					"description": "Defeat Nezarec"
+				},
+				"dropTable": {
+					"3371017761": {}, // Conditional Finality
+					"1491665733": {}, // Briar's Contempt
+					"231031173": {}, // Mykel's Reverence
+					"2972949637": {}, // Koraxis's Distress
+					"484515708": {}, // Rufus's Fury
+					"1471212226": {}, // Acasia's Rejection
+					"135029084": {}, // Nessa's Oblation
+					"3475635982": {}, // Helmet of Agony (titan helm)
+					"3846650177": {}, // Greaves of Agony (titan legs)
+					"2138394740": {}, // Mark of Agony (titan class item)
+					"3810243376": {}, // Mask of Trepidation (hunter helm)
+					"807905267": {}, // Boots of Trepidation (hunter legs)
+					"621315878": {}, // Cloak of Trepidation (hunter class item)
+					"4123705451": {}, // Mask of Detestation (warlock helm)
+					"3702434452": {}, // Boots of Detestation (warlock legs)
+					"2915322487": {}, // Bond of Detestation (warlock class item)
+				}
+			}
+		},
+		"master": {
+			"activityHash": 2918919505,
+			"challengeDropTable": {
+				"1986287028": {}, // Mykel's Reverence (Adept)
+				"3493494807": {}, // Acasia's Dejection (Adept)
+				"342514437": {}, // Rufus's Fury (Adept)
+				"495442100": {}, // Koraxis's Distress (Adept)
+				"2890082420": {}, // Briar's Contempt (Adept)
+				"522366885": {}, // Nessa's Oblation (Adept)
+			}
+		}
+	},
+	"4103176774": { // Crota's End: Normal
+	"rotationActivityHash": 4179289725,
+		"phases": {
+			"2890972472": {
+				"index": 0,
+				"displayProperties": {
+					"name": "The Abyss",
+					"description": "Traverse the Abyss"
+				},
+				"dropTable": {
+					"2828278545": {}, // Song of Ir Yût
+					"1432682459": {}, // Fang of Ir Yût
+					"833898322": {}, // Abyss Defiant
+					"1328334240": {}, // Willbreaker's Watch (titan helm)
+					"3189374833": {}, // Willbreaker's Fists (titan arms)
+					"1261894567": {}, // Willbreaker's Resolve (titan chest)
+					"859929450": {}, // Unyielding Casque (hunter helm)
+					"441033139": {}, // Dogged Gage (hunter arms)
+					"3714937821": {}, // Relentless Harness (hunter chest)
+					"1964816829": {}, // Deathsinger's Gaze (warlock helm)
+					"427348780": {}, // Deathsinger's Grip (warlock arms)
+					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
+				}
+			},
+			"3768812794": {
+				"index": 1,
+				"displayProperties": {
+					"name": "Oversoul Throne Bridge",
+					"description": "Cross the Bridge"
+				},
+				"dropTable": {
+					"3163900678": {}, // Swordbreaker
+					"1432682459": {}, // Fang of Ir Yût
+					"1098171824": {}, // Oversoul Edict
+					"3189374833": {}, // Willbreaker's Fists (titan arms)
+					"1261894567": {}, // Willbreaker's Resolve (titan chest)
+					"3020524483": {}, // Willbreaker's Greaves (titan legs)
+					"441033139": {}, // Dogged Gage (hunter arms)
+					"3714937821": {}, // Relentless Harness (hunter chest)
+					"175883909": {}, // Tireless Strides (hunter legs)
+					"427348780": {}, // Deathsinger's Grip (warlock arms)
+					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
+					"1497538390": {}, // Deathsinger's Herald (warlock legs)
+				}
+			},
+			"1463700798": {
+				"index": 2,
+				"displayProperties": {
+					"name": "Ir Yût, the Deathsinger",
+					"description": "Defeat Ir Yût, the Deathsinger"
+				},
+				"dropTable": {
+					"120706239": {}, // Word of Crota
+					"2828278545": {}, // Song of Ir Yût
+					"1098171824": {}, // Oversoul Edict
+					"1261894567": {}, // Willbreaker's Resolve (titan chest)
+					"3020524483": {}, // Willbreaker's Greaves (titan legs)
+					"2401746614": {}, // Mark of the Pit (titan class item)
+					"3714937821": {}, // Relentless Harness (hunter chest)
+					"175883909": {}, // Tireless Strides (hunter legs)
+					"1306415888": {}, // Shroud of Flies (hunter class item)
+					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
+					"1497538390": {}, // Deathsinger's Herald (warlock legs)
+					"2130010697": {}, // Bone Circlet (warlock class item)
+				}
+			},
+			"4240994016": {
+				"index": 3,
+				"displayProperties": {
+					"name": "Crota, Son of Oryx",
+					"description": "Defeat Crota, Son of Oryx"
+				},
+				"dropTable": {
+					"120706239": {}, // Word of Crota
+					"833898322": {}, // Abyss Defiant
+					"3163900678": {}, // Swordbreaker
+					"1328334240": {}, // Willbreaker's Watch (titan helm)
+					"3020524483": {}, // Willbreaker's Greaves (titan legs)
+					"2401746614": {}, // Mark of the Pit (titan class item)
+					"859929450": {}, // Unyielding Casque (hunter helm)
+					"175883909": {}, // Tireless Strides (hunter legs)
+					"1306415888": {}, // Shroud of Flies (hunter class item)
+					"1964816829": {}, // Deathsinger's Gaze (warlock helm)
+					"1497538390": {}, // Deathsinger's Herald (warlock legs)
+					"2130010697": {}, // Bone Circlet (warlock class item)
+				}
+			}
+		},
+		"master": {
+			"activityHash": 1507509200,
+			"challengeDropTable": {
+				"407511664": {}, // Song of Ir Yût (Adept)
+				"578105049": {}, // Oversoul Edict (Adept)
+				"3926103986": {}, // Word of Crota (Adept)
+				"3782662983": {}, // Abyss Defiant (Adept)
+				"128782990": {}, // Fang of Ir Yût (Adept)
+				"1239700299": {}, // Swordbreaker (Adept)
+			}
+		}
+	},
 }
