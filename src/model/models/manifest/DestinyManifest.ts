@@ -14,6 +14,12 @@ declare module "bungie-api-ts/destiny2" {
 	interface DestinyRecordDefinition {
 		recordTypeName?: string;
 	}
+
+	interface AllDestinyManifestComponents {
+		DestinyInventoryItemLiteDefinition: {
+			[key: number]: DestinyInventoryItemDefinition;
+		};
+	}
 }
 
 type DestinyManifest = {
@@ -24,7 +30,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-14.deepsight.gg`;
+		return `${manifest.version}-15.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
@@ -178,11 +184,26 @@ const DestinyManifest = Model.create("destiny manifest", {
 			console.info(`Finished updating item watermarks after ${elapsed(performance.now() - startTime)}`);
 		});
 
+		// clear previous bundled caches
+		for (const componentName of bungieComponentNames) {
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
+
 		return bungieComponentNames;
 	},
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(componentName)])) as any as DestinyManifest,
+	process: componentNames => {
+		const Manifest = Object.fromEntries(componentNames
+			.map(componentName => [componentName, new ManifestItem(componentName)])) as DestinyManifest;
+
+		for (const componentName of componentNames) {
+			if (componentName !== "DestinyInventoryItemDefinition" && componentName !== "DestinyInventoryItemLiteDefinition") {
+				Manifest[componentName].cacheAll();
+			}
+		}
+
+		Object.assign(window, { Manifest, DestinyManifest: Manifest });
+		return Manifest;
+	},
 	reset: async componentNames => {
 		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.clear(CacheComponentKey.get(componentName));

@@ -271,6 +271,25 @@ namespace Database {
 			});
 		}
 
+		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index: string): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
+			return this.do<IDBValidKey[]>(() => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
+
+				if (typeof rangeOrKey === "string") {
+
+					if (index !== undefined)
+						store = store.index(index);
+
+					return store.getAllKeys(rangeOrKey);
+				}
+
+				return store.getAllKeys(rangeOrKey);
+			});
+		}
+
 		public async set<KEY extends keyof SCHEMA> (name: KEY, key: string, value: SCHEMA[KEY]) {
 			return this.do(() =>
 				this.transaction.objectStore(name as string)
@@ -394,6 +413,12 @@ namespace Database {
 		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
 		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
 			return this.queue(transaction => transaction.all(store, range!, index!));
+		}
+
+		public async allKeys<KEY extends keyof SCHEMA> (store: KEY): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index: string): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
+			return this.queue(transaction => transaction.allKeys(store, range!, index!));
 		}
 
 		public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {

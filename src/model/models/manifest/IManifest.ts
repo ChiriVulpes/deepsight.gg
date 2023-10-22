@@ -65,7 +65,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, IManifest.ComponentKey<COMPONENT_NAME>>, [IManifest.ComponentKey<COMPONENT_NAME>]>;
 	private readonly modelCache: Model<any>;
 	private manifestCacheState?: boolean;
-	// private loadedManifestCache?: Promise<void>;
+	private loadedManifestCache?: Promise<void>;
 
 	public constructor (private readonly componentName: COMPONENT_NAME) {
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
@@ -95,7 +95,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	}
 
 	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {
-		await this.loadCache?.();
+		await this.loadCache();
 
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey] ?? undefined;
@@ -125,22 +125,48 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return this.stagedTransaction.all(componentKey);
 	}
 
+	public allKeys (): Promise<`${bigint}`[]>;
+	public allKeys (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<`${bigint}`[]>;
+	public allKeys (index?: string, key?: string | number | null) {
+		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
+		if (index)
+			return this.stagedTransaction.allKeys(componentKey, `${key!}`, index);
+		return this.stagedTransaction.allKeys(componentKey);
+	}
+
 	public async loadCache () {
 		if (this.manifestCacheState !== undefined)
-			return;
+			return this.manifestCacheState ? undefined : this.loadedManifestCache;
 
 		this.manifestCacheState = false;
-		return /*this.loadedManifestCache =*/ (async () => {
+		return this.loadedManifestCache = (async () => {
 			console.debug(`Loading manifest cache [${this.componentName}]`);
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const manifestCache = await this.modelCache?.await() ?? {};
+			const manifestCache = await this.modelCache.await();
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			this.memoryCache = manifestCache;
+			this.memoryCache = manifestCache ?? {};
+
+			if (!manifestCache) {
+				const all = await this.all();
+				for (const value of all) {
+					if ("hash" in value) {
+						const memoryCacheKey = `/:${value.hash}`;
+						this.memoryCache[memoryCacheKey] = value;
+					}
+				}
+
+				await this.cacheInitialiser?.(this.memoryCache);
+			}
 
 			this.manifestCacheState = true;
 			console.debug("Loaded manifest cache");
 		})();
+	}
+
+	private cacheInitialiser?: (cache: any) => any;
+	public cacheAll (initialise?: (cache: any) => any) {
+		this.cacheInitialiser = initialise;
 	}
 
 	private createCache () {
