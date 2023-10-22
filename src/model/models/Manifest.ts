@@ -20,26 +20,8 @@ declare module "bungie-api-ts/destiny2" {
 	}
 }
 
-type Indices<COMPONENT_NAME extends IManifest.AllComponentNames> =
-	{
-		DestinySourceDefinition: "iconWatermark" | "id";
-		DestinyInventoryItemDefinition: "iconWatermark";
-		DestinyRecordDefinition: "icon" | "name";
-	} extends infer ALL_INDICES ?
-	ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
-	: never;
-
-type Component<COMPONENT_NAME extends IManifest.AllComponentNames> =
-	(AllDestinyManifestComponents & AllDeepsightManifestComponents & AllClarityDatabaseComponents)[COMPONENT_NAME][number];
-
-type ComponentKey<COMPONENT_NAME extends IManifest.AllComponentNames = IManifest.AllComponentNames> =
-	`manifest [${COMPONENT_NAME}]`;
-
-type IModelCacheManifestComponents =
-	{ [COMPONENT_NAME in IManifest.AllComponentNames as ComponentKey<COMPONENT_NAME>]: Component<COMPONENT_NAME> };
-
 declare module "model/ModelCacheDatabase" {
-	interface IModelCache extends IModelCacheManifestComponents { }
+	interface IModelCache extends IManifest.IModelCacheManifestComponents { }
 }
 
 type Manifest = {
@@ -230,9 +212,7 @@ const Manifest = Model.create("manifest", {
 
 export default Manifest;
 
-export type ManifestCache = { [COMPONENT_NAME in IManifest.AllComponentNames]: ManifestItemCache };
-
-const ManifestCacheModel = IManifest.ManifestCacheModel = Model.create(IManifest.MANIFEST_CACHE_MODEL_KEY, {
+const ManifestCacheModel = Model.create(IManifest.MANIFEST_CACHE_MODEL_KEY, {
 	cache: "Global",
 	generate: async () => {
 		const manifest = await Manifest.await();
@@ -242,7 +222,7 @@ const ManifestCacheModel = IManifest.ManifestCacheModel = Model.create(IManifest
 			.concat(Object.entries(manifest)
 				.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()]))
 			.concat(Object.entries(clarityManifest)
-				.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()]))) as any as ManifestCache;
+				.map(([componentName, manifestItem]) => [componentName, manifestItem.createCache()]))) as any as IManifest.ManifestCache;
 	},
 });
 
@@ -256,8 +236,6 @@ function updateManifestCache () {
 	}, 1000);
 }
 
-type ManifestItemCache<COMPONENT_NAME extends IManifest.AllComponentNames = IManifest.AllComponentNames> = Record<string, Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME> | undefined> | undefined>;
-
 let manifestCacheState: boolean | undefined;
 let setLoadedManifestCache: () => void;
 const loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache = resolve);
@@ -269,9 +247,9 @@ Manifest.loadCache = async () => {
 	const manifestCache = await ManifestCacheModel.await();
 	const manifest = await Manifest.await();
 	const clarityManifest = await ClarityManifest.await();
-	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [IManifest.AllComponentNames, ManifestItemCache][]) {
-		(manifest[componentName as IManifest.BaseComponentNames] as ManifestItem<IManifest.BaseComponentNames>)?.updateCache(manifestItemCache as ManifestItemCache<IManifest.BaseComponentNames>);
-		(clarityManifest[componentName as keyof AllClarityDatabaseComponents])?.updateCache(manifestItemCache as ManifestItemCache<keyof AllClarityDatabaseComponents>);
+	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [IManifest.AllComponentNames, IManifest.ManifestItemCache][]) {
+		(manifest[componentName as IManifest.BaseComponentNames] as ManifestItem<IManifest.BaseComponentNames>)?.updateCache(manifestItemCache as IManifest.ManifestItemCache<IManifest.BaseComponentNames>);
+		(clarityManifest[componentName as keyof AllClarityDatabaseComponents])?.updateCache(manifestItemCache as IManifest.ManifestItemCache<keyof AllClarityDatabaseComponents>);
 	}
 
 	manifestCacheState = true;
@@ -281,16 +259,16 @@ Manifest.loadCache = async () => {
 
 export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 
-	private memoryCache: ManifestItemCache<COMPONENT_NAME> = {};
+	private memoryCache: IManifest.ManifestItemCache<COMPONENT_NAME> = {};
 
-	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, ComponentKey<COMPONENT_NAME>>, [ComponentKey<COMPONENT_NAME>]>;
+	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, IManifest.ComponentKey<COMPONENT_NAME>>, [IManifest.ComponentKey<COMPONENT_NAME>]>;
 
-	public constructor (private readonly componentName: ComponentKey<COMPONENT_NAME>) {
+	public constructor (private readonly componentName: IManifest.ComponentKey<COMPONENT_NAME>) {
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([componentName]);
 	}
 
-	public get (key?: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
-	public get (index: Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): Component<COMPONENT_NAME> | Promise<Component<COMPONENT_NAME>> | undefined;
+	public get (key?: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
+	public get (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
 	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true): any {
 		if (typeof key === "boolean")
 			cached = key, key = undefined;
@@ -331,8 +309,8 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return promise;
 	}
 
-	public all (): Promise<Component<COMPONENT_NAME>[]>;
-	public all (index: Indices<COMPONENT_NAME>, key: string | number | null): Promise<Component<COMPONENT_NAME>[]>;
+	public all (): Promise<IManifest.Component<COMPONENT_NAME>[]>;
+	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index?: string, key?: string | number | null) {
 		if (index)
 			return this.stagedTransaction.all(this.componentName, `${key!}`, index);
@@ -343,7 +321,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return JSON.parse(JSON.stringify(this.memoryCache));
 	}
 
-	public updateCache (value: ManifestItemCache<COMPONENT_NAME>) {
+	public updateCache (value: IManifest.ManifestItemCache<COMPONENT_NAME>) {
 		this.memoryCache = value;
 	}
 }
