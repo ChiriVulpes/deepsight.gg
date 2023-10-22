@@ -1,9 +1,7 @@
 import type { AllDestinyManifestComponents, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import type { IModelCache } from "model/ModelCacheDatabase";
 import { ClarityManifest } from "model/models/manifest/ClarityManifest";
-import { IManifest } from "model/models/manifest/IManifest";
-import type Database from "utility/Database";
+import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
@@ -212,7 +210,7 @@ const Manifest = Model.create("manifest", {
 
 export default Manifest;
 
-const ManifestCacheModel = Model.create(IManifest.MANIFEST_CACHE_MODEL_KEY, {
+const ManifestCacheModel = IManifest.ManifestCacheModel = Model.create(IManifest.MANIFEST_CACHE_MODEL_KEY, {
 	cache: "Global",
 	generate: async () => {
 		const manifest = await Manifest.await();
@@ -226,25 +224,13 @@ const ManifestCacheModel = Model.create(IManifest.MANIFEST_CACHE_MODEL_KEY, {
 	},
 });
 
-let manifestCacheUpdateTimeout: number;
-function updateManifestCache () {
-	clearTimeout(manifestCacheUpdateTimeout);
-	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	manifestCacheUpdateTimeout = window.setTimeout(async () => {
-		await ManifestCacheModel.reset()
-		await ManifestCacheModel.await();
-	}, 1000);
-}
-
 let manifestCacheState: boolean | undefined;
-let setLoadedManifestCache: () => void;
-const loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache = resolve);
-Manifest.loadCache = async () => {
+Manifest.loadCache = IManifest.loadCache = async function loadCache () {
 	if (manifestCacheState !== undefined) return;
 
 	manifestCacheState = false;
 	console.debug("Loading manifest cache");
-	const manifestCache = await ManifestCacheModel.await();
+	const manifestCache = await ManifestCacheModel?.await();
 	const manifest = await Manifest.await();
 	const clarityManifest = await ClarityManifest.await();
 	for (const [componentName, manifestItemCache] of Object.entries(manifestCache) as [IManifest.AllComponentNames, IManifest.ManifestItemCache][]) {
@@ -253,75 +239,6 @@ Manifest.loadCache = async () => {
 	}
 
 	manifestCacheState = true;
-	setLoadedManifestCache();
+	IManifest.setLoadedManifestCache();
 	console.debug("Loaded manifest cache");
 };
-
-export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
-
-	private memoryCache: IManifest.ManifestItemCache<COMPONENT_NAME> = {};
-
-	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, IManifest.ComponentKey<COMPONENT_NAME>>, [IManifest.ComponentKey<COMPONENT_NAME>]>;
-
-	public constructor (private readonly componentName: IManifest.ComponentKey<COMPONENT_NAME>) {
-		this.stagedTransaction = Model.cacheDB.stagedTransaction([componentName]);
-	}
-
-	public get (key?: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
-	public get (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
-	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true): any {
-		if (typeof key === "boolean")
-			cached = key, key = undefined;
-
-		if (key === undefined)
-			key = index, index = undefined;
-
-		if (key === undefined || key === null)
-			return undefined;
-
-		const memoryCacheKey = `${index ?? "/"}:${key}`;
-		if (this.memoryCache[memoryCacheKey])
-			return this.memoryCache[memoryCacheKey] ?? undefined;
-
-		return this.resolve(memoryCacheKey, key, index, cached);
-	}
-
-	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {
-		void Manifest.loadCache();
-		await loadedManifestCache;
-
-		if (memoryCacheKey in this.memoryCache)
-			return this.memoryCache[memoryCacheKey] ?? undefined;
-
-		const promise = this.stagedTransaction.get(this.componentName, `${key}`, index as string | undefined)
-			.then(value => {
-				if (cached) {
-					this.memoryCache[memoryCacheKey] = value ?? null as never;
-					updateManifestCache();
-				}
-
-				return value ?? undefined;
-			});
-
-		if (cached)
-			this.memoryCache[memoryCacheKey] = promise;
-
-		return promise;
-	}
-
-	public all (): Promise<IManifest.Component<COMPONENT_NAME>[]>;
-	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
-	public all (index?: string, key?: string | number | null) {
-		if (index)
-			return this.stagedTransaction.all(this.componentName, `${key!}`, index);
-		return this.stagedTransaction.all(this.componentName);
-	}
-
-	public createCache () {
-		return JSON.parse(JSON.stringify(this.memoryCache));
-	}
-
-	public updateCache (value: IManifest.ManifestItemCache<COMPONENT_NAME>) {
-		this.memoryCache = value;
-	}
-}

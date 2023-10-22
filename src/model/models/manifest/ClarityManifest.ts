@@ -1,6 +1,5 @@
 import Model from "model/Model";
-import { ManifestItem } from "model/models/Manifest";
-import { IManifest } from "model/models/manifest/IManifest";
+import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import GetClarityDatabase from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import GetClarityDatabaseVersions from "utility/endpoint/clarity/endpoint/GetClarityDatabaseVersions";

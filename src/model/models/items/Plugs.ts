@@ -3,7 +3,8 @@ import { ItemCategoryHashes, PlugCategoryHashes, TraitHashes } from "bungie-api-
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
 import { TierHashes } from "model/models/items/Tier";
-import Manifest, { ClarityManifest } from "model/models/Manifest";
+import Manifest from "model/models/Manifest";
+import { ClarityManifest } from "model/models/manifest/ClarityManifest";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 import Maths from "utility/maths/Maths";
 
