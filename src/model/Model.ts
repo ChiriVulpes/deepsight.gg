@@ -258,7 +258,7 @@ namespace Model {
 						},
 					};
 
-					const generated = this.model.generate?.(api);
+					const generated = Promise.resolve(this.model.generate?.(api));
 
 					void generated.catch(error => {
 						console.error(`Model '${this.name}' failed to load:`, error);

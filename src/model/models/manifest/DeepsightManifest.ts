@@ -11,8 +11,6 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 	cache: "Global",
 	version: "3.deepsight.gg",
 	async generate (api) {
-		await IManifest.ManifestCacheModel?.reset();
-
 		const deepsightComponents = await GetDeepsightManifest.query();
 		const deepsightComponentNames = (Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[])
 			.filter(component => component !== "DeepsightSourceDefinition"); // handled in DestinyManifest.ts
@@ -55,13 +53,12 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	process: componentNames => (window as any).DeepsightManifest = Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(IManifest.CacheComponentKey.get(componentName))])) as any as DeepsightManifest,
+		.map(componentName => [componentName, new ManifestItem(componentName)])) as any as DeepsightManifest,
 	reset: async componentNames => {
-		if (componentNames)
-			for (const componentName of componentNames)
-				await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
-
-		await Model.cacheDB.delete("models", IManifest.MANIFEST_CACHE_MODEL_KEY);
+		for (const componentName of componentNames ?? []) {
+			await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
 	},
 });
 

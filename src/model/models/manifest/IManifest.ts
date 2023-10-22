@@ -5,19 +5,6 @@ import type Database from "utility/Database";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 
-let manifestCacheUpdateTimeout: number;
-function updateManifestCache () {
-	clearTimeout(manifestCacheUpdateTimeout);
-	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	manifestCacheUpdateTimeout = window.setTimeout(async () => {
-		await IManifest.ManifestCacheModel?.reset()
-		await IManifest.ManifestCacheModel?.await();
-	}, 1000);
-}
-
-let setLoadedManifestCache1!: () => void;
-const loadedManifestCache = new Promise<void>(resolve => setLoadedManifestCache1 = resolve);
-
 export namespace IManifest {
 	export function elapsed (elapsed: number) {
 		if (elapsed < 1)
@@ -61,14 +48,10 @@ export namespace IManifest {
 		export function get<COMPONENT_NAME extends AllComponentNames> (componentName: COMPONENT_NAME) {
 			return `manifest [${componentName}]` as const;
 		}
+		export function getBundle<COMPONENT_NAME extends AllComponentNames> (componentName: COMPONENT_NAME) {
+			return `manifest bundle [${componentName}]` as const;
+		}
 	}
-
-	export const MANIFEST_CACHE_MODEL_KEY = "manifest cache";
-
-	export let ManifestCacheModel: Model<ManifestCache> | undefined;
-
-	export let loadCache: (() => Promise<void>) | undefined;
-	export const setLoadedManifestCache = setLoadedManifestCache1;
 }
 
 declare module "model/ModelCacheDatabase" {
@@ -80,9 +63,16 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private memoryCache: IManifest.ManifestItemCache<COMPONENT_NAME> = {};
 
 	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, IManifest.ComponentKey<COMPONENT_NAME>>, [IManifest.ComponentKey<COMPONENT_NAME>]>;
+	private readonly modelCache: Model<any>;
+	private manifestCacheState?: boolean;
+	// private loadedManifestCache?: Promise<void>;
 
-	public constructor (private readonly componentName: IManifest.ComponentKey<COMPONENT_NAME>) {
-		this.stagedTransaction = Model.cacheDB.stagedTransaction([componentName]);
+	public constructor (private readonly componentName: COMPONENT_NAME) {
+		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
+		this.modelCache = Model.create(IManifest.CacheComponentKey.getBundle(componentName), {
+			cache: "Global",
+			generate: () => this.createCache(),
+		});
 	}
 
 	public get (key?: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
@@ -105,17 +95,16 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	}
 
 	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {
-		void IManifest.loadCache?.();
-		await loadedManifestCache;
+		await this.loadCache?.();
 
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey] ?? undefined;
 
-		const promise = this.stagedTransaction.get(this.componentName, `${key}`, index as string | undefined)
+		const promise = this.stagedTransaction.get(IManifest.CacheComponentKey.get(this.componentName), `${key}`, index as string | undefined)
 			.then(value => {
 				if (cached) {
 					this.memoryCache[memoryCacheKey] = value ?? null as never;
-					updateManifestCache();
+					this.updateManifestCache();
 				}
 
 				return value ?? undefined;
@@ -130,16 +119,41 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	public all (): Promise<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index?: string, key?: string | number | null) {
+		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
-			return this.stagedTransaction.all(this.componentName, `${key!}`, index);
-		return this.stagedTransaction.all(this.componentName);
+			return this.stagedTransaction.all(componentKey, `${key!}`, index);
+		return this.stagedTransaction.all(componentKey);
 	}
 
-	public createCache () {
+	public async loadCache () {
+		if (this.manifestCacheState !== undefined)
+			return;
+
+		this.manifestCacheState = false;
+		return /*this.loadedManifestCache =*/ (async () => {
+			console.debug(`Loading manifest cache [${this.componentName}]`);
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const manifestCache = await this.modelCache?.await() ?? {};
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			this.memoryCache = manifestCache;
+
+			this.manifestCacheState = true;
+			console.debug("Loaded manifest cache");
+		})();
+	}
+
+	private createCache () {
 		return JSON.parse(JSON.stringify(this.memoryCache));
 	}
 
-	public updateCache (value: IManifest.ManifestItemCache<COMPONENT_NAME>) {
-		this.memoryCache = value;
+	private manifestCacheUpdateTimeout?: number;
+	private updateManifestCache () {
+		clearTimeout(this.manifestCacheUpdateTimeout);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		this.manifestCacheUpdateTimeout = window.setTimeout(async () => {
+			await this.modelCache.reset();
+			await this.modelCache.await();
+		}, 1000);
 	}
 }

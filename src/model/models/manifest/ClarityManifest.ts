@@ -19,8 +19,6 @@ const ClarityManifest = Model.create("clarity database", {
 			.join(",")}-0.deepsight.gg`;
 	},
 	async generate (api) {
-		await IManifest.ManifestCacheModel?.reset();
-
 		const clarityComponents = await GetClarityDatabase.query();
 		const clarityComponentNames = Object.keys(clarityComponents) as (keyof AllClarityDatabaseComponents)[];
 
@@ -62,13 +60,12 @@ const ClarityManifest = Model.create("clarity database", {
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	process: componentNames => (window as any).ClarityManifest = Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(IManifest.CacheComponentKey.get(componentName))])) as any as ClarityManifest,
+		.map(componentName => [componentName, new ManifestItem(componentName)])) as any as ClarityManifest,
 	reset: async componentNames => {
-		if (componentNames)
-			for (const componentName of componentNames)
-				await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
-
-		await Model.cacheDB.delete("models", IManifest.MANIFEST_CACHE_MODEL_KEY);
+		for (const componentName of componentNames ?? []) {
+			await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
 	},
 });
 

@@ -27,8 +27,6 @@ const DestinyManifest = Model.create("destiny manifest", {
 		return `${manifest.version}-14.deepsight.gg`;
 	},
 	async generate (api) {
-		await IManifest.ManifestCacheModel?.reset();
-
 		const manifest = await GetManifest.query();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as (keyof AllDestinyManifestComponents)[];
 
@@ -184,13 +182,12 @@ const DestinyManifest = Model.create("destiny manifest", {
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames
-		.map(componentName => [componentName, new ManifestItem(CacheComponentKey.get(componentName))])) as any as DestinyManifest,
+		.map(componentName => [componentName, new ManifestItem(componentName)])) as any as DestinyManifest,
 	reset: async componentNames => {
-		if (componentNames)
-			for (const componentName of componentNames)
-				await Model.cacheDB.clear(CacheComponentKey.get(componentName));
-
-		await Model.cacheDB.delete("models", IManifest.MANIFEST_CACHE_MODEL_KEY);
+		for (const componentName of componentNames ?? []) {
+			await Model.cacheDB.clear(CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
 	},
 });
 
