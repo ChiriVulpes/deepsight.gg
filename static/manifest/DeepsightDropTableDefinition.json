@@ -90,7 +90,7 @@
             }
         ],
         "master": {
-            "hash": 2918919505,
+            "activityHash": 2918919505,
             "challengeDropTable": {
                 "1986287028": {}, // Mykel's Reverence (Adept)
                 "3493494807": {}, // Acasia's Dejection (Adept)
@@ -186,7 +186,7 @@
             }
         ],
         "master": {
-            "hash": 1507509200,
+            "activityHash": 1507509200,
             "challengeDropTable": {
                 "407511664": {}, // Song of Ir Yût (Adept)
                 "578105049": {}, // Oversoul Edict (Adept)

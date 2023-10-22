@@ -1,0 +1,26 @@
+import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
+
+export interface DeepsightDropTableDefinition {
+	activityHash: number;
+	rotationActivityHash?: number;
+	encounters: DeepsightDropTableEncounterDefinition[];
+	master?: {
+		activityHash: number;
+		challengeDropTable: Record<number, object>;
+	}
+}
+
+export interface DeepsightDropTableEncounterDefinition {
+	displayProperties: DestinyDisplayPropertiesDefinition;
+	dropTable: Record<number, object>;
+}
+
+export default new DeepsightEndpoint("DeepsightDropTableDefinition.json", {
+	process (received: Record<number, DeepsightDropTableDefinition>) {
+		const result: Record<number, DeepsightDropTableDefinition> = {};
+		for (const [hash, definition] of Object.entries(received))
+			result[+hash] = { ...definition, activityHash: +hash };
+		return result;
+	},
+});
