@@ -32,20 +32,20 @@ export namespace IManifest {
 		return `${+(elapsed / 60_000).toFixed(2)} m`;
 	}
 
-	export type BaseComponentNames = keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents;
-	export type AllComponentNames = BaseComponentNames | keyof AllClarityDatabaseComponents;
+	export interface CombinedManifest extends AllDestinyManifestComponents, AllDeepsightManifestComponents, AllClarityDatabaseComponents { }
+
+	export type AllComponentNames = keyof CombinedManifest;
 
 	export type Indices<COMPONENT_NAME extends AllComponentNames> =
 		{
-			DestinySourceDefinition: "iconWatermark" | "id";
+			DeepsightSourceDefinition: "iconWatermark" | "id";
 			DestinyInventoryItemDefinition: "iconWatermark";
 			DestinyRecordDefinition: "icon" | "name";
 		} extends infer ALL_INDICES ?
 		ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
 		: never;
 
-	export type Component<COMPONENT_NAME extends AllComponentNames> =
-		(AllDestinyManifestComponents & AllDeepsightManifestComponents & AllClarityDatabaseComponents)[COMPONENT_NAME][number];
+	export type Component<COMPONENT_NAME extends AllComponentNames> = CombinedManifest[COMPONENT_NAME][number];
 
 	export type ComponentKey<COMPONENT_NAME extends AllComponentNames = AllComponentNames> =
 		`manifest [${COMPONENT_NAME}]`;

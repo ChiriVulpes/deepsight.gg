@@ -4,8 +4,8 @@ import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import Env from "utility/Env";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
-import GetCustomManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
-import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
+import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
+import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
@@ -17,32 +17,30 @@ declare module "bungie-api-ts/destiny2" {
 }
 
 type DestinyManifest = {
-	[COMPONENT_NAME in IManifest.BaseComponentNames]: ManifestItem<COMPONENT_NAME>;
+	[COMPONENT_NAME in keyof AllDestinyManifestComponents]: ManifestItem<COMPONENT_NAME>;
 };
 
-
-const DestinyManifest = Model.create("manifest", {
+const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-13.deepsight.gg`;
+		return `${manifest.version}-14.deepsight.gg`;
 	},
 	async generate (api) {
 		await IManifest.ManifestCacheModel?.reset();
 
 		const manifest = await GetManifest.query();
-		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as IManifest.BaseComponentNames[];
+		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as (keyof AllDestinyManifestComponents)[];
 
-		const deepsightComponents = await GetCustomManifest.query();
-		const deepsightComponentNames = Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[];
+		const { DeepsightSourceDefinition } = await GetDeepsightManifest.query();
 
-		const sources = Object.values(deepsightComponents.DestinySourceDefinition);
+		const sources = Object.values(DeepsightSourceDefinition);
 		const sourcesRequiringWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermark && typeof source.iconWatermark !== "string")
 			.map(source => [(source.iconWatermark as { item: number }).item, source]));
 		const sourcesRequiringShelvedWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermarkShelved && typeof source.iconWatermarkShelved !== "string")
 			.map(source => [(source.iconWatermarkShelved as { item: number }).item, source]));
 
-		const allComponentNames = [...bungieComponentNames, ...deepsightComponentNames];
+		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightSourceDefinition"];
 
 		const totalLoad = allComponentNames.length * 2 + 1;
 
@@ -57,7 +55,7 @@ const DestinyManifest = Model.create("manifest", {
 				const store = database.createObjectStore(cacheKey);
 
 				switch (cacheKey) {
-					case "manifest [DestinySourceDefinition]":
+					case "manifest [DeepsightSourceDefinition]":
 						if (!store.indexNames.contains("iconWatermark"))
 							store.createIndex("iconWatermark", "iconWatermark");
 						if (!store.indexNames.contains("id"))
@@ -137,29 +135,26 @@ const DestinyManifest = Model.create("manifest", {
 			console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 		}
 
-		const replaceWatermarksByItemHash: Record<number, DestinySourceDefinition> =
+		const replaceWatermarksByItemHash: Record<number, DeepsightSourceDefinition> =
 			Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
 				.map(itemHash => [itemHash, source])));
 
-		await Model.cacheDB.transaction(deepsightComponentNames.map(CacheComponentKey.get), async transaction => {
-			for (let i = 0; i < deepsightComponentNames.length; i++) {
-				const componentName = deepsightComponentNames[i];
-				const cacheKey = CacheComponentKey.get(componentName);
+		const deepsightSourceComponentName: keyof AllDeepsightManifestComponents = "DeepsightSourceDefinition";
+		const deepsightSourceCacheKey = CacheComponentKey.get(deepsightSourceComponentName);
+		await Model.cacheDB.transaction([deepsightSourceCacheKey], async transaction => {
+			const startTime = performance.now();
+			console.info(`Caching objects from ${deepsightSourceCacheKey}`);
+			api.emitProgress((1 + bungieComponentNames.length * 2) / totalLoad, "Storing manifest");
 
-				const startTime = performance.now();
-				console.info(`Caching objects from ${cacheKey}`);
-				api.emitProgress((1 + bungieComponentNames.length * 2 + i) / totalLoad, "Storing manifest");
+			await transaction.clear(deepsightSourceCacheKey);
 
-				await transaction.clear(cacheKey);
-
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			for (const [itemId, itemValue] of Object.entries(DeepsightSourceDefinition)) {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				for (const [itemId, itemValue] of Object.entries(deepsightComponents[componentName])) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					await transaction.set(cacheKey, itemId, itemValue);
-				}
-
-				console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
+				await transaction.set(deepsightSourceCacheKey, itemId, itemValue);
 			}
+
+			console.info(`Finished caching objects from ${deepsightSourceCacheKey} after ${elapsed(performance.now() - startTime)}`);
 		});
 
 		await Model.cacheDB.transaction(["manifest [DestinyInventoryItemDefinition]"], async transaction => {
@@ -185,7 +180,7 @@ const DestinyManifest = Model.create("manifest", {
 			console.info(`Finished updating item watermarks after ${elapsed(performance.now() - startTime)}`);
 		});
 
-		return allComponentNames;
+		return bungieComponentNames;
 	},
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	process: componentNames => (window as any).Manifest = Object.fromEntries(componentNames

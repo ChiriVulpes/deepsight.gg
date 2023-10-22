@@ -1,9 +1,9 @@
 import { BucketHashes, ItemCategoryHashes, StatHashes } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
 import { PlugType } from "model/models/items/Plugs";
-import Manifest from "model/models/manifest/DestinyManifest";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";

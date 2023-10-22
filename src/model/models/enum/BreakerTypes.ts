@@ -1,6 +1,6 @@
 import { DestinyBreakerType, type DestinyBreakerTypeDefinition } from "bungie-api-ts/destiny2";
 import EnumModel from "model/models/enum/EnumModel";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 
 export interface BreakerTypesDefinition {
 	array: DestinyBreakerTypeDefinition[];

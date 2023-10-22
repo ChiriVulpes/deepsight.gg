@@ -3,7 +3,7 @@ import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";

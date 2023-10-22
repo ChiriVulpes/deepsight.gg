@@ -1,14 +1,14 @@
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
-import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
+import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
 
 export default IFilter.async(async () => {
-	const { DestinySourceDefinition } = await Manifest.await();
-	const sources = (await DestinySourceDefinition.all())
+	const { DeepsightSourceDefinition } = await Manifest.await();
+	const sources = (await DeepsightSourceDefinition.all())
 		.sort((a, b) => b.hash - a.hash);
 
-	function sourceMatches (source: DestinySourceDefinition, value: string) {
+	function sourceMatches (source: DeepsightSourceDefinition, value: string) {
 		source.displayProperties.nameLowerCase ??= source.displayProperties.name.toLowerCase();
 
 		return source.displayProperties.nameLowerCase.startsWith(value)

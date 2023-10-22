@@ -1,6 +1,6 @@
 import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Objects from "utility/Objects";
 import Time from "utility/Time";

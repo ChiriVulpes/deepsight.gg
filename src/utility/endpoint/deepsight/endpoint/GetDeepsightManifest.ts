@@ -1,12 +1,12 @@
-import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
-import GetDestinySourceDefinition from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
-import type { DestinyWallpaperDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinyWallpaperDefinition";
-import GetDestinyWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDestinyWallpaperDefinition";
+import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
+import GetDeepsightSourceDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
+import type { DeepsightWallpaperDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
+import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
 import Endpoint from "utility/endpoint/Endpoint";
 
 export interface AllDeepsightManifestComponents {
-	DestinySourceDefinition: Record<number, DestinySourceDefinition>;
-	DestinyWallpaperDefinition: Record<number, DestinyWallpaperDefinition>;
+	DeepsightSourceDefinition: Record<number, DeepsightSourceDefinition>;
+	DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -16,8 +16,8 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 
 	public override async query (): Promise<AllDeepsightManifestComponents & { _headers: Headers }> {
 		const result = {
-			DestinySourceDefinition: await GetDestinySourceDefinition.query(),
-			DestinyWallpaperDefinition: await GetDestinyWallpaperDefinition.query(),
+			DeepsightSourceDefinition: await GetDeepsightSourceDefinition.query(),
+			DeepsightWallpaperDefinition: await GetDeepsightWallpaperDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

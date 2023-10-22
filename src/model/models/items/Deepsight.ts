@@ -1,9 +1,9 @@
 import type { DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
+import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
 import { PlugType } from "model/models/items/Plugs";
-import type Manifest from "model/models/manifest/DestinyManifest";
 
 export interface IWeaponShaped {
 	level?: Objectives.IObjective;

@@ -1,7 +1,7 @@
 import type { DestinyItemComponentSetOfint64, DestinyObjectiveDefinition, DestinyObjectiveProgress } from "bungie-api-ts/destiny2";
+import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
-import type Manifest from "model/models/manifest/DestinyManifest";
 
 namespace Objectives {
 

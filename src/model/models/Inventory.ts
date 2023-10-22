@@ -8,7 +8,7 @@ import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import { IManifest } from "model/models/manifest/IManifest";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";

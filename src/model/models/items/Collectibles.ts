@@ -1,6 +1,6 @@
 import type { DestinyCollectiblesComponent, DestinyProfileCollectiblesComponent, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
-import type Manifest from "model/models/manifest/DestinyManifest";
 
 namespace Collectibles {
 

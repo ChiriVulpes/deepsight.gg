@@ -8,7 +8,7 @@ type ClarityManifest = {
 	[COMPONENT_NAME in keyof AllClarityDatabaseComponents]: ManifestItem<COMPONENT_NAME>;
 };
 
-const ClarityManifest = Model.create("clarityDatabase", {
+const ClarityManifest = Model.create("clarity database", {
 	cache: "Global",
 	version: async () => {
 		const versions = await GetClarityDatabaseVersions.query();

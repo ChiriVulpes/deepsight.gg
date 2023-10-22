@@ -1,7 +1,7 @@
 import type { DestinyDisplayPropertiesDefinition, DestinyEventCardDefinition } from "bungie-api-ts/destiny2";
 import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 
-export interface DestinySourceDefinition {
+export interface DeepsightSourceDefinition {
 	id: string;
 	displayProperties: DestinyDisplayPropertiesDefinition;
 	iconWatermark: string | { item: number };
@@ -16,7 +16,7 @@ export interface DestinySourceDefinition {
 	hash: number;
 }
 
-export default new DeepsightEndpoint<Record<number, DestinySourceDefinition>>("DestinySourceDefinition.json", {
+export default new DeepsightEndpoint<Record<number, DeepsightSourceDefinition>>("DeepsightSourceDefinition.json", {
 	process (received) {
 		for (const [hash, source] of Object.entries(received))
 			source.hash = +hash;

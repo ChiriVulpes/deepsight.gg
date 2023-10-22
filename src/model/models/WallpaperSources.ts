@@ -1,16 +1,16 @@
 import Model from "model/Model";
-import Manifest from "model/models/manifest/DestinyManifest";
-import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
+import Manifest from "model/models/Manifest";
+import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
 
 export interface IWallpaperSource {
 	wallpapers: string[];
-	source: DestinySourceDefinition;
+	source: DeepsightSourceDefinition;
 }
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()
 	.then(async manifest => {
-		const wallpaperSourcesRaw = await manifest.DestinyWallpaperDefinition.all();
-		const sources = await manifest.DestinySourceDefinition.all();
+		const wallpaperSourcesRaw = await manifest.DeepsightWallpaperDefinition.all();
+		const sources = await manifest.DeepsightSourceDefinition.all();
 
 		return wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
 			wallpapers: wallpaperSource.data,

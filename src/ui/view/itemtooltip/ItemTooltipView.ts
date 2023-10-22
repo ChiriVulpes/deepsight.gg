@@ -3,7 +3,7 @@ import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";

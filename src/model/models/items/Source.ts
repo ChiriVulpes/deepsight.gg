@@ -1,6 +1,6 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
+import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
-import type Manifest from "model/models/manifest/DestinyManifest";
 
 namespace Source {
 
@@ -8,7 +8,7 @@ namespace Source {
 		item.source = await resolve(manifest, item);
 	}
 
-	async function resolve ({ DestinySourceDefinition }: Manifest, item: IItemInit) {
+	async function resolve ({ DeepsightSourceDefinition }: Manifest, item: IItemInit) {
 		if (!item.definition.iconWatermark)
 			return undefined;
 
@@ -16,7 +16,7 @@ namespace Source {
 		if (item.definition.itemType === DestinyItemType.Engram || item.definition.traitHashes?.includes(1465704995))
 			return undefined;
 
-		const source = await DestinySourceDefinition.get("iconWatermark", item.definition.iconWatermark);
+		const source = await DeepsightSourceDefinition.get("iconWatermark", item.definition.iconWatermark);
 		if (source)
 			return source;
 

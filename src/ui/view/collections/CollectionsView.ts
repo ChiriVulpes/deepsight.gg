@@ -2,9 +2,9 @@ import { BucketHashes, DestinyClass, ItemCategoryHashes, TierType } from "bungie
 import Model from "model/Model";
 import Collections from "model/models/Collections";
 import Inventory from "model/models/Inventory";
+import Manifest from "model/models/Manifest";
 import Sources from "model/models/Sources";
 import type Item from "model/models/items/Item";
-import Manifest from "model/models/manifest/DestinyManifest";
 import Component from "ui/Component";
 import Details from "ui/Details";
 import Loadable from "ui/Loadable";

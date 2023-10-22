@@ -1,10 +1,10 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import { ItemCategoryHashes, PlugCategoryHashes, TraitHashes } from "bungie-api-ts/destiny2";
+import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
 import { TierHashes } from "model/models/items/Tier";
 import { ClarityManifest } from "model/models/manifest/ClarityManifest";
-import Manifest from "model/models/manifest/DestinyManifest";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 import Maths from "utility/maths/Maths";
 

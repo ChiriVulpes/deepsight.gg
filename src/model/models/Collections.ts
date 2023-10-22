@@ -2,16 +2,16 @@ import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "
 import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Item from "model/models/items/Item";
-import Manifest from "model/models/manifest/DestinyManifest";
+import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
-import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
+import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
 
 namespace Collections {
 
 	const sources: Record<number, Model<Item[]>> = {};
-	export function source (source: DestinySourceDefinition) {
+	export function source (source: DeepsightSourceDefinition) {
 		return sources[source.hash] ??= Model.createDynamic("Daily", async () => {
 			const manifest = await Manifest.await();
 			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
