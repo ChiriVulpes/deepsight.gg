@@ -9,7 +9,7 @@ type DeepsightManifest = {
 
 const DeepsightManifest = Model.create("deepsight manifest", {
 	cache: "Global",
-	version: "2.deepsight.gg",
+	version: "3.deepsight.gg",
 	async generate (api) {
 		await IManifest.ManifestCacheModel?.reset();
 

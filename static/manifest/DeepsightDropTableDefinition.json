@@ -1,8 +1,9 @@
 {
 	"1191701339": { // Root of Nightmares: Normal
 		"rotationActivityHash": 2381413764,
-		"phases": {
-			"3172054256": {
+		"phases": [
+			{
+				"hash": 3172054256,
 				"index": 0,
 				"displayProperties": {
 					"name": "Cataclysm",
@@ -23,7 +24,8 @@
 					"2597227950": {}, // Robes of Detestation (warlock chest)
 				}
 			},
-			"2224793617": {
+			{
+				"hash": 2224793617,
 				"index": 1,
 				"displayProperties": {
 					"name": "Scission",
@@ -45,7 +47,8 @@
 					"3702434452": {}, // Boots of Detestation (warlock legs)
 				}
 			},
-			"2184227225": {
+			{
+				"hash": 2184227225,
 				"index": 2,
 				"displayProperties": {
 					"name": "Macrocosm",
@@ -67,7 +70,8 @@
 					"2915322487": {}, // Bond of Detestation (warlock class item)
 				}
 			},
-			"2779782231": {
+			{
+				"hash": 2779782231,
 				"index": 3,
 				"displayProperties": {
 					"name": "Nezarec",
@@ -92,7 +96,7 @@
 					"2915322487": {}, // Bond of Detestation (warlock class item)
 				}
 			}
-		},
+		],
 		"master": {
 			"activityHash": 2918919505,
 			"challengeDropTable": {
@@ -107,8 +111,9 @@
 	},
 	"4103176774": { // Crota's End: Normal
 	"rotationActivityHash": 4179289725,
-		"phases": {
-			"2890972472": {
+		"phases": [
+			{
+				"hash": 2890972472,
 				"index": 0,
 				"displayProperties": {
 					"name": "The Abyss",
@@ -129,7 +134,8 @@
 					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
 				}
 			},
-			"3768812794": {
+			{
+				"hash": 3768812794,
 				"index": 1,
 				"displayProperties": {
 					"name": "Oversoul Throne Bridge",
@@ -150,7 +156,8 @@
 					"1497538390": {}, // Deathsinger's Herald (warlock legs)
 				}
 			},
-			"1463700798": {
+			{
+				"hash": 1463700798,
 				"index": 2,
 				"displayProperties": {
 					"name": "Ir Yût, the Deathsinger",
@@ -171,7 +178,8 @@
 					"2130010697": {}, // Bone Circlet (warlock class item)
 				}
 			},
-			"4240994016": {
+			{
+				"hash": 4240994016,
 				"index": 3,
 				"displayProperties": {
 					"name": "Crota, Son of Oryx",
@@ -192,7 +200,7 @@
 					"2130010697": {}, // Bone Circlet (warlock class item)
 				}
 			}
-		},
+		],
 		"master": {
 			"activityHash": 1507509200,
 			"challengeDropTable": {
