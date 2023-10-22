@@ -5,7 +5,7 @@ import DebugInfo from "model/models/DebugInfo";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Async from "utility/Async";
 import Time from "utility/Time";

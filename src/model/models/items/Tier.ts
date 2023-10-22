@@ -1,6 +1,6 @@
 import type { TierType } from "bungie-api-ts/destiny2";
-import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
+import type Manifest from "model/models/manifest/DestinyManifest";
 
 export enum TierHashes {
 	Basic = 3772930460,

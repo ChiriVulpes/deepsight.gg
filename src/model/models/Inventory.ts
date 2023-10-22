@@ -8,7 +8,8 @@ import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
 import { CharacterId } from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
+import { IManifest } from "model/models/manifest/IManifest";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
@@ -100,7 +101,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		progress?.subscribeProgress(Manifest, 1 / 4);
 		await Manifest.await();
 		progress?.emitProgress(1 / 4, "Loading manifest cache");
-		await Manifest.loadCache();
+		await IManifest.loadCache?.();
 
 		progress?.emitProgress(2 / 4, "Loading characters");
 		progress?.subscribeProgress(ProfileCharacters, 1 / 4, 2 / 4);

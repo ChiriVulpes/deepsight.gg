@@ -71,6 +71,9 @@ export namespace IManifest {
 	export const setLoadedManifestCache = setLoadedManifestCache1;
 }
 
+declare module "model/ModelCacheDatabase" {
+	interface IModelCache extends IManifest.IModelCacheManifestComponents { }
+}
 
 export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 

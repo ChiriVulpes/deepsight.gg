@@ -1,5 +1,5 @@
 import type Item from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import Display from "ui/bungie/DisplayProperties";
 import ElementTypes from "ui/inventory/ElementTypes";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";

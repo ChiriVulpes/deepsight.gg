@@ -1,7 +1,7 @@
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Details from "ui/Details";

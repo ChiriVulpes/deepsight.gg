@@ -1,5 +1,5 @@
 import Model from "model/Model";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import type { DestinySourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDestinySourceDefinition";
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()

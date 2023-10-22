@@ -1,7 +1,7 @@
 import type { DestinyStatDefinition } from "bungie-api-ts/destiny2";
 import { StatHashes } from "bungie-api-ts/destiny2";
 import EnumModel from "model/models/enum/EnumModel";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 
 export interface StatTypesDefinition {
 	array: DestinyStatDefinition[];

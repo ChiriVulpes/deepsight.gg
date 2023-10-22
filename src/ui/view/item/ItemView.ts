@@ -3,7 +3,7 @@ import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type { BucketId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";

@@ -1,4 +1,5 @@
 import Model from "model/Model";
+import { ManifestManager } from "model/models/Manifest";
 import AppNav from "ui/AppNav";
 import BackgroundManager from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -17,6 +18,8 @@ export default class DeepsightGG {
 	}
 
 	private async main () {
+
+		ManifestManager.initialise();
 
 		UiEventBus.subscribe("keydown", event => {
 			if (event.use("F6"))

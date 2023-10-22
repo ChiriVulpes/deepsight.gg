@@ -1,7 +1,7 @@
 import type { DestinyBaseItemComponentSetOfuint32, DestinyCharacterProgressionComponent, DestinyItemComponentSetOfint64, DestinyPerkReference, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import { type DestinyItemPerkEntryDefinition, type DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import type { CharacterId, IItemInit } from "model/models/items/Item";
-import type Manifest from "model/models/Manifest";
+import type Manifest from "model/models/manifest/DestinyManifest";
 
 export interface IPerk extends DestinyItemPerkEntryDefinition {
 	definition: DestinySandboxPerkDefinition;

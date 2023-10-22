@@ -10,7 +10,7 @@ import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
-import type Manifest from "model/models/Manifest";
+import type Manifest from "model/models/manifest/DestinyManifest";
 import Arrays from "utility/Arrays";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";

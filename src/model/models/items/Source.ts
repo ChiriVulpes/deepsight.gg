@@ -1,6 +1,6 @@
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type { IItemInit } from "model/models/items/Item";
-import type Manifest from "model/models/Manifest";
+import type Manifest from "model/models/manifest/DestinyManifest";
 
 namespace Source {
 

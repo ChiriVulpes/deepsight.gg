@@ -2,7 +2,7 @@ import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "
 import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Item from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
+import Manifest from "model/models/manifest/DestinyManifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
