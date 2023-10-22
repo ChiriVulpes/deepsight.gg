@@ -17,9 +17,20 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 			})
 			.then(text => {
 				if (path.endsWith(".json")) {
-					const result = this.process(JSON.parse(text
+					text = text
 						.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
-						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")) as T) as R & { _headers: Headers };
+						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")
+						.replace(/,(?=[^}\]"\d\w_-]*?[}\]])/gs, "");
+
+					let parsed: T | undefined;
+					try {
+						parsed = JSON.parse(text) as T;
+					} catch (err) {
+						console.warn(text);
+						throw err;
+					}
+
+					const result = this.process(parsed) as R & { _headers: Headers };
 
 					Object.defineProperty(result, "_headers", {
 						enumerable: false,
