@@ -67,6 +67,7 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 		// Collections
 		DestinyComponentType.Collectibles,
+		DestinyComponentType.CharacterActivities, // displaying whether items are currently obtainable
 
 		// Misc
 		DestinyComponentType.StringVariables,
@@ -75,6 +76,8 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 	);
 
 	const profile = await ProfileQuery.await();
+
+	Object.assign(window, { profile });
 
 	// const membership = await getCurrentDestinyMembership();
 	// const characters = await Promise.all(Object.keys(profile.characters?.data ?? Objects.EMPTY)

@@ -217,7 +217,8 @@ namespace Item {
 		Deepsight.IDeepsightProfile,
 		Plugs.IPlugsProfile,
 		Stats.IStatsProfile,
-		Collectibles.ICollectiblesProfile {
+		Collectibles.ICollectiblesProfile,
+		Source.ISourceProfile {
 		lastModified: Date;
 	}
 }
@@ -271,11 +272,11 @@ class Item {
 		return new Item(item);
 	}
 
-	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, item: IItemInit) {
+	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit) {
 		item.collections = await Item.createFake(manifest, profile, item.definition);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile, definition: DestinyInventoryItemDefinition) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition) {
 		const item: IItemInit = {
 			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
@@ -294,7 +295,7 @@ class Item {
 			Stats.apply(manifest, profile, item),
 			Moment.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
-			Source.apply(manifest, item),
+			Source.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);
@@ -380,6 +381,21 @@ class Item {
 	public getOrnament () {
 		const ornament = this.getSockets(PlugType.Ornament)[0]?.socketedPlug;
 		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
+	}
+
+	/**
+	 * Some items are only very rarely available, such as adept raid weapons. Do you have the fomo? You should!
+	 */
+	public isFomo () {
+		if (!this.sources?.length)
+			// doesn't rotate out
+			return false;
+
+		if (this.sources.some(source => source.dropTable.phases.some(phase => phase.dropTable[this.definition.hash])))
+			// always available in specific encounters
+			return false;
+
+		return this.sources.some(source => source.masterActivity && source.isActiveMasterDrop);
 	}
 
 	public shouldTrustBungie () {

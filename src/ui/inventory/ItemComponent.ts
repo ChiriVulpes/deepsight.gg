@@ -35,6 +35,8 @@ export enum ItemClasses {
 	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
 	Wishlist = "item-wishlist",
 	WishlistNoMatch = "item-wishlist-no-match",
+	WishlistIcon = "item-wishlist-icon",
+	WishlistNoMatchIcon = "item-wishlist-no-match-icon",
 	Extra = "item-extra",
 	ExtraInfo = "item-extra-info",
 	ExtraEmpty = "item-extra-empty",
@@ -43,6 +45,8 @@ export enum ItemClasses {
 	NotAcquired = "item-not-acquired",
 	Locked = "item-locked",
 	Unlocked = "item-unlocked",
+	Fomo = "item-fomo",
+	FomoIcon = "item-fomo-icon",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -248,13 +252,22 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		else if (displayWishlistedBorder)
 			Component.create()
 				.classes.add(ItemClasses.Wishlist)
-				.append(Component.create())
+				.append(Component.create()
+					.classes.add(ItemClasses.WishlistIcon))
 				.appendTo(this);
 
 		if (displayJunkBorder)
 			Component.create()
 				.classes.add(ItemClasses.WishlistNoMatch)
-				.append(Component.create())
+				.append(Component.create()
+					.classes.add(ItemClasses.WishlistNoMatchIcon))
+				.appendTo(this);
+
+		if (item.isFomo())
+			Component.create()
+				.classes.add(ItemClasses.Fomo)
+				.append(Component.create()
+					.classes.add(ItemClasses.FomoIcon))
 				.appendTo(this);
 
 		void Async.debounce(this.rerenderExtra);

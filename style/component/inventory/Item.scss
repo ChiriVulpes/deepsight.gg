@@ -86,6 +86,7 @@ $z-index-loading: 1000;
 	&-deepsight,
 	&-wishlist,
 	&-wishlist-no-match,
+	&-fomo,
 	&-moment-watermark,
 	&-extra {
 		position: absolute;
@@ -183,12 +184,16 @@ $z-index-loading: 1000;
 	}
 
 	&-not-acquired {
-		filter: grayscale(0.4);
+		.item-icon {
+			filter: grayscale(0.6);
+		}
+		
 		&::after {
 			background: color(background-1, 0.4);
 			box-shadow:
 				inset 0 0 0 1px color(background-1, 0.4),
 				inset 0 0 0 1px var(--border-color);
+			filter: grayscale(0.6);
 		}
 	}
 
@@ -197,10 +202,10 @@ $z-index-loading: 1000;
 			inset 0 0 0 2px color(wishlist-tooltip-border),
 			inset 0 0 0 4px color(wishlist-tooltip-border, 0.5);
 
-		> * {
+		&-icon {
 			@include item-icon(url("./image/svg/wishlisted.svg"), color(foreground-0));
 
-			.item-deepsight-has-pattern ~ & {
+			.item-deepsight-has-pattern ~ * & {
 				display: none;
 			}
 		}
@@ -220,11 +225,11 @@ $z-index-loading: 1000;
 				inset 0 0 0 2px color(wishlist-tooltip-border-no-match),
 				inset 0 0 0 4px color(wishlist-tooltip-border-no-match, 0.5);
 
-			.item-masterwork ~ & {
+			.item-masterwork ~ * & {
 				box-shadow: inset 0 0 0 2px color(wishlist-tooltip-border-no-match);
 			}
 
-			> * {
+			&-icon {
 				@include item-icon(url("./image/svg/delete.svg"), color(background-3));
 			}
 
@@ -243,6 +248,33 @@ $z-index-loading: 1000;
 		&-no-match {
 			z-index: $z-index-wishlist;
 		}
+	}
+	
+	&-fomo {
+		box-shadow:
+			inset 0 0 0 2px color(fomo-tooltip-border),
+			inset 0 0 0 4px color(fomo-tooltip-border, 0.5);
+
+		&-icon {
+			@include item-icon(url("./image/png/notification/seasonal.png")) {
+				bottom: 4%;
+				left: 4%;
+				width: 22%;
+				height: 22%;
+			}
+		}
+
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			border-bottom: calc(var(--slot-size) * 0.45) solid color(fomo-tooltip-border);
+			border-right: calc(var(--slot-size) * 0.45) solid transparent;
+		}
+		
+		z-index: $z-index-wishlist;
 	}
 
 	&-shaped {

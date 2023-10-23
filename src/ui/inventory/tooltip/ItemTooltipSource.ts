@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { ISource } from "model/models/items/Source";
 import Component from "ui/Component";
 import Display from "ui/bungie/DisplayProperties";
 
@@ -14,6 +15,8 @@ export enum ItemTooltipSourceClasses {
 	ActivityPhaseIndex = "item-tooltip-source-activity-phase-index",
 	ActivityPhaseName = "item-tooltip-source-activity-phase-name",
 	ActivityPhaseDescription = "item-tooltip-source-activity-phase-description",
+	ActivityChallenge = "item-tooltip-source-activity-challenge",
+	ActivityChallengePhaseIndex = "item-tooltip-source-activity-challenge-phase-index",
 	Note = "item-tooltip-note",
 	NoteHeading = "item-tooltip-note-heading",
 }
@@ -46,14 +49,15 @@ export default class ItemTooltipSource extends Component {
 			return false;
 
 		for (const source of item.sources) {
-			let activity = source.activity;
+			let activity = source.activityDefinition;
 
 			const isNormalDrop = source.dropTable.phases.some(phase => phase.dropTable[item.definition.hash]);
 			if (!isNormalDrop) {
-				if (!source.masterActivity)
+				if (!source.masterActivityDefinition)
+					// missing master activity, can't display source
 					continue;
 
-				activity = source.masterActivity;
+				activity = source.masterActivityDefinition;
 			}
 
 			const activityComponent = Component.create()
@@ -71,39 +75,69 @@ export default class ItemTooltipSource extends Component {
 				.text.set(Display.description(activity))
 				.appendTo(activityComponent);
 
-			if (!isNormalDrop)
-				continue;
-
 			const phasesWrapper = Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseWrapper)
 				.appendTo(activityComponent);
 
-			for (let i = 0; i < source.dropTable.phases.length; i++) {
-				const phase = source.dropTable.phases[i];
-				if (!phase.dropTable[item.definition.hash])
-					continue;
+			if (isNormalDrop)
+				this.renderPhases(phasesWrapper, item, source);
 
-				const phaseComponent = Component.create()
-					.classes.add(ItemTooltipSourceClasses.ActivityPhase)
-					.appendTo(phasesWrapper);
-
-				Component.create()
-					.classes.add(ItemTooltipSourceClasses.ActivityPhaseIndex)
-					.text.set(`${i + 1}`)
-					.appendTo(phaseComponent);
-
-				Component.create()
-					.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
-					.text.set(Display.name(phase))
-					.appendTo(phaseComponent);
-
-				Component.create()
-					.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
-					.text.set(Display.description(phase))
-					.appendTo(phaseComponent);
-			}
+			if (source.activeChallenge && item.isFomo())
+				this.renderChallenge(phasesWrapper, item, source);
 		}
 
 		return true;
+	}
+
+	private renderChallenge (wrapper: Component, item: Item, source: ISource) {
+		const challenge = source.activeChallenge!;
+		const challengeHashes = source.dropTable.master?.challengeRotations.challenges;
+		const challengeIndex = challengeHashes?.indexOf(challenge.hash) ?? -1;
+		const phase = challengeHashes?.length === source.dropTable.phases.length ? source.dropTable.phases[challengeIndex] : undefined;
+
+		const challengeComponent = Component.create()
+			.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
+			.style.set("--icon", Display.icon(challenge))
+			.appendTo(wrapper);
+
+		Component.create()
+			.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
+			.text.set(Display.name(challenge))
+			.appendTo(challengeComponent);
+
+		Component.create()
+			.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
+			.append(challengeIndex < 0 ? undefined : Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityChallengePhaseIndex)
+				.text.set(`${challengeIndex + 1}`))
+			.text.set(Display.name(phase))
+			.appendTo(challengeComponent);
+	}
+
+	private renderPhases (wrapper: Component, item: Item, source: ISource) {
+		for (let i = 0; i < source.dropTable.phases.length; i++) {
+			const phase = source.dropTable.phases[i];
+			if (!phase.dropTable[item.definition.hash])
+				continue;
+
+			const phaseComponent = Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhase)
+				.appendTo(wrapper);
+
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseIndex)
+				.text.set(`${i + 1}`)
+				.appendTo(phaseComponent);
+
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
+				.text.set(Display.name(phase))
+				.appendTo(phaseComponent);
+
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
+				.text.set(Display.description(phase))
+				.appendTo(phaseComponent);
+		}
 	}
 }

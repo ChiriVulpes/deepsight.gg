@@ -53,6 +53,7 @@ export enum ItemTooltipClasses {
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
 	Wishlist = "item-tooltip-wishlist",
 	Wishlisted = "item-tooltip-wishlisted",
+	Fomo = "item-tooltip-fomo",
 	Note = "item-tooltip-note",
 	NoteHeading = "item-tooltip-note-heading",
 	Flavour = "item-tooltip-flavour",
@@ -89,6 +90,7 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternRequired!: Component;
 	public deepsightPatternRequiredUnit!: Component;
 	public wishlist!: Component;
+	public fomo!: Component;
 	public note!: Component;
 	public hintVault!: Hint;
 	public hintPullToCharacter!: Hint;
@@ -201,6 +203,10 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.Note)
 			.appendTo(this.content);
 
+		this.fomo = Component.create()
+			.classes.add(ItemTooltipClasses.Fomo)
+			.text.set("This item is currently available.")
+			.appendTo(this.content);
 
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
 			.appendTo(this.hints);
@@ -392,6 +398,8 @@ class ItemTooltip extends Tooltip {
 					: wishlists.length === 0 ? "This item does not match a wishlisted roll."
 						: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
 							: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
+
+		this.fomo.classes.toggle(!item.isFomo(), Classes.Hidden);
 
 		this.note.classes.add(Classes.Hidden);
 

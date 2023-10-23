@@ -90,7 +90,10 @@ $colors: (
 
 	wishlist-color-no-match: #a8d148,
 	wishlist-tooltip-border-no-match: #93af53,
-	wishlist-tooltip-background-no-match: #4e690d
+	wishlist-tooltip-background-no-match: #4e690d,
+
+	fomo-tooltip-border: #4f70db,
+	fomo-tooltip-background: #213470,
 );
 
 @mixin override-color($name, $color, $opacity: null) {

@@ -9,7 +9,7 @@ type DeepsightManifest = {
 
 const DeepsightManifest = Model.create("deepsight manifest", {
 	cache: "Global",
-	version: "8.deepsight.gg",
+	version: "10.deepsight.gg",
 	async generate (api) {
 		const deepsightComponents = await GetDeepsightManifest.query();
 		const deepsightComponentNames = (Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[])

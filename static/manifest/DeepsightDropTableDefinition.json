@@ -100,13 +100,22 @@
 		],
 		"master": {
 			"activityHash": 2918919505,
-			"challengeDropTable": {
-				"1986287028": {}, // Mykel's Reverence (Adept)
-				"3493494807": {}, // Acasia's Dejection (Adept)
-				"342514437": {}, // Rufus's Fury (Adept)
-				"495442100": {}, // Koraxis's Distress (Adept)
-				"2890082420": {}, // Briar's Contempt (Adept)
-				"522366885": {}, // Nessa's Oblation (Adept)
+			"challengeRotations": {
+				"anchor": 1680022800000, // mar 28
+				"drops": [
+					1986287028, // Mykel's Reverence (Adept)
+					3493494807, // Acasia's Rejection (Adept)
+					342514437, // Rufus's Fury (Adept)
+					495442100, // Koraxis's Distress (Adept)
+					2890082420, // Briar's Contempt (Adept)
+					522366885, // Nessa's Oblation (Adept)
+				],
+				"challenges": [
+					766975360, // Illuminated Torment Challenge (Cataclysm)
+					138641527, // Crossfire Challenge (Scission)
+					2070303007, // Cosmic Equilibrium Challenge (Macrocosm)
+					1616571513, // All Hands Challenge (Nezarec)
+				]
 			}
 		}
 	},
@@ -212,6 +221,15 @@
 				"3782662983": {}, // Abyss Defiant (Adept)
 				"128782990": {}, // Fang of Ir Yût (Adept)
 				"1239700299": {}, // Swordbreaker (Adept)
+			},
+			"challengeRotations": {
+				"anchor": 1697562000000, // oct 18
+				"challenges": [
+					3636591526, // Conservation of Energy (Abyss)
+					2768385440, // Precarious Balance (Bridge)
+					732074628, // Equal Vessels (Ir Yût)
+					3523029182, // All for One (Crota)
+				]
 			}
 		}
 	},
