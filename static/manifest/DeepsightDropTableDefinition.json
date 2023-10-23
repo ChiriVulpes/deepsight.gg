@@ -5,7 +5,6 @@
 		"phases": [
 			{
 				"hash": 3172054256,
-				"index": 0,
 				"displayProperties": {
 					"name": "Cataclysm",
 					"description": "Survive the Onslaught"
@@ -27,7 +26,6 @@
 			},
 			{
 				"hash": 2224793617,
-				"index": 1,
 				"displayProperties": {
 					"name": "Scission",
 					"description": "Enter the Root"
@@ -50,7 +48,6 @@
 			},
 			{
 				"hash": 2184227225,
-				"index": 2,
 				"displayProperties": {
 					"name": "Macrocosm",
 					"description": "Defeat the Explicator"
@@ -73,7 +70,6 @@
 			},
 			{
 				"hash": 2779782231,
-				"index": 3,
 				"displayProperties": {
 					"name": "Nezarec",
 					"description": "Defeat Nezarec"
@@ -125,7 +121,6 @@
 		"phases": [
 			{
 				"hash": 2890972472,
-				"index": 0,
 				"displayProperties": {
 					"name": "The Abyss",
 					"description": "Traverse the Abyss"
@@ -147,7 +142,6 @@
 			},
 			{
 				"hash": 3768812794,
-				"index": 1,
 				"displayProperties": {
 					"name": "Oversoul Throne Bridge",
 					"description": "Cross the Bridge"
@@ -169,7 +163,6 @@
 			},
 			{
 				"hash": 1463700798,
-				"index": 2,
 				"displayProperties": {
 					"name": "Ir Yût, the Deathsinger",
 					"description": "Defeat Ir Yût, the Deathsinger"
@@ -191,7 +184,6 @@
 			},
 			{
 				"hash": 4240994016,
-				"index": 3,
 				"displayProperties": {
 					"name": "Crota, Son of Oryx",
 					"description": "Defeat Crota, Son of Oryx"
