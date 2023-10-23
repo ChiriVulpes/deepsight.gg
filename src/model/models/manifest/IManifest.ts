@@ -183,7 +183,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 				this.allCached = true;
 
 			this.manifestCacheState = true;
-			console.debug("Loaded", bundleKey, this.memoryCache);
+			console.debug("Loaded", bundleKey, /*this.memoryCache*/);
 		})();
 	}
 
