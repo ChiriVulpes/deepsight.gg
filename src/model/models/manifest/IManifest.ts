@@ -121,6 +121,10 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	public all (): PromiseOr<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index?: string, key?: string | number | null): any {
+		if (this.manifestCacheState === false)
+			return this.loadCache()
+				.then(() => this.all(index as IManifest.Indices<COMPONENT_NAME>, key!));
+
 		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
 			return this.stagedTransaction.all(componentKey, `${key!}`, index);
@@ -162,8 +166,10 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 				}
 
 				await this.cacheInitialiser?.(this.memoryCache);
-				this.allCached = true;
 			}
+
+			if (this.allCached !== undefined)
+				this.allCached = true;
 
 			this.manifestCacheState = true;
 			console.debug("Loaded", bundleKey);
