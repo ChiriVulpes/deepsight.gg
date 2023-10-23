@@ -30,7 +30,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-17.deepsight.gg`;
+		return `${manifest.version}-18.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();

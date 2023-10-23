@@ -1,4 +1,5 @@
 import Model from "model/Model";
+import DestinyManifest from "model/models/manifest/DestinyManifest";
 import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import GetClarityDatabase from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
@@ -16,7 +17,7 @@ const ClarityManifest = Model.create("clarity database", {
 			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
-			.join(",")}-1.deepsight.gg`;
+			.join(",")}-2.deepsight.gg`;
 	},
 	async generate (api) {
 		const clarityComponents = await GetClarityDatabase.query();
@@ -63,12 +64,22 @@ const ClarityManifest = Model.create("clarity database", {
 
 		return clarityComponentNames;
 	},
-	process: componentNames => {
+	process: async componentNames => {
 		const ClarityManifest = Object.fromEntries(componentNames
 			.map(componentName => [componentName, new ManifestItem(componentName)])) as ClarityManifest;
 
+		const { DestinyInventoryItemDefinition } = await DestinyManifest.await();
+		const itemHashes = await DestinyInventoryItemDefinition.allKeys();
+
 		for (const componentName of componentNames) {
-			ClarityManifest[componentName].cacheAll();
+			ClarityManifest[componentName].cacheAll(cache => {
+				if (componentName === "ClarityDescriptions") {
+					for (const hash of itemHashes) {
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+						cache[`/:${hash}`] ??= null;
+					}
+				}
+			});
 		}
 
 		Object.assign(window, ClarityManifest);

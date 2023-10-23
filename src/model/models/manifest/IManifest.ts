@@ -166,13 +166,18 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 				}
 
 				await this.cacheInitialiser?.(this.memoryCache);
+
+				// save changes
+				clearTimeout(this.manifestCacheUpdateTimeout);
+				await this.modelCache.reset();
+				await this.modelCache.await();
 			}
 
 			if (this.allCached !== undefined)
 				this.allCached = true;
 
 			this.manifestCacheState = true;
-			console.debug("Loaded", bundleKey);
+			console.debug("Loaded", bundleKey, /*this.memoryCache*/);
 		})();
 	}
 
