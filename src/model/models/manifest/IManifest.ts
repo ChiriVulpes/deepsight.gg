@@ -25,7 +25,7 @@ export namespace IManifest {
 
 	export type Indices<COMPONENT_NAME extends AllComponentNames> =
 		{
-			DeepsightSourceDefinition: "iconWatermark" | "id";
+			DeepsightMomentDefinition: "iconWatermark" | "id";
 			DestinyInventoryItemDefinition: "iconWatermark";
 			DestinyRecordDefinition: "icon" | "name";
 		} extends infer ALL_INDICES ?

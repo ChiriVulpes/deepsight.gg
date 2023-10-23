@@ -22,8 +22,8 @@ export enum ItemClasses {
 	Classified = "item-classified",
 	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",
-	SourceWatermark = "item-source-watermark",
-	SourceWatermarkCustom = "item-source-watermark-custom",
+	MomentWatermark = "item-moment-watermark",
+	MomentWatermarkCustom = "item-moment-watermark-custom",
 	IsMasterwork = "item-is-masterwork",
 	Masterwork = "item-masterwork",
 	MasterworkSpinny = "item-masterwork-spinny",
@@ -198,13 +198,13 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		if (watermark) {
 			Component.create()
-				.classes.add(ItemClasses.SourceWatermark)
+				.classes.add(ItemClasses.MomentWatermark)
 				.style.set("--watermark", `url("https://www.bungie.net${watermark}")`)
 				.appendTo(this);
-		} else if (item.source?.displayProperties.icon) {
+		} else if (item.moment?.displayProperties.icon) {
 			Component.create()
-				.classes.add(ItemClasses.SourceWatermark, ItemClasses.SourceWatermarkCustom)
-				.style.set("--icon", `url("${item.source.displayProperties.icon}")`)
+				.classes.add(ItemClasses.MomentWatermark, ItemClasses.MomentWatermarkCustom)
+				.style.set("--icon", `url("${item.moment.displayProperties.icon}")`)
 				.appendTo(this);
 		}
 

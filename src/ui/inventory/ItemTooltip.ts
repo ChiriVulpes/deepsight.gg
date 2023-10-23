@@ -24,7 +24,7 @@ export enum ItemTooltipClasses {
 	Extra = "item-tooltip-extra",
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
-	SourceWatermark = "item-tooltip-source-watermark",
+	MomentWatermark = "item-tooltip-moment-watermark",
 	Locked = "item-tooltip-locked",
 	Unlocked = "item-tooltip-unlocked",
 	Masterwork = "item-tooltip-masterwork",
@@ -61,7 +61,7 @@ export enum ItemTooltipClasses {
 class ItemTooltip extends Tooltip {
 
 	public item?: Item;
-	public source!: Component;
+	public moment!: Component;
 	public locked!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
@@ -105,8 +105,8 @@ class ItemTooltip extends Tooltip {
 		this.classes.add(ItemTooltipClasses.Main);
 		this.content.classes.add(ItemTooltipClasses.Content);
 
-		this.source = Component.create()
-			.classes.add(ItemTooltipClasses.SourceWatermark, Classes.Hidden)
+		this.moment = Component.create()
+			.classes.add(ItemTooltipClasses.MomentWatermark, Classes.Hidden)
 			.appendTo(this.header);
 
 		this.locked = Component.create()
@@ -292,9 +292,9 @@ class ItemTooltip extends Tooltip {
 
 		this.locked.classes.toggle(!item.isLocked(), Classes.Hidden);
 
-		this.source.classes.toggle(!item.source?.displayProperties.icon, Classes.Hidden);
-		if (item.source?.displayProperties.icon)
-			this.source.style.set("--icon", `url("${item.source.displayProperties.icon}")`);
+		this.moment.classes.toggle(!item.moment?.displayProperties.icon, Classes.Hidden);
+		if (item.moment?.displayProperties.icon)
+			this.moment.style.set("--icon", `url("${item.moment.displayProperties.icon}")`);
 
 		const primaryStat = item.getPower();
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);

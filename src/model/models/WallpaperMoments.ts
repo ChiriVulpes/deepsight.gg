@@ -1,22 +1,22 @@
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
-import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
+import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
-export interface IWallpaperSource {
+export interface IWallpaperMoment {
 	wallpapers: string[];
-	source: DeepsightSourceDefinition;
+	moment: DeepsightMomentDefinition;
 }
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()
 	.then(async manifest => {
-		const wallpaperSourcesRaw = await manifest.DeepsightWallpaperDefinition.all();
-		const sources = await manifest.DeepsightSourceDefinition.all();
+		const wallpaperMomentsRaw = await manifest.DeepsightWallpaperDefinition.all();
+		const moments = await manifest.DeepsightMomentDefinition.all();
 
-		return wallpaperSourcesRaw.map((wallpaperSource): IWallpaperSource => ({
-			wallpapers: wallpaperSource.data,
-			source: sources.find(source => wallpaperSource.hash === source.hash)!,
+		return wallpaperMomentsRaw.map((wallpaperMoment): IWallpaperMoment => ({
+			wallpapers: wallpaperMoment.data,
+			moment: moments.find(moment => wallpaperMoment.hash === moment.hash)!,
 		}))
-			.sort((a, b) => +(a.source?.hash || 0) - +(b.source?.hash || 0));
+			.sort((a, b) => +(a.moment?.hash || 0) - +(b.moment?.hash || 0));
 	}));
 
 export async function createWallpaperThumbnail (wallpaper: string) {

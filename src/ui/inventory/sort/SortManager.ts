@@ -6,13 +6,13 @@ import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
 import SortLocked from "ui/inventory/sort/sorts/SortLocked";
 import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
+import SortMoment from "ui/inventory/sort/sorts/SortMoment";
 import SortName from "ui/inventory/sort/sorts/SortName";
 import SortPattern from "ui/inventory/sort/sorts/SortPattern";
 import SortPower from "ui/inventory/sort/sorts/SortPower";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
 import SortRarity from "ui/inventory/sort/sorts/SortRarity";
 import SortShaped from "ui/inventory/sort/sorts/SortShaped";
-import SortSource from "ui/inventory/sort/sorts/SortSource";
 import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
 import GenerateStatsSorts from "ui/inventory/sort/sorts/SortStats";
@@ -28,7 +28,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Rarity]: SortRarity,
 	[Sort.StatTotal]: SortStatTotal,
 	[Sort.StatDistribution]: SortStatDistribution,
-	[Sort.Source]: SortSource,
+	[Sort.Moment]: SortMoment,
 	[Sort.Shaped]: SortShaped,
 	[Sort.AmmoType]: SortAmmoType,
 	[Sort.DamageType]: SortDamageType,

@@ -27,7 +27,7 @@ Right clicking on weapons displays the perks and stats of weapons, just like in-
 - Masterwork
 - Rarity
 - Shaped
-- Source (ie the little watermark icon on all items)
+- Moment (ie the little watermark icon on all items)
 - Gives Pattern Progress
 
 ![image](https://user-images.githubusercontent.com/6081834/209422608-cc25fb7f-fe12-4ee2-9ef7-3e1aa53d7443.png)
@@ -39,7 +39,7 @@ Right clicking on weapons displays the perks and stats of weapons, just like in-
 - Masterwork
 - Rarity
 - Shaped
-- Source
+- Moment
 - Stat Total
 - Stat Distribution (Customisable, targeted distribution per-class. See below.)
 
@@ -73,7 +73,7 @@ I want warlock armour that is at minimum mobility, and maximum discipline. I *un
 ![image](https://user-images.githubusercontent.com/6081834/209422665-6296f929-a8bf-4bca-baab-aa62eabf379c.png)
 
 ## Collections
-View a list of all weapons and armour from a particular source — seasons, expansions, events, etc — and the possible rolls of each. 
+View a list of all weapons and armour from a particular moment — seasons, expansions, events, etc — and the possible rolls of each. 
 
 ![image](https://user-images.githubusercontent.com/6081834/209422841-14113e21-dafc-47c4-97f5-8c3b39fb9428.png)
 

@@ -6,18 +6,18 @@ import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
-import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
+import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 namespace Collections {
 
-	const sources: Record<number, Model<Item[]>> = {};
-	export function source (source: DeepsightSourceDefinition) {
-		return sources[source.hash] ??= Model.createDynamic("Daily", async () => {
+	const moments: Record<number, Model<Item[]>> = {};
+	export function moment (moment: DeepsightMomentDefinition) {
+		return moments[moment.hash] ??= Model.createDynamic("Daily", async () => {
 			const manifest = await Manifest.await();
 			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
 			const profile = await ProfileBatch.await();
 
-			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", typeof source.iconWatermark === "string" ? source.iconWatermark : "?")
+			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", typeof moment.iconWatermark === "string" ? moment.iconWatermark : "?")
 				.then(items => items
 					.filter(item => item.displayProperties.name && item.equippable
 						&& !item.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies)

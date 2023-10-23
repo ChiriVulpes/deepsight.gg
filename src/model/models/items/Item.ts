@@ -1,26 +1,26 @@
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
+import type Manifest from "model/models/Manifest";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
+import Moment from "model/models/items/Moment";
 import type { IPerk } from "model/models/items/Perks";
 import Perks from "model/models/items/Perks";
 import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
-import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
-import type Manifest from "model/models/Manifest";
 import Arrays from "utility/Arrays";
-import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
-import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
-import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
-import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
-import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 import type { Mutable, PromiseOr } from "utility/Type";
+import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
+import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
+import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
+import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
+import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 export type CharacterId = `${bigint}`;
 export type PostmasterId = `postmaster:${CharacterId}`;
@@ -168,7 +168,7 @@ export interface IItemInit {
 	lastModified: number;
 	instance?: DestinyItemInstanceComponent;
 	sockets?: PromiseOr<(Socket | undefined)[]>;
-	source?: DeepsightSourceDefinition;
+	moment?: DeepsightMomentDefinition;
 	deepsight?: IDeepsight;
 	shaped?: IWeaponShaped;
 	stats?: IStats;
@@ -258,7 +258,7 @@ class Item {
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
 			Deepsight.apply(manifest, profile, item),
-			Source.apply(manifest, item),
+			Moment.apply(manifest, item),
 			Tier.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
 			this.addCollections(manifest, profile, item),
@@ -289,7 +289,7 @@ class Item {
 		await Promise.all([
 			Plugs.apply(manifest, profile, item),
 			Stats.apply(manifest, profile, item),
-			Source.apply(manifest, item),
+			Moment.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
 		]);
 
@@ -426,7 +426,7 @@ class Item {
 			}
 			this.instance = item.instance;
 			this.sockets = item.sockets;
-			this.source = item.source;
+			this.moment = item.moment;
 			this.deepsight = item.deepsight;
 			this.shaped = item.shaped;
 			this.stats = item.stats;

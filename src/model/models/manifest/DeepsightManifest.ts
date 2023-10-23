@@ -9,11 +9,11 @@ type DeepsightManifest = {
 
 const DeepsightManifest = Model.create("deepsight manifest", {
 	cache: "Global",
-	version: "4.deepsight.gg",
+	version: "5.deepsight.gg",
 	async generate (api) {
 		const deepsightComponents = await GetDeepsightManifest.query();
 		const deepsightComponentNames = (Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[])
-			.filter(component => component !== "DeepsightSourceDefinition"); // handled in DestinyManifest.ts
+			.filter(component => component !== "DeepsightMomentDefinition"); // handled in DestinyManifest.ts
 
 		const cacheKeys = deepsightComponentNames.map(IManifest.CacheComponentKey.get);
 
@@ -54,7 +54,7 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
 		}
 
-		return [...deepsightComponentNames, "DeepsightSourceDefinition"] as (keyof AllDeepsightManifestComponents)[];
+		return [...deepsightComponentNames, "DeepsightMomentDefinition"] as (keyof AllDeepsightManifestComponents)[];
 	},
 	process: componentNames => {
 		const DeepsightManifest = Object.fromEntries(componentNames

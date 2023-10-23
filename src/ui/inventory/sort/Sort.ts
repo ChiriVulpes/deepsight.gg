@@ -13,7 +13,7 @@ enum Sort {
 	Rarity,
 	StatTotal,
 	StatDistribution,
-	Source,
+	Moment,
 	AmmoType,
 	DamageType,
 	WeaponType,

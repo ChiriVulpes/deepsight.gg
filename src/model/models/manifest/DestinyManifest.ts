@@ -5,7 +5,7 @@ import Env from "utility/Env";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
-import type { DeepsightSourceDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightSourceDefinition";
+import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
@@ -30,21 +30,23 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-15.deepsight.gg`;
+		return `${manifest.version}-16.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as (keyof AllDestinyManifestComponents)[];
 
-		const { DeepsightSourceDefinition } = await GetDeepsightManifest.query();
+		const { DeepsightMomentDefinition } = await GetDeepsightManifest.query();
 
-		const sources = Object.values(DeepsightSourceDefinition);
-		const sourcesRequiringWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermark && typeof source.iconWatermark !== "string")
-			.map(source => [(source.iconWatermark as { item: number }).item, source]));
-		const sourcesRequiringShelvedWatermarks = Object.fromEntries(sources.filter(source => source.iconWatermarkShelved && typeof source.iconWatermarkShelved !== "string")
-			.map(source => [(source.iconWatermarkShelved as { item: number }).item, source]));
+		const moments = Object.values(DeepsightMomentDefinition);
+		const momentsRequiringWatermarks = Object.fromEntries(moments
+			.filter(moment => moment.iconWatermark && typeof moment.iconWatermark !== "string")
+			.map(moment => [(moment.iconWatermark as { item: number }).item, moment]));
+		const momentsRequiringShelvedWatermarks = Object.fromEntries(moments
+			.filter(moment => moment.iconWatermarkShelved && typeof moment.iconWatermarkShelved !== "string")
+			.map(moment => [(moment.iconWatermarkShelved as { item: number }).item, moment]));
 
-		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightSourceDefinition"];
+		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightMomentDefinition"];
 
 		const totalLoad = allComponentNames.length * 2 + 1;
 
@@ -59,7 +61,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 				const store = database.createObjectStore(cacheKey);
 
 				switch (cacheKey) {
-					case "manifest [DeepsightSourceDefinition]":
+					case "manifest [DeepsightMomentDefinition]":
 						if (!store.indexNames.contains("iconWatermark"))
 							store.createIndex("iconWatermark", "iconWatermark");
 						if (!store.indexNames.contains("id"))
@@ -118,15 +120,15 @@ const DestinyManifest = Model.create("destiny manifest", {
 
 					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
 						const itemDef = definition as DestinyInventoryItemDefinition;
-						const source = sourcesRequiringWatermarks[key];
-						if (source)
-							source.iconWatermark = itemDef.iconWatermark
+						const moment = momentsRequiringWatermarks[key];
+						if (moment)
+							moment.iconWatermark = itemDef.iconWatermark
 								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
 								?? itemDef.iconWatermarkShelved;
 
-						const shelvedSource = sourcesRequiringShelvedWatermarks[key];
-						if (shelvedSource)
-							shelvedSource.iconWatermarkShelved = itemDef.iconWatermarkShelved
+						const shelvedMoment = momentsRequiringShelvedWatermarks[key];
+						if (shelvedMoment)
+							shelvedMoment.iconWatermarkShelved = itemDef.iconWatermarkShelved
 								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
 								?? itemDef.iconWatermark;
 					}
@@ -139,26 +141,26 @@ const DestinyManifest = Model.create("destiny manifest", {
 			console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 		}
 
-		const replaceWatermarksByItemHash: Record<number, DeepsightSourceDefinition> =
-			Object.fromEntries(sources.flatMap(source => (source.itemHashes ?? [])
-				.map(itemHash => [itemHash, source])));
+		const replaceWatermarksByItemHash: Record<number, DeepsightMomentDefinition> =
+			Object.fromEntries(moments.flatMap(moment => (moment.itemHashes ?? [])
+				.map(itemHash => [itemHash, moment])));
 
-		const deepsightSourceComponentName: keyof AllDeepsightManifestComponents = "DeepsightSourceDefinition";
-		const deepsightSourceCacheKey = CacheComponentKey.get(deepsightSourceComponentName);
-		await Model.cacheDB.transaction([deepsightSourceCacheKey], async transaction => {
+		const deepsightMomentComponentName: keyof AllDeepsightManifestComponents = "DeepsightMomentDefinition";
+		const deepsightMomentCacheKey = CacheComponentKey.get(deepsightMomentComponentName);
+		await Model.cacheDB.transaction([deepsightMomentCacheKey], async transaction => {
 			const startTime = performance.now();
-			console.info(`Caching objects from ${deepsightSourceCacheKey}`);
+			console.info(`Caching objects from ${deepsightMomentCacheKey}`);
 			api.emitProgress((1 + bungieComponentNames.length * 2) / totalLoad, "Storing manifest");
 
-			await transaction.clear(deepsightSourceCacheKey);
+			await transaction.clear(deepsightMomentCacheKey);
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			for (const [itemId, itemValue] of Object.entries(DeepsightSourceDefinition)) {
+			for (const [itemId, itemValue] of Object.entries(DeepsightMomentDefinition)) {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				await transaction.set(deepsightSourceCacheKey, itemId, itemValue);
+				await transaction.set(deepsightMomentCacheKey, itemId, itemValue);
 			}
 
-			console.info(`Finished caching objects from ${deepsightSourceCacheKey} after ${elapsed(performance.now() - startTime)}`);
+			console.info(`Finished caching objects from ${deepsightMomentCacheKey} after ${elapsed(performance.now() - startTime)}`);
 		});
 
 		await Model.cacheDB.transaction(["manifest [DestinyInventoryItemDefinition]"], async transaction => {
@@ -167,12 +169,12 @@ const DestinyManifest = Model.create("destiny manifest", {
 
 			for (const item of await transaction.all("manifest [DestinyInventoryItemDefinition]")) {
 				// fix red war items that don't have watermarks for some reason
-				const replacementSource = replaceWatermarksByItemHash[item.hash];
-				if (replacementSource) {
+				const replacementMoment = replaceWatermarksByItemHash[item.hash];
+				if (replacementMoment) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					(item as any).iconWatermark = replacementSource.iconWatermark;
+					(item as any).iconWatermark = replacementMoment.iconWatermark;
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					(item as any).iconWatermarkShelved = replacementSource.iconWatermarkShelved;
+					(item as any).iconWatermarkShelved = replacementMoment.iconWatermarkShelved;
 				} else if (!item.iconWatermark && item.quality?.displayVersionWatermarkIcons.length) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 					(item as any).iconWatermark = item.quality.displayVersionWatermarkIcons[0];

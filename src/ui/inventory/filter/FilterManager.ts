@@ -6,9 +6,9 @@ import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/inventory/filter/filters/FilterMasterwork";
+import FilterMoment from "ui/inventory/filter/filters/FilterMoment";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
-import FilterSource from "ui/inventory/filter/filters/FilterSource";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
 import Strings from "utility/Strings";
 
@@ -45,7 +45,7 @@ class FilterManager {
 			[Filter.Element]: await ElementFilter(),
 			[Filter.WeaponType]: await FilterWeaponType(),
 			[Filter.Perk]: await FilterPerk(),
-			[Filter.Source]: await FilterSource(),
+			[Filter.Moment]: await FilterMoment(),
 			[Filter.Shaped]: FilterShaped,
 			[Filter.Masterwork]: FilterMasterwork,
 			[Filter.Locked]: FilterLocked,

@@ -1,5 +1,5 @@
 .view-collections {
-	&-source {
+	&-moment {
 		position: relative;
 		&:not(.details-closed) {
 			min-height: calc(var(--slot-size) * 2);

@@ -1,4 +1,4 @@
-import WallpaperSources from "model/models/WallpaperSources";
+import WallpaperMoments from "model/models/WallpaperMoments";
 import Card from "ui/Card";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
@@ -11,9 +11,9 @@ enum SettingsBackgroundClasses {
 	InternalWrapper = "settings-background-options-wrapper",
 	Wallpaper = "settings-background-options-wallpaper",
 	WallpaperLoadingThumbnail = "settings-background-options-wallpaper-loading-thumbnail",
-	WallpaperSource = "settings-background-options-wallpaper-source",
-	WallpaperSourceWallpapers = "settings-background-options-wallpaper-source-list",
-	WallpaperSourceLabel = "settings-background-options-wallpaper-source-label",
+	WallpaperMoment = "settings-background-options-wallpaper-moment",
+	WallpaperMomentWallpapers = "settings-background-options-wallpaper-moment-list",
+	WallpaperMomentLabel = "settings-background-options-wallpaper-moment-label",
 	WallpaperImage = "settings-background-options-wallpaper-image",
 }
 
@@ -23,17 +23,17 @@ export default class SettingsBackground extends Card<[]> {
 		this.title.text.set("Background");
 
 		let scrollLeft = 0;
-		const sourcesWrapper = Loadable.create(WallpaperSources)
-			.onReady(sources => Component.create()
+		const momentsWrapper = Loadable.create(WallpaperMoments)
+			.onReady(moments => Component.create()
 				.classes.add(SettingsBackgroundClasses.InternalWrapper)
-				.append(...[...sources].reverse().map(source => Component.create()
-					.classes.add(SettingsBackgroundClasses.WallpaperSource)
+				.append(...[...moments].reverse().map(moment => Component.create()
+					.classes.add(SettingsBackgroundClasses.WallpaperMoment)
 					.append(Component.create()
-						.classes.add(SettingsBackgroundClasses.WallpaperSourceLabel)
-						.text.set(source.source.displayProperties.name))
+						.classes.add(SettingsBackgroundClasses.WallpaperMomentLabel)
+						.text.set(moment.moment.displayProperties.name))
 					.append(Component.create()
-						.classes.add(SettingsBackgroundClasses.WallpaperSourceWallpapers)
-						.append(...source.wallpapers.map(wallpaper => Button.create()
+						.classes.add(SettingsBackgroundClasses.WallpaperMomentWallpapers)
+						.append(...moment.wallpapers.map(wallpaper => Button.create()
 							.classes.add(SettingsBackgroundClasses.Wallpaper)
 							.classes.toggle(Store.items.settingsBackground === wallpaper, ButtonClasses.Selected)
 							.event.subscribe("click", (event) => {
@@ -58,16 +58,16 @@ export default class SettingsBackground extends Card<[]> {
 				if (event.shiftKey)
 					return;
 
-				if (Math.sign(event.deltaY) !== Math.sign(scrollLeft - sourcesWrapper.element.scrollLeft))
-					scrollLeft = sourcesWrapper.element.scrollLeft;
+				if (Math.sign(event.deltaY) !== Math.sign(scrollLeft - momentsWrapper.element.scrollLeft))
+					scrollLeft = momentsWrapper.element.scrollLeft;
 
 				scrollLeft += event.deltaY;
-				if (scrollLeft + sourcesWrapper.element.clientWidth > sourcesWrapper.element.scrollWidth)
-					scrollLeft = sourcesWrapper.element.scrollWidth - sourcesWrapper.element.clientWidth;
+				if (scrollLeft + momentsWrapper.element.clientWidth > momentsWrapper.element.scrollWidth)
+					scrollLeft = momentsWrapper.element.scrollWidth - momentsWrapper.element.clientWidth;
 				if (scrollLeft < 0)
 					scrollLeft = 0;
 
-				sourcesWrapper.element.scrollLeft = scrollLeft;
+				momentsWrapper.element.scrollLeft = scrollLeft;
 			})
 			.appendTo(this.content);
 

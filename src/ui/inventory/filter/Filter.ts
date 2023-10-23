@@ -13,7 +13,7 @@ enum Filter {
 	Element,
 	WeaponType,
 	Perk,
-	Source,
+	Moment,
 	Locked,
 	Raw,
 }

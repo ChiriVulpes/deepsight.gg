@@ -3,7 +3,7 @@ import Model from "model/Model";
 import Collections from "model/models/Collections";
 import Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
-import Sources from "model/models/Sources";
+import Moments from "model/models/Moments";
 import type Item from "model/models/items/Item";
 import Component from "ui/Component";
 import Details from "ui/Details";
@@ -16,50 +16,50 @@ import Slot from "ui/inventory/Slot";
 export enum CollectionsViewClasses {
 	Bucket = "view-collections-bucket",
 	BucketTitle = "view-collections-bucket-title",
-	Source = "view-collections-source",
-	SourceContent = "view-collections-source-content",
+	Moment = "view-collections-moment",
+	MomentContent = "view-collections-moment-content",
 }
 
 export default View.create({
-	models: [Manifest, Sources, Inventory.createTemporary()] as const,
+	models: [Manifest, Moments, Inventory.createTemporary()] as const,
 	id: "collections",
 	name: "Collections",
-	initialise: (view, manifest, sources, inventory) => {
+	initialise: (view, manifest, moments, inventory) => {
 		view.setTitle(title => title.text.set("Collections"));
 
 		let shownExpansion = false;
 		let shownSeason = false;
-		for (const source of sources) {
+		for (const moment of moments) {
 
 			let defaultOpen = false;
-			if (!shownExpansion && source.expansion) {
+			if (!shownExpansion && moment.expansion) {
 				defaultOpen = true;
 				shownExpansion = true;
 			}
 
-			if (!shownSeason && source.season) {
+			if (!shownSeason && moment.season) {
 				defaultOpen = true;
 				shownSeason = true;
 			}
 
 			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-			if ((+source.eventCard?.endTime! ?? 0) * 1000 > Date.now())
+			if ((+moment.eventCard?.endTime! ?? 0) * 1000 > Date.now())
 				defaultOpen = true;
 
 			const details = Details.create()
-				.classes.add(CollectionsViewClasses.Source)
+				.classes.add(CollectionsViewClasses.Moment)
 				.toggle(defaultOpen)
-				.tweak(details => details.summary.text.set(source.displayProperties.name))
+				.tweak(details => details.summary.text.set(moment.displayProperties.name))
 				.appendTo(view.content);
 
 			Loadable.create(Model.createTemporary(async () => {
 				if (!defaultOpen)
 					await details.event.waitFor("toggle");
 
-				return Collections.source(source).await();
+				return Collections.moment(moment).await();
 			}))
 				.onReady(items => {
-					console.log(source.displayProperties.name, items);
+					console.log(moment.displayProperties.name, items);
 					const weapons: Item[] = [];
 					const classItems: Partial<Record<DestinyClass, Item[]>> = {};
 
@@ -74,7 +74,7 @@ export default View.create({
 					}
 
 					const wrapper = Component.create()
-						.classes.add(CollectionsViewClasses.SourceContent);
+						.classes.add(CollectionsViewClasses.MomentContent);
 
 					if (weapons.length)
 						Component.create()
