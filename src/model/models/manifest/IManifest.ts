@@ -155,13 +155,19 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			this.memoryCache = await this.modelCache.await();
 
-			if (!hasCache && this.allCached !== undefined) {
-				console.debug("Generating initial (all)", bundleKey);
-				const all = await this.stagedTransaction.all(IManifest.CacheComponentKey.get(this.componentName));
-				for (const value of all) {
-					if ("hash" in value) {
-						const memoryCacheKey = `/:${value.hash}`;
-						this.memoryCache[memoryCacheKey] = value;
+			if (!hasCache) {
+				console.debug("Generating initial", bundleKey);
+				if (this.allCached !== undefined || this.cacheAllKeyRange !== undefined) {
+					const all = await this.stagedTransaction.all(
+						IManifest.CacheComponentKey.get(this.componentName),
+						this.cacheAllKeyRange && this.cacheAllKeyRange !== true ? this.cacheAllKeyRange : undefined,
+					);
+
+					for (const value of all) {
+						if ("hash" in value) {
+							const memoryCacheKey = `/:${value.hash}`;
+							this.memoryCache[memoryCacheKey] = value;
+						}
 					}
 				}
 
@@ -173,18 +179,22 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 				await this.modelCache.await();
 			}
 
-			if (this.allCached !== undefined)
+			if (this.allCached === false || this.allCached === true)
 				this.allCached = true;
 
 			this.manifestCacheState = true;
-			console.debug("Loaded", bundleKey, /*this.memoryCache*/);
+			console.debug("Loaded", bundleKey, this.memoryCache);
 		})();
 	}
 
 	private cacheInitialiser?: (cache: any) => any;
-	public cacheAll (initialise?: (cache: any) => any) {
+	private cacheAllKeyRange?: true | IDBValidKey | IDBKeyRange;
+	public setPreCache (all: boolean | IDBValidKey | IDBKeyRange, initialise?: (cache: any) => any) {
 		this.cacheInitialiser = initialise;
-		this.allCached = false;
+		if (all) {
+			this.allCached = all === true ? false : undefined;
+			this.cacheAllKeyRange = all;
+		}
 	}
 
 	private createCache () {

@@ -72,7 +72,7 @@ const ClarityManifest = Model.create("clarity database", {
 		const itemHashes = await DestinyInventoryItemDefinition.allKeys();
 
 		for (const componentName of componentNames) {
-			ClarityManifest[componentName].cacheAll(cache => {
+			ClarityManifest[componentName].setPreCache(true, cache => {
 				if (componentName === "ClarityDescriptions") {
 					for (const hash of itemHashes) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

@@ -61,7 +61,7 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 			.map(componentName => [componentName, new ManifestItem(componentName)])) as DeepsightManifest;
 
 		for (const componentName of componentNames) {
-			DeepsightManifest[componentName].cacheAll();
+			DeepsightManifest[componentName].setPreCache(true);
 		}
 
 		Object.assign(window, { DeepsightManifest });

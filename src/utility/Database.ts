@@ -252,20 +252,42 @@ namespace Database {
 			});
 		}
 
-		public async all<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
-			return this.do<SCHEMA[KEY][]>(() => {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
-
-				if (typeof rangeOrKey === "string") {
+		public async all<KEY extends keyof SCHEMA> (name: KEY, range?: IDBValidKey | IDBKeyRange): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (name: KEY, key: IDBValidKey | IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBValidKey | IDBKeyRange | string, index?: string) {
+			if (Array.isArray(rangeOrKey)) {
+				return new Promise<SCHEMA[KEY][]>((resolve, reject) => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+					let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
 
 					if (index !== undefined)
 						store = store.index(index);
 
+					const result: SCHEMA[KEY][] = [];
+					const request = store.openCursor();
+					request.addEventListener("error", () => reject(request.error));
+					request.addEventListener("success", event => {
+						const cursor = request.result;
+						if (!cursor)
+							return resolve(result);
+
+						if (rangeOrKey.includes(cursor.key))
+							result.push(cursor.value as SCHEMA[KEY]);
+
+						cursor.continue();
+					});
+				});
+			}
+
+			return this.do<SCHEMA[KEY][]>(() => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
+
+				if (index !== undefined)
+					store = store.index(index);
+
+				if (typeof rangeOrKey === "string")
 					return store.getAll(rangeOrKey);
-				}
 
 				return store.getAll(rangeOrKey);
 			});
@@ -409,9 +431,9 @@ namespace Database {
 			return this.queue(transaction => transaction.get(store, key, index));
 		}
 
-		public async all<KEY extends keyof SCHEMA> (store: KEY): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBValidKey | IDBKeyRange | string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBValidKey | IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBValidKey | IDBKeyRange | string, index?: string) {
 			return this.queue(transaction => transaction.all(store, range!, index!));
 		}
 

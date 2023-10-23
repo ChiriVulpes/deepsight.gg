@@ -30,7 +30,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-18.deepsight.gg`;
+		return `${manifest.version}-19.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
@@ -193,13 +193,25 @@ const DestinyManifest = Model.create("destiny manifest", {
 
 		return bungieComponentNames;
 	},
-	process: componentNames => {
+	process: async componentNames => {
 		const Manifest = Object.fromEntries(componentNames
 			.map(componentName => [componentName, new ManifestItem(componentName)])) as DestinyManifest;
 
+		const { DestinyPlugSetDefinition } = Manifest;
+		const plugSets = await DestinyPlugSetDefinition.all();
+		const plugItemHashes = Array.from(new Set(plugSets.flatMap(plugSet => plugSet.reusablePlugItems)
+			.map(plug => `${plug.plugItemHash}`)));
+
 		for (const componentName of componentNames) {
-			if (componentName !== "DestinyInventoryItemDefinition" && componentName !== "DestinyInventoryItemLiteDefinition") {
-				Manifest[componentName].cacheAll();
+			switch (componentName) {
+				case "DestinyInventoryItemDefinition":
+					Manifest[componentName].setPreCache(plugItemHashes);
+					break;
+				case "DestinyInventoryItemLiteDefinition":
+					// no caching, doesn't get used
+					break;
+				default:
+					Manifest[componentName].setPreCache(true);
 			}
 		}
 
