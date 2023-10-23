@@ -410,6 +410,9 @@ export class Plug {
 	}
 
 	private static isOrnament (definition: DestinyInventoryItemDefinition) {
+		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsSharedHead)
+			return true;
+
 		if (!definition.traitIds) return false;
 
 		for (const traitId of definition.traitIds) {
