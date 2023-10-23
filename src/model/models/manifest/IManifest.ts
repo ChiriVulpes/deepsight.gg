@@ -2,6 +2,7 @@ import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import type { IModelCache } from "model/ModelCacheDatabase";
 import type Database from "utility/Database";
+import type { PromiseOr } from "utility/Type";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 
@@ -66,6 +67,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private readonly modelCache: Model<any>;
 	private manifestCacheState?: boolean;
 	private loadedManifestCache?: Promise<void>;
+	private allCached?: boolean;
 
 	public constructor (private readonly componentName: COMPONENT_NAME) {
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
@@ -116,13 +118,14 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return promise;
 	}
 
-	public all (): Promise<IManifest.Component<COMPONENT_NAME>[]>;
+	public all (): PromiseOr<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
-	public all (index?: string, key?: string | number | null) {
+	public all (index?: string, key?: string | number | null): any {
 		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
 			return this.stagedTransaction.all(componentKey, `${key!}`, index);
-		return this.stagedTransaction.all(componentKey);
+		return this.allCached ? Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]
+			: this.stagedTransaction.all(componentKey);
 	}
 
 	public allKeys (): Promise<`${bigint}`[]>;
@@ -140,15 +143,17 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 
 		this.manifestCacheState = false;
 		return this.loadedManifestCache = (async () => {
-			console.debug(`Loading manifest cache [${this.componentName}]`);
+			const bundleKey = IManifest.CacheComponentKey.getBundle(this.componentName);
+			console.debug("Loading", bundleKey);
+
+			const hasCache = !!await this.modelCache.resolveCache();
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const manifestCache = await this.modelCache.await();
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			this.memoryCache = manifestCache ?? {};
+			this.memoryCache = await this.modelCache.await();
 
-			if (!manifestCache) {
-				const all = await this.all();
+			if (!hasCache && this.allCached !== undefined) {
+				console.debug("Generating initial (all)", bundleKey);
+				const all = await this.stagedTransaction.all(IManifest.CacheComponentKey.get(this.componentName));
 				for (const value of all) {
 					if ("hash" in value) {
 						const memoryCacheKey = `/:${value.hash}`;
@@ -157,16 +162,18 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 				}
 
 				await this.cacheInitialiser?.(this.memoryCache);
+				this.allCached = true;
 			}
 
 			this.manifestCacheState = true;
-			console.debug("Loaded manifest cache");
+			console.debug("Loaded", bundleKey);
 		})();
 	}
 
 	private cacheInitialiser?: (cache: any) => any;
 	public cacheAll (initialise?: (cache: any) => any) {
 		this.cacheInitialiser = initialise;
+		this.allCached = false;
 	}
 
 	private createCache () {
