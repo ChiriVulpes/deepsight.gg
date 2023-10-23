@@ -8,6 +8,8 @@ import Moment from "model/models/items/Moment";
 import type { IPerk } from "model/models/items/Perks";
 import Perks from "model/models/items/Perks";
 import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
+import type { ISource } from "model/models/items/Source";
+import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
@@ -195,6 +197,7 @@ export interface IItemInit {
 	 */
 	collectibleState?: number;
 	collections?: Item;
+	sources?: ISource[];
 }
 
 export interface IItem extends IItemInit {
@@ -291,6 +294,7 @@ class Item {
 			Stats.apply(manifest, profile, item),
 			Moment.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
+			Source.apply(manifest, item),
 		]);
 
 		return new Item(item);

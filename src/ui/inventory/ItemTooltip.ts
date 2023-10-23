@@ -18,6 +18,7 @@ import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
 import ItemTooltipNotifications from "ui/inventory/tooltip/ItemTooltipNotifications";
 import ItemTooltipPerks from "ui/inventory/tooltip/ItemTooltipPerks";
+import ItemTooltipSource from "ui/inventory/tooltip/ItemTooltipSource";
 
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
@@ -98,7 +99,7 @@ class ItemTooltip extends Tooltip {
 	public detailedMods!: ItemTooltipMods;
 	public randomRollHeading!: Component;
 	public randomMods!: ItemTooltipMods;
-	public randomHints!: Component;
+	public source!: ItemTooltipSource;
 	public hintCollections!: Hint;
 
 	protected override onMake () {
@@ -234,6 +235,9 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.extra.content);
 
 		this.randomMods = ItemTooltipMods.create()
+			.appendTo(this.extra.content);
+
+		this.source = ItemTooltipSource.create()
 			.appendTo(this.extra.content);
 
 		this.hintCollections = Hint.create([IInput.get("MouseRight", "Shift")])
@@ -432,7 +436,10 @@ class ItemTooltip extends Tooltip {
 			}
 		}
 
-		this.extra.classes.toggle(!flavour && !this.detailedMods.hasContents(), Classes.Hidden);
+		const source = this.source.setItem(item);
+		this.source.classes.toggle(!source, Classes.Hidden);
+
+		this.extra.classes.toggle(!flavour && !this.detailedMods.hasContents() && !source, Classes.Hidden);
 	}
 }
 

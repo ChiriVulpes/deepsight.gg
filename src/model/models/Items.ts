@@ -27,6 +27,12 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 4);
 	const manifest = await Manifest.await();
 	api.emitProgress(1 / 4, "Loading manifest cache");
+
+	// precache some defs for item initialisation
+	const { DeepsightDropTableDefinition, DestinyActivityDefinition } = manifest;
+	await DeepsightDropTableDefinition.all();
+	await DestinyActivityDefinition.all();
+
 	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(BucketHashes.General);
 
 	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);

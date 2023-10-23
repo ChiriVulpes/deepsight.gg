@@ -121,7 +121,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	public all (): PromiseOr<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<IManifest.Component<COMPONENT_NAME>[]>;
 	public all (index?: string, key?: string | number | null): any {
-		if (this.manifestCacheState === false)
+		if (!this.manifestCacheState)
 			return this.loadCache()
 				.then(() => this.all(index as IManifest.Indices<COMPONENT_NAME>, key!));
 

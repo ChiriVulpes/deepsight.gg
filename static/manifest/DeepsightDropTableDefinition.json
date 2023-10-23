@@ -1,5 +1,6 @@
 {
 	"1191701339": { // Root of Nightmares: Normal
+		"recordHash": 4270724598,
 		"rotationActivityHash": 2381413764,
 		"phases": [
 			{
@@ -110,7 +111,8 @@
 		}
 	},
 	"4103176774": { // Crota's End: Normal
-	"rotationActivityHash": 4179289725,
+		"recordHash": 2045739672,
+		"rotationActivityHash": 4179289725,
 		"phases": [
 			{
 				"hash": 2890972472,
