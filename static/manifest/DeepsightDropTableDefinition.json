@@ -2,9 +2,9 @@
 	"1191701339": { // Root of Nightmares: Normal
 		"recordHash": 4270724598,
 		"rotationActivityHash": 2381413764,
-		"phases": [
+		"encounters": [
 			{
-				"hash": 3172054256,
+				"phaseHash": 3172054256,
 				"displayProperties": {
 					"name": "Cataclysm",
 					"description": "Survive the Onslaught"
@@ -25,7 +25,7 @@
 				}
 			},
 			{
-				"hash": 2224793617,
+				"phaseHash": 2224793617,
 				"displayProperties": {
 					"name": "Scission",
 					"description": "Enter the Root"
@@ -47,7 +47,7 @@
 				}
 			},
 			{
-				"hash": 2184227225,
+				"phaseHash": 2184227225,
 				"displayProperties": {
 					"name": "Macrocosm",
 					"description": "Defeat the Explicator"
@@ -69,7 +69,7 @@
 				}
 			},
 			{
-				"hash": 2779782231,
+				"phaseHash": 2779782231,
 				"displayProperties": {
 					"name": "Nezarec",
 					"description": "Defeat Nezarec"
@@ -118,9 +118,9 @@
 	"4103176774": { // Crota's End: Normal
 		"recordHash": 2045739672,
 		"rotationActivityHash": 4179289725,
-		"phases": [
+		"encounters": [
 			{
-				"hash": 2890972472,
+				"phaseHash": 2890972472,
 				"displayProperties": {
 					"name": "The Abyss",
 					"description": "Traverse the Abyss"
@@ -141,7 +141,7 @@
 				}
 			},
 			{
-				"hash": 3768812794,
+				"phaseHash": 3768812794,
 				"displayProperties": {
 					"name": "Oversoul Throne Bridge",
 					"description": "Cross the Bridge"
@@ -162,7 +162,7 @@
 				}
 			},
 			{
-				"hash": 1463700798,
+				"phaseHash": 1463700798,
 				"displayProperties": {
 					"name": "Ir Yût, the Deathsinger",
 					"description": "Defeat Ir Yût, the Deathsinger"
@@ -183,7 +183,7 @@
 				}
 			},
 			{
-				"hash": 4240994016,
+				"phaseHash": 4240994016,
 				"displayProperties": {
 					"name": "Crota, Son of Oryx",
 					"description": "Defeat Crota, Son of Oryx"
@@ -225,4 +225,97 @@
 			}
 		}
 	},
+	"1661734046": { // Last Wish
+		"recordHash": 2899839432,
+		"rotationActivityHash": 2122313384, // or 2214608157
+		"dropTable": {
+			"501329015": {}, // Chattering Bone
+			"2884596447": {}, // The Supremacy
+			"3885259140": {}, // Transfiguration
+			"424291879": {}, // Age-Old Bond
+			"70083888": {}, // Nation of Beasts
+			"3591141932": {}, // Techeun Force
+			"3388655311": {}, // Tyranny of Heaven
+			"1851777734": {}, // Apex Predator
+
+			"3546379828": {}, // titan helm
+			"1952647501": {}, // titan arms
+			"1146451699": {}, // titan chest
+			"2623446543": {}, // titan legs
+			"3351877674": {}, // titan mark
+
+			"3423279826": {}, // hunter helm
+			"3889633083": {}, // hunter arms
+			"2180477077": {}, // hunter chest
+			"2298096557": {}, // hunter legs
+			"877968616": {}, // hunter cloak
+
+			"1350126011": {}, // warlock helm
+			"2850984298": {}, // warlock arms
+			"4241329310": {}, // warlock chest
+			"1890196228": {}, // warlock legs
+			"3570956455": {}, // warlock bond
+		},
+		"encounters": [
+			{
+				"phaseHash": 1126840038,
+				"displayProperties": {
+					"name": "Kalli, the Corrupted",
+					"description": "Defeat Kalli"
+				},
+				"dropTable": {
+
+				}
+			},
+			{
+				"phaseHash": 1126840038,
+				"displayProperties": {
+					"name": "Shuro Chi, the Corrupted",
+					"description": "Defeat Shuro Chi"
+				},
+				"dropTable": {
+
+				}
+			},
+			{
+				"phaseHash": 1126840038,
+				"displayProperties": {
+					"name": "Morgeth, the Spirekeeper",
+					"description": "Defeat Morgeth, the Spirekeeper"
+				},
+				"dropTable": {
+
+				}
+			},
+			{
+				"phaseHash": 1126840038,
+				"displayProperties": {
+					"name": "The Vault",
+					"description": "Unlock the Way Forward"
+				},
+				"dropTable": {
+
+				}
+			},
+			{
+				"phaseHash": 1126840038,
+				"displayProperties": {
+					"name": "Riven of a Thousand Voices",
+					"description": "Slay Riven"
+				},
+				"dropTable": {
+					"3314893283": {}, // ethereal key
+				}
+			},
+			{
+				"displayProperties": {
+					"name": "Queenswalk",
+					"description": "Take the Stone to the Techeun"
+				},
+				"dropTable": {
+					"2069224589": {}, // 1k voices
+				}
+			}
+		]
+	}
 }
