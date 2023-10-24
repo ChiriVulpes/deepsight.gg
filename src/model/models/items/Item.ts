@@ -391,11 +391,13 @@ class Item {
 			// doesn't rotate out
 			return false;
 
-		if (this.sources.some(source => source.dropTable.phases.some(phase => phase.dropTable[this.definition.hash])))
+		if (this.sources.some(source => false
+			|| source.dropTable.dropTable?.[this.definition.hash]
+			|| source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash])))
 			// always available in specific encounters
 			return false;
 
-		return this.sources.some(source => source.masterActivity && source.isActiveMasterDrop);
+		return this.sources.some(source => source.isActiveDrop || (source.masterActivity && source.isActiveMasterDrop));
 	}
 
 	public shouldTrustBungie () {

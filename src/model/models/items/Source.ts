@@ -12,6 +12,7 @@ export interface ISource {
 	masterActivityDefinition?: DestinyActivityDefinition;
 	masterActivity?: DestinyActivity;
 	activeChallenge?: DestinyActivityModifierDefinition;
+	isActiveDrop: boolean;
 	isActiveMasterDrop: boolean;
 	record?: DestinyRecordDefinition;
 }
@@ -33,9 +34,11 @@ namespace Source {
 		const { DeepsightDropTableDefinition } = manifest;
 		let dropTables = await DeepsightDropTableDefinition.all();
 		dropTables = dropTables.filter(table => false
-			|| table.phases.some(phase => phase.dropTable[item.definition.hash])
-			|| table.master?.challengeDropTable?.[item.definition.hash]
-			|| table.master?.challengeRotations.drops?.includes(item.definition.hash));
+			|| table.dropTable?.[item.definition.hash]
+			|| table.encounters?.some(encounter => encounter.dropTable?.[item.definition.hash])
+			|| table.master?.dropTable?.[item.definition.hash]
+			|| table.rotations?.drops?.includes(item.definition.hash)
+			|| table.rotations?.masterDrops?.includes(item.definition.hash));
 
 		if (!dropTables.length)
 			return undefined;
@@ -43,8 +46,8 @@ namespace Source {
 		return Promise.all(dropTables.map(table => resolveDropTable(manifest, profile, table, item)));
 	}
 
-	async function resolveDropTable ({ DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition }: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit) {
-		const weeks = Math.floor((Date.now() - (table.master?.challengeRotations.anchor ?? 0)) / Time.weeks(1));
+	async function resolveDropTable ({ DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition }: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
+		const weeks = Math.floor((Date.now() - (table.rotations?.anchor ?? 0)) / Time.weeks(1));
 
 		return {
 			dropTable: table,
@@ -53,9 +56,10 @@ namespace Source {
 			masterActivity: !table.master?.activityHash ? undefined : Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
 				.flatMap(activities => activities.availableActivities)
 				.find(activity => activity.activityHash === table.master!.activityHash),
-			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.master?.challengeRotations?.challenges, weeks)),
-			isActiveMasterDrop: !!table.master?.challengeDropTable?.[item.definition.hash]
-				|| resolveRotation(table.master?.challengeRotations.drops, weeks) === item.definition.hash,
+			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
+			isActiveDrop: resolveRotation(table.rotations?.drops, weeks) === item.definition.hash,
+			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
+				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
 			record: await DestinyRecordDefinition.get(table.recordHash),
 		};
 	}
