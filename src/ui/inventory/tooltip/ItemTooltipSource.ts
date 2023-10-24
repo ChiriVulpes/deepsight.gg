@@ -51,7 +51,8 @@ export default class ItemTooltipSource extends Component {
 		for (const source of item.sources) {
 			let activity = source.activityDefinition;
 
-			const isNormalDrop = source.dropTable.phases.some(phase => phase.dropTable[item.definition.hash]);
+			const isNormalDrop = source.dropTable.encounters?.some(encounter => encounter.dropTable?.[item.definition.hash])
+				|| !!source.dropTable.dropTable?.[item.definition.hash];
 			if (!isNormalDrop) {
 				if (!source.masterActivityDefinition)
 					// missing master activity, can't display source
@@ -91,9 +92,9 @@ export default class ItemTooltipSource extends Component {
 
 	private renderChallenge (wrapper: Component, item: Item, source: ISource) {
 		const challenge = source.activeChallenge!;
-		const challengeHashes = source.dropTable.master?.challengeRotations.challenges;
+		const challengeHashes = source.dropTable.rotations?.challenges;
 		const challengeIndex = challengeHashes?.indexOf(challenge.hash) ?? -1;
-		const phase = challengeHashes?.length === source.dropTable.phases.length ? source.dropTable.phases[challengeIndex] : undefined;
+		const phase = challengeHashes?.length === source.dropTable.encounters?.length ? source.dropTable.encounters?.[challengeIndex] : undefined;
 
 		const challengeComponent = Component.create()
 			.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
@@ -115,9 +116,14 @@ export default class ItemTooltipSource extends Component {
 	}
 
 	private renderPhases (wrapper: Component, item: Item, source: ISource) {
-		for (let i = 0; i < source.dropTable.phases.length; i++) {
-			const phase = source.dropTable.phases[i];
-			if (!phase.dropTable[item.definition.hash])
+		if (!source.dropTable.encounters?.length)
+			return;
+
+		for (let i = 0; i < source.dropTable.encounters.length; i++) {
+			const encounter = source.dropTable.encounters[i];
+			const dropTable = encounter.dropTableMergeStrategy === "replace" ? encounter.dropTable
+				: { ...source.dropTable.dropTable, ...encounter.dropTable };
+			if (!dropTable?.[item.definition.hash])
 				continue;
 
 			const phaseComponent = Component.create()
@@ -131,12 +137,12 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
-				.text.set(Display.name(phase))
+				.text.set(Display.name(encounter))
 				.appendTo(phaseComponent);
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
-				.text.set(Display.description(phase))
+				.text.set(Display.description(encounter))
 				.appendTo(phaseComponent);
 		}
 	}
