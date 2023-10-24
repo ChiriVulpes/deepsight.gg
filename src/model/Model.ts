@@ -14,6 +14,7 @@ export interface IModelEvents<R> {
 }
 
 export interface IModelGenerationApi {
+	setCacheTime (cacheTimeSupplier: () => number): void;
 	emitProgress (progress: number, messages?: string | string[]): void;
 	subscribeProgress (model: Model<any>, amount: number, from?: number): this;
 	subscribeProgressAndWait<R> (model: Model<any, R>, amount: number, from?: number): Promise<R>;
@@ -221,6 +222,7 @@ namespace Model {
 
 					let lastMessage: string[] = [];
 					const api: IModelGenerationApi = {
+						setCacheTime: (cacheTimeSupplier) => this.getCacheTime = cacheTimeSupplier,
 						emitProgress: (progress, messages: Arrays.Or<string>, bubbled = false) => {
 							messages = Arrays.resolve(messages);
 							this._loadingInfo = { progress, messages };

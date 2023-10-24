@@ -11,11 +11,15 @@ const Manifest = Model.createTemporary(async api => {
 	const destinyManifest = await api.subscribeProgressAndWait(DestinyManifest, 1 / 3);
 	const deepsightManifest = await api.subscribeProgressAndWait(DeepsightManifest, 1 / 3, 1 / 3);
 	const clarityManifest = await api.subscribeProgressAndWait(ClarityManifest, 1 / 3, 2 / 3);
+
+	api.setCacheTime(() =>
+		Math.max(DestinyManifest.getCacheTime(), DeepsightManifest.getCacheTime(), ClarityManifest.getCacheTime()));
+
 	return {
 		...destinyManifest,
 		...deepsightManifest,
 		...clarityManifest,
-	}
+	};
 });
 
 type Manifest = {
