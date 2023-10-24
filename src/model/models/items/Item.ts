@@ -276,7 +276,7 @@ class Item {
 		item.collections = await Item.createFake(manifest, profile, item.definition);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true) {
 		const item: IItemInit = {
 			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
@@ -295,7 +295,7 @@ class Item {
 			Stats.apply(manifest, profile, item),
 			Moment.apply(manifest, item),
 			Collectibles.apply(manifest, profile, item),
-			Source.apply(manifest, profile, item),
+			source && Source.apply(manifest, profile, item),
 		]);
 
 		return new Item(item);
@@ -657,3 +657,5 @@ class Item {
 }
 
 export default Item;
+
+Object.assign(window, { Item });

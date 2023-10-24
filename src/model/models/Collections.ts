@@ -1,9 +1,9 @@
-import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
+import Item from "model/models/items/Item";
+import ItemEquippableDummies from "model/models/items/ItemEquippableDummies";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
 import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
@@ -14,14 +14,12 @@ namespace Collections {
 	export function moment (moment: DeepsightMomentDefinition) {
 		return moments[moment.hash] ??= Model.createDynamic("Daily", async () => {
 			const manifest = await Manifest.await();
-			const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
+			const { DestinyInventoryItemDefinition } = manifest;
 			const profile = await ProfileBatch.await();
 
 			const itemDefs = await DestinyInventoryItemDefinition.all("iconWatermark", typeof moment.iconWatermark === "string" ? moment.iconWatermark : "?")
 				.then(items => items
-					.filter(item => item.displayProperties.name && item.equippable
-						&& !item.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies)
-						&& (item.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) || item.itemCategoryHashes?.includes(ItemCategoryHashes.Armor))));
+					.filter(item => item.displayProperties.name && !ItemEquippableDummies.is(item)));
 
 			const map = new Map<string, Set<DestinyInventoryItemDefinition>>();
 			const issues = new Set<DestinyInventoryItemDefinition>();
@@ -33,8 +31,8 @@ namespace Collections {
 				if (existing?.size) {
 					const [itemA] = existing;
 
-					const itemAIndex = getPreferredCopySortIndex(itemA, await DestinyPowerCapDefinition.get(itemA.quality?.versions[itemA.quality.currentVersion]?.powerCapHash));
-					const itemBIndex = getPreferredCopySortIndex(itemB, await DestinyPowerCapDefinition.get(itemB.quality?.versions[itemB.quality.currentVersion]?.powerCapHash));
+					const itemAIndex = await ItemEquippableDummies.getPreferredCopySortIndex(itemA);
+					const itemBIndex = await ItemEquippableDummies.getPreferredCopySortIndex(itemB);
 
 					if (itemBIndex < itemAIndex)
 						// don't replace itemA copy if itemB copy is worse
@@ -69,14 +67,8 @@ namespace Collections {
 			// eslint-disable-next-line no-constant-condition
 			return Promise.all(useItemDefs
 				.map(item => Item.createFake(manifest, profile, item)));
-		})
+		});
 	}
 }
 
 export default Collections;
-
-function getPreferredCopySortIndex (item: DestinyInventoryItemDefinition, powerCap?: DestinyPowerCapDefinition) {
-	return (item.collectibleHash ? 100000 : 0)
-		+ (item.plug ? 0 : 10000)
-		+ ((powerCap?.powerCap ?? 0) < 900000 ? 0 : 1000);
-}

@@ -51,9 +51,7 @@ export default class ItemTooltipSource extends Component {
 		for (const source of item.sources) {
 			let activity = source.activityDefinition;
 
-			const isNormalDrop = source.dropTable.encounters?.some(encounter => encounter.dropTable?.[item.definition.hash])
-				|| !!source.dropTable.dropTable?.[item.definition.hash];
-			if (!isNormalDrop) {
+			if (source.isActiveMasterDrop) {
 				if (!source.masterActivityDefinition)
 					// missing master activity, can't display source
 					continue;
@@ -80,7 +78,7 @@ export default class ItemTooltipSource extends Component {
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseWrapper)
 				.appendTo(activityComponent);
 
-			if (isNormalDrop)
+			if (!source.isActiveMasterDrop)
 				this.renderPhases(phasesWrapper, item, source);
 
 			if (source.activeChallenge && item.isFomo())

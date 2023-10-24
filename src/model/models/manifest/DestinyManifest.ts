@@ -30,7 +30,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-20.deepsight.gg`;
+		return `${manifest.version}-21.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
@@ -70,6 +70,8 @@ const DestinyManifest = Model.create("destiny manifest", {
 					case "manifest [DestinyInventoryItemDefinition]":
 						if (!store.indexNames.contains("iconWatermark"))
 							store.createIndex("iconWatermark", "iconWatermark");
+						if (!store.indexNames.contains("name"))
+							store.createIndex("name", "displayProperties.name");
 						break;
 					case "manifest [DestinyRecordDefinition]":
 						if (!store.indexNames.contains("icon"))

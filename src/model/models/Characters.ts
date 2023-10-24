@@ -1,7 +1,10 @@
 import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { GroupUserInfoCard } from "bungie-api-ts/groupv2";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
+import { getCurrentDestinyMembership } from "model/models/Memberships";
 import ProfileBatch from "model/models/ProfileBatch";
+import type { CharacterId } from "model/models/items/Item";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
 
@@ -46,3 +49,16 @@ export const ProfileCharacters = Model.createDynamic(Time.seconds(30), async pro
 	return Objects.mapAsync(profile.characters?.data ?? {}, async ([key, character]) =>
 		[key, await Character.get(character, manifest, profile)]);
 });
+
+export interface CharacterInfoCard extends GroupUserInfoCard {
+	characterId?: CharacterId;
+}
+
+export async function getCurrentMembershipAndCharacter (): Promise<CharacterInfoCard> {
+	const membership = await getCurrentDestinyMembership();
+	const profile = await ProfileBatch.await();
+	return {
+		...membership,
+		characterId: !profile.characters?.data ? undefined : Object.keys(profile.characters?.data ?? Objects.EMPTY)[0] as CharacterId,
+	};
+}

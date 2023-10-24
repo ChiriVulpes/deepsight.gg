@@ -9,7 +9,7 @@ import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/
 export namespace IManifest {
 	export function elapsed (elapsed: number) {
 		if (elapsed < 1)
-			return `${Math.floor(elapsed * 1_000)} μs`
+			return `${Math.floor(elapsed * 1_000)} μs`;
 
 		if (elapsed < 1_000)
 			return `${Math.floor(elapsed)} ms`;
@@ -27,7 +27,7 @@ export namespace IManifest {
 	export type Indices<COMPONENT_NAME extends AllComponentNames> =
 		{
 			DeepsightMomentDefinition: "iconWatermark" | "id";
-			DestinyInventoryItemDefinition: "iconWatermark";
+			DestinyInventoryItemDefinition: "iconWatermark" | "name";
 			DestinyRecordDefinition: "icon" | "name";
 		} extends infer ALL_INDICES ?
 		ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
