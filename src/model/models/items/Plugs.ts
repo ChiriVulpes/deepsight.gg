@@ -5,6 +5,7 @@ import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
 import { TierHashes } from "model/models/items/Tier";
 import { ClarityManifest } from "model/models/manifest/ClarityManifest";
+import Async from "utility/Async";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 import Maths from "utility/maths/Maths";
 
@@ -64,7 +65,16 @@ export class Socket {
 		// 	socket.socketedPlug = plugs[0];
 
 		// } else {
-		socket.plugs = await Promise.all(plugs.map(plug => /*plug instanceof Plug ? plug :*/ Plug.resolve(manifest, plug, item)));
+		socket.plugs = [];
+		let lastPause = Date.now();
+		for (const plug of plugs) {
+			socket.plugs.push(/*plug instanceof Plug ? plug :*/ await Plug.resolve(manifest, plug, item));
+			if (Date.now() - lastPause > 30) {
+				await Async.sleep(1);
+				lastPause = Date.now();
+			}
+		}
+
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
 		if (!socketedPlug && currentPlugHash) {
 			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true, item);
