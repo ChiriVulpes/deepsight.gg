@@ -8,7 +8,7 @@ import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
 import URL from "utility/URL";
 
-void screen?.orientation?.lock("portrait-primary").catch(() => { });
+void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
 
 export default class DeepsightGG {
 
