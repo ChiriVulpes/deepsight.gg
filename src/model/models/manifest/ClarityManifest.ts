@@ -76,7 +76,7 @@ const ClarityManifest = Model.create("clarity database", {
 				if (componentName === "ClarityDescriptions") {
 					for (const hash of itemHashes) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-						cache[`/:${hash}`] ??= null;
+						cache[`/:${hash}`] ??= null as any;
 					}
 				}
 			});

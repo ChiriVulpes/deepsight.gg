@@ -49,6 +49,8 @@ namespace Arrays {
 
 	export type Or<T> = T | T[];
 
+	export const EMPTY: [] = [];
+
 	export function resolve<T = never> (or?: Or<T>): T[] {
 		return Array.isArray(or) ? or : or === undefined ? [] : [or];
 	}
@@ -60,8 +62,6 @@ namespace Arrays {
 	export function remove (array: any[] | undefined, value: any) {
 		if (!array)
 			return false;
-
-		array.sort
 
 		const index = array.indexOf(value);
 		if (index === -1)

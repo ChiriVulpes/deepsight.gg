@@ -31,7 +31,7 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 		for (const sale of Object.values<DestinyVendorSaleItemComponent>(vendor.sales.data ?? Objects.EMPTY)) {
 			const definition = await DestinyInventoryItemDefinition.get(sale.itemHash);
-			const name = definition?.displayProperties.name.trimEnd();
+			const name = definition?.displayProperties?.name.trimEnd();
 			if (!name?.endsWith("(Adept)"))
 				continue;
 

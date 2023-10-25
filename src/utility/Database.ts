@@ -168,7 +168,7 @@ class Database<SCHEMA> {
 					return;
 				}
 
-				reject(new Error(`Cannot create database '${this.schema.id}', error: ${request.error?.message ?? "Unknown error"}`))
+				reject(new Error(`Cannot create database '${this.schema.id}', error: ${request.error?.message ?? "Unknown error"}`));
 			});
 
 			request.addEventListener("success", () =>
@@ -253,7 +253,7 @@ namespace Database {
 		}
 
 		public async all<KEY extends keyof SCHEMA> (name: KEY, range?: IDBValidKey | IDBKeyRange): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (name: KEY, key: IDBValidKey | IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (name: KEY, key: IDBValidKey | IDBKeyRange | string, index?: string): Promise<SCHEMA[KEY][]>;
 		public async all<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBValidKey | IDBKeyRange | string, index?: string) {
 			if (Array.isArray(rangeOrKey)) {
 				return new Promise<SCHEMA[KEY][]>((resolve, reject) => {
@@ -271,7 +271,7 @@ namespace Database {
 						if (!cursor)
 							return resolve(result);
 
-						if (rangeOrKey.includes(cursor.key))
+						if (rangeOrKey.includes(cursor.key) || (!isNaN(+cursor.key) && rangeOrKey.includes(+cursor.key)))
 							result.push(cursor.value as SCHEMA[KEY]);
 
 						cursor.continue();
@@ -294,7 +294,7 @@ namespace Database {
 		}
 
 		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index: string): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
 		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
 			return this.do<IDBValidKey[]>(() => {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -376,7 +376,14 @@ namespace Database {
 		}
 	}
 
-	type IStagedTransaction<SCHEMA, RETURN> = (transaction: Transaction<SCHEMA>) => Promise<RETURN>;
+	type StagedTransactionFunction<SCHEMA, RETURN, DATA extends any[] = []> = (transaction: Transaction<SCHEMA>, ...data: DATA) => Promise<RETURN>;
+	interface IStagedTransactionDefinition<SCHEMA, RETURN, DATA extends any[] = []> {
+		id: string;
+		function: StagedTransactionFunction<SCHEMA, RETURN[], DATA>;
+		data: DATA;
+		resolve?(value: RETURN): void;
+	}
+	type IStagedTransaction<SCHEMA, RETURN, DATA extends any[] = []> = StagedTransactionFunction<SCHEMA, RETURN, DATA> | IStagedTransactionDefinition<SCHEMA, RETURN, DATA>;
 
 	export class StagedTransaction<SCHEMA, STORES extends (keyof SCHEMA)[]> {
 		public constructor (
@@ -385,12 +392,17 @@ namespace Database {
 			private readonly mode: IDBTransactionMode,
 		) { }
 
-		private readonly pending: IStagedTransaction<SCHEMA, any>[] = [];
+		private readonly pending: IStagedTransaction<SCHEMA, any, any[]>[] = [];
 		private activeTransaction?: Promise<void>;
 
-		private queue<RETURN> (staged: IStagedTransaction<SCHEMA, RETURN>) {
+		private queue<RETURN, DATA extends any[] = []> (staged: IStagedTransaction<SCHEMA, RETURN, DATA>) {
 			const resultPromise = new Promise<RETURN>(resolve => {
-				this.pending.push(async transaction => resolve(await staged(transaction)));
+				if (typeof staged === "function")
+					this.pending.push(async transaction => resolve(await staged(transaction, ...[] as any[] as DATA)));
+				else {
+					staged.resolve = resolve;
+					this.pending.push(staged as any as IStagedTransactionDefinition<SCHEMA, any, any[]>);
+				}
 			});
 
 			void this.tryExhaustQueue();
@@ -407,10 +419,35 @@ namespace Database {
 				while (this.pending.length) {
 					const transactions = this.pending.splice(0, Infinity);
 					console.debug(`Found ${transactions.length} staged transactions over:`, ...this.over);
+					const start = performance.now();
 					await this.database.transaction(this.over, this.mode, async transaction => {
-						for (const staged of transactions)
-							await staged(transaction);
+						const transactionsByType: Record<string, IStagedTransactionDefinition<SCHEMA, any, any[]>[]> = {};
+						for (const staged of transactions) {
+							if (typeof staged === "function") {
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+								await staged(transaction);
+								continue;
+							}
+
+							transactionsByType[staged.id] ??= [];
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+							transactionsByType[staged.id].push(staged);
+						}
+
+						for (const transactions of Object.values(transactionsByType)) {
+							const data = transactions.flatMap(staged => staged.data);
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+							const results = await transactions[0].function(transaction, ...data);
+							if (results.length !== data.length)
+								throw new Error(`Invalid number of results for ${transactions[0].id} over ${this.over.join(", ")}`);
+
+							for (let i = 0; i < results.length; i++) {
+								transactions[i].resolve!(results[i]);
+							}
+						}
 					});
+
+					console.debug(`Completed ${transactions.length} staged transactions in ${performance.now() - start}ms over:`, ...this.over);
 				}
 			})();
 
@@ -429,18 +466,25 @@ namespace Database {
 
 		public async get<KEY extends keyof SCHEMA> (store: KEY, key: string, index?: string) {
 			return this.queue(transaction => transaction.get(store, key, index));
+			// return this.queue({
+			// 	id: `get:${String(store)}:${index ?? "/"}`,
+			// 	data: [key],
+			// 	function: async (transaction, ...data) =>
+			// 		data.length === 1 ? [await transaction.get(store, key, index)]
+			// 			: transaction.all(store, data, index),
+			// });
 		}
 
 		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBValidKey | IDBKeyRange | string): Promise<SCHEMA[KEY][]>;
-		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBValidKey | IDBKeyRange | string, index: string): Promise<SCHEMA[KEY][]>;
+		public async all<KEY extends keyof SCHEMA> (store: KEY, range: IDBValidKey | IDBKeyRange | string, index?: string): Promise<SCHEMA[KEY][]>;
 		public async all<KEY extends keyof SCHEMA> (store: KEY, range?: IDBValidKey | IDBKeyRange | string, index?: string) {
-			return this.queue(transaction => transaction.all(store, range!, index!));
+			return this.queue(transaction => transaction.all(store, range!, index));
 		}
 
 		public async allKeys<KEY extends keyof SCHEMA> (store: KEY): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index: string): Promise<IDBValidKey[]>;
+		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
 		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
-			return this.queue(transaction => transaction.allKeys(store, range!, index!));
+			return this.queue(transaction => transaction.allKeys(store, range!, index));
 		}
 
 		public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {

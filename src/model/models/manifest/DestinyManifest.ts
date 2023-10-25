@@ -1,7 +1,9 @@
-import type { AllDestinyManifestComponents, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import type { AllDestinyManifestComponents, DestinyInventoryComponent, DestinyInventoryItemDefinition, DestinyItemReusablePlugsComponent, DestinyItemSocketsComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import ProfileBatch from "model/models/ProfileBatch";
 import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import Env from "utility/Env";
+import Objects from "utility/Objects";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
@@ -30,7 +32,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-21.deepsight.gg`;
+		return `${manifest.version}-22.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
@@ -195,27 +197,73 @@ const DestinyManifest = Model.create("destiny manifest", {
 
 		return bungieComponentNames;
 	},
-	process: componentNames => {
+	process: async componentNames => {
 		const Manifest = Object.fromEntries(componentNames
 			.map(componentName => [componentName, new ManifestItem(componentName)])) as DestinyManifest;
 
-		// const { DestinyPlugSetDefinition } = Manifest;
-		// const plugSets = await DestinyPlugSetDefinition.all();
-		// const plugItemHashes = Array.from(new Set(plugSets.flatMap(plugSet => plugSet.reusablePlugItems)
-		// 	.map(plug => `${plug.plugItemHash}`)));
+		for (const componentName of componentNames)
+			if (componentName !== "DestinyInventoryItemDefinition" && componentName !== "DestinyInventoryItemLiteDefinition")
+				Manifest[componentName].setPreCache(true);
 
-		for (const componentName of componentNames) {
-			switch (componentName) {
-				case "DestinyInventoryItemDefinition":
-					// Manifest[componentName].setPreCache(plugItemHashes);
-					break;
-				case "DestinyInventoryItemLiteDefinition":
-					// no caching, doesn't get used
-					break;
-				default:
-					Manifest[componentName].setPreCache(true);
-			}
+		////////////////////////////////////
+		// precache item hashes from profile
+		const profile = await ProfileBatch.await();
+
+		const itemHashes = new Set((profile.profileInventory?.data?.items.map(item => item.itemHash) ?? [])
+			.concat(Object.values<DestinyInventoryComponent>(profile.characterInventories?.data ?? Objects.EMPTY)
+				.concat(Object.values<DestinyInventoryComponent>(profile.characterEquipment?.data ?? Objects.EMPTY))
+				.flatMap(inventory => inventory.items.map(item => item.itemHash))));
+
+		for (const itemSockets of Object.values<DestinyItemSocketsComponent>(profile.itemComponents?.sockets.data ?? Objects.EMPTY)) {
+			for (const socket of itemSockets.sockets ?? [])
+				if (socket.plugHash)
+					itemHashes.add(socket.plugHash);
 		}
+
+		for (const itemPlugsByItems of Object.values<DestinyItemReusablePlugsComponent>(profile.itemComponents?.reusablePlugs.data ?? Objects.EMPTY)) {
+			for (const plugs of Object.values(itemPlugsByItems.plugs))
+				for (const plug of plugs)
+					itemHashes.add(plug.plugItemHash);
+		}
+
+		Manifest.DestinyInventoryItemDefinition.setPreCache([...itemHashes], async (cache, cacheKeyRange) => {
+			////////////////////////////////////
+			// precache plug items from cached item defs
+			let values = Object.values(cache);
+			const itemHashes = new Set<number>();
+
+			for await (const itemDef of values)
+				if (itemDef?.inventory?.recipeItemHash)
+					if (!cache[`/:${itemDef.inventory.recipeItemHash}`])
+						itemHashes.add(itemDef.inventory.recipeItemHash);
+
+			await cacheKeyRange([...itemHashes]);
+			itemHashes.clear();
+
+			values = Object.values(cache);
+			for await (const itemDef of values) {
+				for (const socketEntry of itemDef?.sockets?.socketEntries ?? []) {
+					if (!cache[`/:${socketEntry.singleInitialItemHash}`])
+						itemHashes.add(socketEntry.singleInitialItemHash);
+
+					for (const plug of socketEntry.reusablePlugItems)
+						if (!cache[`/:${plug.plugItemHash}`])
+							itemHashes.add(plug.plugItemHash);
+
+					let plugSet = await Manifest.DestinyPlugSetDefinition.get(socketEntry.reusablePlugSetHash);
+					for (const plugItem of plugSet?.reusablePlugItems ?? [])
+						if (!cache[`/:${plugItem.plugItemHash}`])
+							itemHashes.add(plugItem.plugItemHash);
+
+					plugSet = await Manifest.DestinyPlugSetDefinition.get(socketEntry.randomizedPlugSetHash);
+					for (const plugItem of plugSet?.reusablePlugItems ?? [])
+						if (!cache[`/:${plugItem.plugItemHash}`])
+							itemHashes.add(plugItem.plugItemHash);
+				}
+			}
+
+			return cacheKeyRange([...itemHashes]);
+		});
 
 		Object.assign(window, { Manifest, DestinyManifest: Manifest });
 		return Manifest;

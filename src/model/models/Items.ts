@@ -6,6 +6,7 @@ import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
+import { ManifestItem } from "model/models/manifest/IManifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import Async from "utility/Async";
 import Time from "utility/Time";
@@ -119,6 +120,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	buckets.vault = await createBucket("vault", profileItems);
 
 	Plugs.logInitialisedPlugTypes();
+	ManifestItem.logQueryCounts();
 	api.emitProgress(4 / 4);
 
 	DebugInfo.updateBuckets(buckets);

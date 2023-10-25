@@ -59,7 +59,17 @@ declare module "model/ModelCacheDatabase" {
 	interface IModelCache extends IManifest.IModelCacheManifestComponents { }
 }
 
+type QueryCounts = Partial<Record<IManifest.AllComponentNames | "ALL", Record<string | number, number>>>;
+
 export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
+
+	private static readonly queryCounts: QueryCounts = {};
+
+	public static logQueryCounts () {
+		console.debug("Query counts:", Object.fromEntries(Object.entries(ManifestItem["queryCounts"])
+			.map(([over, counts]) => [over, Object.entries(counts)
+				.sort(([, a], [, b]) => b - a)])));
+	}
 
 	private memoryCache: IManifest.ManifestItemCache<COMPONENT_NAME> = {};
 
@@ -101,6 +111,13 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey] ?? undefined;
+
+		const counts = ManifestItem.queryCounts[this.componentName] ??= {} as Record<string | number, number>;
+		counts[key] ??= 0;
+		counts[key]++;
+		ManifestItem.queryCounts.ALL ??= {};
+		ManifestItem.queryCounts.ALL[key] ??= 0;
+		ManifestItem.queryCounts.ALL[key]++;
 
 		const promise = this.stagedTransaction.get(IManifest.CacheComponentKey.get(this.componentName), `${key}`, index as string | undefined)
 			.then(value => {
@@ -157,10 +174,10 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 
 			if (!hasCache) {
 				console.debug("Generating initial", bundleKey);
-				if (this.allCached !== undefined || this.cacheAllKeyRange !== undefined) {
+				const cacheKeyRange = async (keyRange = this.cacheAllKeyRange && this.cacheAllKeyRange !== true ? this.cacheAllKeyRange : undefined) => {
 					const all = await this.stagedTransaction.all(
 						IManifest.CacheComponentKey.get(this.componentName),
-						this.cacheAllKeyRange && this.cacheAllKeyRange !== true ? this.cacheAllKeyRange : undefined,
+						keyRange,
 					);
 
 					for (const value of all) {
@@ -169,9 +186,13 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 							this.memoryCache[memoryCacheKey] = value;
 						}
 					}
+				};
+
+				if (this.allCached !== undefined || this.cacheAllKeyRange !== undefined) {
+					await cacheKeyRange();
 				}
 
-				await this.cacheInitialiser?.(this.memoryCache);
+				await this.cacheInitialiser?.(this.memoryCache, cacheKeyRange);
 
 				// save changes
 				clearTimeout(this.manifestCacheUpdateTimeout);
@@ -187,9 +208,9 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		})();
 	}
 
-	private cacheInitialiser?: (cache: any) => any;
+	private cacheInitialiser?: (cache: IManifest.ManifestItemCache<COMPONENT_NAME>, cacheKeyRange: (keyRange?: IDBValidKey | IDBKeyRange | undefined) => Promise<void>) => any;
 	private cacheAllKeyRange?: true | IDBValidKey | IDBKeyRange;
-	public setPreCache (all: boolean | IDBValidKey | IDBKeyRange, initialise?: (cache: any) => any) {
+	public setPreCache (all: boolean | IDBValidKey | IDBKeyRange, initialise?: (cache: IManifest.ManifestItemCache<COMPONENT_NAME>, cacheKeyRange: (keyRange?: IDBValidKey | IDBKeyRange | undefined) => Promise<void>) => any) {
 		this.cacheInitialiser = initialise;
 		if (all) {
 			this.allCached = all === true ? false : undefined;
@@ -208,6 +229,8 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		this.manifestCacheUpdateTimeout = window.setTimeout(async () => {
 			await this.modelCache.reset();
 			await this.modelCache.await();
-		}, 1000);
+		}, 2000);
 	}
 }
+
+Object.assign(window, { ManifestItem });
