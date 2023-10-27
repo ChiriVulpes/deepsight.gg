@@ -33,6 +33,7 @@ export interface DeepsightDropTableDefinition {
 	 * If challenges or drops rotate, this field will be filled
 	 */
 	rotations?: DeepsightDropTableRotationsDefinition;
+	displayProperties?: Partial<DestinyDisplayPropertiesDefinition>;
 }
 
 export interface DeepsightDropTableEncounterDefinition {

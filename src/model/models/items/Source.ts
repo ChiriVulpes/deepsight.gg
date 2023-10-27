@@ -1,4 +1,4 @@
-import type { DestinyActivityDefinition, DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
@@ -10,7 +10,6 @@ import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendo
 import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 
 export interface ISource {
-	displayProperties?: Partial<DestinyDisplayPropertiesDefinition>;
 	dropTable: DeepsightDropTableDefinition;
 	activity?: DestinyActivity;
 	activityDefinition: DestinyActivityDefinition;
@@ -79,12 +78,12 @@ namespace Source {
 						&& a.displayProperties.name === activity.displayProperties.description);
 
 				sources.set(activity.hash, {
-					displayProperties: {
-						icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
-					},
 					dropTable: {
 						hash: activity.hash,
 						iconRecordHash: 3052859887,
+						displayProperties: {
+							icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
+						},
 					},
 					activityDefinition: rootActivity ?? activity,
 					masterActivity: activityAwardsAdept ? true : undefined,
@@ -138,7 +137,7 @@ namespace Source {
 			masterActivity: !table.master?.activityHash ? undefined : availableActivities
 				.find(activity => activity.activityHash === table.master!.activityHash),
 			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
-			isActiveDrop: resolveRotation(table.rotations?.drops, weeks) === item.definition.hash,
+			isActiveDrop: table.rotations?.drops ? resolveRotation(table.rotations?.drops, weeks) === item.definition.hash : true,
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
 			record: await DestinyRecordDefinition.get(table.iconRecordHash),

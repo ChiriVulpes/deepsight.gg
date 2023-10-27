@@ -1,4 +1,4 @@
-import type { DestinyActivityDefinition, DestinyActivityTypeDefinition, DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes, type DestinyActivityDefinition, type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
@@ -9,6 +9,7 @@ import type { ISource } from "model/models/items/Source";
 import Card, { CardClasses } from "ui/Card";
 import Component from "ui/Component";
 import Details from "ui/Details";
+import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Display from "ui/bungie/DisplayProperties";
 import { CollectionsMomentClasses } from "ui/view/collections/CollectionsMoment";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
@@ -55,7 +56,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			]);
 		// .filter((source): source is [number, DestinyActivityDefinition, ISource] => !!source);
 
-		const { DestinyActivityTypeDefinition } = manifest;
+		const { DestinyActivityTypeDefinition, DestinyActivityModeDefinition } = manifest;
 
 		const added = new Set<number>();
 		for (const [hash, activity, source] of sources) {
@@ -78,7 +79,11 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			if (!sourceItems.length)
 				continue;
 
-			const activityType = await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
+			// eslint-disable-next-line no-constant-condition
+			const activityType: DisplayPropertied | undefined = false ? undefined
+				// dungeon type doesn't have icon, use mode instead
+				: activity.activityTypeHash === 608898761 ? await DestinyActivityModeDefinition.get(608898761)
+					: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
 
 			CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
 				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
@@ -87,35 +92,51 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 	}
 
 	private async discoverItems (manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation) {
-		const itemHashes: (number | string)[] = [];
+		const itemHashes = new Set<number>();
 
-		itemHashes.push(...Object.values(weaponRotation).flat());
+		for (const hash of Object.values(weaponRotation).flat())
+			itemHashes.add(hash);
 
-		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition } = manifest;
+		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } = manifest;
+
+		const activities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
+			.flatMap(activities => activities.availableActivities);
 
 		const dropTables = await DeepsightDropTableDefinition.all();
 		for (const source of dropTables) {
-			const masterActivity = !source.master?.activityHash ? undefined : Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
-				.flatMap(activities => activities.availableActivities)
-				.find(activity => activity.activityHash === source.master!.activityHash);
+			const activity = activities.find(activity => activity.activityHash === source.rotationActivityHash)
+				?? activities.find(activity => activity.activityHash === source.hash);
 
-			if (!masterActivity)
-				continue;
+			const challenges = await Promise.all(activity?.challenges?.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)) ?? []);
+			if (challenges.some(challenge => challenge?.displayProperties?.name === "Weekly Dungeon Challenge")) {
+				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))
+					itemHashes.add(+dropHash);
 
-			if (source.rotations) {
-				const weeks = Math.floor((Date.now() - (source.rotations?.anchor ?? 0)) / Time.weeks(1));
-				const masterDrop = resolveRotation(source.rotations.masterDrops, weeks);
-				if (masterDrop)
-					itemHashes.push(masterDrop);
+				for (const encounter of source.encounters ?? [])
+					for (const dropHash of Object.keys(encounter.dropTable ?? Objects.EMPTY))
+						itemHashes.add(+dropHash);
 			}
 
-			for (const dropHash of Object.keys(source.master?.dropTable ?? Objects.EMPTY))
-				itemHashes.push(dropHash);
+			const masterActivity = !source.master?.activityHash ? undefined :
+				activities.find(activity => activity.activityHash === source.master!.activityHash);
+
+			if (masterActivity) {
+				if (source.rotations) {
+					const weeks = Math.floor((Date.now() - (source.rotations?.anchor ?? 0)) / Time.weeks(1));
+					const masterDrop = resolveRotation(source.rotations.masterDrops, weeks);
+					if (masterDrop)
+						itemHashes.add(masterDrop);
+				}
+
+				for (const dropHash of Object.keys(source.master?.dropTable ?? Objects.EMPTY))
+					itemHashes.add(+dropHash);
+			}
 		}
 
-		return Promise.all(itemHashes.map(hash => Promise.resolve(DestinyInventoryItemDefinition.get(hash))
+		return Promise.all(Array.from(itemHashes).map(hash => Promise.resolve(DestinyInventoryItemDefinition.get(hash))
 			.then(def => def && Item.createFake(manifest, profile, def))))
-			.then(items => items.filter((item): item is Item => !!item));
+			.then(items => items.filter((item): item is Item =>
+				!!(item && item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon))));
 	}
 }
 
@@ -123,14 +144,14 @@ function resolveRotation<T> (rotation: T[] | undefined, weeks: number) {
 	return !rotation?.length ? undefined : rotation?.[weeks % rotation.length];
 }
 
-export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DestinyActivityTypeDefinition | undefined, items: Item[], inventory: Inventory]> {
+export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory: Inventory]> {
 
-	protected override onMake (activity: DestinyActivityDefinition, source: ISource, activityType: DestinyActivityTypeDefinition | undefined, items: Item[], inventory: Inventory): void {
+	protected override onMake (activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory: Inventory): void {
 		super.onMake(activity, source, activityType, items, inventory);
 		this.setDisplayMode(CardClasses.DisplayModeCard);
 		this.classes.add(CollectionsCurrentlyAvailableClasses.Activity);
 
-		const icon = source?.record?.displayProperties ?? source?.displayProperties;
+		const icon = source?.dropTable.displayProperties?.icon ?? source?.record?.displayProperties?.icon;
 
 		// wrap the icon in a container so we can make it really big and use overflow hidden on it 
 		Component.create()
@@ -179,6 +200,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 
 		const rewards = Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityRewards)
+			.style.set("--length", `${items.length}`)
 			.appendTo(this.content);
 
 		ICollectionsView.addItems(rewards, items, inventory);

@@ -64,9 +64,11 @@
 				width: fit-content;
 			}
 			
-			width: 450px;
-			height: 300px;
+			--card-width: 500px;
+			width: var(--card-width);
+			height: 350px;
 			overflow: initial;
+			--default-slot-size: var(--slot-size);
 			
 			&-title {
 				color: color(foreground-0);
@@ -87,6 +89,7 @@
 				margin-top: 8px;
 				display: flex;
 				flex-wrap: wrap;
+				--slot-size: min(var(--default-slot-size), (var(--card-width) - var(--card-padding) * 2) / var(--length, 6));
 			}
 			
 			&-icon {
@@ -160,9 +163,10 @@
 				&-bookmark {
 					width: 1.8em;
 					height: 2em;
-					--background-strike: #355f77;
+					--background-strike: #467896;
 					--background-trials: #7c6748;
-					--background-raid: #2b282b;
+					--background-raid: #3a353a;
+					--background-dungeon: #766252;
 					background: var(--background, #{color(background-6)});
 					position: relative;
 					display: flex;
@@ -170,6 +174,8 @@
 					align-items: center;
 					justify-content: center;
 					filter: drop-shadow(0 0 2px #000a);
+					z-index: 1;
+					top: -2px;
 					
 					&::before, &::after {
 						content: "";
@@ -196,6 +202,8 @@
 						background-size: contain;
 						background-position: center;
 						background-repeat: no-repeat;
+						position: relative;
+						top: 3px;
 					}
 				}
 				

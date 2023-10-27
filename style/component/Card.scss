@@ -193,6 +193,7 @@
 		--card-padding: 16px;
 		padding: var(--card-padding);
 		width: fit-content;
+		box-sizing: border-box;
 		
 		--swipe-down-out-delay: .3s;
 		&::before {
