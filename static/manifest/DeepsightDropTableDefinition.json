@@ -593,14 +593,14 @@
 					"description": "Defeat the Phalanx Echo",
 				},
 				"dropTable": {
-					// judgement
-					// the long walk
-					// titan legs (coda)
-					// titan mark (coda)
-					// hunter legs (coda)
-					// hunter cloak (coda)
-					// warlock legs (coda)
-					// warlock bond (coda)
+					"1476654960": {}, // judgement
+					"3326850591": {}, // the long walk
+					"1219883244": {}, // titan legs (coda)
+					"1900280383": {}, // titan mark (coda)
+					"3155320806": {}, // hunter legs (coda)
+					"1717940633": {}, // hunter cloak (coda)
+					"2022923313": {}, // warlock legs (coda)
+					"2966633380": {}, // warlock bond (coda)
 				}
 			},
 			{
@@ -609,11 +609,11 @@
 					"description": "Escape",
 				},
 				"dropTable": {
-					// a swift verdict
-					// the last breath
-					// titan arms (coda)
-					// hunter arms (coda)
-					// warlock arms (coda)
+					"1626503676": {}, // a swift verdict
+					"507038823": {}, // the last breath
+					"818644818": {}, // titan arms (coda)
+					"4194072668": {}, // hunter arms (coda)
+					"1406846351": {}, // warlock arms (coda)
 				}
 			},
 			{
@@ -622,38 +622,117 @@
 					"description": "Defeat the Kell Echo",
 				},
 				"dropTable": {
-					// darkest before
-					// a sudden death
+					"2481758391": {}, // darkest before
+					"2855157553": {}, // a sudden death
 
-					// titan helm (coda)
-					// titan chest (coda)
-					// titan mark (coda)
-					// titan helm (moonfang)
-					// titan arms (moonfang)
-					// titan chest (moonfang)
-					// titan legs (moonfang)
-					// titan mark (moonfang)
+					"3976073347": {}, // titan helm (coda)
+					"2570653206": {}, // titan chest (coda)
+					"1900280383": {}, // titan mark (coda)
 
-					// hunter helm (coda)
-					// hunter chest (coda)
-					// hunter cloak (coda)
-					// hunter helm (moonfang)
-					// hunter arms (moonfang)
-					// hunter chest (moonfang)
-					// hunter legs (moonfang)
-					// hunter cloak (moonfang)
+					"2234240008": {}, // titan helm (moonfang)
+					"1581574297": {}, // titan arms (moonfang)
+					"1571337215": {}, // titan chest (moonfang)
+					"178689419": {}, // titan legs (moonfang)
+					"3242850062": {}, // titan mark (moonfang)
 
-					// warlock helm (coda)
-					// warlock chest (coda)
-					// warlock bond (coda)
-					// warlock helm (moonfang)
-					// warlock arms (moonfang)
-					// warlock chest (moonfang)
-					// warlock legs (moonfang)
-					// warlock bond (moonfang)
+					"3075372781": {}, // hunter helm (coda)
+					"508076356": {}, // hunter chest (coda)
+					"1717940633": {}, // hunter cloak (coda)
+
+					"2623956730": {}, // hunter helm (moonfang)
+					"100226755": {}, // hunter arms (moonfang)
+					"4121885325": {}, // hunter chest (moonfang)
+					"2487240821": {}, // hunter legs (moonfang)
+					"2701727616": {}, // hunter cloak (moonfang)
+
+					"2602907742": {}, // warlock helm (coda)
+					"1652467433": {}, // warlock chest (coda)
+					"2966633380": {}, // warlock bond (coda)
+
+					"2288398391": {}, // warlock helm (moonfang)
+					"1361912510": {}, // warlock arms (moonfang)
+					"1658294130": {}, // warlock chest (moonfang)
+					"1781294872": {}, // warlock legs (moonfang)
+					"2295111683": {}, // warlock bond (moonfang)
 				}
 			},
 		]
+	},
+	"1375089621": { // pit of heresy
+		"iconRecordHash": 2636815577,
+		"rotationActivityHash": 2582501063,
+		"dropTable": {
+			"2813078109": {}, // titan helm
+			"1699964364": {}, // titan arms
+			"175015316": {}, // titan chest
+			"2345799798": {}, // titan legs
+			"1343302889": {}, // titan mark
+
+			"1496857121": {}, // hunter helm
+			"2293199928": {}, // hunter arms
+			"3434445392": {}, // hunter chest
+			"328467570": {}, // hunter legs
+			"2786161293": {}, // hunter cloak
+
+			"1721938300": {}, // warlock helm
+			"3118392309": {}, // warlock arms
+			"4235863403": {}, // warlock chest
+			"399547095": {}, // warlock legs
+			"2975563522": {}, // warlock bond
+		},
+		"encounters": [
+			{ 
+				"displayProperties": {
+					"name": "Necropolis",
+					"description": "",
+				},
+				"dropTable": {
+					"2164448701": {"requiredItem": 1165306707}, // apostate
+					"2782847179": {"requiredItem": 1165306707}, // blasphemer
+					"3067821200": {"requiredItem": 1165306707}, // heretic
+
+					"4277547616": {}, // every waking moment
+					"3690523502": {}, // love and death
+					"3325778512": {}, // a fine memorial
+					"1016668089": {}, // one small step
+					"208088207": {}, // premonition
+					"3924212056": {}, // loud lullaby
+					"2723909519": {}, // arc logic
+					"2931957300": {}, // dream breaker
+					"1645386487": {}, // tranquility
+					"3870811754": {}, // night terror
+				}
+			},
+			{ 
+				"displayProperties": {
+					"name": "Chamber of Suffering",
+					"description": "",
+				},
+				"dropTable": {
+					"2164448701": {"requiredItem": 1165306707}, // apostate
+					"2782847179": {"requiredItem": 1165306707}, // blasphemer
+					"3067821200": {"requiredItem": 1165306707}, // heretic
+
+					"4277547616": {}, // every waking moment
+					"3690523502": {}, // love and death
+					"3325778512": {}, // a fine memorial
+					"1016668089": {}, // one small step
+					"208088207": {}, // premonition
+					"3924212056": {}, // loud lullaby
+					"2723909519": {}, // arc logic
+					"2931957300": {}, // dream breaker
+					"1645386487": {}, // tranquility
+					"3870811754": {}, // night terror
+				}
+			},
+			{ 
+				"displayProperties": {
+					"name": "Zulmak, Instrument of Torment",
+					"description": "Purge the tormentor",
+				},
+			},
+		]
+
 	},
 	"1893059148": { // shattered throne
 		"iconRecordHash": 2783781907, // icon hash
@@ -704,5 +783,5 @@
 				}
 			},
 		]
-	}
+	},
 }
