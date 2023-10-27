@@ -35,7 +35,7 @@ namespace Display {
 		if (!url)
 			return undefined;
 
-		if (!url.startsWith("https://"))
+		if (!url.startsWith("https://") && !url.startsWith("./"))
 			url = `https://www.bungie.net${url}`;
 		return wrapped ? `url("${url}")` : url;
 	}

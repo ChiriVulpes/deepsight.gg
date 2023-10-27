@@ -262,6 +262,10 @@ $z-index-loading: 1000;
 				width: 22%;
 				height: 22%;
 			}
+			
+			.item-deepsight-pattern ~ .item-fomo & {
+				display: none;
+			}
 		}
 
 		&::before {

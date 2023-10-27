@@ -87,7 +87,7 @@ export default class ItemTooltipSource extends Component {
 			if (!source.isActiveMasterDrop)
 				this.renderPhases(phasesWrapper, item, source);
 
-			if (source.activeChallenge && item.isFomo())
+			else if (source.activeChallenge && item.isFomo())
 				this.renderChallenge(phasesWrapper, item, source);
 		}
 

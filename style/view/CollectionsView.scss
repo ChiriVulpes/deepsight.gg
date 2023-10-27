@@ -50,33 +50,40 @@
 	}
 	
 	&-currently-available {
-		overflow-x: auto;
-		margin: 0 -8px;
 		margin-bottom: 24px;
 		
 		&-activity {
 			&-wrapper {
-				display: grid;
-				grid-auto-columns: max-content;
-				grid-auto-flow: column;
-				gap: 8px;
+				// display: grid;
+				// grid-auto-columns: max-content;
+				// grid-auto-flow: column;
+				// overflow-x: auto;
+				display: flex;
+				flex-wrap: wrap;
+				gap: var(--card-gap);
 				padding: 8px;
-				width: fit-content;
+				--length: 3;
+				--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--length) - 1)) / var(--length));
+				--card-height: min(var(--card-width) * .65, (100vh - 400px) / 2);
+				--card-gap: 8px;
+				margin: 0 -8px;
+				
+				// &-2 {
+				// 	--length: 4;
+				// }
 			}
 			
-			--card-width: 500px;
 			width: var(--card-width);
-			height: 350px;
+			height: var(--card-height);
 			overflow: initial;
-			--default-slot-size: var(--slot-size);
 			
 			&-title {
 				color: color(foreground-0);
 			}
 			
 			&-description {
-				font-size: 0.9em;
-				color: color(foreground-2);
+				font-size: 0.8em;
+				color: color(foreground-3);
 				font-style: italic;
 			}
 			
@@ -86,10 +93,11 @@
 			}
 			
 			&-rewards {
-				margin-top: 8px;
+				margin: -8px -4px;
+				margin-top: 4px;
 				display: flex;
 				flex-wrap: wrap;
-				--slot-size: min(var(--default-slot-size), (var(--card-width) - var(--card-padding) * 2) / var(--length, 6));
+				--slot-size: 47px;
 			}
 			
 			&-icon {
@@ -99,11 +107,11 @@
 					overflow: hidden;
 				}
 				
-				width: 300px;
-				height: 300px;
+				width: calc(var(--card-height) * .75);
+				height: calc(var(--card-height) * .75);
 				position: absolute;
-				bottom: -50px;
-				left: -100px;
+				bottom: 0;
+				left: calc(0px - var(--card-height) * .15);
 				background: none;
 				-webkit-mask-image: none;
 				mask-image: none;
@@ -132,8 +140,8 @@
 				}
 				
 				&::after {
-					filter: brightness(.8);
-					opacity: .1;
+					filter: brightness(.7);
+					opacity: .15;
 				}
 			}
 		
@@ -141,7 +149,7 @@
 				position: absolute;
 				inset: 0;
 				bottom: auto;
-				background: #0003;
+				background: #0007;
 				height: 2em;
 				padding-left: var(--card-padding);
 				display: flex;

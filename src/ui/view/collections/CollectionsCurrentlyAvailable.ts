@@ -6,6 +6,7 @@ import type ProfileBatch from "model/models/ProfileBatch";
 import type WeaponRotation from "model/models/WeaponRotation";
 import Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
+import Source from "model/models/items/Source";
 import Card, { CardClasses } from "ui/Card";
 import Component from "ui/Component";
 import Details from "ui/Details";
@@ -21,12 +22,14 @@ export enum CollectionsCurrentlyAvailableClasses {
 	Main = "view-collections-currently-available",
 	Heading = "view-collections-currently-available-heading",
 	ActivityWrapper = "view-collections-currently-available-activity-wrapper",
+	ActivityWrapper2 = "view-collections-currently-available-activity-wrapper-2",
 	Activity = "view-collections-currently-available-activity",
 	ActivityIcon = "view-collections-currently-available-activity-icon",
 	ActivityIconContainer = "view-collections-currently-available-activity-icon-container",
 	ActivityTitle = "view-collections-currently-available-activity-title",
 	ActivityDescription = "view-collections-currently-available-activity-description",
 	ActivityRewards = "view-collections-currently-available-activity-rewards",
+	ActivityRewardsLong = "view-collections-currently-available-activity-rewards-long",
 	ActivityHeader = "view-collections-currently-available-activity-header",
 	ActivityHeaderBookmark = "view-collections-currently-available-activity-header-bookmark",
 	ActivityHeaderBookmarkIcon = "view-collections-currently-available-activity-header-bookmark-icon",
@@ -60,7 +63,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		const added = new Set<number>();
 		for (const [hash, activity, source] of sources) {
-			if (added.has(hash))
+			if (added.has(hash) || added.has(source.activityDefinition.hash))
 				continue;
 
 			added.add(hash);
@@ -89,6 +92,8 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
 				.appendTo(activityWrapper);
 		}
+
+		activityWrapper.classes.toggle(added.size > 5, CollectionsCurrentlyAvailableClasses.ActivityWrapper2);
 	}
 
 	private async discoverItems (manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation) {
@@ -97,7 +102,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		for (const hash of Object.values(weaponRotation).flat())
 			itemHashes.add(hash);
 
-		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } = manifest;
+		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition, DestinyActivityDefinition } = manifest;
 
 		const activities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
@@ -107,8 +112,13 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			const activity = activities.find(activity => activity.activityHash === source.rotationActivityHash)
 				?? activities.find(activity => activity.activityHash === source.hash);
 
+			const masterActivity = !source.master?.activityHash ? undefined :
+				activities.find(activity => activity.activityHash === source.master!.activityHash);
+
+			const masterActivityDefinition = await DestinyActivityDefinition.get(masterActivity?.activityHash);
+
 			const challenges = await Promise.all(activity?.challenges?.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)) ?? []);
-			if (challenges.some(challenge => challenge?.displayProperties?.name === "Weekly Dungeon Challenge")) {
+			if (challenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */) {
 				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))
 					itemHashes.add(+dropHash);
 
@@ -116,9 +126,6 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 					for (const dropHash of Object.keys(encounter.dropTable ?? Objects.EMPTY))
 						itemHashes.add(+dropHash);
 			}
-
-			const masterActivity = !source.master?.activityHash ? undefined :
-				activities.find(activity => activity.activityHash === source.master!.activityHash);
 
 			if (masterActivity) {
 				if (source.rotations) {
@@ -179,18 +186,24 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.style.set("--icon", Display.icon(activityType)))
 			.appendTo(this.header);
 
+		const note = undefined
+			?? (source.activityChallenges.some(Source.isWeeklyChallenge) ? "Rotator" : undefined)
+			?? (activity.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? "Repeatable" : undefined);
+
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderSubtitle)
 			.text.add((source?.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall) ? Display.name(source.masterActivityDefinition.originalDisplayProperties) : undefined)
 				?? Display.name(activityType) ?? "Unknown")
-			// .append(Component.create("span")
-			// 	.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderSubtitleNote)
-			// 	.text.add(" / ")
-			// 	.text.add("Repeatable"))
+			.append(note && Component.create("span")
+				.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderSubtitleNote)
+				.text.add(" \xa0 // \xa0 ")
+				.text.add(note))
 			.appendTo(this.header);
 
 		this.title.classes.add(CollectionsCurrentlyAvailableClasses.ActivityTitle)
-			.text.set(Display.name(activity))
+			.text.set(undefined
+				?? (activity.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? Display.name(activity.originalDisplayProperties) : undefined)
+				?? Display.name(activity))
 			.appendTo(this.content); // the title should be part of the content instead of part of the header
 
 		Component.create()
@@ -200,7 +213,8 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 
 		const rewards = Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityRewards)
-			.style.set("--length", `${items.length}`)
+			.classes.toggle(items.length > 10, CollectionsCurrentlyAvailableClasses.ActivityRewardsLong)
+			.style.set("--length", `${items.length > 10 ? 8 : items.length}`)
 			.appendTo(this.content);
 
 		ICollectionsView.addItems(rewards, items, inventory);

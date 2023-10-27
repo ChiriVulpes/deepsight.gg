@@ -2,7 +2,7 @@ import { BucketHashes, ItemCategoryHashes, StatHashes } from "bungie-api-ts/dest
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
-import { CharacterId } from "model/models/items/Item";
+import { CharacterId, ItemFomoState } from "model/models/items/Item";
 import { PlugType } from "model/models/items/Plugs";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
@@ -205,7 +205,6 @@ class ItemTooltip extends Tooltip {
 
 		this.fomo = Component.create()
 			.classes.add(ItemTooltipClasses.Fomo)
-			.text.set("This item is currently available.")
 			.appendTo(this.content);
 
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
@@ -328,7 +327,7 @@ class ItemTooltip extends Tooltip {
 				.classes.add(`item-tooltip-energy-type-${damageTypeName}`)
 				.style.set("--colour", ElementType.getColour(damageTypeName));
 
-			this.primaryStatDamageIcon.attributes.set("src", Display.icon(damageType, false))
+			this.primaryStatDamageIcon.attributes.set("src", Display.icon(damageType, false));
 		}
 
 		this.primaryStatLabel
@@ -399,7 +398,10 @@ class ItemTooltip extends Tooltip {
 						: wishlists.length === 1 && wishlists[0].name === "Wishlist" ? "This item matches your wishlist."
 							: `This item matches wishlist${wishlists.length > 1 ? "s" : ""}: ${wishlists.map(list => list.name).join(", ")}`);
 
-		this.fomo.classes.toggle(!item.isFomo(), Classes.Hidden);
+		const fomoState = item.isFomo();
+		this.fomo.classes.toggle(!fomoState, Classes.Hidden)
+			.text.set(fomoState === ItemFomoState.TemporaryAvailability ? "This item is currently available."
+				: "This item's activity is currently repeatable.");
 
 		this.note.classes.add(Classes.Hidden);
 

@@ -275,6 +275,11 @@
 		}
 		
 		&-background {
+			&-wrapper {
+				position: absolute;
+				inset: 0;
+				overflow: hidden;
+			}
 			position: absolute;
 			inset: 0;
 			width: 100%;
@@ -294,10 +299,10 @@
 					display: block;
 					position: absolute;
 					inset: 0;
-					top: -36px;
-					background: #000a;
-					-webkit-mask-image: linear-gradient(to top, #000 60%, transparent 100%);
-					mask-image: linear-gradient(to top, #000 60%, transparent 100%);
+					top: -30px;
+					background: #000c;
+					-webkit-mask-image: linear-gradient(to top, #000 calc(100% - 150px), #000d calc(100% - 80px), #000a calc(100% - 50px), transparent 100%);
+					mask-image: linear-gradient(to top, #000 calc(100% - 150px), #000c calc(100% - 80px), #000a calc(100% - 50px), transparent 100%);
 				}
 			}
 		}

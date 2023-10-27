@@ -1,4 +1,4 @@
-import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyActivityDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
@@ -13,6 +13,7 @@ export interface ISource {
 	dropTable: DeepsightDropTableDefinition;
 	activity?: DestinyActivity;
 	activityDefinition: DestinyActivityDefinition;
+	activityChallenges: DestinyObjectiveDefinition[];
 	masterActivityDefinition?: DestinyActivityDefinition;
 	masterActivity?: DestinyActivity | true;
 	activeChallenge?: DestinyActivityModifierDefinition;
@@ -85,6 +86,7 @@ namespace Source {
 							icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
 						},
 					},
+					activityChallenges: [],
 					activityDefinition: rootActivity ?? activity,
 					masterActivity: activityAwardsAdept ? true : undefined,
 					masterActivityDefinition: activity,
@@ -122,22 +124,33 @@ namespace Source {
 		return Promise.all(dropTables.map(table => resolveDropTable(manifest, profile, table, item)));
 	}
 
-	async function resolveDropTable ({ DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition }: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
+	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
+		const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition } = manifest;
+
 		const weeks = Math.floor((Date.now() - (table.rotations?.anchor ?? 0)) / Time.weeks(1));
 
 		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
 
+		const activity = availableActivities.find(activity => activity.activityHash === table.rotationActivityHash)
+			?? availableActivities.find(activity => activity.activityHash === table.hash);
+
+		const activityChallenges = (await Promise.all(activity?.challenges?.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)) ?? []))
+			.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
+
+		const masterActivity = !table.master?.activityHash ? undefined : availableActivities
+			.find(activity => activity.activityHash === table.master!.activityHash);
+
 		return {
 			dropTable: table,
-			activity: availableActivities.find(activity => activity.activityHash === table.rotationActivityHash)
-				?? availableActivities.find(activity => activity.activityHash === table.hash),
+			activity,
 			activityDefinition: await DestinyActivityDefinition.get(table.hash)!,
+			activityChallenges,
 			masterActivityDefinition: await DestinyActivityDefinition.get(table.master?.activityHash),
-			masterActivity: !table.master?.activityHash ? undefined : availableActivities
-				.find(activity => activity.activityHash === table.master!.activityHash),
+			masterActivity,
 			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
-			isActiveDrop: table.rotations?.drops ? resolveRotation(table.rotations?.drops, weeks) === item.definition.hash : true,
+			isActiveDrop: table.rotations?.drops ? resolveRotation(table.rotations?.drops, weeks) === item.definition.hash
+				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
 			record: await DestinyRecordDefinition.get(table.iconRecordHash),
@@ -146,6 +159,11 @@ namespace Source {
 
 	function resolveRotation<T> (rotation: T[] | undefined, weeks: number) {
 		return !rotation?.length ? undefined : rotation?.[weeks % rotation.length];
+	}
+
+	export function isWeeklyChallenge (objective?: DestinyObjectiveDefinition): objective is DestinyObjectiveDefinition {
+		return objective?.displayProperties?.name === "Weekly Dungeon Challenge"
+			|| objective?.displayProperties?.name === "Weekly Raid Challenge";
 	}
 }
 

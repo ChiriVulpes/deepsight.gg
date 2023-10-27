@@ -44,6 +44,12 @@ export namespace CharacterId {
 	}
 }
 
+export enum ItemFomoState {
+	NoMo,
+	TemporaryAvailability,
+	TemporaryRepeatability,
+}
+
 enum TransferType {
 	PullFromPostmaster,
 	TransferToVault,
@@ -387,17 +393,22 @@ class Item {
 	 * Some items are only very rarely available, such as adept raid weapons. Do you have the fomo? You should!
 	 */
 	public isFomo () {
-		if (!this.sources?.length)
-			// doesn't rotate out
-			return false;
+		for (const source of this.sources ?? []) {
+			if (source.isActiveDrop && (source.activityChallenges.some(Source.isWeeklyChallenge) || source.masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */))
+				return ItemFomoState.TemporaryRepeatability;
 
-		if (this.sources.some(source => false
-			|| source.dropTable.dropTable?.[this.definition.hash]
-			|| source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash])))
-			// always available in specific encounters
-			return false;
+			if (source.dropTable.dropTable?.[this.definition.hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash]))
+				// always available in specific encounters
+				continue;
 
-		return this.sources.some(source => source.isActiveDrop || (source.masterActivity && source.isActiveMasterDrop));
+			if (source.isActiveDrop)
+				return ItemFomoState.TemporaryAvailability;
+
+			if (source.masterActivity && source.isActiveMasterDrop)
+				return ItemFomoState.TemporaryRepeatability;
+		}
+
+		return ItemFomoState.NoMo;
 	}
 
 	public shouldTrustBungie () {
