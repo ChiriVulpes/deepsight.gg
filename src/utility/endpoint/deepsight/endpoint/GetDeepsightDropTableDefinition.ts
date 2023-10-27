@@ -19,7 +19,7 @@ export interface DeepsightDropTableDefinition {
 	 * 
 	 * This is solely used for the raid icon in tooltips, if the activity icon is the raid icon already this isn't necessary
 	 */
-	recordHash?: number;
+	iconRecordHash?: number;
 	/**
 	 * A drop table used by default for all encounters
 	 */
