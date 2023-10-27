@@ -885,9 +885,11 @@
 			},
 		]
 	},
-	"1893059148": { // shattered throne
-		"iconRecordHash": 2783781907, // icon hash
-		"rotationActivityHash": 2032534090,
+	"2032534090": { // shattered throne
+        "iconRecordHash": 2783781907, // icon hash
+        "displayProperties": {
+            "icon": "/common/destiny2_content/icons/5915a9ea71e59f409b3203504f403d78.png"
+        },
 		"dropTable": {
 			"1644160541": {}, // abide the return
 			"346136302": {}, // retold tale
