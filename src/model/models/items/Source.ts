@@ -83,7 +83,7 @@ namespace Source {
 					},
 					dropTable: {
 						hash: activity.hash,
-						recordHash: 3052859887,
+						iconRecordHash: 3052859887,
 					},
 					activityDefinition: rootActivity ?? activity,
 					masterActivity: activityAwardsAdept ? true : undefined,
@@ -136,7 +136,7 @@ namespace Source {
 			isActiveDrop: resolveRotation(table.rotations?.drops, weeks) === item.definition.hash,
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
-			record: await DestinyRecordDefinition.get(table.recordHash),
+			record: await DestinyRecordDefinition.get(table.iconRecordHash),
 		};
 	}
 
