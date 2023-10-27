@@ -455,6 +455,355 @@
 			},
 		]
 	},
+	"3711931140": { // Vault of Glass
+		"iconRecordHash": 3114569402,
+		"rotationActivityHash": 3881495763,
+		"encounters": [
+			{
+				"phaseHash": 1327839050,
+				"displayProperties": {
+					"name": "Confluxes",
+					"description": "Defend all three Confluxes",
+				},
+				"dropTable": {
+					"3186018373": {}, // vision of confluence
+					"3197270240": {}, // found verdict
+					"471518543": {}, // corrective measure
+					"3368765451": {}, // titan arms
+					"3012927512": {}, // titan mark
+					"3753500813": {}, // hunter arms
+					"3339387242": {}, // hunter cloak
+					"3253292022": {}, // warlock arms
+					"2253382795": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 1327839048,
+				"displayProperties": {
+					"name": "Oracles",
+					"description": "Destroy the Oracles",
+				},
+				"dropTable": {
+					"3653573172": {}, // praedyth's revenge
+					"3186018373": {}, // vision of confluence
+					"3197270240": {}, // found verdict
+					"3368765451": {}, // titan arms
+					"123979037": {}, // titan legs
+					"3753500813": {}, // hunter arms
+					"129332559": {}, // hunter legs
+					"3253292022": {}, // warlock arms
+					"170603856": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 1327839049,
+				"displayProperties": {
+					"name": "The Templar",
+					"description": "Defeat the Templar",
+				},
+				"dropTable": {
+					"2171478765": {}, // fatebringer
+					"3186018373": {}, // vision of confluence
+					"471518543": {}, // corrective measure
+					"3368765451": {}, // titan arms
+					"3890978501": {}, // titan chest
+					"3753500813": {}, // hunter arms
+					"1133961267": {}, // hunter chest
+					"3253292022": {}, // warlock arms
+					"3029386938": {}, // warlock chest
+				}
+			},
+			{
+				"phaseHash": 3793779770,
+				"displayProperties": {
+					"name": "Gatekeepers",
+					"description": "Awaken the Glass Throne",
+				},
+				"dropTable": {
+					"2171478765": {}, // fatebringer
+					"4050645223": {}, // hezen vengeance
+					"3197270240": {}, // found verdict
+					"4029224226": {}, // titan helm
+					"123979037": {}, // titan legs
+					"586128500": {}, // hunter helm
+					"129332559": {}, // hunter legs
+					"673599343": {}, // warlock helm
+					"170603856": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 3793779769,
+				"displayProperties": {
+					"name": "Atheon, Time's Conflux",
+					"description": "Destroy Atheon",
+				},
+				"dropTable": {
+					"3653573172": {}, // praedyth's revenge
+					"471518543": {}, // corrective measure
+					"4050645223": {}, // hezen vengeance
+					"4289226715": {}, // vex mythoclast
+					"4029224226": {}, // titan helm
+					"3890978501": {}, // titan chest
+					"586128500": {}, // hunter helm
+					"1133961267": {}, // hunter chest
+					"673599343": {}, // warlock helm
+					"3029386938": {}, // warlock chest
+				}
+			},
+		],
+		"master": {
+			"activityHash": 3022541210,
+			"dropTable": {
+				"631439337": {}, // Found Verdict (Timelost)
+			}
+		},
+		"rotations": {
+			"anchor": 1697562000000, // oct 17
+			"masterDrops": [
+				690668916, // Vision of Confluence (Timelost)
+				1987769101, // Praedyth's Revenge (Timelost)
+				1216319404, // Fatebringer (Timelost)
+				1921159786, // Hezen Vengeance (Timelost)
+				3796510434, // Corrective Measure (Timelost)
+			],
+			"challenges": [
+				3135466059, // Wait for It... (confluxes)
+				274420331, // The Only Oracle For You (oracles)
+				2814846409, // Out of Its Way (templar)
+				3212721586, // Strangers in Time (gatekeeper)
+				1572570117, // Ensemble's Refrain (atheon)
+			]
+		}
+	},
+	"1441982566": { // Vow of the Disciple
+		"iconRecordHash": 2168422218,
+		"encounters": [
+			{
+				"phaseHash": 580855089,
+				"displayProperties": {
+					"name": "Acquisition",
+					"description": "Truth. Symbolize. Is. Materialize. Everywhere.",
+				},
+				"dropTable": {
+					"3886416794": {}, // submission
+					"768621510": {}, // deliverance
+					"999767358": {}, // cataclysmic
+					"362541459": {}, // titan helm
+					"1627640710": {}, // titan chest
+					"365727964": {}, // titan legs
+					"1649346047": {}, // hunter helm
+					"3487540074": {}, // hunter chest
+					"1566699968": {}, // hunter legs
+					"2316722050": {}, // warlock helm
+					"3300312357": {}, // warlock chest
+					"2748020989": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 1942966197,
+				"displayProperties": {
+					"name": "Collection",
+					"description": "Do Not Disrupt the Caretaker",
+				},
+				"dropTable": {
+					"3886416794": {}, // submission
+					"3428521585": {}, // insidious
+					"999767358": {}, // cataclysmic
+					"613334176": {}, // forbearance
+					"362541459": {}, // titan helm
+					"2150515362": {}, // titan arms
+					"2370089583": {}, // titan mark
+					"1649346047": {}, // hunter helm
+					"1583213254": {}, // hunter arms
+					"4124357755": {}, // hunter cloak
+					"2316722050": {}, // warlock helm
+					"1656263403": {}, // warlock arms
+					"2422261368": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 196663595,
+				"displayProperties": {
+					"name": "Exhibition",
+					"description": "Nothing More than Meaningless Trinkets",
+				},
+				"dropTable": {
+					"3886416794": {}, // submission
+					"768621510": {}, // deliverance
+					"1627640710": {}, // titan chest
+					"365727964": {}, // titan legs
+					"3487540074": {}, // hunter chest
+					"1566699968": {}, // hunter legs
+					"3300312357": {}, // warlock chest
+					"2748020989": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 3840791265,
+				"displayProperties": {
+					"name": "Dominion",
+					"description": "DROWNDROWNDROWN",
+				},
+				"dropTable": {
+					"3428521585": {}, // insidious
+					"2534546147": {}, // lubrae's ruin
+					"613334176": {}, // forbearance
+					"3505113722": {}, // collective obligation
+					"362541459": {}, // titan helm
+					"2150515362": {}, // titan arms
+					"2370089583": {}, // titan mark
+					"1649346047": {}, // hunter helm
+					"1583213254": {}, // hunter arms
+					"4124357755": {}, // hunter cloak
+					"2316722050": {}, // warlock helm
+					"1656263403": {}, // warlock arms
+					"2422261368": {}, // warlock bond
+				}
+			},
+		],
+		"master": {
+			"activityHash": 3889634515,
+			"dropTable": {
+				"1941816543": {}, // Submission (adept)
+				"2943293195": {}, // Deliverance (adept)
+				"2886339027": {}, // Cataclysmic (adept)
+				"786352912": {}, // Insidious (adept)
+				"1466006054": {}, // Lubrae's Ruin (adept)
+				"4038592169": {}, // Forbearance (adept)
+			}
+		},
+		"rotations": {
+			"anchor": 1696352400000, // oct 3
+			"challenges": [
+				2672226122, // Swift Destruction (aquisition)
+				3425521520, // Base Information (caretaker)
+				2255984700, // Defenses Down (exhibition)
+				2098788044, // Looping Catalyst (rhulk)
+			]
+		}
+	},
+	"1374392663": { // King's Fall
+		"iconRecordHash": 3047702042,
+		"encounters": [
+			{
+				"phaseHash": 1406613360,
+				"displayProperties": {
+					"name": "Basilica",
+					"description": "Power the Glyph",
+				},
+				"dropTable": {
+					"1937552980": {}, // doom of chelchis
+					"1321506184": {}, // qullim's terminus
+					"1066132704": {}, // titan chest
+					"4039112898": {}, // titan legs
+					"376168733": {}, // titan mark
+					"169689932": {}, // hunter chest
+					"2725249086": {}, // hunter legs
+					"2868448385": {}, // hunter cloak
+					"3921733799": {}, // warlock chest
+					"3229616835": {}, // warlock legs
+					"766618550": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 2115142089,
+				"displayProperties": {
+					"name": "Warpriest",
+					"description": "Defeat the Warpriest",
+				},
+				"dropTable": {
+					"2221264583": {}, // smite of merain
+					"3228096719": {}, // defiance of yasmin
+					"2937773672": {}, // titan arms
+					"1066132704": {}, // titan chest
+					"2437510452": {}, // hunter arms
+					"169689932": {}, // hunter chest
+					"3398467185": {}, // warlock arms
+					"3921733799": {}, // warlock chest
+				}
+			},
+			{
+				"phaseHash": 3738629258,
+				"displayProperties": {
+					"name": "Golgoroth",
+					"description": "Defeat Golgoroth",
+				},
+				"dropTable": {
+					"1321506184": {}, // qullim's terminus
+					"3969066556": {}, // midha's reckoning
+					"431721920": {}, // zaouli's bane
+					"26254737": {}, // titan helm
+					"4039112898": {}, // titan legs
+					"1656833637": {}, // hunter helm
+					"2725249086": {}, // hunter legs
+					"1537426592": {}, // warlock helm
+					"3229616835": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 2951654489,
+				"displayProperties": {
+					"name": "Daughters",
+					"description": "Defeat the Daughters of Oryx",
+				},
+				"dropTable": {
+					"2221264583": {}, // smite of merain
+					"3228096719": {}, // defiance of yasmin
+					"431721920": {}, // zaouli's bane
+					"2937773672": {}, // titan arms
+					"1066132704": {}, // titan chest
+					"2437510452": {}, // hunter arms
+					"169689932": {}, // hunter chest
+					"3398467185": {}, // warlock arms
+					"3921733799": {}, // warlock chest
+				}
+			},
+			{
+				"phaseHash": 1089000747,
+				"displayProperties": {
+					"name": "Oryx, the Taken King",
+					"description": "Defeat Oryx, the Taken King",
+				},
+				"dropTable": {
+					"1937552980": {}, // doom of chelchis
+					"1321506184": {}, // qullim's terminus
+					"2221264583": {}, // smite of merain
+					"3228096719": {}, // defiance of yasmin
+					"3969066556": {}, // midha's reckoning
+					"431721920": {}, // zaouli's bane
+					"1802135586": {}, // touch of malice
+
+					"26254737": {}, // titan helm
+					"2937773672": {}, // titan arms
+					"1656833637": {}, // hunter helm
+					"2437510452": {}, // hunter arms
+					"1537426592": {}, // warlock helm
+					"3398467185": {}, // warlock arms
+				}
+			},
+		],
+		"master": {
+			"activityHash": 3257594522,
+			"dropTable": {
+				"3248429089": {}, // Qullim's Terminus (Harrowed)
+				"1184692845": {}, // Doom of Chelchis (Harrowed)
+				"291092617": {}, // Zaouli's Bane (Harrowed)
+				"3904516037": {}, // Midha's Reckoning (Harrowed)
+				"3407395594": {}, // Smite of Merain (Harrowed)
+				"3503019618": {}, // Defiance of Yasmin (Harrowed)
+			}
+		},
+		"rotations": {
+			"anchor": 1696957200000, // oct 10
+			"challenges": [
+				3577304467, // The Grass is Always Greener (totems)
+				2159250954, // Devious Thievery (warpriest)
+				2890753840, // Gaze Amaze (golgoroth)
+				2936050162, // Under Construction (daughters)
+				4152669757, // Hands Off (oryx)
+			]
+		}
+	},
 	"313828469": { // Ghosts of the Deep
 		"displayProperties": {
 			"icon": "./image/png/activity/gotd.png"
