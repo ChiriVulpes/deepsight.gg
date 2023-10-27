@@ -146,7 +146,7 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
-				.text.set(Display.description(encounter))
+				.text.set(Display.description(encounter) || `Clear ${Display.name(encounter)}`)
 				.appendTo(phaseComponent);
 		}
 	}
