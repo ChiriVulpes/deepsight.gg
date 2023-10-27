@@ -492,7 +492,7 @@
 			},
 			{
 				"displayProperties": {
-					"name": "Calus's greatest shame",
+					"name": "Calus's Greatest Shame",
 					"description": "Defeat the Nightmare of Princess Caiatl",
 				},
 				"dropTable": {
@@ -584,8 +584,9 @@
 			"activityHash": 1112917203
 		}
 	},
-	"4148187374": {  // prophecy
+	"1077850348": {  // prophecy
 		"iconRecordHash": 969826320,
+		"rotationActivityHash": 4148187374,
 		"encounters": [
 			{
 				"displayProperties": {
@@ -658,9 +659,9 @@
 			},
 		]
 	},
-	"1375089621": { // pit of heresy
+	"2582501063": { // pit of heresy
 		"iconRecordHash": 2636815577,
-		"rotationActivityHash": 2582501063,
+		"rotationActivityHash": 1375089621,
 		"dropTable": {
 			"2813078109": {}, // titan helm
 			"1699964364": {}, // titan arms
@@ -732,10 +733,10 @@
 				},
 			},
 		]
-
 	},
 	"1893059148": { // shattered throne
 		"iconRecordHash": 2783781907, // icon hash
+		"rotationActivityHash": 2032534090,
 		"dropTable": {
 			"1644160541": {}, // abide the return
 			"346136302": {}, // retold tale
