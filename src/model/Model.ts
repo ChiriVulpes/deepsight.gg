@@ -34,7 +34,8 @@ type Model<T, R = T> = Model.Impl<T, R>;
 
 namespace Model {
 
-	export type Resolve<MODELS extends readonly Model<any, any>[]> = { [KEY in keyof MODELS]: MODELS[KEY] extends Model<any, infer R> ? R : never };
+	export type Resolve<MODEL extends Model<any, any>> = MODEL extends Model<any, infer R> ? R : never;
+	export type ResolveList<MODELS extends readonly Model<any, any>[]> = { [KEY in keyof MODELS]: MODELS[KEY] extends Model<any, infer R> ? R : never };
 
 	export const cacheDB = new Database(ModelCacheDatabase);
 
@@ -161,7 +162,7 @@ namespace Model {
 			await this.getModelVersion();
 			if (includeExpired || this.isCacheValid(cached.cacheTime, cached.version)) {
 				// this cached value is valid
-				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`)
+				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`);
 				this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;

@@ -194,6 +194,7 @@
 
 		&-emblem {
 			justify-self: right;
+			z-index: 1;
 			&::before {
 				content: "";
 				display: block;
@@ -648,7 +649,7 @@
 
 		&-label {
 			display: contents;
-			color: color(foreground-2);
+			color: color(foreground-3);
 			text-align: right;
 			> * {
 				position: relative;

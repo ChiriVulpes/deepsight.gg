@@ -1,12 +1,11 @@
 @mixin animation-swipe-up-in($duration: $animation-duration-global, $delay: $animation-delay-global) {
-	transform: translateY(0);
-	opacity: 1;
 	@if $duration == null {
 		$duration: 0.3s;
 	}
 	@if $delay == null {
 		$delay: 0s;
 	}
+	--swipe-up-in-animation-end-delay: #{$delay + $duration};
 	animation:
 		animation-swipe-up-in-pre ($delay + 0.01s) linear,
 		animation-swipe-up-in $duration cubic-bezier(0, 0, 0.4, 1) $delay;

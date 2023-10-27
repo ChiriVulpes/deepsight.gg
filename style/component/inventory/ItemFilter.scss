@@ -14,7 +14,7 @@
 		&:empty::before {
 			content: "No filter enabled";
 			font-style: italic;
-			color: color(foreground-3);
+			color: color(foreground-5);
 		}
 		overflow-x: auto;
 		overflow-y: hidden;

@@ -9,7 +9,7 @@ import { EventManager } from "utility/EventManager";
 namespace View {
 
 	export type Initialiser<MODELS extends readonly Model<any, any>[], ARGS extends any[], DEFINITION extends IViewBase<ARGS>, WRAPPER extends WrapperComponent<MODELS, ARGS, DEFINITION> = WrapperComponent<MODELS, ARGS, DEFINITION>> =
-		(api: WRAPPER, ...requirements: Model.Resolve<MODELS>) => any;
+		(api: WRAPPER, ...requirements: Model.ResolveList<MODELS>) => any;
 
 	export interface IViewBase<ARGS extends any[]> {
 		id: string;
@@ -213,7 +213,7 @@ namespace View {
 				.appendTo(this);
 
 			if (!this.definition.models) {
-				this.initialise(...[] as any as Model.Resolve<MODELS>);
+				this.initialise(...[] as any as Model.ResolveList<MODELS>);
 				return;
 			}
 
@@ -240,7 +240,7 @@ namespace View {
 			return this;
 		}
 
-		private initialise (...args: Model.Resolve<MODELS>) {
+		private initialise (...args: Model.ResolveList<MODELS>) {
 			this.definition.initialise?.(this, ...args);
 			return this.content;
 		}

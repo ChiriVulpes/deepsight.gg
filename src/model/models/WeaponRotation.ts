@@ -9,9 +9,9 @@ import Strings from "utility/Strings";
 import Time from "utility/Time";
 import GetVendor, { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendor";
 
-export type WeaponRotation = Partial<Record<VendorHashes, number[]>>;
+type WeaponRotation = Partial<Record<VendorHashes, number[]>>;
 
-export default Model.createDynamic(Time.seconds(30), async () => {
+const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
 	const result: WeaponRotation = {};
 
 	const membership = await getCurrentMembershipAndCharacter();
@@ -50,3 +50,5 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 	return result;
 });
+
+export default WeaponRotation;

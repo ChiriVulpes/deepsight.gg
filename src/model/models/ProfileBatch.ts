@@ -45,7 +45,7 @@ const allComponentTypes = [
 
 allComponentTypes;
 
-export default Model.createDynamic(Time.seconds(30), async () => {
+const ProfileBatch = Model.createDynamic(Time.seconds(30), async () => {
 	const ProfileQuery = Profile(
 		// Characters
 		DestinyComponentType.Characters,
@@ -88,3 +88,7 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 	return profile;
 });
+
+type ProfileBatch = Model.Resolve<typeof ProfileBatch>;
+
+export default ProfileBatch;

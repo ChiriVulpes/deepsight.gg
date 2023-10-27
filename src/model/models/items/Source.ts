@@ -1,5 +1,6 @@
-import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
-import type { DestinyActivity, DestinyActivityModifierDefinition, DestinyCharacterActivitiesComponent, DestinyRecordDefinition, DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
+import type { DestinyActivityDefinition, DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
+import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
 import WeaponRotation from "model/models/WeaponRotation";
 import type { IItemInit } from "model/models/items/Item";
@@ -9,6 +10,7 @@ import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendo
 import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 
 export interface ISource {
+	displayProperties?: Partial<DestinyDisplayPropertiesDefinition>;
 	dropTable: DeepsightDropTableDefinition;
 	activityDefinition: DestinyActivityDefinition;
 	masterActivityDefinition?: DestinyActivityDefinition;
@@ -44,28 +46,48 @@ namespace Source {
 	async function resolveWeaponRotation (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
 		const sources = new Map<number, ISource>();
 
+		const { DestinyActivityDefinition } = manifest;
+		const activities = await DestinyActivityDefinition.all();
+		const availableActivities = await Activities.await();
+
 		const weaponRotation = await WeaponRotation.await();
 		for (const [vendor, itemHashes] of Object.entries(weaponRotation) as any[] as [VendorHashes, number[]][]) {
 			if (!itemHashes.includes(item.definition.hash))
 				continue;
 
-			const activities = await resolveVendorActivities(manifest, profile, vendor);
+			const vendorActivities = await resolveVendorActivities(manifest, profile, vendor);
 
-			for (const activity of activities) {
+			for (const activity of vendorActivities) {
 				const adept = item.definition.displayProperties.name.trimEnd().endsWith("(Adept)");
 				const activityAwardsAdept = activity.rewards.some(reward => reward.rewardItems.some(item => item.itemHash === 2119974556));
 
 				if (adept !== activityAwardsAdept)
 					continue;
 
+				if (activityAwardsAdept && activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)) {
+					const hasWeeklyNightfall = availableActivities.some(a => a.hash !== activity.hash
+						&& a.displayProperties.description === activity.displayProperties.description
+						&& a.originalDisplayProperties.name === "Nightfall");
+					if (!hasWeeklyNightfall)
+						continue;
+				}
+
+				let rootActivity: DestinyActivityDefinition | undefined;
+				if (activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
+					rootActivity = activities.find(a => a.activityModeTypes?.includes(DestinyActivityModeType.Strike)
+						&& a.displayProperties.name === activity.displayProperties.description);
+
 				sources.set(activity.hash, {
+					displayProperties: {
+						icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
+					},
 					dropTable: {
 						hash: activity.hash,
 						recordHash: 3052859887,
 					},
-					activityDefinition: activity,
+					activityDefinition: rootActivity ?? activity,
 					masterActivity: activityAwardsAdept ? true : undefined,
-					masterActivityDefinition: activityAwardsAdept ? activity : undefined,
+					masterActivityDefinition: activity,
 					isActiveDrop: true,
 					isActiveMasterDrop: activityAwardsAdept,
 				});
@@ -80,10 +102,8 @@ namespace Source {
 		[VendorHashes.Saint14]: 2112637710,
 	};
 	async function resolveVendorActivities (manifest: Manifest, profile: ISourceProfile, vendor: VendorHashes) {
-		return (await Promise.all(Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
-			.flatMap(activities => activities.availableActivities)
-			.map(async activity => manifest.DestinyActivityDefinition.get(activity.activityHash))))
-			.filter((activity): activity is DestinyActivityDefinition => activity?.activityTypeHash === vendorActivityTypeHashMap[vendor]);
+		return (await Activities.await())
+			.filter(activity => activity?.activityTypeHash === vendorActivityTypeHashMap[vendor]);
 	}
 
 	async function resolveDropTables (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {

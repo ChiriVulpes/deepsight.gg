@@ -11,17 +11,31 @@ declare module "bungie-api-ts/destiny2/interfaces" {
 
 export type DisplayPropertied = { readonly displayProperties: DestinyDisplayPropertiesDefinition };
 export type DisplayPropertiesOrD = DestinyDisplayPropertiesDefinition | DisplayPropertied;
+export type PartialDisplayPropertiesOrD = Partial<DestinyDisplayPropertiesDefinition> | DisplayPropertied;
 
 namespace Display {
+
+	export function make (name: string, description = "", others?: Partial<DestinyDisplayPropertiesDefinition>): DestinyDisplayPropertiesDefinition {
+		return {
+			name,
+			description,
+			icon: "",
+			iconSequences: [],
+			hasIcon: false,
+			highResIcon: "",
+			...others,
+		};
+	}
+
 	export function icon (url?: string, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: DisplayPropertiesOrD, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: DisplayPropertiesOrD | string, wrapped = true) {
+	export function icon (displayProperties?: PartialDisplayPropertiesOrD, wrapped?: boolean): string | undefined;
+	export function icon (displayProperties?: PartialDisplayPropertiesOrD | string, wrapped = true) {
 		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
 		if (!url)
 			return undefined;
 
-		if (!url.startsWith("https://www.bungie.net"))
+		if (!url.startsWith("https://"))
 			url = `https://www.bungie.net${url}`;
 		return wrapped ? `url("${url}")` : url;
 	}
@@ -105,12 +119,12 @@ namespace Display {
 		return simpleDisplayProperties?.name;
 	}
 
-	function getIconURL (displayProperties: DestinyDisplayPropertiesDefinition) {
-		const icon = displayProperties.icon;
+	function getIconURL (displayProperties?: Partial<DestinyDisplayPropertiesDefinition>) {
+		const icon = displayProperties?.icon;
 		if (icon?.endsWith(".png"))
 			return icon;
 
-		return displayProperties.iconSequences
+		return displayProperties?.iconSequences
 			?.flatMap(icon => icon.frames.filter(frame => frame.endsWith(".png")))
 			?.[0]
 			?? icon;

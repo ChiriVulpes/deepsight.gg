@@ -4,7 +4,7 @@ import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 export interface DeepsightMomentDefinition {
 	id: string;
 	displayProperties: DestinyDisplayPropertiesDefinition;
-	iconWatermark: string | { item: number };
+	iconWatermark?: string | { item: number };
 	iconWatermarkShelved?: string | { item: number };
 	event?: true | number;
 	eventCard?: DestinyEventCardDefinition;

@@ -20,13 +20,13 @@ export default class PostmasterBucket extends BucketComponent<[Character]> {
 	protected override onMake (character: Character): void {
 		super.onMake(character);
 		this.classes.add(PostmasterBucketClasses.Main);
-		this.setDisplayMode(CardClasses.DisplayModeSection)
+		this.setDisplayMode(CardClasses.DisplayModeSection);
 		this.character = character;
 
 		this.engrams = Component.create()
 			.classes.add(PostmasterBucketClasses.Engrams);
 
-		this.element.insertBefore(this.engrams.element, this.content.element);
+		this.element.insertBefore(this.engrams.element, this.contentWrapper.element);
 
 		this.icon.style.set("--icon", "url(\"./image/svg/postmaster.svg\")");
 		this.title.text.set("Postmaster");

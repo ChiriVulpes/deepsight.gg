@@ -17,7 +17,7 @@ namespace Loadable {
 		Content = "loadable-content",
 	}
 
-	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: Model.Resolve<MODELS>) => AnyComponent;
+	export type Initialiser<MODELS extends Model<any, any>[]> = (...values: Model.ResolveList<MODELS>) => AnyComponent;
 	export namespace Component {
 		export type Arguments<MODELS extends Model<any, any>[]> = [MODELS, Initialiser<MODELS>];
 	}

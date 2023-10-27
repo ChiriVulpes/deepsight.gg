@@ -48,7 +48,13 @@ export default class ItemTooltipSource extends Component {
 		if (!item.sources?.length)
 			return false;
 
+		const hashes = new Set<number>();
 		for (const source of item.sources) {
+			if (hashes.has(source.activityDefinition.hash))
+				continue;
+
+			hashes.add(source.activityDefinition.hash);
+
 			let activity = source.activityDefinition;
 
 			if (source.isActiveMasterDrop) {

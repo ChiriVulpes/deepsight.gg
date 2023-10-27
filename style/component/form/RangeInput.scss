@@ -23,7 +23,7 @@
 		width: 1px;
 		margin-top: -0.15em;
 		margin-left: calc(-0.2em + 0.5em * var(--value) + var(--visual-min) * (100% * (1 - var(--value))));
-		background: color(foreground-2);
+		background: color(foreground-3);
 		box-sizing: content-box;
 		background-clip: content-box;
 		border: 0.375em solid transparent;
