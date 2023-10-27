@@ -45,5 +45,6 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 
 		"@typescript-eslint/consistent-type-imports": ["warn"],
 		"@typescript-eslint/no-unsafe-declaration-merging": ["off"],
+		"@typescript-eslint/no-unsafe-enum-comparison": ["off"],
 	},
 });
