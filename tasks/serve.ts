@@ -37,16 +37,18 @@ export default Task("serve", () => {
 		// remove console.info function to skip the log that https-localhost has
 		console.info = () => { };
 
-		app.listen(port, "0.0.0.0", function () {
+		app.listen(port, process.env.HOSTNAME ?? "0.0.0.0", function () {
 			// restore console.info
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			delete (console as any).info;
 
 			const networkInterfaces = os.networkInterfaces();
-			Log.info("Serving", ansi.cyan(root), "on:", ...Object.values(networkInterfaces)
-				.flatMap(interfaces => interfaces)
-				.filter((details): details is os.NetworkInterfaceInfoIPv4 => details?.family === "IPv4")
-				.map(details => ansi.darkGray(`https://${details.address}:${port}`)));
+			Log.info("Serving", ansi.cyan(root), "on:", ...(process.env.HOSTNAME ? [process.env.HOSTNAME]
+				: Object.values(networkInterfaces)
+					.flatMap(interfaces => interfaces)
+					.filter((details): details is os.NetworkInterfaceInfoIPv4 => details?.family === "IPv4")
+					.map(details => details.address))
+				.map(hostname => ansi.darkGray(`https://${hostname}:${port}`)));
 
 			resolve();
 		});
@@ -81,10 +83,10 @@ function serveStaticFixer (root: string): NextHandleFunction {
 				// reformat the URL
 				const loc = encodeUrl(url.format(originalUrl));
 				const doc = createHtmlDocument("Redirecting", 'Redirecting to <a href="' + escapeHTML(loc) + '">' +
-					escapeHTML(loc) + "</a>")
+					escapeHTML(loc) + "</a>");
 
 				// send redirect response
-				res.statusCode = 301
+				res.statusCode = 301;
 				res.setHeader("Content-Type", "text/html; charset=UTF-8");
 				res.setHeader("Content-Length", Buffer.byteLength(doc));
 				res.setHeader("Content-Security-Policy", "default-src 'none'");
@@ -107,7 +109,7 @@ function serveStaticFixer (root: string): NextHandleFunction {
 		}
 
 		next();
-	}
+	};
 }
 
 async function hasHTMLFile (file: string) {
@@ -138,5 +140,5 @@ function createHtmlDocument (title: string, body: string) {
 		"<body>\n" +
 		"<pre>" + body + "</pre>\n" +
 		"</body>\n" +
-		"</html>\n"
+		"</html>\n";
 }
