@@ -306,6 +306,155 @@
 			}
 		]
 	},
+	"1042180643": { // Garden of Salvation
+		"iconRecordHash": 3804486505,
+		"rotationActivityHash": 3823237780, // no clue if this is correct
+		"encounters": [
+			{
+				"phaseHash": 2001,
+				"displayProperties": {
+					"name": "Evade the Consecrated Mind",
+					"description": "Track the Unknown Artifact's Signal",
+				},
+				"dropTable": {
+					"2209003210": {}, // zealot's reward
+					"4095896073": {}, // accrued redemption
+					"275145509": {}, // titan legs
+					"3380315063": {}, // hunter legs
+					"2085872226": {}, // warlock legs
+				}
+			},
+			{
+				"phaseHash": 2002,
+				"displayProperties": {
+					"name": "Summon the Consecrated Mind",
+					"description": "Draw out the Consecrated Mind",
+				},
+				"dropTable": {
+					"4020742303": {}, // prophet of doom
+					"3385326721": {}, // reckless oracle
+					"964752083": {}, // titan arms
+					"1804192853": {}, // hunter arms
+					"984532872": {}, // warlock arms
+				}
+			},
+			{
+				"phaseHash": 2003,
+				"displayProperties": {
+					"name": "Consecrated Mind, Sol Inherent",
+					"description": "Subdue the Consecrated Mind",
+				},
+				"dropTable": {
+					"48643186": {}, // ancient gospel
+					"2408405461": {}, // sacred provenance
+					"3876398589": {}, // titan chest
+					"210208587": {}, // hunter chest
+					"1789501056": {}, // warlock chest
+				}
+			},
+			{
+				"phaseHash": 2004,
+				"displayProperties": {
+					"name": "Sanctified Mind, Sol Inherent",
+					"description": "Defeat the Sanctified Mind",
+				},
+				"dropTable": {
+					"3454326177": {}, // omniscient eye
+					"959087754": {}, // titan helm
+					"1043419184": {}, // titan mark
+					"407842012": {}, // hunter helm
+					"2861892194": {}, // hunter cloak
+					"2367878193": {}, // warlock helm
+					"1141217085": {}, // warlock bond
+				}
+			}
+		]
+	},
+	"3976949817": { // Deep Stone Crypt
+		"iconRecordHash": 3185876102,
+		"rotationActivityHash": 910380154,
+		"encounters": [
+			{
+				"phaseHash": 2776463390,
+				"displayProperties": {
+					"name": "Crypt Security",
+					"description": "Disable Crypt Security",
+				},
+				"dropTable": {
+					"1392919471": {}, // trustee
+					"1887490701": {}, // titan arms
+					"2558289743": {}, // titan legs
+					"2956588906": {}, // titan mark
+					"2343515647": {}, // hunter arms
+					"1264765761": {}, // hunter legs
+					"1021060724": {}, // hunter cloak
+					"79460168": {}, // warlock arms
+					"756445218": {}, // warlock legs
+					"2902277629": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 416127450,
+				"displayProperties": {
+					"name": "Atraks-1, Fallen Exo",
+					"description": "Defeat Atraks-1",
+				},
+				"dropTable": {
+					"2990047042": {}, // succession
+					"4248569242": {}, // heritage
+					"1887490701": {}, // titan arms
+					"2558289743": {}, // titan legs
+					"2956588906": {}, // titan mark
+					"2343515647": {}, // hunter arms
+					"1264765761": {}, // hunter legs
+					"1021060724": {}, // hunter cloak
+					"79460168": {}, // warlock arms
+					"756445218": {}, // warlock legs
+					"2902277629": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 1858926029,
+				"displayProperties": {
+					"name": "Descent",
+					"description": "Prevent Europa's Destruction",
+				},
+				"dropTable": {
+					"3281285075": {}, // posterity
+					"1887490701": {}, // titan arms
+					"751162931": {}, // titan chest
+					"2956588906": {}, // titan mark
+					"2343515647": {}, // hunter arms
+					"4001862073": {}, // hunter chest
+					"1021060724": {}, // hunter cloak
+					"79460168": {}, // warlock arms
+					"3975122240": {}, // warlock chest
+					"2902277629": {}, // warlock bond
+				}
+			},
+			{
+				"phaseHash": 4035296150,
+				"displayProperties": {
+					"name": "Taniks, the Abomination",
+					"description": "Defeat Taniks, the Abomination",
+				},
+				"dropTable": {
+					"3366545721": {}, // bequest
+					"4230965989": {}, // commemoration
+					"2399110176": {}, // eyes of tomorrow
+					"3015085684": {}, // titan helm
+					"751162931": {}, // titan chest
+					"2558289743": {}, // titan legs
+					"893751566": {}, // hunter helm
+					"4001862073": {}, // hunter chest
+					"1264765761": {}, // hunter legs
+					"1462908657": {}, // warlock helm
+					"3975122240": {}, // warlock chest
+					"756445218": {}, // warlock legs
+				}
+			},
+		]
+	},
 	"313828469": { // Ghosts of the Deep
 		"displayProperties": {
 			"icon": "./image/png/activity/gotd.png"
@@ -430,6 +579,8 @@
 					"8293111": {}, // long arm
 					"4070357005": {}, // seventh seraph carbine
 					"1555959830": {}, // officer revolver
+					"3138208275": {}, // liminal vigil
+					"2306182339": {}, // wilderflight
 					"4174431791": {}, // hierarchy of needs
 					"2599025960": {}, // titan helm
 					"3088058655": {}, // titan chest
