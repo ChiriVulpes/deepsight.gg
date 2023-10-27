@@ -32,12 +32,13 @@ export default Task("serve", () => {
 	}) as ErrorHandleFunction);
 
 	const port = process.env.PORT ? +process.env.PORT : 4000;
-	return new Promise<void>(resolve => {
 
-		// remove console.info function to skip the log that https-localhost has
-		console.info = () => { };
+	// remove console.info function to skip the log that https-localhost has
+	console.info = () => { };
 
-		app.listen(port, process.env.HOSTNAME ?? "0.0.0.0", function () {
+	// eslint-disable-next-line @typescript-eslint/no-misused-promises
+	return Promise.resolve(app.listen(port, "0.0.0.0"))
+		.then(() => {
 			// restore console.info
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			delete (console as any).info;
@@ -49,10 +50,7 @@ export default Task("serve", () => {
 					.filter((details): details is os.NetworkInterfaceInfoIPv4 => details?.family === "IPv4")
 					.map(details => details.address))
 				.map(hostname => ansi.darkGray(`https://${hostname}:${port}`)));
-
-			resolve();
 		});
-	});
 });
 
 ////////////////////////////////////
