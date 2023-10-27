@@ -20,7 +20,15 @@ export default Task("manifest", async () => {
 
 	const manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
 		.then(response => response.json())
-		.then(json => (json as Manifest).Response);
+		.then(json => {
+			const manifest = (json as Manifest).Response;
+			if (!manifest)
+				Log.error(`Bungie API did not return a valid manifest: ${JSON.stringify(json)}`);
+			return (json as Manifest).Response;
+		});
+
+	if (!manifest)
+		return Log.info("Using previous Destiny manifest.");
 
 	const savedVersion = await fs.readFile("static/testiny/.v", "utf8").catch(() => "<no saved manifest>");
 	const bungieVersion = `${manifest.version}-9.deepsight.gg`;
