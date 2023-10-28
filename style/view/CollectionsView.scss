@@ -1,4 +1,5 @@
 .view-collections {
+	--view-padding-x: 50px;
 	&-moment {
 		position: relative;
 		&:not(.details-closed) {
@@ -51,26 +52,37 @@
 	
 	&-currently-available {
 		margin-bottom: 24px;
+		user-select: none;
 		
 		&-activity {
 			&-wrapper {
-				// display: grid;
-				// grid-auto-columns: max-content;
-				// grid-auto-flow: column;
-				// overflow-x: auto;
-				display: flex;
-				flex-wrap: wrap;
-				gap: var(--card-gap);
-				padding: 8px;
-				--length: 3;
-				--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--length) - 1)) / var(--length));
-				--card-height: min(var(--card-width) * .65, (100vh - 400px) / 2);
+				&-paginator {
+					&-button {
+						height: calc(100% - 16px);
+						margin-top: 8px;
+					}
+					
+					--paginator-content-width: calc(100vw - 20px - var(--view-padding-x) * 2);
+				}
+				
+				padding: 8px 0;
+				// flex-wrap: wrap;
 				--card-gap: 8px;
 				margin: 0 -8px;
+				width: calc(var(--paginator-content-width) + 16px);
 				
 				// &-2 {
 				// 	--length: 4;
 				// }
+				
+				&-page {
+					width: var(--paginator-content-width);
+					display: flex;
+					padding: 0 8px;
+					justify-content: space-between;
+					--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--paginator-page-size) - 1)) / var(--paginator-page-size));
+					--card-height: calc(var(--card-width) * .75);
+				}
 			}
 			
 			width: var(--card-width);
@@ -89,7 +101,6 @@
 			
 			&-title, &-description {
 				pointer-events: none;
-				user-select: none;
 			}
 			
 			&-rewards {
@@ -97,7 +108,7 @@
 				margin-top: 4px;
 				display: flex;
 				flex-wrap: wrap;
-				--slot-size: 47px;
+				--slot-size: max(50px, (var(--card-width) - var(--card-padding) * 2) / 7);
 			}
 			
 			&-icon {
@@ -136,7 +147,7 @@
 				&::before {
 					filter: brightness(.6);
 					mix-blend-mode: color-dodge;
-					backdrop-filter: blur(2px);
+					backdrop-filter: blur(4px);
 				}
 				
 				&::after {

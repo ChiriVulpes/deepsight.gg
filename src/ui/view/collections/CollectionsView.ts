@@ -7,7 +7,6 @@ import View from "ui/View";
 import CollectionsCurrentlyAvailable from "ui/view/collections/CollectionsCurrentlyAvailable";
 import CollectionsMoment from "ui/view/collections/CollectionsMoment";
 
-
 export default View.create({
 	models: [Manifest, ProfileBatch, Moments, WeaponRotation, Inventory.createTemporary()] as const,
 	id: "collections",

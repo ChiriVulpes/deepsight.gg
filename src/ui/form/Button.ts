@@ -54,4 +54,9 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 		this.element.click();
 		return this;
 	}
+
+	public setDisabled (disabled = true) {
+		this.attributes.toggle(disabled, "disabled");
+		return this;
+	}
 }

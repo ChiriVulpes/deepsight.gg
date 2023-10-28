@@ -112,6 +112,10 @@ namespace Maths {
 			return false;
 		}
 	}
+
+	export function lerp (from: number, to: number, t: number): number {
+		return (1 - t) * from + t * to;
+	}
 }
 
 export default Maths;

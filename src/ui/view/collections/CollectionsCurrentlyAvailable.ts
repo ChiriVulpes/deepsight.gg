@@ -12,6 +12,7 @@ import Component from "ui/Component";
 import Details from "ui/Details";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Display from "ui/bungie/DisplayProperties";
+import Paginator from "ui/form/Paginator";
 import { CollectionsMomentClasses } from "ui/view/collections/CollectionsMoment";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 import Arrays from "utility/Arrays";
@@ -21,8 +22,10 @@ import Time from "utility/Time";
 export enum CollectionsCurrentlyAvailableClasses {
 	Main = "view-collections-currently-available",
 	Heading = "view-collections-currently-available-heading",
+	ActivityWrapperPaginator = "view-collections-currently-available-activity-wrapper-paginator",
+	ActivityWrapperPaginatorButton = "view-collections-currently-available-activity-wrapper-paginator-button",
 	ActivityWrapper = "view-collections-currently-available-activity-wrapper",
-	ActivityWrapper2 = "view-collections-currently-available-activity-wrapper-2",
+	ActivityWrapperPage = "view-collections-currently-available-activity-wrapper-page",
 	Activity = "view-collections-currently-available-activity",
 	ActivityIcon = "view-collections-currently-available-activity-icon",
 	ActivityIconContainer = "view-collections-currently-available-activity-icon-container",
@@ -45,9 +48,16 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		this.summary.text.set("Currently Available");
 		this.open();
 
-		const activityWrapper = Component.create()
-			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapper)
+		const activityWrapper = Paginator.create()
+			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginator)
 			.appendTo(this);
+
+		activityWrapper.pageWrapper.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapper);
+		activityWrapper.buttonNext.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
+		activityWrapper.buttonPrev.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
+
+		const activityFiller = activityWrapper.filler(4, page => page
+			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPage));
 
 		const items = await this.discoverItems(manifest, profile, weaponRotation);
 
@@ -90,10 +100,8 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 			CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
 				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
-				.appendTo(activityWrapper);
+				.appendTo(activityFiller.increment());
 		}
-
-		activityWrapper.classes.toggle(added.size > 5, CollectionsCurrentlyAvailableClasses.ActivityWrapper2);
 	}
 
 	private async discoverItems (manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation) {
