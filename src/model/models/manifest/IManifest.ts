@@ -80,6 +80,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private allCached?: boolean;
 
 	public constructor (private readonly componentName: COMPONENT_NAME) {
+		this.filterAllNoDuplicates = this.filterAllNoDuplicates.bind(this);
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
 		this.modelCache = Model.create(IManifest.CacheComponentKey.getBundle(componentName), {
 			cache: "Global",
@@ -145,8 +146,27 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
 			return this.stagedTransaction.all(componentKey, `${key!}`, index);
-		return this.allCached ? Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]
-			: this.stagedTransaction.all(componentKey);
+		return !this.allCached ? this.stagedTransaction.all(componentKey).then(this.filterAllNoDuplicates) :
+			this.filterAllNoDuplicates(Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]);
+	}
+
+	private filterAllNoDuplicates (all: IManifest.Component<COMPONENT_NAME>[]): IManifest.Component<COMPONENT_NAME>[] {
+		const result: IManifest.Component<COMPONENT_NAME>[] = [];
+		const hashes = new Set<number>();
+		for (const value of all) {
+			if (value.hash === undefined) {
+				console.warn("Can't filter out duplicates for", this.componentName, "as there is no hash");
+				return all;
+			}
+
+			if (hashes.has(value.hash))
+				continue;
+
+			result.push(value);
+			hashes.add(value.hash);
+		}
+
+		return result;
 	}
 
 	public allKeys (): Promise<`${bigint}`[]>;
