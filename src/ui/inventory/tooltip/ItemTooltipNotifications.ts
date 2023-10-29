@@ -27,6 +27,10 @@ export default class ItemTooltipPerks extends Component {
 			// fragile, but tbf it's only this exact text we don't want to see
 			if (notification.displayString.includes("Deepsight activation is available for this weapon."))
 				continue;
+			if (notification.displayString.includes("Deepsight activation is not available for this weapon instance."))
+				continue;
+			if (notification.displayString.includes("This weapon's Pattern can be extracted."))
+				continue;
 
 			Component.create()
 				.classes.add(ItemTooltipNotificationsClasses.Notification)

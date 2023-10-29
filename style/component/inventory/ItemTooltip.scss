@@ -137,44 +137,37 @@
 		}
 	}
 
-	&-deepsight,
-	&-wishlist,
-	&-note,
-	&-fomo {
+	&-note {
 		display: flex;
-		flex-direction: column;
 		gap: 0.5em;
-		background: color(deepsight-tooltip-background, 0.85);
-		border: 2px solid color(deepsight-tooltip-border);
+		font-size: 15px;
+		background: color(tooltip-note-background, 0.85);
+		border-top: 2px solid color(tooltip-note-border);
 		border-left: none;
 		border-right: none;
 		padding: var(--tooltip-padding);
+		align-items: center;
+
+		&-heading {
+			border-bottom: none;
+		}
 	}
 
 	&-deepsight {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-		border-left: none;
-		border-right: none;
-		padding: var(--tooltip-padding);
+		background: color(deepsight-tooltip-background, 0.85);
+		border-color: color(deepsight-tooltip-border);
+		font-size: 14px;
+		&::before {
+			content: "";
+			display: block;
+			width: 0.85em;
+			height: 0.85em;
+			@include mask-icon(shaped);
+			position: relative;
+			top: 1px;
+		}
 
 		&-pattern {
-			display: flex;
-			gap: 0.5em;
-			align-items: center;
-			padding: 0 2px 2px;
-			font-size: 14px;
-			&::before {
-				content: "";
-				display: block;
-				width: 0.85em;
-				height: 0.85em;
-				@include mask-icon(shaped);
-				position: relative;
-				top: 1px;
-			}
-
 			&-label {
 				flex-grow: 1;
 			}
@@ -193,11 +186,6 @@
 	}
 
 	&-wishlist {
-		font-size: 15px;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-
 		&::before {
 			content: "";
 			display: block;
@@ -219,14 +207,18 @@
 			}
 		}
 	}
-
-	&-note {
-		font-size: 15px;
-		background: color(tooltip-note-background, 0.85);
-		border-color: color(tooltip-note-border);
-
-		&-heading {
-			border-bottom: none;
+	
+	&-fomo {
+		background: color(fomo-tooltip-background, 0.85);
+		border-color: color(fomo-tooltip-border);
+		
+		&::before {
+			content: "";
+			display: block;
+			width: 1em;
+			height: 1em;
+			@include mask-icon("./image/png/notification/seasonal.png");
+			position: relative;
 		}
 	}
 
@@ -622,24 +614,6 @@
 					}
 				}
 			}
-		}
-	}
-	
-	&-fomo {
-		background: color(fomo-tooltip-background, 0.85);
-		border-color: color(fomo-tooltip-border);
-		font-size: 15px;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		
-		&::before {
-			content: "";
-			display: block;
-			width: 1em;
-			height: 1em;
-			@include mask-icon("./image/png/notification/seasonal.png");
-			position: relative;
 		}
 	}
 }

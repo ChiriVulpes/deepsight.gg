@@ -43,7 +43,6 @@ export enum ItemTooltipClasses {
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
 	Description = "item-tooltip-description",
 	Deepsight = "item-tooltip-deepsight",
-	DeepsightPattern = "item-tooltip-deepsight-pattern",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
 	DeepsightPatternNumber = "item-tooltip-deepsight-pattern-number",
 	DeepsightPatternOutOf = "item-tooltip-deepsight-pattern-out-of",
@@ -83,7 +82,6 @@ class ItemTooltip extends Tooltip {
 	public mods!: ItemTooltipMods;
 	public notifications!: ItemTooltipNotifications;
 	public deepsight!: Component;
-	public deepsightPattern!: Component;
 	public deepsightPatternLabel!: Component;
 	public deepsightPatternNumber!: Component;
 	public deepsightPatternOutOf!: Component;
@@ -177,11 +175,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.content);
 
 		this.deepsight = Component.create()
-			.classes.add(ItemTooltipClasses.Deepsight)
-			.appendTo(this.content);
-
-		this.deepsightPattern = Component.create()
-			.classes.add(ItemTooltipClasses.DeepsightPattern)
+			.classes.add(ItemTooltipClasses.Note, ItemTooltipClasses.Deepsight)
 			.append(this.deepsightPatternLabel = Component.create()
 				.classes.add(ItemTooltipClasses.DeepsightPatternLabel))
 			.append(this.deepsightPatternNumber = Component.create()
@@ -193,10 +187,10 @@ class ItemTooltip extends Tooltip {
 					.classes.add(ItemTooltipClasses.DeepsightPatternRequired))
 				.append(this.deepsightPatternRequiredUnit = Component.create()
 					.classes.add(ItemTooltipClasses.DeepsightPatternRequiredUnit)))
-			.appendTo(this.deepsight);
+			.appendTo(this.content);
 
 		this.wishlist = Component.create()
-			.classes.add(ItemTooltipClasses.Wishlist)
+			.classes.add(ItemTooltipClasses.Note, ItemTooltipClasses.Wishlist)
 			.appendTo(this.content);
 
 		this.note = Component.create()
@@ -204,7 +198,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.content);
 
 		this.fomo = Component.create()
-			.classes.add(ItemTooltipClasses.Fomo)
+			.classes.add(ItemTooltipClasses.Note, ItemTooltipClasses.Fomo)
 			.appendTo(this.content);
 
 		this.hintEquipToCharacter = Hint.create([IInput.get("MouseLeft")])
@@ -368,9 +362,8 @@ class ItemTooltip extends Tooltip {
 		this.notifications.setItem(item);
 
 		const showPattern = item.deepsight?.pattern && !item.shaped;
-		this.deepsight.classes.toggle(!item.deepsight?.resonance && !showPattern, Classes.Hidden);
+		this.deepsight.classes.toggle(!showPattern, Classes.Hidden);
 
-		this.deepsightPattern.classes.toggle(!showPattern, Classes.Hidden);
 		if (showPattern) {
 			const complete = !!item.deepsight?.pattern?.progress.complete;
 			this.deepsightPatternLabel
