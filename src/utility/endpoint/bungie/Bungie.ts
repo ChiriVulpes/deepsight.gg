@@ -16,12 +16,17 @@ export interface IBungieApiEvents {
 export class BungieAPI {
 
 	public get lastDailyReset () {
-		const time = new Date().setUTCHours(17, 0, 0);
+		const time = new Date().setUTCHours(17, 0, 0, 0);
 		return time > Date.now() ? time - Time.days(1) : time;
 	}
 
 	public get lastWeeklyReset () {
 		const day = (new Date().getUTCDay() + 5) % 7;
+		return this.lastDailyReset - day * Time.days(1);
+	}
+
+	public get lastTrialsReset () {
+		const day = (new Date().getUTCDay() + 1) % 7;
 		return this.lastDailyReset - day * Time.days(1);
 	}
 
@@ -39,6 +44,8 @@ export class BungieAPI {
 			setAuthorisationPromise(this.validateAuthorisation(force)));
 		BungieEndpoint.event.subscribe("apiDown", () => this.apiDown = true);
 		BungieEndpoint.event.subscribe("querySuccess", () => this.apiDown = false);
+
+		Object.assign(window, { Bungie: this });
 	}
 
 	public get authenticated () {

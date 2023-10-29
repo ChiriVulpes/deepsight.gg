@@ -40,7 +40,7 @@ namespace Display {
 		return wrapped ? `url("${url}")` : url;
 	}
 
-	export function name (displayProperties?: DisplayPropertiesOrD) {
+	export function name (displayProperties?: PartialDisplayPropertiesOrD) {
 		return displayProperties === undefined ? undefined
 			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
 				.name;
@@ -76,13 +76,13 @@ namespace Display {
 		}
 	}
 
-	export function description (displayProperties?: DisplayPropertiesOrD) {
+	export function description (displayProperties?: PartialDisplayPropertiesOrD) {
 		return displayProperties === undefined ? undefined
 			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
 				.description;
 	}
 
-	export function descriptionIfShortOrName (detailedDisplayProperties?: DisplayPropertiesOrD, simpleDisplayProperties?: DisplayPropertiesOrD) {
+	export function descriptionIfShortOrName (detailedDisplayProperties?: PartialDisplayPropertiesOrD, simpleDisplayProperties?: PartialDisplayPropertiesOrD) {
 		if (detailedDisplayProperties === undefined) {
 			if (simpleDisplayProperties === undefined)
 				return undefined;
@@ -102,7 +102,7 @@ namespace Display {
 		return simpleDisplayProperties?.name;
 	}
 
-	export function nameIfShortOrName (detailedDisplayProperties?: DisplayPropertiesOrD, simpleDisplayProperties?: DisplayPropertiesOrD) {
+	export function nameIfShortOrName (detailedDisplayProperties?: PartialDisplayPropertiesOrD, simpleDisplayProperties?: PartialDisplayPropertiesOrD) {
 		if (detailedDisplayProperties === undefined) {
 			if (simpleDisplayProperties === undefined)
 				return undefined;

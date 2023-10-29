@@ -10,8 +10,21 @@ export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL 
 
 class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
 
+	private allowedErrorStatuses: string[] = [];
+	private subdomain = "www";
+
 	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
 		super(path, builder);
+	}
+
+	public allowErrorStatus (status: string) {
+		this.allowedErrorStatuses.push(status);
+		return this;
+	}
+
+	public setSubdomain (subdomain: string) {
+		this.subdomain = subdomain;
+		return this;
 	}
 
 	public override async query (...args: ARGS): Promise<RESPONSE & { _headers: Headers }> {
@@ -55,7 +68,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 							};
 						}
 
-						if (data?.ErrorStatus && data.ErrorStatus !== "Success") {
+						if (data?.ErrorStatus && data.ErrorStatus !== "Success" && !this.allowedErrorStatuses.includes(data.ErrorStatus as string)) {
 							if (data.ErrorStatus === "SystemDisabled")
 								BungieEndpoint.event.emit("apiDown");
 
@@ -92,7 +105,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	}
 
 	protected override resolvePath (...args: ARGS): string {
-		return `https://www.bungie.net/Platform${super.resolvePath(...args)}`;
+		return `https://${this.subdomain}.bungie.net/Platform${super.resolvePath(...args)}`;
 	}
 
 	protected override getDefaultRequest (): EndpointRequest {
@@ -123,6 +136,8 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 
 interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	query (...args: ARGS): Promise<RESPONSE & { _headers: Headers }>;
+	allowErrorStatus (status: string): this;
+	setSubdomain (subdomain: string): this;
 }
 
 namespace BungieEndpoint {
@@ -146,8 +161,8 @@ namespace BungieEndpoint {
 					},
 				};
 			},
-			returning<RESPONSE> (): BungieEndpoint<[], RESPONSE> {
-				return new BungieEndpointImpl<[], RESPONSE>(url);
+			returning<RESPONSE> (): BungieEndpoint<ARGS, RESPONSE> {
+				return new BungieEndpointImpl<ARGS, RESPONSE>(url);
 			},
 		};
 	}

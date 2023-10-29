@@ -67,7 +67,10 @@ export default class ItemTooltipSource extends Component {
 
 			const activityComponent = Component.create()
 				.classes.add(ItemTooltipSourceClasses.Activity)
-				.style.set("--icon", Display.icon(source.record) ?? Display.icon(activity))
+				.style.set("--icon", undefined
+					?? Display.icon(source.dropTable.displayProperties)
+					?? Display.icon(source.record)
+					?? Display.icon(activity))
 				.appendTo(this.activityWrapper);
 
 			Component.create()

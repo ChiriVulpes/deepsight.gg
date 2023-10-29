@@ -2,6 +2,7 @@ import type { DestinyActivityDefinition, DestinyCharacterActivitiesComponent } f
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
+import Trials from "model/models/Trials";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
 
@@ -21,6 +22,12 @@ export default Model.createDynamic(Time.seconds(30), async () => {
 
 		Activities.push(activity);
 		activityHashes.add(activity.hash);
+	}
+
+	if (await Trials.isActive()) {
+		const trials = await DestinyActivityDefinition.get(Trials.GENERIC_ACTIVITY_HASH);
+		if (trials)
+			Activities.push(trials);
 	}
 
 	Object.assign(window, { Activities });

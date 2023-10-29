@@ -2,6 +2,7 @@ import type { DestinyActivityDefinition, DestinyObjectiveDefinition } from "bung
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
+import Trials from "model/models/Trials";
 import WeaponRotation from "model/models/WeaponRotation";
 import type { IItemInit } from "model/models/items/Item";
 import Objects from "utility/Objects";
@@ -47,7 +48,7 @@ namespace Source {
 	async function resolveWeaponRotation (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
 		const sources = new Map<number, ISource>();
 
-		const { DestinyActivityDefinition } = manifest;
+		const { DestinyActivityDefinition, DestinyActivityModeDefinition } = manifest;
 		const activities = await DestinyActivityDefinition.all();
 		const availableActivities = await Activities.await();
 
@@ -60,9 +61,10 @@ namespace Source {
 
 			for (const activity of vendorActivities) {
 				const adept = item.definition.displayProperties.name.trimEnd().endsWith("(Adept)");
-				const activityAwardsAdept = activity.rewards.some(reward => reward.rewardItems.some(item => item.itemHash === 2119974556));
+				const activityAwardsAdept = activity.rewards.some(reward => reward.rewardItems
+					.some(item => item.itemHash === 2119974556 || item.itemHash === Trials.ADEPT_WEAPON_REWARD_HASH));
 
-				if (adept !== activityAwardsAdept)
+				if (adept !== activityAwardsAdept && !activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
 					continue;
 
 				if (activityAwardsAdept && activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)) {
@@ -78,14 +80,26 @@ namespace Source {
 					rootActivity = activities.find(a => a.activityModeTypes?.includes(DestinyActivityModeType.Strike)
 						&& a.displayProperties.name === activity.displayProperties.description);
 
-				sources.set(activity.hash, {
-					dropTable: {
-						hash: activity.hash,
+				let dropTable: DeepsightDropTableDefinition = { hash: activity.hash };
+
+				if (activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
+					dropTable = {
+						...dropTable,
 						iconRecordHash: 3052859887,
 						displayProperties: {
 							icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
 						},
-					},
+					};
+				else if (activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
+					dropTable = {
+						...dropTable,
+						displayProperties: {
+							icon: (await DestinyActivityModeDefinition.get(activity.directActivityModeHash))?.displayProperties.icon,
+						},
+					};
+
+				sources.set(activity.hash, {
+					dropTable: dropTable,
 					activityChallenges: [],
 					activityDefinition: rootActivity ?? activity,
 					masterActivity: activityAwardsAdept ? true : undefined,

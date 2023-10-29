@@ -78,8 +78,8 @@
 				&-page {
 					width: var(--paginator-content-width);
 					display: flex;
+					gap: 8px;
 					padding: 0 8px;
-					justify-content: space-between;
 					--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--paginator-page-size) - 1)) / var(--paginator-page-size));
 					--card-height: calc(var(--card-width) * .75);
 				}
@@ -160,7 +160,7 @@
 				position: absolute;
 				inset: 0;
 				bottom: auto;
-				background: #0007;
+				background: #111b;
 				height: 2em;
 				padding-left: var(--card-padding);
 				display: flex;
@@ -182,8 +182,8 @@
 				&-bookmark {
 					width: 1.8em;
 					height: 2em;
-					--background-strike: #467896;
-					--background-trials: #7c6748;
+					--background-nightfall: #467896;
+					--background-trials-of-osiris: #a08a0e;
 					--background-raid: #3a353a;
 					--background-dungeon: #766252;
 					background: var(--background, #{color(background-6)});

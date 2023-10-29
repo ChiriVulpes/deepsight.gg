@@ -22,7 +22,7 @@ export interface IModelGenerationApi {
 
 export interface IModel<T, R, API = undefined> {
 	cache: "Global" | "Session" | "Memory" | false;
-	resetTime?: "Daily" | "Weekly" | number;
+	resetTime?: "Daily" | "Weekly" | "Trials" | number;
 	version?: string | number | (() => Promise<string | number | undefined>);
 	api?: API;
 	generate?(api: IModelGenerationApi): Promise<T>;

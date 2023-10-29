@@ -3,6 +3,7 @@ import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type ProfileBatch from "model/models/ProfileBatch";
+import Trials from "model/models/Trials";
 import type WeaponRotation from "model/models/WeaponRotation";
 import Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
@@ -96,7 +97,9 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			const activityType: DisplayPropertied | undefined = false ? undefined
 				// dungeon type doesn't have icon, use mode instead
 				: activity.activityTypeHash === 608898761 ? await DestinyActivityModeDefinition.get(608898761)
-					: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
+					// trials type doesn't have icon, use mode instead
+					: activity.hash === Trials.GENERIC_ACTIVITY_HASH ? await DestinyActivityModeDefinition.get(activity.directActivityModeHash)
+						: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
 
 			CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
 				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
@@ -175,7 +178,10 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.style.set("--icon", Display.icon(icon) ?? Display.icon(activity)))
 			.prependTo(this);
 
-		this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`);
+		if (activity.hash === Trials.GENERIC_ACTIVITY_HASH)
+			void Trials.Map.await().then(activity => activity && this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`));
+		else
+			this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`);
 
 		// ensure fake card header (which contains the card hover sheen and the box shadow contrast reducer border) 
 		// is after the icon & background
@@ -186,9 +192,14 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeader)
 			.insertToBefore(this, this.contentWrapper);
 
+		const activityTypeName = undefined
+			?? (source?.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall) ? Display.name(source.masterActivityDefinition.originalDisplayProperties) : undefined)
+			?? Display.name(activityType)
+			?? "Unknown";
+
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderBookmark)
-			.style.set("--background", `var(--background-${Display.name(activityType)?.toLowerCase()})`)
+			.style.set("--background", `var(--background-${activityTypeName?.toLowerCase().replace(/\W+/g, "-")})`)
 			.append(Component.create()
 				.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderBookmarkIcon)
 				.style.set("--icon", Display.icon(activityType)))
@@ -200,8 +211,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderSubtitle)
-			.text.add((source?.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall) ? Display.name(source.masterActivityDefinition.originalDisplayProperties) : undefined)
-				?? Display.name(activityType) ?? "Unknown")
+			.text.add(activityTypeName)
 			.append(note && Component.create("span")
 				.classes.add(CollectionsCurrentlyAvailableClasses.ActivityHeaderSubtitleNote)
 				.text.add(" \xa0 // \xa0 ")
@@ -211,12 +221,15 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		this.title.classes.add(CollectionsCurrentlyAvailableClasses.ActivityTitle)
 			.text.set(undefined
 				?? (activity.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? Display.name(activity.originalDisplayProperties) : undefined)
+				?? Display.name(source.dropTable.displayProperties)
 				?? Display.name(activity))
 			.appendTo(this.content); // the title should be part of the content instead of part of the header
 
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityDescription)
-			.text.set(Display.description(activity))
+			.text.set(undefined
+				?? Display.description(source.dropTable.displayProperties)
+				?? Display.description(activity))
 			.appendTo(this.content);
 
 		const rewards = Component.create()

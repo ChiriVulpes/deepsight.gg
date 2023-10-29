@@ -67,11 +67,9 @@ export default class Paginator extends Component {
 			.classes.add(PaginatorClasses.Preview)
 			.appendTo(this);
 
-		this.event.subscribe("wheel", event => {
-			event.preventDefault();
-
-			this.showPage(this.pageIndex + Math.sign(event.deltaY));
-		});
+		this.event.subscribe("wheel", event => event.shiftKey
+			&& this.showPage(this.pageIndex + Math.sign(event.deltaY))
+			&& event.preventDefault());
 	}
 
 	public filler (perPage: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
@@ -113,6 +111,7 @@ export default class Paginator extends Component {
 
 		const preview = Component.create()
 			.classes.add(PaginatorClasses.PreviewPage)
+			.classes.toggle(!index, PaginatorClasses.PreviewPageCurrent)
 			.appendTo(this.preview);
 		this.previewPages.push(preview);
 
@@ -123,7 +122,7 @@ export default class Paginator extends Component {
 	public showPage (pageIndex: number) {
 		const page = this.pages[pageIndex];
 		if (!page)
-			return;
+			return false;
 
 		this.pageIndex = pageIndex;
 		this.scroll();
@@ -133,6 +132,7 @@ export default class Paginator extends Component {
 
 		this.previewPages[pageIndex]?.classes.add(PaginatorClasses.PreviewPageCurrent);
 		this.updateButtons();
+		return true;
 	}
 
 	private updateButtons () {
