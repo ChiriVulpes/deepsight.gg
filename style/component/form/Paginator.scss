@@ -11,7 +11,7 @@
 		padding: 0;
 		background: transparent;
 		transform: none;
-		@include animation-swipe-up-in-background-color-dodge {
+		@include animation-swipe-up-in-background-color-dodge($important: true) {
 			background: #8886;
 		}
 		border: none;
@@ -60,7 +60,7 @@
 		
 		&[disabled] {
 			pointer-events: none;
-			background: #2226;
+			background: #2226 !important;
 		}
 		
 		&[disabled] &-arrow {
@@ -69,11 +69,11 @@
 		
 		&:hover, &:focus-visible {
 			border: 1px solid currentColor;
-			background: #8886;
+			background: #8886 !important;
 			color: color(foreground-0);
 			
 			&::after {
-				background: #777;
+				background: #777 !important;
 				@include transition(in);
 			}
 		}
