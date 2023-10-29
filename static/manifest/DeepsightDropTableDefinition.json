@@ -189,6 +189,7 @@
 					"description": "Defeat Crota, Son of Oryx"
 				},
 				"dropTable": {
+					"1034055198 ": {"requiresQuest": 4284902389}, // Necrochasm
 					"120706239": {}, // Word of Crota
 					"833898322": {}, // Abyss Defiant
 					"3163900678": {}, // Swordbreaker
@@ -359,6 +360,7 @@
 					"description": "Defeat the Sanctified Mind",
 				},
 				"dropTable": {
+					"4103414242": {"requiresQuest": 2479465568}, // divinity
 					"3454326177": {}, // omniscient eye
 					"959087754": {}, // titan helm
 					"1043419184": {}, // titan mark
@@ -1060,6 +1062,7 @@
 					"description": "Defeat Captain Avarokk the Covetous",
 				},
 				"dropTable": {
+					"1363886209": {"requiresQuest": 4094027156}, // gjallarhorn
 					"235827225": {}, // eyasluna
 					"4164201232": {}, // 1000 yard stare
 
@@ -1204,6 +1207,7 @@
 					"3870811754": {}, // night terror
 				}
 			},
+			
 			{ 
 				"displayProperties": {
 					"name": "Chamber of Suffering",
@@ -1231,6 +1235,15 @@
 					"name": "Zulmak, Instrument of Torment",
 					"description": "Purge the tormentor",
 				},
+			},
+			{
+				"displayProperties": {
+					"name": "Volar, the Tempted",
+					"description": "Defeat Volar, the Tempted",
+				},
+				"dropTable": {
+					"1395261499": {"requiresQuest": 60788839}, // xenophage
+				}
 			},
 		]
 	},
@@ -1274,6 +1287,9 @@
 				"displayProperties": {
 					"name": "Vorgeth, the Boundless Hunger",
 					"description": "Overcome the Keeper of Petitions",
+				},
+				"dropTable": {
+					"814876684": {"requiresQuest": 3732541924, "requiresItems": [2812313020, 4162141969, 4283856335]}, // wishender
 				}
 			},
 			{
