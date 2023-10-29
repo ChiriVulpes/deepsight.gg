@@ -189,7 +189,7 @@
 					"description": "Defeat Crota, Son of Oryx"
 				},
 				"dropTable": {
-					"1034055198 ": {"requiresQuest": 4284902389}, // Necrochasm
+					"1034055198": { "requiresQuest": 4284902389 }, // Necrochasm
 					"120706239": {}, // Word of Crota
 					"833898322": {}, // Abyss Defiant
 					"3163900678": {}, // Swordbreaker
@@ -360,7 +360,7 @@
 					"description": "Defeat the Sanctified Mind",
 				},
 				"dropTable": {
-					"4103414242": {"requiresQuest": 2479465568}, // divinity
+					"4103414242": { "requiresQuest": 2101914852 }, // divinity
 					"3454326177": {}, // omniscient eye
 					"959087754": {}, // titan helm
 					"1043419184": {}, // titan mark
@@ -1062,7 +1062,7 @@
 					"description": "Defeat Captain Avarokk the Covetous",
 				},
 				"dropTable": {
-					"1363886209": {"requiresQuest": 4094027156}, // gjallarhorn
+					"1363886209": { "requiresQuest": 2729195975 }, // gjallarhorn
 					"235827225": {}, // eyasluna
 					"4164201232": {}, // 1000 yard stare
 
@@ -1191,9 +1191,9 @@
 					"description": "",
 				},
 				"dropTable": {
-					"2164448701": {"requiredItem": 1165306707}, // apostate
-					"2782847179": {"requiredItem": 1165306707}, // blasphemer
-					"3067821200": {"requiredItem": 1165306707}, // heretic
+					"2164448701": { "requiresItems": [1165306707] }, // apostate
+					"2782847179": { "requiresItems": [1165306707] }, // blasphemer
+					"3067821200": { "requiresItems": [1165306707] }, // heretic
 
 					"4277547616": {}, // every waking moment
 					"3690523502": {}, // love and death
@@ -1207,16 +1207,15 @@
 					"3870811754": {}, // night terror
 				}
 			},
-			
 			{ 
 				"displayProperties": {
 					"name": "Chamber of Suffering",
 					"description": "",
 				},
 				"dropTable": {
-					"2164448701": {"requiredItem": 1165306707}, // apostate
-					"2782847179": {"requiredItem": 1165306707}, // blasphemer
-					"3067821200": {"requiredItem": 1165306707}, // heretic
+					"2164448701": { "requiresItems": [1165306707] }, // apostate
+					"2782847179": { "requiresItems": [1165306707] }, // blasphemer
+					"3067821200": { "requiresItems": [1165306707] }, // heretic
 
 					"4277547616": {}, // every waking moment
 					"3690523502": {}, // love and death
@@ -1242,7 +1241,7 @@
 					"description": "Defeat Volar, the Tempted",
 				},
 				"dropTable": {
-					"1395261499": {"requiresQuest": 60788839}, // xenophage
+					"1395261499": { "requiresQuest": 60788839 }, // xenophage
 				}
 			},
 		]
@@ -1289,7 +1288,10 @@
 					"description": "Overcome the Keeper of Petitions",
 				},
 				"dropTable": {
-					"814876684": {"requiresQuest": 3732541924, "requiresItems": [2812313020, 4162141969, 4283856335]}, // wishender
+					"814876684": { // wishender
+						"requiresQuest": 4271579370,
+						"requiresItems": [2812313020, 4162141969, 4283856335],
+					},
 				}
 			},
 			{

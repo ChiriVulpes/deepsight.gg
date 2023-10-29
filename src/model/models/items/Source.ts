@@ -1,4 +1,4 @@
-import type { DestinyActivityDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
@@ -30,6 +30,8 @@ export interface ISource {
 	record?: DestinyRecordDefinition;
 	type: SourceType;
 	endTime?: number;
+	requiresQuest?: DestinyInventoryItemDefinition | null;
+	requiresItems?: (DestinyInventoryItemDefinition | null)[];
 }
 
 namespace Source {
@@ -151,7 +153,7 @@ namespace Source {
 	}
 
 	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
-		const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition } = manifest;
+		const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition, DestinyInventoryItemDefinition } = manifest;
 
 		const weeks = Math.floor((Date.now() - (table.rotations?.anchor ?? 0)) / Time.weeks(1));
 
@@ -175,6 +177,10 @@ namespace Source {
 			?? (activityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? SourceType.Repeatable : undefined)
 			?? SourceType.Playlist;
 
+		const dropDef = table.dropTable?.[item.definition.hash]
+			?? table.encounters?.find(encounter => encounter.dropTable?.[item.definition.hash])?.dropTable?.[item.definition.hash]
+			?? table.master?.dropTable?.[item.definition.hash];
+
 		return {
 			dropTable: table,
 			activity,
@@ -190,6 +196,8 @@ namespace Source {
 			record: await DestinyRecordDefinition.get(table.iconRecordHash),
 			type,
 			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
+			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),
+			requiresItems: !dropDef?.requiresItems?.length ? undefined : await Promise.all(dropDef.requiresItems.map(async hash => (await DestinyInventoryItemDefinition.get(hash)) ?? null)),
 		};
 	}
 

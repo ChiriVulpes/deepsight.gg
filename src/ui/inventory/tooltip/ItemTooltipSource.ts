@@ -1,3 +1,4 @@
+import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
 import Component from "ui/Component";
@@ -17,6 +18,9 @@ export enum ItemTooltipSourceClasses {
 	ActivityPhaseDescription = "item-tooltip-source-activity-phase-description",
 	ActivityChallenge = "item-tooltip-source-activity-challenge",
 	ActivityChallengePhaseIndex = "item-tooltip-source-activity-challenge-phase-index",
+	ActivityRequiredItem = "item-tooltip-source-activity-required-item",
+	ActivityRequiredItemLabel = "item-tooltip-source-activity-required-item-label",
+	ActivityRequiredItemDescription = "item-tooltip-source-activity-required-item-description",
 	Note = "item-tooltip-note",
 	NoteHeading = "item-tooltip-note-heading",
 }
@@ -87,6 +91,12 @@ export default class ItemTooltipSource extends Component {
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseWrapper)
 				.appendTo(activityComponent);
 
+			if (source.requiresQuest !== undefined)
+				this.renderRequiredItems(phasesWrapper, item, source, [source.requiresQuest], "quest");
+
+			if (source.requiresItems?.length)
+				this.renderRequiredItems(phasesWrapper, item, source, source.requiresItems);
+
 			if (!source.isActiveMasterDrop)
 				this.renderPhases(phasesWrapper, item, source);
 
@@ -95,6 +105,30 @@ export default class ItemTooltipSource extends Component {
 		}
 
 		return true;
+	}
+
+	private renderRequiredItems (wrapper: Component, forItem: Item, source: ISource, items: (DestinyInventoryItemDefinition | null)[], type: "item" | "quest" = "item") {
+		for (const item of items) {
+			const challengeComponent = Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
+				.style.set("--icon", item ? Display.icon(item) : undefined)
+				.appendTo(wrapper);
+
+			const typeText = type === "item" ? "Item" : "Quest";
+
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
+				.text.set(item ? Display.name(item) : "Unknown Item")
+				.append(Component.create("span")
+					.classes.add(ItemTooltipSourceClasses.ActivityRequiredItemLabel)
+					.text.set(` \xa0//\xa0 Required ${typeText}`))
+				.appendTo(challengeComponent);
+
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityRequiredItemDescription)
+				.text.set(item ? Display.description(item) : `This ${type} is required to obtain ${Display.name(forItem.definition)}`)
+				.appendTo(challengeComponent);
+		}
 	}
 
 	private renderChallenge (wrapper: Component, item: Item, source: ISource) {

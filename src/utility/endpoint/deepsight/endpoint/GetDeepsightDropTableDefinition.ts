@@ -23,7 +23,7 @@ export interface DeepsightDropTableDefinition {
 	/**
 	 * A drop table used by default for all encounters
 	 */
-	dropTable?: Record<number, object>;
+	dropTable?: Record<number, DeepsightDropTableDropDefinition>;
 	encounters?: DeepsightDropTableEncounterDefinition[];
 	/**
 	 * If the activity has a high level variant which drops different loot, it's defined here
@@ -48,7 +48,7 @@ export interface DeepsightDropTableEncounterDefinition {
 	 * Defaults to "merge"
 	 */
 	dropTableMergeStrategy?: "replace" | "merge";
-	dropTable?: Record<number, object>;
+	dropTable?: Record<number, DeepsightDropTableDropDefinition>;
 }
 
 export interface DeepsightDropTableMasterDefinition {
@@ -59,7 +59,18 @@ export interface DeepsightDropTableMasterDefinition {
 	/**
 	 * Non-rotating drop table
 	 */
-	dropTable?: Record<number, object>;
+	dropTable?: Record<number, DeepsightDropTableDropDefinition>;
+}
+
+export interface DeepsightDropTableDropDefinition {
+	/**
+	 * `DestinyInventoryItemDefinition` hashes
+	 */
+	requiresQuest?: number;
+	/**
+	 * `DestinyInventoryItemDefinition` hashes
+	 */
+	requiresItems?: number[];
 }
 
 export interface DeepsightDropTableRotationsDefinition {
