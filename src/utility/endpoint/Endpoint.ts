@@ -17,10 +17,10 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 			})
 			.then(text => {
 				if (path.endsWith(".json")) {
-					text = text
-						.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
-						.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")
-						.replace(/,(?=[^}\]"\d\w_-]*?[}\]])/gs, "");
+					// text = text
+					// 	.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
+					// 	.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")
+					// 	.replace(/,(?=[^}\]"\d\w_-]*?[}\]])/gs, "");
 
 					let parsed: T | undefined;
 					try {
