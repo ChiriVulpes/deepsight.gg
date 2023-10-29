@@ -2,6 +2,7 @@ import Model from "model/Model";
 import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
+import GetDeepsightManifestVersions from "utility/endpoint/deepsight/endpoint/GetDeepsightManifestVersions";
 
 type DeepsightManifest = {
 	[COMPONENT_NAME in keyof AllDeepsightManifestComponents]: ManifestItem<COMPONENT_NAME>;
@@ -9,7 +10,14 @@ type DeepsightManifest = {
 
 const DeepsightManifest = Model.create("deepsight manifest", {
 	cache: "Global",
-	version: "16.deepsight.gg",
+	version: async () => {
+		const versions = await GetDeepsightManifestVersions.query();
+		return `${Object.entries(versions)
+			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
+			.map(([name, version]) => `${name}.${version}`)
+			.sort()
+			.join(",")}-0.deepsight.gg`;
+	},
 	async generate (api) {
 		const deepsightComponents = await GetDeepsightManifest.query();
 		const deepsightComponentNames = (Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[])
