@@ -7,6 +7,7 @@ import WeaponRotation from "model/models/WeaponRotation";
 import type { IItemInit } from "model/models/items/Item";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendor";
 import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 
@@ -28,6 +29,7 @@ export interface ISource {
 	isActiveMasterDrop: boolean;
 	record?: DestinyRecordDefinition;
 	type: SourceType;
+	endTime?: number;
 }
 
 namespace Source {
@@ -115,6 +117,7 @@ namespace Source {
 					isActiveDrop: true,
 					isActiveMasterDrop: activityAwardsAdept,
 					type: SourceType.Playlist,
+					endTime: Bungie.nextWeeklyReset,
 				});
 			}
 		}
@@ -167,6 +170,11 @@ namespace Source {
 		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
 
+		const type = undefined
+			?? (activityChallenges.some(Source.isWeeklyChallenge) ? SourceType.Rotator : undefined)
+			?? (activityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? SourceType.Repeatable : undefined)
+			?? SourceType.Playlist;
+
 		return {
 			dropTable: table,
 			activity,
@@ -180,10 +188,8 @@ namespace Source {
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
 			record: await DestinyRecordDefinition.get(table.iconRecordHash),
-			type: undefined
-				?? (activityChallenges.some(Source.isWeeklyChallenge) ? SourceType.Rotator : undefined)
-				?? (activityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? SourceType.Repeatable : undefined)
-				?? SourceType.Playlist,
+			type,
+			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 		};
 	}
 

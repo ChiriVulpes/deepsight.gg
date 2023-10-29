@@ -21,13 +21,21 @@ export class BungieAPI {
 	}
 
 	public get lastWeeklyReset () {
-		const day = (new Date().getUTCDay() + 5) % 7;
+		const day = (new Date().getUTCDay() + 4) % 7;
 		return this.lastDailyReset - day * Time.days(1);
 	}
 
 	public get lastTrialsReset () {
 		const day = (new Date().getUTCDay() + 1) % 7;
 		return this.lastDailyReset - day * Time.days(1);
+	}
+
+	public get nextDailyReset () {
+		return this.lastDailyReset + Time.days(1);
+	}
+
+	public get nextWeeklyReset () {
+		return this.lastWeeklyReset + Time.weeks(1);
 	}
 
 	public event = new EventManager<this, IBungieApiEvents>(this)

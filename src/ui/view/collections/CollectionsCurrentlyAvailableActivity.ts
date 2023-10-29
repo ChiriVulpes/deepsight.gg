@@ -7,6 +7,7 @@ import type { ISource } from "model/models/items/Source";
 import { SourceType } from "model/models/items/Source";
 import Card, { CardClasses } from "ui/Card";
 import Component from "ui/Component";
+import Timestamp from "ui/Timestamp";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Display from "ui/bungie/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
@@ -24,6 +25,7 @@ export enum CollectionsCurrentlyAvailableActivityClasses {
 	ActivityHeaderBookmarkIcon = "view-collections-currently-available-activity-header-bookmark-icon",
 	ActivityHeaderSubtitle = "view-collections-currently-available-activity-header-subtitle",
 	ActivityHeaderSubtitleNote = "view-collections-currently-available-activity-header-subtitle-note",
+	ActivityHeaderSubtitleExpiry = "view-collections-currently-available-activity-header-subtitle-expiry",
 }
 
 export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory: Inventory]> {
@@ -80,6 +82,10 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleNote)
 				.text.add(" \xa0 // \xa0 ")
 				.text.add(note))
+			.append(!source.endTime ? undefined : Component.create("span")
+				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleExpiry)
+				.text.add(" \xa0 / \xa0 ")
+				.append(Timestamp.create([source.endTime, "relative", { components: 2, label: false }])))
 			.appendTo(this.header);
 
 		this.title.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityTitle)

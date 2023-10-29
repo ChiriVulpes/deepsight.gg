@@ -256,9 +256,13 @@
 					font-family: $font-serif;
 					letter-spacing: .1em;
 					font-size: .85em;
-					color: color(foreground-3);
+					color: color(foreground-2);
 					
 					&-note {
+						color: color(foreground-3);
+					}
+					
+					&-expiry {
 						color: color(foreground-4);
 					}
 				}
