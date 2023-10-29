@@ -56,4 +56,11 @@
 	&-postmaster-buckets {
 		grid-row: 1/3;
 	}
+	
+	@at-root sleep,
+		.view-inventory .bucket:times(2),
+		.view-inventory .view-inventory-slot-vault-bucket:times(2),
+		.view-inventory .view-inventory-slot-postmaster-bucket:times(3) {
+		@include view-swipe-animation($has-view-selector: true);
+	}
 }

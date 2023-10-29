@@ -32,6 +32,8 @@ $animation-delay-global: null;
 		@at-root #{$selector} {
 			$animation-delay-global: $delay * $i !global;
 			@if $selector != sleep {
+				// @debug #{$selector};
+				--animate-multi-index: #{$i};
 				@content;
 			}
 			$animation-delay-global: null !global;
@@ -42,3 +44,4 @@ $animation-delay-global: null;
 }
 
 @import "swipe-up";
+@import "fade";

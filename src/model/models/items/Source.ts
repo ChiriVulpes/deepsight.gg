@@ -10,6 +10,12 @@ import Time from "utility/Time";
 import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendor";
 import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 
+export enum SourceType {
+	Playlist,
+	Rotator,
+	Repeatable,
+}
+
 export interface ISource {
 	dropTable: DeepsightDropTableDefinition;
 	activity?: DestinyActivity;
@@ -21,6 +27,7 @@ export interface ISource {
 	isActiveDrop: boolean;
 	isActiveMasterDrop: boolean;
 	record?: DestinyRecordDefinition;
+	type: SourceType;
 }
 
 namespace Source {
@@ -88,6 +95,7 @@ namespace Source {
 						iconRecordHash: 3052859887,
 						displayProperties: {
 							icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
+							iconBlack: true,
 						},
 					};
 				else if (activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
@@ -106,6 +114,7 @@ namespace Source {
 					masterActivityDefinition: activity,
 					isActiveDrop: true,
 					isActiveMasterDrop: activityAwardsAdept,
+					type: SourceType.Playlist,
 				});
 			}
 		}
@@ -155,12 +164,15 @@ namespace Source {
 		const masterActivity = !table.master?.activityHash ? undefined : availableActivities
 			.find(activity => activity.activityHash === table.master!.activityHash);
 
+		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
+		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
+
 		return {
 			dropTable: table,
 			activity,
-			activityDefinition: await DestinyActivityDefinition.get(table.hash)!,
+			activityDefinition: activityDefinition!,
 			activityChallenges,
-			masterActivityDefinition: await DestinyActivityDefinition.get(table.master?.activityHash),
+			masterActivityDefinition,
 			masterActivity,
 			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
 			isActiveDrop: table.rotations?.drops ? resolveRotation(table.rotations?.drops, weeks) === item.definition.hash
@@ -168,6 +180,10 @@ namespace Source {
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
 			record: await DestinyRecordDefinition.get(table.iconRecordHash),
+			type: undefined
+				?? (activityChallenges.some(Source.isWeeklyChallenge) ? SourceType.Rotator : undefined)
+				?? (activityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? SourceType.Repeatable : undefined)
+				?? SourceType.Playlist,
 		};
 	}
 

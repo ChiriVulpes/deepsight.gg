@@ -9,10 +9,11 @@
 		height: 100%;
 		margin: 0;
 		padding: 0;
-		animation: none !important;
-		background: none;
+		background: transparent;
 		transform: none;
-		background: #8886;
+		@include animation-swipe-up-in-background-color-dodge {
+			background: #8886;
+		}
 		border: none;
 		display: grid;
 		grid-template-columns: 1fr;
@@ -21,7 +22,10 @@
 		&::after {
 			z-index: initial;
 			mix-blend-mode: color-dodge;
-			background: #555;
+			background: transparent;
+			@include animation-swipe-up-in-background-color-dodge {
+				background: #555;
+			}
 			@include transition(out, background);
 		}
 		
@@ -33,6 +37,11 @@
 			border-right: none;
 			z-index: 1;
 			position: relative;
+			color: transparent;
+			
+			@include animation-swipe-up-in-background-color-dodge {
+				color: inherit;
+			}
 			
 			&-prev {
 				border-right: .65em solid currentColor;

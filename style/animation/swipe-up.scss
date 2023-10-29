@@ -68,3 +68,20 @@
 		opacity: 0;
 	}
 }
+
+$i: 0;
+@mixin animation-swipe-up-in-background-color-dodge($duration: .3s, $after-animations: none, $delay: 0s) {
+	$i: $i + 1 !global;
+	@if $after-animations == none {
+		animation: swipe-up-background-color-dodge-in-#{$i} $duration ease-in-out calc(var(--swipe-up-in-animation-end-delay) + #{$delay}) forwards;
+	} @else {
+		animation: swipe-up-background-color-dodge-in-#{$i} $duration ease-in-out calc(var(--swipe-up-in-animation-end-delay) + #{$delay}) forwards,
+			$after-animations calc(var(--swipe-up-in-animation-end-delay) + #{$delay} + #{$duration});
+	}
+	
+	@keyframes swipe-up-background-color-dodge-in-#{$i} {
+		to {
+			@content;
+		}
+	}
+}		

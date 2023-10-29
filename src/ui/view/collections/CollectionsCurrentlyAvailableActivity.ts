@@ -4,7 +4,7 @@ import type Inventory from "model/models/Inventory";
 import Trials from "model/models/Trials";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
-import Source from "model/models/items/Source";
+import { SourceType } from "model/models/items/Source";
 import Card, { CardClasses } from "ui/Card";
 import Component from "ui/Component";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
@@ -69,9 +69,9 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.style.set("--icon", Display.icon(activityType)))
 			.appendTo(this.header);
 
-		const note = undefined
-			?? (source.activityChallenges.some(Source.isWeeklyChallenge) ? "Rotator" : undefined)
-			?? (activity.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? "Repeatable" : undefined);
+		const note = source.type === SourceType.Rotator ? "Rotator"
+			: source.type === SourceType.Repeatable ? "Repeatable"
+				: undefined;
 
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitle)

@@ -210,20 +210,13 @@
 			// z-index: -1;
 			background: transparent;
 			mix-blend-mode: color-dodge;
-			animation: card-card-dodge-in .3s linear var(--swipe-up-in-animation-end-delay) forwards;
 			box-shadow: inset 0 0 0 2px #888;
+			@include animation-swipe-up-in-background-color-dodge {
+				background: #444;
+			};
 			
 			.view-hidden & {
 				display: none;
-			}
-			
-			@keyframes card-card-dodge-in {
-				from {
-					background: transparent;
-				}
-				to {
-					background: #444;
-				}
 			}
 		}
 		
@@ -300,9 +293,7 @@
 					position: absolute;
 					inset: 0;
 					top: -30px;
-					background: #000c;
-					-webkit-mask-image: linear-gradient(to top, #000 calc(100% - 150px), #000d calc(100% - 80px), #000a calc(100% - 50px), transparent 100%);
-					mask-image: linear-gradient(to top, #000 calc(100% - 150px), #000c calc(100% - 80px), #000a calc(100% - 50px), transparent 100%);
+					background: linear-gradient(to top, #000c calc(100% - 150px), #0009 calc(100% - 80px), #0006 calc(100% - 50px), transparent 100%);
 				}
 			}
 		}

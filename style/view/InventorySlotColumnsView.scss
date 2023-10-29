@@ -164,4 +164,18 @@
 			}
 		}
 	}
+
+	@at-root 
+		.view-slot-columns-slot-column:nth-child(1) .view-slot-columns-slot-column-title,
+		.view-slot-columns-slot-column:nth-child(1) .bucket,
+		.view-slot-columns-slot-column:nth-child(2) .view-slot-columns-slot-column-title,
+		.view-slot-columns-slot-column:nth-child(2) .bucket,
+		.view-slot-columns-slot-column:nth-child(3) .view-slot-columns-slot-column-title,
+		.view-slot-columns-slot-column:nth-child(3) .bucket,
+		.view-slot-columns-slot-column:nth-child(4) .view-slot-columns-slot-column-title,
+		.view-slot-columns-slot-column:nth-child(4) .bucket,
+		.view-slot-columns-slot-column:nth-child(5) .view-slot-columns-slot-column-title,
+		.view-slot-columns-slot-column:nth-child(5) .bucket {
+		@include view-swipe-animation;
+	}
 }

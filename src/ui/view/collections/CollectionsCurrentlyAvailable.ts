@@ -33,6 +33,17 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		this.summary.text.set("Currently Available");
 		this.open();
 
+		const items = await this.discoverItems(manifest, profile, weaponRotation);
+
+		const sources = items.flatMap(item => item.sources ?? Arrays.EMPTY)
+			.flatMap(source => [
+				source.isActiveMasterDrop && source.masterActivityDefinition && !source.masterActivityDefinition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)
+					? Arrays.tuple(source.masterActivityDefinition.hash, source.masterActivityDefinition, source)
+					: Arrays.tuple(source.activityDefinition.hash, source.activityDefinition, source),
+			])
+			.sort(([, , a], [, , b]) => a.type - b.type);
+		// .filter((source): source is [number, DestinyActivityDefinition, ISource] => !!source);
+
 		const activityWrapper = Paginator.create()
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginator)
 			.appendTo(this);
@@ -43,16 +54,6 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		const activityFiller = activityWrapper.filler(4, page => page
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPage));
-
-		const items = await this.discoverItems(manifest, profile, weaponRotation);
-
-		const sources = items.flatMap(item => item.sources ?? Arrays.EMPTY)
-			.flatMap(source => [
-				source.isActiveMasterDrop && source.masterActivityDefinition && !source.masterActivityDefinition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)
-					? Arrays.tuple(source.masterActivityDefinition.hash, source.masterActivityDefinition, source)
-					: Arrays.tuple(source.activityDefinition.hash, source.activityDefinition, source),
-			]);
-		// .filter((source): source is [number, DestinyActivityDefinition, ISource] => !!source);
 
 		const { DestinyActivityTypeDefinition, DestinyActivityModeDefinition } = manifest;
 

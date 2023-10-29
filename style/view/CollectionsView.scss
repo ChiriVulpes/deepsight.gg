@@ -60,15 +60,18 @@
 					&-button {
 						height: calc(100% - 16px);
 						margin-top: 8px;
+						@at-root sleep:times(2), &, sleep:times(4), & {
+							@include view-swipe-animation($delay: .1s);
+						}
 					}
 					
 					--paginator-content-width: calc(100vw - 20px - var(--view-padding-x) * 2);
 				}
 				
-				padding: 8px 0;
+				padding: 8px 0 24px;
 				// flex-wrap: wrap;
 				--card-gap: 8px;
-				margin: 0 -8px;
+				margin: 0 -8px -16px;
 				width: calc(var(--paginator-content-width) + 16px);
 				
 				// &-2 {
@@ -82,12 +85,19 @@
 					padding: 0 8px;
 					--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--paginator-page-size) - 1)) / var(--paginator-page-size));
 					--card-height: calc(var(--card-width) * .75);
+					height: var(--card-height);
 				}
 			}
 			
 			width: var(--card-width);
 			height: var(--card-height);
 			overflow: initial;
+
+			$sleeps: 2;
+			@at-root sleep:times(#{$sleeps}),
+				&:times(16) {
+				@include view-swipe-animation($delay: .1s);
+			}
 			
 			&-title {
 				color: color(foreground-0);
@@ -144,15 +154,30 @@
 					mask-position: center;
 				}
 				
+				@keyframes collections-currently-available-activity-icon-pulsate {
+					from {
+						background: #888;
+					}
+					to {
+						background: #8883;
+					}
+				}
+				
 				&::before {
-					filter: brightness(.6);
 					mix-blend-mode: color-dodge;
-					backdrop-filter: blur(4px);
+					background: transparent;
+					@include animation-swipe-up-in-background-color-dodge(2s, collections-currently-available-activity-icon-pulsate 3s ease-in-out infinite alternate, calc((var(--animate-multi-index) - #{$sleeps}) * 1s)) {
+						backdrop-filter: blur(4px);
+						background: #888;
+					}
 				}
 				
 				&::after {
-					filter: brightness(.7);
 					opacity: .15;
+					background: transparent;
+					@include animation-swipe-up-in-background-color-dodge(2s, collections-currently-available-activity-icon-pulsate 3s ease-in-out infinite alternate, calc((var(--animate-multi-index) - #{$sleeps}) * 1s)) {
+						background: #888;
+					}
 				}
 			}
 		

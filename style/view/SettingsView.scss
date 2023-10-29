@@ -26,8 +26,8 @@
 	}
 
 	@at-root sleep:times(2),
-		.card:times(30) {
-		@include view-swipe-animation;
+		.view-settings .card:times(30) {
+		@include view-swipe-animation($has-view-selector: true);
 	}
 }
 
