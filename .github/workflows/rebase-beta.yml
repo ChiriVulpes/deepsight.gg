@@ -26,3 +26,8 @@ jobs:
           fi
           
           git push -f origin beta
+
+  # Rebuild after rebase
+  build-beta:
+    needs: rebase
+    uses: ./.github/workflows/build-beta.yml
