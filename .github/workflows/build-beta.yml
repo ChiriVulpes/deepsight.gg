@@ -44,4 +44,3 @@ jobs:
   deploy:
     needs: build
     uses: ./.github/workflows/deploy.yml
-    
