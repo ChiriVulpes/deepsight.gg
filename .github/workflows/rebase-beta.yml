@@ -31,3 +31,4 @@ jobs:
   build-beta:
     needs: rebase
     uses: ./.github/workflows/build-beta.yml
+    secrets: inherit
