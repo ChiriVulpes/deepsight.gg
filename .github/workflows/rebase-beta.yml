@@ -18,5 +18,10 @@ jobs:
 
       - name: Rebase
         run: |
-          git rebase main
+          if ! git rebase origin/main; then
+            echo "Rebase failed due to conflicts."
+            git rebase --abort
+            exit 1
+          fi
+          
           git push -f origin beta
