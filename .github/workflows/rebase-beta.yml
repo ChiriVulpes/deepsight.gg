@@ -16,7 +16,7 @@ jobs:
 
       - name: Rebase
         run: |
-          git checkout beta
+          git switch beta
           if ! git rebase origin/main; then
             echo "Rebase failed due to conflicts."
             git rebase --abort
