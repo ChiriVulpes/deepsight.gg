@@ -7,10 +7,8 @@ import Task from "./utilities/Task";
 
 export default Task("install", async () => {
 	const lockFilePath = path.join(process.cwd(), "package-lock.json");
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-	let lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8"));
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-	let sha: string = lockFileData["d2ai-module.sha"];
+	let lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8")) as { "d2ai-module.sha"?: string };
+	let sha = lockFileData["d2ai-module.sha"];
 
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install");
 	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
@@ -44,9 +42,10 @@ export default Task("install", async () => {
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8"));
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-	lockFileData["d2ai-module.sha"] = sha;
-	fs.writeFileSync(lockFilePath, JSON.stringify(lockFileData, null, "\t") + "\n");
+	if (lockFileData["d2ai-module.sha"] !== sha) {
+		lockFileData["d2ai-module.sha"] = sha;
+		fs.writeFileSync(lockFilePath, JSON.stringify(lockFileData, null, "\t") + "\n");
+	}
 
 	await fs.mkdirp("static/js/vendor");
 	await fs.copyFile("src/node_modules/wicg-inert/dist/inert.min.js", "static/js/vendor/inert.min.js");
