@@ -16,6 +16,7 @@ jobs:
 
       - name: Rebase
         run: |
+          git fetch
           git switch beta
           if ! git rebase origin/main; then
             echo "Rebase failed due to conflicts."
