@@ -15,9 +15,6 @@ interface Manifest {
 }
 
 export default Task("destiny_manifest", async () => {
-	if (process.env.DEEPSIGHT_ENVIRONMENT !== "dev")
-		return;
-
 	const manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
 		.then(response => response.json())
 		.then(json => {
