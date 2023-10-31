@@ -14,7 +14,7 @@ interface Manifest {
 	}
 }
 
-export default Task("manifest", async () => {
+export default Task("destiny_manifest", async () => {
 	if (process.env.DEEPSIGHT_ENVIRONMENT !== "dev")
 		return;
 
