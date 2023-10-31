@@ -5,7 +5,8 @@
 		"build": "npx ts-node tasks/utilities/TaskRunner.ts build",
 		"rebuild": "npx ts-node tasks/utilities/TaskRunner.ts clean build",
 		"watch": "npx ts-node tasks/utilities/TaskRunner.ts clean build serve watch",
-		"clean": "npx ts-node tasks/utilities/TaskRunner.ts clean"
+		"clean": "npx ts-node tasks/utilities/TaskRunner.ts clean",
+		"manifest": "npx ts-node tasks/utilities/TaskRunner.ts deepsight_manifest"
 	},
 	"devDependencies": {
 		"fs-extra": "10.1.0",

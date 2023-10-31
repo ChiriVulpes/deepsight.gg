@@ -1,5 +1,6 @@
 import type { AllDestinyManifestComponents, DestinyInventoryComponent, DestinyInventoryItemDefinition, DestinyItemReusablePlugsComponent, DestinyItemSocketsComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import type Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import Env from "utility/Env";
@@ -7,6 +8,7 @@ import Objects from "utility/Objects";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
+import GetDeepsightManifestVersions from "utility/endpoint/deepsight/endpoint/GetDeepsightManifestVersions";
 import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 const elapsed = IManifest.elapsed;
@@ -32,7 +34,8 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await GetManifest.query();
-		return `${manifest.version}-22.deepsight.gg`;
+		const deepsightVersions = await GetDeepsightManifestVersions.query();
+		return `${manifest.version},DeepsightMomentDefinition.${deepsightVersions.DeepsightMomentDefinition}-22.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await GetManifest.query();
@@ -190,16 +193,11 @@ const DestinyManifest = Model.create("destiny manifest", {
 			console.info(`Finished updating item watermarks after ${elapsed(performance.now() - startTime)}`);
 		});
 
-		// clear previous bundled caches
-		for (const componentName of bungieComponentNames) {
-			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
-		}
-
-		return bungieComponentNames;
+		return [...bungieComponentNames, "DeepsightMomentDefinition" as const];
 	},
-	process: async componentNames => {
+	process: async (componentNames) => {
 		const Manifest = Object.fromEntries(componentNames
-			.map(componentName => [componentName, new ManifestItem(componentName)])) as DestinyManifest;
+			.map(componentName => [componentName, new ManifestItem(componentName, DestinyManifest)])) as any as Manifest;
 
 		for (const componentName of componentNames)
 			if (componentName !== "DestinyInventoryItemDefinition" && componentName !== "DestinyInventoryItemLiteDefinition")
@@ -271,6 +269,11 @@ const DestinyManifest = Model.create("destiny manifest", {
 	reset: async componentNames => {
 		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.clear(CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
+	},
+	cacheInvalidated: async componentNames => {
+		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
 		}
 	},

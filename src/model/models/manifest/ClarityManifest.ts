@@ -57,22 +57,17 @@ const ClarityManifest = Model.create("clarity database", {
 			}
 		});
 
-		// clear previous bundled caches
-		for (const componentName of clarityComponentNames) {
-			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
-		}
-
 		return clarityComponentNames;
 	},
 	process: async componentNames => {
-		const ClarityManifest = Object.fromEntries(componentNames
-			.map(componentName => [componentName, new ManifestItem(componentName)])) as ClarityManifest;
+		const Manifest = Object.fromEntries(componentNames
+			.map(componentName => [componentName, new ManifestItem(componentName, ClarityManifest)])) as ClarityManifest;
 
 		const { DestinyInventoryItemDefinition } = await DestinyManifest.await();
 		const itemHashes = await DestinyInventoryItemDefinition.allKeys();
 
 		for (const componentName of componentNames) {
-			ClarityManifest[componentName].setPreCache(true, cache => {
+			Manifest[componentName].setPreCache(true, cache => {
 				if (componentName === "ClarityDescriptions") {
 					for (const hash of itemHashes) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -82,12 +77,17 @@ const ClarityManifest = Model.create("clarity database", {
 			});
 		}
 
-		Object.assign(window, ClarityManifest);
-		return ClarityManifest;
+		Object.assign(window, Manifest);
+		return Manifest;
 	},
 	reset: async componentNames => {
 		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
+	},
+	cacheInvalidated: async componentNames => {
+		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
 		}
 	},

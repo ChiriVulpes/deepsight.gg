@@ -1,463 +1,274 @@
 {
-	"-1": {
-		"id": "destiny2",
-		"displayProperties": {
-			"name": "Destiny 2"
-		},
-		"iconWatermark": { "item": 4258405681 }
-	},
 	"0": {
-		"id": "dawning",
-		"displayProperties": {
-			"name": "The Dawning",
-			"icon": "./image/svg/dawning.svg"
-		},
-		"iconWatermark": { "item": 3400256755 },
-		"event": 2302439334
+		id: "dawning",
+		iconWatermark: { DestinyInventoryItemDefinition: 3400256755 }, // Zephyr
+		event: 2302439334,
 	},
 	"1": {
-		"id": "crimsondays",
-		"displayProperties": {
-			"name": "Crimson Days",
-			"icon": "./img/svg/crimsondays.svg"
+		id: "crimsondays",
+		displayProperties: {
+			name: "Crimson Days",
+			icon: "./image/svg/moment/crimsondays.svg",
 		},
-		"iconWatermark": { "item": 263371512 },
-		"event": true
+		iconWatermark: { DestinyInventoryItemDefinition: 263371512 }, // Entwining Heart Shell
+		event: true,
 	},
 	"2": {
-		"id": "guardiangames",
-		"displayProperties": {
-			"name": "Guardian Games",
-			"icon": "./image/svg/guardiangames.svg"
-		},
-		"iconWatermark": { "item": 294129361 },
-		"event": 3461628897
+		id: "guardiangames",
+		iconWatermark: { DestinyInventoryItemDefinition: 294129361 }, // The Title
+		event: 3461628897,
 	},
 	"3": {
-		"id": "solstice",
-		"displayProperties": {
-			"name": "Solstice",
-			"icon": ""
-		},
-		"iconWatermark": { "item": 516735972 },
-		"event": 3841872876
+		id: "solstice",
+		iconWatermark: { DestinyInventoryItemDefinition: 516735972 }, // Candescent Gloves
+		event: 3841872876,
 	},
 	"4": {
-		"id": "festivalofthelost",
-		"displayProperties": {
-			"name": "Festival of the Lost",
-			"icon": "./image/svg/festivalofthelost.svg"
-		},
-		"iconWatermark": { "item": 528834068 },
-		"event": 3265920761
+		id: "festivalofthelost",
+		iconWatermark: { DestinyInventoryItemDefinition: 528834068 }, // BrayTech Werewolf
+		event: 3265920761,
 	},
 	"5": {
-		"id": "redwar",
-		"displayProperties": {
-			"name": "The Red War",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/races/cabal_red-legion.svg"
+		id: "redwar",
+		displayProperties: {
+			name: "The Red War",
+			description: { DestinyInventoryItemDefinition: 3684627728 }, // dummy quest item
+			icon: { DestinySandboxPerkDefinition: 3794132046 }, // Cabal Arrival (transmat effect perk)
 		},
-		"iconWatermark": { "item": 2362471601 },
-		"iconWatermarkShelved": { "item": 1006783454 },
-		"expansion": true,
-		"season": 1,
-		"year": 1,
-		"seasonHash": 965757574,
-		"itemHashes": [
-			193869523, // orpheus rig
-			1345867570, // sweet business
-			4190156464, // merciless
-			4124984448, // hard light
-			3089417789, // riskrunner
-			3628991658, // graviton lance
-			3381022971, // nezarec's sin
-			3381022970, // eye of another world
-			3381022969, // crown of tempests
-			3787517196, // sunbracers
-			4136768282, // lunafaction boots
-			138282166, // transversive steps
-			3883866764, // mask of the quiet one
-			241462141, // doom fang pauldron
-			1591207518, // actium war rig
-			1591207519, // crest of alpha lupi
-			1160559849, // dunemarchers
-			3539357319, // peacekeepers
-			3539357318, // lion rampant
-			2907129556, // sturm
-			1321354573, // celestial nighthawk
-			1030017949, // skull of dire ahamkara
-			3580904581, // tractor cannon
-			1734144409, // mechaneer's tricksleeves
-			2362471600, // drang
-			3628991659, // vigilance wing
-			903984858, // lucky raspberry
-			193869522, // lucky pants
-			370930766, // wings of sacred dawn
-			241462142, // synthoceps
-			4255268456, // skyburner's oath
-			1321354572, // knucklehead radar
-			896224899, // foetracer
-			193869520, // st0mp-EE5
-			3141979346, // d.a.r.c.i.
-			3580904580, // legend of acrius
-			1508896098, // the wardcliff coil
-			2082483156, // starfire protocol
-			475652357, // young ahamkara's spine
-			1331482397, // mida multi-tool
-			3549153979, // the prospector
-			2766109872, // raiden flux
-			3844826443, // winter's guile
-			2362471601, // rat king
-			3844826440, // karnstein armlets
-			1345867571, // coldheart
-			3141979347, // borealis
-			3549153978, // fighting lion
-			2766109874, // the dragon's shadow
-			2907129557, // sunshot
-			2563444729, // acd/0 feedback fence
-			1192890598, // hallowfire heart
-			3216110440 // an insurmountable skullfort
-		]
+		iconWatermark: { DestinyInventoryItemDefinition: 2362471601 }, // Rat King
+		expansion: true,
+		season: 1,
+		year: 1,
+		seasonHash: 965757574,
 	},
 	"6": {
-		"id": "osiris",
-		"displayProperties": {
-			"name": "Curse of Osiris",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/factions/faction_osiris.svg"
-		},
-		"iconWatermark": { "item": 3373357627 },
-		"iconWatermarkShelved": { "item": 3373357627 },
-		"expansion": true,
-		"season": 2,
-		"year": 1,
-		"seasonHash": 2973407602
+		id: "osiris",
+		displayProperties: { icon: "./image/svg/moment/osiris.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 3373357627 }, // Eye of Osiris ornament for Prometheus Lens
+		expansion: true,
+		season: 2,
+		year: 1,
+		seasonHash: 2973407602,
 	},
 	"7": {
-		"id": "warmind",
-		"displayProperties": {
-			"name": "Warmind",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/warmind.svg"
+		id: "warmind",
+		displayProperties: { 
+			name: "Warmind",
+			icon: "./image/svg/moment/warmind.svg",
 		},
-		"iconWatermark": { "item": 1229016681 },
-		"iconWatermarkShelved": { "item": 1229016681 },
-		"expansion": true,
-		"season": 3,
-		"year": 1,
-		"seasonHash": 4033618594
+		iconWatermark: { DestinyInventoryItemDefinition: 1229016681 }, // Zeus-Like Physique emote
+		expansion: true,
+		season: 3,
+		year: 1,
+		seasonHash: 4033618594,
 	},
 	"8": {
-		"id": "forsaken",
-		"displayProperties": {
-			"name": "Forsaken",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
+		id: "forsaken",
+		aliases: ["outlaw"],
+		displayProperties: {
+			name: "Forsaken",
+			description: { DestinyActivityDefinition: 2068689865 },
+			icon: "./image/svg/moment/forsaken.svg",
 		},
-		"iconWatermark": { "item": 3148574214 },
-		"iconWatermarkShelved": { "item": 3148574214 },
-		"expansion": true,
-		"season": 4,
-		"year": 2,
-		"seasonHash": 2026773320
+		iconWatermark: { DestinyInventoryItemDefinition: 3148574214 }, // Jeweled Projection
+		expansion: true,
+		season: 4,
+		year: 2,
+		seasonHash: 2026773320,
 	},
-	// "9": {
-	// 	"id": "outlaw",
-	// 	"displayProperties": {
-	// 		"name": "Season of the Outlaw",
-	// 		"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/explore/forsaken.svg"
-	// 	},
-	// 	"iconWatermark": { "item": 3148574214 },
-	// 	"iconWatermarkShelved": { "item": 3148574214 },
-	// 	"season": 4,
-	// 	"year": 2,
-	// 	"seasonHash": 2026773320
-	// },
 	"10": {
-		"id": "forge",
-		"displayProperties": {
-			"name": "Season of the Forge",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/factions/black_armory_forge.svg"
-		},
-		"iconWatermark": { "item": 227918506 },
-		"iconWatermarkShelved": { "item": 227918506 },
-		"season": 5,
-		"year": 2,
-		"seasonHash": 2236269318
+		id: "forge",
+		displayProperties: { icon: "./image/svg/moment/forge.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 227918506 }, // Rust Punk Shell
+		season: 5,
+		year: 2,
+		seasonHash: 2236269318,
 	},
 	"11": {
-		"id": "drifter",
-		"displayProperties": {
-			"name": "Season of the Drifter",
-			"icon": ""
-		},
-		"iconWatermark": { "item": 527607311 },
-		"iconWatermarkShelved": { "item": 527607311 },
-		"season": 6,
-		"year": 2,
-		"seasonHash": 2891088360
+		id: "drifter",
+		displayProperties: { icon: "./image/svg/moment/drifter.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 527607311 }, // Totem Shell
+		season: 6,
+		year: 2,
+		seasonHash: 2891088360,
 	},
 	"12": {
-		"id": "opulence",
-		"displayProperties": {
-			"name": "Season of Opulence",
-			"icon": ""
-		},
-		"iconWatermark": { "item": 258623695 },
-		"iconWatermarkShelved": { "item": 258623695 },
-		"season": 7,
-		"year": 2,
-		"seasonHash": 4275747712
+		id: "opulence",
+		displayProperties: { icon: "./image/svg/moment/opulence.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 258623695 }, // One Fell Swoop sparrow
+		season: 7,
+		year: 2,
+		seasonHash: 4275747712,
 	},
 	"13": {
-		"id": "shadowkeep",
-		"displayProperties": {
-			"name": "Shadowkeep",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/shadowkeep.svg"
+		id: "shadowkeep",
+		displayProperties: { 
+			name: { DestinyRecordDefinition: 2584970263 }, // badge record
+			description: { DestinyActivityDefinition: 466447952 },
+			icon: "./image/svg/moment/shadowkeep.svg",
 		},
-		"iconWatermark": { "item": 613601972 },
-		"iconWatermarkShelved": { "item": 613601972 },
-		"expansion": true,
-		"year": 3
+		iconWatermark: { DestinyInventoryItemDefinition: 613601972 }, // Symphony of Death quest step
+		expansion: true,
+		year: 3,
 	},
 	"14": {
-		"id": "undying",
-		"displayProperties": {
-			"name": "Season of the Undying",
-			"icon": "./image/svg/undying.svg"
-		},
-		"iconWatermark": { "item": 55722088 },
-		"iconWatermarkShelved": { "item": 55722088 },
-		"season": 8,
-		"year": 3,
-		"seasonHash": 1743682818
+		id: "undying",
+		displayProperties: { icon: "./image/svg/moment/undying.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 55722088 }, // The Vow exotic catalyst quest step
+		season: 8,
+		year: 3,
+		seasonHash: 1743682818,
 	},
 	"15": {
-		"id": "dawn",
-		"displayProperties": {
-			"name": "Season of Dawn",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/dawn.svg"
-		},
-		"iconWatermark": { "item": 2422240131 },
-		"iconWatermarkShelved": { "item": 2422240131 },
-		"season": 9,
-		"year": 3,
-		"seasonHash": 1743682819
+		id: "dawn",
+		displayProperties: { icon: "./image/svg/moment/dawn.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 2422240131 }, // Timeswept Shell
+		season: 9,
+		year: 3,
+		seasonHash: 1743682819,
 	},
 	"16": {
-		"id": "worthy",
-		"displayProperties": {
-			"name": "Season of the Worthy",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-worthy.svg"
-		},
-		"iconWatermark": { "item": 3394806033 },
-		"iconWatermarkShelved": { "item": 3394806033 },
-		"season": 10,
-		"year": 3,
-		"seasonHash": 2809059425,
-		"itemHashes": [
-			102368695 // anti-extinction mask (hunter helm)
-		]
+		id: "worthy",
+		displayProperties: { icon: "./image/svg/moment/worthy.svg" },
+		iconWatermark: { DestinyInventoryItemDefinition: 3394806033 },
+		season: 10,
+		year: 3,
+		seasonHash: 2809059425,
 	},
 	"17": {
-		"id": "arrivals",
-		"displayProperties": {
-			"name": "Season of Arrivals",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/arrivals.svg"
-		},
-		"iconWatermark": { "item": 609666430 },
-		"iconWatermarkShelved": { "item": 609666430 },
-		"season": 11,
-		"year": 3,
-		"seasonHash": 2809059424
+		id: "arrivals",
+		iconWatermark: { DestinyInventoryItemDefinition: 609666430 }, // White Collar Crime Witherhoard ornament
+		season: 11,
+		year: 3,
+		seasonHash: 2809059424,
 	},
 	"18": {
-		"id": "beyondlight",
-		"displayProperties": {
-			"name": "Beyond Light",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/beyond-light.svg"
+		id: "beyondlight",
+		displayProperties: {
+			name: { DestinyInventoryItemDefinition: 3612061731 }, // quest step
+			description: { DestinyActivityDefinition: 1082553800 },
+			icon: { DestinyRecordDefinition: 1209487292 },
 		},
-		"iconWatermark": { "item": 296637832 },
-		"iconWatermarkShelved": { "item": 296637832 },
-		"expansion": true,
-		"year": 4
+		iconWatermark: { DestinyInventoryItemDefinition: 296637832 }, // No Love Lost ghost shell
+		expansion: true,
+		year: 4,
 	},
 	"19": {
-		"id": "hunt",
-		"displayProperties": {
-			"name": "Season of the Hunt",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-hunt.svg"
-		},
-		"iconWatermark": { "item": 3180169828 },
-		"iconWatermarkShelved": { "item": 3180169828 },
-		"season": 12,
-		"year": 4,
-		"seasonHash": 2809059427,
-		"itemHashes": [
-			623912054, // kerak type 2 (titan legs)
-			1418191156, // the beyond (warlock bond)
-			760584029 // philomath gloves (warlock)
-		]
+		id: "hunt",
+		iconWatermark: { DestinyInventoryItemDefinition: 3180169828 }, // Steeplechase Gauntlets
+		season: 12,
+		year: 4,
+		seasonHash: 2809059427,
 	},
 	"20": {
-		"id": "chosen",
-		"displayProperties": {
-			"name": "Season of the Chosen",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/the-chosen.svg"
-		},
-		"iconWatermark": { "item": 4198587027 },
-		"iconWatermarkShelved": { "item": 4198587027 },
-		"season": 13,
-		"year": 4,
-		"seasonHash": 2809059426
+		id: "chosen",
+		iconWatermark: { DestinyInventoryItemDefinition: 4198587027 }, // Fist Pump emote
+		season: 13,
+		year: 4,
+		seasonHash: 2809059426
 	},
 	"21": {
-		"id": "splicer",
-		"displayProperties": {
-			"name": "Season of the Splicer",
-			"icon": "https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/splicer.svg"
-		},
-		"iconWatermark": { "item": 352241391 },
-		"iconWatermarkShelved": { "item": 352241391 },
-		"season": 14,
-		"year": 4,
-		"seasonHash": 2809059429
+		id: "splicer",
+		iconWatermark: { DestinyInventoryItemDefinition: 352241391 }, // No Signal emote
+		season: 14,
+		year: 4,
+		seasonHash: 2809059429
 	},
 	"22": {
-		"id": "lost",
-		"displayProperties": {
-			"name": "Season of the Lost",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_265abf1e776ea726de1f1459392727b6.png"
-		},
-		"iconWatermark": { "item": 30317211 },
-		"season": 15,
-		"year": 4,
-		"seasonHash": 2809059428,
-		"itemHashes": [
-			2783831726, // retro-grade tg2 (titan helm)
-			385985080, // devastation complex (titan chest)
-			775812602, // be thy cipher (warlock bond)
-			901647822, // heiro camo (warlock arms)
-			2984725960, // heiro camo (warlock legs)
-			3671791220, // road complex aa1 (hunter arms)
-			1889156236, // road complex aa1 (hunter chest)
-			3959529854, // road complex aa1 (hunter legs)
-			1835885085, // dead end cure 2.1 (hunter chest)
-			3297872976 // far gone hood (hunter cloak)
-		]
+		id: "lost",
+		iconWatermark: { DestinyInventoryItemDefinition: 30317211 }, // Queen's Crest Projection
+		season: 15,
+		year: 4,
+		seasonHash: 2809059428,
 	},
 	"23": {
-		"id": "30th",
-		"displayProperties": {
-			"name": "Bungie 30th Anniversary",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/80362442a7f4bee0beca7ad100e5dbbf.png"
+		id: "30th",
+		displayProperties: {
+			name: "Bungie 30th Anniversary",
+			description: { DestinyInventoryItemDefinition: 1499880210 },
+			icon: { DestinyRecordDefinition: 161894518 }, // 30th Exotics record
 		},
-		"iconWatermark": { "item": 1538938257 },
-		"expansion": true,
-		"year": 4
+		iconWatermark: { DestinyInventoryItemDefinition: 1538938257 }, // Seventh Column Projection
+		expansion: true,
+		year: 4,
 	},
 	"24": {
-		"id": "witchqueen",
-		"displayProperties": {
-			"name": "The Witch Queen",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/e17d13013bad7d53c47b0231b9784e1e.png"
+		id: "witchqueen",
+		displayProperties: {
+			name: { DestinyInventoryItemDefinition: 147850787 }, // quest step
+			description: { DestinyActivityDefinition: 1292955609 },
+			icon: { DestinyRecordDefinition: 487894732 }, // legendary completion record
 		},
-		"iconWatermark": { "item": 2814111722 },
-		"iconWatermarkShelved": { "item": 2814111722 },
-		"expansion": true,
-		"year": 5
+		iconWatermark: { DestinyInventoryItemDefinition: 2814111722 },
+		expansion: true,
+		year: 5,
 	},
 	"25": {
-		"id": "risen",
-		"displayProperties": {
-			"name": "Season of the Risen",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_0f47a186cf0cb88d2388d811a6ec89cb.png"
-		},
-		"iconWatermark": { "item": 1055855089 },
-		"season": 16,
-		"year": 5,
-		"seasonHash": 2809059431,
-		"itemHashes": [
+		id: "risen",
+		iconWatermark: { DestinyInventoryItemDefinition: 1055855089 }, // Psionic Speaker Hood ornament
+		season: 16,
+		year: 5,
+		seasonHash: 2809059431,
+		itemHashes: [
 			// move hunter armour from the witch queen source to the risen source to match other classes' armours
 			3056950148,
 			4144240158,
 			3473867303,
 			4017738218,
-			2516879931
-		]
+			2516879931,
+		],
 	},
 	"26": {
-		"id": "haunted",
-		"displayProperties": {
-			"name": "Season of the Haunted",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_3847a7f2241ce39588bfc2c85239b055.png"
-		},
-		"iconWatermark": { "item": 1842527157 },
-		"season": 17,
-		"year": 5,
-		"seasonHash": 2809059430
+		id: "haunted",
+		iconWatermark: { DestinyInventoryItemDefinition: 1842527157 }, // Insubordination weapon ornament
+		season: 17,
+		year: 5,
+		seasonHash: 2809059430,
 	},
 	"27": {
-		"id": "plunder",
-		"displayProperties": {
-			"name": "Season of Plunder",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
-		},
-		"iconWatermark": { "item": 3964346177 },
-		"season": 18,
-		"year": 5,
-		"seasonHash": 2809059433
+		id: "plunder",
+		iconWatermark: { DestinyInventoryItemDefinition: 3964346177 }, // Intended Authority weapon ornament
+		season: 18,
+		year: 5,
+		seasonHash: 2809059433,
 	},
 	"28": {
-		"id": "seraph",
-		"displayProperties": {
-			"name": "Season of the Seraph",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
-		},
-		"iconWatermark": { "item": 2189114025 },
-		"season": 19,
-		"year": 5,
-		"seasonHash": 2809059432
+		id: "seraph",
+		iconWatermark: { DestinyInventoryItemDefinition: 2189114025 }, // Standout Pose emote
+		season: 19,
+		year: 5,
+		seasonHash: 2809059432,
 	},
 	"29": {
-		"id": "lightfall",
-		"displayProperties": {
-			"name": "Lightfall",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinyMilestoneDefinition_67326996f903b5961421421e60ba128c.png"
+		id: "lightfall",
+		displayProperties: {
+			name: { DestinyActivityDefinition: 2160512434 },
+			description: { DestinyActivityDefinition: 2160512434 },
+			icon: "./image/svg/moment/lightfall.svg",
 		},
-		"iconWatermark": { "item": 1781477733 },
-		"iconWatermarkShelved": { "item": 1781477733 },
-		"expansion": true,
-		"year": 6
+		iconWatermark: { DestinyInventoryItemDefinition: 1781477733 }, // Scintillant Trajectory shader
+		expansion: true,
+		year: 6,
 	},
 	"30": {
-		"id": "defiance",
-		"displayProperties": {
-			"name": "Season of Defiance",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_50d80a655bccddfd26e954dbfc3b9746.png"
-		},
-		"iconWatermark": { "item": 874852815 },
-		"season": 20,
-		"year": 6,
-		"seasonHash": 2758726568
+		id: "defiance",
+		iconWatermark: { DestinyInventoryItemDefinition: 874852815 }, // Keeping Time emote
+		season: 20,
+		year: 6,
+		seasonHash: 2758726568,
 	},
 	"31": {
-		"id": "deep",
-		"displayProperties": {
-			"name": "Season of the Deep",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_f82759315a8d05fc597778d2086acee4.png"
-		},
-		"iconWatermark": { "item": 1748123668 },
-		"season": 21,
-		"year": 6,
-		"seasonHash": 2758726569
+		id: "deep",
+		iconWatermark: { DestinyInventoryItemDefinition: 1748123668 }, // Deep Projection
+		season: 21,
+		year: 6,
+		seasonHash: 2758726569,
 	},
 	"32": {
-		"id": "witch",
-		"displayProperties": {
-			"name": "Season of the Witch",
-			"icon": "https://www.bungie.net/common/destiny2_content/icons/DestinySeasonDefinition_fdbb36bb7f4f81c0170ca0b2cced22d6.png"
-		},
-		"iconWatermark": { "item": 1875512595 },
-		"season": 22,
-		"year": 6,
-		"seasonHash": 2758726570
-	}
+		id: "witch",
+		iconWatermark: { DestinyInventoryItemDefinition: 1875512595 }, // Kept Confidence hand cannon
+		season: 22,
+		year: 6,
+		seasonHash: 2758726570,
+	},
 }

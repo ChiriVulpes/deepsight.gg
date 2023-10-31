@@ -13,7 +13,10 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 	version: async () => {
 		const versions = await GetDeepsightManifestVersions.query();
 		return `${Object.entries(versions)
-			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
+			.filter((entry): entry is [string, number] => {
+				const [componentName, hash] = entry;
+				return typeof hash === "number" && componentName !== "DeepsightMomentDefinition";
+			})
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
 			.join(",")}-0.deepsight.gg`;
@@ -57,27 +60,27 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 			}
 		});
 
-		// clear previous bundled caches
-		for (const componentName of deepsightComponentNames) {
-			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
-		}
-
-		return [...deepsightComponentNames, "DeepsightMomentDefinition"] as (keyof AllDeepsightManifestComponents)[];
+		return [...deepsightComponentNames] as (keyof AllDeepsightManifestComponents)[];
 	},
 	process: componentNames => {
-		const DeepsightManifest = Object.fromEntries(componentNames
-			.map(componentName => [componentName, new ManifestItem(componentName)])) as DeepsightManifest;
+		const Manifest = Object.fromEntries(componentNames
+			.map(componentName => [componentName, new ManifestItem(componentName, DeepsightManifest)])) as DeepsightManifest;
 
 		for (const componentName of componentNames) {
-			DeepsightManifest[componentName].setPreCache(true);
+			Manifest[componentName].setPreCache(true);
 		}
 
-		Object.assign(window, { DeepsightManifest });
-		return DeepsightManifest;
+		Object.assign(window, { DeepsightManifest: Manifest });
+		return Manifest;
 	},
 	reset: async componentNames => {
 		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.clear(IManifest.CacheComponentKey.get(componentName));
+			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
+		}
+	},
+	cacheInvalidated: async componentNames => {
+		for (const componentName of componentNames ?? []) {
 			await Model.cacheDB.delete("models", IManifest.CacheComponentKey.getBundle(componentName));
 		}
 	},

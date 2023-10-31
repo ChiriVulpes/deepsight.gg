@@ -11,6 +11,7 @@ export interface IModelEvents<R> {
 	loaded: { value: R };
 	errored: { error: Error };
 	loadUpdate: { progress: number, messages: string[] };
+	invalidCache: Event;
 }
 
 export interface IModelGenerationApi {
@@ -28,6 +29,7 @@ export interface IModel<T, R, API = undefined> {
 	generate?(api: IModelGenerationApi): Promise<T>;
 	process?(value: T): R;
 	reset?(value?: T): any;
+	cacheInvalidated?(value?: T): any;
 }
 
 type Model<T, R = T> = Model.Impl<T, R>;
@@ -173,6 +175,8 @@ namespace Model {
 			// we don't purge the data anymore so that deepsight.gg can show your inventory even if bungie's api is down
 			// console.debug(`Purging expired cache data for '${this.name}'`);
 			// await this.reset();
+			this.model.cacheInvalidated?.(cached.value);
+			this.event.emit("invalidCache");
 			return undefined;
 		}
 

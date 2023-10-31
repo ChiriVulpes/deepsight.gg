@@ -1,15 +1,15 @@
 {
 	"1191701339": { // Root of Nightmares: Normal
-		"iconRecordHash": 4270724598,
-		"rotationActivityHash": 2381413764,
-		"encounters": [
+		rotationActivityHash: 2381413764,
+		recordHash: 4270724598,
+		encounters: [
 			{
-				"phaseHash": 3172054256,
-				"displayProperties": {
-					"name": "Cataclysm",
-					"description": "Survive the Onslaught"
+				phaseHash: 3172054256,
+				displayProperties: {
+					name: "Cataclysm",
+					description: "Survive the Onslaught",
 				},
-				"dropTable": {
+				dropTable: {
 					"1491665733": {}, // Briar's Contempt
 					"2972949637": {}, // Koraxis's Distress
 					"135029084": {}, // Nessa's Oblation
@@ -22,15 +22,15 @@
 					"4123705451": {}, // Mask of Detestation (warlock helm)
 					"2445962586": {}, // Wraps of Detestation (warlock arms)
 					"2597227950": {}, // Robes of Detestation (warlock chest)
-				}
+				},
 			},
 			{
-				"phaseHash": 2224793617,
-				"displayProperties": {
-					"name": "Scission",
-					"description": "Enter the Root"
+				phaseHash: 2224793617,
+				displayProperties: {
+					name: "Scission",
+					description: "Enter the Root",
 				},
-				"dropTable": {
+				dropTable: {
 					"231031173": {}, // Mykel's Reverence
 					"2972949637": {}, // Koraxis's Distress
 					"135029084": {}, // Nessa's Oblation
@@ -44,15 +44,15 @@
 					"2445962586": {}, // Wraps of Detestation (warlock arms)
 					"2597227950": {}, // Robes of Detestation (warlock chest)
 					"3702434452": {}, // Boots of Detestation (warlock legs)
-				}
+				},
 			},
 			{
-				"phaseHash": 2184227225,
-				"displayProperties": {
-					"name": "Macrocosm",
-					"description": "Defeat the Explicator"
+				phaseHash: 2184227225,
+				displayProperties: {
+					name: "Macrocosm",
+					description: "Defeat the Explicator",
 				},
-				"dropTable": {
+				dropTable: {
 					"231031173": {}, // Mykel's Reverence
 					"2972949637": {}, // Koraxis's Distress
 					"484515708": {}, // Rufus's Fury
@@ -66,15 +66,15 @@
 					"2597227950": {}, // Robes of Detestation (warlock chest)
 					"3702434452": {}, // Boots of Detestation (warlock legs)
 					"2915322487": {}, // Bond of Detestation (warlock class item)
-				}
+				},
 			},
 			{
-				"phaseHash": 2779782231,
-				"displayProperties": {
-					"name": "Nezarec",
-					"description": "Defeat Nezarec"
+				phaseHash: 2779782231,
+				displayProperties: {
+					name: "Nezarec",
+					description: "Defeat Nezarec",
 				},
-				"dropTable": {
+				dropTable: {
 					"3371017761": {}, // Conditional Finality
 					"1491665733": {}, // Briar's Contempt
 					"231031173": {}, // Mykel's Reverence
@@ -91,15 +91,15 @@
 					"4123705451": {}, // Mask of Detestation (warlock helm)
 					"3702434452": {}, // Boots of Detestation (warlock legs)
 					"2915322487": {}, // Bond of Detestation (warlock class item)
-				}
-			}
+				},
+			},
 		],
-		"master": {
-			"activityHash": 2918919505
+		master: {
+			activityHash: 2918919505,
 		},
-		"rotations": {
-			"anchor": 1680022800000, // mar 28
-			"masterDrops": [
+		rotations: {
+			anchor: 1680022800000, // mar 28
+			masterDrops: [
 				1986287028, // Mykel's Reverence (Adept)
 				3493494807, // Acasia's Rejection (Adept)
 				342514437, // Rufus's Fury (Adept)
@@ -107,25 +107,25 @@
 				2890082420, // Briar's Contempt (Adept)
 				522366885, // Nessa's Oblation (Adept)
 			],
-			"challenges": [
+			challenges: [
 				766975360, // Illuminated Torment Challenge (Cataclysm)
 				138641527, // Crossfire Challenge (Scission)
 				2070303007, // Cosmic Equilibrium Challenge (Macrocosm)
 				1616571513, // All Hands Challenge (Nezarec)
-			]
-		}
+			],
+		},
 	},
 	"4103176774": { // Crota's End: Normal
-		"iconRecordHash": 2045739672,
-		"rotationActivityHash": 4179289725,
-		"encounters": [
+		rotationActivityHash: 4179289725,
+		recordHash: 2045739672,
+		encounters: [
 			{
-				"phaseHash": 2890972472,
-				"displayProperties": {
-					"name": "The Abyss",
-					"description": "Traverse the Abyss"
+				phaseHash: 2890972472,
+				displayProperties: {
+					name: "The Abyss",
+					description: "Traverse the Abyss",
 				},
-				"dropTable": {
+				dropTable: {
 					"2828278545": {}, // Song of Ir Yût
 					"1432682459": {}, // Fang of Ir Yût
 					"833898322": {}, // Abyss Defiant
@@ -138,15 +138,15 @@
 					"1964816829": {}, // Deathsinger's Gaze (warlock helm)
 					"427348780": {}, // Deathsinger's Grip (warlock arms)
 					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
-				}
+				},
 			},
 			{
-				"phaseHash": 3768812794,
-				"displayProperties": {
-					"name": "Oversoul Throne Bridge",
-					"description": "Cross the Bridge"
+				phaseHash: 3768812794,
+				displayProperties: {
+					name: "Oversoul Throne Bridge",
+					description: "Cross the Bridge",
 				},
-				"dropTable": {
+				dropTable: {
 					"3163900678": {}, // Swordbreaker
 					"1432682459": {}, // Fang of Ir Yût
 					"1098171824": {}, // Oversoul Edict
@@ -159,15 +159,15 @@
 					"427348780": {}, // Deathsinger's Grip (warlock arms)
 					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
 					"1497538390": {}, // Deathsinger's Herald (warlock legs)
-				}
+				},
 			},
 			{
-				"phaseHash": 1463700798,
-				"displayProperties": {
-					"name": "Ir Yût, the Deathsinger",
-					"description": "Defeat Ir Yût, the Deathsinger"
+				phaseHash: 1463700798,
+				displayProperties: {
+					name: "Ir Yût, the Deathsinger",
+					description: "Defeat Ir Yût, the Deathsinger",
 				},
-				"dropTable": {
+				dropTable: {
 					"120706239": {}, // Word of Crota
 					"2828278545": {}, // Song of Ir Yût
 					"1098171824": {}, // Oversoul Edict
@@ -180,15 +180,15 @@
 					"1386180724": {}, // Deathsinger's Mantle (warlock chest)
 					"1497538390": {}, // Deathsinger's Herald (warlock legs)
 					"2130010697": {}, // Bone Circlet (warlock class item)
-				}
+				},
 			},
 			{
-				"phaseHash": 4240994016,
-				"displayProperties": {
-					"name": "Crota, Son of Oryx",
-					"description": "Defeat Crota, Son of Oryx"
+				phaseHash: 4240994016,
+				displayProperties: {
+					name: "Crota, Son of Oryx",
+					description: "Defeat Crota, Son of Oryx",
 				},
-				"dropTable": {
+				dropTable: {
 					"1034055198": { "requiresQuest": 4284902389 }, // Necrochasm
 					"120706239": {}, // Word of Crota
 					"833898322": {}, // Abyss Defiant
@@ -202,34 +202,37 @@
 					"1964816829": {}, // Deathsinger's Gaze (warlock helm)
 					"1497538390": {}, // Deathsinger's Herald (warlock legs)
 					"2130010697": {}, // Bone Circlet (warlock class item)
-				}
-			}
+				},
+			},
 		],
-		"master": {
-			"activityHash": 1507509200,
-			"dropTable": {
+		master: {
+			activityHash: 1507509200,
+			dropTable: {
 				"407511664": {}, // Song of Ir Yût (Adept)
 				"578105049": {}, // Oversoul Edict (Adept)
 				"3926103986": {}, // Word of Crota (Adept)
 				"3782662983": {}, // Abyss Defiant (Adept)
 				"128782990": {}, // Fang of Ir Yût (Adept)
 				"1239700299": {}, // Swordbreaker (Adept)
-			}
+			},
 		},
-		"rotations": {
-			"anchor": 1697562000000, // oct 18
-			"challenges": [
+		rotations: {
+			anchor: 1697562000000, // oct 18
+			challenges: [
 				3636591526, // Conservation of Energy (Abyss)
 				2768385440, // Precarious Balance (Bridge)
 				732074628, // Equal Vessels (Ir Yût)
 				3523029182, // All for One (Crota)
-			]
-		}
+			],
+		},
 	},
 	"1661734046": { // Last Wish
-		"iconRecordHash": 2899839432,
-		"rotationActivityHash": 2122313384, // or 2214608157
-		"dropTable": {
+		rotationActivityHash: 2122313384, // or 2214608157
+		recordHash: 2899839432,
+		displayProperties: {
+			icon: { DestinyMilestoneDefinition: 3181387331 },
+		},
+		dropTable: {
 			"501329015": {}, // Chattering Bone
 			"2884596447": {}, // The Supremacy
 			"3885259140": {}, // Transfiguration
@@ -257,109 +260,112 @@
 			"1890196228": {}, // warlock legs
 			"3570956455": {}, // warlock bond
 		},
-		"encounters": [
+		encounters: [
 			{
-				"phaseHash": 1126840038,
-				"displayProperties": {
-					"name": "Kalli, the Corrupted",
-					"description": "Defeat Kalli"
-				}
-			},
-			{
-				"phaseHash": 1126840038,
-				"displayProperties": {
-					"name": "Shuro Chi, the Corrupted",
-					"description": "Defeat Shuro Chi"
-				}
-			},
-			{
-				"phaseHash": 1126840038,
-				"displayProperties": {
-					"name": "Morgeth, the Spirekeeper",
-					"description": "Defeat Morgeth, the Spirekeeper"
-				}
-			},
-			{
-				"phaseHash": 1126840038,
-				"displayProperties": {
-					"name": "The Vault",
-					"description": "Unlock the Way Forward"
-				}
-			},
-			{
-				"phaseHash": 1126840038,
-				"displayProperties": {
-					"name": "Riven of a Thousand Voices",
-					"description": "Slay Riven"
+				phaseHash: 1126840038,
+				displayProperties: {
+					name: "Kalli, the Corrupted",
+					description: "Defeat Kalli",
 				},
-				"dropTable": {
+			},
+			{
+				phaseHash: 1126840038,
+				displayProperties: {
+					name: "Shuro Chi, the Corrupted",
+					description: "Defeat Shuro Chi",
+				},
+			},
+			{
+				phaseHash: 1126840038,
+				displayProperties: {
+					name: "Morgeth, the Spirekeeper",
+					description: "Defeat Morgeth, the Spirekeeper",
+				},
+			},
+			{
+				phaseHash: 1126840038,
+				displayProperties: {
+					name: "The Vault",
+					description: "Unlock the Way Forward",
+				},
+			},
+			{
+				phaseHash: 1126840038,
+				displayProperties: {
+					name: "Riven of a Thousand Voices",
+					description: "Slay Riven",
+				},
+				dropTable: {
 					"3314893283": {}, // ethereal key
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Queenswalk",
-					"description": "Take the Stone to the Techeun"
+				displayProperties: {
+					name: "Queenswalk",
+					description: "Take the Stone to the Techeun",
 				},
-				"dropTable": {
+				dropTable: {
 					"2069224589": {}, // 1k voices
-				}
-			}
-		]
+				},
+			},
+		],
 	},
 	"1042180643": { // Garden of Salvation
-		"iconRecordHash": 3804486505,
-		"rotationActivityHash": 3823237780, // no clue if this is correct
-		"encounters": [
+		rotationActivityHash: 3823237780, // no clue if this is correct
+		recordHash: 3804486505,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 3804486505 }, // complete the raid 
+		},
+		encounters: [
 			{
-				"phaseHash": 2001,
-				"displayProperties": {
-					"name": "Evade the Consecrated Mind",
-					"description": "Track the Unknown Artifact's Signal",
+				phaseHash: 2001,
+				displayProperties: {
+					name: "Evade the Consecrated Mind",
+					description: "Track the Unknown Artifact's Signal",
 				},
-				"dropTable": {
+				dropTable: {
 					"2209003210": {}, // zealot's reward
 					"4095896073": {}, // accrued redemption
 					"275145509": {}, // titan legs
 					"3380315063": {}, // hunter legs
 					"2085872226": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 2002,
-				"displayProperties": {
-					"name": "Summon the Consecrated Mind",
-					"description": "Draw out the Consecrated Mind",
+				phaseHash: 2002,
+				displayProperties: {
+					name: "Summon the Consecrated Mind",
+					description: "Draw out the Consecrated Mind",
 				},
-				"dropTable": {
+				dropTable: {
 					"4020742303": {}, // prophet of doom
 					"3385326721": {}, // reckless oracle
 					"964752083": {}, // titan arms
 					"1804192853": {}, // hunter arms
 					"984532872": {}, // warlock arms
-				}
+				},
 			},
 			{
-				"phaseHash": 2003,
-				"displayProperties": {
-					"name": "Consecrated Mind, Sol Inherent",
-					"description": "Subdue the Consecrated Mind",
+				phaseHash: 2003,
+				displayProperties: {
+					name: "Consecrated Mind, Sol Inherent",
+					description: "Subdue the Consecrated Mind",
 				},
-				"dropTable": {
+				dropTable: {
 					"48643186": {}, // ancient gospel
 					"2408405461": {}, // sacred provenance
 					"3876398589": {}, // titan chest
 					"210208587": {}, // hunter chest
 					"1789501056": {}, // warlock chest
-				}
+				},
 			},
 			{
-				"phaseHash": 2004,
-				"displayProperties": {
-					"name": "Sanctified Mind, Sol Inherent",
-					"description": "Defeat the Sanctified Mind",
+				phaseHash: 2004,
+				displayProperties: {
+					name: "Sanctified Mind, Sol Inherent",
+					description: "Defeat the Sanctified Mind",
 				},
-				"dropTable": {
+				dropTable: {
 					"4103414242": { "requiresQuest": 2101914852 }, // divinity
 					"3454326177": {}, // omniscient eye
 					"959087754": {}, // titan helm
@@ -368,21 +374,21 @@
 					"2861892194": {}, // hunter cloak
 					"2367878193": {}, // warlock helm
 					"1141217085": {}, // warlock bond
-				}
-			}
-		]
+				},
+			},
+		],
 	},
 	"3976949817": { // Deep Stone Crypt
-		"iconRecordHash": 3185876102,
-		"rotationActivityHash": 910380154,
-		"encounters": [
+		rotationActivityHash: 910380154,
+		recordHash: 3185876102,
+		encounters: [
 			{
-				"phaseHash": 2776463390,
-				"displayProperties": {
-					"name": "Crypt Security",
-					"description": "Disable Crypt Security",
+				phaseHash: 2776463390,
+				displayProperties: {
+					name: "Crypt Security",
+					description: "Disable Crypt Security",
 				},
-				"dropTable": {
+				dropTable: {
 					"1392919471": {}, // trustee
 					"1887490701": {}, // titan arms
 					"2558289743": {}, // titan legs
@@ -393,15 +399,15 @@
 					"79460168": {}, // warlock arms
 					"756445218": {}, // warlock legs
 					"2902277629": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 416127450,
-				"displayProperties": {
-					"name": "Atraks-1, Fallen Exo",
-					"description": "Defeat Atraks-1",
+				phaseHash: 416127450,
+				displayProperties: {
+					name: "Atraks-1, Fallen Exo",
+					description: "Defeat Atraks-1",
 				},
-				"dropTable": {
+				dropTable: {
 					"2990047042": {}, // succession
 					"4248569242": {}, // heritage
 					"1887490701": {}, // titan arms
@@ -413,15 +419,15 @@
 					"79460168": {}, // warlock arms
 					"756445218": {}, // warlock legs
 					"2902277629": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 1858926029,
-				"displayProperties": {
-					"name": "Descent",
-					"description": "Prevent Europa's Destruction",
+				phaseHash: 1858926029,
+				displayProperties: {
+					name: "Descent",
+					description: "Prevent Europa's Destruction",
 				},
-				"dropTable": {
+				dropTable: {
 					"3281285075": {}, // posterity
 					"1887490701": {}, // titan arms
 					"751162931": {}, // titan chest
@@ -432,15 +438,15 @@
 					"79460168": {}, // warlock arms
 					"3975122240": {}, // warlock chest
 					"2902277629": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 4035296150,
-				"displayProperties": {
-					"name": "Taniks, the Abomination",
-					"description": "Defeat Taniks, the Abomination",
+				phaseHash: 4035296150,
+				displayProperties: {
+					name: "Taniks, the Abomination",
+					description: "Defeat Taniks, the Abomination",
 				},
-				"dropTable": {
+				dropTable: {
 					"3366545721": {}, // bequest
 					"4230965989": {}, // commemoration
 					"2399110176": {}, // eyes of tomorrow
@@ -453,21 +459,20 @@
 					"1462908657": {}, // warlock helm
 					"3975122240": {}, // warlock chest
 					"756445218": {}, // warlock legs
-				}
+				},
 			},
-		]
+		],
 	},
 	"3711931140": { // Vault of Glass
-		"iconRecordHash": 3114569402,
-		"rotationActivityHash": 3881495763,
-		"encounters": [
+		recordHash: 3114569402,
+		encounters: [
 			{
-				"phaseHash": 1327839050,
-				"displayProperties": {
-					"name": "Confluxes",
-					"description": "Defend all three Confluxes",
+				phaseHash: 1327839050,
+				displayProperties: {
+					name: "Confluxes",
+					description: "Defend all three Confluxes",
 				},
-				"dropTable": {
+				dropTable: {
 					"3186018373": {}, // vision of confluence
 					"3197270240": {}, // found verdict
 					"471518543": {}, // corrective measure
@@ -477,15 +482,15 @@
 					"3339387242": {}, // hunter cloak
 					"3253292022": {}, // warlock arms
 					"2253382795": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 1327839048,
-				"displayProperties": {
-					"name": "Oracles",
-					"description": "Destroy the Oracles",
+				phaseHash: 1327839048,
+				displayProperties: {
+					name: "Oracles",
+					description: "Destroy the Oracles",
 				},
-				"dropTable": {
+				dropTable: {
 					"3653573172": {}, // praedyth's revenge
 					"3186018373": {}, // vision of confluence
 					"3197270240": {}, // found verdict
@@ -495,15 +500,15 @@
 					"129332559": {}, // hunter legs
 					"3253292022": {}, // warlock arms
 					"170603856": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 1327839049,
-				"displayProperties": {
-					"name": "The Templar",
-					"description": "Defeat the Templar",
+				phaseHash: 1327839049,
+				displayProperties: {
+					name: "The Templar",
+					description: "Defeat the Templar",
 				},
-				"dropTable": {
+				dropTable: {
 					"2171478765": {}, // fatebringer
 					"3186018373": {}, // vision of confluence
 					"471518543": {}, // corrective measure
@@ -513,15 +518,15 @@
 					"1133961267": {}, // hunter chest
 					"3253292022": {}, // warlock arms
 					"3029386938": {}, // warlock chest
-				}
+				},
 			},
 			{
-				"phaseHash": 3793779770,
-				"displayProperties": {
-					"name": "Gatekeepers",
-					"description": "Awaken the Glass Throne",
+				phaseHash: 3793779770,
+				displayProperties: {
+					name: "Gatekeepers",
+					description: "Awaken the Glass Throne",
 				},
-				"dropTable": {
+				dropTable: {
 					"2171478765": {}, // fatebringer
 					"4050645223": {}, // hezen vengeance
 					"3197270240": {}, // found verdict
@@ -531,15 +536,15 @@
 					"129332559": {}, // hunter legs
 					"673599343": {}, // warlock helm
 					"170603856": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 3793779769,
-				"displayProperties": {
-					"name": "Atheon, Time's Conflux",
-					"description": "Destroy Atheon",
+				phaseHash: 3793779769,
+				displayProperties: {
+					name: "Atheon, Time's Conflux",
+					description: "Destroy Atheon",
 				},
-				"dropTable": {
+				dropTable: {
 					"3653573172": {}, // praedyth's revenge
 					"471518543": {}, // corrective measure
 					"4050645223": {}, // hezen vengeance
@@ -550,43 +555,43 @@
 					"1133961267": {}, // hunter chest
 					"673599343": {}, // warlock helm
 					"3029386938": {}, // warlock chest
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 3022541210,
-			"dropTable": {
+		master: {
+			activityHash: 3022541210,
+			dropTable: {
 				"631439337": {}, // Found Verdict (Timelost)
-			}
+			},
 		},
-		"rotations": {
-			"anchor": 1697562000000, // oct 17
-			"masterDrops": [
+		rotations: {
+			anchor: 1697562000000, // oct 17
+			masterDrops: [
 				690668916, // Vision of Confluence (Timelost)
 				1987769101, // Praedyth's Revenge (Timelost)
 				1216319404, // Fatebringer (Timelost)
 				1921159786, // Hezen Vengeance (Timelost)
 				3796510434, // Corrective Measure (Timelost)
 			],
-			"challenges": [
+			challenges: [
 				3135466059, // Wait for It... (confluxes)
 				274420331, // The Only Oracle For You (oracles)
 				2814846409, // Out of Its Way (templar)
 				3212721586, // Strangers in Time (gatekeeper)
 				1572570117, // Ensemble's Refrain (atheon)
-			]
-		}
+			],
+		},
 	},
 	"1441982566": { // Vow of the Disciple
-		"iconRecordHash": 2168422218,
-		"encounters": [
+		recordHash: 2168422218,
+		encounters: [
 			{
-				"phaseHash": 580855089,
-				"displayProperties": {
-					"name": "Acquisition",
-					"description": "Truth. Symbolize. Is. Materialize. Everywhere.",
+				phaseHash: 580855089,
+				displayProperties: {
+					name: "Acquisition",
+					description: "Truth. Symbolize. Is. Materialize. Everywhere.",
 				},
-				"dropTable": {
+				dropTable: {
 					"3886416794": {}, // submission
 					"768621510": {}, // deliverance
 					"999767358": {}, // cataclysmic
@@ -599,15 +604,15 @@
 					"2316722050": {}, // warlock helm
 					"3300312357": {}, // warlock chest
 					"2748020989": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 1942966197,
-				"displayProperties": {
-					"name": "Collection",
-					"description": "Do Not Disrupt the Caretaker",
+				phaseHash: 1942966197,
+				displayProperties: {
+					name: "Collection",
+					description: "Do Not Disrupt the Caretaker",
 				},
-				"dropTable": {
+				dropTable: {
 					"3886416794": {}, // submission
 					"3428521585": {}, // insidious
 					"999767358": {}, // cataclysmic
@@ -621,15 +626,15 @@
 					"2316722050": {}, // warlock helm
 					"1656263403": {}, // warlock arms
 					"2422261368": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 196663595,
-				"displayProperties": {
-					"name": "Exhibition",
-					"description": "Nothing More than Meaningless Trinkets",
+				phaseHash: 196663595,
+				displayProperties: {
+					name: "Exhibition",
+					description: "Nothing More than Meaningless Trinkets",
 				},
-				"dropTable": {
+				dropTable: {
 					"3886416794": {}, // submission
 					"768621510": {}, // deliverance
 					"1627640710": {}, // titan chest
@@ -638,15 +643,15 @@
 					"1566699968": {}, // hunter legs
 					"3300312357": {}, // warlock chest
 					"2748020989": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 3840791265,
-				"displayProperties": {
-					"name": "Dominion",
-					"description": "DROWNDROWNDROWN",
+				phaseHash: 3840791265,
+				displayProperties: {
+					name: "Dominion",
+					description: "DROWNDROWNDROWN",
 				},
-				"dropTable": {
+				dropTable: {
 					"3428521585": {}, // insidious
 					"2534546147": {}, // lubrae's ruin
 					"613334176": {}, // forbearance
@@ -660,40 +665,40 @@
 					"2316722050": {}, // warlock helm
 					"1656263403": {}, // warlock arms
 					"2422261368": {}, // warlock bond
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 3889634515,
-			"dropTable": {
+		master: {
+			activityHash: 3889634515,
+			dropTable: {
 				"1941816543": {}, // Submission (adept)
 				"2943293195": {}, // Deliverance (adept)
 				"2886339027": {}, // Cataclysmic (adept)
 				"786352912": {}, // Insidious (adept)
 				"1466006054": {}, // Lubrae's Ruin (adept)
 				"4038592169": {}, // Forbearance (adept)
-			}
+			},
 		},
-		"rotations": {
-			"anchor": 1696352400000, // oct 3
-			"challenges": [
+		rotations: {
+			anchor: 1696352400000, // oct 3
+			challenges: [
 				2672226122, // Swift Destruction (aquisition)
 				3425521520, // Base Information (caretaker)
 				2255984700, // Defenses Down (exhibition)
 				2098788044, // Looping Catalyst (rhulk)
-			]
-		}
+			],
+		},
 	},
 	"1374392663": { // King's Fall
-		"iconRecordHash": 3047702042,
-		"encounters": [
+		recordHash: 3047702042,
+		encounters: [
 			{
-				"phaseHash": 1406613360,
-				"displayProperties": {
-					"name": "Basilica",
-					"description": "Power the Glyph",
+				phaseHash: 1406613360,
+				displayProperties: {
+					name: "Basilica",
+					description: "Power the Glyph",
 				},
-				"dropTable": {
+				dropTable: {
 					"1937552980": {}, // doom of chelchis
 					"1321506184": {}, // qullim's terminus
 					"1066132704": {}, // titan chest
@@ -705,15 +710,15 @@
 					"3921733799": {}, // warlock chest
 					"3229616835": {}, // warlock legs
 					"766618550": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"phaseHash": 2115142089,
-				"displayProperties": {
-					"name": "Warpriest",
-					"description": "Defeat the Warpriest",
+				phaseHash: 2115142089,
+				displayProperties: {
+					name: "Warpriest",
+					description: "Defeat the Warpriest",
 				},
-				"dropTable": {
+				dropTable: {
 					"2221264583": {}, // smite of merain
 					"3228096719": {}, // defiance of yasmin
 					"2937773672": {}, // titan arms
@@ -722,15 +727,15 @@
 					"169689932": {}, // hunter chest
 					"3398467185": {}, // warlock arms
 					"3921733799": {}, // warlock chest
-				}
+				},
 			},
 			{
-				"phaseHash": 3738629258,
-				"displayProperties": {
-					"name": "Golgoroth",
-					"description": "Defeat Golgoroth",
+				phaseHash: 3738629258,
+				displayProperties: {
+					name: "Golgoroth",
+					description: "Defeat Golgoroth",
 				},
-				"dropTable": {
+				dropTable: {
 					"1321506184": {}, // qullim's terminus
 					"3969066556": {}, // midha's reckoning
 					"431721920": {}, // zaouli's bane
@@ -740,15 +745,15 @@
 					"2725249086": {}, // hunter legs
 					"1537426592": {}, // warlock helm
 					"3229616835": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"phaseHash": 2951654489,
-				"displayProperties": {
-					"name": "Daughters",
-					"description": "Defeat the Daughters of Oryx",
+				phaseHash: 2951654489,
+				displayProperties: {
+					name: "Daughters",
+					description: "Defeat the Daughters of Oryx",
 				},
-				"dropTable": {
+				dropTable: {
 					"2221264583": {}, // smite of merain
 					"3228096719": {}, // defiance of yasmin
 					"431721920": {}, // zaouli's bane
@@ -758,15 +763,15 @@
 					"169689932": {}, // hunter chest
 					"3398467185": {}, // warlock arms
 					"3921733799": {}, // warlock chest
-				}
+				},
 			},
 			{
-				"phaseHash": 1089000747,
-				"displayProperties": {
-					"name": "Oryx, the Taken King",
-					"description": "Defeat Oryx, the Taken King",
+				phaseHash: 1089000747,
+				displayProperties: {
+					name: "Oryx, the Taken King",
+					description: "Defeat Oryx, the Taken King",
 				},
-				"dropTable": {
+				dropTable: {
 					"1937552980": {}, // doom of chelchis
 					"1321506184": {}, // qullim's terminus
 					"2221264583": {}, // smite of merain
@@ -781,50 +786,50 @@
 					"2437510452": {}, // hunter arms
 					"1537426592": {}, // warlock helm
 					"3398467185": {}, // warlock arms
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 3257594522,
-			"dropTable": {
+		master: {
+			activityHash: 3257594522,
+			dropTable: {
 				"3248429089": {}, // Qullim's Terminus (Harrowed)
 				"1184692845": {}, // Doom of Chelchis (Harrowed)
 				"291092617": {}, // Zaouli's Bane (Harrowed)
 				"3904516037": {}, // Midha's Reckoning (Harrowed)
 				"3407395594": {}, // Smite of Merain (Harrowed)
 				"3503019618": {}, // Defiance of Yasmin (Harrowed)
-			}
+			},
 		},
-		"rotations": {
-			"anchor": 1696957200000, // oct 10
-			"challenges": [
+		rotations: {
+			anchor: 1696957200000, // oct 10
+			challenges: [
 				3577304467, // The Grass is Always Greener (totems)
 				2159250954, // Devious Thievery (warpriest)
 				2890753840, // Gaze Amaze (golgoroth)
 				2936050162, // Under Construction (daughters)
 				4152669757, // Hands Off (oryx)
-			]
-		}
+			],
+		},
 	},
 	"313828469": { // Ghosts of the Deep
-		"displayProperties": {
-			"icon": "./image/png/activity/gotd.png"
+		recordHash: 4038749769,
+		displayProperties: {
+			icon: "./image/png/activity/gotd.png",
 		},
-		"iconRecordHash": 4038749769,
-		"dropTable": {
+		dropTable: {
 			"3262192268": {}, // no survivors
 			"839786290": {}, // cold comfort
 			"2977663932": {}, // titan arms
 			"409820272": {}, // hunter arms
 			"587762963": {}, // warlock arms
 		},
-		"encounters": [
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Hive Ritual",
-					"description": "Break the Ritual",
+				displayProperties: {
+					name: "Hive Ritual",
+					description: "Break the Ritual",
 				},
-				"dropTable": {
+				dropTable: {
 					"1125217994": {}, // new pacific epitaph
 
 					"2324998093": {}, // titan helm
@@ -833,14 +838,14 @@
 					"726878794": {}, // hunter legs
 					"540625098": {}, // warlock helm
 					"322717029": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Ecthar, the Shield of Savathûn",
-					"description": "Defeat the Shield of Savathûn",
+				displayProperties: {
+					name: "Ecthar, the Shield of Savathûn",
+					description: "Defeat the Shield of Savathûn",
 				},
-				"dropTable": {
+				dropTable: {
 					"1757202961": {}, // greasy luck
 
 					"2978918436": {}, // titan chest
@@ -849,14 +854,14 @@
 					"2733403573": {}, // hunter cloak
 					"457617725": {}, // warlock chest
 					"1961182320": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Šimmumah ur-Nokru",
-					"description": "Defeat Šimmumah ur-Nokru",
+				displayProperties: {
+					name: "Šimmumah ur-Nokru",
+					description: "Defeat Šimmumah ur-Nokru",
 				},
-				"dropTable": {
+				dropTable: {
 					"1125217994": {}, // new pacific epitaph
 					"1757202961": {}, // greasy luck
 
@@ -874,28 +879,31 @@
 					"457617725": {}, // warlock chest
 					"322717029": {}, // warlock legs
 					"1961182320": {}, // warlock bond
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 2716998124
-		}
+		master: {
+			activityHash: 2716998124,
+		},
 	},
-	"1262462921": { // Spire of the Watcher (rotation hash)
-		"iconRecordHash": 2302993504,
-		"dropTable": {
+	"1262462921": { // Spire of the Watcher
+		recordHash: 2401440736,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 2302993504 }, // unknown record
+		},
+		dropTable: {
 			"487205709": {}, // terminus horizon
 			"1480429241": {}, // titan arms
 			"918537443": {}, // hunter arms
 			"1088225118": {}, // warlock arms
 		},
-		"encounters": [
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Spire Ascent",
-					"description": "Ascend the Spire",
+				displayProperties: {
+					name: "Spire Ascent",
+					description: "Ascend the Spire",
 				},
-				"dropTable": {
+				dropTable: {
 					"8293111": {}, // long arm
 					"4070357005": {}, // seventh seraph carbine
 					"2599025960": {}, // titan helm
@@ -904,14 +912,14 @@
 					"2839517205": {}, // hunter legs
 					"2014814167": {}, // warlock helm
 					"1932168248": {}, // warlock legs
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Akelous, the Siren's Current",
-					"description": "Silence the Siren",
+				displayProperties: {
+					name: "Akelous, the Siren's Current",
+					description: "Silence the Siren",
 				},
-				"dropTable": {
+				dropTable: {
 					"1555959830": {}, // officer revolver
 					"3088058655": {}, // titan chest
 					"506181038": {}, // titan mark
@@ -919,14 +927,14 @@
 					"3006077984": {}, // hunter cloak
 					"3185363346": {}, // warlock chest
 					"3780604323": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Persys, Primordial Ruin",
-					"description": "Prompt Critical",
+				displayProperties: {
+					name: "Persys, Primordial Ruin",
+					description: "Prompt Critical",
 				},
-				"dropTable": {
+				dropTable: {
 					"8293111": {}, // long arm
 					"4070357005": {}, // seventh seraph carbine
 					"1555959830": {}, // officer revolver
@@ -945,27 +953,30 @@
 					"3185363346": {}, // warlock chest
 					"1932168248": {}, // warlock legs
 					"3780604323": {}, // warlock bond
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 2296818662,
+		master: {
+			activityHash: 2296818662,
 		},
 	},
-	"2823159265": { // duality (only has rotation hash)
-		"iconRecordHash": 3097916612,
-		"dropTable": {
+	"2823159265": { // Duality
+		recordHash: 1829136540,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 3097916612 },
+		},
+		dropTable: {
 			"2616310259": {}, // titan arms
 			"322599957": {}, // hunter arms
 			"1468388696": {}, // warlock arms
 		},
-		"encounters": [
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Sorrow Bearer",
-					"description": "Defeat the Nightmare of Gahlran",
+				displayProperties: {
+					name: "Sorrow Bearer",
+					description: "Defeat the Nightmare of Gahlran",
 				},
-				"dropTable": {
+				dropTable: {
 					"2026087437": {}, // lingering dread
 					"2263839058": {}, // epicurean
 					"2610749098": {}, // titan helm
@@ -977,11 +988,11 @@
 				},
 			},
 			{
-				"displayProperties": {
-					"name": "Vault",
-					"description": "Unlock the Vault",
+				displayProperties: {
+					name: "Vault",
+					description: "Unlock the Vault",
 				},
-				"dropTable": {
+				dropTable: {
 					"3652506829": {}, // stormchaser
 					"3000847393": {}, // unforgiven
 					"3570529565": {}, // titan chest
@@ -993,11 +1004,11 @@
 				},
 			},
 			{
-				"displayProperties": {
-					"name": "Calus's Greatest Shame",
-					"description": "Defeat the Nightmare of Princess Caiatl",
+				displayProperties: {
+					name: "Calus's Greatest Shame",
+					description: "Defeat the Nightmare of Princess Caiatl",
 				},
-				"dropTable": {
+				dropTable: {
 					"1780464822": {}, // new purpose
 					"2194955522": {}, // fixed odds
 					"3652506829": {}, // stormchaser
@@ -1019,49 +1030,52 @@
 					"3742442925": {}, // warlock bond
 				},
 			},
-		]
+		],
 	},
-	"4078656646": { // grasp of avarice (only has rotation hash)
-		"iconRecordHash": 3200086269,
-		"dropTable": {
+	"4078656646": { // Grasp of Avarice
+		recordHash: 1894646801,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 3200086269 },
+		},
+		dropTable: {
 			"2563012876": {}, // matador 64
 			"2139640995": {}, // hero of ages
 		},
-		"encounters": [
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Phry'zhia, The Insatiable",
-					"description": "Defeat Phry'zhia, The Insatiable",
+				displayProperties: {
+					name: "Phry'zhia, The Insatiable",
+					description: "Defeat Phry'zhia, The Insatiable",
 				},
-				"dropTable": {
+				dropTable: {
 					"4287863773": {}, // titan legs
 					"3500810712": {}, // titan mark
 					"337875583": {}, // hunter legs
 					"2486733914": {}, // hunter cloak
 					"2231150714": {}, // warlock legs
 					"4217390949": {}, // warlock bond
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Fallen Shield",
-					"description": "Destroy the Shield",
+				displayProperties: {
+					name: "Fallen Shield",
+					description: "Destroy the Shield",
 				},
-				"dropTable": {
+				dropTable: {
 					"2771648715": {}, // titan arms
 					"549825413": {}, // titan chest
 					"2308793821": {}, // hunter arms
 					"3587911011": {}, // hunter chest
 					"3536211008": {}, // warlock arms
 					"2515293448": {}, // warlock chest
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Captain Avarokk the Covetous",
-					"description": "Defeat Captain Avarokk the Covetous",
+				displayProperties: {
+					name: "Captain Avarokk the Covetous",
+					description: "Defeat Captain Avarokk the Covetous",
 				},
-				"dropTable": {
+				dropTable: {
 					"1363886209": { "requiresQuest": 2729195975 }, // gjallarhorn
 					"235827225": {}, // eyasluna
 					"4164201232": {}, // 1000 yard stare
@@ -1080,23 +1094,23 @@
 					"3536211008": {}, // warlock arms
 					"2231150714": {}, // warlock legs
 					"4217390949": {}, // warlock bond
-				}
+				},
 			},
 		],
-		"master": {
-			"activityHash": 1112917203
+		master: {
+			activityHash: 1112917203,
 		}
 	},
-	"1077850348": {  // prophecy
-		"iconRecordHash": 969826320,
-		"rotationActivityHash": 4148187374,
-		"encounters": [
+	"1077850348": {  // Prophecy
+		rotationActivityHash: 4148187374,
+		recordHash: 969826320,
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Phalanx Echo",
-					"description": "Defeat the Phalanx Echo",
+				displayProperties: {
+					name: "Phalanx Echo",
+					description: "Defeat the Phalanx Echo",
 				},
-				"dropTable": {
+				dropTable: {
 					"1476654960": {}, // judgement
 					"3326850591": {}, // the long walk
 					"1219883244": {}, // titan legs (coda)
@@ -1105,27 +1119,27 @@
 					"1717940633": {}, // hunter cloak (coda)
 					"2022923313": {}, // warlock legs (coda)
 					"2966633380": {}, // warlock bond (coda)
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Hexahedron",
-					"description": "Escape",
+				displayProperties: {
+					name: "Hexahedron",
+					description: "Escape",
 				},
-				"dropTable": {
+				dropTable: {
 					"1626503676": {}, // a swift verdict
 					"507038823": {}, // the last breath
 					"818644818": {}, // titan arms (coda)
 					"4194072668": {}, // hunter arms (coda)
 					"1406846351": {}, // warlock arms (coda)
-				}
+				},
 			},
 			{
-				"displayProperties": {
-					"name": "Kell Echo",
-					"description": "Defeat the Kell Echo",
+				displayProperties: {
+					name: "Kell Echo",
+					description: "Defeat the Kell Echo",
 				},
-				"dropTable": {
+				dropTable: {
 					"2481758391": {}, // darkest before
 					"2855157553": {}, // a sudden death
 
@@ -1158,14 +1172,17 @@
 					"1658294130": {}, // warlock chest (moonfang)
 					"1781294872": {}, // warlock legs (moonfang)
 					"2295111683": {}, // warlock bond (moonfang)
-				}
+				},
 			},
-		]
+		],
 	},
-	"2582501063": { // pit of heresy
-		"iconRecordHash": 2636815577,
-		"rotationActivityHash": 1375089621,
-		"dropTable": {
+	"2582501063": { // Pit of Heresy
+		rotationActivityHash: 1375089621,
+		recordHash: 469433408,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 2636815577 },
+		},
+		dropTable: {
 			"2813078109": {}, // titan helm
 			"1699964364": {}, // titan arms
 			"175015316": {}, // titan chest
@@ -1184,13 +1201,13 @@
 			"399547095": {}, // warlock legs
 			"2975563522": {}, // warlock bond
 		},
-		"encounters": [
+		encounters: [
 			{ 
-				"displayProperties": {
-					"name": "Necropolis",
-					"description": "",
+				displayProperties: {
+					name: "Necropolis",
+					description: "",
 				},
-				"dropTable": {
+				dropTable: {
 					"2164448701": { "requiresItems": [1165306707] }, // apostate
 					"2782847179": { "requiresItems": [1165306707] }, // blasphemer
 					"3067821200": { "requiresItems": [1165306707] }, // heretic
@@ -1205,14 +1222,14 @@
 					"2931957300": {}, // dream breaker
 					"1645386487": {}, // tranquility
 					"3870811754": {}, // night terror
-				}
+				},
 			},
 			{ 
-				"displayProperties": {
-					"name": "Chamber of Suffering",
-					"description": "",
+				displayProperties: {
+					name: "Chamber of Suffering",
+					description: "",
 				},
-				"dropTable": {
+				dropTable: {
 					"2164448701": { "requiresItems": [1165306707] }, // apostate
 					"2782847179": { "requiresItems": [1165306707] }, // blasphemer
 					"3067821200": { "requiresItems": [1165306707] }, // heretic
@@ -1227,28 +1244,31 @@
 					"2931957300": {}, // dream breaker
 					"1645386487": {}, // tranquility
 					"3870811754": {}, // night terror
-				}
+				},
 			},
 			{ 
-				"displayProperties": {
-					"name": "Zulmak, Instrument of Torment",
-					"description": "Purge the tormentor",
+				displayProperties: {
+					name: "Zulmak, Instrument of Torment",
+					description: "Purge the tormentor",
 				},
 			},
 			{
-				"displayProperties": {
-					"name": "Volar, the Tempted",
-					"description": "Defeat Volar, the Tempted",
+				displayProperties: {
+					name: "Volar, the Tempted",
+					description: "Defeat Volar, the Tempted",
 				},
-				"dropTable": {
+				dropTable: {
 					"1395261499": { "requiresQuest": 60788839 }, // xenophage
-				}
+				},
 			},
-		]
+		],
 	},
-	"2032534090": { // shattered throne
-        "iconRecordHash": 2783781907, // icon hash
-		"dropTable": {
+	"2032534090": { // Shattered Throne
+		recordHash: 633466487,
+		displayProperties: {
+			icon: { DestinyRecordDefinition: 2783781907 },
+		},
+		dropTable: {
 			"1644160541": {}, // abide the return
 			"346136302": {}, // retold tale
 			"3740842661": {}, // sleepless
@@ -1275,31 +1295,31 @@
 			"569434520": {}, // warlock legs
 			"1394177923": {}, // warlock bond
 		},
-		"encounters": [
+		encounters: [
 			{
-				"displayProperties": {
-					"name": "Erebus",
-					"description": "Search for safe passage",
-				}
-			},
-			{
-				"displayProperties": {
-					"name": "Vorgeth, the Boundless Hunger",
-					"description": "Overcome the Keeper of Petitions",
+				displayProperties: {
+					name: "Erebus",
+					description: "Search for safe passage",
 				},
-				"dropTable": {
-					"814876684": { // wishender
-						"requiresQuest": 4271579370,
-						"requiresItems": [2812313020, 4162141969, 4283856335],
-					},
-				}
 			},
 			{
-				"displayProperties": {
-					"name": "Dûl Incaru, the Eternal Return",
-					"description": "Face Dûl Incaru",
-				}
+				displayProperties: {
+					name: "Vorgeth, the Boundless Hunger",
+					description: "Overcome the Keeper of Petitions",
+				},
+				dropTable: {
+					"814876684": { // wishender
+						requiresQuest: 4271579370,
+						requiresItems: [2812313020, 4162141969, 4283856335],
+					},
+				},
 			},
-		]
+			{
+				displayProperties: {
+					name: "Dûl Incaru, the Eternal Return",
+					description: "Face Dûl Incaru",
+				},
+			},
+		],
 	},
 }

@@ -2,14 +2,24 @@ import { spawn } from "child_process";
 import path from "path";
 import type { ITaskApi } from "./TaskRunner";
 
-export type TaskFunction<T> = (api: ITaskApi) => T;
+const SYMBOL_IS_TASK_FUNCTION = Symbol("IS_TASK_FUNCTION");
 
-function Task<T> (name: string, task: TaskFunction<T>) {
+export type TaskFunctionDef<T> = (api: ITaskApi) => T;
+export interface TaskFunction<T> extends TaskFunctionDef<T> {
+	[SYMBOL_IS_TASK_FUNCTION]: true;
+}
+
+function Task<T> (name: string | null, task: TaskFunctionDef<T>) {
 	Object.defineProperty(task, "name", { value: name });
-	return task;
+	Object.defineProperty(task, SYMBOL_IS_TASK_FUNCTION, { value: true });
+	return task as TaskFunction<T>;
 }
 
 namespace Task {
+
+	export function is (value: unknown): value is TaskFunction<unknown> {
+		return typeof value === "function" && (value as TaskFunction<unknown>)[SYMBOL_IS_TASK_FUNCTION];
+	}
 
 	export interface ITaskCLIOptions {
 		cwd?: string;

@@ -79,7 +79,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private loadedManifestCache?: Promise<void>;
 	private allCached?: boolean;
 
-	public constructor (private readonly componentName: COMPONENT_NAME) {
+	public constructor (private readonly componentName: COMPONENT_NAME, hostModel: Model<any>) {
 		this.filterAllNoDuplicates = this.filterAllNoDuplicates.bind(this);
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
 		this.modelCache = Model.create(IManifest.CacheComponentKey.getBundle(componentName), {

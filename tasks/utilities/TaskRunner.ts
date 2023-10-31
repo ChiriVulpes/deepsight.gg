@@ -1,7 +1,8 @@
 import ansi from "ansicolor";
 import dotenv from "dotenv";
 import Log from "./Log";
-import type { TaskFunction } from "./Task";
+import type { TaskFunction, TaskFunctionDef } from "./Task";
+import Task from "./Task";
 import { stopwatch } from "./Time";
 
 try {
@@ -10,10 +11,10 @@ try {
 
 export interface ITaskApi {
 	lastError?: Error;
-	series (...tasks: TaskFunction<any>[]): Promise<void>;
-	parallel (...tasks: TaskFunction<any>[]): Promise<void>;
-	run<T> (task: TaskFunction<T>): T;
-	debounce<T> (task: TaskFunction<T>): void;
+	series (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
+	parallel (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
+	run<T> (task: TaskFunctionDef<T>): T | Promise<T>;
+	debounce<T> (task: TaskFunctionDef<T>): void;
 }
 
 interface IDebouncedTask {
@@ -21,18 +22,22 @@ interface IDebouncedTask {
 	count: number;
 }
 
-const debouncedTasks = new Map<TaskFunction<any>, IDebouncedTask>();
+const debouncedTasks = new Map<TaskFunctionDef<any>, IDebouncedTask>();
 
 const loggedErrors = new Set<Error>();
 
 const taskApi: ITaskApi = {
 	lastError: undefined,
-	async series (...tasks) {
-		for (const task of tasks)
-			await this.run(task);
+	series (...tasks): TaskFunction<Promise<void>> {
+		return Task(null, async api => {
+			for (const task of tasks)
+				await api.run(task);
+		});
 	},
-	async parallel (...tasks) {
-		await Promise.all(tasks.map(task => Promise.resolve(this.run(task))));
+	parallel (...tasks): TaskFunction<Promise<void>> {
+		return Task(null, async api => {
+			await Promise.all(tasks.map(task => Promise.resolve(api.run(task))));
+		});
 	},
 	/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 	run (task) {
@@ -51,6 +56,9 @@ const taskApi: ITaskApi = {
 			this.lastError = caught;
 		}
 
+		if (err)
+			throw err;
+
 		function logResult () {
 			const time = watch.time();
 			if (err) {
@@ -63,22 +71,27 @@ const taskApi: ITaskApi = {
 		}
 
 		if (result instanceof Promise) {
-			result = result.then(r2 => {
-				logResult();
-				return r2;
-			})
+			result = result
+				.then(result => {
+					logResult();
+					if (Task.is(result))
+						return this.run(result);
+
+					return result;
+				})
 				.catch(caught => {
 					this.lastError = caught;
 					err = caught;
 					logResult();
 					throw err;
 				});
-		} else {
-			logResult();
+
+			return result;
 		}
 
-		if (err)
-			throw err;
+		logResult();
+		if (Task.is(result))
+			return this.run(result);
 
 		return result;
 	},
@@ -119,6 +132,7 @@ void (async () => {
 			if (!taskFunction)
 				throw new Error(`No task function found by name "${task}"`);
 
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			await taskApi.run(taskFunction);
 
 		} catch (err) {

@@ -296,8 +296,9 @@ class ItemTooltip extends Tooltip {
 		this.locked.classes.toggle(!item.isLocked(), Classes.Hidden);
 
 		this.moment.classes.toggle(!item.moment?.displayProperties.icon, Classes.Hidden);
-		if (item.moment?.displayProperties.icon)
-			this.moment.style.set("--icon", `url("${item.moment.displayProperties.icon}")`);
+		const momentIcon = item.moment?.displayProperties.icon;
+		if (momentIcon)
+			this.moment.style.set("--icon", `url("${momentIcon.startsWith("/") ? `https://www.bungie.net${momentIcon}` : momentIcon}")`);
 
 		const primaryStat = item.getPower();
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
