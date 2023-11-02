@@ -31,7 +31,10 @@ jobs:
           DEEPSIGHT_BUILD_NUMBER: ${{ github.run_number }}
           DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run build
-      
+
+      - name: Cleanup
+        run: rm -rf docs/testiny
+
       - name: Prepare for GitHub Pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v3
