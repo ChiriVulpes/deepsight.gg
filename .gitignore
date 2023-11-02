@@ -3,3 +3,4 @@ docs/
 .env
 static/testiny
 static/js/vendor
+tasks/manifest/Enums.d.ts

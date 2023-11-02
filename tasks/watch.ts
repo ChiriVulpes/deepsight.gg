@@ -8,7 +8,7 @@ export default Task("watch", async task => {
 	chokidar.watch(["style/**/*.scss"], { ignoreInitial: true })
 		.on("all", () =>
 			task.debounce(sass));
-	chokidar.watch(["static/**/*"], { ignoreInitial: true })
+	chokidar.watch(["static/**/*", "./tasks/deepsight_manifest.ts", "./tasks/manifest/**/*", "!./tasks/manifest/Enums.d.ts"], { ignoreInitial: true })
 		.on("all", () =>
 			task.debounce(_static));
 

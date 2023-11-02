@@ -56,7 +56,7 @@ class Reformatter {
 			Log.info(line);
 		}
 
-	}
+	};
 }
 
 export default Task("ts", () =>
