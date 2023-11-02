@@ -1,15 +1,23 @@
-import type { AllDestinyManifestComponents } from "../../src/node_modules/bungie-api-ts/destiny2";
+import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition } from "../../src/node_modules/bungie-api-ts/destiny2";
 import type { DestinyManifestComponentValue } from "./DestinyManifest";
 import manifest from "./DestinyManifest";
 
+interface HasDisplayPropertiesOrIconWatermark {
+	displayProperties?: DestinyDisplayPropertiesDefinition;
+	iconWatermark?: string;
+}
+
 type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number };
 namespace DestinyManifestReference {
-	export async function resolve (ref: string | DestinyManifestReference | undefined, type: "name" | "description" | "icon" | "iconWatermark") {
+	export async function resolve (ref: string | DestinyManifestReference | undefined, type: "name" | "description" | "icon" | "iconWatermark", alternativeSources?: Record<string, HasDisplayPropertiesOrIconWatermark | undefined>) {
 		if (typeof ref === "string" || ref === undefined)
 			return ref;
 
-		for (const [key, hash] of Object.entries(ref) as [keyof AllDestinyManifestComponents, number][]) {
-			const definition = await manifest[key].get(hash) as DestinyManifestComponentValue;
+		for (const [key, hash] of Object.entries(ref)) {
+			const alternativeSource = alternativeSources?.[key];
+
+			const componentName = key as keyof AllDestinyManifestComponents;
+			const definition = alternativeSource ?? await manifest[componentName].get(hash) as DestinyManifestComponentValue;
 			if (!definition)
 				continue;
 

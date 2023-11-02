@@ -1104,6 +1104,9 @@
 	"1077850348": {  // Prophecy
 		rotationActivityHash: 4148187374,
 		recordHash: 969826320,
+		displayProperties: {
+			name: { activity: true },
+		},
 		encounters: [
 			{
 				displayProperties: {
