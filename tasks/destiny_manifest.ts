@@ -15,19 +15,30 @@ interface Manifest {
 }
 
 export default Task("destiny_manifest", async () => {
-	const manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
-		.then(response => response.json())
-		.then(json => {
-			const manifest = (json as Manifest).Response;
-			if (!manifest)
-				Log.error(`Bungie API did not return a valid manifest: ${JSON.stringify(json)}`);
-			return (json as Manifest).Response;
-		});
+	let manifest: Manifest["Response"] | undefined;
+	for (let attempts = 0; !manifest && attempts < 10; attempts++) {
+		manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
+			.then(response => response.json())
+			.then(json => {
+				const manifest = (json as Manifest).Response;
+				if (!manifest)
+					Log.warn(`Bungie API did not return a valid manifest: ${JSON.stringify(json)}`);
+				return (json as Manifest).Response;
+			});
 
-	if (!manifest)
+		if (!manifest)
+			await new Promise(resolve => setTimeout(resolve, 1000));
+	}
+
+	const noSavedVersionString = "<no saved manifest>";
+	const savedVersion = await fs.readFile("static/testiny/.v", "utf8").catch(() => noSavedVersionString);
+	if (!manifest) {
+		if (savedVersion === noSavedVersionString)
+			throw new Error("Unable to fetch current Destiny manifest.");
+
 		return Log.info("Using previous Destiny manifest.");
+	}
 
-	const savedVersion = await fs.readFile("static/testiny/.v", "utf8").catch(() => "<no saved manifest>");
 	const bungieVersion = `${manifest.version}-9.deepsight.gg`;
 	if (bungieVersion === savedVersion)
 		return;
@@ -39,7 +50,7 @@ export default Task("destiny_manifest", async () => {
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
 		do {
 			Log.info(`Downloading manifest ${key}...`);
-		} while (!await new Promise<boolean>(resolve => https.get(`https://www.bungie.net/${manifest.jsonWorldComponentContentPaths.en[key]}`, response => response
+		} while (!await new Promise<boolean>(resolve => https.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
 			.pipe(fs.createWriteStream(`static/testiny/${key}.json`))
 			.on("finish", () => resolve(true))
 			.on("error", () => resolve(false))).on("error", () => resolve(false))));
