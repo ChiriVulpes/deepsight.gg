@@ -2,7 +2,7 @@
 	"name": "deepsight.gg",
 	"private": true,
 	"scripts": {
-		"build": "npx ts-node tasks/utilities/TaskRunner.ts ensure_enums build",
+		"build": "npx ts-node tasks/utilities/TaskRunner.ts install ensure_enums build",
 		"rebuild": "npx ts-node tasks/utilities/TaskRunner.ts clean ensure_enums build",
 		"watch": "npx ts-node tasks/utilities/TaskRunner.ts clean ensure_enums build serve watch",
 		"clean": "npx ts-node tasks/utilities/TaskRunner.ts clean",
