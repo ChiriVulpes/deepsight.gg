@@ -31,7 +31,7 @@ jobs:
 
       - name: Cancel if not updated
         run: |
-          if [[ ${{ steps.updated.outcome }} == 'failure' ]]; then exit 0; fi
+          if [[ '${{ steps.updated.outcome }}' == 'failure' ]]; then exit 0; fi
 
   manifest:
     needs: check
