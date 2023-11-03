@@ -18,12 +18,6 @@ jobs:
         with:
           ref: manifest
           path: manifest
-          
-      - name: Clean manifest dir
-        run: |
-          cd manifest
-          git rm -r . --ignore-unmatch
-          cd ..
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
