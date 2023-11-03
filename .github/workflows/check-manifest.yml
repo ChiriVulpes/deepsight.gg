@@ -37,3 +37,7 @@ jobs:
   manifest:
     needs: check
     uses: ./.github/workflows/manifest.yml
+    
+  deploy:
+    needs: manifest
+    uses: ./.github/workflows/deploy.yml  
