@@ -35,6 +35,7 @@ jobs:
         run: |
           rm -rf .git
           rm -rf beta/.git
+          rm -rf docs/manifest/.git
       
       - name: Prepare for GitHub Pages
         if: success()
