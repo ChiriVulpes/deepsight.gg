@@ -37,8 +37,12 @@ jobs:
       - name: Commit
         run: |
           cd manifest
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "Updated manifests"
-          git push
+          if [[ -n $(git diff) ]]; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add .
+            git commit -m "Updated manifests"
+            git push
+          else
+            echo "No changes to commit"
+          fi
