@@ -41,7 +41,7 @@ export default Task("destiny_manifest", async () => {
 		return Log.info("Using previous Destiny manifest.");
 	}
 
-	const bungieVersion = `${manifest.version}-9.deepsight.gg`;
+	const bungieVersion = manifest.version;
 	DESTINY_MANIFEST_VERSION = bungieVersion;
 	if (bungieVersion === savedVersion)
 		return;
