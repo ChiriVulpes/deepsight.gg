@@ -4,8 +4,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-  # schedule:
-  #   - cron: '3/5 * * * *'
+  schedule:
+    - cron: '3/5 * * * *'
 
 jobs:
   check:
@@ -14,19 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
-
-      - uses: actions/checkout@v4
-        with:
           ref: manifest
-          path: manifest
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
 
       - name: Check updated
         id: updated
-        run: node tasks/manifest.js
+        run: node check.js
         continue-on-error: true
         
     outputs:
