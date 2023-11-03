@@ -1,5 +1,4 @@
 name: Check manifest for updates
-concurrency: ${{ github.ref }}
 
 on:
   # Allows you to run this workflow manually from the Actions tab
