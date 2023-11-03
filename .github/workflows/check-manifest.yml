@@ -30,11 +30,17 @@ jobs:
         continue-on-error: true
         
     outputs:
-      updated: ${{ steps.updated.outcome != 'failure' }}
+      updated: ${{ steps.updated.outcome }}
+      
+  aaa:
+    needs: check
+    steps:
+      - name: log
+        run: echo ${{ steps.updated.outcome }}
 
   manifest:
     needs: check
-    if: ${{ needs.check.outputs.updated }}
+    if: ${{ needs.check.outputs.updated != 'failure' }}
     uses: ./.github/workflows/manifest.yml
     
   deploy:
