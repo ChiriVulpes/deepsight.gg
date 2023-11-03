@@ -33,11 +33,11 @@ jobs:
       updated: ${{ steps.updated.outcome != 'failure' }}
 
   manifest:
-    if: jobs.check.outputs.updated
+    if: ${{ jobs.check.outputs.updated }}
     needs: check
     uses: ./.github/workflows/manifest.yml
     
   deploy:
-    if: jobs.check.outputs.updated
+    if: ${{ jobs.check.outputs.updated }}
     needs: manifest
     uses: ./.github/workflows/deploy.yml  
