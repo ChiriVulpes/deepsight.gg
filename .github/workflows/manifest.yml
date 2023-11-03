@@ -38,6 +38,8 @@ jobs:
       - name: Commit
         run: |
           cd manifest
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git commit -a -m "Updated manifests"
           git push
 
