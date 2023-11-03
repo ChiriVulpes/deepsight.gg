@@ -6,7 +6,7 @@
 		"rebuild": "npx ts-node tasks/utilities/TaskRunner.ts clean ensure_enums build",
 		"watch": "npx ts-node tasks/utilities/TaskRunner.ts clean ensure_enums build serve watch",
 		"clean": "npx ts-node tasks/utilities/TaskRunner.ts clean",
-		"manifest": "npx ts-node tasks/utilities/TaskRunner.ts ensure_enums deepsight_manifest",
+		"manifest": "npx ts-node tasks/utilities/TaskRunner.ts install ensure_enums deepsight_manifest",
 		"bump_versions": "npx ts-node tasks/utilities/TaskRunner.ts bump_versions"
 	},
 	"devDependencies": {
