@@ -31,19 +31,12 @@ jobs:
         
     outputs:
       updated: ${{ steps.updated.outcome }}
-      
-  aaa:
-    needs: check
-    runs-on: ubuntu-latest
-    steps:
-      - name: log
-        run: echo ${{ steps.updated.outcome }}
 
   manifest:
     needs: check
     if: ${{ needs.check.outputs.updated != 'failure' }}
     uses: ./.github/workflows/manifest.yml
-    
+
   deploy:
     needs: manifest
     uses: ./.github/workflows/deploy.yml  
