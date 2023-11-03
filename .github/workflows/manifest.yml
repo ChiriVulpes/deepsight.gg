@@ -45,5 +45,6 @@ jobs:
           cd manifest
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git commit -a -m "Updated manifests"
+          git add .
+          git commit -m "Updated manifests"
           git push
