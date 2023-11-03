@@ -17,4 +17,7 @@ export default Task("DeepsightPlugCategorisation", async () => {
 
 	stream.write("\n}\n");
 	stream.close();
+
+	if (!stream.writableFinished)
+		await new Promise(resolve => stream.on("finish", resolve));
 });
