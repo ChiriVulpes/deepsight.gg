@@ -38,7 +38,7 @@ jobs:
       - name: Commit
         run: |
           cd manifest
-          git commit -a -m Updated manifests
+          git commit -a -m "Updated manifests"
           git push
 
   deploy:
