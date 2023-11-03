@@ -44,8 +44,6 @@ export default Task("bump_versions", async () => {
 		if (jsonOld && !diff(jsonOld, jsonNew))
 			continue;
 
-		if (jsonOld)
-			await fs.unlink(oldPath);
 		await fs.copyFile(newPath, oldPath);
 		const basename = path.basename(file, path.extname(file));
 		versions[basename] = (versions[basename] ?? -1) + 1;
@@ -54,4 +52,6 @@ export default Task("bump_versions", async () => {
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
 	await fs.writeJson("manifest/versions.json", versions, { spaces: "\t" });
+
+	Log.info(await fs.readdir("manifest"));
 });

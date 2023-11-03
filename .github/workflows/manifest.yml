@@ -2,9 +2,8 @@ name: Manifest
 concurrency: ${{ github.ref }}
 
 on:
-  push:
-    branches: [ main ]
-
+  workflow_call:
+  
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -19,6 +18,12 @@ jobs:
         with:
           ref: manifest
           path: manifest
+          
+      - name: Clean manifest dir
+        run: |
+          cd manifest
+          git rm .
+          cd ..
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -42,7 +47,3 @@ jobs:
           git config user.email "actions@github.com"
           git commit -a -m "Updated manifests"
           git push
-
-  deploy:
-    needs: manifest
-    uses: ./.github/workflows/deploy.yml

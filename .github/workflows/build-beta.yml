@@ -1,9 +1,6 @@
-name: Build Beta
+name: Build beta
 
 on:
-  push:
-    branches: [ beta ]
-
   workflow_call:
 
   # Allows you to run this workflow manually from the Actions tab
@@ -45,7 +42,3 @@ jobs:
           jekyll: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    needs: build
-    uses: ./.github/workflows/deploy.yml

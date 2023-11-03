@@ -1,0 +1,25 @@
+name: Push main
+
+on:
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  rebase:
+    uses: ./.github/workflows/rebase-beta.yml
+    secrets: inherit
+    
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    
+  manifest:
+    uses: ./.github/workflows/manifest.yml
+    secrets: inherit
+    
+  deploy:
+    needs: [rebase, build, manifest]
+    uses: ./.github/workflows/deploy.yml  
