@@ -1,5 +1,5 @@
-/* eslint-disable no-undef, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import fs from "fs/promises";
+/* eslint-disable @typescript-eslint/no-var-requires, no-undef, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+const fs = require("fs/promises");
 
 void (async () => {
 	let savedVersion;
