@@ -22,7 +22,7 @@ jobs:
       - name: Clean manifest dir
         run: |
           cd manifest
-          git rm -r .
+          git rm -r . --ignore-unmatch
           cd ..
 
       - name: Setup Node.js environment
