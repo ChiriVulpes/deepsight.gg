@@ -52,6 +52,4 @@ export default Task("bump_versions", async () => {
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
 	await fs.writeJson("manifest/versions.json", versions, { spaces: "\t" });
-
-	Log.info(await fs.readdir("manifest"));
 });
