@@ -24,32 +24,34 @@ async function readData (file: string) {
 }
 
 export default Task("bump_versions", async () => {
-	if (!await fs.pathExists("manifest")) {
-		if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
-			Log.info("Nothing to bump, no manifest output folder");
-			return;
-		}
-
+	const isDev = process.env.DEEPSIGHT_ENVIRONMENT === "dev";
+	if (!isDev && !await fs.pathExists("manifest"))
 		throw new Error("No output folder detected");
-	}
 
-	const versions = await fs.readJson("manifest/versions.json").catch(() => ({}));
+	const versionsFilePath = `${isDev ? "docs/" : ""}manifest/versions.json`;
+	const versions = await fs.readJson(versionsFilePath).catch(() => ({}));
 	const files = await fs.readdir("docs/manifest");
 
 	for (const file of files) {
-		const newPath = `docs/manifest/${file}`;
-		const oldPath = `manifest/${file}`;
-		const jsonOld = await readData(oldPath).catch(() => undefined);
-		const jsonNew = await readData(newPath);
-		if (jsonOld && !diff(jsonOld, jsonNew))
+		if (file === "versions.json")
 			continue;
 
-		await fs.copyFile(newPath, oldPath);
+		if (!isDev) {
+			const newPath = `docs/manifest/${file}`;
+			const oldPath = `manifest/${file}`;
+			const jsonOld = await readData(oldPath).catch(() => undefined);
+			const jsonNew = await readData(newPath);
+			if (jsonOld && !diff(jsonOld, jsonNew))
+				continue;
+
+			await fs.copyFile(newPath, oldPath);
+		}
+
 		const basename = path.basename(file, path.extname(file));
 		versions[basename] = (versions[basename] ?? -1) + 1;
 		Log.info(`Bumped ${ansi.lightGreen(file)} version`);
 	}
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
-	await fs.writeJson("manifest/versions.json", versions, { spaces: "\t" });
+	await fs.writeJson(versionsFilePath, versions, { spaces: "\t" });
 });
