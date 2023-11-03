@@ -1,0 +1,39 @@
+name: Check manifest for updates
+concurrency: ${{ github.ref }}
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # schedule:
+  #   - cron: '3/5 * * * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/checkout@v4
+        with:
+          ref: manifest
+          path: manifest
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+
+      - name: Check updated
+        id: updated
+        run: node tasks/manifest.js
+        continue-on-error: true
+
+      - name: Cancel if not updated
+        run: |
+          if [[ ${{ steps.updated.outcome }} == 'failure' ]]; then exit 0; fi
+
+  manifest:
+    needs: check
+    uses: ./.github/workflows/manifest.yml

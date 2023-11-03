@@ -14,6 +14,8 @@ interface Manifest {
 	}
 }
 
+export let DESTINY_MANIFEST_VERSION: string | undefined;
+
 export default Task("destiny_manifest", async () => {
 	let manifest: Manifest["Response"] | undefined;
 	for (let attempts = 0; !manifest && attempts < 10; attempts++) {
@@ -40,6 +42,7 @@ export default Task("destiny_manifest", async () => {
 	}
 
 	const bungieVersion = `${manifest.version}-9.deepsight.gg`;
+	DESTINY_MANIFEST_VERSION = bungieVersion;
 	if (bungieVersion === savedVersion)
 		return;
 

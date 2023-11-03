@@ -13,7 +13,7 @@ export interface ITaskApi {
 	lastError?: Error;
 	series (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
 	parallel (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
-	run<T> (task: TaskFunctionDef<T>): T | Promise<T>;
+	run<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): T | Promise<T>;
 	debounce<T> (task: TaskFunctionDef<T>): void;
 }
 
@@ -40,7 +40,7 @@ const taskApi: ITaskApi = {
 		});
 	},
 	/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
-	run (task) {
+	run (task, ...args: any[]) {
 		let result: any;
 		const taskName = ansi.cyan(task.name);
 
@@ -50,7 +50,8 @@ const taskApi: ITaskApi = {
 
 		let err: Error | undefined;
 		try {
-			result = task(this);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			result = (task as TaskFunctionDef<any, any[]>)(this, ...args);
 		} catch (caught: any) {
 			err = caught;
 			this.lastError = caught;
