@@ -1,7 +1,7 @@
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 export default IFilter.async(async () => {
 	const { DeepsightMomentDefinition: DeepsightSourceDefinition } = await Manifest.await();
@@ -9,9 +9,9 @@ export default IFilter.async(async () => {
 		.sort((a, b) => b.hash - a.hash);
 
 	function momentMatches (moment: DeepsightMomentDefinition, value: string) {
-		moment.displayProperties.nameLowerCase ??= moment.displayProperties.name.toLowerCase();
+		moment.displayProperties.nameLowerCase ??= moment.displayProperties.name?.toLowerCase();
 
-		return moment.displayProperties.nameLowerCase.startsWith(value)
+		return moment.displayProperties.nameLowerCase?.startsWith(value)
 			|| moment.id.startsWith(value);
 	}
 
@@ -35,7 +35,7 @@ export default IFilter.async(async () => {
 				return undefined;
 
 			const icon = matches[0].displayProperties.icon;
-			return `url("${icon.startsWith("/") ? `https://www.bungie.net${icon}` : icon}")`;
+			return `url("${icon?.startsWith("/") ? `https://www.bungie.net${icon}` : icon}")`;
 		},
 	};
 });

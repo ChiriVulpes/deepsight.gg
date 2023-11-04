@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import { diff } from "json-diff";
 import path from "path";
 import { DESTINY_MANIFEST_VERSION } from "./destiny_manifest";
+import Hash from "./utilities/Hash";
 import Log from "./utilities/Log";
 import Task from "./utilities/Task";
 
@@ -33,13 +34,14 @@ export default Task("bump_versions", async () => {
 	const files = await fs.readdir("docs/manifest");
 
 	let bumped = false;
+	const bumpMap: Record<string, true> = {};
 
 	for (const file of files) {
 		if (file === "versions.json")
 			continue;
 
+		const newPath = `docs/manifest/${file}`;
 		if (!isDev) {
-			const newPath = `docs/manifest/${file}`;
 			const oldPath = `manifest/${file}`;
 			const jsonOld = await readData(oldPath).catch(() => undefined);
 			const jsonNew = await readData(newPath);
@@ -47,9 +49,17 @@ export default Task("bump_versions", async () => {
 				continue;
 
 			await fs.copyFile(newPath, oldPath);
+		} else {
+			if (!await Hash.fileChanged(newPath))
+				continue;
 		}
 
-		const basename = path.basename(file, path.extname(file));
+		let basename = path.basename(file, path.extname(file));
+		basename = path.basename(basename, path.extname(basename));
+		if (bumpMap[basename])
+			continue;
+
+		bumpMap[basename] = true;
 		versions[basename] = (versions[basename] ?? -1) + 1;
 		Log.info(`Bumped ${ansi.lightGreen(file)} version`);
 		bumped = true;

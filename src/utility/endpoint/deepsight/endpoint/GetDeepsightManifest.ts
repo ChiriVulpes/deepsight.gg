@@ -1,8 +1,6 @@
-import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
+import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightWallpaperDefinition } from "manifest.deepsight.gg";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
-import type { DeepsightWallpaperDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
 import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
 import Endpoint from "utility/endpoint/Endpoint";
 
@@ -30,4 +28,4 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 		});
 		return result;
 	}
-})
+});

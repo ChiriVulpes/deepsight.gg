@@ -5,6 +5,7 @@ import generate_enums from "./generate_enums";
 import DeepsightDropTableDefinition from "./manifest/DeepsightDropTableDefinition";
 import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
 import DeepsightPlugTypeDefinition from "./manifest/DeepsightPlugCategorisation";
+import DeepsightWallpaperDefinition from "./manifest/DeepsightWallpaperDefinition";
 import Task from "./utilities/Task";
 
 export default Task("deepsight_manifest", task => task.series(
@@ -14,6 +15,7 @@ export default Task("deepsight_manifest", task => task.series(
 	task.parallel(
 		DeepsightMomentDefinition,
 		DeepsightDropTableDefinition,
+		DeepsightWallpaperDefinition,
 	),
 	DeepsightPlugTypeDefinition,
 	bump_versions,

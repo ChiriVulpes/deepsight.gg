@@ -1,5 +1,6 @@
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import type Manifest from "model/models/Manifest";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
@@ -22,7 +23,6 @@ import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/E
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
 import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 export type CharacterId = `${bigint}`;
 export type PostmasterId = `postmaster:${CharacterId}`;

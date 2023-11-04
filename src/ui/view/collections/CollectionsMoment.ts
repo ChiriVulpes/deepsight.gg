@@ -1,4 +1,5 @@
 import { DestinyClass, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import Collections from "model/models/Collections";
 import type Inventory from "model/models/Inventory";
@@ -7,7 +8,6 @@ import Component from "ui/Component";
 import Details from "ui/Details";
 import Loadable from "ui/Loadable";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 export enum CollectionsMomentClasses {
 	Moment = "view-collections-moment",

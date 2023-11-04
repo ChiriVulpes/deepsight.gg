@@ -5,8 +5,9 @@ import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./DestinyManifest"
 import DestinyManifestReference from "./DestinyManifestReference";
 
 interface DeepsightDropTableDefinition {
-	rotationActivityHash?: string;
-	recordHash?: string;
+	hash: number;
+	rotationActivityHash?: number;
+	recordHash?: number;
 	displayProperties?: {
 		name?: string | DestinyManifestReference;
 		description?: string | DestinyManifestReference;
@@ -20,6 +21,8 @@ export default Task("DeepsightDropTableDefinition", async () => {
 	const { DestinyActivityDefinition, DestinyRecordDefinition } = manifest;
 
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {
+		definition.hash = +hash;
+
 		const record = await DestinyRecordDefinition.get(definition.recordHash);
 		const activity = await DestinyActivityDefinition.get(hash) ?? await DestinyActivityDefinition.get(definition.rotationActivityHash);
 

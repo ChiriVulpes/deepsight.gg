@@ -1,4 +1,5 @@
 import type { AllDestinyManifestComponents, DestinyInventoryComponent, DestinyInventoryItemDefinition, DestinyItemReusablePlugsComponent, DestinyItemSocketsComponent } from "bungie-api-ts/destiny2";
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import type Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
@@ -9,7 +10,6 @@ import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifestVersions from "utility/endpoint/deepsight/endpoint/GetDeepsightManifestVersions";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;

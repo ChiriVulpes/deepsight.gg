@@ -1,9 +1,14 @@
+import ansi from "ansicolor";
 import fs from "fs-extra";
 import * as path from "path";
 import type deepsight_manifest from "./deepsight_manifest";
+import Log from "./utilities/Log";
 import Task from "./utilities/Task";
 
-export default Task("static", async task => {
+export default Task("static", async (task, file?: string) => {
+	if (file)
+		Log.info("Detected file change:", ansi.lightGreen(file.replace(/\\/g, "/")));
+
 	while (!await fs.copy("static", "docs")
 		.then(() => true).catch(() => false));
 

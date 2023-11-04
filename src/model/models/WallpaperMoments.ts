@@ -1,10 +1,10 @@
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
-export interface IWallpaperMoment {
-	wallpapers: string[];
-	moment: DeepsightMomentDefinition;
+declare module "manifest.deepsight.gg" {
+	interface DeepsightWallpaperDefinition {
+		moment?: DeepsightMomentDefinition;
+	}
 }
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()
@@ -12,10 +12,11 @@ export default Model.createDynamic("Daily", async _ => Manifest.await()
 		const wallpaperMomentsRaw = await manifest.DeepsightWallpaperDefinition.all();
 		const moments = await manifest.DeepsightMomentDefinition.all();
 
-		return wallpaperMomentsRaw.map((wallpaperMoment): IWallpaperMoment => ({
-			wallpapers: wallpaperMoment.data,
-			moment: moments.find(moment => wallpaperMoment.hash === moment.hash)!,
-		}))
+		return wallpaperMomentsRaw
+			.map(def => ({
+				...def,
+				moment: moments.find(moment => def.hash === moment.hash)!,
+			}))
 			.sort((a, b) => +(a.moment?.hash || 0) - +(b.moment?.hash || 0));
 	}));
 

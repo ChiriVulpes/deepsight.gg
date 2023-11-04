@@ -14,7 +14,7 @@ export interface ITaskApi {
 	series (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
 	parallel (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
 	run<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): T | Promise<T>;
-	debounce<T> (task: TaskFunctionDef<T>): void;
+	debounce<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): void;
 }
 
 interface IDebouncedTask {
@@ -22,7 +22,7 @@ interface IDebouncedTask {
 	count: number;
 }
 
-const debouncedTasks = new Map<TaskFunctionDef<any>, IDebouncedTask>();
+const debouncedTasks = new Map<TaskFunctionDef<any, any[]>, IDebouncedTask>();
 
 const loggedErrors = new Set<Error>();
 
@@ -97,21 +97,21 @@ const taskApi: ITaskApi = {
 		return result;
 	},
 	/* eslint-enable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
-	debounce (task) {
-		let debouncedTask = debouncedTasks.get(task);
+	debounce (task, ...args) {
+		let debouncedTask = debouncedTasks.get(task as TaskFunctionDef<any, any[]>);
 		if (!debouncedTask) {
 			debouncedTask = {
 				promise: Promise.resolve(),
 				count: 0,
 			};
-			debouncedTasks.set(task, debouncedTask);
+			debouncedTasks.set(task as TaskFunctionDef<any, any[]>, debouncedTask);
 		}
 
 		if (debouncedTask.count <= 1) {
 			debouncedTask.count++;
 			debouncedTask.promise = debouncedTask.promise.then(async () => {
 				try {
-					await this.run(task);
+					await this.run(task as TaskFunctionDef<any, any[]>, ...args);
 				} catch { }
 				debouncedTask!.count--;
 			});

@@ -1,4 +1,5 @@
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
@@ -6,7 +7,6 @@ import Item from "model/models/items/Item";
 import ItemEquippableDummies from "model/models/items/ItemEquippableDummies";
 import Display from "ui/bungie/DisplayProperties";
 import { Debug } from "utility/Debug";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 namespace Collections {
 

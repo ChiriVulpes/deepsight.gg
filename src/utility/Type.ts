@@ -10,3 +10,9 @@ declare global {
 	}
 	type OrientationLockType = "any" | "landscape" | "landscape-primary" | "landscape-secondary" | "natural" | "portrait" | "portrait-primary" | "portrait-secondary";
 }
+
+declare module "manifest.deepsight.gg" {
+	interface DeepsightDisplayPropertiesDefinition {
+		nameLowerCase?: string;
+	}
+}

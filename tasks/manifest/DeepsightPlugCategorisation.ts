@@ -20,4 +20,17 @@ export default Task("DeepsightPlugCategorisation", async () => {
 
 	if (!stream.writableFinished)
 		await new Promise(resolve => stream.on("finish", resolve));
+
+	await fs.copyFile("tasks/manifest/IDeepsightPlugCategorisation.ts", "docs/manifest/DeepsightPlugCategorisation.ts");
+
+	// create d.ts version with declared const enums
+	let DeepsightPlugCategorisationContents = await fs.readFile("docs/manifest/DeepsightPlugCategorisation.ts", "utf8");
+	DeepsightPlugCategorisationContents = DeepsightPlugCategorisationContents
+		.replace(/\/\*%(.*?)\*\//g, (match, group) => group)
+		.replace(/\/\*<\*\/.*?\/\*>\*\//g, "")
+		.replace(/export const/g, "export type")
+		.replace(/export enum/g, "export const enum")
+		.replace(/export /g, "export declare ");
+
+	await fs.writeFile("docs/manifest/DeepsightPlugCategorisation.d.ts", DeepsightPlugCategorisationContents);
 });

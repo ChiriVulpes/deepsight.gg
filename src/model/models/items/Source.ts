@@ -1,5 +1,6 @@
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
+import type { BungieIconPath, DeepsightDropTableDefinition } from "manifest.deepsight.gg";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
 import Trials from "model/models/Trials";
@@ -9,7 +10,6 @@ import Objects from "utility/Objects";
 import Time from "utility/Time";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendor";
-import type { DeepsightDropTableDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 
 export enum SourceType {
 	Playlist,
@@ -104,7 +104,7 @@ namespace Source {
 					dropTable = {
 						...dropTable,
 						displayProperties: {
-							icon: (await DestinyActivityModeDefinition.get(activity.directActivityModeHash))?.displayProperties.icon,
+							icon: (await DestinyActivityModeDefinition.get(activity.directActivityModeHash))?.displayProperties.icon as BungieIconPath | undefined,
 						},
 					};
 

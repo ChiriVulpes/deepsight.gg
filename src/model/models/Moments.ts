@@ -1,6 +1,13 @@
+import type { DestinyEventCardDefinition } from "bungie-api-ts/destiny2";
+import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
-import type { DeepsightMomentDefinition } from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
+
+declare module "manifest.deepsight.gg" {
+	interface DeepsightMomentDefinition {
+		eventCard?: DestinyEventCardDefinition;
+	}
+}
 
 export default Model.createDynamic("Daily", async _ => Manifest.await()
 	.then(async manifest => {
