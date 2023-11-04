@@ -40,6 +40,6 @@ jobs:
     
     steps: 
       - name: Delete testiny artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: testiny-data

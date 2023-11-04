@@ -18,7 +18,14 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        
+
+      - name: Download testiny artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: testiny-data
+          path: static/testiny
+        continue-on-error: true
+
       - name: Build
         env:
           DEEPSIGHT_ENVIRONMENT: beta

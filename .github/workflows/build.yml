@@ -24,7 +24,7 @@ jobs:
           NUM: ${{ github.run_number }}
         run: echo "BUILD_NUMBER=$(($NUM+447))" >> "$GITHUB_ENV"
 
-      - name: Download data
+      - name: Download testiny artifact
         uses: actions/download-artifact@v3
         with:
           name: testiny-data
