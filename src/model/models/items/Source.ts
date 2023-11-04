@@ -179,6 +179,15 @@ namespace Source {
 			?? table.encounters?.find(encounter => encounter.dropTable?.[item.definition.hash])?.dropTable?.[item.definition.hash]
 			?? table.master?.dropTable?.[item.definition.hash];
 
+		const isRotationDrop = resolveRotation(table.rotations?.drops, weeks) === item.definition.hash;
+		const isMasterRotationDrop = resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash;
+
+		const isMaster = !!table.master?.dropTable?.[item.definition.hash] || isMasterRotationDrop;
+
+		const isRotatingChallengeRelevant = isMaster
+			? isMasterRotationDrop || !table.rotations?.masterDrops
+			: isRotationDrop || !table.rotations?.drops;
+
 		return {
 			dropTable: table,
 			activity,
@@ -186,11 +195,11 @@ namespace Source {
 			activityChallenges,
 			masterActivityDefinition,
 			masterActivity,
-			activeChallenge: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
-			isActiveDrop: table.rotations?.drops ? resolveRotation(table.rotations?.drops, weeks) === item.definition.hash
+			activeChallenge: !isRotatingChallengeRelevant ? undefined
+				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
+			isActiveDrop: table.rotations?.drops ? isRotationDrop
 				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
-			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
-				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
+			isActiveMasterDrop: isMaster,
 			record: await DestinyRecordDefinition.get(table.recordHash),
 			type,
 			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
