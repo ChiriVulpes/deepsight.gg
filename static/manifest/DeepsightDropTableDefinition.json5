@@ -567,18 +567,18 @@
 		rotations: {
 			anchor: 1697562000000, // oct 17
 			masterDrops: [
-				690668916, // Vision of Confluence (Timelost)
-				1987769101, // Praedyth's Revenge (Timelost)
 				1216319404, // Fatebringer (Timelost)
 				1921159786, // Hezen Vengeance (Timelost)
 				3796510434, // Corrective Measure (Timelost)
+				690668916, // Vision of Confluence (Timelost)
+				1987769101, // Praedyth's Revenge (Timelost)
 			],
 			challenges: [
-				3135466059, // Wait for It... (confluxes)
-				274420331, // The Only Oracle For You (oracles)
 				2814846409, // Out of Its Way (templar)
 				3212721586, // Strangers in Time (gatekeeper)
 				1572570117, // Ensemble's Refrain (atheon)
+				3135466059, // Wait for It... (confluxes)
+				274420331, // The Only Oracle For You (oracles)
 			],
 		},
 	},
