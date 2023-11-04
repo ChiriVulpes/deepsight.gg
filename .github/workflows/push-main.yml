@@ -23,8 +23,8 @@ jobs:
     secrets: inherit
     
   build-beta:
-    needs: rebase
-    if: always()
+    needs: [manifest, rebase]
+    if: always() && needs.manifest.result == 'success'
     uses: ./.github/workflows/build-beta.yml
     secrets: inherit
     
