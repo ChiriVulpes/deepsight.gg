@@ -28,5 +28,5 @@ jobs:
     
   deploy:
     needs: [build-beta, build, manifest]
-    if: always() && needs.build.outcome == 'success' && needs.manifest.outcome == 'success'
+    if: always() && needs.build.result == 'success' && needs.manifest.result == 'success'
     uses: ./.github/workflows/deploy.yml  
