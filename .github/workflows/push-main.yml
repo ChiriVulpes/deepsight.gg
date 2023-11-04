@@ -8,11 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
+  manifest:
+    uses: ./.github/workflows/manifest.yml
+    secrets: inherit
+
   rebase:
+    needs: manifest
     uses: ./.github/workflows/rebase-beta.yml
     secrets: inherit
     
   build:
+    needs: manifest
     uses: ./.github/workflows/build.yml
     secrets: inherit
     
@@ -22,11 +28,18 @@ jobs:
     uses: ./.github/workflows/build-beta.yml
     secrets: inherit
     
-  manifest:
-    uses: ./.github/workflows/manifest.yml
-    secrets: inherit
-    
   deploy:
     needs: [build-beta, build, manifest]
     if: always() && needs.build.result == 'success' && needs.manifest.result == 'success'
-    uses: ./.github/workflows/deploy.yml  
+    uses: ./.github/workflows/deploy.yml
+    
+  cleanup:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps: 
+      - name: Delete testiny artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: testiny-data

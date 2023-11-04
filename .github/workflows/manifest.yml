@@ -33,6 +33,12 @@ jobs:
           DEEPSIGHT_BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run manifest
+
+      - name: Save testiny artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: testiny-data
+          path: static/testiny
         
       - name: Commit
         run: |

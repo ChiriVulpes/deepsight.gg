@@ -23,7 +23,13 @@ jobs:
         env:
           NUM: ${{ github.run_number }}
         run: echo "BUILD_NUMBER=$(($NUM+447))" >> "$GITHUB_ENV"
-        
+
+      - name: Download data
+        uses: actions/download-artifact@v3
+        with:
+          name: testiny-data
+          path: static/testiny
+
       - name: Build
         env:
           DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
