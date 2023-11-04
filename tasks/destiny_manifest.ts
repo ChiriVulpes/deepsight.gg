@@ -51,12 +51,21 @@ export default Task("destiny_manifest", async () => {
 	await fs.mkdir("static/testiny").catch(() => { });
 
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
+		let writeStream: fs.WriteStream | undefined;
 		do {
 			Log.info(`Downloading manifest ${key}...`);
-		} while (!await new Promise<boolean>(resolve => https.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
-			.pipe(fs.createWriteStream(`static/testiny/${key}.json`))
-			.on("finish", () => resolve(true))
-			.on("error", () => resolve(false))).on("error", () => resolve(false))));
+		} while (!await new Promise<boolean>(resolve => https
+			.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
+				.pipe(writeStream = fs.createWriteStream(`static/testiny/${key}.json`))
+				.on("finish", () => resolve(true))
+				.on("error", () => resolve(false)))
+			.on("error", () => resolve(false))));
+
+		if (writeStream) {
+			writeStream.close();
+			if (!writeStream.writableFinished)
+				await new Promise(resolve => writeStream?.on("finish", resolve));
+		}
 	}
 
 	await fs.writeFile("static/testiny/.v", bungieVersion);
