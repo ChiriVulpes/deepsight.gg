@@ -96,10 +96,8 @@ namespace Source {
 				if (activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
 					dropTable = {
 						...dropTable,
-						iconRecordHash: 3052859887,
 						displayProperties: {
-							icon: "https://raw.githubusercontent.com/justrealmilk/destiny-icons/394ed051455e938f72ddd600d42cf87600ec7172/explore/strike.svg",
-							iconBlack: true,
+							icon: "./image/png/activity/strike.png",
 						},
 					};
 				else if (activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
@@ -193,7 +191,7 @@ namespace Source {
 				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
 			isActiveMasterDrop: !!table.master?.dropTable?.[item.definition.hash]
 				|| resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash,
-			record: await DestinyRecordDefinition.get(table.iconRecordHash),
+			record: await DestinyRecordDefinition.get(table.recordHash),
 			type,
 			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),

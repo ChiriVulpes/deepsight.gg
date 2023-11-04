@@ -5,11 +5,12 @@ import manifest from "./DestinyManifest";
 interface HasDisplayPropertiesOrIconWatermark {
 	displayProperties?: DestinyDisplayPropertiesDefinition;
 	iconWatermark?: string;
+	iconWatermarkShelved?: string;
 }
 
 type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number };
 namespace DestinyManifestReference {
-	export async function resolve (ref: string | DestinyManifestReference | undefined, type: "name" | "description" | "icon" | "iconWatermark", alternativeSources?: Record<string, HasDisplayPropertiesOrIconWatermark | undefined>) {
+	export async function resolve (ref: string | DestinyManifestReference | undefined, type: "name" | "description" | "icon" | "iconWatermark" | "iconWatermarkShelved", alternativeSources?: Record<string, HasDisplayPropertiesOrIconWatermark | undefined>) {
 		if (typeof ref === "string" || ref === undefined)
 			return ref;
 
@@ -24,6 +25,12 @@ namespace DestinyManifestReference {
 			if (type === "iconWatermark") {
 				if ("iconWatermark" in definition)
 					return definition.iconWatermark;
+				continue;
+			}
+
+			if (type === "iconWatermarkShelved") {
+				if ("iconWatermarkShelved" in definition)
+					return definition.iconWatermarkShelved;
 				continue;
 			}
 

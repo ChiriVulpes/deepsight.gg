@@ -11,8 +11,10 @@ interface DeepsightMomentDefinition {
 		icon?: string | DestinyManifestReference;
 	};
 	iconWatermark: string | DestinyManifestReference;
+	iconWatermarkShelved: string | DestinyManifestReference;
 	event?: true | number;
 	seasonHash?: number;
+	hash?: number;
 }
 
 export default Task("DeepsightMomentDefinition", async () => {
@@ -21,7 +23,11 @@ export default Task("DeepsightMomentDefinition", async () => {
 	const { DestinySeasonDefinition, DestinyEventCardDefinition } = manifest;
 
 	for (const [hash, definition] of Object.entries(DeepsightMomentDefinition)) {
+		definition.hash = +hash;
+
+		definition.iconWatermarkShelved = await DestinyManifestReference.resolve(definition.iconWatermarkShelved ?? (typeof definition.iconWatermark === "object" ? definition.iconWatermark : undefined), "iconWatermarkShelved") ?? definition.iconWatermarkShelved;
 		definition.iconWatermark = await DestinyManifestReference.resolve(definition.iconWatermark, "iconWatermark") ?? definition.iconWatermark;
+
 		if (definition.displayProperties) {
 			definition.displayProperties.name = await DestinyManifestReference.resolve(definition.displayProperties.name, "name");
 			definition.displayProperties.description = await DestinyManifestReference.resolve(definition.displayProperties.description, "description");

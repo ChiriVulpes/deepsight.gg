@@ -44,13 +44,6 @@ const DestinyManifest = Model.create("destiny manifest", {
 		const { DeepsightMomentDefinition } = await GetDeepsightManifest.query();
 
 		const moments = Object.values(DeepsightMomentDefinition);
-		const momentsRequiringWatermarks = Object.fromEntries(moments
-			.filter(moment => moment.iconWatermark && typeof moment.iconWatermark !== "string")
-			.map(moment => [(moment.iconWatermark as { item: number }).item, moment]));
-		const momentsRequiringShelvedWatermarks = Object.fromEntries(moments
-			.filter(moment => moment.iconWatermarkShelved && typeof moment.iconWatermarkShelved !== "string")
-			.map(moment => [(moment.iconWatermarkShelved as { item: number }).item, moment]));
-
 		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightMomentDefinition"];
 
 		const totalLoad = allComponentNames.length * 2 + 1;
@@ -121,25 +114,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 			await Model.cacheDB.transaction([cacheKey], async transaction => {
 				await transaction.clear(cacheKey);
 
-				for (const key of Object.keys(data)) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-					const definition = (data as any)[key];
-
-					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
-						const itemDef = definition as DestinyInventoryItemDefinition;
-						const moment = momentsRequiringWatermarks[key];
-						if (moment)
-							moment.iconWatermark = itemDef.iconWatermark
-								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
-								?? itemDef.iconWatermarkShelved;
-
-						const shelvedMoment = momentsRequiringShelvedWatermarks[key];
-						if (shelvedMoment)
-							shelvedMoment.iconWatermarkShelved = itemDef.iconWatermarkShelved
-								?? itemDef.quality?.displayVersionWatermarkIcons?.[0]
-								?? itemDef.iconWatermark;
-					}
-
+				for (const [key, definition] of Object.entries(data)) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 					await transaction.set(cacheKey, key, definition);
 				}

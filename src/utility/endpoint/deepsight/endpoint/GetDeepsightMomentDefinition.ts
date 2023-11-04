@@ -4,14 +4,21 @@ import DeepsightEndpoint from "utility/endpoint/deepsight/DeepsightEndpoint";
 export interface DeepsightMomentDefinition {
 	id: string;
 	displayProperties: DestinyDisplayPropertiesDefinition;
-	iconWatermark?: string | { item: number };
-	iconWatermarkShelved?: string | { item: number };
+	iconWatermark?: string;
+	iconWatermarkShelved?: string;
+	/**
+	 * For events, the event card hash. If there isn't an event card, `true`
+	 */
 	event?: true | number;
 	eventCard?: DestinyEventCardDefinition;
 	expansion?: true;
 	season?: number;
 	year?: number;
 	seasonHash?: number;
+	/**
+	 * Items that should be associated with this moment, but aren't according to the Destiny manifest (by icon watermark).
+	 * You should render these items with this moment's `iconWatermark`.
+	 */
 	itemHashes?: number[];
 	hash: number;
 }

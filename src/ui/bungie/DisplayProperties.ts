@@ -9,7 +9,7 @@ declare module "bungie-api-ts/destiny2/interfaces" {
 	}
 }
 
-export type DisplayPropertied = { readonly displayProperties: DestinyDisplayPropertiesDefinition };
+export type DisplayPropertied = { readonly displayProperties: Partial<DestinyDisplayPropertiesDefinition> };
 export type DisplayPropertiesOrD = DestinyDisplayPropertiesDefinition | DisplayPropertied;
 export type PartialDisplayPropertiesOrD = Partial<DestinyDisplayPropertiesDefinition> | DisplayPropertied;
 
