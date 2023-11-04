@@ -12,15 +12,20 @@ async function readData (file: string) {
 	switch (path.extname(file)) {
 		case ".json":
 			return fs.readJson(file);
-		case ".ts":
-			return fs.readFile(file, "utf8")
-				.then(contents => contents
-					.replace(/\/\*.*?\*\//gs, "")
-					.replace(/export declare const enum (\w+)|(\w+) =/g, "\"$1$2\":")
-					.replace(/ =/g, ":")
-					.replace(/(?<=})\n+(?=")/g, ",\n")
-					.replace(/,(?=\n+})/g, ""))
-				.then(jsonText => JSON.parse(`{${jsonText}}`));
+		case ".ts": {
+			const basename = path.basename(file);
+			if (basename === "Enums.d.ts")
+				return fs.readFile(file, "utf8")
+					.then(contents => contents
+						.replace(/\/\*.*?\*\//gs, "")
+						.replace(/export declare const enum (\w+)|(\w+) =/g, "\"$1$2\":")
+						.replace(/ =/g, ":")
+						.replace(/(?<=})\n+(?=")/g, ",\n")
+						.replace(/,(?=\n+})/g, ""))
+					.then(jsonText => JSON.parse(`{${jsonText}}`));
+
+			return fs.readFile(file, "utf8");
+		}
 	}
 }
 
@@ -45,7 +50,7 @@ export default Task("bump_versions", async () => {
 			const oldPath = `manifest/${file}`;
 			const jsonOld = await readData(oldPath).catch(() => undefined);
 			const jsonNew = await readData(newPath);
-			if (jsonOld && !diff(jsonOld, jsonNew))
+			if (jsonOld && (typeof jsonNew === "string" ? jsonOld === jsonNew : !diff(jsonOld, jsonNew)))
 				continue;
 
 			await fs.copyFile(newPath, oldPath);
