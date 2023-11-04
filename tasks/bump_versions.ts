@@ -32,6 +32,8 @@ export default Task("bump_versions", async () => {
 	const versions = await fs.readJson(versionsFilePath).catch(() => ({}));
 	const files = await fs.readdir("docs/manifest");
 
+	let bumped = false;
+
 	for (const file of files) {
 		if (file === "versions.json")
 			continue;
@@ -50,7 +52,11 @@ export default Task("bump_versions", async () => {
 		const basename = path.basename(file, path.extname(file));
 		versions[basename] = (versions[basename] ?? -1) + 1;
 		Log.info(`Bumped ${ansi.lightGreen(file)} version`);
+		bumped = true;
 	}
+
+	if (bumped)
+		versions.deepsight = (versions.deepsight ?? -1) + 1;
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
 	await fs.writeJson(versionsFilePath, versions, { spaces: "\t" });
