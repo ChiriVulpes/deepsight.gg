@@ -31,13 +31,13 @@ jobs:
           ref: manifest
           path: manifest
 
-      - name: Checkout manifest
+      - name: Checkout manifest to beta
         uses: actions/checkout@v4
         with:
           ref: manifest
           path: beta/manifest
 
-      - name: Clear git
+      - name: Clear .git folders (no submodules here!)
         run: |
           rm -rf .git
           rm -rf beta/.git
