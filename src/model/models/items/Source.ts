@@ -32,6 +32,7 @@ export interface ISource {
 	endTime?: number;
 	requiresQuest?: DestinyInventoryItemDefinition | null;
 	requiresItems?: (DestinyInventoryItemDefinition | null)[];
+	purchaseOnly?: true;
 }
 
 namespace Source {
@@ -205,6 +206,7 @@ namespace Source {
 			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),
 			requiresItems: !dropDef?.requiresItems?.length ? undefined : await Promise.all(dropDef.requiresItems.map(async hash => (await DestinyInventoryItemDefinition.get(hash)) ?? null)),
+			purchaseOnly: dropDef?.purchaseOnly,
 		};
 	}
 

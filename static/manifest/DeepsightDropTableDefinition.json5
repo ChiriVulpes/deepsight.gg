@@ -561,7 +561,7 @@
 		master: {
 			activityHash: 3022541210,
 			dropTable: {
-				"631439337": {}, // Found Verdict (Timelost)
+				"631439337": { purchaseOnly: true }, // Found Verdict (Timelost)
 			},
 		},
 		rotations: {

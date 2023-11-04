@@ -102,6 +102,18 @@ export default class ItemTooltipSource extends Component {
 
 			else if (source.activeChallenge && item.isFomo())
 				this.renderChallenge(phasesWrapper, item, source);
+
+			else if (source.purchaseOnly)
+				Component.create()
+					.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
+					.style.set("--icon", Display.icon("./image/png/activity/cache.png"))
+					.append(Component.create()
+						.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
+						.text.set("Purchase Only"))
+					.append(Component.create()
+						.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
+						.text.set("This item is available in the end-of-activity cache."))
+					.appendTo(phasesWrapper);
 		}
 
 		return true;
