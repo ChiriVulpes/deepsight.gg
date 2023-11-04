@@ -16,10 +16,17 @@ jobs:
     uses: ./.github/workflows/build.yml
     secrets: inherit
     
+  build-beta:
+    needs: rebase
+    if: always()
+    uses: ./.github/workflows/build-beta.yml
+    secrets: inherit
+    
   manifest:
     uses: ./.github/workflows/manifest.yml
     secrets: inherit
     
   deploy:
-    needs: [rebase, build, manifest]
+    needs: [build-beta, build, manifest]
+    if: always() && needs.build.outcome == 'success' && needs.manifest.outcome == 'success'
     uses: ./.github/workflows/deploy.yml  
