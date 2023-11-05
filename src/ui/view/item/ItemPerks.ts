@@ -1,5 +1,4 @@
 import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import { PlugType } from "model/models/items/Plugs";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
@@ -62,7 +61,7 @@ export default class ItemPerks extends ItemSockets {
 
 	protected override initialise () {
 		this.classes.add(ItemPerksClasses.Main);
-		this.sockets = this.addSocketsByType(PlugType.Perk);
+		this.sockets = this.addSocketsByType("Perk");
 
 		this.wishlists = Store.items[`item${this.item.definition.hash}PerkWishlists`];
 
@@ -94,7 +93,7 @@ export default class ItemPerks extends ItemSockets {
 		for (const socket of this.sockets) {
 			for (const plug of socket.plugs) {
 				plug.event.subscribe("click", () => {
-					if (plug.plug?.is(PlugType.Enhanced))
+					if (plug.plug?.is("Perk/EnhancedTrait"))
 						return;
 
 					if (!this.editingWishlist)

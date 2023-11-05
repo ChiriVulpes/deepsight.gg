@@ -22,7 +22,7 @@ namespace Objectives {
 			progress: objective,
 			plug,
 			definition: await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
-		})))
+		})));
 	}
 }
 

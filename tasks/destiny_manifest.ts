@@ -1,7 +1,6 @@
 import ansi from "ansicolor";
 import * as fs from "fs-extra";
 import * as https from "https";
-import fetch from "node-fetch";
 import Log from "./utilities/Log";
 import Task from "./utilities/Task";
 
@@ -18,9 +17,15 @@ export let DESTINY_MANIFEST_VERSION: string | undefined;
 
 export default Task("destiny_manifest", async () => {
 	let manifest: Manifest["Response"] | undefined;
-	for (let attempts = 0; !manifest && attempts < 10; attempts++) {
-		manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/")
-			.then(response => response.json())
+	const maxAttempts = 10;
+	for (let attempts = 0; !manifest && attempts < maxAttempts; attempts++) {
+		const abortController = new AbortController();
+		setTimeout(() => abortController.abort(), 20000); // 20 seconds max for a request
+		manifest = await fetch("https://www.bungie.net/Platform/Destiny2/Manifest/", { signal: abortController.signal })
+			.then(response => response.status === 200 ? response.json()
+				: { type: "error", code: response.status, message: response.statusText })
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			.catch(err => ({ type: "error", message: err.message as string }))
 			.then(json => {
 				const manifest = (json as Manifest).Response;
 				if (!manifest)

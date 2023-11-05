@@ -1,41 +1,49 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes, PlugCategoryHashes, TraitHashes } from "bungie-api-ts/destiny2";
+import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeMap } from "manifest.deepsight.gg/plugs";
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
-import { TierHashes } from "model/models/items/Tier";
 import { ClarityManifest } from "model/models/manifest/ClarityManifest";
 import Async from "utility/Async";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
-import Maths from "utility/maths/Maths";
+
+type ReverseCategoryMap = { [KEY in keyof typeof DeepsightPlugCategory as (typeof DeepsightPlugCategory)[KEY] extends infer ORDINAL extends number ? ORDINAL : never]: KEY }
+
+type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
+	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: PlugType<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
+	: DeepsightPlugTypeMap[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM extends null ? `${ReverseCategoryMap[CATEGORY]}`
+	: `${ReverseCategoryMap[CATEGORY]}/${Extract<keyof TYPE_ENUM, string>}` : never;
+
+namespace PlugType {
+	export const None = "None" as const;
+
+	export type Query = PlugType | ReverseCategoryMap[keyof ReverseCategoryMap];
+}
+
+export { PlugType };
 
 export interface Socket extends Omit<Socket.ISocketInit, "plugs"> {
-	type: PlugType;
 }
 
 export class Socket {
 
-	public static filterByPlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bitsn(type);
-		return sockets.filter((socket): socket is Socket.Socketed => types.everyIn(socket?.socketedPlug?.type ?? PlugType.None));
+	public static filterByPlugs (sockets: (Socket | undefined)[], ...anyOfTypes: PlugType.Query[]) {
+		return sockets.filter((socket): socket is Socket.Socketed => socket?.socketedPlug?.is(...anyOfTypes) ?? false);
 	}
 
-	public static filterExcludePlugs (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bitsn(type);
-		return sockets.filter((socket): socket is Socket.Socketed => !!socket?.socketedPlug?.type && !types.someIn(socket?.socketedPlug?.type ?? PlugType.None));
+	public static filterExcludePlugs (sockets: (Socket | undefined)[], ...anyOfTypes: PlugType.Query[]) {
+		return sockets.filter((socket): socket is Socket.Socketed => socket?.socketedPlug?.isNot(...anyOfTypes) ?? false);
 	}
 
-	public static filterType (sockets: (Socket | undefined)[], type: PlugType) {
-		if (!type)
+	public static filterType (sockets: (Socket | undefined)[], ...anyOfTypes: PlugType.Query[]) {
+		if (!anyOfTypes.length)
 			return [];
 
-		const types = Maths.bitsn(type);
-		return sockets.filter((socket): socket is Socket => types.every(type => socket?.is(type)));
+		return sockets.filter((socket): socket is Socket => socket?.is(...anyOfTypes) ?? false);
 	}
 
-	public static filterExcludeType (sockets: (Socket | undefined)[], type: PlugType) {
-		const types = Maths.bitsn(type);
-		return sockets.filter((socket): socket is Socket => types.every(type => socket?.isNot(type)));
+	public static filterExcludeType (sockets: (Socket | undefined)[], ...anyOfTypes: PlugType.Query[]) {
+		return sockets.filter((socket): socket is Socket => socket?.isNot(...anyOfTypes) ?? false);
 	}
 
 	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit, index?: number) {
@@ -88,9 +96,17 @@ export class Socket {
 		if (socket.socketedPlug)
 			socket.socketedPlug.socketed = true;
 
-		for (const plug of socket.plugs) {
+		for (const plug of [...socket.plugs, socket.socketedPlug]) {
+			if (!plug)
+				continue;
+
 			plug.objectives = await Objectives.resolve(manifest, init.objectives![plug.plugItemHash] ?? [], plug, item);
-			socket.type |= plug.type;
+			socket.types.add(plug.type);
+		}
+
+		if (socket.types.size <= 1) {
+			const [type] = socket.types;
+			socket.type = type ?? PlugType.None;
 		}
 
 		return socket;
@@ -98,7 +114,8 @@ export class Socket {
 
 	public socketedPlug?: Plug;
 	public plugs!: Plug[];
-	public type = PlugType.None;
+	public type?: PlugType;
+	public types = new Set<PlugType>();
 
 	private constructor () { }
 
@@ -113,12 +130,12 @@ export class Socket {
 			.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))));
 	}
 
-	public is (type: PlugType) {
-		return Maths.bitsn(type).everyIn(this.type);
+	public is (...anyOfTypes: PlugType.Query[]) {
+		return anyOfTypes.some(type => this.type?.startsWith(type));
 	}
 
-	public isNot (type: PlugType) {
-		return !Maths.bitsn(type).someIn(this.type);
+	public isNot (...anyOfTypes: PlugType.Query[]) {
+		return !this.is(...anyOfTypes);
 	}
 }
 
@@ -137,74 +154,6 @@ export namespace Socket {
 	}
 }
 
-enum PlugTypes {
-	None,
-	Perk,
-	Trait,
-	Intrinsic,
-	Origin,
-	Enhanced,
-	Exotic,
-	Mod,
-	Shader,
-	Masterwork,
-	Shaped,
-	Ornament,
-	Memento,
-	DefaultOrnament,
-	Catalyst,
-	EmptyCatalyst,
-	DeepsightResonance,
-	CraftingTransfusers,
-	DeepsightActivation,
-	Emote,
-	SubclassMod,
-	SubclassAspect,
-	SubclassFragment,
-	SubclassSuper,
-	SubclassGrenade,
-	SubclassMelee,
-	SubclassClassAbility,
-	SubclassMovement,
-	TransmatEffect,
-	Event,
-	Tracker,
-	Deprecated,
-	Locked,
-	Enhancer,
-	Sparrow,
-}
-
-// export namespace PlugType {
-// 	export const ALL: PlugType = Object.values(PlugType)
-// 		.filter((value): value is number => typeof value === "number")
-// 		.reduce((p, v) => p | v, 0);
-// }
-
-interface IPlugType extends Record<keyof typeof PlugTypes, bigint> {
-	ALL: bigint;
-}
-
-const PlugType = Object.fromEntries(Object.entries(PlugTypes)
-	.filter(([key]) => isNaN(+key))
-	.flatMap(([key, bitIndex]) => {
-		const value = bitIndex === 0 ? 0n : 2n ** BigInt(bitIndex as number - 1);
-		return [
-			[key, value],
-			[value, key],
-		];
-	})) as IPlugType;
-
-PlugType.ALL = Object.values(PlugType)
-	.filter((value: bigint): value is bigint => typeof value === "bigint")
-	.reduce((p, v) => p | v, 0n);
-
-type PlugType = bigint;
-
-export { PlugType };
-
-Object.assign(window, { PlugType });
-
 type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
 type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
 type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY : never]: DestinyItemPlugBase[KEY] };
@@ -212,7 +161,7 @@ type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof Dest
 interface PlugDef {
 	definition?: DestinyInventoryItemDefinition;
 	clarity?: ClarityDescription;
-	type: PlugType;
+	type?: PlugType;
 	perks: Perk[];
 }
 
@@ -238,6 +187,7 @@ export class Plug {
 	private static plugDefCache: Record<number, PlugDef> = {};
 
 	public clarity?: ClarityDescription;
+	public categorisation?: DeepsightPlugCategorisation;
 
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition, item?: IItemInit) {
 		const manifestCacheTime = Manifest.getCacheTime();
@@ -284,164 +234,21 @@ export class Plug {
 
 	private static async resolvePlugDef (manifest: Manifest, hash: number, item?: IItemInit): Promise<PlugDef> {
 
-		const { DestinyInventoryItemDefinition } = manifest;
+		const { DestinyInventoryItemDefinition, DeepsightPlugCategorisation } = manifest;
 		const definition = await DestinyInventoryItemDefinition.get(hash);
 		const clarity = definition && await (await ClarityManifest.await()).ClarityDescriptions.get(hash);
+		const categorisation = await DeepsightPlugCategorisation.get(hash);
 
 		return {
 			definition,
 			clarity,
-			type: !definition ? PlugType.None : Plug.resolvePlugType(definition, item),
+			type: `${categorisation?.categoryName ?? "None"}${categorisation?.typeName ? `/${categorisation.typeName}` : ""}` as PlugType,
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};
 	}
 
 	public static initialisedPlugTypes: Partial<Record<keyof typeof PlugType, number>> = {};
 
-	public static resolvePlugType (definition: DestinyInventoryItemDefinition, item?: IItemInit) {
-		let type = PlugType.None;
-
-		if (definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
-			return type;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Intrinsics) {
-			type |= PlugType.Intrinsic | PlugType.Trait;
-			if (definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
-				type |= PlugType.Enhanced;
-		}
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Origins)
-			type |= PlugType.Origin | PlugType.Trait;
-
-		if (definition.hash === 2106726848 || definition.hash === 3665398231)
-			type |= PlugType.Trait | PlugType.Locked;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Shader)
-			type |= PlugType.Shader;
-
-		if (definition.plug?.plugCategoryIdentifier.includes(".masterworks.")) // Ugh
-			type |= PlugType.Masterwork;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.V400PlugsWeaponsMasterworksTrackers)
-			type |= PlugType.Tracker;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsFrameIdentifiers)
-			type |= PlugType.Shaped;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Mementos)
-			type |= PlugType.Memento;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ExoticAllSkins || definition.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsEmpty)
-			type |= PlugType.DefaultOrnament;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.V400EmptyExoticMasterwork)
-			type |= PlugType.EmptyCatalyst;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel)
-			type |= PlugType.CraftingTransfusers;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsMemories)
-			type |= PlugType.DeepsightResonance;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.Emote)
-			type |= PlugType.Emote;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ShipSpawnfx)
-			type |= PlugType.TransmatEffect;
-
-		if (definition.traitHashes?.includes(TraitHashes.ItemPlugAspect) || definition.plug?.plugCategoryIdentifier.endsWith(".aspects"))
-			type |= PlugType.SubclassMod | PlugType.SubclassAspect;
-
-		else if (definition.traitHashes?.includes(TraitHashes.ItemPlugFragment) || definition.plug?.plugCategoryIdentifier.endsWith(".fragments"))
-			type |= PlugType.SubclassMod | PlugType.SubclassFragment;
-
-		else if (definition.plug?.plugCategoryIdentifier.endsWith(".class_abilities"))
-			type |= PlugType.SubclassMod | PlugType.SubclassClassAbility;
-
-		else if (definition.plug?.plugCategoryIdentifier.endsWith(".supers"))
-			type |= PlugType.SubclassMod | PlugType.SubclassSuper;
-
-		else if (definition.plug?.plugCategoryIdentifier.endsWith(".melee"))
-			type |= PlugType.SubclassMod | PlugType.SubclassMelee;
-
-		else if (definition.plug?.plugCategoryIdentifier.endsWith(".grenades"))
-			type |= PlugType.SubclassMod | PlugType.SubclassGrenade;
-
-		else if (definition.plug?.plugCategoryIdentifier.endsWith(".movement"))
-			type |= PlugType.SubclassMod | PlugType.SubclassMovement;
-
-		if (definition.hash === 1961918267)
-			type |= PlugType.DeepsightActivation;
-
-		if (definition && this.isOrnament(definition))
-			type |= PlugType.Ornament;
-
-		if (definition.traitIds?.includes("item_type.exotic_catalyst") || definition.traitIds?.includes("item.exotic_catalyst"))
-			type |= PlugType.Catalyst;
-
-		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.ArmorMods) || definition.itemTypeDisplayName?.endsWith("Ghost Mod") || definition.itemTypeDisplayName?.endsWith("Armor Mod"))
-			type |= PlugType.Mod;
-
-		if (definition.itemTypeDisplayName?.includes("Deprecated"))
-			type |= PlugType.Deprecated;
-
-		if (definition.plug?.plugCategoryIdentifier.startsWith("events."))
-			type |= PlugType.Event;
-
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers)
-			type |= PlugType.Enhancer;
-
-		if (definition.itemCategoryHashes?.includes(ItemCategoryHashes.SparrowMods))
-			type |= PlugType.Perk | PlugType.Sparrow;
-
-		if (!type && (definition.tooltipStyle === "build" || definition.plug?.plugCategoryHash === PlugCategoryHashes.Scopes)) { // Ugh
-			type |= PlugType.Perk;
-			if (definition.itemTypeDisplayName.includes("Enhanced")) // Ugh
-				type |= PlugType.Enhanced;
-		}
-
-		if (definition.inventory?.tierTypeHash === TierHashes.Exotic || (type & PlugType.Intrinsic && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic))
-			type |= PlugType.Exotic;
-
-		if (!type && definition.itemCategoryHashes?.includes(ItemCategoryHashes.WeaponMods))
-			type |= PlugType.Mod;
-
-		for (const t of Maths.bitsn(type)) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			const key = (PlugType as any)[t.toString()] as keyof typeof PlugType;
-			Plug.initialisedPlugTypes[key] ??= 0;
-			Plug.initialisedPlugTypes[key]!++;
-		}
-
-		Plug.initialisedPlugTypes.ALL ??= 0;
-		Plug.initialisedPlugTypes.ALL++;
-
-		return type;
-	}
-
-	private static isOrnament (definition: DestinyInventoryItemDefinition) {
-		if (definition.plug?.plugCategoryHash === PlugCategoryHashes.ArmorSkinsSharedHead)
-			return true;
-
-		if (!definition.traitIds) return false;
-
-		for (const traitId of definition.traitIds) {
-			switch (traitId) {
-				case "item_type.armor":
-				case "item_type.ornament.armor":
-				case "item_type.weapon":
-				case "item_type.ornament.weapon":
-				case "item.ornament.armor":
-				case "item.ornament.weapon":
-					return true;
-				default:
-					if (traitId.startsWith("item.armor"))
-						return true;
-			}
-		}
-
-		return false;
-	}
 
 	public socketed!: boolean;
 	public definition?: DestinyInventoryItemDefinition;
@@ -451,14 +258,12 @@ export class Plug {
 
 	private constructor () { }
 
-	public is (type: PlugType) {
-		const types = Maths.bitsn(type);
-		return types.everyIn(this.type);
+	public is (...anyOfTypes: PlugType.Query[]) {
+		return anyOfTypes.some(type => this.type.startsWith(type));
 	}
 
-	public isNot (type: PlugType) {
-		const types = Maths.bitsn(type);
-		return !types.someIn(this.type);
+	public isNot (...anyOfTypes: PlugType.Query[]) {
+		return !this.is(...anyOfTypes);
 	}
 }
 

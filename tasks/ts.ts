@@ -60,7 +60,7 @@ class Reformatter {
 }
 
 export default Task("ts", () =>
-	Task.cli({ cwd: "src", stdout: new Reformatter().out }, "tsc",
+	Task.cli({ cwd: "src", stdout: new Reformatter().out }, "tsc", "--pretty",
 		...options));
 
 export const tsWatch = Task("ts (watch)", () =>

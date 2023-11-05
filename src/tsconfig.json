@@ -13,8 +13,10 @@
         "forceConsistentCasingInFileNames": true,
         "noUnusedLocals": true,
 		"skipLibCheck": true,
+		"noErrorTruncation": true,
 		"paths": {
-			"manifest.deepsight.gg": ["../static/manifest/Interfaces.d.ts"]
+			"manifest.deepsight.gg": ["../static/manifest/Interfaces.d.ts"],
+			"manifest.deepsight.gg/plugs": ["../static/manifest/DeepsightPlugCategorisation.d.ts"]
 		}
 	}
 }

@@ -3,7 +3,6 @@ import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
-import { PlugType } from "model/models/items/Plugs";
 
 export interface IWeaponShaped {
 	level?: Objectives.IObjective;
@@ -54,12 +53,12 @@ namespace Deepsight {
 
 	async function resolveResonance (item: IItemInit) {
 		const sockets = await item.sockets;
-		return sockets?.some(socket => socket?.socketedPlug?.is(PlugType.DeepsightResonance));
+		return sockets?.some(socket => socket?.socketedPlug?.is("Extractable/DeepsightResonance"));
 	}
 
 	async function resolveActivation (item: IItemInit) {
 		const sockets = await item.sockets;
-		return sockets?.some(socket => socket?.socketedPlug?.is(PlugType.DeepsightActivation));
+		return sockets?.some(socket => socket?.socketedPlug?.is("Extractable/DeepsightActivation"));
 	}
 
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {

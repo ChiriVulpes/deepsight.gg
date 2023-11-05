@@ -3,7 +3,6 @@ import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import { CharacterId, ItemFomoState } from "model/models/items/Item";
-import { PlugType } from "model/models/items/Plugs";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
@@ -423,7 +422,7 @@ class ItemTooltip extends Tooltip {
 		this.randomMods.classes.add(Classes.Hidden);
 
 		if (item.bucket === "collections") {
-			this.detailedMods.setItem(item, PlugType.ALL, PlugType.Perk);
+			this.detailedMods.setItem(item, undefined, ["Perk"]);
 
 		} else {
 			this.detailedMods.setItem(item);
@@ -436,7 +435,7 @@ class ItemTooltip extends Tooltip {
 
 				this.randomMods.classes.remove(Classes.Hidden)
 					.setShaped(!!item.shaped)
-					.setItem(item.collections, PlugType.Perk);
+					.setItem(item.collections, ["Perk"]);
 			}
 		}
 

@@ -9,6 +9,7 @@ import Task from "./utilities/Task";
 export default Task("build", task => task.series(
 	clean,
 	install,
-	task.parallel(sass, ts, _static),
+	task.parallel(sass, _static),
+	ts,
 	env,
 ));

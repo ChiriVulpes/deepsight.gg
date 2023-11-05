@@ -1,6 +1,5 @@
 import Inventory from "model/models/Inventory";
 import type { Plug } from "model/models/items/Plugs";
-import { PlugType } from "model/models/items/Plugs";
 import Display from "ui/bungie/DisplayProperties";
 import ItemPlugTooltip from "ui/inventory/ItemPlugTooltip";
 import type { IFilterSuggestedValue } from "ui/inventory/filter/Filter";
@@ -14,8 +13,8 @@ interface IFilterPerkSuggestedValue extends IFilterSuggestedValue {
 export default IFilter.async(async () => {
 	const inventory = await Inventory.createTemporary().await();
 	const perks = [...new Map(Object.values(inventory.items ?? {})
-		.flatMap(item => item.getSockets(PlugType.Perk, PlugType.Intrinsic))
-		.filter(socket => socket.isNot(PlugType.Exotic))
+		.flatMap(item => item.getSockets("Perk", "Intrinsic"))
+		.filter(socket => socket.isNot("Masterwork/ExoticCatalyst"))
 		.flatMap(socket => socket.plugs)
 		.map((plug): IFilterPerkSuggestedValue | undefined => !Display.name(plug.definition) ? undefined : {
 			plug,

@@ -50,7 +50,7 @@ export enum DeepsightPlugTypePerk {
 	Sparrow,
 	Ship,
 	Ghost,
-	TraitLocked,
+	LockedTrait,
 	EmptyCraftingSocket,
 	EmblemAura,
 	Random,
@@ -70,7 +70,7 @@ export enum DeepsightPlugTypeSubclass {
 	None,
 	Aspect,
 	Fragment,
-	FragmentEmpty,
+	EmptyFragment,
 	Super,
 	Grenade,
 	Melee,
@@ -94,6 +94,7 @@ export enum DeepsightPlugTypeCosmetic {
 	ClanBannerStaff,
 	EmblemEmpty,
 	Radiance,
+	DefaultOrnament,
 }
 
 export enum DeepsightPlugTypeMasterwork {
@@ -101,15 +102,15 @@ export enum DeepsightPlugTypeMasterwork {
 	Weapon,
 	Armor,
 	Ghost,
-	ExoticCatalystEmpty,
-	ExoticCatalystUpgrade,
-	ExoticCatalystAvailable,
+	EmptyExoticCatalyst,
+	UpgradeExoticCatalyst,
+	AvailableExoticCatalyst,
 	ExoticCatalyst,
 	Event,
 	ShapedWeapon,
 	HolidayOven,
 	Authorization,
-	EnhancementEmpty,
+	EmptyEnhancement,
 	Enhancement,
 }
 
@@ -121,6 +122,7 @@ export enum DeepsightPlugTypeVendor {
 export enum DeepsightPlugTypeExtractable {
 	None,
 	DeepsightResonance,
+	DeepsightActivation,
 }
 
 export const DeepsightPlugTypeMap = {
@@ -140,9 +142,16 @@ export const DeepsightPlugTypeMap = {
 	[DeepsightPlugCategory.Extractable]: /*%typeof*/ DeepsightPlugTypeExtractable,
 };
 
+export type DeepsightPlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
+	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugType<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
+	: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM[keyof TYPE_ENUM] : never;
+
 export interface DeepsightPlugCategorisationGeneric<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> {
+	hash: number;
 	category: CATEGORY;
-	type: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM[keyof TYPE_ENUM] : never;
+	categoryName: string;
+	type?: DeepsightPlugType<CATEGORY>;
+	typeName?: string;
 }
 
 export interface DeepsightPlugCategorisationMasterwork extends DeepsightPlugCategorisationGeneric<DeepsightPlugCategory.Masterwork> {

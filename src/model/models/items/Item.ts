@@ -8,7 +8,8 @@ import Deepsight from "model/models/items/Deepsight";
 import Moment from "model/models/items/Moment";
 import type { IPerk } from "model/models/items/Perks";
 import Perks from "model/models/items/Perks";
-import Plugs, { PlugType, Socket } from "model/models/items/Plugs";
+import type { PlugType } from "model/models/items/Plugs";
+import Plugs, { Socket } from "model/models/items/Plugs";
 import type { ISource } from "model/models/items/Source";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
@@ -337,7 +338,7 @@ class Item {
 	}
 
 	public hasRandomRolls () {
-		return this.getSockets(PlugType.Perk).some(socket => socket.plugs.length > 1);
+		return this.getSockets("Perk").some(socket => socket.plugs.length > 1);
 	}
 
 	public isNotAcquired () {
@@ -380,13 +381,13 @@ class Item {
 		return this.id === item.id;
 	}
 
-	public getSockets (...types: PlugType[]) {
-		return types.flatMap(type => Socket.filterType(this.sockets, type));
+	public getSockets (...anyOfTypes: PlugType.Query[]) {
+		return Socket.filterType(this.sockets, ...anyOfTypes);
 	}
 
 	public getOrnament () {
-		const ornament = this.getSockets(PlugType.Ornament)[0]?.socketedPlug;
-		return ornament?.isNot(PlugType.DefaultOrnament) ? ornament : undefined;
+		const ornament = this.getSockets("Cosmetic/Ornament")[0]?.socketedPlug;
+		return ornament?.isNot("Cosmetic/DefaultOrnament") ? ornament : undefined;
 	}
 
 	/**
@@ -654,7 +655,7 @@ class Item {
 
 	public getStatTracker () {
 		for (const socket of this.sockets) {
-			if (socket?.socketedPlug?.type !== PlugType.Tracker)
+			if (!socket?.socketedPlug?.is("Cosmetic/Tracker"))
 				continue;
 
 			for (const objective of socket.socketedPlug.objectives) {

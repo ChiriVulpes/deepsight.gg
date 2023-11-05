@@ -2,7 +2,7 @@ import type { DestinyItemComponentSetOfint64, DestinyItemStatBlockDefinition, De
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
-import { PlugType, Socket } from "model/models/items/Plugs";
+import { Socket } from "model/models/items/Plugs";
 import type { StatOrder } from "ui/inventory/Stat";
 import { STAT_DISPLAY_ORDER, Stat } from "ui/inventory/Stat";
 import Maths from "utility/maths/Maths";
@@ -49,7 +49,7 @@ namespace Stats {
 		const intrinsicStats = item.definition.investmentStats;
 
 		const sockets = (await item.sockets) ?? [];
-		const statRolls = Socket.filterByPlugs(sockets, PlugType.Intrinsic)
+		const statRolls = Socket.filterByPlugs(sockets, "Intrinsic")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats ?? item.definition.stats.stats;
@@ -58,10 +58,10 @@ namespace Stats {
 				if (random && !random.isConditionallyActive)
 					stats[random.statTypeHash] ??= { statHash: random.statTypeHash, value: random.value };
 
-		const masterworkStats = item.bucket === "collections" ? [] : Socket.filterByPlugs(sockets, PlugType.Masterwork)
+		const masterworkStats = item.bucket === "collections" ? [] : Socket.filterByPlugs(sockets, "Masterwork")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
-		const modStats = item.bucket === "collections" ? [] : Socket.filterExcludePlugs(sockets, PlugType.Intrinsic | PlugType.Masterwork)
+		const modStats = item.bucket === "collections" ? [] : Socket.filterExcludePlugs(sockets, "Intrinsic", "Masterwork")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const result: Record<number, IStat> = {};

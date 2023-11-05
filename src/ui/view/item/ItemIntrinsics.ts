@@ -1,4 +1,3 @@
-import { PlugType } from "model/models/items/Plugs";
 import ItemSockets from "ui/view/item/ItemSockets";
 
 export enum ItemIntrinsicsClasses {
@@ -14,8 +13,7 @@ export default class ItemIntrinsics extends ItemSockets {
 	protected override get socketClasses () { return [ItemIntrinsicsClasses.IntrinsicSocket]; }
 
 	protected initialise () {
-		this.addSocketsByType(PlugType.Intrinsic);
-		this.addSocketsByType(PlugType.Origin);
-		this.addPerksByPlugType(PlugType.Catalyst);
+		this.addSocketsByType("Intrinsic");
+		this.addPerksByPlugType("Masterwork/ExoticCatalyst");
 	}
 }

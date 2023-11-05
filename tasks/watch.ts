@@ -13,7 +13,7 @@ export default Task("watch", async task => {
 	chokidar.watch(["static/**/*", "./tasks/deepsight_manifest.ts", "./tasks/manifest/**/*"], { ignoreInitial: true })
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		.on("all", async (event, path) => true
-			&& !path?.endsWith("Enums.d.ts")
+			&& !path?.endsWith("Enums.d.ts") && !path?.endsWith("DeepsightPlugCategorisation.d.ts")
 			&& (await Hash.fileChanged(path))
 			&& task.debounce(_static, path));
 

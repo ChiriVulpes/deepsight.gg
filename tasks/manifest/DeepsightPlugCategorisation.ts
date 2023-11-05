@@ -33,4 +33,5 @@ export default Task("DeepsightPlugCategorisation", async () => {
 		.replace(/export /g, "export declare ");
 
 	await fs.writeFile("docs/manifest/DeepsightPlugCategorisation.d.ts", DeepsightPlugCategorisationContents);
+	await fs.copyFile("docs/manifest/DeepsightPlugCategorisation.d.ts", "static/manifest/DeepsightPlugCategorisation.d.ts");
 });

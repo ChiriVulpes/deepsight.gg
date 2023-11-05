@@ -1,8 +1,7 @@
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type { Perk, Plug, Socket } from "model/models/items/Plugs";
-import { PlugType } from "model/models/items/Plugs";
+import type { Perk, Plug, PlugType, Socket } from "model/models/items/Plugs";
 import { TierHashes } from "model/models/items/Tier";
 import Display from "ui/bungie/DisplayProperties";
 import Card, { CardClasses } from "ui/Card";
@@ -60,8 +59,8 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 	protected abstract initialise (): void | Promise<void>;
 
-	protected addSocketsByType (type: PlugType) {
-		return this.addSockets(...this.item.getSockets(type));
+	protected addSocketsByType (...anyOfTypes: PlugType.Query[]) {
+		return this.addSockets(...this.item.getSockets(...anyOfTypes));
 	}
 
 	protected addSockets (...sockets: Socket[]) {
@@ -72,13 +71,13 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 				let i = 0;
 				for (const plug of socket.plugs) {
-					if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
+					if (!socket.state && plug.is("Intrinsic"))
 						continue;
 
-					if (plug.is(PlugType.Locked))
+					if (plug.is("Perk/LockedTrait"))
 						continue;
 
-					if (i++ && plug.is(PlugType.Exotic | PlugType.Intrinsic))
+					if (i++ && plug.is("Intrinsic/Exotic"))
 						continue;
 
 					if (!plug.definition?.displayProperties.name)
@@ -109,7 +108,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
 				for (const plug of socket.plugs) {
-					if (!socket.state && plug.is(PlugType.Enhanced))
+					if (!socket.state && plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame"))
 						continue;
 
 					for (const perk of plug.perks) {
@@ -202,13 +201,13 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		this.item = item;
 
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
-			.classes.toggle((plug.is(PlugType.Intrinsic) || plug.is(PlugType.Catalyst)) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
-			.classes.toggle(plug.is(PlugType.Enhanced) || plug.is(PlugType.Catalyst) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugEnhanced)
+			.classes.toggle((plug.is("Intrinsic", "Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
+			.classes.toggle(plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame") || plug.is("Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
 			.setIcon(Display.icon(perk?.definition) ?? Display.icon(plug.definition))
 			.setName(Display.name(perk?.definition) ?? Display.name(plug.definition) ?? "Unknown")
 			.setDescription(Display.description(perk?.definition) ?? Display.description(plug.definition));
 
-		if (item?.deepsight?.pattern && !item.instance && plug.is(PlugType.Perk))
+		if (item?.deepsight?.pattern && !item.instance && plug.is("Perk"))
 			// Component.create()
 			// 	.classes.add(ItemSocketsClasses.PlugRequiredLevelWrapper)
 			// .append(

@@ -1,6 +1,6 @@
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
-import { PlugType } from "model/models/items/Plugs";
+import type { PlugType } from "model/models/items/Plugs";
 import Component from "ui/Component";
 import Display from "ui/bungie/DisplayProperties";
 
@@ -47,22 +47,22 @@ export default class ItemTooltipMods extends Component {
 		return this.classes.has(ItemTooltipModsClasses.Shaped);
 	}
 
-	public setItem (item: Item, type: PlugType = PlugType.ALL, exclude = PlugType.None) {
+	public setItem (item: Item, anyOfTypes?: PlugType.Query[], excludeTypes?: PlugType.Query[]) {
 		this.removeContents();
 
-		this.addSockets(item, PlugType.Intrinsic & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
-		this.addPerks(item, PlugType.Catalyst & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
-		this.addSockets(item, PlugType.Origin & type & ~exclude, ItemTooltipModsClasses.ModIntrinsic);
-		this.addSockets(item, PlugType.Perk & type & ~exclude);
-		this.addPerks(item, PlugType.Mod & type & ~exclude);
+		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic");
+		this.addPerks(item, ItemTooltipModsClasses.ModIntrinsic, "Masterwork/ExoticCatalyst");
+		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic/Origin");
+		this.addSockets(item, undefined, "Perk");
+		this.addPerks(item, undefined, "Mod");
 		return this;
 	}
 
-	private addPerks (item: Item, type: PlugType, socketClass?: ItemTooltipModsClasses) {
+	private addPerks (item: Item, socketClass?: ItemTooltipModsClasses, ...anyOfTypes: PlugType.Query[]) {
 		const detailed = this.isDetailed();
 
 		let i = 0;
-		for (const socket of item.getSockets(type)) {
+		for (const socket of item.getSockets(...anyOfTypes)) {
 			if (!socket.state || socket.state.isVisible === false)
 				continue;
 
@@ -74,7 +74,7 @@ export default class ItemTooltipMods extends Component {
 			for (const perk of displayablePerks) {
 				const socketComponent = Component.create()
 					.classes.add(ItemTooltipModsClasses.ModSocket, ...socketClass ? [socketClass] : [])
-					.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Catalyst)), ItemTooltipModsClasses.ModSocketEnhanced)
+					.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is("Masterwork/ExoticCatalyst")), ItemTooltipModsClasses.ModSocketEnhanced)
 					.style.set("--socket-index", `${i++}`)
 					.appendTo(this);
 
@@ -82,7 +82,7 @@ export default class ItemTooltipMods extends Component {
 					: Display.descriptionIfShortOrName(perk.definition, plug?.definition) ?? "Unknown";
 				const description = Display.description(perk.definition);
 
-				const isEnhanced = plug?.is(PlugType.Catalyst) ?? false;
+				const isEnhanced = plug?.is("Masterwork/ExoticCatalyst") ?? false;
 
 				Component.create()
 					.classes.add(ItemTooltipModsClasses.Mod, ItemTooltipModsClasses.ModSocketed)
@@ -101,9 +101,9 @@ export default class ItemTooltipMods extends Component {
 		}
 	}
 
-	private addSockets (item: Item, type: PlugType, socketClass?: ItemTooltipModsClasses) {
+	private addSockets (item: Item, socketClass?: ItemTooltipModsClasses, ...anyOfTypes: PlugType.Query[]) {
 		let i = 0;
-		for (const socket of item.getSockets(type)) {
+		for (const socket of item.getSockets(...anyOfTypes)) {
 			if (!socket || socket.state?.isVisible === false)
 				continue;
 
@@ -113,25 +113,25 @@ export default class ItemTooltipMods extends Component {
 
 			const socketComponent = Component.create()
 				.classes.add(ItemTooltipModsClasses.ModSocket, ...socketClass ? [socketClass] : [])
-				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is(PlugType.Enhanced)), ItemTooltipModsClasses.ModSocketEnhanced)
+				.classes.toggle(socket.state !== undefined && socket.plugs.some(plug => plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame")), ItemTooltipModsClasses.ModSocketEnhanced)
 				.classes.toggle(socket.state === undefined, ItemTooltipModsClasses.ModSocketDefinition)
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this);
 
 			let j = 0;
 			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed && item.bucket !== "collections") - Number(a.socketed && item.bucket !== "collections"))) {
-				if (!socket.state && plug.is(PlugType.Enhanced | PlugType.Intrinsic))
+				if (!socket.state && plug.is("Intrinsic/EnhancedFrame"))
 					// skip enhanced intrinsics (duplicates) if this is an item definition (ie no actual socket state)
 					continue;
 
-				if (plug.is(PlugType.Locked))
+				if (plug.is("Perk/LockedTrait"))
 					continue;
 
-				const isEnhanced = plug.is(PlugType.Enhanced);
+				const isEnhanced = plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame");
 				if (!item.shaped && isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
 					continue;
 
-				if (j++ && plug.is(PlugType.Exotic | PlugType.Intrinsic))
+				if (j++ && plug.is("Intrinsic/Exotic"))
 					continue;
 
 				const plugComponent = Component.create()
@@ -146,7 +146,7 @@ export default class ItemTooltipMods extends Component {
 						.classes.add(ItemTooltipModsClasses.ModEnhancedArrow)
 						.appendTo(plugComponent);
 
-				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.type & PlugType.Intrinsic))) {
+				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.is("Intrinsic")))) {
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModName)
 						.text.set(Display.name(plug.definition) ?? "Unknown")

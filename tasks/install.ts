@@ -1,6 +1,5 @@
 import ansi from "ansicolor";
 import fs from "fs-extra";
-import fetch from "node-fetch";
 import * as path from "path";
 import Log from "./utilities/Log";
 import Task from "./utilities/Task";
