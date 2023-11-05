@@ -501,8 +501,8 @@ namespace DeepsightPlugCategorisation {
 				case PlugCategoryHashes.Hologram:
 					return DeepsightPlugTypeCosmetic.GhostProjection;
 				case PlugCategoryHashes.ArmorSkinsSharedHead:
-				case PlugCategoryHashes.ExoticAllSkins:
 					return DeepsightPlugTypeCosmetic.Ornament;
+				case PlugCategoryHashes.ExoticAllSkins:
 				case PlugCategoryHashes.ArmorSkinsEmpty:
 					return DeepsightPlugTypeCosmetic.DefaultOrnament;
 				case PlugCategoryHashes.SocialClansStaves:
