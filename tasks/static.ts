@@ -2,6 +2,7 @@ import ansi from "ansicolor";
 import fs from "fs-extra";
 import * as path from "path";
 import type deepsight_manifest from "./deepsight_manifest";
+import DeepsightPlugCategorisationTypes from "./manifest/DeepsightPlugCategorisationTypes";
 import Log from "./utilities/Log";
 import Task from "./utilities/Task";
 
@@ -13,6 +14,7 @@ export default Task("static", async (task, file?: string) => {
 		.then(() => true).catch(() => false));
 
 	if (process.env.DEEPSIGHT_ENVIRONMENT !== "dev") {
+		await task.run(DeepsightPlugCategorisationTypes);
 		// manifests are handled in a separate task in the build
 		await fs.rm("docs/manifest", { recursive: true });
 		return;
