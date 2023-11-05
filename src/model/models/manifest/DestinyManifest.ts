@@ -6,10 +6,11 @@ import ProfileBatch from "model/models/ProfileBatch";
 import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import Env from "utility/Env";
 import Objects from "utility/Objects";
+import type { Mutable } from "utility/Type";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
-import GetDeepsightManifest from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 import GetDeepsightManifestVersions from "utility/endpoint/deepsight/endpoint/GetDeepsightManifestVersions";
+import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
@@ -41,9 +42,9 @@ const DestinyManifest = Model.create("destiny manifest", {
 		const manifest = await GetManifest.query();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as (keyof AllDestinyManifestComponents)[];
 
-		const { DeepsightMomentDefinition } = await GetDeepsightManifest.query();
+		const DeepsightMomentDefinition = await GetDeepsightMomentDefinition.query();
 
-		const moments = Object.values(DeepsightMomentDefinition);
+		const moments = Object.values(DeepsightMomentDefinition) as DeepsightMomentDefinition[];
 		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightMomentDefinition"];
 
 		const totalLoad = allComponentNames.length * 2 + 1;
@@ -81,6 +82,28 @@ const DestinyManifest = Model.create("destiny manifest", {
 			}
 		});
 
+		const replaceWatermarksByItemHash: Record<number, DeepsightMomentDefinition> =
+			Object.fromEntries(moments.flatMap(moment => (moment.itemHashes ?? [])
+				.map(itemHash => [itemHash, moment])));
+
+		const deepsightMomentComponentName: keyof AllDeepsightManifestComponents = "DeepsightMomentDefinition";
+		const deepsightMomentCacheKey = CacheComponentKey.get(deepsightMomentComponentName);
+		await Model.cacheDB.transaction([deepsightMomentCacheKey], async transaction => {
+			const startTime = performance.now();
+			console.info(`Caching objects from ${deepsightMomentCacheKey}`);
+			api.emitProgress((1 + bungieComponentNames.length * 2) / totalLoad, "Storing manifest");
+
+			await transaction.clear(deepsightMomentCacheKey);
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			for (const [itemId, itemValue] of Object.entries(DeepsightMomentDefinition)) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				await transaction.set(deepsightMomentCacheKey, itemId, itemValue as DeepsightMomentDefinition);
+			}
+
+			console.info(`Finished caching objects from ${deepsightMomentCacheKey} after ${elapsed(performance.now() - startTime)}`);
+		});
+
 		for (let i = 0; i < bungieComponentNames.length; i++) {
 			const componentName = bungieComponentNames[i];
 			const cacheKey = CacheComponentKey.get(componentName);
@@ -115,6 +138,21 @@ const DestinyManifest = Model.create("destiny manifest", {
 				await transaction.clear(cacheKey);
 
 				for (const [key, definition] of Object.entries(data)) {
+					if (cacheKey === "manifest [DestinyInventoryItemDefinition]") {
+						const itemDef = definition as Mutable<DestinyInventoryItemDefinition>;
+						// fix red war items that don't have watermarks for some reason
+						const replacementMoment = replaceWatermarksByItemHash[definition.hash];
+						if (replacementMoment) {
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							itemDef.iconWatermark = replacementMoment.iconWatermark!;
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							itemDef.iconWatermarkShelved = replacementMoment.iconWatermarkShelved!;
+						} else if (!itemDef.iconWatermark && itemDef.quality?.displayVersionWatermarkIcons.length) {
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							itemDef.iconWatermark = itemDef.quality.displayVersionWatermarkIcons[0];
+						}
+					}
+
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 					await transaction.set(cacheKey, key, definition);
 				}
@@ -122,51 +160,6 @@ const DestinyManifest = Model.create("destiny manifest", {
 
 			console.info(`Finished caching objects from ${cacheKey} after ${elapsed(performance.now() - startTime)}`);
 		}
-
-		const replaceWatermarksByItemHash: Record<number, DeepsightMomentDefinition> =
-			Object.fromEntries(moments.flatMap(moment => (moment.itemHashes ?? [])
-				.map(itemHash => [itemHash, moment])));
-
-		const deepsightMomentComponentName: keyof AllDeepsightManifestComponents = "DeepsightMomentDefinition";
-		const deepsightMomentCacheKey = CacheComponentKey.get(deepsightMomentComponentName);
-		await Model.cacheDB.transaction([deepsightMomentCacheKey], async transaction => {
-			const startTime = performance.now();
-			console.info(`Caching objects from ${deepsightMomentCacheKey}`);
-			api.emitProgress((1 + bungieComponentNames.length * 2) / totalLoad, "Storing manifest");
-
-			await transaction.clear(deepsightMomentCacheKey);
-
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			for (const [itemId, itemValue] of Object.entries(DeepsightMomentDefinition)) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				await transaction.set(deepsightMomentCacheKey, itemId, itemValue);
-			}
-
-			console.info(`Finished caching objects from ${deepsightMomentCacheKey} after ${elapsed(performance.now() - startTime)}`);
-		});
-
-		await Model.cacheDB.transaction(["manifest [DestinyInventoryItemDefinition]"], async transaction => {
-			const startTime = performance.now();
-			console.info("Updating item watermarks");
-
-			for (const item of await transaction.all("manifest [DestinyInventoryItemDefinition]")) {
-				// fix red war items that don't have watermarks for some reason
-				const replacementMoment = replaceWatermarksByItemHash[item.hash];
-				if (replacementMoment) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					(item as any).iconWatermark = replacementMoment.iconWatermark;
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					(item as any).iconWatermarkShelved = replacementMoment.iconWatermarkShelved;
-				} else if (!item.iconWatermark && item.quality?.displayVersionWatermarkIcons.length) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					(item as any).iconWatermark = item.quality.displayVersionWatermarkIcons[0];
-				}
-
-				await transaction.set("manifest [DestinyInventoryItemDefinition]", `${item.hash}`, item);
-			}
-
-			console.info(`Finished updating item watermarks after ${elapsed(performance.now() - startTime)}`);
-		});
 
 		return [...bungieComponentNames, "DeepsightMomentDefinition" as const];
 	},
