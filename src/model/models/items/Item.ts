@@ -8,7 +8,7 @@ import Deepsight from "model/models/items/Deepsight";
 import Moment from "model/models/items/Moment";
 import type { IPerk } from "model/models/items/Perks";
 import Perks from "model/models/items/Perks";
-import type { PlugType } from "model/models/items/Plugs";
+import type { Plug, PlugType } from "model/models/items/Plugs";
 import Plugs, { Socket } from "model/models/items/Plugs";
 import type { ISource } from "model/models/items/Source";
 import Source from "model/models/items/Source";
@@ -385,8 +385,14 @@ class Item {
 		return Socket.filterType(this.sockets, ...anyOfTypes);
 	}
 
-	public getOrnament () {
-		return this.getSockets("=Cosmetic/Ornament")[0]?.socketedPlug;
+	public getSocketedPlugs (...anyOfTypes: PlugType.Query[]) {
+		return Socket.filterByPlugs(this.sockets, ...anyOfTypes)
+			.filter(socket => socket.socketedPlug.is(...anyOfTypes))
+			.map(socket => socket.socketedPlug);
+	}
+
+	public getOrnament (): Plug | undefined {
+		return this.getSocketedPlugs("=Cosmetic/Ornament")[0];
 	}
 
 	/**
