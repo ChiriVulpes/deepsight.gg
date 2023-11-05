@@ -47,14 +47,14 @@ export default class ItemTooltipMods extends Component {
 		return this.classes.has(ItemTooltipModsClasses.Shaped);
 	}
 
-	public setItem (item: Item, anyOfTypes?: PlugType.Query[], excludeTypes?: PlugType.Query[]) {
+	public setItem (item: Item, ...filters: PlugType.Query[]) {
 		this.removeContents();
 
-		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic", "!Intrinsic/Origin");
-		this.addPerks(item, ItemTooltipModsClasses.ModIntrinsic, "=Masterwork/ExoticCatalyst");
-		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic/Origin");
-		this.addSockets(item, undefined, "Perk");
-		this.addPerks(item, undefined, "Mod");
+		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic", "!Intrinsic/Origin", ...filters);
+		this.addPerks(item, ItemTooltipModsClasses.ModIntrinsic, "=Masterwork/ExoticCatalyst", ...filters);
+		this.addSockets(item, ItemTooltipModsClasses.ModIntrinsic, "Intrinsic/Origin", ...filters);
+		this.addSockets(item, undefined, "Perk", ...filters);
+		this.addPerks(item, undefined, "Mod", ...filters);
 		return this;
 	}
 

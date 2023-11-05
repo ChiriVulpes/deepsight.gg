@@ -422,7 +422,7 @@ class ItemTooltip extends Tooltip {
 		this.randomMods.classes.add(Classes.Hidden);
 
 		if (item.bucket === "collections") {
-			this.detailedMods.setItem(item, undefined, ["Perk"]);
+			this.detailedMods.setItem(item);
 
 		} else {
 			this.detailedMods.setItem(item);
@@ -435,7 +435,7 @@ class ItemTooltip extends Tooltip {
 
 				this.randomMods.classes.remove(Classes.Hidden)
 					.setShaped(!!item.shaped)
-					.setItem(item.collections, ["Perk"]);
+					.setItem(item.collections, "!Intrinsic");
 			}
 		}
 
