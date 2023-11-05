@@ -127,6 +127,13 @@ export class Socket {
 		if (socket.types.size <= 1) {
 			const [type] = socket.types;
 			socket.type = type ?? PlugType.None;
+		} else {
+			const smallestFirst = Array.from(socket.types)
+				.sort((a, b) => a.length - b.length);
+
+			const smallest = smallestFirst[0];
+			if (smallestFirst.every(type => type.startsWith(smallest)))
+				socket.type = smallest;
 		}
 
 		return socket;
@@ -134,7 +141,7 @@ export class Socket {
 
 	public socketedPlug?: Plug;
 	public plugs!: Plug[];
-	public type?: PlugType;
+	public type: PlugType = "None";
 	public types = new Set<PlugType>();
 
 	private constructor () { }
