@@ -95,6 +95,7 @@ export enum DeepsightPlugTypeCosmetic {
 	EmblemEmpty,
 	Radiance,
 	OrnamentDefault,
+	MementoEmpty,
 }
 
 export enum DeepsightPlugTypeMasterwork {

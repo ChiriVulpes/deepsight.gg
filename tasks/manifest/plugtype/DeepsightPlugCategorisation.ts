@@ -23,6 +23,9 @@ namespace DeepsightPlugCategorisation {
 
 			case InventoryItemHashes.EmptyModSocket:
 				return DeepsightPlugCategory.Mod;
+
+			case InventoryItemHashes.EmptyMementoSocket:
+				return DeepsightPlugCategory.Cosmetic;
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
@@ -483,6 +486,8 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeCosmetic.EmblemEmpty;
 				case InventoryItemHashes.BaseRadiance:
 					return DeepsightPlugTypeCosmetic.Radiance;
+				case InventoryItemHashes.EmptyMementoSocket:
+					return DeepsightPlugTypeCosmetic.MementoEmpty;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
