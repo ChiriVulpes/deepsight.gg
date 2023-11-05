@@ -1,5 +1,5 @@
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
-import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeMap } from "manifest.deepsight.gg/plugs";
+import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugCategoryName, DeepsightPlugFullName } from "manifest.deepsight.gg/plugs";
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
@@ -7,17 +7,13 @@ import { ClarityManifest } from "model/models/manifest/ClarityManifest";
 import Async from "utility/Async";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
-type ReverseCategoryMap = { [KEY in keyof typeof DeepsightPlugCategory as (typeof DeepsightPlugCategory)[KEY] extends infer ORDINAL extends number ? ORDINAL : never]: KEY }
-
-type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
-	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: PlugType<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
-	: DeepsightPlugTypeMap[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM extends null ? `${ReverseCategoryMap[CATEGORY]}`
-	: `${ReverseCategoryMap[CATEGORY]}/${Extract<keyof TYPE_ENUM, string>}` : never;
+type PlugCat = DeepsightPlugCategoryName;
+type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> = DeepsightPlugFullName<CATEGORY>;
 
 namespace PlugType {
 	export const None = "None" as const;
 
-	export type Query = PlugType | ReverseCategoryMap[keyof ReverseCategoryMap] | `!${PlugType | ReverseCategoryMap[keyof ReverseCategoryMap]}`;
+	export type Query = PlugCat | PlugType | `=${PlugCat | PlugType}` | `!${PlugCat | PlugType | `=${PlugCat | PlugType}`}`;
 
 	export function check (type?: PlugType, ...fragments: Query[]) {
 		if (!type)
@@ -33,7 +29,7 @@ namespace PlugType {
 				// already found one and this isn't an inverted check, so skip it
 				continue;
 
-			const startsWith = type.startsWith(query);
+			const startsWith = query[0] === "=" ? type === query.slice(1) : type.startsWith(query);
 			if (startsWith && not)
 				return false;
 
@@ -266,7 +262,7 @@ export class Plug {
 		return {
 			definition,
 			clarity,
-			type: `${categorisation?.categoryName ?? "None"}${categorisation?.typeName ? `/${categorisation.typeName}` : ""}` as PlugType,
+			type: categorisation?.fullName,
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};
 	}

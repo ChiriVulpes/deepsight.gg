@@ -20,7 +20,7 @@ export enum DeepsightPlugCategory {
 export enum DeepsightPlugTypeIntrinsic {
 	None,
 	Frame,
-	EnhancedFrame,
+	FrameEnhanced,
 	Origin,
 	Exotic,
 	SparrowEngine,
@@ -29,7 +29,7 @@ export enum DeepsightPlugTypeIntrinsic {
 export enum DeepsightPlugTypePerk {
 	None,
 	Trait,
-	EnhancedTrait,
+	TraitEnhanced,
 	Exotic,
 	Scope,
 	Barrel,
@@ -50,7 +50,7 @@ export enum DeepsightPlugTypePerk {
 	Sparrow,
 	Ship,
 	Ghost,
-	LockedTrait,
+	TraitLocked,
 	EmptyCraftingSocket,
 	EmblemAura,
 	Random,
@@ -70,7 +70,7 @@ export enum DeepsightPlugTypeSubclass {
 	None,
 	Aspect,
 	Fragment,
-	EmptyFragment,
+	FragmentEmpty,
 	Super,
 	Grenade,
 	Melee,
@@ -94,7 +94,7 @@ export enum DeepsightPlugTypeCosmetic {
 	ClanBannerStaff,
 	EmblemEmpty,
 	Radiance,
-	DefaultOrnament,
+	OrnamentDefault,
 }
 
 export enum DeepsightPlugTypeMasterwork {
@@ -102,15 +102,15 @@ export enum DeepsightPlugTypeMasterwork {
 	Weapon,
 	Armor,
 	Ghost,
-	EmptyExoticCatalyst,
-	UpgradeExoticCatalyst,
-	AvailableExoticCatalyst,
+	ExoticCatalystEmpty,
+	ExoticCatalystUpgrade,
+	ExoticCatalystAvailable,
 	ExoticCatalyst,
 	Event,
 	ShapedWeapon,
 	HolidayOven,
 	Authorization,
-	EmptyEnhancement,
+	EnhancementEmpty,
 	Enhancement,
 }
 
@@ -152,6 +152,7 @@ export interface DeepsightPlugCategorisationGeneric<CATEGORY extends DeepsightPl
 	categoryName: string;
 	type?: DeepsightPlugType<CATEGORY>;
 	typeName?: string;
+	fullName: DeepsightPlugFullName<CATEGORY>;
 }
 
 export interface DeepsightPlugCategorisationMasterwork extends DeepsightPlugCategorisationGeneric<DeepsightPlugCategory.Masterwork> {
@@ -181,3 +182,12 @@ interface DeepsightPlugCategorisationMap {
 export type DeepsightPlugCategorisation<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
 	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugCategorisation<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
 	: DeepsightPlugCategorisationMap extends { [KEY in CATEGORY]: infer CATEGORISATION } ? CATEGORISATION : DeepsightPlugCategorisationGeneric<CATEGORY>;
+
+type ReverseCategoryMap = { [KEY in keyof typeof DeepsightPlugCategory as (typeof DeepsightPlugCategory)[KEY] extends infer ORDINAL extends number ? ORDINAL : never]: KEY }
+
+export type DeepsightPlugCategoryName = ReverseCategoryMap[keyof ReverseCategoryMap];
+
+export type DeepsightPlugFullName<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
+	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugFullName<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
+	: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM extends null ? `${ReverseCategoryMap[CATEGORY]}`
+	: `${ReverseCategoryMap[CATEGORY]}/${Extract<keyof TYPE_ENUM, string>}` : never;

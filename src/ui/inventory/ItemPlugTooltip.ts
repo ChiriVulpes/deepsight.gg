@@ -81,12 +81,12 @@ class ItemPlugTooltip extends Tooltip {
 		this.title.text.set(Display.name(perk?.definition) ?? Display.name(plug.definition));
 		this.subtitle.removeContents();
 
-		this.subtitle.text.set(plug.is("Masterwork/ExoticCatalyst") ? "Catalyst" : plug.definition?.itemTypeDisplayName ?? "Unknown");
+		this.subtitle.text.set(plug.is("=Masterwork/ExoticCatalyst") ? "Catalyst" : plug.definition?.itemTypeDisplayName ?? "Unknown");
 		this.description.text.set(Display.description(perk?.definition) ?? Display.description(plug.definition));
 
 		this.header.classes.toggle(plug.is("Perk"), ItemPlugTooltipClasses.Perk);
-		this.header.classes.toggle(plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame", "Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.Enhanced);
-		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Exotic);
+		this.header.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.Enhanced);
+		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Exotic);
 
 		this.clarity.set(plug.clarity);
 		this.clarityDefinitions.set(plug.clarity);

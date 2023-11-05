@@ -74,7 +74,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 					if (!socket.state && plug.is("Intrinsic"))
 						continue;
 
-					if (plug.is("Perk/LockedTrait"))
+					if (plug.is("Perk/TraitLocked"))
 						continue;
 
 					if (i++ && plug.is("Intrinsic/Exotic"))
@@ -98,8 +98,8 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		return components;
 	}
 
-	protected addPerksByPlugType (type: PlugType) {
-		return this.addPerks(...this.item.getSockets(type));
+	protected addPerksByPlugType (...anyOfTypes: PlugType.Query[]) {
+		return this.addPerks(...this.item.getSockets(...anyOfTypes));
 	}
 
 	protected addPerks (...sockets: Socket[]) {
@@ -108,7 +108,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
 				for (const plug of socket.plugs) {
-					if (!socket.state && plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame"))
+					if (!socket.state && plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced"))
 						continue;
 
 					for (const perk of plug.perks) {
@@ -201,8 +201,8 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		this.item = item;
 
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
-			.classes.toggle((plug.is("Intrinsic", "Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
-			.classes.toggle(plug.is("Perk/EnhancedTrait", "Intrinsic/EnhancedFrame") || plug.is("Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
+			.classes.toggle((plug.is("Intrinsic", "=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
+			.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
 			.setIcon(Display.icon(perk?.definition) ?? Display.icon(plug.definition))
 			.setName(Display.name(perk?.definition) ?? Display.name(plug.definition) ?? "Unknown")
 			.setDescription(Display.description(perk?.definition) ?? Display.description(plug.definition));

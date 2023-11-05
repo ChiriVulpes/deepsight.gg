@@ -14,6 +14,6 @@ export default class ItemIntrinsics extends ItemSockets {
 
 	protected initialise () {
 		this.addSocketsByType("Intrinsic");
-		this.addPerksByPlugType("Masterwork/ExoticCatalyst");
+		this.addPerksByPlugType("=Masterwork/ExoticCatalyst");
 	}
 }

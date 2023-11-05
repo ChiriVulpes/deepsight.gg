@@ -221,7 +221,7 @@ namespace DeepsightPlugCategorisation {
 		[DeepsightPlugCategory.Masterwork]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.EmptyEnhancementSocket:
-					return DeepsightPlugTypeMasterwork.EmptyEnhancement;
+					return DeepsightPlugTypeMasterwork.EnhancementEmpty;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -239,7 +239,7 @@ namespace DeepsightPlugCategorisation {
 				case PlugCategoryHashes.ExoticWeaponMasterworkUpgrade:
 					return DeepsightPlugTypeMasterwork.Weapon;
 				case PlugCategoryHashes.V400EmptyExoticMasterwork:
-					return DeepsightPlugTypeMasterwork.EmptyExoticCatalyst;
+					return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty;
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers:
 					return DeepsightPlugTypeMasterwork.Enhancement;
 			}
@@ -265,14 +265,14 @@ namespace DeepsightPlugCategorisation {
 
 			switch (context.definition.displayProperties?.name) {
 				case "Upgrade Masterwork":
-					return DeepsightPlugTypeMasterwork.UpgradeExoticCatalyst;
+					return DeepsightPlugTypeMasterwork.ExoticCatalystUpgrade;
 			}
 
 			if (context.definition.displayProperties.description.includes("An Exotic catalyst can be inserted into this socket."))
-				return DeepsightPlugTypeMasterwork.EmptyExoticCatalyst;
+				return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty;
 
 			if (context.definition.displayProperties?.name.endsWith(" Catalyst") && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
-				return DeepsightPlugTypeMasterwork.AvailableExoticCatalyst;
+				return DeepsightPlugTypeMasterwork.ExoticCatalystAvailable;
 		},
 		[DeepsightPlugCategory.Vendor]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -299,7 +299,7 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Intrinsic]: context => {
 			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")
-				return DeepsightPlugTypeIntrinsic.EnhancedFrame;
+				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
 
 			if (context.definition.itemTypeAndTierDisplayName === "Exotic Intrinsic")
 				return DeepsightPlugTypeIntrinsic.Exotic;
@@ -415,7 +415,7 @@ namespace DeepsightPlugCategorisation {
 
 				case InventoryItemHashes.TraitLocked:
 				case InventoryItemHashes.TraitLocked2:
-					return DeepsightPlugTypePerk.LockedTrait;
+					return DeepsightPlugTypePerk.TraitLocked;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -461,7 +461,7 @@ namespace DeepsightPlugCategorisation {
 				case "Trait":
 					return DeepsightPlugTypePerk.Trait;
 				case "Enhanced Trait":
-					return DeepsightPlugTypePerk.EnhancedTrait;
+					return DeepsightPlugTypePerk.TraitEnhanced;
 				case "Deprecated Perk":
 					return DeepsightPlugTypePerk.Deprecated;
 				case "Ship Mod":
@@ -504,7 +504,7 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeCosmetic.Ornament;
 				case PlugCategoryHashes.ExoticAllSkins:
 				case PlugCategoryHashes.ArmorSkinsEmpty:
-					return DeepsightPlugTypeCosmetic.DefaultOrnament;
+					return DeepsightPlugTypeCosmetic.OrnamentDefault;
 				case PlugCategoryHashes.SocialClansStaves:
 					return DeepsightPlugTypeCosmetic.ClanBannerStaff;
 			}
@@ -679,6 +679,7 @@ namespace DeepsightPlugCategorisation {
 				type,
 				categoryName,
 				typeName,
+				fullName: `${categoryName}${typeName ? `/${typeName}` : ""}`,
 				...additionalDetailsHandlers[category]?.(context, type),
 				context: category as number !== -1 ? undefined : context,
 			} as DeepsightPlugCategorisation;

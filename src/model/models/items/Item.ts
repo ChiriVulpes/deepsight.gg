@@ -386,8 +386,7 @@ class Item {
 	}
 
 	public getOrnament () {
-		const ornament = this.getSockets("Cosmetic/Ornament")[0]?.socketedPlug;
-		return ornament?.isNot("Cosmetic/DefaultOrnament") ? ornament : undefined;
+		return this.getSockets("=Cosmetic/Ornament")[0]?.socketedPlug;
 	}
 
 	/**
