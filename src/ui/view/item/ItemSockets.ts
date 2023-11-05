@@ -71,7 +71,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 				let i = 0;
 				for (const plug of socket.plugs) {
-					if (!socket.state && plug.is("Intrinsic"))
+					if (!socket.state && plug.is("Intrinsic/FrameEnhanced"))
 						continue;
 
 					if (plug.is("Perk/TraitLocked"))
