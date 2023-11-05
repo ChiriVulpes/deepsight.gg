@@ -45,7 +45,4 @@ export default Task("install", async () => {
 		lockFileData["d2ai-module.sha"] = sha;
 		fs.writeFileSync(lockFilePath, JSON.stringify(lockFileData, null, "\t") + "\n");
 	}
-
-	await fs.mkdirp("static/js/vendor");
-	await fs.copyFile("src/node_modules/wicg-inert/dist/inert.min.js", "static/js/vendor/inert.min.js");
 });

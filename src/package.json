@@ -1,7 +1,6 @@
 {
 	"private": true,
 	"dependencies": {
-		"bungie-api-ts": "^5.0.0",
-		"wicg-inert": "3.1.2"
+		"bungie-api-ts": "^5.0.0"
 	}
 }
