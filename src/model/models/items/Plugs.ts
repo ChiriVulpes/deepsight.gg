@@ -17,7 +17,31 @@ type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
 namespace PlugType {
 	export const None = "None" as const;
 
-	export type Query = PlugType | ReverseCategoryMap[keyof ReverseCategoryMap];
+	export type Query = PlugType | ReverseCategoryMap[keyof ReverseCategoryMap] | `!${PlugType | ReverseCategoryMap[keyof ReverseCategoryMap]}`;
+
+	export function check (type?: PlugType, ...fragments: Query[]) {
+		if (!type)
+			return false;
+
+		let found = false;
+		for (let query of fragments) {
+			let not = false;
+			if (query[0] === "!") {
+				not = true;
+				query = query.slice(1) as Query;
+			} else if (found)
+				// already found one and this isn't an inverted check, so skip it
+				continue;
+
+			const startsWith = type.startsWith(query);
+			if (startsWith && not)
+				return false;
+
+			found ||= startsWith;
+		}
+
+		return found;
+	}
 }
 
 export { PlugType };
@@ -131,11 +155,11 @@ export class Socket {
 	}
 
 	public is (...anyOfTypes: PlugType.Query[]) {
-		return anyOfTypes.some(type => this.type?.startsWith(type));
+		return PlugType.check(this.type, ...anyOfTypes);
 	}
 
 	public isNot (...anyOfTypes: PlugType.Query[]) {
-		return !this.is(...anyOfTypes);
+		return !PlugType.check(this.type, ...anyOfTypes);
 	}
 }
 
@@ -259,11 +283,11 @@ export class Plug {
 	private constructor () { }
 
 	public is (...anyOfTypes: PlugType.Query[]) {
-		return anyOfTypes.some(type => this.type.startsWith(type));
+		return PlugType.check(this.type, ...anyOfTypes);
 	}
 
 	public isNot (...anyOfTypes: PlugType.Query[]) {
-		return !this.is(...anyOfTypes);
+		return !PlugType.check(this.type, ...anyOfTypes);
 	}
 }
 
