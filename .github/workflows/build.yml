@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v3
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         
       - name: Calculate Run Number
         env:
