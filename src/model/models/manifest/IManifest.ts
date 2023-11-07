@@ -101,7 +101,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 			return undefined;
 
 		const memoryCacheKey = `${index ?? "/"}:${key}`;
-		if (this.memoryCache[memoryCacheKey])
+		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey] ?? undefined;
 
 		return this.resolve(memoryCacheKey, key, index, cached);

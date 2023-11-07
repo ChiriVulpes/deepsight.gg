@@ -25,6 +25,11 @@ namespace Async {
 	 */
 	export async function sleep (ms: number, signal?: AbortSignal): Promise<boolean | undefined>;
 	export async function sleep (ms: number, signal?: AbortSignal): Promise<boolean | undefined> {
+		// let stack = new Error().stack;
+		// stack = stack?.slice(stack.indexOf("\n") + 1);
+		// stack = stack?.slice(stack.indexOf("\n") + 1);
+		// stack = stack?.slice(0, stack.indexOf("\n"));
+		// console.log("sleep", stack);
 		if (!signal) {
 			return new Promise<undefined>(resolve => {
 				window.setTimeout(() => resolve(undefined), ms);

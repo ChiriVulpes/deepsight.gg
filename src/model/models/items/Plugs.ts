@@ -3,7 +3,6 @@ import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugC
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
-import { ClarityManifest } from "model/models/manifest/ClarityManifest";
 import Async from "utility/Async";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
@@ -261,10 +260,17 @@ export class Plug {
 
 	private static async resolvePlugDef (manifest: Manifest, hash: number, item?: IItemInit): Promise<PlugDef> {
 
-		const { DestinyInventoryItemDefinition, DeepsightPlugCategorisation } = manifest;
+		const { DestinyInventoryItemDefinition, DeepsightPlugCategorisation, ClarityDescriptions } = manifest;
+		// let start = Date.now();
 		const definition = await DestinyInventoryItemDefinition.get(hash);
-		const clarity = definition && await (await ClarityManifest.await()).ClarityDescriptions.get(hash);
+		// console.log("invtime", Date.now() - start);
+		// start = Date.now();
+		const clarity = definition && await ClarityDescriptions.get(hash);
+		// console.log("claritytime", Date.now() - start);
+		// start = Date.now();
 		const categorisation = await DeepsightPlugCategorisation.get(hash);
+		// console.log("cattime", Date.now() - start);
+		// start = Date.now();
 
 		return {
 			definition,
