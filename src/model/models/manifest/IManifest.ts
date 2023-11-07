@@ -79,7 +79,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private loadedManifestCache?: Promise<void>;
 	private allCached?: boolean;
 
-	public constructor (private readonly componentName: COMPONENT_NAME, hostModel: Model<any>) {
+	public constructor (protected readonly componentName: COMPONENT_NAME, protected readonly hostModel: Model<any>) {
 		this.filterAllNoDuplicates = this.filterAllNoDuplicates.bind(this);
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
 		this.modelCache = Model.create(IManifest.CacheComponentKey.getBundle(componentName), {
@@ -178,7 +178,11 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return this.stagedTransaction.allKeys(componentKey);
 	}
 
+	private generationPromise?: Promise<void>;
 	public async loadCache () {
+		await (this.generationPromise ??= this.#generate());
+		delete this.generationPromise;
+
 		if (this.manifestCacheState !== undefined)
 			return this.manifestCacheState ? undefined : this.loadedManifestCache;
 
@@ -236,6 +240,22 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 			this.allCached = all === true ? false : undefined;
 			this.cacheAllKeyRange = all;
 		}
+	}
+
+	async #generate () {
+		const hostCacheTime = this.hostModel.getCacheTime();
+		const cacheTime = await Model.cacheDB.get("models", IManifest.CacheComponentKey.get(this.componentName)).then(cache => cache?.cacheTime ?? 0);
+		if (cacheTime < hostCacheTime) {
+			await this.generate();
+			await Model.cacheDB.set("models", IManifest.CacheComponentKey.get(this.componentName), {
+				cacheTime: hostCacheTime,
+				value: null,
+				version: "dynamic",
+			});
+		}
+	}
+
+	protected async generate () {
 	}
 
 	private createCache () {

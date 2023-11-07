@@ -13,18 +13,14 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 	version: async () => {
 		const versions = await GetDeepsightManifestVersions.query();
 		return `${Object.entries(versions)
-			.filter((entry): entry is [string, number] => {
-				const [componentName, hash] = entry;
-				return typeof hash === "number" && componentName !== "DeepsightMomentDefinition";
-			})
+			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
-			.join(",")}-0.deepsight.gg`;
+			.join(",")}-1.deepsight.gg`;
 	},
 	async generate (api) {
 		const deepsightComponents = await GetDeepsightManifest.query();
-		const deepsightComponentNames = (Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[])
-			.filter(component => component !== "DeepsightMomentDefinition"); // handled in DestinyManifest.ts
+		const deepsightComponentNames = Object.keys(deepsightComponents) as (keyof AllDeepsightManifestComponents)[];
 
 		const cacheKeys = deepsightComponentNames.map(IManifest.CacheComponentKey.get);
 
@@ -33,7 +29,16 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 				if (database.objectStoreNames.contains(cacheKey))
 					database.deleteObjectStore(cacheKey);
 
-				database.createObjectStore(cacheKey);
+				const store = database.createObjectStore(cacheKey);
+
+				switch (cacheKey) {
+					case "manifest [DeepsightMomentDefinition]":
+						if (!store.indexNames.contains("iconWatermark"))
+							store.createIndex("iconWatermark", "iconWatermark");
+						if (!store.indexNames.contains("id"))
+							store.createIndex("id", "id", { unique: true });
+						break;
+				}
 			}
 		});
 

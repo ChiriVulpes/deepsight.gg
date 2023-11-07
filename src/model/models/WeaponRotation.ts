@@ -27,7 +27,10 @@ const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
 	for (const vendorHash of vendors) {
 		const vendor = await GetVendor.query(membership.membershipType, membership.membershipId, membership.characterId, vendorHash, [
 			DestinyComponentType.VendorSales,
-		]);
+		]).catch(() => undefined);
+
+		if (!vendor)
+			continue;
 
 		for (const sale of Object.values<DestinyVendorSaleItemComponent>(vendor.sales.data ?? Objects.EMPTY)) {
 			const definition = await DestinyInventoryItemDefinition.get(sale.itemHash);
