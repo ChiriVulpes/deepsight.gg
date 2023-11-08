@@ -187,6 +187,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	}
 
 	private generationPromise?: Promise<void>;
+	private subscribedToClearCache?: true;
 	public async loadCache () {
 		await (this.generationPromise ??= this.#generate());
 		delete this.generationPromise;
@@ -237,6 +238,13 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 
 			this.manifestCacheState = true;
 			console.debug("Loaded", bundleKey, /*this.memoryCache*/);
+
+			if (!this.subscribedToClearCache)
+				Model.event.subscribe("clearCache", () => {
+					delete this.manifestCacheState;
+					if (this.allCached === true)
+						this.allCached = false;
+				});
 		})();
 	}
 
