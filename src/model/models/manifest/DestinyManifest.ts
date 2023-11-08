@@ -138,11 +138,11 @@ class DestinyManifestItem<COMPONENT_NAME extends DestinyComponentName> extends M
 		console.info(`Storing objects from ${cacheKey}`);
 		// api.emitProgress((1 + i * 2 + 1) / totalLoad, "Storing manifest");
 
+		const moments = cacheKey !== "manifest [DestinyInventoryItemDefinition]" ? []
+			: await (await DeepsightManifest.await()).DeepsightMomentDefinition.all();
+
 		await Model.cacheDB.transaction([cacheKey], async transaction => {
 			await transaction.clear(cacheKey);
-
-			const moments = cacheKey !== "manifest [DestinyInventoryItemDefinition]" ? []
-				: await (await DeepsightManifest.await()).DeepsightMomentDefinition.all();
 
 			const replaceWatermarksByItemHash: Record<number, DeepsightMomentDefinition> =
 				Object.fromEntries(moments.flatMap(moment => (moment.itemHashes ?? [])
