@@ -1,4 +1,6 @@
+import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
+import Objects from "utility/Objects";
 import Store from "utility/Store";
 
 type Version = [major: number, minor: number];
@@ -293,22 +295,47 @@ namespace Database {
 			});
 		}
 
-		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, key: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
+		public async primaryKeys<KEY extends keyof SCHEMA> (name: KEY, range?: IDBKeyRange): Promise<IDBValidKey[]>;
+		public async primaryKeys<KEY extends keyof SCHEMA> (name: KEY, key?: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
+		public async primaryKeys<KEY extends keyof SCHEMA> (name: KEY, rangeOrKey?: IDBKeyRange | string, index?: string) {
 			return this.do<IDBValidKey[]>(() => {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				let store: IDBObjectStore | IDBIndex = this.transaction.objectStore(name as string);
 
-				if (typeof rangeOrKey === "string") {
-
-					if (index !== undefined)
-						store = store.index(index);
-
-					return store.getAllKeys(rangeOrKey);
-				}
+				if (index !== undefined)
+					store = store.index(index);
 
 				return store.getAllKeys(rangeOrKey);
+			});
+		}
+
+
+		public async indexKeys<KEY extends keyof SCHEMA> (store: KEY, index: string): Promise<IDBValidKey[]>;
+		public async indexKeys<KEY extends keyof SCHEMA, R> (store: KEY, index: string, mapper: (key: IDBValidKey, value: SCHEMA[KEY]) => R): Promise<R[]>;
+		public async indexKeys<KEY extends keyof SCHEMA> (name: KEY, index: string, mapper?: (key: IDBValidKey, value: SCHEMA[KEY]) => any) {
+			return new Promise<IDBValidKey[]>((resolve, reject) => {
+				const store = this.transaction.objectStore(name as string).index(index);
+
+				const regexDot = /\./g;
+				const keyPath = Arrays.resolve(store.keyPath)
+					.flatMap(key => key.split(regexDot));
+
+				const result = new Map<IDBValidKey, any>();
+				const request = store.openCursor();
+				request.addEventListener("error", () => reject(request.error));
+				request.addEventListener("success", event => {
+					const cursor = request.result;
+					if (!cursor)
+						return resolve([...result.values()]);
+
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+					const key = Objects.followPath(cursor.value, keyPath);
+					if ((typeof key === "string" || typeof key === "number") && !result.has(key))
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+						result.set(key, !mapper ? key : mapper(key, cursor.value));
+
+					cursor.continue();
+				});
 			});
 		}
 
@@ -481,10 +508,16 @@ namespace Database {
 			return this.queue(transaction => transaction.all(store, range!, index));
 		}
 
-		public async allKeys<KEY extends keyof SCHEMA> (store: KEY): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
-		public async allKeys<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
-			return this.queue(transaction => transaction.allKeys(store, range!, index));
+		public async primaryKeys<KEY extends keyof SCHEMA> (store: KEY): Promise<IDBValidKey[]>;
+		public async primaryKeys<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string): Promise<IDBValidKey[]>;
+		public async primaryKeys<KEY extends keyof SCHEMA> (store: KEY, range?: IDBKeyRange | string, index?: string) {
+			return this.queue(transaction => transaction.primaryKeys(store, range, index));
+		}
+
+		public async indexKeys<KEY extends keyof SCHEMA> (store: KEY, index: string): Promise<IDBValidKey[]>;
+		public async indexKeys<KEY extends keyof SCHEMA, R> (store: KEY, index: string, mapper: (key: IDBValidKey, value: SCHEMA[KEY]) => R): Promise<R[]>;
+		public async indexKeys<KEY extends keyof SCHEMA> (store: KEY, index: string, mapper?: (key: IDBValidKey, value: SCHEMA[KEY]) => any) {
+			return this.queue(transaction => transaction.indexKeys(store, index, mapper!));
 		}
 
 		public async set<KEY extends keyof SCHEMA> (store: KEY, key: string, value: SCHEMA[KEY]) {

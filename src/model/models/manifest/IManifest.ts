@@ -27,7 +27,8 @@ export namespace IManifest {
 	export type Indices<COMPONENT_NAME extends AllComponentNames> =
 		{
 			DeepsightMomentDefinition: "iconWatermark" | "id";
-			DestinyInventoryItemDefinition: "iconWatermark" | "name";
+			DestinyInventoryItemDefinition: "iconWatermark" | "name" | "icon";
+			DestinyCollectibleDefinition: "icon" | "name";
 			DestinyRecordDefinition: "icon" | "name";
 		} extends infer ALL_INDICES ?
 		ALL_INDICES[COMPONENT_NAME & keyof ALL_INDICES]
@@ -169,13 +170,20 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		return result;
 	}
 
-	public allKeys (): Promise<`${bigint}`[]>;
-	public allKeys (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): Promise<`${bigint}`[]>;
-	public allKeys (index?: string, key?: string | number | null) {
+	public primaryKeys (): Promise<`${bigint}`[]>;
+	public primaryKeys (index: IManifest.Indices<COMPONENT_NAME>, key?: string | number | null): Promise<`${bigint}`[]>;
+	public primaryKeys (index?: string, key?: string | number | null) {
 		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
-			return this.stagedTransaction.allKeys(componentKey, `${key!}`, index);
-		return this.stagedTransaction.allKeys(componentKey);
+			return this.stagedTransaction.primaryKeys(componentKey, key === undefined ? undefined : `${key!}`, index);
+		return this.stagedTransaction.primaryKeys(componentKey);
+	}
+
+	public indexKeys (index: IManifest.Indices<COMPONENT_NAME>): Promise<string[]>;
+	public indexKeys<R> (index: IManifest.Indices<COMPONENT_NAME>, mapper: (key: string, value: IManifest.Component<COMPONENT_NAME>) => R): Promise<R[]>;
+	public indexKeys (index: IManifest.Indices<COMPONENT_NAME>, mapper?: (key: string, value: IManifest.Component<COMPONENT_NAME>) => any) {
+		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
+		return this.stagedTransaction.indexKeys(componentKey, index, mapper as (key: IDBValidKey, value: IManifest.Component<COMPONENT_NAME>) => any);
 	}
 
 	private generationPromise?: Promise<void>;

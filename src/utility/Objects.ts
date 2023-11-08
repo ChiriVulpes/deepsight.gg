@@ -18,6 +18,14 @@ namespace Objects {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		return Object.fromEntries(await Promise.all(Object.entries(object as any).map(mapper as any)) as any) as { [KEY in R[0]]: R[1] };
 	}
+
+	export function followPath (obj: any, keys: (string | number)[]) {
+		for (const key of keys)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			obj = obj?.[key];
+
+		return obj;
+	}
 }
 
 export default Objects;

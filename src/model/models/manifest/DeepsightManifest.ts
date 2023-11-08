@@ -16,7 +16,7 @@ const DeepsightManifest = Model.create("deepsight manifest", {
 			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
-			.join(",")}-1.deepsight.gg`;
+			.join(",")}-2.deepsight.gg`;
 	},
 	async generate (api) {
 		const deepsightComponents = await GetDeepsightManifest.query();

@@ -10,7 +10,6 @@ import Objects from "utility/Objects";
 import type { Mutable } from "utility/Type";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
-import GetDeepsightManifestVersions from "utility/endpoint/deepsight/endpoint/GetDeepsightManifestVersions";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
@@ -40,8 +39,7 @@ const DestinyManifest = Model.create("destiny manifest", {
 	cache: "Global",
 	version: async () => {
 		const manifest = await ManifestURLs.await();
-		const deepsightVersions = await GetDeepsightManifestVersions.query();
-		return `${manifest.version},DeepsightMomentDefinition.${deepsightVersions.DeepsightMomentDefinition}-22.deepsight.gg`;
+		return `${manifest.version}-23.deepsight.gg`;
 	},
 	async generate (api) {
 		const manifest = await ManifestURLs.await();
@@ -65,8 +63,16 @@ const DestinyManifest = Model.create("destiny manifest", {
 							store.createIndex("iconWatermark", "iconWatermark");
 						if (!store.indexNames.contains("name"))
 							store.createIndex("name", "displayProperties.name");
+						if (!store.indexNames.contains("icon"))
+							store.createIndex("icon", "displayProperties.icon");
 						break;
 					case "manifest [DestinyRecordDefinition]":
+						if (!store.indexNames.contains("icon"))
+							store.createIndex("icon", "displayProperties.icon");
+						if (!store.indexNames.contains("name"))
+							store.createIndex("name", "displayProperties.name");
+						break;
+					case "manifest [DestinyCollectibleDefinition]":
 						if (!store.indexNames.contains("icon"))
 							store.createIndex("icon", "displayProperties.icon");
 						if (!store.indexNames.contains("name"))
@@ -240,6 +246,37 @@ class DestinyManifestItem<COMPONENT_NAME extends DestinyComponentName> extends M
 			}
 
 			case "DestinyInventoryItemLiteDefinition":
+				break;
+
+			case "DestinyRecordDefinition":
+				Manifest[componentName].setPreCache(true, async cache => {
+					const values = Object.values(cache);
+					for await (const value of values) {
+						if (value?.displayProperties.icon)
+							cache[`icon:${value.displayProperties.icon}`] ??= value;
+
+						if (value?.displayProperties.name)
+							cache[`name:${value.displayProperties.name}`] ??= value;
+					}
+
+					////////////////////////////////////
+					// precache by precached invitems
+
+					await Manifest.DestinyInventoryItemDefinition.loadCache();
+					await Manifest.DestinyCollectibleDefinition.loadCache();
+					const itemDefs = Object.values(Manifest.DestinyInventoryItemDefinition["memoryCache"]);
+					for await (const itemDef of itemDefs) {
+						if (!itemDef)
+							continue;
+
+						const collectible = await Manifest.DestinyCollectibleDefinition.get(itemDef.collectibleHash);
+						if (collectible?.displayProperties.icon)
+							cache[`icon:${collectible.displayProperties.icon}`] ??= null!;
+
+						if (itemDef.displayProperties.name)
+							cache[`name:${itemDef.displayProperties.name}`] ??= null!;
+					}
+				});
 				break;
 
 			default:

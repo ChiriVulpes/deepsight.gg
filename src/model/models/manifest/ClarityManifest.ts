@@ -17,7 +17,7 @@ const ClarityManifest = Model.create("clarity database", {
 			.filter((entry): entry is [string, number] => typeof entry[1] === "number")
 			.map(([name, version]) => `${name}.${version}`)
 			.sort()
-			.join(",")}-2.deepsight.gg`;
+			.join(",")}-3.deepsight.gg`;
 	},
 	async generate (api) {
 		const clarityComponents = await GetClarityDatabase.query();
@@ -64,7 +64,8 @@ const ClarityManifest = Model.create("clarity database", {
 			.map(componentName => [componentName, new ManifestItem(componentName, ClarityManifest)])) as ClarityManifest;
 
 		const { DestinyInventoryItemDefinition } = await DestinyManifest.await();
-		const itemHashes = await DestinyInventoryItemDefinition.allKeys();
+		await DestinyInventoryItemDefinition.loadCache();
+		const itemHashes = await DestinyInventoryItemDefinition.primaryKeys();
 
 		for (const componentName of componentNames) {
 			Manifest[componentName].setPreCache(true, cache => {
