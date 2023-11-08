@@ -21,7 +21,7 @@ const membershipNames: Record<BungieMembershipType, string> = {
 	[BungieMembershipType.TigerEgs]: "Epic",
 	[BungieMembershipType.TigerDemon]: "Demon",
 	[BungieMembershipType.BungieNext]: "BungieNext",
-}
+};
 
 export default class SettingsDeviceStorage extends Card<[]> {
 	protected override async onMake () {
@@ -55,7 +55,10 @@ export default class SettingsDeviceStorage extends Card<[]> {
 				.append(Component.create("p")
 					.append(Component.create("b").text.set("Note:"))
 					.text.add(" Continuing to use the app will re-download the deleted data.")))
-			.tweak(wrapper => wrapper.button.event.subscribe("click", () => Model.clearCache(true)))
+			.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
+				await Model.clearCache(true);
+				location.reload();
+			}))
 			.appendTo(this.content);
 
 		DescribedButton.create()
@@ -64,6 +67,7 @@ export default class SettingsDeviceStorage extends Card<[]> {
 			.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
 				await Model.clearCache(true);
 				Bungie.resetAuthentication();
+				location.reload();
 			}))
 			.appendTo(this.content);
 	}
