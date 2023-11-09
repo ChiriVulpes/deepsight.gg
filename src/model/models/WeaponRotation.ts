@@ -15,7 +15,7 @@ const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
 	const result: WeaponRotation = {};
 
 	const membership = await getCurrentMembershipAndCharacter();
-	if (!membership.characterId)
+	if (!membership?.characterId)
 		return result;
 
 	// const manifest = await Manifest.await();

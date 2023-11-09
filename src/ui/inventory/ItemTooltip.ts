@@ -365,7 +365,7 @@ class ItemTooltip extends Tooltip {
 		this.deepsight.classes.toggle(!showPattern, Classes.Hidden);
 
 		if (showPattern) {
-			const complete = !!item.deepsight?.pattern?.progress.complete;
+			const complete = !!item.deepsight?.pattern?.progress?.complete;
 			this.deepsightPatternLabel
 				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
 					: complete ? "This weapon's pattern is unlocked."
@@ -374,11 +374,12 @@ class ItemTooltip extends Tooltip {
 								: item.deepsight?.activation ? "This [b]Pattern[/b] can be [b]Activated[/b]."
 									: "You have extracted this pattern.");
 
-			this.deepsightPatternNumber.classes.toggle(complete, Classes.Hidden);
-			this.deepsightPatternOutOf.classes.toggle(complete, Classes.Hidden);
-			this.deepsightPatternNumber.text.set(`${item.deepsight!.pattern!.progress.progress ?? 0}`);
-			this.deepsightPatternRequired.text.set(`${item.deepsight!.pattern!.progress.completionValue}`);
-			this.deepsightPatternRequiredUnit.classes.toggle(complete, Classes.Hidden);
+			const progress = !!item.deepsight?.pattern?.progress;
+			this.deepsightPatternNumber.classes.toggle(!progress || complete, Classes.Hidden);
+			this.deepsightPatternOutOf.classes.toggle(!progress || complete, Classes.Hidden);
+			this.deepsightPatternNumber.text.set(`${item.deepsight!.pattern!.progress?.progress ?? 0}`);
+			this.deepsightPatternRequired.text.set(`${item.deepsight!.pattern!.progress?.completionValue}`);
+			this.deepsightPatternRequiredUnit.classes.toggle(!progress || complete, Classes.Hidden);
 			this.deepsightPatternRequiredUnit.text.set("extractions");
 		}
 
@@ -398,8 +399,8 @@ class ItemTooltip extends Tooltip {
 
 		this.note.classes.add(Classes.Hidden);
 
-		const shaped = item.bucket === "collections" && item.deepsight?.pattern?.progress.complete && !inventory?.craftedItems.has(item.definition.hash);
-		if (item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress.progress) {
+		const shaped = item.bucket === "collections" && item.deepsight?.pattern?.progress?.complete && !inventory?.craftedItems.has(item.definition.hash);
+		if (item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress) {
 			this.note.classes.remove(Classes.Hidden);
 			this.note.text.set("This item has has not been acquired.");
 		}

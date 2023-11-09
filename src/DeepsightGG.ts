@@ -41,27 +41,29 @@ export default class DeepsightGG {
 		Bungie.event.subscribe("resetAuthentication", async _ => {
 			await Model.clearCache();
 			AuthView.show();
+			document.documentElement.classList.remove("authenticated");
+		});
+
+		Bungie.event.subscribe("authenticated", _ => {
+			document.documentElement.classList.add("authenticated");
 		});
 
 		await Bungie.authenticate("complete");
 
 		if (Bungie.authenticated) {
-
 			Bungie.event.subscribe("apiDown", () => document.body.classList.add("bungie-api-down"));
 			Bungie.event.subscribe("querySuccess", () => document.body.classList.remove("bungie-api-down"));
-
-			AppNav.create([ViewManager])
-				.appendTo(document.body);
-
-			if (URL.hash === AuthView.id)
-				URL.hash = "";
-
-			ViewManager.showByHash(URL.hash);
-			if (!ViewManager.hasView())
-				ViewManager.showDefaultView();
-
-		} else {
-			AuthView.show();
+			document.documentElement.classList.add("authenticated");
 		}
+
+		AppNav.create([ViewManager])
+			.appendTo(document.body);
+
+		if (URL.hash === AuthView.id)
+			URL.hash = "";
+
+		ViewManager.showByHash(URL.hash);
+		if (!ViewManager.hasView())
+			ViewManager.showDefaultView();
 	}
 }

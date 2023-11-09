@@ -18,12 +18,12 @@ namespace ICollectionsView {
 		BucketHashes.ClassArmor,
 	];
 
-	export function addItems (component: Component, items: Item[], inventory: Inventory) {
+	export function addItems (component: Component, items: Item[], inventory?: Inventory) {
 		component.append(...items
 			.sort(
 				item => item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 1 : 0,
 				item => item.definition.inventory?.tierType ?? TierType.Unknown,
-				item => item.deepsight?.pattern ? inventory.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress.complete ? 3 : 2 : 1,
+				item => item.deepsight?.pattern ? inventory?.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress?.complete ? 3 : 2 : 1,
 				item => item.definition.classType ?? DestinyClass.Unknown,
 				(a, b) => (a.collectible?.sourceHash ?? -1) - (b.collectible?.sourceHash ?? -1),
 				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain

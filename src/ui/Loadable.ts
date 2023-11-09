@@ -21,7 +21,7 @@ namespace Loadable {
 	export namespace Component {
 		export type Arguments<MODELS extends Model<any, any>[]> = [MODELS, Initialiser<MODELS>];
 	}
-	export class Component<MODELS extends Model<any, any>[]> extends BaseComponent<HTMLElement, Component.Arguments<MODELS>> {
+	export class Component<MODELS extends Model<any, any>[] = Model<any, any>[]> extends BaseComponent<HTMLElement, Component.Arguments<MODELS>> {
 
 		private initialiser!: Initialiser<MODELS>;
 		private loading!: BaseComponent;

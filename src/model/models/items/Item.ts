@@ -354,12 +354,12 @@ class Item {
 	}
 
 	public hasDeepsight () {
-		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress.complete ?? false);
+		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress?.complete ?? false);
 		return !this.deepsight?.resonance ? false : hasIncompletePattern;
 	}
 
 	public hasPattern () {
-		return !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress.complete);
+		return !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete);
 	}
 
 	public canTransfer () {

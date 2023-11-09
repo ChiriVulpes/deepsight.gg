@@ -1,10 +1,12 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
+import type Loadable from "ui/Loadable";
 import PlayerOverview from "ui/PlayerOverview";
 import type View from "ui/View";
 import AppInfo from "ui/view/appnav/AppInfo";
 import type ViewManager from "ui/ViewManager";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
 
 export enum ClassesAppNav {
@@ -15,6 +17,8 @@ export enum ClassesAppNav {
 	DestinationsToggle = "app-nav-destinations-toggle",
 	DestinationsClose = "app-nav-destinations-close",
 	Destination = "app-nav-destination",
+	DestinationAuthRequired = "app-nav-destination-auth-required",
+	DestinationNoAuthRequired = "app-nav-destination-no-auth-required",
 	DestinationChildActive = "app-nav-destination-child-active",
 	DestinationChildren = "app-nav-destination-children",
 	DocumentHasAppNav = "has-app-nav",
@@ -26,19 +30,24 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	private destinationButtons!: Record<string, Button>;
 	private destinationDropdownWrappers!: Component[];
 	private destinationsWrapper!: Component;
+	private appInfo!: AppInfo;
+	private playerOverview?: Loadable.Component;
 
 	protected override onMake (viewManager: typeof ViewManager): void {
 		this.destinationButtons = {};
 		this.destinationDropdownWrappers = [];
 
-		this.classes.add(ClassesAppNav.Main, Classes.Hidden);
+		this.classes.add(ClassesAppNav.Main);
 
-		AppInfo.create()
+		this.appInfo = AppInfo.create()
 			.appendTo(this);
 
-		PlayerOverview.create()
-			.classes.add(ClassesAppNav.IdentityContainer)
-			.appendTo(this);
+		this.tryInsertPlayerOverview();
+		Bungie.event.subscribe("authenticated", this.tryInsertPlayerOverview);
+		Bungie.event.subscribe("resetAuthentication", () => {
+			this.playerOverview?.remove();
+			delete this.playerOverview;
+		});
 
 		this.destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
@@ -66,6 +75,8 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 			const destinationButton = this.destinationButtons[destinationViewHandler.id] = Button.create()
 				.classes.add(ClassesAppNav.Destination, `app-nav-destination-${destinationViewHandler.id}`)
+				.classes.toggle((destinationViewHandler.definition.auth ?? "required") === "required", ClassesAppNav.DestinationAuthRequired)
+				.classes.toggle((destinationViewHandler.definition.auth) === "none", ClassesAppNav.DestinationNoAuthRequired)
 				.text.set(name ?? "Unknown View")
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show());
@@ -123,10 +134,19 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		if (view.definition.parentViewId)
 			this.destinationButtons[view.definition.id]?.parent()?.classes.add(ClassesAppNav.DestinationChildActive);
 
-		document.documentElement.classList.toggle(ClassesAppNav.DocumentHasAppNav, !view.definition.noNav);
-		this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
-		this.attributes.toggle(!!view.definition.noNav, "inert");
+		document.documentElement.classList.add(ClassesAppNav.DocumentHasAppNav);
+		// this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
+		// this.attributes.toggle(!!view.definition.noNav, "inert");
 
 		this.destinationsWrapper.classes.remove(Classes.Active);
+	}
+
+	private tryInsertPlayerOverview () {
+		if (!Bungie.authenticated)
+			return;
+
+		this.playerOverview = PlayerOverview.create()
+			.classes.add(ClassesAppNav.IdentityContainer)
+			.insertToAfter(this, this.appInfo);
 	}
 }

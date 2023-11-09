@@ -28,7 +28,7 @@ export default BungieEndpoint
 				stackSize: item.reference.quantity,
 				itemId: item.reference.itemInstanceId,
 				characterId: character,
-				membershipType: membership.membershipType,
+				membershipType: membership!.membershipType,
 			},
 		} as EndpointRequest;
 	})

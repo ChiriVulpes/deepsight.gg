@@ -29,7 +29,7 @@ export default BungieEndpoint
 				transferToVault: destination === "vault",
 				itemId: item.reference.itemInstanceId,
 				characterId: destination === "vault" ? character : destination,
-				membershipType: membership.membershipType,
+				membershipType: membership!.membershipType,
 			},
 		} as EndpointRequest;
 	})

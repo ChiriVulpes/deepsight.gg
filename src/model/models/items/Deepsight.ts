@@ -11,7 +11,7 @@ export interface IWeaponShaped {
 
 export interface IDeepsightPattern {
 	record: DestinyRecordDefinition;
-	progress: DestinyObjectiveProgress;
+	progress?: DestinyObjectiveProgress;
 }
 
 export interface IDeepsight {
@@ -74,6 +74,13 @@ namespace Deepsight {
 		if (record?.recordTypeName !== "Weapon Pattern")
 			return undefined;
 
+		return {
+			record: record,
+			progress: resolvePatternProgress(record, profile, item),
+		};
+	}
+
+	function resolvePatternProgress (record: DestinyRecordDefinition, profile: IDeepsightProfile, item: IItemInit) {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const progress = profile.profileRecords?.data?.records[record?.hash];
 		if (!progress?.objectives)
@@ -87,10 +94,7 @@ namespace Deepsight {
 		if (!progress.objectives[0].completionValue)
 			return undefined;
 
-		return {
-			record: record,
-			progress: progress.objectives[0],
-		};
+		return progress.objectives[0];
 	}
 
 	async function findObjective (item: IItemInit, predicate: (objective: Objectives.IObjective) => any): Promise<Objectives.IObjective | undefined> {

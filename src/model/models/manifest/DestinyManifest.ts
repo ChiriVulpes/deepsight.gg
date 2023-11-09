@@ -8,8 +8,8 @@ import { IManifest, ManifestItem } from "model/models/manifest/IManifest";
 import Env from "utility/Env";
 import Objects from "utility/Objects";
 import type { Mutable } from "utility/Type";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import GetManifest from "utility/endpoint/bungie/endpoint/destiny2/GetManifest";
-import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 
 const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
@@ -45,10 +45,8 @@ const DestinyManifest = Model.create("destiny manifest", {
 		const manifest = await ManifestURLs.await();
 		const bungieComponentNames = Object.keys(manifest.jsonWorldComponentContentPaths.en) as (keyof AllDestinyManifestComponents)[];
 
-		const allComponentNames: (keyof AllDestinyManifestComponents | keyof AllDeepsightManifestComponents)[] = [...bungieComponentNames, "DeepsightMomentDefinition"];
-
 		api.emitProgress(0, "Allocating stores for manifest");
-		const cacheKeys = allComponentNames.map(CacheComponentKey.get);
+		const cacheKeys = bungieComponentNames.map(CacheComponentKey.get);
 
 		await Model.cacheDB.upgrade((database, transaction) => {
 			for (const cacheKey of cacheKeys) {
@@ -184,20 +182,20 @@ class DestinyManifestItem<COMPONENT_NAME extends DestinyComponentName> extends M
 			case "DestinyInventoryItemDefinition": {
 				////////////////////////////////////
 				// precache item hashes from profile
-				const profile = await ProfileBatch.await();
+				const profile = Bungie.authenticated ? await ProfileBatch.await() : undefined;
 
-				const itemHashes = new Set((profile.profileInventory?.data?.items.map(item => item.itemHash) ?? [])
-					.concat(Object.values<DestinyInventoryComponent>(profile.characterInventories?.data ?? Objects.EMPTY)
-						.concat(Object.values<DestinyInventoryComponent>(profile.characterEquipment?.data ?? Objects.EMPTY))
+				const itemHashes = new Set((profile?.profileInventory?.data?.items.map(item => item.itemHash) ?? [])
+					.concat(Object.values<DestinyInventoryComponent>(profile?.characterInventories?.data ?? Objects.EMPTY)
+						.concat(Object.values<DestinyInventoryComponent>(profile?.characterEquipment?.data ?? Objects.EMPTY))
 						.flatMap(inventory => inventory.items.map(item => item.itemHash))));
 
-				for (const itemSockets of Object.values<DestinyItemSocketsComponent>(profile.itemComponents?.sockets.data ?? Objects.EMPTY)) {
+				for (const itemSockets of Object.values<DestinyItemSocketsComponent>(profile?.itemComponents?.sockets.data ?? Objects.EMPTY)) {
 					for (const socket of itemSockets.sockets ?? [])
 						if (socket.plugHash)
 							itemHashes.add(socket.plugHash);
 				}
 
-				for (const itemPlugsByItems of Object.values<DestinyItemReusablePlugsComponent>(profile.itemComponents?.reusablePlugs.data ?? Objects.EMPTY)) {
+				for (const itemPlugsByItems of Object.values<DestinyItemReusablePlugsComponent>(profile?.itemComponents?.reusablePlugs.data ?? Objects.EMPTY)) {
 					for (const plugs of Object.values(itemPlugsByItems.plugs))
 						for (const plug of plugs)
 							itemHashes.add(plug.plugItemHash);

@@ -1,5 +1,6 @@
 import Model from "model/Model";
 import { EventManager } from "utility/EventManager";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 export interface ILoadingManagerEvents {
 	start: Event;
@@ -10,9 +11,13 @@ class LoadingManager {
 
 	public readonly event = new EventManager<this, ILoadingManagerEvents>(this);
 
-	public readonly model = Model.createTemporary(async () => this.event.waitFor("end"))
+	public readonly model = Model.createTemporary(async () => !Bungie.authenticated ? undefined : this.event.waitFor("end"));
 
 	private loaders = new Set<string>();
+
+	public constructor () {
+		Object.assign(window, { Loading: this });
+	}
 
 	public get loading () {
 		return this.loaders.size > 0;

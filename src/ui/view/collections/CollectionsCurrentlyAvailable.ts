@@ -25,8 +25,8 @@ export enum CollectionsCurrentlyAvailableClasses {
 	ActivityWrapperPage = "view-collections-currently-available-activity-wrapper-page",
 }
 
-export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation, inventory: Inventory]> {
-	protected override async onMake (manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation, inventory: Inventory) {
+export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation, inventory?: Inventory]> {
+	protected override async onMake (manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation, inventory?: Inventory) {
 		super.onMake(manifest, profile, weaponRotation, inventory);
 		this.classes.add(CollectionsCurrentlyAvailableClasses.Main, CollectionsMomentClasses.Moment);
 
@@ -92,15 +92,15 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		}
 	}
 
-	private async discoverItems (manifest: Manifest, profile: ProfileBatch, weaponRotation: WeaponRotation) {
+	private async discoverItems (manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation) {
 		const itemHashes = new Set<number>();
 
-		for (const hash of Object.values(weaponRotation).flat())
-			itemHashes.add(hash);
+		for (const hash of Object.values(weaponRotation ?? Objects.EMPTY).flat())
+			itemHashes.add(hash as number);
 
 		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition, DestinyActivityDefinition } = manifest;
 
-		const activities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
+		const activities = Object.values<DestinyCharacterActivitiesComponent>(profile?.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
 
 		const dropTables = await DeepsightDropTableDefinition.all();
@@ -137,7 +137,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		}
 
 		return Promise.all(Array.from(itemHashes).map(hash => Promise.resolve(DestinyInventoryItemDefinition.get(hash))
-			.then(def => def && Item.createFake(manifest, profile, def))))
+			.then(def => def && Item.createFake(manifest, profile ?? {}, def))))
 			.then(items => items.filter((item): item is Item =>
 				!!(item && item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon))));
 	}

@@ -16,8 +16,8 @@ export enum CollectionsMomentClasses {
 	BucketTitle = "view-collections-bucket-title",
 }
 
-export default class CollectionsMoment extends Details<[moment: DeepsightMomentDefinition, inventory: Inventory, defaultOpen?: boolean]> {
-	protected override onMake (moment: DeepsightMomentDefinition, inventory: Inventory, defaultOpen = false): void {
+export default class CollectionsMoment extends Details<[moment: DeepsightMomentDefinition, inventory?: Inventory, defaultOpen?: boolean]> {
+	protected override onMake (moment: DeepsightMomentDefinition, inventory?: Inventory, defaultOpen = false): void {
 		super.onMake(moment, inventory);
 
 		this.classes.add(CollectionsMomentClasses.Moment)
@@ -58,8 +58,8 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 						.appendTo(wrapper);
 
 				const classes = [DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock]
-					.sort((a, b) => (inventory.sortedCharacters?.findIndex(character => character.classType === a) ?? 0)
-						- (inventory.sortedCharacters?.findIndex(character => character.classType === b) ?? 0));
+					.sort((a, b) => (inventory?.sortedCharacters?.findIndex(character => character.classType === a) ?? 0)
+						- (inventory?.sortedCharacters?.findIndex(character => character.classType === b) ?? 0));
 
 				for (const cls of classes) {
 					const items = classItems[cls];

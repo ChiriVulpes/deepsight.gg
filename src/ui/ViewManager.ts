@@ -25,6 +25,7 @@ import ItemView from "ui/view/item/ItemView";
 import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
@@ -80,7 +81,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return InventoryWeaponsView;
+		return Bungie.authenticated ? InventoryWeaponsView : AuthView;
 	}
 
 	public static hasView () {

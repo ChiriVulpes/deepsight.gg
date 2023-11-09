@@ -27,7 +27,7 @@ export default BungieEndpoint
 				state: locked,
 				itemId: item.reference.itemInstanceId,
 				characterId: item.owner,
-				membershipType: membership.membershipType,
+				membershipType: membership!.membershipType,
 			},
 		} as EndpointRequest;
 	})

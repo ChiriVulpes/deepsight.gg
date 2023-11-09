@@ -7,6 +7,7 @@ import Time from "utility/Time";
 import URL from "utility/URL";
 
 export interface IBungieApiEvents {
+	authenticated: Event;
 	resetAuthentication: Event;
 	error: BungieEndpoint.IEvents["error"];
 	apiDown: BungieEndpoint.IEvents["apiDown"];
@@ -129,6 +130,7 @@ export class BungieAPI {
 		Store.items.bungieAccessTokenMembershipId = result.membership_id;
 		Store.items.bungieAccessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
 		Store.items.bungieAccessTokenRefreshToken = result.refresh_token;
+		this.event.emit("authenticated");
 	}
 }
 

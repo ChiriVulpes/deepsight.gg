@@ -16,7 +16,12 @@ namespace View {
 		hash?: string | ((...args: ARGS) => string) | null;
 		name: string | ((...args: ARGS) => string) | null;
 		initialiseDestinationButton?: (button: Button) => any;
-		noNav?: true;
+		/**
+		 * - Set to `"required"` or `undefined` to require auth to view this tab (default)
+		 * - Set to `"optional"` to always show this tab
+		 * - Set to `"none"` to require *no* auth
+		 */
+		auth?: "required" | "optional" | "none";
 		noDestinationButton?: true;
 		displayDestinationButton?(): boolean;
 		redirectOnLoad?: true | string;

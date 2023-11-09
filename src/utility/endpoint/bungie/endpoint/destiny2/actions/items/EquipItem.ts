@@ -23,7 +23,7 @@ export default BungieEndpoint
 			body: {
 				itemId: item.reference.itemInstanceId,
 				characterId: character,
-				membershipType: membership.membershipType,
+				membershipType: membership!.membershipType,
 			},
 		} as EndpointRequest;
 	})

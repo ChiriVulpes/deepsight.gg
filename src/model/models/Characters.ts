@@ -54,8 +54,11 @@ export interface CharacterInfoCard extends GroupUserInfoCard {
 	characterId?: CharacterId;
 }
 
-export async function getCurrentMembershipAndCharacter (): Promise<CharacterInfoCard> {
+export async function getCurrentMembershipAndCharacter (): Promise<CharacterInfoCard | undefined> {
 	const membership = await getCurrentDestinyMembership();
+	if (!membership)
+		return undefined;
+
 	const profile = await ProfileBatch.await();
 	return {
 		...membership,

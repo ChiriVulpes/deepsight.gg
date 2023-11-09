@@ -179,6 +179,9 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 			api.emitProgress(1 / 3, "Fetching profile");
 			const membership = await getCurrentDestinyMembership();
+			if (!membership)
+				throw new Error("Can't load profile without membership");
+
 			const newData = await GetProfile.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 

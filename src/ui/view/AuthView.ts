@@ -24,9 +24,8 @@ export enum AuthViewClasses {
 export default View.create({
 	id: "auth",
 	hash: null,
-	name: null,
-	noNav: true,
-	noDestinationButton: true,
+	name: "Authenticate",
+	auth: "none",
 	initialise: view => {
 		if (Bungie.authenticated && Env.DEEPSIGHT_ENVIRONMENT !== "dev")
 			return Async.sleep(1).then(() => viewManager.showDefaultView());

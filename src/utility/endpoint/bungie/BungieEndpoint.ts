@@ -12,6 +12,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 
 	private allowedErrorStatuses: string[] = [];
 	private subdomain = "www";
+	private optionalAuth?: true;
 
 	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
 		super(path, builder);
@@ -24,6 +25,14 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 
 	public setSubdomain (subdomain: string) {
 		this.subdomain = subdomain;
+		return this;
+	}
+
+	public setOptionalAuth (optionalAuth = true) {
+		if (optionalAuth)
+			this.optionalAuth = optionalAuth;
+		else
+			delete this.optionalAuth;
 		return this;
 	}
 
@@ -123,7 +132,8 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	}
 
 	private async getAuthorisation () {
-		await this.validateAuthorisation();
+		if (!this.optionalAuth)
+			await this.validateAuthorisation();
 		return Store.items.bungieAccessToken ? `Bearer ${Store.items.bungieAccessToken}` : undefined;
 	}
 
@@ -138,6 +148,7 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	query (...args: ARGS): Promise<RESPONSE & { _headers: Headers }>;
 	allowErrorStatus (status: string): this;
 	setSubdomain (subdomain: string): this;
+	setOptionalAuth (optionalAuth?: boolean): this;
 }
 
 namespace BungieEndpoint {

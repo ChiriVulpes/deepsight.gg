@@ -1,4 +1,5 @@
 import Model from "model/Model";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import GetMembershipsForCurrentUser from "utility/endpoint/bungie/endpoint/user/GetMembershipsForCurrentUser";
 import Store from "utility/Store";
 
@@ -11,6 +12,9 @@ const Memberships = Model.create("memberships", {
 export default Memberships;
 
 export async function getCurrentDestinyMembership () {
+	if (!Bungie.authenticated)
+		return undefined;
+
 	const memberships = await Memberships.await();
 	if (Store.items.destinyMembershipType === undefined) {
 		const firstMembership = memberships.destinyMemberships[0];

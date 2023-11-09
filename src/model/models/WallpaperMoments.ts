@@ -1,5 +1,5 @@
 import Model from "model/Model";
-import Manifest from "model/models/Manifest";
+import { DeepsightManifest } from "model/models/manifest/DeepsightManifest";
 
 declare module "manifest.deepsight.gg" {
 	interface DeepsightWallpaperDefinition {
@@ -7,7 +7,7 @@ declare module "manifest.deepsight.gg" {
 	}
 }
 
-export default Model.createDynamic("Daily", async _ => Manifest.await()
+export default Model.createDynamic("Daily", async _ => DeepsightManifest.await()
 	.then(async manifest => {
 		const wallpaperMomentsRaw = await manifest.DeepsightWallpaperDefinition.all();
 		const moments = await manifest.DeepsightMomentDefinition.all();

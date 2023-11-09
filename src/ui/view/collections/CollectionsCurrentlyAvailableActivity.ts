@@ -28,9 +28,9 @@ export enum CollectionsCurrentlyAvailableActivityClasses {
 	ActivityHeaderSubtitleExpiry = "view-collections-currently-available-activity-header-subtitle-expiry",
 }
 
-export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory: Inventory]> {
+export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory?: Inventory]> {
 
-	protected override onMake (activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory: Inventory): void {
+	protected override onMake (activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory?: Inventory): void {
 		super.onMake(activity, source, activityType, items, inventory);
 		this.setDisplayMode(CardClasses.DisplayModeCard);
 		this.classes.add(CollectionsCurrentlyAvailableActivityClasses.Activity);

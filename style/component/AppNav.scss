@@ -155,6 +155,12 @@
 	&-destination {
 		width: fit-content;
 		white-space: nowrap;
+		
+		:root:not(.authenticated) &-auth-required,
+		:root.authenticated &-no-auth-required {
+			display: none;
+		}
+		
 		&-children {
 			display: flex;
 			flex-direction: column;

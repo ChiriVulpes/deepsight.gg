@@ -7,6 +7,7 @@ import SettingsItemMovement from "ui/view/settings/SettingsItemMovement";
 export default View.create({
 	id: "settings",
 	name: "Settings",
+	auth: "optional",
 	initialiseDestinationButton: button =>
 		button.text.remove(),
 	initialise: view => view

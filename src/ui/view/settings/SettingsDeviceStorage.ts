@@ -28,12 +28,12 @@ export default class SettingsDeviceStorage extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Account & Storage");
 
-		const memberships = await Memberships.await();
+		const memberships = !Bungie.authenticated ? undefined : await Memberships.await().catch(() => undefined);
 		// if cross save is disabled and there's more than one membership, show a selection for which destiny membership should be viewed
-		if (memberships.destinyMemberships.length > 1) {
+		if ((memberships?.destinyMemberships.length ?? 0) > 1) {
 			const membershipsDropdown = Dropdown.create()
 				.addLabel(label => label.text.set("Platform"))
-				.tweak(dropdown => memberships.destinyMemberships.forEach(membership => dropdown.addOption(option => option
+				.tweak(dropdown => memberships!.destinyMemberships.forEach(membership => dropdown.addOption(option => option
 					.attributes.set("data-membership-type", `${membership.membershipType}`)
 					.text.set(membershipNames[membership.membershipType] ?? "Unknown Membership Type"))))
 				.tweak(dropdown => dropdown.options.forEach(option => {
@@ -61,14 +61,15 @@ export default class SettingsDeviceStorage extends Card<[]> {
 			}))
 			.appendTo(this.content);
 
-		DescribedButton.create()
-			.tweak(wrapper => wrapper.button.text.set("Unauthorise"))
-			.tweak(wrapper => wrapper.description.text.set("Forgets your Bungie.net authentication. (Note that the authentication token is not sent anywhere except Bungie.net, and it's stored on your device.)"))
-			.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
-				await Model.clearCache(true);
-				Bungie.resetAuthentication();
-				location.reload();
-			}))
-			.appendTo(this.content);
+		if (Bungie.authenticated)
+			DescribedButton.create()
+				.tweak(wrapper => wrapper.button.text.set("Unauthorise"))
+				.tweak(wrapper => wrapper.description.text.set("Forgets your Bungie.net authentication. (Note that the authentication token is not sent anywhere except Bungie.net, and it's stored on your device.)"))
+				.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
+					await Model.clearCache(true);
+					Bungie.resetAuthentication();
+					location.reload();
+				}))
+				.appendTo(this.content);
 	}
 }
