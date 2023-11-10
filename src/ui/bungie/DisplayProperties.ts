@@ -121,12 +121,12 @@ namespace Display {
 
 	function getIconURL (displayProperties?: Partial<DestinyDisplayPropertiesDefinition>) {
 		const icon = displayProperties?.icon;
-		if (icon?.endsWith(".png"))
-			return icon;
+		// if (icon?.endsWith(".png"))
+		// 	return icon;
 
-		return displayProperties?.iconSequences
-			?.flatMap(icon => icon.frames.filter(frame => frame.endsWith(".png")))
-			?.[0]
+		return icon
+			?? displayProperties?.iconSequences
+				?.flatMap(icon => icon.frames.filter(frame => frame.endsWith(".png")))?.[0]
 			?? icon;
 	}
 }

@@ -70,6 +70,12 @@ export default class Paginator extends Component {
 		this.event.subscribe("wheel", event => event.shiftKey
 			&& this.showPage(this.pageIndex + Math.sign(event.deltaY))
 			&& event.preventDefault());
+		this.event.subscribe("mousedown", event => {
+			if (event.button === 1) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		});
 	}
 
 	public filler (perPage: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
@@ -91,7 +97,7 @@ export default class Paginator extends Component {
 					.tweak(pageInitialiser)
 					.tweak(incrementPageInitialiser)
 					.style.set("--paginator-page-size", `${perPage}`);
-				index = 0;
+				index = 1;
 				return page;
 			},
 		};

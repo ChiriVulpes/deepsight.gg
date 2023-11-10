@@ -22,6 +22,9 @@ export enum ItemSocketsClasses {
 	PlugEffects = "view-item-socket-plug-effects",
 	PlugExotic = "view-item-socket-plug-exotic",
 	PlugRequiredLevel = "view-item-socket-plug-required-level",
+	PlugType = "view-item-socket-plug-type",
+	PlugIconInner = "view-item-socket-plug-icon-inner",
+	PlugIconInnerType = "view-item-socket-plug-icon-inner-type",
 	// PlugRequiredLevelWrapper = "view-item-socket-plug-required-level-wrapper",
 	Socketed = "view-item-socket-plug-socketed",
 }
@@ -203,9 +206,16 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
 			.classes.toggle((plug.is("Intrinsic", "=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
 			.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
+			.classes.removeWhere(cls => cls.startsWith(ItemSocketsClasses.PlugType))
+			.classes.add(`${ItemSocketsClasses.PlugType}-${plug.categorisation?.categoryName.toLowerCase()}`)
+			.classes.add(`${ItemSocketsClasses.PlugType}-${plug.type.replaceAll("/", "-").toLowerCase()}`)
 			.setIcon(Display.icon(perk?.definition) ?? Display.icon(plug.definition))
 			.setName(Display.name(perk?.definition) ?? Display.name(plug.definition) ?? "Unknown")
 			.setDescription(Display.description(perk?.definition) ?? Display.description(plug.definition));
+
+		this.innerIcon?.classes.add(ItemSocketsClasses.PlugIconInner)
+			.classes.add(`${ItemSocketsClasses.PlugIconInnerType}-${plug.categorisation?.categoryName.toLowerCase()}`)
+			.classes.add(`${ItemSocketsClasses.PlugIconInnerType}-${plug.type.replaceAll("/", "-").toLowerCase()}`);
 
 		if (item?.deepsight?.pattern && !item.instance && plug.is("Perk"))
 			// Component.create()

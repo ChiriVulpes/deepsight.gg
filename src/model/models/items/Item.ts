@@ -392,7 +392,11 @@ class Item {
 	}
 
 	public getOrnament (): Plug | undefined {
-		return this.getSocketedPlugs("=Cosmetic/Ornament")[0];
+		return this.getSocketedPlugs(
+			"Cosmetic/OrnamentArmor",
+			"Cosmetic/OrnamentWeapon",
+			"Cosmetic/OrnamentMask",
+		)[0];
 	}
 
 	/**

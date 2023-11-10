@@ -128,6 +128,27 @@
 				background: currentColor;
 			}
 		}
+
+		&-lore {
+			text-transform: none;
+			font-size: 12pt;
+			font-style: italic;
+			margin-left: 0.1em;
+			font-weight: 100;
+			opacity: 0.6;
+			padding-bottom: 10px;
+
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				width: 1.3em;
+				height: 4px;
+				background: currentColor;
+			}
+		}
 	}
 
 	&-footer {
@@ -309,3 +330,4 @@
 @import "ItemTooltipView";
 @import "CollectionsView";
 @import "AboutView";
+@import "ModsView";

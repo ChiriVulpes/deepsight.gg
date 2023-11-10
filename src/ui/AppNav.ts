@@ -97,7 +97,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			}
 
 			this.destinationDropdownWrappers.push(Component.create()
-				.classes.add(ClassesAppNav.DestinationChildren)
+				.classes.add(ClassesAppNav.DestinationChildren, `app-nav-destination-${parentViewId}-parent`)
 				.append(...destinationButtons)
 				.insertToAfter(this.destinationsWrapper, parentViewDestinationButton)
 				.prepend(parentViewDestinationButton));

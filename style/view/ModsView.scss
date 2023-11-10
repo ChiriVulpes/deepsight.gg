@@ -1,0 +1,39 @@
+.view-mods {
+	--view-padding-x: 50px;
+	
+	&-type-wrapper {
+		--types-wrapper-margin-x: 16px;
+		margin-left: var(--types-wrapper-margin-x);
+	}
+	
+	&-plug-list {
+		--paginator-content-width: calc(100vw - 20px - var(--view-padding-x) * 2 - var(--types-wrapper-margin-x, 0px));
+
+		&-content {
+			width: var(--paginator-content-width);
+		}
+
+		&-page {
+			width: var(--paginator-content-width);
+			// display: flex;
+			// gap: 8px;
+			// padding: 0 8px;
+			// --card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--paginator-page-size) - 1)) / var(--paginator-page-size));
+			// --card-height: calc(var(--card-width) * .75);
+			// height: var(--card-height);
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			content-visibility: auto;
+			align-content: start;
+		}
+	}
+	
+	&-plug {
+		content-visibility: auto;
+		height: 105px;
+		max-width: initial;
+		&-list-page:first-child &:times(25) {
+			@include view-swipe-animation($delay: .02s);
+		}
+	}
+}

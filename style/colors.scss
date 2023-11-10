@@ -164,3 +164,11 @@ $colors: (
 
 	@error "Unknown color '#{$name}'";
 }
+
+@function color-rgb($name) {
+	@if map-has-key($colors, $name) {
+		@return var(--#{$name}-rgb);
+	}
+
+	@error "Unknown color '#{$name}'";
+}

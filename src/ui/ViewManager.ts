@@ -5,6 +5,7 @@ import View from "ui/View";
 import AboutView from "ui/view/AboutView";
 import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
+import ModsView from "ui/view/collections/ModsView";
 import ErrorView from "ui/view/ErrorView";
 import InventoryArmourView from "ui/view/inventory/equipment/InventoryArmourView";
 import InventoryEquipmentView from "ui/view/inventory/equipment/InventoryEquipmentView";
@@ -57,6 +58,7 @@ const registry = Object.fromEntries([
 	ErrorView,
 	ItemTooltipView,
 	AboutView,
+	ModsView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));

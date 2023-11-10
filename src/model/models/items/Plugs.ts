@@ -187,6 +187,7 @@ type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof Dest
 interface PlugDef {
 	definition?: DestinyInventoryItemDefinition;
 	clarity?: ClarityDescription;
+	categorisation?: DeepsightPlugCategorisation;
 	type?: PlugType;
 	perks: Perk[];
 }
@@ -275,6 +276,7 @@ export class Plug {
 		return {
 			definition,
 			clarity,
+			categorisation,
 			type: categorisation?.fullName,
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};

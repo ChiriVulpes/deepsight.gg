@@ -4,6 +4,10 @@
 		position: relative;
 		&:not(.details-closed) {
 			min-height: calc(var(--slot-size) * 2);
+			> .details-summary {
+				backdrop-filter: blur(5px);
+				z-index: calc(1000 - var(--index, 0));
+			}
 		}
 
 		@at-root sleep,
@@ -13,6 +17,13 @@
 
 		.details-summary {
 			font-size: 16pt;
+			position: sticky;
+			top: 0;
+		}
+		
+		& & .details-summary {
+			position: relative;
+			font-size: 13pt;
 		}
 
 		&-content {
