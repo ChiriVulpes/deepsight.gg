@@ -1,4 +1,4 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -50,7 +50,7 @@ export default View.create({
 
 		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
-		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
+		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
 
 		if (!CharacterId.is(item.bucket) && !item.equipped && !isEngram)
 			Button.create()

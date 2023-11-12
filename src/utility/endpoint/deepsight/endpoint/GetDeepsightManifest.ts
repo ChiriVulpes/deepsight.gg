@@ -1,5 +1,5 @@
-import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightWallpaperDefinition } from "manifest.deepsight.gg";
-import type { DeepsightPlugCategorisation } from "manifest.deepsight.gg/plugs";
+import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightPlugCategorisation } from "@deepsight.gg/plugs";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";

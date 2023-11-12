@@ -1,6 +1,6 @@
+import type { BungieIconPath, DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
-import type { BungieIconPath, DeepsightDropTableDefinition } from "manifest.deepsight.gg";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
 import Trials from "model/models/Trials";

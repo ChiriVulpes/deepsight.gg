@@ -1,5 +1,5 @@
+import { StatHashes } from "@deepsight.gg/enums";
 import type { DestinyClass } from "bungie-api-ts/destiny2";
-import { StatHashes } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import Store from "utility/Store";
 

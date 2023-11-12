@@ -1,6 +1,7 @@
+import { InventoryBucketHashes, StatHashes } from "@deepsight.gg/enums";
+import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
-import { BucketHashes, DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, StatHashes, TransferStatuses } from "bungie-api-ts/destiny2";
-import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
+import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
@@ -246,7 +247,7 @@ class Item {
 			return undefined;
 		}
 
-		const invOrVault = reference.bucketHash === BucketHashes.Modifications ? "modifications" : reference.bucketHash === BucketHashes.Consumables ? "consumables" : "vault";
+		const invOrVault = reference.bucketHash === InventoryBucketHashes.Modifications ? "modifications" : reference.bucketHash === InventoryBucketHashes.Consumables ? "consumables" : "vault";
 		if ((bucket === "vault" || bucket === "consumables" || bucket === "modifications") && invOrVault !== bucket) {
 			return undefined;
 		}
@@ -286,7 +287,7 @@ class Item {
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true) {
 		const item: IItemInit = {
 			id: `hash:${definition.hash}:collections` as ItemId,
-			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: BucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
+			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: InventoryBucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
 			definition,
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			bucket: "collections" as any,
@@ -364,7 +365,7 @@ class Item {
 
 	public canTransfer () {
 		return (!PostmasterId.is(this.bucket) || !this.definition.doesPostmasterPullHaveSideEffects)
-			&& this.reference.bucketHash !== BucketHashes.Engrams;
+			&& this.reference.bucketHash !== InventoryBucketHashes.Engrams;
 	}
 
 	public getPower () {

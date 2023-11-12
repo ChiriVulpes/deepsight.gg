@@ -1,4 +1,4 @@
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import WeaponTypes from "model/models/enum/WeaponTypes";
 import Component from "ui/Component";
 import EnumIcon from "ui/bungie/EnumIcon";

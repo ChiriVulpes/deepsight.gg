@@ -1,8 +1,8 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import InventoryArmourSlotView from "ui/view/inventory/slot/InventoryArmourSlotView";
 
 export default InventoryArmourSlotView.create({
 	id: "arms",
 	name: "Arms",
-	slot: BucketHashes.Gauntlets,
+	slot: InventoryBucketHashes.Gauntlets,
 });

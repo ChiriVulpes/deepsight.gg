@@ -1,4 +1,5 @@
-import { DestinyItemSubType, ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
+import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { IStat } from "model/models/items/Stats";
 import { Classes } from "ui/Classes";
@@ -330,7 +331,7 @@ namespace ItemStat {
 		protected override onMake (): void {
 			this.map = {};
 
-			this.classes.add(ItemStatClasses.Wrapper)
+			this.classes.add(ItemStatClasses.Wrapper);
 		}
 
 		public setItem (item: Item) {

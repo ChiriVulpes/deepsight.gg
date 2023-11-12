@@ -1,4 +1,4 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/Items";
@@ -53,13 +53,13 @@ export enum InventoryViewClasses {
 
 export interface IInventoryViewDefinition {
 	sort: SortManager;
-	slot?: Arrays.Or<Arrays.Or<BucketHashes>>;
+	slot?: Arrays.Or<Arrays.Or<InventoryBucketHashes>>;
 	filter: FilterManager;
 	separateVaults?: true;
 }
 
 export namespace IInventoryViewDefinition {
-	export function resolveSlotId (slot: Arrays.Or<BucketHashes>) {
+	export function resolveSlotId (slot: Arrays.Or<InventoryBucketHashes>) {
 		return Array.isArray(slot) ? slot.join(",") : slot;
 	}
 
@@ -68,11 +68,11 @@ export namespace IInventoryViewDefinition {
 	}
 
 	const handledBuckets = new Set([
-		BucketHashes.KineticWeapons, BucketHashes.EnergyWeapons, BucketHashes.PowerWeapons,
-		BucketHashes.Helmet, BucketHashes.Gauntlets, BucketHashes.ChestArmor, BucketHashes.LegArmor, BucketHashes.ClassArmor,
-		BucketHashes.LostItems, BucketHashes.Engrams,
-		BucketHashes.Consumables,
-		BucketHashes.Ghost, BucketHashes.Vehicle, BucketHashes.Ships,
+		InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons,
+		InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor,
+		InventoryBucketHashes.LostItems, InventoryBucketHashes.Engrams,
+		InventoryBucketHashes.Consumables,
+		InventoryBucketHashes.Ghost, InventoryBucketHashes.Vehicle, InventoryBucketHashes.Ships,
 	]);
 	export function isLeftoverModificationsVaultItem (item: Item) {
 		return item.bucket === "vault"
@@ -96,9 +96,9 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	public postmasterBucketsContainer!: Component;
 	public consumablesBucket?: BucketComponent;
 	public modificationsBucket?: BucketComponent;
-	public characters!: Partial<Record<BucketHashes | string, Record<CharacterId, CharacterBucket>>>;
+	public characters!: Partial<Record<InventoryBucketHashes | string, Record<CharacterId, CharacterBucket>>>;
 	public postmasters!: Record<PostmasterId, PostmasterBucket>;
-	public vaults!: Partial<Record<BucketHashes | string, Record<CharacterId, VaultBucket>>>;
+	public vaults!: Partial<Record<InventoryBucketHashes | string, Record<CharacterId, VaultBucket>>>;
 	public bucketEntries!: [OwnedBucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
@@ -321,7 +321,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([character]);
 	}
 
-	protected generateSortedBuckets (slot: Arrays.Or<BucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults, skipPostmasters = false) {
+	protected generateSortedBuckets (slot: Arrays.Or<InventoryBucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults, skipPostmasters = false) {
 		const id = IInventoryViewDefinition.resolveSlotId(slot);
 
 		const oldCharacterBuckets = Object.values(this.characters[id] ?? {});
@@ -383,7 +383,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			postmaster.update();
 	}
 
-	protected sortSlot (slot: Arrays.Or<BucketHashes>) {
+	protected sortSlot (slot: Arrays.Or<InventoryBucketHashes>) {
 		const id = IInventoryViewDefinition.resolveSlotId(slot);
 		const highestPowerSlot: Component[] = [];
 		let highestPower = 0;
@@ -392,13 +392,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
 			if (bucketId === "modifications") {
-				if (!this.modificationsBucket || slot !== BucketHashes.Modifications)
+				if (!this.modificationsBucket || slot !== InventoryBucketHashes.Modifications)
 					continue;
 
 				bucketComponents = [this.modificationsBucket];
 
 			} else if (bucketId === "consumables") {
-				if (!this.consumablesBucket || slot !== BucketHashes.Consumables)
+				if (!this.consumablesBucket || slot !== InventoryBucketHashes.Consumables)
 					continue;
 
 				bucketComponents = [this.consumablesBucket];
@@ -444,7 +444,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
 			const sortedItems = sortedBucketItems[bucketId] = this.super.definition.sort.sort(bucket.items)
-				.filter(item => !(item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === BucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)) && this.itemMap.get(item)));
+				.filter(item => !(item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === InventoryBucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)) && this.itemMap.get(item)));
 			for (const item of sortedItems) {
 				const itemComponent = this.itemMap.get(item);
 				if (!itemComponent)
@@ -455,7 +455,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					: bucketComponents.find(component => (component as VaultBucket).character?.classType === item.definition.classType)
 					?? bucketComponents[0];
 
-				const slotWrapper = item.reference.bucketHash === BucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
+				const slotWrapper = item.reference.bucketHash === InventoryBucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
 					: bucketComponent.content;
 				const slotComponent = item.equipped ? equippedComponent! : Slot.create()
 					.appendTo(slotWrapper);

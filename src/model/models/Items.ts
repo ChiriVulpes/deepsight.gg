@@ -1,5 +1,5 @@
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryComponent, DestinyItemComponent } from "bungie-api-ts/destiny2";
-import { BucketHashes } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import DebugInfo from "model/models/DebugInfo";
 import type { BucketId, CharacterId } from "model/models/items/Item";
@@ -34,7 +34,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	await DeepsightDropTableDefinition.all();
 	await DestinyActivityDefinition.all();
 
-	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(BucketHashes.General);
+	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(InventoryBucketHashes.General);
 
 	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);
 	const profile = await ProfileBatch.await();
@@ -101,7 +101,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	for (const [characterId, character] of Object.entries(profile.characterInventories?.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
 		const postmasterId = `postmaster:${characterId}` as const;
 		buckets[postmasterId] = await createBucket(postmasterId, character.items
-			.filter(item => item.bucketHash === BucketHashes.LostItems || item.bucketHash === BucketHashes.Engrams));
+			.filter(item => item.bucketHash === InventoryBucketHashes.LostItems || item.bucketHash === InventoryBucketHashes.Engrams));
 
 		const bucket = buckets[characterId] = await createBucket(characterId, character.items);
 

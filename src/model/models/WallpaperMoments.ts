@@ -1,7 +1,7 @@
 import Model from "model/Model";
 import { DeepsightManifest } from "model/models/manifest/DeepsightManifest";
 
-declare module "manifest.deepsight.gg" {
+declare module "@deepsight.gg/interfaces" {
 	interface DeepsightWallpaperDefinition {
 		moment?: DeepsightMomentDefinition;
 	}

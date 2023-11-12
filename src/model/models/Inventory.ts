@@ -1,4 +1,4 @@
-import type { BucketHashes } from "bungie-api-ts/destiny2";
+import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import type Character from "model/models/Characters";
@@ -128,11 +128,11 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		for (const [bucketId, bucket] of iterableBuckets) {
 			if (!CharacterId.is(bucketId)) continue;
 
-			const equipped: Partial<Record<BucketHashes, Item>> = {};
+			const equipped: Partial<Record<InventoryBucketHashes, Item>> = {};
 			for (const item of bucket.items) {
 				if (!item.equipped) continue;
 
-				const bucketHash = item.definition.inventory?.bucketTypeHash as BucketHashes;
+				const bucketHash = item.definition.inventory?.bucketTypeHash as InventoryBucketHashes;
 				if (!equipped[bucketHash]) {
 					equipped[bucketHash] = item;
 					continue;

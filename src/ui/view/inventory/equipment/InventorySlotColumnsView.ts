@@ -1,4 +1,4 @@
-import type { BucketHashes } from "bungie-api-ts/destiny2";
+import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -28,7 +28,7 @@ export enum InventorySlotColumnsViewClasses {
 }
 
 interface ISlotColumn {
-	slot?: Arrays.Or<Arrays.Or<BucketHashes>>;
+	slot?: Arrays.Or<Arrays.Or<InventoryBucketHashes>>;
 	name: string;
 	component: Component;
 }

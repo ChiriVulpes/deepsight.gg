@@ -6,8 +6,8 @@ import Task from "./utilities/Task";
 
 export default Task("install", async () => {
 	const lockFilePath = path.join(process.cwd(), "package-lock.json");
-	let lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8")) as { "d2ai-module.sha"?: string };
-	let sha = lockFileData["d2ai-module.sha"];
+	let lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8")) as { "@deepsight.gg/enums"?: string };
+	let sha = lockFileData["@deepsight.gg/enums"];
 
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install");
 	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
@@ -16,33 +16,28 @@ export default Task("install", async () => {
 	}
 
 	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
-		const commit = await fetch("https://api.github.com/repos/DestinyItemManager/d2ai-module/commits/master")
+		const commit = await fetch("https://api.github.com/repos/ChiriVulpes/deepsight.gg/commits/manifest")
 			.then(response => response.json()) as { sha: string };
 		if (sha !== commit.sha) {
 			sha = commit.sha;
-			Log.info("Updating to d2ai @", ansi.lightGreen(sha));
+			Log.info("Updating to @deepsight.gg/enums @", ansi.lightGreen(sha));
 		}
 
 	} else {
-		Log.info("Including d2ai @", ansi.lightGreen(sha));
+		Log.info("Including @deepsight.gg/enums @", ansi.lightGreen(sha));
 	}
 
 	if (!sha)
-		throw new Error("No commit sha found for d2ai-module");
+		throw new Error("No commit sha found for @deepsight.gg/enums");
 
-	await fetch(`https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/${sha}/generated-enums.ts`)
+	await fetch(`https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/${sha}/Enums.d.ts`)
 		.then(response => response.text())
-		.then(text => {
-			text = text.replace(/export const/g, "export declare const");
-			return fs.writeFile("src/node_modules/bungie-api-ts/destiny2/generated-enums.d.ts", text);
-		});
-
-	await fs.appendFile("src/node_modules/bungie-api-ts/destiny2/index.d.ts", "export * from './generated-enums';\n");
+		.then(text => fs.writeFile("static/manifest/Enums.d.ts", text));
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	lockFileData = JSON.parse(fs.readFileSync(lockFilePath, "utf8"));
-	if (lockFileData["d2ai-module.sha"] !== sha) {
-		lockFileData["d2ai-module.sha"] = sha;
+	if (lockFileData["@deepsight.gg/enums"] !== sha) {
+		lockFileData["@deepsight.gg/enums"] = sha;
 		fs.writeFileSync(lockFilePath, JSON.stringify(lockFileData, null, "\t") + "\n");
 	}
 });

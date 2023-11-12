@@ -1,5 +1,5 @@
+import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
-import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";

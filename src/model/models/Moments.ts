@@ -1,9 +1,9 @@
+import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyEventCardDefinition } from "bungie-api-ts/destiny2";
-import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 
-declare module "manifest.deepsight.gg" {
+declare module "@deepsight.gg/interfaces" {
 	interface DeepsightMomentDefinition {
 		eventCard?: DestinyEventCardDefinition;
 	}

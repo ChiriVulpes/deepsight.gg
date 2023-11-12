@@ -1,4 +1,4 @@
-import { BucketHashes, ItemCategoryHashes, StatHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -409,7 +409,7 @@ class ItemTooltip extends Tooltip {
 		const className = cls?.displayProperties.name ?? "Unknown";
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
-		const isEngram = item.reference.bucketHash === BucketHashes.Engrams;
+		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
 		this.hintVault.classes.toggle(item.bucket === "vault" || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
@@ -428,7 +428,6 @@ class ItemTooltip extends Tooltip {
 		} else {
 			this.detailedMods.setItem(item);
 
-			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 			if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) && item.collections?.hasRandomRolls()) {
 				this.randomRollHeading.classes.remove(Classes.Hidden)
 					.text.set(item.shaped ? "This item can be shaped with the following perks:"

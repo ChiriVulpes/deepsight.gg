@@ -1,4 +1,4 @@
-import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
+import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";

@@ -1,4 +1,4 @@
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { BucketId } from "model/models/items/Item";
@@ -33,7 +33,7 @@ export default class DebugInfo {
 		}
 
 		function filterByCategory (items: Item[], category: ItemCategoryHashes) {
-			return applyRarities(items.filter(item => item.definition.itemCategoryHashes?.includes(category)))
+			return applyRarities(items.filter(item => item.definition.itemCategoryHashes?.includes(category)));
 		}
 
 		function getDeveloperData (items: Item[]) {

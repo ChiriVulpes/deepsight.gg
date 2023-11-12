@@ -1,5 +1,5 @@
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import Manifest from "model/models/Manifest";
 import Arrays from "utility/Arrays";
 

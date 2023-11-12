@@ -1,4 +1,4 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Filter from "ui/inventory/filter/Filter";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import InventoryWeaponSlotView, { FILTERS_INAPPLICABLE_WEAPONS } from "ui/view/inventory/slot/InventoryWeaponSlotView";
@@ -6,7 +6,7 @@ import InventoryWeaponSlotView, { FILTERS_INAPPLICABLE_WEAPONS } from "ui/view/i
 export default InventoryWeaponSlotView.create({
 	id: "power",
 	name: "Power",
-	slot: BucketHashes.PowerWeapons,
+	slot: InventoryBucketHashes.PowerWeapons,
 	filter: new FilterManager({
 		id: "heavyWeapons",
 		name: "Heavy Weapons",

@@ -1,5 +1,6 @@
-import { DestinyClass, ItemCategoryHashes } from "bungie-api-ts/destiny2";
-import type { DeepsightMomentDefinition } from "manifest.deepsight.gg";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
+import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
+import { DestinyClass } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Collections from "model/models/Collections";
 import type Inventory from "model/models/Inventory";

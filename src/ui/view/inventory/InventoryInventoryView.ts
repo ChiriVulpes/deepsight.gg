@@ -1,4 +1,4 @@
-import { BucketHashes } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import View from "ui/View";
@@ -113,7 +113,7 @@ export default new View.Factory()
 	.create({
 		id: VIEW_ID_INVENTORY,
 		name: VIEW_NAME_INVENTORY,
-		slot: [BucketHashes.Consumables, BucketHashes.Modifications],
+		slot: [InventoryBucketHashes.Consumables, InventoryBucketHashes.Modifications],
 		sort: new SortManager(SORT_MANAGER_INVENTORY_DEFINITION),
 		filter: new FilterManager(FILTER_MANAGER_INVENTORY_DEFINITION),
 	});

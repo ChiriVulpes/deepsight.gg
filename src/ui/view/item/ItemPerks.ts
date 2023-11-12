@@ -1,4 +1,4 @@
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";

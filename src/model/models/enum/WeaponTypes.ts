@@ -1,5 +1,5 @@
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes } from "bungie-api-ts/destiny2";
 import EnumModel from "model/models/enum/EnumModel";
 import type Arrays from "utility/Arrays";
 
@@ -140,7 +140,7 @@ const WeaponTypes = EnumModel.create("WeaponTypes", {
 			traceRifle: types.find(type => type.enumValue === ItemCategoryHashes.TraceRifles)!,
 			bow: types.find(type => type.enumValue === ItemCategoryHashes.Bows)!,
 			glaive: types.find(type => type.enumValue === ItemCategoryHashes.Glaives)!,
-		}
+		};
 	},
 	async get (this: EnumModel<WeaponTypesDefinition, DestinyWeaponTypeDefinition>, hash?: Arrays.Or<string | number>) {
 		const types = await this.all;

@@ -1,4 +1,5 @@
-import { ItemCategoryHashes, type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
+import { type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";

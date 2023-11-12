@@ -1,4 +1,5 @@
-import { BucketHashes, DestinyItemType } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -324,7 +325,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 				return;
 		}
 
-		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === BucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
+		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === InventoryBucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
 		this.extra.classes.toggle(encounteredQuantityOrPowerState === 1 && extra < 3, ItemClasses.ExtraNoneAfterQuantityOrPower);
 	}
 

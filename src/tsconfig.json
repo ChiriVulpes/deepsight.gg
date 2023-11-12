@@ -15,8 +15,9 @@
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
 		"paths": {
-			"manifest.deepsight.gg": ["../static/manifest/Interfaces.d.ts"],
-			"manifest.deepsight.gg/plugs": ["../static/manifest/DeepsightPlugCategorisation.d.ts"]
+			"@deepsight.gg/interfaces": ["../static/manifest/Interfaces.d.ts"],
+			"@deepsight.gg/plugs": ["../static/manifest/DeepsightPlugCategorisation.d.ts"],
+			"@deepsight.gg/enums": ["../static/manifest/Enums.d.ts"]
 		}
 	}
 }

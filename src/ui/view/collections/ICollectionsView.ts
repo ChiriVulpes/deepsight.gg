@@ -1,4 +1,5 @@
-import { BucketHashes, DestinyClass, ItemCategoryHashes, TierType } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
+import { DestinyClass, TierType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type Component from "ui/Component";
@@ -8,14 +9,14 @@ import Slot from "ui/inventory/Slot";
 
 namespace ICollectionsView {
 	const bucketOrder = [
-		BucketHashes.KineticWeapons,
-		BucketHashes.EnergyWeapons,
-		BucketHashes.PowerWeapons,
-		BucketHashes.Helmet,
-		BucketHashes.Gauntlets,
-		BucketHashes.ChestArmor,
-		BucketHashes.LegArmor,
-		BucketHashes.ClassArmor,
+		InventoryBucketHashes.KineticWeapons,
+		InventoryBucketHashes.EnergyWeapons,
+		InventoryBucketHashes.PowerWeapons,
+		InventoryBucketHashes.Helmet,
+		InventoryBucketHashes.Gauntlets,
+		InventoryBucketHashes.ChestArmor,
+		InventoryBucketHashes.LegArmor,
+		InventoryBucketHashes.ClassArmor,
 	];
 
 	export function addItems (component: Component, items: Item[], inventory?: Inventory) {

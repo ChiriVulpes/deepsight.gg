@@ -1,5 +1,5 @@
+import { StatHashes } from "@deepsight.gg/enums";
 import type { DestinyStatDefinition } from "bungie-api-ts/destiny2";
-import { StatHashes } from "bungie-api-ts/destiny2";
 import EnumModel from "model/models/enum/EnumModel";
 import Manifest from "model/models/Manifest";
 
@@ -43,7 +43,7 @@ const StatTypes = EnumModel.create("StatTypes", {
 			discipline,
 			intellect,
 			strength,
-		}
+		};
 	},
 	async get (this: EnumModel<StatTypesDefinition, DestinyStatDefinition>, hash?: string | number) {
 		const types = await this.all;
