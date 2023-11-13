@@ -4,6 +4,17 @@ import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
 import manifest from "./manifest/DestinyManifest";
 import Task from "./utilities/Task";
 
+const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
+	DestinyInventoryBucketDefinition: {
+		2422292810: "Dummy",
+		444348033: "Weekly Clan Objectives",
+		497170007: "Weekly Clan Engrams",
+		1801258597: "Highlighted Quests",
+		2401704334: "Dummy Emote",
+		3621873013: "Dummy",
+	},
+};
+
 interface Definition {
 	hash?: number;
 	displayProperties?: DestinyDisplayPropertiesDefinition;
@@ -32,7 +43,10 @@ export class EnumHelper {
 		if (typeof definition !== "string" && definition?.hash === undefined)
 			return undefined;
 
-		let name = EnumHelper.simplifyName(typeof definition === "string" ? definition : definition.displayProperties?.name);
+		let name = (typeof definition === "string" ? definition : definition.displayProperties?.name)
+			?? MISSING_ENUM_NAMES[this.type as keyof AllDestinyManifestComponents]?.[(definition as Definition).hash!];
+
+		name = EnumHelper.simplifyName(name);
 		if (!name)
 			return undefined;
 
