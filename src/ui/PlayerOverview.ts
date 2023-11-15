@@ -137,9 +137,10 @@ namespace PlayerOverview {
 				panel.setBucket(this.inventory, character, bucket);
 
 				const className = character.class?.displayProperties.name ?? "Unknown";
+				const background = character.emblem?.secondarySpecial ?? character.emblemBackgroundPath;
 				this.characterPicker.addOption({
 					id: character.characterId as CharacterId,
-					background: `https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}`,
+					background: background && `https://www.bungie.net${background}`,
 					icon: `https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg`,
 				});
 			}

@@ -40,8 +40,11 @@ export default class CharacterBucket extends BucketComponent<[]> {
 
 		this.title.text.set(className);
 
-		this.style.set("--background", `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
-			.style.set("--emblem", `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);
+		const background = character.emblem?.secondarySpecial ?? character.emblemBackgroundPath;
+		if (background)
+			this.style.set("--background", `url("https://www.bungie.net${background}")`);
+
+		this.style.set("--emblem", `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);
 		return this;
 	}
 
