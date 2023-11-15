@@ -519,6 +519,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					&& Arrays.includes(slot, item.definition.inventory?.bucketTypeHash)
 					&& (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary));
 		}
+
+		for (const [bucketId, items] of Object.entries(sortedBucketItems)) {
+			const bucket = this.bucketEntries.find(entry => entry[0] === bucketId)?.[1];
+			if (!bucket?.characterId) continue;
+
+			bucket.fallbackRemovalItem = items?.[items.length - 1];
+		}
 	}
 
 	private filter () {

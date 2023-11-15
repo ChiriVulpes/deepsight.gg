@@ -54,6 +54,7 @@ export class Bucket {
 	public readonly characterId?: CharacterId;
 	public readonly name?: string;
 	public readonly capacity?: number;
+	public fallbackRemovalItem?: Item;
 
 	public constructor (public readonly id: BucketId, public readonly definition: DestinyInventoryBucketDefinition, public readonly items: Item[]) {
 		this.name = definition.displayProperties?.name ?? "?";
@@ -84,6 +85,16 @@ export class Bucket {
 	public isEngrams () {
 		return this.is(InventoryBucketHashes.Engrams);
 	}
+
+	public async makeSpace (swapBucket?: Bucket) {
+		if (!this.fallbackRemovalItem)
+			return false;
+
+		if (swapBucket)
+			return this.fallbackRemovalItem.transferToBucket(swapBucket).then(() => true).catch(() => false);
+
+		return this.fallbackRemovalItem.transferToVault().then(() => true).catch(() => false);
+	}
 }
 
 export enum ItemFomoState {
@@ -103,7 +114,7 @@ enum TransferType {
 interface ITransferArgs {
 	[TransferType.PullFromPostmaster]: [],
 	[TransferType.TransferToVault]: [ifNotCharacter?: CharacterId],
-	[TransferType.TransferToCharacterFromVault]: [character: CharacterId],
+	[TransferType.TransferToCharacterFromVault]: [character: CharacterId, swapBucket?: Bucket],
 	[TransferType.Equip]: [character: CharacterId],
 	[TransferType.Unequip]: [],
 }
@@ -161,10 +172,15 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		},
 	},
 	[TransferType.TransferToCharacterFromVault]: {
-		applicable: (item, characterId) => item.bucket.isVault() && item.inventory.hasBucket(item.definition.inventory?.bucketTypeHash, characterId),
-		async transfer (item, characterId) {
+		applicable: (item, characterId, swapBucket) => item.bucket.isVault()
+			&& item.inventory.hasBucket(item.definition.inventory?.bucketTypeHash, characterId),
+		async transfer (item, characterId, swapBucket) {
 			if (!this.applicable(item, characterId))
 				throw new Error("Not in vault bucket");
+
+			const bucket = item.inventory.getBucket(item.definition.inventory!.bucketTypeHash, characterId)!;
+			if (bucket.items.length >= (bucket.capacity ?? Infinity) && !await bucket.makeSpace(swapBucket))
+				throw new Error("Unable to make space");
 
 			await TransferItem.query(item, characterId);
 			return {
@@ -527,7 +543,7 @@ class Item {
 			await this._transferPromise;
 	}
 
-	public transferToBucket (bucket: Bucket) {
+	public async transferToBucket (bucket: Bucket) {
 		// if (bucket.is(InventoryBucketHashes.Consumables) || bucket.is(InventoryBucketHashes.Modifications))
 		// 	throw new Error("Inventory transfer not implemented yet");
 
@@ -550,7 +566,7 @@ class Item {
 			TransferType.PullFromPostmaster,
 			TransferType.Unequip,
 			...this.bucket.isCharacter() ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
-			[TransferType.TransferToCharacterFromVault, character],
+			[TransferType.TransferToCharacterFromVault, character, this.bucket],
 		);
 	}
 
@@ -577,7 +593,7 @@ class Item {
 			TransferType.PullFromPostmaster,
 			TransferType.Unequip,
 			[TransferType.TransferToVault, character],
-			[TransferType.TransferToCharacterFromVault, character],
+			[TransferType.TransferToCharacterFromVault, character, this.bucket],
 			[TransferType.Equip, character],
 		);
 	}
