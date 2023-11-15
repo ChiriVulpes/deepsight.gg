@@ -338,7 +338,7 @@ namespace PlayerOverview {
 
 
 	export function create (): Loadable.Component {
-		return Loadable.create(Memberships, Inventory.createTemporary())
+		return Loadable.create(Memberships, Inventory.await())
 			.onReady((memberships, inventory) => Component.create([memberships, inventory]))
 			.setSimple()
 			.classes.add(PlayerOverviewClasses.Container);

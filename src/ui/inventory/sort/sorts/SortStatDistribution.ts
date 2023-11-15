@@ -65,7 +65,7 @@ class StatDistributionDisplay extends Component<HTMLElement, [Item]> {
 
 		const distribution = IStatDistribution.get(this.item);
 		this.style.set("--value", `${distribution.overall}`);
-		this.value.text.set(`${Math.floor(distribution.overall * 100)}%`)
+		this.value.text.set(`${Math.floor(distribution.overall * 100)}%`);
 	}
 }
 
@@ -76,7 +76,7 @@ export default ISort.create({
 	sort: (a, b) => IStatDistribution.get(b).overall - IStatDistribution.get(a).overall,
 	render: item => IStatDistribution.get(item).overall <= 0 ? undefined : StatDistributionDisplay.create([item]),
 	renderSortable: sortable => sortable.icon.text.set("%"),
-	renderSortableOptions: (wrapper, update) => Loadable.create(Inventory.createTemporary())
+	renderSortableOptions: (wrapper, update) => Loadable.create(Inventory.await())
 		.onReady(inventory => {
 			const container = Component.create();
 
@@ -183,7 +183,7 @@ class StatRow extends Component<HTMLElement, [Stat, DestinyClass]> {
 
 		const { DestinyStatDefinition } = await Manifest.await();
 		const definition = await DestinyStatDefinition.get(stat);
-		this.checkbox.label.text.set(definition?.displayProperties.name ?? "Unknown")
+		this.checkbox.label.text.set(definition?.displayProperties.name ?? "Unknown");
 	}
 
 	public update (event?: any, force = false) {

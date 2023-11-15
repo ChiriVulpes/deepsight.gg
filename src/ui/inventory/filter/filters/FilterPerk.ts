@@ -11,7 +11,7 @@ interface IFilterPerkSuggestedValue extends IFilterSuggestedValue {
 }
 
 export default IFilter.async(async () => {
-	const inventory = await Inventory.createTemporary().await();
+	const inventory = await Inventory.await();
 	const perks = [...new Map(Object.values(inventory.items ?? {})
 		.flatMap(item => item.getSockets("Perk", "Intrinsic"))
 		.flatMap(socket => socket.plugs)

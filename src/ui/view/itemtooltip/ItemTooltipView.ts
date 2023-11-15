@@ -17,7 +17,7 @@ export enum ItemTooltipViewClasses {
 	Buttons = "view-item-tooltip-buttons",
 }
 
-const tooltipViewModels = [Manifest, Inventory.createTemporary()] as const;
+const tooltipViewModels = [Manifest, Inventory.createModel()] as const;
 export default View.create({
 	models: (item: Item | string) => [
 		...tooltipViewModels,

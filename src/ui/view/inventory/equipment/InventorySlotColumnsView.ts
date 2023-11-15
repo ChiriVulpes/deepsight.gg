@@ -166,7 +166,7 @@ export class InventorySlotColumnsView extends InventoryView {
 }
 
 export default new View.Factory()
-	.using(Inventory.createTemporary())
+	.using(Inventory.createModel())
 	.define<IInventorySlotColumnsViewDefinition>()
 	.initialise((view, model) =>
 		view.make(InventorySlotColumnsView, model))

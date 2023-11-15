@@ -11,10 +11,11 @@ import GetVendor, { VendorHashes } from "utility/endpoint/bungie/endpoint/destin
 
 type WeaponRotation = Partial<Record<VendorHashes, number[]>>;
 
-const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
-	const result: WeaponRotation = {};
+const WeaponRotation = Model.createDynamic(Time.seconds(30), async api => {
+	const vendors: VendorHashes[] = [VendorHashes.CommanderZavala, VendorHashes.Saint14];
 
-	const membership = await getCurrentMembershipAndCharacter();
+	const result: WeaponRotation = {};
+	const membership = await getCurrentMembershipAndCharacter(api, 1 / vendors.length);
 	if (!membership?.characterId)
 		return result;
 
@@ -23,8 +24,10 @@ const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
 
 	// const profile = await ProfileBatch.await();
 
-	const vendors: VendorHashes[] = [VendorHashes.CommanderZavala, VendorHashes.Saint14];
-	for (const vendorHash of vendors) {
+	api.emitProgress(1 / vendors.length, "Loading weapon rotation");
+	for (let i = 0; i < vendors.length; i++) {
+		const vendorHash = vendors[i];
+		api.emitProgress((1 + i) / vendors.length, "Loading weapon rotation");
 		const vendor = await GetVendor.query(membership.membershipType, membership.membershipId, membership.characterId, vendorHash, [
 			DestinyComponentType.VendorSales,
 		]).catch(() => undefined);
@@ -51,7 +54,8 @@ const WeaponRotation = Model.createDynamic(Time.seconds(30), async () => {
 		}
 	}
 
+	api.emitProgress(1, "Loaded weapon rotation");
 	return result;
-});
+}, "Weapon Rotation");
 
 export default WeaponRotation;

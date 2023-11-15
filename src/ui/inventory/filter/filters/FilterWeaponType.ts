@@ -12,7 +12,7 @@ declare module "bungie-api-ts/destiny2/interfaces" {
 }
 
 export default IFilter.async(async () => {
-	const inventory = await Inventory.createTemporary().await();
+	const inventory = await Inventory.await();
 
 	return ({
 		id: Filter.WeaponType,

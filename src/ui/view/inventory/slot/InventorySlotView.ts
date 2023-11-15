@@ -5,7 +5,7 @@ import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
 
 export default new View.Factory()
-	.using(Inventory.createTemporary())
+	.using(Inventory.createModel())
 	.define<IInventoryViewDefinition>()
 	.initialise((view, model) =>
 		view.make(InventoryView, model))

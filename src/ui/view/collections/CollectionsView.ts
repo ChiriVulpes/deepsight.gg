@@ -7,11 +7,12 @@ import WeaponRotation from "model/models/WeaponRotation";
 import View from "ui/View";
 import CollectionsCurrentlyAvailable from "ui/view/collections/CollectionsCurrentlyAvailable";
 import CollectionsMoment from "ui/view/collections/CollectionsMoment";
+import Arrays from "utility/Arrays";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
-const CollectionsViewModel = Model.createTemporary(async (): Promise<[ProfileBatch?, WeaponRotation?, Inventory?]> => {
-	return !Bungie.authenticated ? [] : Promise.all([ProfileBatch.await(), WeaponRotation.await(), Inventory.createTemporary().await()]);
-});
+const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, WeaponRotation?, Inventory?]> =>
+	!Bungie.authenticated ? []
+		: api.subscribeProgressAndWaitAll(Arrays.tuple(ProfileBatch, WeaponRotation, Inventory.createModel()), 1));
 
 export default View.create({
 	models: [Manifest, Moments, CollectionsViewModel] as const,

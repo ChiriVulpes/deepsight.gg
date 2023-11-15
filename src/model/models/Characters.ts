@@ -1,5 +1,6 @@
 import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import type { GroupUserInfoCard } from "bungie-api-ts/groupv2";
+import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import { getCurrentDestinyMembership } from "model/models/Memberships";
@@ -54,12 +55,13 @@ export interface CharacterInfoCard extends GroupUserInfoCard {
 	characterId?: CharacterId;
 }
 
-export async function getCurrentMembershipAndCharacter (): Promise<CharacterInfoCard | undefined> {
-	const membership = await getCurrentDestinyMembership();
+export async function getCurrentMembershipAndCharacter (api?: IModelGenerationApi, amount?: number, from?: number): Promise<CharacterInfoCard | undefined> {
+	const progress = (amount ?? 1) * (1 / 2);
+	const membership = await getCurrentDestinyMembership(api, progress, from);
 	if (!membership)
 		return undefined;
 
-	const profile = await ProfileBatch.await();
+	const profile = await (api?.subscribeProgressAndWait(ProfileBatch, progress, (from ?? 0) + progress) ?? ProfileBatch.await());
 	return {
 		...membership,
 		characterId: !profile.characters?.data ? undefined : Object.keys(profile.characters?.data ?? Objects.EMPTY)[0] as CharacterId,

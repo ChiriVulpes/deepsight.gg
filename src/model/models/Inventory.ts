@@ -32,13 +32,20 @@ Model.event.subscribe("clearCache", () => {
 
 export default class Inventory implements IItemComponentCharacterHandler {
 
+	public static createModel () {
+		return Model.createTemporary(api => Inventory.await(api));
+	}
+
 	private static INSTANCE?: Inventory;
 	public static get () {
 		return Inventory.INSTANCE ??= new Inventory();
 	}
 
-	public static createTemporary () {
-		return Model.createTemporary(async progress => Inventory.get().await(progress));
+	public static async await (api?: IModelGenerationApi) {
+		const inventory = Inventory.get();
+		if (!inventory.loaded)
+			await inventory.await(api);
+		return inventory;
 	}
 
 	public readonly event = new EventManager<this, IInventoryModelEvents>(this);
@@ -48,6 +55,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
 	public readonly craftedItems = new Set<number>();
+	private loaded = false;
 
 	public constructor () {
 		this.onItemBucketChange = this.onItemBucketChange.bind(this);
@@ -130,6 +138,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 			await itemsLoadedPromise;
 
 		progress?.emitProgress(3 / 3);
+		this.loaded = true;
 		return this as Required<this>;
 	}
 

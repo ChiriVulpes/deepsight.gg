@@ -22,7 +22,7 @@ import Objects from "utility/Objects";
 export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 4);
 	const profile = await api.subscribeProgressAndWait(ProfileBatch, 1 / 4, 1 / 4);
-	const inventory = await api.subscribeProgressAndWait(Inventory.createTemporary(), 1 / 4, 2 / 4);
+	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 1 / 4, 2 / 4);
 	const { DestinyInventoryItemDefinition } = manifest;
 
 	let [bucketId, characterIdOrItemId, itemId] = url.split("/") as ["collections" | BucketId, string, string?];
@@ -65,7 +65,7 @@ enum ItemViewClasses {
 
 const itemViewBase = View.create({
 	models: (item: Item | string) =>
-		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api), "resolveItemURL")] as const,
+		[Manifest, Inventory.createModel(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api), "resolveItemURL")] as const,
 	id: "item",
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket.isCollections() ? "collections" : item.bucket.id}/${item.bucket.isCollections() ? item.definition.hash : item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,

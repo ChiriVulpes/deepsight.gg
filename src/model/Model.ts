@@ -4,6 +4,7 @@ import Arrays from "utility/Arrays";
 import Database from "utility/Database";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
+import Maths from "utility/maths/Maths";
 import type { AnyFunction } from "utility/Type";
 
 export interface IModelEvents<R> {
@@ -19,6 +20,7 @@ export interface IModelGenerationApi {
 	emitProgress (progress: number, messages?: string | string[]): void;
 	subscribeProgress (model: Model<any>, amount: number, from?: number): this;
 	subscribeProgressAndWait<R> (model: Model<any, R>, amount: number, from?: number): Promise<R>;
+	subscribeProgressAndWaitAll<MODELS extends Model<any, any>[]> (models: MODELS, amount: number, from?: number): Promise<{ [INDEX in keyof MODELS]: MODELS[INDEX] extends Model<any, infer R> ? R : never }>;
 }
 
 export interface IModel<T, R, API = undefined> {
@@ -262,6 +264,33 @@ namespace Model {
 						subscribeProgressAndWait: (model, amount, from) => {
 							api.subscribeProgress(model, amount, from);
 							return model.await();
+						},
+						subscribeProgressAndWaitAll: (models, amount, from = 0): Promise<any> => {
+							const progresses: number[] = models.map(() => 0);
+							const messageses: string[][] = models.map(() => []);
+							for (let i = 0; i < models.length; i++) {
+								const model = models[i];
+								if (!model.loading || subscriptions.has(model)) {
+									progresses[i] = 1;
+									continue;
+								}
+
+								const handleSubUpdate = ({ progress: subAmount, messages }: IModelEvents<any>["loadUpdate"]) => {
+									const progress = from + subAmount * amount;
+									progresses[i] = progress;
+									messageses[i] = messages;
+									// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+									(api.emitProgress as any)(Maths.average(...progresses), [...messageses.flat(), ...lastMessage].filter(m => m), true);
+								};
+								model.event.subscribe("loadUpdate", handleSubUpdate);
+								subscriptions.set(model, handleSubUpdate);
+								model.event.subscribeOnce("loaded", () => {
+									model.event.unsubscribe("loadUpdate", handleSubUpdate);
+									subscriptions.delete(model);
+								});
+							}
+
+							return Promise.all(models.map(model => model.await()));
 						},
 					};
 

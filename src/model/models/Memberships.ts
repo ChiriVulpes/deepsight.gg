@@ -1,3 +1,4 @@
+import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import GetMembershipsForCurrentUser from "utility/endpoint/bungie/endpoint/user/GetMembershipsForCurrentUser";
@@ -11,11 +12,11 @@ const Memberships = Model.create("memberships", {
 
 export default Memberships;
 
-export async function getCurrentDestinyMembership () {
+export async function getCurrentDestinyMembership (api?: IModelGenerationApi, amount?: number, from?: number) {
 	if (!Bungie.authenticated)
 		return undefined;
 
-	const memberships = await Memberships.await();
+	const memberships = await (api?.subscribeProgressAndWait(Memberships, amount ?? 1) ?? Memberships.await());
 	if (Store.items.destinyMembershipType === undefined) {
 		const firstMembership = memberships.destinyMemberships[0];
 		if (!firstMembership.crossSaveOverride)
