@@ -3,7 +3,7 @@ import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import { CharacterId } from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
@@ -186,7 +186,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
 			.appendTo(this);
 
-		const shaped = item.shaped || (item.bucket === "collections" && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
+		const shaped = item.shaped || (item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
 		this.classes.toggle(item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
 		if (shaped && !item.isMasterwork())
 			Component.create()
@@ -195,7 +195,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 				.appendTo(this);
 
 		let watermark: string | undefined;
-		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item.bucket !== "collections");
+		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item.bucket.isCollections());
 		if ((powerCap?.powerCap ?? 0) < 900000)
 			watermark = item.definition.iconWatermarkShelved ?? item.definition.iconWatermark;
 		else
@@ -344,7 +344,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
 		else {
 			const character = this.item.character ?? this.inventory?.currentCharacter.characterId as CharacterId;
-			if (!CharacterId.is(this.item.bucket))
+			if (!this.item.bucket.isCharacter())
 				await this.item.transferToCharacter(character);
 
 			else if (this.item.equipped)

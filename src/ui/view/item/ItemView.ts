@@ -25,7 +25,7 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const inventory = await api.subscribeProgressAndWait(Inventory.createTemporary(), 1 / 4, 2 / 4);
 	const { DestinyInventoryItemDefinition } = manifest;
 
-	const [bucketId, itemId] = url.split("/") as [BucketId, string];
+	const [bucketId, itemId] = url.split("/") as ["collections" | BucketId, string];
 	if (bucketId !== "collections")
 		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
 
@@ -61,7 +61,7 @@ const itemViewBase = View.create({
 	models: (item: Item | string) =>
 		[Manifest, Inventory.createTemporary(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api), "resolveItemURL")] as const,
 	id: "item",
-	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket}/${item.bucket === "collections" ? item.definition.hash : item.id}`,
+	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket.isCollections() ? "collections" : item.bucket.hash}/${item.bucket.isCollections() ? item.definition.hash : item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,
 	noDestinationButton: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
@@ -92,7 +92,7 @@ const itemViewBase = View.create({
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
 			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
 
-		if (item.bucket !== "collections") {
+		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()
 				.classes.add(ItemViewClasses.LockButton)
 				.classes.toggle(item.isLocked(), ItemViewClasses.LockButtonLocked)

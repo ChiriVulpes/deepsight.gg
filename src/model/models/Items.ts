@@ -1,9 +1,8 @@
-import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type { DestinyInventoryComponent, DestinyItemComponent } from "bungie-api-ts/destiny2";
+import type { InventoryBucketHashes } from "@deepsight.gg/enums";
+import type { DestinyInventoryBucketDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import DebugInfo from "model/models/DebugInfo";
 import type { BucketId, CharacterId } from "model/models/items/Item";
-import Item from "model/models/items/Item";
+import Item, { Bucket } from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import { ManifestItem } from "model/models/manifest/IManifest";
@@ -11,18 +10,7 @@ import ProfileBatch from "model/models/ProfileBatch";
 import Async from "utility/Async";
 import Time from "utility/Time";
 
-/**
- * **Warning:** Not all weapon mods have this category hash
- */
-export const ITEM_WEAPON_MOD = 610365472;
-
-export class Bucket {
-
-	public capacity?: number;
-
-	public constructor (public readonly id: BucketId, public readonly items: Item[]) {
-	}
-}
+export type Buckets<BUCKET = Bucket> = Partial<Record<BucketId, BUCKET>>;
 
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 4);
@@ -33,8 +21,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	const { DeepsightDropTableDefinition, DestinyActivityDefinition } = manifest;
 	await DeepsightDropTableDefinition.all();
 	await DestinyActivityDefinition.all();
-
-	const vaultBucket = await manifest.DestinyInventoryBucketDefinition.get(InventoryBucketHashes.General);
 
 	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);
 	const profile = await ProfileBatch.await();
@@ -50,7 +36,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	let lastForcedTimeoutForStyle = Date.now();
 
-	async function resolveItemComponent (reference: DestinyItemComponent, bucket: BucketId) {
+	async function resolveItemComponent (reference: DestinyItemComponent, bucket: Bucket) {
 		if (Date.now() - lastForcedTimeoutForStyle > 10) {
 			await Async.sleep(1);
 			lastForcedTimeoutForStyle = Date.now();
@@ -75,55 +61,72 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		return result;
 	}
 
-	async function createBucket (id: BucketId, itemComponents: DestinyItemComponent[]) {
-		const items: Item[] = [];
-		for (const itemComponent of itemComponents) {
-			const item = await resolveItemComponent(itemComponent, id);
+	interface BucketInit {
+		bucketHash: InventoryBucketHashes;
+		characterId?: CharacterId;
+		items: DestinyItemComponent[];
+	}
+
+	const bucketInits: Partial<Record<BucketId, BucketInit>> = {};
+	function bucketItem (item: DestinyItemComponent, characterId?: CharacterId) {
+		const bucketHash = item.bucketHash;
+		if (bucketHash === undefined) {
+			console.warn("No bucket hash", item);
+			return;
+		}
+
+		const bucketId = Bucket.id(bucketHash, characterId);
+		const bucket: BucketInit = bucketInits[bucketId] ??= {
+			bucketHash,
+			characterId: characterId,
+			items: [],
+		};
+
+		bucket.items.push(item);
+	}
+
+	for (const item of profile.profileInventory?.data?.items ?? [])
+		bucketItem(item);
+
+	const characterItems = Object.entries(profile.characterInventories?.data ?? {}).concat(Object.entries(profile.characterEquipment?.data ?? {}));
+	for (const [characterId, characterData] of characterItems)
+		for (const item of characterData.items)
+			bucketItem(item, characterId as CharacterId);
+
+	const buckets: Partial<Record<BucketId, Bucket>> = {};
+	for (const [id, bucketInit] of Object.entries(bucketInits) as [BucketId, BucketInit][]) {
+
+		let bucketDef = await manifest.DestinyInventoryBucketDefinition.get(bucketInit.bucketHash);
+		if (!bucketDef) {
+			console.warn("No definition for bucket", bucketInit.bucketHash);
+			bucketDef = {
+				displayProperties: {
+					name: "Unknown Bucket",
+				},
+			} as DestinyInventoryBucketDefinition;
+		}
+
+		const bucket = new Bucket(id, bucketDef, []);
+		const equippedItems = profile.characterEquipment?.data?.[bucket.characterId!]?.items ?? [];
+
+		for (const itemComponent of bucketInit.items) {
+			const item = await resolveItemComponent(itemComponent, bucket);
 			if (!item)
 				continue;
 
-			items.push(item);
+			bucket.items.push(item);
+			if (equippedItems.some(equippedItem => equippedItem.itemInstanceId === item.reference.itemInstanceId))
+				item.equipped = true;
 		}
 
-		const bucket = new Bucket(id, items);
-
-		if (id === "vault")
-			bucket.capacity = vaultBucket?.itemCount;
-
-		return bucket;
+		buckets[id] = bucket;
 	}
 
 	Plugs.resetInitialisedPlugTypes();
 
-	const profileItems = profile.profileInventory?.data?.items ?? [];
-
-	const buckets = {} as Record<BucketId, Bucket>;
-	for (const [characterId, character] of Object.entries(profile.characterInventories?.data ?? {}) as [CharacterId, DestinyInventoryComponent][]) {
-		const postmasterId = `postmaster:${characterId}` as const;
-		buckets[postmasterId] = await createBucket(postmasterId, character.items
-			.filter(item => item.bucketHash === InventoryBucketHashes.LostItems || item.bucketHash === InventoryBucketHashes.Engrams));
-
-		const bucket = buckets[characterId] = await createBucket(characterId, character.items);
-
-		for (const itemComponent of (profile.characterEquipment?.data?.[characterId].items ?? [])) {
-			const item = await resolveItemComponent(itemComponent, characterId);
-			if (!item)
-				continue;
-
-			item.equipped = true;
-			bucket.items.push(item);
-		}
-	}
-
-	buckets.consumables = await createBucket("consumables", profileItems);
-	buckets.modifications = await createBucket("modifications", profileItems);
-	buckets.vault = await createBucket("vault", profileItems);
-
 	Plugs.logInitialisedPlugTypes();
 	ManifestItem.logQueryCounts();
 	api.emitProgress(4 / 4);
-
-	DebugInfo.updateBuckets(buckets);
 
 	return buckets;
 });

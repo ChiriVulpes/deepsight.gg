@@ -125,7 +125,7 @@ namespace PlayerOverview {
 
 			let first = true;
 			for (const character of characters) {
-				const bucket = this.inventory.buckets?.[character.characterId as CharacterId];
+				const bucket = this.inventory.getCharacterBuckets(character.characterId as CharacterId);
 				if (!bucket) {
 					console.warn(`No bucket found for the character ${character.characterId}`);
 					continue;

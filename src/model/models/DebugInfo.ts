@@ -1,11 +1,29 @@
-import { ItemCategoryHashes } from "@deepsight.gg/enums";
-import type { Bucket } from "model/models/Items";
+import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
+import type { Buckets } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId } from "model/models/items/Item";
+import type { Bucket } from "model/models/items/Item";
 import { TierHashes } from "model/models/items/Tier";
 
 export default class DebugInfo {
-	public static updateBuckets (buckets: Record<BucketId, Bucket>) {
+	public static updateBuckets (buckets: Buckets) {
+		const encountered = new Map<Item, Set<Bucket>>();
+		for (const bucket of Object.values(buckets)) {
+			for (const item of bucket?.items ?? []) {
+				let buckets = encountered.get(item);
+				if (!buckets) {
+					buckets = new Set();
+					encountered.set(item, buckets);
+				}
+
+				buckets.add(bucket!);
+			}
+		}
+
+		const encounteredMultiple = Array.from(encountered.entries())
+			.filter(([, buckets]) => buckets.size > 1);
+		if (encounteredMultiple.length)
+			console.warn("Items are in multiple buckets!", encounteredMultiple);
+
 		interface ItemRarities {
 			basics: Item[];
 			commons: Item[];
@@ -36,24 +54,35 @@ export default class DebugInfo {
 			return applyRarities(items.filter(item => item.definition.itemCategoryHashes?.includes(category)));
 		}
 
+		function filterByBucket (items: Item[], ...buckets: InventoryBucketHashes[]) {
+			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+			return applyRarities(items.filter(item => buckets.includes(item.definition.inventory?.bucketTypeHash!)));
+		}
+
 		function getDeveloperData (items: Item[]) {
 			return {
 				weapons: filterByCategory(items, ItemCategoryHashes.Weapon),
 				armour: filterByCategory(items, ItemCategoryHashes.Armor),
-				emotes: filterByCategory(items, ItemCategoryHashes.Emotes),
+				emotes: filterByBucket(items, InventoryBucketHashes.Emotes, InventoryBucketHashes.Emotes2),
+				finishers: filterByBucket(items, InventoryBucketHashes.Finishers),
+				quests: filterByBucket(items, InventoryBucketHashes.Quests),
 				ships: filterByCategory(items, ItemCategoryHashes.Ships),
 				sparrows: filterByCategory(items, ItemCategoryHashes.Sparrows),
 				ghosts: filterByCategory(items, ItemCategoryHashes.Ghost),
-				consumables: filterByCategory(items, ItemCategoryHashes.Consumables),
+				consumables: filterByBucket(items, InventoryBucketHashes.Consumables),
+				artifacts: filterByCategory(items, ItemCategoryHashes.SeasonalArtifacts),
+				subclasses: filterByCategory(items, ItemCategoryHashes.Subclasses),
 			};
 		}
 
-		const items = Object.values(buckets).flatMap(bucket => bucket.items);
+		const items = Object.values(buckets).flatMap(bucket => bucket?.items ?? []);
 		const collections = items.map(item => item.collections).filter((item): item is Item => !!item);
+		const filtered = getDeveloperData(items);
 		const inventory: any = {
 			buckets,
 			all: applyRarities(items),
-			...getDeveloperData(items),
+			uncategorised: items.filter(item => !Object.values(filtered).some(arr => arr.includes(item))),
+			...filtered,
 			collections: {
 				all: applyRarities(collections),
 				...getDeveloperData(collections),

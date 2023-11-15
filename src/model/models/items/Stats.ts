@@ -58,10 +58,10 @@ namespace Stats {
 				if (random && !random.isConditionallyActive)
 					stats[random.statTypeHash] ??= { statHash: random.statTypeHash, value: random.value };
 
-		const masterworkStats = item.bucket === "collections" ? [] : Socket.filterByPlugs(sockets, "Masterwork")
+		const masterworkStats = item.bucket.isCollections() ? [] : Socket.filterByPlugs(sockets, "Masterwork")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
-		const modStats = item.bucket === "collections" ? [] : Socket.filterExcludePlugs(sockets, "Intrinsic", "Masterwork")
+		const modStats = item.bucket.isCollections() ? [] : Socket.filterExcludePlugs(sockets, "Intrinsic", "Masterwork")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const result: Record<number, IStat> = {};

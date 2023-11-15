@@ -42,7 +42,7 @@ namespace Source {
 	}
 
 	export async function apply (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
-		if (item.bucket !== "collections")
+		if (!item.bucket.isCollections())
 			return;
 
 		item.sources = await resolve(manifest, profile, item);

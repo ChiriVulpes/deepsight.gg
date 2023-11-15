@@ -1,7 +1,8 @@
 import { InventoryBucketHashes, StatHashes } from "@deepsight.gg/enums";
 import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
-import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
+import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
@@ -27,22 +28,61 @@ import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/item
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 
 export type CharacterId = `${bigint}`;
-export type PostmasterId = `postmaster:${CharacterId}`;
-export type DestinationBucketId = CharacterId | "vault" | "consumables" | "modifications";
-export type OwnedBucketId = DestinationBucketId | PostmasterId;
-export type BucketId = OwnedBucketId | "collections";
-export namespace PostmasterId {
-	export function is (id: BucketId): id is PostmasterId {
-		return id.startsWith("postmaster:");
+export type BucketId = `${InventoryBucketHashes}` | `${InventoryBucketHashes}/${CharacterId}`;
+
+export class Bucket {
+
+	public static COLLECTIONS = new Bucket("collections" as BucketId, {
+		displayProperties: {
+			name: "Collections",
+		} as DestinyDisplayPropertiesDefinition,
+	} as DestinyInventoryBucketDefinition, []);
+
+	public static id (bucketHash: InventoryBucketHashes, characterId?: CharacterId): BucketId {
+		return characterId ? `${bucketHash}/${characterId}` : `${bucketHash}`;
 	}
 
-	export function character (id: PostmasterId) {
-		return id.slice(11) as CharacterId;
+	public static parseId (id: BucketId) {
+		const [bucketHashString, characterString] = id.split("/");
+		return [
+			+bucketHashString,
+			characterString,
+		] as [InventoryBucketHashes, CharacterId?];
 	}
-}
-export namespace CharacterId {
-	export function is (id: BucketId): id is CharacterId {
-		return id !== "vault" && id !== "consumables" && id !== "modifications" && id !== "collections" && !PostmasterId.is(id);
+
+	public readonly hash: InventoryBucketHashes;
+	public readonly characterId?: CharacterId;
+	public readonly name?: string;
+	public readonly capacity?: number;
+
+	public constructor (public readonly id: BucketId, public readonly definition: DestinyInventoryBucketDefinition, public readonly items: Item[]) {
+		this.name = definition.displayProperties?.name ?? "?";
+		[this.hash, this.characterId] = Bucket.parseId(id);
+		this.capacity = definition.itemCount;
+	}
+
+	public is (bucket: InventoryBucketHashes) {
+		return this.id.startsWith(`${bucket}`);
+	}
+
+	public isCollections () {
+		return this === Bucket.COLLECTIONS;
+	}
+
+	public isVault () {
+		return this.is(InventoryBucketHashes.General);
+	}
+
+	public isCharacter (character?: CharacterId) {
+		return character === undefined ? !!this.characterId : this.characterId === character;
+	}
+
+	public isPostmaster () {
+		return this.is(InventoryBucketHashes.LostItems);
+	}
+
+	public isEngrams () {
+		return this.is(InventoryBucketHashes.Engrams);
 	}
 }
 
@@ -87,82 +127,76 @@ interface IGenericTransferDefinition {
 }
 
 interface ITransferResult {
-	bucket: DestinationBucketId;
+	bucket: BucketId;
 	equipped?: true;
 	undo?: Transfer;
 }
 
 const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 	[TransferType.PullFromPostmaster]: {
-		applicable: item => PostmasterId.is(item.bucket),
-		transfer: async item => {
-			if (!PostmasterId.is(item.bucket))
+		applicable: item => item.bucket.is(InventoryBucketHashes.LostItems)
+			&& !!item.bucket.characterId
+			&& !!item.definition.inventory?.bucketTypeHash,
+		async transfer (item) {
+			if (!this.applicable(item))
 				throw new Error("Not in postmaster bucket");
 
-			const characterId = PostmasterId.character(item.bucket);
+			const characterId = item.bucket.characterId!;
 			await PullFromPostmaster.query(item, characterId);
-			return { bucket: characterId };
+			return { bucket: `${item.definition.inventory!.bucketTypeHash as InventoryBucketHashes}/${characterId}` };
 		},
 	},
 	[TransferType.TransferToVault]: {
-		applicable: (item, ifNotCharacter) => CharacterId.is(item.bucket) && item.bucket !== ifNotCharacter,
-		transfer: async item => {
-			if (!CharacterId.is(item.bucket))
+		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory.buckets?.[InventoryBucketHashes.General],
+		async transfer (item, ifNotCharacter) {
+			if (!this.applicable(item, ifNotCharacter))
 				throw new Error("Not in character bucket");
 
-			const characterId = item.bucket;
+			const characterId = item.character!;
 			await TransferItem.query(item, characterId, "vault");
 			return {
-				bucket: "vault",
+				bucket: `${InventoryBucketHashes.General}`,
 				undo: [TransferType.TransferToCharacterFromVault, characterId],
 			};
 		},
 	},
 	[TransferType.TransferToCharacterFromVault]: {
-		applicable: item => item.bucket === "vault",
-		transfer: async (item, characterId) => {
-			if (item.bucket !== "vault")
+		applicable: (item, characterId) => item.bucket.isVault() && item.inventory.hasBucket(item.definition.inventory?.bucketTypeHash, characterId),
+		async transfer (item, characterId) {
+			if (!this.applicable(item, characterId))
 				throw new Error("Not in vault bucket");
 
 			await TransferItem.query(item, characterId);
 			return {
-				bucket: characterId,
+				bucket: Bucket.id(item.definition.inventory!.bucketTypeHash as InventoryBucketHashes, characterId),
 				undo: [TransferType.TransferToVault],
 			};
 		},
 	},
 	[TransferType.Equip]: {
-		applicable: item => CharacterId.is(item.bucket) && !item.equipped,
-		transfer: async (item, characterId) => {
-			if (!CharacterId.is(item.bucket))
+		applicable: item => item.bucket.isCharacter() && !item.equipped,
+		async transfer (item, characterId) {
+			if (!this.applicable(item, characterId))
 				throw new Error("Not in character bucket");
-
-			if (item.equipped)
-				throw new Error("Already equipped");
 
 			await EquipItem.query(item, characterId);
 			return {
-				bucket: characterId,
+				bucket: item.bucket.id,
 				equipped: true,
 				undo: [TransferType.TransferToVault],
 			};
 		},
 	},
 	[TransferType.Unequip]: {
-		applicable: item => CharacterId.is(item.bucket) && !!item.equipped,
-		transfer: async item => {
-			if (!CharacterId.is(item.bucket))
-				throw new Error("Not in character bucket");
-
-			if (!item.equipped)
-				throw new Error("Not equipped");
-
-			const characterId = item.bucket;
+		applicable: item => item.bucket.isCharacter() && !!item.equipped,
+		async transfer (item) {
+			if (!this.applicable(item))
+				throw new Error("Not equipped in character bucket");
 
 			await item.unequip();
 			return {
-				bucket: characterId,
-				undo: [TransferType.Equip, characterId],
+				bucket: item.bucket.id,
+				undo: [TransferType.Equip, item.character!],
 			};
 		},
 	},
@@ -174,7 +208,7 @@ export interface IItemInit {
 	id: ItemId;
 	reference: DestinyItemComponent;
 	definition: DestinyInventoryItemDefinition;
-	bucket: BucketId;
+	bucket: Bucket;
 	lastModified: number;
 	instance?: DestinyItemInstanceComponent;
 	sockets?: PromiseOr<(Socket | undefined)[]>;
@@ -217,7 +251,7 @@ export interface IItemEvents {
 	update: { item: Item };
 	loadStart: Event;
 	loadEnd: Event;
-	bucketChange: { item: Item; oldBucket: OwnedBucketId; equipped?: true };
+	bucketChange: { item: Item; oldBucket: Bucket; equipped?: true };
 }
 
 namespace Item {
@@ -238,17 +272,12 @@ class Item {
 		return reference.itemInstanceId as `${bigint}` ?? `hash:${reference.itemHash}:${reference.bucketHash}:${occurrence}`;
 	}
 
-	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: BucketId, occurrence: number) {
+	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: Bucket, occurrence: number) {
 		const { DestinyInventoryItemDefinition } = manifest;
 
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
 		if (!definition) {
 			console.warn("No item definition for ", reference.itemHash);
-			return undefined;
-		}
-
-		const invOrVault = reference.bucketHash === InventoryBucketHashes.Modifications ? "modifications" : reference.bucketHash === InventoryBucketHashes.Consumables ? "consumables" : "vault";
-		if ((bucket === "vault" || bucket === "consumables" || bucket === "modifications") && invOrVault !== bucket) {
 			return undefined;
 		}
 
@@ -289,8 +318,7 @@ class Item {
 			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: InventoryBucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
 			definition,
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			bucket: "collections" as any,
+			bucket: Bucket.COLLECTIONS,
 			sockets: [],
 			lastModified: Date.now(),
 		};
@@ -312,9 +340,7 @@ class Item {
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
 	public get character () {
-		return this.bucket === "vault" || this.bucket === "consumables" || this.bucket === "modifications" || this.bucket === "collections" ? undefined
-			: PostmasterId.is(this.bucket) ? PostmasterId.character(this.bucket)
-				: this.bucket;
+		return this.bucket.characterId;
 	}
 
 	private _owner!: CharacterId;
@@ -333,6 +359,9 @@ class Item {
 	public collectibleState!: number;
 	public fallbackItem?: Item;
 
+	public bucket!: Bucket;
+	public inventory!: Inventory;
+
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
 		this.collectibleState ??= DestinyCollectibleState.None;
@@ -343,7 +372,7 @@ class Item {
 	}
 
 	public isNotAcquired () {
-		return this.bucket === "collections" && !!(this.collectibleState & DestinyCollectibleState.NotAcquired);
+		return this.bucket === Bucket.COLLECTIONS && !!(this.collectibleState & DestinyCollectibleState.NotAcquired);
 	}
 
 	public isMasterwork () {
@@ -364,7 +393,7 @@ class Item {
 	}
 
 	public canTransfer () {
-		return (!PostmasterId.is(this.bucket) || !this.definition.doesPostmasterPullHaveSideEffects)
+		return (!this.bucket.is(InventoryBucketHashes.LostItems) || !this.definition.doesPostmasterPullHaveSideEffects)
 			&& this.reference.bucketHash !== InventoryBucketHashes.Engrams;
 	}
 
@@ -436,6 +465,9 @@ class Item {
 
 	private settingLocked?: Promise<void>;
 	public async setLocked (locked = true) {
+		if (this.bucket === Bucket.COLLECTIONS)
+			return false;
+
 		await this.settingLocked;
 
 		if (this.isLocked() !== locked) {
@@ -463,7 +495,7 @@ class Item {
 		if (item !== this) {
 			this.id = item.id;
 			this.reference = item.reference;
-			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket)) {
+			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket.id)) {
 				delete this.bucketHistory;
 				this.bucket = item.bucket;
 				this.equipped = item.equipped;
@@ -494,24 +526,29 @@ class Item {
 			await this._transferPromise;
 	}
 
-	public transferToBucket (bucket: DestinationBucketId) {
-		if (bucket === "consumables" || bucket === "modifications")
-			throw new Error("Inventory transfer not implemented yet");
+	public transferToBucket (bucket: Bucket) {
+		// if (bucket.is(InventoryBucketHashes.Consumables) || bucket.is(InventoryBucketHashes.Modifications))
+		// 	throw new Error("Inventory transfer not implemented yet");
 
-		if (bucket === "vault")
+		if (bucket.is(InventoryBucketHashes.General))
 			return this.transferToVault();
 
-		return this.transferToCharacter(bucket);
+		if (!bucket.characterId) {
+			console.warn("Transfer type not implemented", bucket);
+			return;
+		}
+
+		return this.transferToCharacter(bucket.characterId);
 	}
 
 	public async transferToCharacter (character: CharacterId) {
-		if (character === this.bucket)
+		if (this.bucket.isCharacter(character))
 			return;
 
 		return this.transfer(
 			TransferType.PullFromPostmaster,
 			TransferType.Unequip,
-			...CharacterId.is(this.bucket) ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
+			...this.bucket.isCharacter() ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
 			[TransferType.TransferToCharacterFromVault, character],
 		);
 	}
@@ -525,14 +562,14 @@ class Item {
 	}
 
 	public transferToggleVaulted (character: CharacterId) {
-		if (this.bucket === "vault")
+		if (this.bucket.is(InventoryBucketHashes.General))
 			return this.transferToCharacter(character);
 		else
 			return this.transferToVault();
 	}
 
 	public async equip (character: CharacterId) {
-		if (this.bucket === character && this.equipped)
+		if (this.bucket.isCharacter(character) && this.equipped)
 			return;
 
 		return this.transfer(
@@ -589,11 +626,15 @@ class Item {
 				else
 					this.undoTransfers.splice(0, Infinity);
 
-				const oldBucket = this.bucket as OwnedBucketId;
+				const oldBucket = this.bucket;
 				this.bucketHistory ??= [];
-				this.bucketHistory.push(oldBucket);
+				this.bucketHistory.push(oldBucket.id);
 
-				this.bucket = result.bucket;
+				const newBucket = this.inventory.buckets?.[result.bucket];
+				if (!newBucket)
+					console.warn("Missing bucket", result.bucket, "for item after transfer", this);
+				else
+					this.bucket = newBucket;
 				this.equipped = result.equipped;
 				this.trustTransferUntil = Date.now();
 				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });

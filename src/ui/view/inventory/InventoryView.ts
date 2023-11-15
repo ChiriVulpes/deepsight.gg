@@ -1,10 +1,9 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
-import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { BucketId, DestinationBucketId, OwnedBucketId } from "model/models/items/Item";
-import { CharacterId, PostmasterId } from "model/models/items/Item";
+import type { BucketId, CharacterId } from "model/models/items/Item";
+import { Bucket } from "model/models/items/Item";
 import { TierIndex } from "model/models/items/Tier";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
@@ -27,6 +26,7 @@ import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
 import type { IVector2 } from "utility/maths/Vector2";
+import Objects from "utility/Objects";
 import Store from "utility/Store";
 
 export enum InventoryViewClasses {
@@ -75,7 +75,7 @@ export namespace IInventoryViewDefinition {
 		InventoryBucketHashes.Ghost, InventoryBucketHashes.Vehicle, InventoryBucketHashes.Ships,
 	]);
 	export function isLeftoverModificationsVaultItem (item: Item) {
-		return item.bucket === "vault"
+		return item.bucket.isVault()
 			&& (!item.definition.inventory?.bucketTypeHash
 				|| !handledBuckets.has(item.definition.inventory.bucketTypeHash));
 	}
@@ -97,13 +97,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	public consumablesBucket?: BucketComponent;
 	public modificationsBucket?: BucketComponent;
 	public characters!: Partial<Record<InventoryBucketHashes | string, Record<CharacterId, CharacterBucket>>>;
-	public postmasters!: Record<PostmasterId, PostmasterBucket>;
+	public postmasters!: Record<CharacterId, PostmasterBucket>;
 	public vaults!: Partial<Record<InventoryBucketHashes | string, Record<CharacterId, VaultBucket>>>;
-	public bucketEntries!: [OwnedBucketId, Bucket][];
+	public bucketEntries!: [BucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: Component;
 	public hintsDrawer!: Drawer;
-	public equipped!: Record<`${bigint}`, ItemComponent>;
+	public equipped!: Partial<Record<BucketId, ItemComponent>>;
 	public sorter!: ItemSort;
 	public filterer!: ItemFilter;
 
@@ -240,7 +240,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	}
 
 	private updateItems () {
-		this.bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [OwnedBucketId, Bucket][];
+		this.bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [BucketId, Bucket][];
 		for (const [item] of this.itemMap) {
 			if (!this.bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
 				// this item doesn't exist anymore
@@ -248,18 +248,18 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			}
 		}
 
-		for (const [bucketId, bucket] of this.bucketEntries) {
-			this.updateBucketItems(bucketId, bucket);
+		for (const [, bucket] of this.bucketEntries) {
+			this.updateBucketItems(bucket);
 		}
 	}
 
-	protected updateBucketItems (bucketId: OwnedBucketId, bucket: Bucket) {
+	protected updateBucketItems (bucket: Bucket) {
 		for (const item of bucket.items) {
-			const excluded = !PostmasterId.is(item.bucket)
+			const excluded = !item.bucket.isPostmaster()
 				&& this.super.definition.slot !== undefined
 				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-				&& !Arrays.resolve(this.super.definition.slot).includes(item.definition.inventory?.bucketTypeHash!)
-				&& !(bucketId === "vault" && item.bucket === "vault");
+				&& !Arrays.resolve(this.super.definition.slot).includes(item.definition.inventory?.bucketTypeHash as InventoryBucketHashes)
+				&& !item.bucket.isVault();
 
 			if (this.itemMap.has(item)) {
 				if (excluded)
@@ -297,7 +297,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	}
 
 	protected generateSortedPostmasters () {
-		const oldPostmasterBuckets = Object.values(this.postmasters ?? {});
+		const oldPostmasterBuckets = Object.values(this.postmasters ?? Objects.EMPTY);
 
 		const postmasters = (this.inventory.sortedCharacters ?? [])
 			.map(character => this.generatePostmasterBucket(character));
@@ -318,7 +318,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	}
 
 	private generatePostmasterBucket (character: Character) {
-		return this.postmasters[`postmaster:${character.characterId as CharacterId}`] ??= PostmasterBucket.create([character]);
+		return this.postmasters[character.characterId as CharacterId] ??= PostmasterBucket.create([character]);
 	}
 
 	protected generateSortedBuckets (slot: Arrays.Or<InventoryBucketHashes>, separateVaults: boolean | undefined = this.super.definition.separateVaults, skipPostmasters = false) {
@@ -387,46 +387,53 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		const id = IInventoryViewDefinition.resolveSlotId(slot);
 		const highestPowerSlot: Component[] = [];
 		let highestPower = 0;
-		const sortedBucketItems: Partial<Record<OwnedBucketId, Item[]>> = {};
+		const sortedBucketItems: Partial<Record<BucketId, Item[]>> = {};
 		for (const [bucketId, bucket] of this.bucketEntries) {
+			if (bucket.is(InventoryBucketHashes.Subclass))
+				continue;
+
 			let bucketComponents: BucketComponent[];
 			let equippedComponent: Component | undefined;
-			if (bucketId === "modifications") {
+			if (bucket.is(InventoryBucketHashes.Modifications)) {
 				if (!this.modificationsBucket || slot !== InventoryBucketHashes.Modifications)
 					continue;
 
 				bucketComponents = [this.modificationsBucket];
 
-			} else if (bucketId === "consumables") {
+			} else if (bucket.is(InventoryBucketHashes.Consumables)) {
 				if (!this.consumablesBucket || slot !== InventoryBucketHashes.Consumables)
 					continue;
 
 				bucketComponents = [this.consumablesBucket];
 
-			} else if (bucketId === "vault")
+			} else if (bucket.isVault())
 				bucketComponents = Object.values(this.vaults[id] ?? {});
 
-			else if (PostmasterId.is(bucketId)) {
-				const postmasterBucket = this.postmasters[bucketId];
+			else if (bucket.isPostmaster() || bucket.isEngrams()) {
+				const postmasterBucket = this.postmasters[bucket.characterId!];
 				if (!postmasterBucket) {
-					console.warn(`Unknown postmaster character '${bucketId}'`);
+					console.warn(`Unknown postmaster character '${bucket.characterId!}'`);
 					continue;
 				}
 
-				bucketComponents = [this.postmasters[bucketId]];
+				bucketComponents = [postmasterBucket];
 
 			} else {
-				const characterBucket = this.characters[id]?.[bucketId];
+				if (!Arrays.includes(slot, bucket.hash))
+					continue;
+
+				const characterBucket = this.characters[id]?.[bucket.characterId!];
 				if (!characterBucket) {
-					console.warn(`Unknown character '${bucketId}'`);
+					console.warn(`Unknown character '${bucket.characterId!}'`);
 					continue;
 				}
 
 				bucketComponents = [characterBucket];
 				equippedComponent = characterBucket.equippedSlot;
 
-				const currentlyEquipped = this.equipped[bucketId];
-				if (!this.itemMap.has(currentlyEquipped?.item))
+				const currentlyEquipped = this.equipped[bucket.id];
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				if (!this.itemMap.has(currentlyEquipped?.item!))
 					// old item instance was equipped here, remove it
 					currentlyEquipped?.remove();
 			}
@@ -437,14 +444,23 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				continue;
 
 			const slots = bucketComponents.flatMap(component => [
-				...component.content.children(),
-				...component instanceof PostmasterBucket ? component.engrams.children() : [],
-			]);
+				...!bucket.isEngrams() ? component.content.children()
+					: (component as BucketComponent & Partial<PostmasterBucket>).engrams?.children() ?? []]);
 			for (const slot of slots)
 				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
-			const sortedItems = sortedBucketItems[bucketId] = this.super.definition.sort.sort(bucket.items)
-				.filter(item => !(item.definition.inventory?.bucketTypeHash !== slot && !PostmasterId.is(item.bucket) && !(bucketId === "vault" && slot === InventoryBucketHashes.Modifications && IInventoryViewDefinition.isLeftoverModificationsVaultItem(item)) && this.itemMap.get(item)));
+			const sortedItems = this.super.definition.sort.sort(bucket.items)
+				.filter(item => item.definition.inventory?.bucketTypeHash === slot
+					|| item.bucket.isPostmaster()
+					|| item.bucket.isEngrams()
+					|| (bucket.isVault()
+						&& slot === InventoryBucketHashes.Modifications
+						&& IInventoryViewDefinition.isLeftoverModificationsVaultItem(item))
+					|| !this.itemMap.get(item));
+
+			sortedBucketItems[bucketId] ??= [];
+			sortedBucketItems[bucketId]!.push(...sortedItems);
+
 			for (const item of sortedItems) {
 				const itemComponent = this.itemMap.get(item);
 				if (!itemComponent)
@@ -465,9 +481,9 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					.appendTo(slotComponent);
 
 				if (item.equipped)
-					this.equipped[bucketId as `${bigint}`] = itemComponent;
+					this.equipped[bucket.id] = itemComponent;
 
-				if (!PostmasterId.is(item.bucket)) {
+				if (!item.bucket.isPostmaster()) {
 					const power = item.getPower();
 					// eslint-disable-next-line no-empty
 					if (!power) {
@@ -490,9 +506,18 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			for (const slot of highestPowerSlot)
 				slot.classes.add(InventoryViewClasses.HighestPower);
 
-		for (const equipped of Object.values(this.equipped)) {
-			equipped.item.fallbackItem = sortedBucketItems[equipped.item.character!]?.find(item => (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary) && item !== equipped.item)
-				?? sortedBucketItems.vault?.find(item => (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary));
+		for (const [bucketId, equipped] of Object.entries(this.equipped) as [BucketId, ItemComponent][]) {
+			const [bucketHash] = Bucket.parseId(bucketId);
+			if (!Arrays.includes(slot, bucketHash))
+				continue;
+
+			equipped.item.fallbackItem = undefined
+				?? sortedBucketItems[bucketId]?.find(item => true
+					&& (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary)
+					&& item !== equipped.item)
+				?? sortedBucketItems[`${InventoryBucketHashes.General}`]?.find(item => true
+					&& Arrays.includes(slot, item.definition.inventory?.bucketTypeHash)
+					&& (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary));
 		}
 	}
 
@@ -504,12 +529,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		}
 	}
 
-	private getBucket (bucketId: BucketId) {
-		return bucketId === "vault" ? Object.values(this.vaults ?? {}).flatMap(vaults => Object.values(vaults ?? {}))
-			: bucketId === "consumables" || bucketId === "modifications" ? [this.currentCharacter]
-				: PostmasterId.is(bucketId) ? [this.postmasters[bucketId]]
-					: bucketId === "collections" ? []
-						: Object.values(this.characters).map(character => character?.[bucketId]).filter(Arrays.filterNullish);
+	private getBucket (bucket?: Bucket) {
+		return !bucket ? []
+			: bucket.isVault() ? Object.values(this.vaults ?? {}).flatMap(vaults => Object.values(vaults ?? {}))
+				: bucket.is(InventoryBucketHashes.Consumables) || bucket.is(InventoryBucketHashes.Modifications) ? [this.currentCharacter]
+					: bucket.isPostmaster() ? [this.postmasters[bucket.characterId!]]
+						: bucket.isCollections() || bucket.is(InventoryBucketHashes.Subclass) ? []
+							: Object.values(this.characters).map(character => character?.[bucket.characterId!]).filter(Arrays.filterNullish);
 	}
 
 	protected onGlobalKeydown (event: IKeyEvent) {
@@ -558,11 +584,11 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				this.onItemMoveStart(item, event);
 			},
 			move: event => {
-				for (const [dropBucketId] of this.bucketEntries) {
-					if (dropBucketId === "consumables" || dropBucketId === "modifications" || PostmasterId.is(dropBucketId))
+				for (const [, dropBucket] of this.bucketEntries) {
+					if (dropBucket.is(InventoryBucketHashes.Consumables) || dropBucket.is(InventoryBucketHashes.Modifications) || dropBucket.isPostmaster())
 						continue;
 
-					const buckets = this.getBucket(dropBucketId);
+					const buckets = this.getBucket(dropBucket);
 					for (const bucket of buckets)
 						for (const { component } of bucket.getDropTargets())
 							component.classes.toggle(
@@ -575,44 +601,44 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				for (const bucketComponent of bucketComponents)
 					bucketComponent.classes.remove(InventoryViewClasses.BucketMovingFrom);
 
-				let dropBucketId: DestinationBucketId | undefined;
+				let dropBucket: Bucket | undefined;
 				let dropEquipped = false;
-				for (const [bucketId] of this.bucketEntries) {
-					if (bucketId === "consumables" || bucketId === "modifications" || PostmasterId.is(bucketId))
+				for (const [, bucket] of this.bucketEntries) {
+					if (bucket.is(InventoryBucketHashes.Consumables) || bucket.is(InventoryBucketHashes.Modifications) || bucket.isPostmaster() || bucket.is(InventoryBucketHashes.Subclass))
 						continue;
 
-					const buckets = this.getBucket(bucketId);
+					const buckets = this.getBucket(bucket);
 					let intersections = false;
 					for (const bucket of buckets) {
 						for (const { component, equipped } of bucket.getDropTargets()) {
 							component.classes.remove(InventoryViewClasses.BucketDropTarget);
-							if (!intersections && !dropBucketId && component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
+							if (!intersections && !dropBucket && component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
 								intersections = true;
 								dropEquipped = equipped;
 							}
 						}
 					}
 
-					if (!intersections || dropBucketId)
+					if (!intersections || dropBucket)
 						continue;
 
-					dropBucketId = bucketId;
+					dropBucket = bucket;
 				}
 
-				if (!dropBucketId)
+				if (!dropBucket)
 					return;
 
-				if (item.bucket === dropBucketId && item.equipped === dropEquipped)
+				if (item.bucket === dropBucket && item.equipped === dropEquipped)
 					return;
 
-				if (CharacterId.is(dropBucketId)) {
+				if (dropBucket.isCharacter()) {
 					if (dropEquipped)
-						return item.equip(dropBucketId);
-					else if (item.equipped && item.bucket === dropBucketId)
+						return item.equip(dropBucket.characterId!);
+					else if (item.equipped && item.bucket === dropBucket)
 						return item.unequip();
 				}
 
-				await item.transferToBucket(dropBucketId);
+				await item.transferToBucket(dropBucket);
 			},
 		}]);
 	}

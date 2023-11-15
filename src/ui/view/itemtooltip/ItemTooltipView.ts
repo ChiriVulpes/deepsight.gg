@@ -2,7 +2,7 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import { CharacterId } from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -25,7 +25,7 @@ export default View.create({
 			: [Model.createTemporary(async api => resolveItemURL(item, api))]] as const,
 	noDestinationButton: true,
 	id: "item-tooltip",
-	hash: (item: Item | string) => typeof item === "string" ? `item-tooltip/${item}` : `item-tooltip/${item.bucket}/${item.id}`,
+	hash: (item: Item | string) => typeof item === "string" ? `item-tooltip/${item}` : `item-tooltip/${item.bucket.isCollections() ? "collections" : item.bucket.hash}/${item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item" : item.definition.displayProperties.name,
 	initialise: async (view, manifest, inventory, itemModel) => {
 		LoadingManager.end(view.definition.id);
@@ -52,7 +52,7 @@ export default View.create({
 		const className = cls?.displayProperties.name ?? "Unknown";
 		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
 
-		if (!CharacterId.is(item.bucket) && !item.equipped && !isEngram)
+		if (!item.bucket.isCharacter() && !item.equipped && !isEngram)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Pull to ${className}`)
@@ -62,7 +62,7 @@ export default View.create({
 				})
 				.appendTo(buttons);
 
-		if (CharacterId.is(item.bucket) && !item.equipped)
+		if (item.bucket.isCharacter() && !item.equipped)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Equip to ${className}`)
@@ -72,7 +72,7 @@ export default View.create({
 				})
 				.appendTo(buttons);
 
-		if (item.bucket !== "vault" && !item.equipped && !isEngram)
+		if (item.bucket.isVault() && !item.equipped && !isEngram)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set("Vault")

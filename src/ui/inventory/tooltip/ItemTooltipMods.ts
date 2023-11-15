@@ -102,12 +102,14 @@ export default class ItemTooltipMods extends Component {
 	}
 
 	private addSockets (item: Item, socketClass?: ItemTooltipModsClasses, ...anyOfTypes: PlugType.Query[]) {
+		const isCollections = item.bucket.isCollections();
+
 		let i = 0;
 		for (const socket of item.getSockets(...anyOfTypes)) {
 			if (!socket || socket.state?.isVisible === false)
 				continue;
 
-			const willDisplayMoreThanOnePlug = item.bucket === "collections" && socket.plugs.length > 1;
+			const willDisplayMoreThanOnePlug = isCollections && socket.plugs.length > 1;
 			if (willDisplayMoreThanOnePlug && (this.isDetailed() || !socket.plugs.some(plug => Display.icon(plug.definition))))
 				continue;
 
@@ -119,7 +121,7 @@ export default class ItemTooltipMods extends Component {
 				.appendTo(this);
 
 			let j = 0;
-			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed && item.bucket !== "collections") - Number(a.socketed && item.bucket !== "collections"))) {
+			for (const plug of socket.plugs.slice().sort((a, b) => Number(b.socketed && !isCollections) - Number(a.socketed && !isCollections))) {
 				if (!socket.state && plug.is("Intrinsic/FrameEnhanced"))
 					// skip enhanced intrinsics (duplicates) if this is an item definition (ie no actual socket state)
 					continue;
@@ -159,7 +161,7 @@ export default class ItemTooltipMods extends Component {
 							.text.set(description)
 							.appendTo(plugComponent);
 
-				} else if (item.deepsight?.pattern && item.bucket === "collections" && this.isShaped()) {
+				} else if (item.deepsight?.pattern && isCollections && this.isShaped()) {
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModRequiredLevel)
 						.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`)

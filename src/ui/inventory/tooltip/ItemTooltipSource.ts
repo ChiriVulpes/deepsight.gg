@@ -46,7 +46,7 @@ export default class ItemTooltipSource extends Component {
 	public setItem (item: Item) {
 		this.activityWrapper.removeContents();
 
-		if (item.bucket !== "collections")
+		if (!item.bucket.isCollections())
 			return false;
 
 		if (!item.sources?.length)

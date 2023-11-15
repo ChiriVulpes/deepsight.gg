@@ -3,17 +3,19 @@ import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import type Character from "model/models/Characters";
 import { ProfileCharacters } from "model/models/Characters";
-import type { Bucket } from "model/models/Items";
+import DebugInfo from "model/models/DebugInfo";
+import type { Buckets } from "model/models/Items";
 import Items from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { IItemEvents, ItemId, OwnedBucketId } from "model/models/items/Item";
-import { CharacterId } from "model/models/items/Item";
+import type { CharacterId, IItemEvents, ItemId } from "model/models/items/Item";
+import { Bucket } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
+import Objects from "utility/Objects";
 import Time from "utility/Time";
 
 interface IInventoryModelEvents {
@@ -42,19 +44,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	public readonly event = new EventManager<this, IInventoryModelEvents>(this);
 
 	public items?: Record<ItemId, Item>;
-	public buckets?: Record<OwnedBucketId, Bucket>;
+	public buckets?: Buckets;
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
 	public readonly craftedItems = new Set<number>();
-
-	public get currentCharacter () {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		return this.sortedCharacters?.[0]!;
-	}
-
-	public getCharacter (id?: CharacterId) {
-		return this.characters?.[id!] ?? this.currentCharacter;
-	}
 
 	public constructor () {
 		this.onItemBucketChange = this.onItemBucketChange.bind(this);
@@ -87,6 +80,30 @@ export default class Inventory implements IItemComponentCharacterHandler {
 			.subscribe("changeFocusState", this.onPageFocusChange));
 	}
 
+	public get currentCharacter () {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		return this.sortedCharacters?.[0]!;
+	}
+
+	public hasBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
+		return !!this.buckets?.[Bucket.id(bucketHash!, characterId)]
+			|| !!this.buckets?.[bucketHash!];
+	}
+
+	public getBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
+		return this.buckets?.[Bucket.id(bucketHash!, characterId)]
+			?? this.buckets?.[bucketHash!];
+	}
+
+	public getCharacterBuckets (characterId?: CharacterId) {
+		return Object.values<Bucket>(this.buckets ?? Objects.EMPTY)
+			.filter(bucket => bucket?.characterId === characterId);
+	}
+
+	public getCharacter (id?: CharacterId) {
+		return this.characters?.[id!] ?? this.currentCharacter;
+	}
+
 	private shouldSkipCharacters?: () => boolean;
 	public setShouldSkipCharacters (shouldSkip: () => boolean) {
 		this.shouldSkipCharacters = shouldSkip;
@@ -116,17 +133,19 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return this as Required<this>;
 	}
 
-	private updateItems (buckets: Record<OwnedBucketId, Bucket>) {
+	private updateItems (buckets: Buckets) {
 		this.craftedItems.clear(); // crafted items will be re-initialised through updateItem
 		this.items ??= {};
 		this.buckets = buckets;
-		const iterableBuckets = Object.entries(this.buckets) as [OwnedBucketId, Bucket][];
-		for (const [bucketId, bucket] of iterableBuckets)
+		const iterableBuckets = Object.values(this.buckets) as Bucket[];
+		for (const bucket of iterableBuckets)
 			for (let i = 0; i < bucket.items.length; i++)
-				this.updateItem(bucketId, bucket, i);
+				this.updateItem(bucket, i);
 
-		for (const [bucketId, bucket] of iterableBuckets) {
-			if (!CharacterId.is(bucketId)) continue;
+		DebugInfo.updateBuckets(buckets);
+
+		for (const bucket of iterableBuckets) {
+			if (!bucket.characterId) continue;
 
 			const equipped: Partial<Record<InventoryBucketHashes, Item>> = {};
 			for (const item of bucket.items) {
@@ -152,45 +171,34 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		LoadingManager.end("inventory");
 	}
 
-	private updateItem (bucketId: string, bucket: Bucket, itemIndex: number) {
+	private updateItem (bucket: Bucket, itemIndex: number) {
 		const items = this.items!;
 
 		let item = bucket.items[itemIndex];
 		// use old item if it exists
-		item = items[item.id]?.update(item) ?? item;
+		item = bucket.items[itemIndex] = items[item.id] = items[item.id]?.update(item) ?? item;
+
+		item.bucket = bucket;
+		item.inventory = this;
 
 		item["_owner"] = this.sortedCharacters?.[0].characterId as CharacterId;
 
 		if (item.shaped)
 			this.craftedItems.add(item.definition.hash);
 
-		if (items[item.id] !== item)
-			this.registerItem(item);
-
-		items[item.id] = item;
-
-		const buckets = this.buckets!;
-		if (item.bucket !== bucketId) {
-			buckets[item.bucket as OwnedBucketId].items.push(item);
-			bucket.items.splice(itemIndex, 1);
-			itemIndex--;
-		} else {
-			bucket.items[itemIndex] = items[item.id] = item;
-		}
-	}
-
-	private registerItem (item: Item) {
 		item.event.subscribe("bucketChange", this.onItemBucketChange);
 	}
 
 	private onItemBucketChange ({ item, oldBucket, equipped }: IItemEvents["bucketChange"]) {
+		const bucket = item.bucket;
+
 		// and on its bucket changing, remove it from its old bucket and put it in its new one
-		Arrays.remove(this.buckets![oldBucket]?.items, item);
-		this.buckets![item.bucket as OwnedBucketId].items.push(item);
+		Arrays.remove(oldBucket.items, item);
+		bucket.items.push(item);
 
 		// if this item is equipped now, make the previously equipped item not equipped
 		if (equipped)
-			for (const potentiallyEquippedItem of this.buckets![item.bucket as OwnedBucketId].items)
+			for (const potentiallyEquippedItem of bucket.items)
 				if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
 					// only visually unequip items if they're in the same slot
 					if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)

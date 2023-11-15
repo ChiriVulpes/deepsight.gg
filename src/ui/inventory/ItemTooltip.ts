@@ -2,7 +2,7 @@ import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsigh
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
-import { CharacterId, ItemFomoState } from "model/models/items/Item";
+import { ItemFomoState } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
@@ -356,7 +356,7 @@ class ItemTooltip extends Tooltip {
 		this.stats.setItem(item);
 
 		this.mods
-			.setShaped(item.bucket === "collections")
+			.setShaped(item.bucket.isCollections())
 			.setItem(item);
 
 		this.notifications.setItem(item);
@@ -369,7 +369,7 @@ class ItemTooltip extends Tooltip {
 			this.deepsightPatternLabel
 				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
 					: complete ? "This weapon's pattern is unlocked."
-						: item.bucket === "collections" ? "This weapon can be shaped."
+						: item.bucket.isCollections() ? "This weapon can be shaped."
 							: item.deepsight?.resonance ? "This [b]Pattern[/b] can be extracted."
 								: item.deepsight?.activation ? "This [b]Pattern[/b] can be [b]Activated[/b]."
 									: "You have extracted this pattern.");
@@ -399,7 +399,7 @@ class ItemTooltip extends Tooltip {
 
 		this.note.classes.add(Classes.Hidden);
 
-		const shaped = item.bucket === "collections" && item.deepsight?.pattern?.progress?.complete && !inventory?.craftedItems.has(item.definition.hash);
+		const shaped = item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !inventory?.craftedItems.has(item.definition.hash);
 		if (item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress) {
 			this.note.classes.remove(Classes.Hidden);
 			this.note.text.set("This item has has not been acquired.");
@@ -410,10 +410,10 @@ class ItemTooltip extends Tooltip {
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
 		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
-		this.hintVault.classes.toggle(item.bucket === "vault" || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
-		this.hintPullToCharacter.classes.toggle(CharacterId.is(item.bucket) || !!item.equipped || isEngram || item.bucket === "collections" || item.bucket === "consumables" || item.bucket === "modifications", Classes.Hidden);
-		this.hintEquipToCharacter.classes.toggle(!CharacterId.is(item.bucket) || !!item.equipped, Classes.Hidden);
-		this.hintUnequipFromCharacter.classes.toggle(!CharacterId.is(item.bucket) || !item.equipped, Classes.Hidden);
+		this.hintVault.classes.toggle(item.bucket.isVault() || isEngram || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(item.bucket.isCharacter() || !!item.equipped || isEngram || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
+		this.hintEquipToCharacter.classes.toggle(!item.bucket.isCharacter() || !!item.equipped, Classes.Hidden);
+		this.hintUnequipFromCharacter.classes.toggle(!item.bucket.isCharacter() || !item.equipped, Classes.Hidden);
 
 		const flavour = !!item.definition.flavorText;
 		this.flavour.classes.toggle(!flavour, Classes.Hidden);
@@ -422,7 +422,7 @@ class ItemTooltip extends Tooltip {
 		this.randomRollHeading.classes.add(Classes.Hidden);
 		this.randomMods.classes.add(Classes.Hidden);
 
-		if (item.bucket === "collections") {
+		if (item.bucket.isCollections()) {
 			this.detailedMods.setItem(item);
 
 		} else {

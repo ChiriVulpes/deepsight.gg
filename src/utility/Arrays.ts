@@ -55,6 +55,10 @@ namespace Arrays {
 		return Array.isArray(or) ? or : or === undefined ? [] : [or];
 	}
 
+	export function includes (array: Or<any>, value: any): boolean {
+		return Array.isArray(array) ? array.includes(value) : array === value;
+	}
+
 	export function slice<T> (or: Or<T>): T[] {
 		return Array.isArray(or) ? or.slice() : or === undefined ? [] : [or];
 	}

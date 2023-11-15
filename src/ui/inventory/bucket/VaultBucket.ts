@@ -1,3 +1,4 @@
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import { CardClasses } from "ui/Card";
@@ -37,7 +38,7 @@ export default class VaultBucket extends BucketComponent<[Character?]> {
 	}
 
 	public update (inventory: Inventory) {
-		const vaultBucket = inventory.buckets?.vault;
+		const vaultBucket = inventory.buckets?.[InventoryBucketHashes.General];
 		const vaultItemCount = vaultBucket?.items.length;
 		const vaultCapacity = vaultBucket?.capacity;
 		const renderedItemCount = this.content.element.childElementCount;

@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import { getCurrentDestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
@@ -15,7 +16,7 @@ export interface Response {
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/TransferItem/")
-	.request(async (item: Item, character: `${bigint}`, destination: "vault" | `${bigint}` = character) => {
+	.request(async (item: Item, character: CharacterId, destination: "vault" | CharacterId = character) => {
 		if (!item.reference.itemInstanceId)
 			throw new Error("Item has no instance ID");
 
