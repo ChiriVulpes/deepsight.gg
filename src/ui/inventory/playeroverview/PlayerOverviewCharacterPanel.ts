@@ -1,9 +1,8 @@
-import type { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
-import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
+import type { Bucket, CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import ClassPicker from "ui/form/ClassPicker";
@@ -131,8 +130,8 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 		}
 	}
 
-	public setBucket (inventory: Inventory, character: Character, bucket: Bucket) {
-		for (const subclass of inventory.buckets?.[`subclasses:${character.characterId as CharacterId}`]?.items ?? []) {
+	public setBucket (inventory: Inventory, character: Character, buckets: Bucket[]) {
+		for (const subclass of inventory.getBucket(InventoryBucketHashes.Subclass, character.characterId as CharacterId)?.items ?? []) {
 			this.subclassPicker.addOption({
 				id: subclass.definition.hash,
 				background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,
@@ -144,7 +143,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 
 		const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
 		const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
-		for (const item of bucket.items) {
+		for (const item of buckets.flatMap(bucket => bucket.items)) {
 			const view = slotViews.flat().find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
 			for (const slot of Arrays.resolve(view?.definition.slot)) {
 				const id = IInventoryViewDefinition.resolveSlotId(slot);
