@@ -178,7 +178,6 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		// use old item if it exists
 		item = bucket.items[itemIndex] = items[item.id] = items[item.id]?.update(item) ?? item;
 
-		item.bucket = bucket;
 		item.inventory = this;
 
 		item["_owner"] = this.sortedCharacters?.[0].characterId as CharacterId;

@@ -512,17 +512,27 @@ class Item {
 			this.lastModified = item.lastModified;
 			this.id = item.id;
 			this.reference = item.reference;
-			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket.id)) {
-				delete this.bucketHistory;
-				this.bucket = item.bucket;
-				this.equipped = item.equipped;
-			}
 			this.instance = item.instance;
 			this.sockets = item.sockets;
 			this.moment = item.moment;
 			this.deepsight = item.deepsight;
 			this.shaped = item.shaped;
 			this.stats = item.stats;
+
+			let newBucket = this.bucket;
+			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket.id)) {
+				delete this.bucketHistory;
+				newBucket = item.bucket;
+				this.equipped = item.equipped;
+			} else {
+				newBucket = this.inventory.buckets?.[this.bucket.id] ?? this.bucket;
+			}
+
+			if (this.bucket !== newBucket) {
+				Arrays.remove(this.bucket.items, item);
+				Arrays.add(newBucket.items, item);
+				this.bucket = newBucket;
+			}
 		}
 
 		this.event.emit("update", { item: this });

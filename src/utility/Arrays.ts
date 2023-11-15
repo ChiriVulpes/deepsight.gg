@@ -63,6 +63,10 @@ namespace Arrays {
 		return Array.isArray(or) ? or.slice() : or === undefined ? [] : [or];
 	}
 
+	/**
+	 * Removes one instance of the given value from the given array.
+	 * @returns `true` if removed, `false` otherwise
+	 */
 	export function remove (array: any[] | undefined, value: any) {
 		if (!array)
 			return false;
@@ -72,6 +76,22 @@ namespace Arrays {
 			return false;
 
 		array.splice(index, 1);
+		return true;
+	}
+
+	/**
+	 * Adds the given value to the given array if not present.
+	 * @returns `true` if added, `false` otherwise
+	 */
+	export function add (array: any[] | undefined, value: any) {
+		if (!array)
+			return false;
+
+		const index = array.indexOf(value);
+		if (index !== -1)
+			return false;
+
+		array.push(value);
 		return true;
 	}
 
