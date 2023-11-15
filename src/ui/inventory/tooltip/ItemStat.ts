@@ -1,4 +1,3 @@
-import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { IStat } from "model/models/items/Stats";
@@ -253,7 +252,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			}
 		}
 
-		this.label.classes.toggle(!!display.masterwork && (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ?? false), ItemStatClasses.LabelMasterwork);
+		this.label.classes.toggle(!!display.masterwork && (item.isWeapon() ?? false), ItemStatClasses.LabelMasterwork);
 
 		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);

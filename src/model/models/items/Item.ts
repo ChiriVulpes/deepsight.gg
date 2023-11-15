@@ -1,4 +1,4 @@
-import { InventoryBucketHashes, StatHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
 import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
@@ -16,7 +16,7 @@ import type { ISource } from "model/models/items/Source";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
-import Tier from "model/models/items/Tier";
+import Tier, { TierHashes } from "model/models/items/Tier";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
@@ -62,6 +62,10 @@ export class Bucket {
 		this.capacity = definition.itemCount;
 	}
 
+	public get equippedItem () {
+		return this.items.find(item => item.equipped);
+	}
+
 	public is (bucket: InventoryBucketHashes) {
 		return this.id.startsWith(`${bucket}`);
 	}
@@ -102,6 +106,9 @@ export enum ItemFomoState {
 	TemporaryAvailability,
 	TemporaryRepeatability,
 }
+
+const WEAPON_BUCKET_HASHES = new Set([InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons]);
+const ARMOUR_BUCKET_HASHES = new Set([InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor]);
 
 enum TransferType {
 	PullFromPostmaster,
@@ -194,6 +201,19 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		async transfer (item, characterId) {
 			if (!this.applicable(item, characterId))
 				throw new Error("Not in character bucket");
+
+			if (item.isExotic()) {
+				const buckets = new Set(item.isWeapon() ? WEAPON_BUCKET_HASHES : item.isArmour() ? ARMOUR_BUCKET_HASHES : []);
+				buckets.delete(item.bucket.hash);
+
+				for (const bucketHash of buckets) {
+					const bucket = item.inventory.getBucket(bucketHash, characterId);
+					if (!bucket) continue;
+
+					if (bucket.equippedItem?.isExotic())
+						await bucket.equippedItem.unequip();
+				}
+			}
 
 			await EquipItem.query(item, characterId);
 			return {
@@ -381,6 +401,24 @@ class Item {
 	private constructor (item: IItemInit) {
 		Object.assign(this, item);
 		this.collectibleState ??= DestinyCollectibleState.None;
+	}
+
+	public isWeapon () {
+		return this.definition.equippable
+			&& (this.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				|| WEAPON_BUCKET_HASHES.has(this.definition.inventory?.bucketTypeHash!));
+	}
+
+	public isArmour () {
+		return this.definition.equippable
+			&& (this.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Armor)
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				|| ARMOUR_BUCKET_HASHES.has(this.definition.inventory?.bucketTypeHash!));
+	}
+
+	public isExotic () {
+		return this.tier?.hash === TierHashes.Exotic;
 	}
 
 	public hasRandomRolls () {

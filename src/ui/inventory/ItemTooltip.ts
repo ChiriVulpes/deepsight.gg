@@ -1,4 +1,4 @@
-import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, StatHashes } from "@deepsight.gg/enums";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -428,7 +428,7 @@ class ItemTooltip extends Tooltip {
 		} else {
 			this.detailedMods.setItem(item);
 
-			if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) && item.collections?.hasRandomRolls()) {
+			if (item.isWeapon() && item.collections?.hasRandomRolls()) {
 				this.randomRollHeading.classes.remove(Classes.Hidden)
 					.text.set(item.shaped ? "This item can be shaped with the following perks:"
 						: "This item can roll the following perks:");

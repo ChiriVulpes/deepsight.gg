@@ -513,11 +513,11 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 			equipped.item.fallbackItem = undefined
 				?? sortedBucketItems[bucketId]?.find(item => true
-					&& (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary)
+					&& (item.tier?.index ?? 0) <= Math.min(TierIndex.Legendary, equipped.item.tier?.index ?? TierIndex.Legendary)
 					&& item !== equipped.item)
 				?? sortedBucketItems[`${InventoryBucketHashes.General}`]?.find(item => true
 					&& Arrays.includes(slot, item.definition.inventory?.bucketTypeHash)
-					&& (item.tier?.index ?? 0) <= (equipped.item.tier?.index ?? TierIndex.Legendary));
+					&& (item.tier?.index ?? 0) <= Math.min(TierIndex.Legendary, (equipped.item.tier?.index ?? TierIndex.Legendary)));
 		}
 
 		for (const [bucketId, items] of Object.entries(sortedBucketItems)) {

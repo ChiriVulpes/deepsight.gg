@@ -1,4 +1,4 @@
-import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { DestinyClass, TierType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -22,7 +22,7 @@ namespace ICollectionsView {
 	export function addItems (component: Component, items: Item[], inventory?: Inventory) {
 		component.append(...items
 			.sort(
-				item => item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? 1 : 0,
+				item => item.isWeapon() ? 1 : 0,
 				item => item.definition.inventory?.tierType ?? TierType.Unknown,
 				item => item.deepsight?.pattern ? inventory?.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress?.complete ? 3 : 2 : 1,
 				item => item.definition.classType ?? DestinyClass.Unknown,

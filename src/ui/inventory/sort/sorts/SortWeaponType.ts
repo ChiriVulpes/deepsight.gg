@@ -11,7 +11,7 @@ export default ISort.create({
 	sort: (a, b) => (a.definition.itemTypeDisplayName ?? "").localeCompare(b.definition.itemTypeDisplayName ?? ""),
 	renderSortable: sortable => sortable.maskIcon
 		.tweak(EnumIcon.applyIconVar, WeaponTypes, ItemCategoryHashes.HandCannon),
-	render: item => !item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) ? undefined
+	render: item => !item.isWeapon() ? undefined
 		: Component.create()
 			.classes.add("item-weapon-type-icon")
 			.tweak(component => EnumIcon.applyIcon(WeaponTypes, item.definition.itemCategoryHashes, iconPath =>

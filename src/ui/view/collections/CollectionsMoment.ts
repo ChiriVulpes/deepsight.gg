@@ -1,4 +1,3 @@
-import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
@@ -37,7 +36,7 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 				const classItems: Partial<Record<DestinyClass, Item[]>> = {};
 
 				for (const item of items) {
-					if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)) {
+					if (item.isWeapon()) {
 						weapons.push(item);
 						continue;
 					}

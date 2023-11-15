@@ -1,4 +1,3 @@
-import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import { type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
@@ -139,8 +138,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		return Promise.all(Array.from(itemHashes).map(hash => Promise.resolve(DestinyInventoryItemDefinition.get(hash))
 			.then(def => def && Item.createFake(manifest, profile ?? {}, def))))
-			.then(items => items.filter((item): item is Item =>
-				!!(item && item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon))));
+			.then(items => items.filter((item): item is Item => !!item?.isWeapon()));
 	}
 }
 
