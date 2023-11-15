@@ -493,6 +493,7 @@ class Item {
 
 	public update (item: Item) {
 		if (item !== this) {
+			this.lastModified = item.lastModified;
 			this.id = item.id;
 			this.reference = item.reference;
 			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket.id)) {
