@@ -3,9 +3,8 @@ import type { DestinyClass } from "bungie-api-ts/destiny2";
 import type { UserMembershipData } from "bungie-api-ts/user";
 import type Character from "model/models/Characters";
 import Inventory from "model/models/Inventory";
-import type { Bucket } from "model/models/Items";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
+import type { Bucket, CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
 import Display from "ui/bungie/DisplayProperties";
 import BaseComponent from "ui/Component";
@@ -160,7 +159,7 @@ namespace PlayerOverview {
 			}
 		}
 
-		private createPanel (character: Character, bucket: Bucket) {
+		private createPanel (character: Character, bucket: Bucket[]) {
 			const panel = this.drawer.createPanel()
 				.classes.add(PlayerOverviewClasses.Panel);
 
@@ -176,7 +175,7 @@ namespace PlayerOverview {
 			];
 			const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
 			const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
-			for (const item of bucket.items) {
+			for (const item of bucket.flatMap(bucket => bucket.items)) {
 				const view = slotViews.find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
 				for (const slot of Arrays.resolve(view?.definition.slot)) {
 					const id = IInventoryViewDefinition.resolveSlotId(slot);
