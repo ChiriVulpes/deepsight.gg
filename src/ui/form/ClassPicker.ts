@@ -20,7 +20,7 @@ export enum ClassPickerClasses {
 export interface IClassPickerOption<ID extends string | number = string | number> {
 	button?: ClassPickerButton;
 	id: ID;
-	background: string;
+	background?: string;
 	icon?: string;
 	item?: Item;
 }
@@ -183,7 +183,9 @@ export class ClassPickerButton extends Button {
 			this.style.remove("--background");
 			this.innerIcon?.remove();
 		} else {
-			this.style.set("--background", `url("${option.background}")`);
+			if (option.background)
+				this.style.set("--background", `url("${option.background}")`);
+
 			if (option.icon)
 				this.addIcon(icon => icon.style.set("--icon", `url("${option.icon!}")`));
 			else
