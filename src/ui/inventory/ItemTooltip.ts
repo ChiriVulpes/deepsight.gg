@@ -22,6 +22,7 @@ import Bound from "utility/decorator/Bound";
 
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
+	Tier_ = "item-tooltip-tier-",
 	Extra = "item-tooltip-extra",
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
@@ -292,8 +293,8 @@ class ItemTooltip extends Tooltip {
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
-		this.classes.removeWhere(cls => cls.startsWith("item-tooltip-tier-"))
-			.classes.add(`item-tooltip-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
+		this.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.Tier_))
+			.classes.add(`${ItemTooltipClasses.Tier_}${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
 			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork);
 
 		this.title.text.set(Display.name(item.definition));
@@ -310,7 +311,7 @@ class ItemTooltip extends Tooltip {
 			this.moment.style.set("--icon", `url("${momentIcon.startsWith("/") ? `https://www.bungie.net${momentIcon}` : momentIcon}")`);
 
 		const primaryStat = item.getPower();
-		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
+		const damageType = await DestinyDamageTypeDefinition.get(item.getDamageType());
 		const energy = item.instance?.energy;
 		const ammoType = item.definition.equippingBlock?.ammoType;
 

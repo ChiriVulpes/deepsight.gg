@@ -1,4 +1,5 @@
 $tiers: common, uncommon, rare, legendary, exotic;
+$damage-types: void, solar, arc, stasis, strand;
 
 $colors: (
 	background: var(--background-3),
@@ -43,6 +44,12 @@ $colors: (
 	tier-exotic-background: #c4a73d,
 	tier-exotic: #f5dc56,
 	tier-exotic-active: #fff4b5,
+	
+	damage-type-void-background: #644b75,
+	damage-type-solar-background: #8d421c,
+	damage-type-arc-background: #4e798f,
+	damage-type-stasis-background: #3650a5,
+	damage-type-strand-background: #24743d,
 
 	background-drawer: var(--background-2) var(--background-4),
 	button-background: color(--background-5),
