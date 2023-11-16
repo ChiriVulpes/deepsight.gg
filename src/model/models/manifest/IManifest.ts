@@ -73,6 +73,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	}
 
 	private memoryCache: IManifest.ManifestItemCache<COMPONENT_NAME> = {};
+	private allCache?: PromiseOr<IManifest.Component<COMPONENT_NAME>[]>;
 
 	private readonly stagedTransaction: Database.StagedTransaction<Pick<IModelCache, IManifest.ComponentKey<COMPONENT_NAME>>, [IManifest.ComponentKey<COMPONENT_NAME>]>;
 	private readonly modelCache: Model<any>;
@@ -147,8 +148,9 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		const componentKey = IManifest.CacheComponentKey.get(this.componentName);
 		if (index)
 			return this.stagedTransaction.all(componentKey, `${key!}`, index);
-		return !this.allCached ? this.stagedTransaction.all(componentKey).then(this.filterAllNoDuplicates) :
-			this.filterAllNoDuplicates(Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]);
+		return this.allCache ??= !this.allCached
+			? this.stagedTransaction.all(componentKey).then(this.filterAllNoDuplicates).then(all => this.allCache = all)
+			: this.filterAllNoDuplicates(Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]);
 	}
 
 	private filterAllNoDuplicates (all: IManifest.Component<COMPONENT_NAME>[]): IManifest.Component<COMPONENT_NAME>[] {
