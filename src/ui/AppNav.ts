@@ -107,6 +107,9 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		}
 
 		for (const [parentViewId, branch] of Object.entries(viewTree)) {
+			if (!branch.buttons.length)
+				continue;
+
 			const parentViewDestinationButton = this.destinationButtons[parentViewId];
 			if (!parentViewDestinationButton) {
 				console.warn("Tried to child destination button(s) to a nonexistent parent:", parentViewId);
@@ -154,8 +157,6 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			this.destinationButtons[view.definition.id]?.parent()?.classes.add(ClassesAppNav.DestinationChildActive);
 
 		document.documentElement.classList.add(ClassesAppNav.DocumentHasAppNav);
-		// this.classes.toggle(!!view.definition.noNav, Classes.Hidden);
-		// this.attributes.toggle(!!view.definition.noNav, "inert");
 
 		this.destinationsWrapper.classes.remove(Classes.Active);
 		const x = this.viewGrid.findIndex(column => column.some(handler => handler.id === view.definition.id));
@@ -163,7 +164,6 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			x,
 			y: this.viewGrid[x].findIndex(handler => handler.id === view.definition.id),
 		};
-		console.log(this.viewPos);
 	}
 
 	private tryInsertPlayerOverview () {
