@@ -15,8 +15,8 @@ export type Buckets<BUCKET = Bucket> = Partial<Record<BucketId, BUCKET>>;
 export default Model.createDynamic(Time.seconds(30), async api => {
 	api.subscribeProgress(Manifest, 1 / 4);
 	const manifest = await Manifest.await();
-	api.emitProgress(1 / 4, "Loading manifest cache");
 
+	api.emitProgress(1 / 4, "Loading manifest cache");
 	// precache some defs for item initialisation
 	const { DeepsightDropTableDefinition, DestinyActivityDefinition } = manifest;
 	await DeepsightDropTableDefinition.all();
@@ -24,7 +24,8 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);
 	const profile = await ProfileBatch.await();
-	api.emitProgress(3 / 4, "Loading items");
+
+	api.emitProgress(3 / 4, "Loading manifest cache");
 
 	const initialisedItems = new Set<string>();
 	const itemsToInit = new Set<string>((profile.profileInventory?.data?.items ?? [])
@@ -42,7 +43,9 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			lastForcedTimeoutForStyle = Date.now();
 		}
 
-		api.emitProgress(3 / 4 + 1 / 4 * (1 - itemsToInit.size / totalItemsToInit), `Loading items ${totalItemsToInit - itemsToInit.size} / ${totalItemsToInit}`);
+		if (itemsToInit.size !== totalItemsToInit)
+			api.emitProgress(3 / 4 + 1 / 4 * (1 - itemsToInit.size / totalItemsToInit), `Loading items ${totalItemsToInit - itemsToInit.size} / ${totalItemsToInit}`);
+
 		if (reference.itemInstanceId !== undefined && initialisedItems.has(reference.itemInstanceId))
 			return undefined; // already initialised in another bucket
 
