@@ -96,8 +96,8 @@ namespace View {
 		return new Handler(definition);
 	}
 
-	export interface Handler<MODELS extends readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends IView<MODELS> { }
-	export class Handler<MODELS extends readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> {
+	export interface Handler<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends IView<MODELS> { }
+	export class Handler<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> {
 
 		public constructor (definition: IView<MODELS, [], ARGS, DEFINITION>) {
 			Object.assign(this, definition);

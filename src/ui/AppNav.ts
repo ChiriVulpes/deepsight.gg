@@ -3,6 +3,8 @@ import Component from "ui/Component";
 import Button from "ui/form/Button";
 import type Loadable from "ui/Loadable";
 import PlayerOverview from "ui/PlayerOverview";
+import type { IKeyEvent } from "ui/UiEventBus";
+import UiEventBus from "ui/UiEventBus";
 import type View from "ui/View";
 import AppInfo from "ui/view/appnav/AppInfo";
 import type ViewManager from "ui/ViewManager";
@@ -32,10 +34,14 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	private destinationsWrapper!: Component;
 	private appInfo!: AppInfo;
 	private playerOverview?: Loadable.Component;
+	private viewGrid!: View.Handler[][];
+	private viewPos!: { x: number, y: number };
 
 	protected override onMake (viewManager: typeof ViewManager): void {
 		this.destinationButtons = {};
 		this.destinationDropdownWrappers = [];
+		this.viewGrid = [];
+		this.viewPos = { x: 0, y: 0 };
 
 		this.classes.add(ClassesAppNav.Main);
 
@@ -63,7 +69,12 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			.event.subscribe("click", () => this.destinationsWrapper.classes.toggle(Classes.Active))
 			.appendTo(this.destinationsWrapper);
 
-		const childViewDestinationButtons: Record<string, Button[]> = {};
+		interface ViewTreeBranch {
+			buttons: Button[];
+			column: number;
+		}
+
+		const viewTree: Record<string, ViewTreeBranch> = {};
 
 		for (const destinationViewHandler of Object.values(viewManager.registry)) {
 			if (destinationViewHandler.noDestinationButton)
@@ -81,15 +92,20 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show());
 
-			if (destinationViewHandler.parentViewId)
-				(childViewDestinationButtons[destinationViewHandler.parentViewId] ??= [])
-					.push(destinationButton);
-
-			else
+			if (!destinationViewHandler.parentViewId) {
 				destinationButton.appendTo(this.destinationsWrapper);
+				const column = this.viewGrid.length;
+				this.viewGrid.push([destinationViewHandler]);
+				viewTree[destinationViewHandler.id] ??= { buttons: [], column };
+				continue;
+			}
+
+			const branch = viewTree[destinationViewHandler.parentViewId];
+			branch.buttons.push(destinationButton);
+			this.viewGrid[branch.column].push(destinationViewHandler);
 		}
 
-		for (const [parentViewId, destinationButtons] of Object.entries(childViewDestinationButtons)) {
+		for (const [parentViewId, branch] of Object.entries(viewTree)) {
 			const parentViewDestinationButton = this.destinationButtons[parentViewId];
 			if (!parentViewDestinationButton) {
 				console.warn("Tried to child destination button(s) to a nonexistent parent:", parentViewId);
@@ -98,7 +114,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 			this.destinationDropdownWrappers.push(Component.create()
 				.classes.add(ClassesAppNav.DestinationChildren, `app-nav-destination-${parentViewId}-parent`)
-				.append(...destinationButtons)
+				.append(...branch.buttons)
 				.insertToAfter(this.destinationsWrapper, parentViewDestinationButton)
 				.prepend(parentViewDestinationButton));
 		}
@@ -108,6 +124,9 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		this.refreshDestinationButtons = this.refreshDestinationButtons.bind(this);
 		Store.event.subscribe("setSettingsEquipmentView", this.refreshDestinationButtons);
 		this.refreshDestinationButtons();
+
+		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
+		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
 	private refreshDestinationButtons () {
@@ -139,6 +158,12 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		// this.attributes.toggle(!!view.definition.noNav, "inert");
 
 		this.destinationsWrapper.classes.remove(Classes.Active);
+		const x = this.viewGrid.findIndex(column => column.some(handler => handler.id === view.definition.id));
+		this.viewPos = {
+			x,
+			y: this.viewGrid[x].findIndex(handler => handler.id === view.definition.id),
+		};
+		console.log(this.viewPos);
 	}
 
 	private tryInsertPlayerOverview () {
@@ -148,5 +173,58 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		this.playerOverview = PlayerOverview.create()
 			.classes.add(ClassesAppNav.IdentityContainer)
 			.insertToAfter(this, this.appInfo);
+	}
+
+	private isDestinationVisible (id: string) {
+		return !!this.destinationButtons[id].element.offsetWidth;
+	}
+
+	private getActualViewY () {
+		return Math.max(0, this.viewGrid[this.viewPos.x]
+			.filter(view => this.isDestinationVisible(view.id))
+			.indexOf(this.viewGrid[this.viewPos.x][this.viewPos.y]));
+	}
+
+	private changeViewX (amount: 1 | -1) {
+		for (let x = this.viewPos.x + amount; x >= 0 && x < this.viewGrid.length; x += amount) {
+			const column = this.viewGrid[x].filter(view => this.isDestinationVisible(view.id));
+			if (!column.length)
+				continue;
+
+			const view = column[Math.min(this.getActualViewY(), column.length - 1)];
+			view.show();
+			return;
+		}
+	}
+
+	private changeViewY (amount: 1 | -1) {
+		const column = this.viewGrid[this.viewPos.x].filter(view => this.isDestinationVisible(view.id));
+		if (!column.length)
+			return;
+
+		const y = this.getActualViewY();
+		const newY = Math.max(0, Math.min(y + amount, column.length - 1));
+		if (y === newY)
+			return;
+
+		column[newY].show();
+	}
+
+	private onGlobalKeydown (event: IKeyEvent) {
+		if (!document.contains(this.element)) {
+			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
+			return;
+		}
+
+		switch (event.key) {
+			case "ArrowDown":
+				return this.changeViewY(1);
+			case "ArrowUp":
+				return this.changeViewY(-1);
+			case "ArrowRight":
+				return this.changeViewX(1);
+			case "ArrowLeft":
+				return this.changeViewX(-1);
+		}
 	}
 }
