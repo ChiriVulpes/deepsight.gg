@@ -31,11 +31,15 @@
 @import "component/AppInfo";
 @import "component/Loadable";
 @import "component/Background";
-@import "component/Tooltip";
 @import "component/Card";
 @import "component/Hint";
 @import "component/TextLogo";
 @import "component/Documentation";
+@import "component/Tooltip";
+// tooltips
+@import "component/inventory/ItemTooltip";
+@import "component/inventory/ItemPlugTooltip";
+@import "component/inventory/ItemSubclassTooltip";
 // inventory
 @import "component/inventory/Bucket";
 @import "component/inventory/Item";

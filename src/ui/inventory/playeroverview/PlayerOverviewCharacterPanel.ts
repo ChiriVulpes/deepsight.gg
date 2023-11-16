@@ -5,9 +5,11 @@ import type Item from "model/models/items/Item";
 import type { Bucket, CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import Button from "ui/form/Button";
 import ClassPicker from "ui/form/ClassPicker";
 import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
+import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
 import { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
@@ -136,6 +138,10 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 				id: subclass.definition.hash,
 				background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,
 				item: subclass,
+				initialise: button => button.setTooltip(ItemSubclassTooltip, {
+					initialise: tooltip => tooltip.set(subclass),
+					differs: tooltip => tooltip.item?.id !== subclass.id,
+				}),
 			});
 			if (subclass.equipped)
 				void this.subclassPicker.setCurrent(subclass.definition.hash, true);

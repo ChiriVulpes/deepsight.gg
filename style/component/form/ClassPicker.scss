@@ -123,11 +123,11 @@
 					content: "";
 					display: block;
 					position: absolute;
-					left: 119%;
-					top: 50%;
+					left: 118.5%;
+					top: calc(50% - 0.5px);
 					width: 16px;
 					height: 1px;
-					background: linear-gradient(to right, #fff8, transparent);
+					background: linear-gradient(to right, #fff3, #fff8 1px, transparent);
 				}
 
 				.class-picker-button {

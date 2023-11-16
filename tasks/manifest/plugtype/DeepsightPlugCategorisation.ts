@@ -736,12 +736,10 @@ namespace DeepsightPlugCategorisation {
 			const subclassIdentifier = plugCategoryIdentifier?.slice(0, plugCategoryIdentifier.lastIndexOf("."));
 			const damageTypeIdentifier = subclassIdentifier?.slice(subclassIdentifier.lastIndexOf(".") + 1);
 
-			const result = {
+			return {
 				subclasses: !subclassIdentifier ? undefined : subclasses[subclassIdentifier],
 				damageType: !damageTypeIdentifier ? undefined : damageTypes[damageTypeIdentifier],
 			} as Partial<DeepsightPlugCategorisationSubclass>;
-
-			return result;
 		},
 	};
 

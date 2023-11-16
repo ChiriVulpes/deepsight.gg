@@ -190,7 +190,7 @@ namespace TooltipManager {
 					return; // this tooltip is already shown
 
 				tooltip.owner = new WeakRef(component);
-				TooltipManager.show(tooltipClass, handler.initialiser, handler.differs?.(tooltip));
+				TooltipManager.show(tooltipClass, handler.initialise, handler.differs?.(tooltip));
 			})
 			.subscribe("mouseout", event => {
 				if (component.element.contains(document.elementFromPoint(event.clientX, event.clientY)))

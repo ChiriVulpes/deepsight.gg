@@ -17,12 +17,13 @@ export enum ClassPickerClasses {
 	OptionsWrapperBorders2 = "class-picker-button-wrapper-borders2",
 }
 
-export interface IClassPickerOption<ID extends string | number = string | number> {
+export interface IClassPickerOptionDefinition<ID extends string | number = string | number> {
 	button?: ClassPickerButton;
 	id: ID;
 	background?: string;
 	icon?: string;
 	item?: Item;
+	initialise?(button: ClassPickerButton): any;
 }
 
 export interface IClassPickerEvents<ID extends string | number = string | number> extends ComponentEvents {
@@ -37,7 +38,7 @@ export default class ClassPicker<ID extends string | number = string | number> e
 
 	public currentButton!: ClassPickerButton;
 	public currentOption?: ID;
-	public options!: IClassPickerOption<ID>[];
+	public options!: IClassPickerOptionDefinition<ID>[];
 	public optionsWrapper!: Component;
 	public optionsWrapperBorders1!: Component;
 	public optionsWrapperBorders2!: Component;
@@ -62,22 +63,22 @@ export default class ClassPicker<ID extends string | number = string | number> e
 			.appendTo(this.optionsWrapper);
 	}
 
-	public addOption (option: Omit<IClassPickerOption<ID>, "button">) {
+	public addOption (option: Omit<IClassPickerOptionDefinition<ID>, "button">) {
 		const existingOption = this.options.find(existing => existing.id === option.id);
 		if (existingOption) {
 			// already has this option
 			existingOption.background = option.background;
 			existingOption.icon = option.icon;
-			existingOption.button?.setAppearance(option);
+			existingOption.button?.setDefinition(option);
 			existingOption.item = option.item;
 			if (this.currentOption === option.id)
-				this.currentButton.setAppearance(option);
+				this.currentButton.setDefinition(option);
 			return this;
 		}
 
 		this.options.push(option);
-		const button = (option as IClassPickerOption<ID>).button = ClassPickerButton.create()
-			.setAppearance(option)
+		const button = (option as IClassPickerOptionDefinition<ID>).button = ClassPickerButton.create()
+			.setDefinition(option)
 			.event.subscribe("click", async () => {
 				const option = this.options.find(option => option.button === button);
 				if (!option) {
@@ -108,6 +109,10 @@ export default class ClassPicker<ID extends string | number = string | number> e
 		return this;
 	}
 
+	private getCurrentOptionDefinition () {
+		return this.options.find(option => option.id === this.currentOption);
+	}
+
 	private updateOptionsWrapper () {
 		this.optionsWrapper.classes.remove(ClassPickerClasses.OptionsWrapper2, ClassPickerClasses.OptionsWrapper3, ClassPickerClasses.OptionsWrapper4, ClassPickerClasses.OptionsWrapper9);
 		const count = this.optionsWrapper.element.childElementCount - 2;
@@ -131,17 +136,17 @@ export default class ClassPicker<ID extends string | number = string | number> e
 			return;
 		}
 
-		const currentOption = this.options.find(option => option.id === this.currentOption);
+		const currentOption = this.getCurrentOptionDefinition();
 		if (!currentOption || initial) {
 			this.currentOption = id;
 
-			this.currentButton.setAppearance(chosenOption);
+			this.currentButton.setDefinition(chosenOption);
 			if (!currentOption) {
 				chosenOption.button.remove();
 				delete chosenOption.button;
 				this.updateOptionsWrapper();
 			} else {
-				chosenOption.button.setAppearance(currentOption);
+				chosenOption.button.setDefinition(currentOption);
 				currentOption.button = chosenOption.button;
 				delete chosenOption.button;
 			}
@@ -151,8 +156,8 @@ export default class ClassPicker<ID extends string | number = string | number> e
 
 				const button = chosenOption.button;
 
-				this.currentButton.setAppearance(chosenOption);
-				chosenOption.button!.setAppearance(currentOption);
+				this.currentButton.setDefinition(chosenOption);
+				chosenOption.button!.setDefinition(currentOption);
 				currentOption.button = chosenOption.button;
 				delete chosenOption.button;
 
@@ -170,6 +175,8 @@ export default class ClassPicker<ID extends string | number = string | number> e
 
 export class ClassPickerButton extends Button {
 
+	public definition?: IClassPickerOptionDefinition<string | number>;
+
 	protected override onMake (): void {
 		super.onMake();
 		this.classes.add(ClassPickerClasses.Button);
@@ -178,22 +185,25 @@ export class ClassPickerButton extends Button {
 			.appendTo(this);
 	}
 
-	public setAppearance (option?: IClassPickerOption<string | number>) {
-		if (!option) {
+	public setDefinition (definition?: IClassPickerOptionDefinition<string | number>) {
+		if (!definition) {
 			this.style.remove("--background");
 			this.innerIcon?.remove();
 		} else {
-			if (option.background)
-				this.style.set("--background", `url("${option.background}")`);
+			if (definition.background)
+				this.style.set("--background", `url("${definition.background}")`);
 			else
 				this.style.remove("--background");
 
-			if (option.icon)
-				this.addIcon(icon => icon.style.set("--icon", `url("${option.icon!}")`));
+			if (definition.icon)
+				this.addIcon(icon => icon.style.set("--icon", `url("${definition.icon!}")`));
 			else
 				this.innerIcon?.remove();
 		}
 
+		definition?.initialise?.(this);
+
+		this.definition = definition;
 		return this;
 	}
 }

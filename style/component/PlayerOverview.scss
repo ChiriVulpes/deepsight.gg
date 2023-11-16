@@ -38,6 +38,12 @@
 		grid-template-columns: 1fr auto auto 1fr;
 		gap: 200px;
 		width: 100%;
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			box-shadow: inset 0 -2px 0 color(background-7);
+		}
 
 		.drawer-close {
 			top: initial;

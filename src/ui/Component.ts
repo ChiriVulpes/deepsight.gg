@@ -19,7 +19,7 @@ export type ComponentElement<COMPONENT extends AnyComponent> = COMPONENT["elemen
 export type ComponentArgs<COMPONENT extends AnyComponent> = COMPONENT["_args"];
 
 export interface ITooltipHandler<TOOLTIP extends Tooltip> {
-	initialiser (tooltip: TOOLTIP): any;
+	initialise (tooltip: TOOLTIP): any;
 	differs?(tooltip: TOOLTIP): boolean;
 }
 

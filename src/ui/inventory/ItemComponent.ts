@@ -175,7 +175,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	protected async renderItem (item: Item) {
 		this.setTooltip(ItemTooltip, {
-			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
+			initialise: tooltip => tooltip.setPadding(this.tooltipPadding)
 				.setItem(item, this.inventory),
 			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
 		});
