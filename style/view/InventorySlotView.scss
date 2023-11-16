@@ -595,7 +595,8 @@
 
 	@at-root {
 		.view-inventory-slot-character-bucket:times(3),
-		.view-inventory-slot-vault-bucket:times(3) {
+		.view-inventory-slot-vault-bucket:times(3),
+		.view-inventory-slot-postmaster-bucket:times(3) {
 			@include view-swipe-animation;
 		}
 	}
