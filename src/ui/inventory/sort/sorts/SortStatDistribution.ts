@@ -11,6 +11,7 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 import type { Stat, StatGroup } from "ui/inventory/Stat";
 import { ARMOUR_GROUP_STATS_MAX, ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, ARMOUR_STAT_MIN, IStatDistribution } from "ui/inventory/Stat";
 import Loadable from "ui/Loadable";
+import Bound from "utility/decorator/Bound";
 import { EventManager } from "utility/EventManager";
 
 export enum StatDistributionClasses {
@@ -50,11 +51,11 @@ class StatDistributionDisplay extends Component<HTMLElement, [Item]> {
 			.classes.add(StatDistributionDisplayClasses.Value)
 			.appendTo(this);
 
-		this.update = this.update.bind(this);
 		displayEvents.subscribe("update", this.update);
 		this.update();
 	}
 
+	@Bound
 	public update () {
 		if (!document.contains(this.element) && this.contained) {
 			displayEvents.unsubscribe("update", this.update);
@@ -164,7 +165,6 @@ class StatRow extends Component<HTMLElement, [Stat, DestinyClass]> {
 			})
 			.appendTo(this);
 
-		this.update = this.update.bind(this);
 		this.input = RangeInput.create([{ min: ARMOUR_STAT_MIN, max: ARMOUR_STAT_MAX }])
 			.classes.add(StatDistributionClasses.Range)
 			.style.set("--visual-min", `${ARMOUR_STAT_MIN / ARMOUR_STAT_MAX}`)
@@ -186,6 +186,7 @@ class StatRow extends Component<HTMLElement, [Stat, DestinyClass]> {
 		this.checkbox.label.text.set(definition?.displayProperties.name ?? "Unknown");
 	}
 
+	@Bound
 	public update (event?: any, force = false) {
 		if (this.oldValue === this.input.value && !force)
 			return this;

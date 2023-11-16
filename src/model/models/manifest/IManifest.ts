@@ -3,6 +3,7 @@ import Model from "model/Model";
 import type { IModelCache } from "model/ModelCacheDatabase";
 import type Database from "utility/Database";
 import type { PromiseOr } from "utility/Type";
+import Bound from "utility/decorator/Bound";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 
@@ -82,7 +83,6 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 	private allCached?: boolean;
 
 	public constructor (protected readonly componentName: COMPONENT_NAME, protected readonly hostModel: Model<any>) {
-		this.filterAllNoDuplicates = this.filterAllNoDuplicates.bind(this);
 		this.stagedTransaction = Model.cacheDB.stagedTransaction([IManifest.CacheComponentKey.get(componentName)]);
 		this.modelCache = Model.create(IManifest.CacheComponentKey.getBundle(componentName), {
 			cache: "Global",
@@ -153,6 +153,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 			: this.filterAllNoDuplicates(Object.values(this.memoryCache) as IManifest.Component<COMPONENT_NAME>[]);
 	}
 
+	@Bound
 	private filterAllNoDuplicates (all: IManifest.Component<COMPONENT_NAME>[]): IManifest.Component<COMPONENT_NAME>[] {
 		const result: IManifest.Component<COMPONENT_NAME>[] = [];
 		const hashes = new Set<number>();

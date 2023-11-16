@@ -18,6 +18,7 @@ import ItemTooltipMods from "ui/inventory/tooltip/ItemTooltipMods";
 import ItemTooltipNotifications from "ui/inventory/tooltip/ItemTooltipNotifications";
 import ItemTooltipPerks from "ui/inventory/tooltip/ItemTooltipPerks";
 import ItemTooltipSource from "ui/inventory/tooltip/ItemTooltipSource";
+import Bound from "utility/decorator/Bound";
 
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
@@ -242,13 +243,12 @@ class ItemTooltip extends Tooltip {
 			.tweak(hint => hint.label.text.set("Collections"))
 			.appendTo(this.extra.hints);
 
-		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
-		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
 	}
 
 	private awaitingShiftForLock = false;
+	@Bound
 	protected onGlobalKeydown (event: IKeyEvent) {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Collections");
@@ -256,6 +256,7 @@ class ItemTooltip extends Tooltip {
 		}
 	}
 
+	@Bound
 	protected onGlobalKeyup (event: IKeyUpEvent) {
 		if (event.matches("Shift")) {
 			this.hintInspect.label.text.set("Details");

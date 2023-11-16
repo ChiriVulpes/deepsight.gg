@@ -25,6 +25,7 @@ import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
 import Arrays from "utility/Arrays";
+import Bound from "utility/decorator/Bound";
 import Maths from "utility/maths/Maths";
 
 export enum PlayerOverviewClasses {
@@ -86,7 +87,6 @@ namespace PlayerOverview {
 				.classes.add(PlayerOverviewClasses.Drawer)
 				.appendTo(this);
 
-			this.update = this.update.bind(this);
 			inventory.event.subscribe("update", this.update);
 			inventory.event.subscribe("itemUpdate", this.update);
 			this.update();
@@ -94,18 +94,16 @@ namespace PlayerOverview {
 			this.event.subscribe("mouseenter", () => this.drawer.open("mouseenter"));
 			this.event.subscribe("mouseleave", () => this.drawer.close("mouseenter"));
 
-			this.onClick = this.onClick.bind(this);
 			document.body.addEventListener("click", this.onClick);
 
-			this.onKeydown = this.onKeydown.bind(this);
 			UiEventBus.subscribe("keydown", this.onKeydown);
-			this.onKeyup = this.onKeyup.bind(this);
 			UiEventBus.subscribe("keyup", this.onKeyup);
 
 			viewManager.event.subscribe("show", () => this.drawer.close(true));
 		}
 
 		private previous?: Record<DestinyClass, string[]>;
+		@Bound
 		public update () {
 			this.drawer.removeContents();
 
@@ -302,6 +300,7 @@ namespace PlayerOverview {
 			return panel;
 		}
 
+		@Bound
 		private onClick (event: Event): void {
 			if (!this.exists())
 				return document.body.removeEventListener("click", this.onClick);
@@ -312,6 +311,7 @@ namespace PlayerOverview {
 			this.drawer.close(true);
 		}
 
+		@Bound
 		private onKeydown (event: IKeyEvent) {
 			if (!document.contains(this.element)) {
 				UiEventBus.unsubscribe("keydown", this.onKeydown);
@@ -325,6 +325,7 @@ namespace PlayerOverview {
 				this.drawer.close(true);
 		}
 
+		@Bound
 		private onKeyup (event: IKeyEvent) {
 			if (!document.contains(this.element)) {
 				UiEventBus.unsubscribe("keyup", this.onKeyup);

@@ -2,6 +2,7 @@ import type { IDraggableEvents, MouseTouchEvent } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
+import Bound from "utility/decorator/Bound";
 import { EventManager } from "utility/EventManager";
 import { IVector2 } from "utility/maths/Vector2";
 
@@ -22,11 +23,6 @@ export default class Sortable {
 	private readonly draggables = new WeakMap<HTMLElement, Draggable>();
 
 	public constructor (public readonly host: HTMLElement) {
-		this.onItemMoveStart = this.onItemMoveStart.bind(this);
-		this.onItemMove = this.onItemMove.bind(this);
-		this.onItemMoveEnd = this.onItemMoveEnd.bind(this);
-		this.onKeydown = this.onKeydown.bind(this);
-
 		for (const child of host.children as Iterable<HTMLElement>) {
 			child.classList.add(SortableClasses.Item);
 			child.setAttribute("tabindex", "0");
@@ -93,6 +89,7 @@ export default class Sortable {
 	}
 
 	private savedPosition?: IVector2;
+	@Bound
 	private onItemMoveStart (e: Event) {
 		const event = e as any as { target: HTMLElement } & IDraggableEvents["moveStart"];
 		const item = event.target;
@@ -107,6 +104,7 @@ export default class Sortable {
 	}
 
 	private slot?: HTMLElement;
+	@Bound
 	private onItemMove (e: Event | { target: HTMLElement } & IDraggableEvents["move"]) {
 		const event = e as any as { target: HTMLElement } & IDraggableEvents["move"];
 		const item = event.target;
@@ -173,6 +171,7 @@ export default class Sortable {
 		return children[children.length - 1];
 	}
 
+	@Bound
 	private onItemMoveEnd (e: Event) {
 		const event = e as any as { target: HTMLElement };
 		event.target.classList.remove(SortableClasses.Moving);
@@ -183,6 +182,7 @@ export default class Sortable {
 		this.commit();
 	}
 
+	@Bound
 	private onKeydown (event: IKeyEvent) {
 		if (!document.contains(this.host)) {
 			this.dispose();

@@ -10,6 +10,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import type { ItemSocket } from "ui/view/item/ItemSockets";
 import ItemSockets, { ItemSocketsClasses } from "ui/view/item/ItemSockets";
+import Bound from "utility/decorator/Bound";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 
@@ -183,7 +184,6 @@ export default class ItemPerks extends ItemSockets {
 			.append(this.wishlistConfirmButton)
 			.appendTo(this.wishlistContainer);
 
-		this.onKeydown = this.onKeydown.bind(this);
 		UiEventBus.until(viewManager.event.waitFor("hide"), events => events
 			.subscribe("keydown", this.onKeydown));
 	}
@@ -337,6 +337,7 @@ export default class ItemPerks extends ItemSockets {
 		Store.items[`item${this.item.definition.hash}PerkWishlists`] = this.wishlists;
 	}
 
+	@Bound
 	private onKeydown (event: IKeyEvent) {
 		if (this.editingWishlist && event.useOverInput("Escape"))
 			this.cancelEditingWishlist();

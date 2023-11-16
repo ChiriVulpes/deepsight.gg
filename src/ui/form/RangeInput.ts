@@ -1,4 +1,5 @@
 import Component from "ui/Component";
+import Bound from "utility/decorator/Bound";
 
 export enum RangeInputClasses {
 	Main = "range-input",
@@ -43,10 +44,10 @@ export default class RangeInput extends Component<HTMLInputElement, [IRangeConfi
 			.attributes.set("step", `${config.step ?? 1}`)
 			.attributes.set("value", `${config.default ?? 0}`);
 
-		this.update = this.update.bind(this);
 		this.event.subscribe("input", this.update);
 	}
 
+	@Bound
 	private update () {
 		this.style.set("--value", `${(this.element.valueAsNumber - +this.element.min) / (+this.element.max - +this.element.min)}`);
 	}

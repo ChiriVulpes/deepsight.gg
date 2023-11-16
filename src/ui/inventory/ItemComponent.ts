@@ -15,6 +15,7 @@ import type SortManager from "ui/inventory/sort/SortManager";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
 import Loadable from "ui/Loadable";
 import Async from "utility/Async";
+import Bound from "utility/decorator/Bound";
 import Store from "utility/Store";
 
 export enum ItemClasses {
@@ -92,13 +93,6 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		this.inventory = inventory;
 
-		this.update = this.update.bind(this);
-		this.loadStart = this.loadStart.bind(this);
-		this.loadEnd = this.loadEnd.bind(this);
-		this.onClick = this.onClick.bind(this);
-		this.onContextMenu = this.onContextMenu.bind(this);
-		this.rerenderExtra = this.rerenderExtra.bind(this);
-
 		this.event.subscribe("click", this.onClick);
 		this.event.subscribe("contextmenu", this.onContextMenu);
 
@@ -107,6 +101,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	}
 
 	private lastUpdatePromise?: Promise<void>;
+	@Bound
 	private update (event: { item: Item }) {
 		if (!document.contains(this.element)) {
 			this.item.event.unsubscribe("update", this.update);
@@ -126,10 +121,12 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		})();
 	}
 
+	@Bound
 	private loadStart () {
 		this.loadingSpinny?.classes.remove(Classes.Hidden);
 	}
 
+	@Bound
 	private loadEnd () {
 		this.loadingSpinny?.classes.add(Classes.Hidden);
 	}
@@ -299,6 +296,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		return this;
 	}
 
+	@Bound
 	private async rerenderExtra () {
 		this.extra.removeContents();
 
@@ -329,6 +327,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		this.extra.classes.toggle(encounteredQuantityOrPowerState === 1 && extra < 3, ItemClasses.ExtraNoneAfterQuantityOrPower);
 	}
 
+	@Bound
 	private async onClick (event: MouseEvent) {
 		if (window.innerWidth <= 800)
 			return viewManager.showItemTooltip(this.item);
@@ -354,6 +353,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		}
 	}
 
+	@Bound
 	private onContextMenu (event: MouseEvent) {
 		if (window.innerWidth <= 800)
 			return;

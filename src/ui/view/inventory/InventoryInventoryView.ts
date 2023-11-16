@@ -79,9 +79,6 @@ export class InventoryInventoryView extends InventoryView {
 
 		this.postmasterBucketsContainer.classes.add(InventoryInventoryViewClasses.PostmasterBuckets);
 		this.vaultBucketsContainer.classes.add(InventoryInventoryViewClasses.VaultBuckets);
-
-		// this.onMouseMove = this.onMouseMove.bind(this);
-		// document.body.addEventListener("mousemove", this.onMouseMove);
 	}
 
 	protected override preUpdateInit (): void {

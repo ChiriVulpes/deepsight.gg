@@ -1,6 +1,7 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Time from "utility/Time";
+import Bound from "utility/decorator/Bound";
 
 export enum TimestampClasses {
 	Main = "timestamp",
@@ -18,7 +19,6 @@ export default class Timestamp extends Component<HTMLElement, [time?: number, fo
 	protected override onMake (time?: number, format: "relative" | "absolute" = "relative", options?: Time.RelativeOptions | Intl.DateTimeFormatOptions): void {
 		this.classes.add(TimestampClasses.Main);
 
-		this.render = this.render.bind(this);
 
 		this.setTime(time);
 		this.setDisplayMode(format, options);
@@ -49,6 +49,7 @@ export default class Timestamp extends Component<HTMLElement, [time?: number, fo
 	}
 
 	private rendering = false;
+	@Bound
 	private render () {
 		this.rendering = true;
 		this.text.set(Time[this.mode!]?.(this.time ?? 0, this.options));

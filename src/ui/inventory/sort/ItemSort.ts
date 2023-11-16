@@ -9,6 +9,7 @@ import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
+import Bound from "utility/decorator/Bound";
 
 export enum ItemSortClasses {
 	Main = "item-sort",
@@ -57,7 +58,7 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 
 	protected override onMake (sort: ISort): void {
 		this.sort = sort;
-		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${sort.className ?? (typeof sort.id === "number" ? Sort[sort.id] : sort.id).toLowerCase()}`)
+		this.classes.add(ItemSortClasses.Sort, `item-sort-drawer-sort-${sort.className ?? (typeof sort.id === "number" ? Sort[sort.id] : sort.id).toLowerCase()}`);
 
 		this.title = Component.create("span")
 			.classes.add(ItemSortClasses.SortTitle)
@@ -66,7 +67,6 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 
 		sort.renderSortable?.(this);
 
-		this.onClick = this.onClick.bind(this);
 		if (sort.renderSortableOptions)
 			Button.create()
 				.classes.add(ButtonClasses.Icon, ItemSortClasses.SortOptions)
@@ -74,6 +74,7 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 				.appendTo(this);
 	}
 
+	@Bound
 	private onClick () {
 		this.event.emit("configure", { sort: this.sort });
 	}
@@ -100,13 +101,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.sorter = sorter;
 		this.classes.add(ItemSortClasses.Main);
 
-		this.configureSort = this.configureSort.bind(this);
-
 		////////////////////////////////////
 		// Button
 		this.button = Button.create()
 			.classes.add(ItemSortClasses.Button)
-			.event.subscribe("click", this.toggleDrawer.bind(this))
+			.event.subscribe("click", this.toggleDrawer)
 			.addIcon(icon => icon.classes.add(ItemSortClasses.ButtonIcon))
 			.appendTo(this);
 
@@ -123,7 +122,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		// Drawer
 		this.drawer = Drawer.create()
 			.classes.add(ItemSortClasses.Drawer)
-			.event.subscribe("focus", this.focusDrawer.bind(this))
+			.event.subscribe("focus", this.focusDrawer)
 			.appendTo(this);
 
 		this.mainPanel = this.drawer.createPanel();
@@ -159,7 +158,6 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		for (const sort of sorter.getDisabled())
 			this.createSortableSort(sort);
 
-		this.onCommitSort = this.onCommitSort.bind(this);
 		new Sortable(this.sortsList.element)
 			.setInputFilter(event => !(event.target as HTMLElement).closest("button"))
 			.event.subscribe("commit", this.onCommitSort);
@@ -170,12 +168,9 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		// Setup
 		this.updateSortDisplay();
 
-		this.onClick = this.onClick.bind(this);
 		document.body.addEventListener("click", this.onClick);
 
-		this.onKeydown = this.onKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onKeydown);
-		this.onKeyup = this.onKeyup.bind(this);
 		UiEventBus.subscribe("keyup", this.onKeyup);
 	}
 
@@ -185,12 +180,14 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.appendTo(this.sortsList));
 	}
 
+	@Bound
 	private configureSort ({ sort }: { sort: ISort }) {
 		this.configureTitle.text.set(`Configure ${sort.name}`);
 		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions, this.onCommitSort);
 		this.drawer.showPanel(this.configurePanel, true);
 	}
 
+	@Bound
 	private onClick (event: Event): void {
 		if (!this.exists())
 			return document.body.removeEventListener("click", this.onClick);
@@ -201,6 +198,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.closeDrawer();
 	}
 
+	@Bound
 	private onCommitSort () {
 		this.sorter.set([...this.sortsList.children<SortableSort>()]
 			.map(child => child.sort)
@@ -216,6 +214,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.join(", "));
 	}
 
+	@Bound
 	private onKeydown (event: IKeyEvent) {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onKeydown);
@@ -229,6 +228,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			this.closeDrawer();
 	}
 
+	@Bound
 	private onKeyup () {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keyup", this.onKeyup);
@@ -239,6 +239,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			this.closeDrawer();
 	}
 
+	@Bound
 	private toggleDrawer () {
 		if (!this.drawer.isOpen())
 			this.openDrawer();
@@ -261,6 +262,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		ItemComponent.hideExtra(ItemSortClasses.Main);
 	}
 
+	@Bound
 	private focusDrawer () {
 		const [firstSort] = this.sortsList.children<SortableSort>();
 		firstSort.element.focus();

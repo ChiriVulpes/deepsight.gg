@@ -12,6 +12,7 @@ import type FilterManager from "ui/inventory/filter/FilterManager";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Async from "utility/Async";
+import Bound from "utility/decorator/Bound";
 import Store from "utility/Store";
 import Strings from "utility/Strings";
 
@@ -144,8 +145,6 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.filterer = filterer;
 		this.classes.add(ItemFilterClasses.Main);
 
-		this.openDrawer = this.openDrawer.bind(this);
-
 		////////////////////////////////////
 		// Button
 		this.button = Button.create()
@@ -160,8 +159,6 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			.text.set(`Filter ${filterer.name}`)
 			.appendTo(this.button);
 
-		this.onPaste = this.onPaste.bind(this);
-		this.onInput = this.onInput.bind(this);
 		this.input = Component.create()
 			.classes.add(ItemFilterClasses.Input)
 			.attributes.add("contenteditable")
@@ -179,7 +176,6 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			})
 			.appendTo(this.button);
 
-		this.reset = this.reset.bind(this);
 		this.resetButton = Button.create()
 			.classes.add(ItemFilterClasses.Reset, Classes.Hidden)
 			.event.subscribe("click", () => this.reset(true))
@@ -223,12 +219,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 					.appendTo(suggestedFilters));
 		}
 
-		this.onFocusOut = this.onFocusOut.bind(this);
-		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 		this.cleanup();
 
-		this.onSelectionChange = this.onSelectionChange.bind(this);
 		document.addEventListener("selectionchange", this.onSelectionChange);
 	}
 
@@ -236,12 +229,14 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		return this.input.hasContents();
 	}
 
+	@Bound
 	public reset (focus = false) {
 		this.input.removeContents();
 		this.cleanup(focus);
 		this.filterChips();
 	}
 
+	@Bound
 	private async openDrawer () {
 		if (!this.drawer.classes.has(Classes.Hidden))
 			return this.input.element.focus();
@@ -263,6 +258,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		document.removeEventListener("focusout", this.onFocusOut);
 	}
 
+	@Bound
 	private async onFocusOut () {
 		await Async.sleep(0); // next tick
 
@@ -272,6 +268,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.closeDrawer();
 	}
 
+	@Bound
 	private onSelectionChange () {
 		if (!document.contains(this.element)) {
 			document.removeEventListener("selectionchange", this.onSelectionChange);
@@ -283,6 +280,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			this.filterChips();
 	}
 
+	@Bound
 	private onGlobalKeydown (event: IKeyEvent) {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);
@@ -335,6 +333,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		event.useOverInput("u", "ctrl");
 	}
 
+	@Bound
 	private onPaste (event: ClipboardEvent) {
 		event.preventDefault();
 
@@ -420,7 +419,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		const editingChip = this.getEditingChip();
 		const textContent = this.input.element.textContent ?? "";
 
-		let removed = false
+		let removed = false;
 		if (!editingChip) {
 			const chipRegex = new RegExp(`(?<=^| |\xa0)${chipText}(?= |\xa0|$)`);
 			removed = chipRegex.test(textContent);
@@ -444,6 +443,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.filterChips();
 	}
 
+	@Bound
 	private onInput (event: Event) {
 		void this.openDrawer();
 		this.cleanup();
@@ -606,7 +606,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			}
 
 			if (chip.isHint) {
-				chip.toggle(!id || chip.id.startsWith(id) && id.length < chip.prefix.length)
+				chip.toggle(!id || chip.id.startsWith(id) && id.length < chip.prefix.length);
 				continue;
 			}
 
@@ -649,7 +649,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 			if (start !== -1 && text[i] in QUOTES) {
 				const quote = QUOTES[text[i] as keyof typeof QUOTES];
 				// upon entering a quote, continue until reaching the end quote
-				const textEndingInQuote = `${this.input.element.textContent ?? ""}${quote}`
+				const textEndingInQuote = `${this.input.element.textContent ?? ""}${quote}`;
 				for (i++; i < textEndingInQuote.length; i++)
 					if (textEndingInQuote[i] === quote)
 						break;

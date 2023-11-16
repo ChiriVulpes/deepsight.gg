@@ -8,6 +8,7 @@ import UiEventBus from "ui/UiEventBus";
 import type View from "ui/View";
 import AppInfo from "ui/view/appnav/AppInfo";
 import type ViewManager from "ui/ViewManager";
+import Bound from "utility/decorator/Bound";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
 
@@ -121,14 +122,13 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
 
-		this.refreshDestinationButtons = this.refreshDestinationButtons.bind(this);
 		Store.event.subscribe("setSettingsEquipmentView", this.refreshDestinationButtons);
 		this.refreshDestinationButtons();
 
-		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
+	@Bound
 	private refreshDestinationButtons () {
 		let showing = 0;
 		for (const [id, destinationButton] of Object.entries(this.destinationButtons)) {
@@ -210,6 +210,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		column[newY].show();
 	}
 
+	@Bound
 	private onGlobalKeydown (event: IKeyEvent) {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);

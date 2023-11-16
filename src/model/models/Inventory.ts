@@ -14,6 +14,7 @@ import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
 import Arrays from "utility/Arrays";
+import Bound from "utility/decorator/Bound";
 import { EventManager } from "utility/EventManager";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
@@ -58,10 +59,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	private loaded = false;
 
 	public constructor () {
-		this.onItemBucketChange = this.onItemBucketChange.bind(this);
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		(window as any).inventory = this;
+		Object.assign(window, { inventory: this });
 
 		const disposed = this.event.waitFor("dispose");
 		Items.event.until(disposed, event => event
@@ -79,8 +77,6 @@ export default class Inventory implements IItemComponentCharacterHandler {
 					item["_owner"] = this.sortedCharacters[0].characterId as CharacterId;
 			}));
 
-		this.await = this.await.bind(this);
-		this.onPageFocusChange = this.onPageFocusChange.bind(this);
 		if (FocusManager.focused)
 			this.onPageFocusChange(FocusManager);
 
@@ -118,6 +114,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return this;
 	}
 
+	@Bound
 	public async await (progress?: IModelGenerationApi) {
 		if (this.shouldSkipCharacters?.() ?? false)
 			return this;
@@ -197,6 +194,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		item.event.subscribe("bucketChange", this.onItemBucketChange);
 	}
 
+	@Bound
 	private onItemBucketChange ({ item, oldBucket, equipped }: IItemEvents["bucketChange"]) {
 		const bucket = item.bucket;
 
@@ -217,6 +215,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	private interval?: number;
+	@Bound
 	private onPageFocusChange ({ focused }: { focused: boolean }) {
 		if (focused)
 			void this.await();

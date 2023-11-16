@@ -3,6 +3,7 @@ import { Classes as BaseClasses } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import BaseComponent from "ui/Component";
 import Async from "utility/Async";
+import Bound from "utility/decorator/Bound";
 
 namespace Loadable {
 
@@ -48,9 +49,6 @@ namespace Loadable {
 						.classes.add(Classes.LoadingMessage)))
 				.appendTo(this);
 
-			this.onLoading = this.onLoading.bind(this);
-			this.onLoaded = this.onLoaded.bind(this);
-			this.updateLoadingInfo = this.updateLoadingInfo.bind(this);
 			for (const model of models) {
 				model.event.subscribe("loading", this.onLoading);
 
@@ -67,6 +65,7 @@ namespace Loadable {
 			return this;
 		}
 
+		@Bound
 		private onLoading () {
 			for (const model of this.models) {
 				model.event.subscribe("loaded", this.onLoaded);
@@ -88,6 +87,7 @@ namespace Loadable {
 			return this;
 		}
 
+		@Bound
 		private onLoaded () {
 			this.updateLoadingInfo();
 			for (const model of this.models)
@@ -118,6 +118,7 @@ namespace Loadable {
 				.appendTo(this);
 		}
 
+		@Bound
 		private updateLoadingInfo () {
 			let progress = 0;
 			let message: string | undefined;

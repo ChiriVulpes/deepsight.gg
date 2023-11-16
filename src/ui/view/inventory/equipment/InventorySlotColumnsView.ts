@@ -51,9 +51,6 @@ export class InventorySlotColumnsView extends InventoryView {
 		this.super.content.classes.add(InventorySlotColumnsViewClasses.Content);
 
 		await super.onMake(inventory);
-
-		// this.onMouseMove = this.onMouseMove.bind(this);
-		// document.body.addEventListener("mousemove", this.onMouseMove);
 	}
 
 	protected override preUpdateInit (): void {

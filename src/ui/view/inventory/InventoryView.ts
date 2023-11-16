@@ -25,6 +25,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import Arrays from "utility/Arrays";
+import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
 import Objects from "utility/Objects";
 import Store from "utility/Store";
@@ -137,7 +138,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.equipped = {};
 		this.itemMap = new Map<Item, ItemComponent>();
 
-		this.update = this.update.bind(this);
 		inventory.event.subscribe("update", this.update);
 		this.event.subscribe("hide", () => {
 			inventory.event.unsubscribe("update", this.update);
@@ -147,8 +147,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 		await SortManager.init();
 
-		this.sort = this.sort.bind(this);
-		this.filter = this.filter.bind(this);
 		this.preUpdateInit();
 		this.update();
 
@@ -200,7 +198,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				.append(Hint.create([IInput.get("KeyF", "Ctrl")]))
 				.text.add("\xa0 Configure filter"));
 
-		this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
 
@@ -232,6 +229,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.filter();
 	}
 
+	@Bound
 	private update () {
 		this.updateCharacters();
 		this.updateItems();
@@ -367,6 +365,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		};
 	}
 
+	@Bound
 	protected sort () {
 		for (const slot of Arrays.resolve(this.super.definition.slot)) {
 			const id = IInventoryViewDefinition.resolveSlotId(slot);
@@ -528,6 +527,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		}
 	}
 
+	@Bound
 	private filter () {
 		for (const [item, component] of this.itemMap) {
 			const filteredOut = !this.super.definition.filter.apply(item);
@@ -545,6 +545,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 							: Object.values(this.characters).map(character => character?.[bucket.characterId!]).filter(Arrays.filterNullish);
 	}
 
+	@Bound
 	protected onGlobalKeydown (event: IKeyEvent) {
 		if (!document.contains(this.element)) {
 			UiEventBus.unsubscribe("keydown", this.onGlobalKeydown);

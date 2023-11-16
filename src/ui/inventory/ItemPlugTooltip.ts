@@ -9,6 +9,7 @@ import ItemClarity, { ItemClarityDefinitions } from "ui/inventory/tooltip/ItemCl
 import TooltipManager, { Tooltip } from "ui/TooltipManager";
 import type { IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
+import Bound from "utility/decorator/Bound";
 
 enum ItemPlugTooltipClasses {
 	Main = "item-plug-tooltip",
@@ -64,7 +65,6 @@ class ItemPlugTooltip extends Tooltip {
 		this.clarityDefinitions = ItemClarityDefinitions.create()
 			.appendTo(this.extra.content);
 
-		this.onGlobalKeyup = this.onGlobalKeyup.bind(this);
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
 	}
 
@@ -95,6 +95,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.hintShowDefinitions.classes.toggle(!this.clarityDefinitions.isPresent, Classes.Hidden);
 	}
 
+	@Bound
 	protected onGlobalKeyup (event: IKeyUpEvent) {
 		if (this.clarity.isPresent && event.hovering(".view-item-socket-plug") && event.use("MouseMiddle")) {
 			window.open("https://www.d2clarity.com", "_blank");

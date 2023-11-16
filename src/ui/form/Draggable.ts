@@ -1,4 +1,5 @@
 import { EventManager } from "utility/EventManager";
+import Bound from "utility/decorator/Bound";
 import { IVector2 } from "utility/maths/Vector2";
 
 enum DragStage {
@@ -21,9 +22,6 @@ export default class Draggable {
 	private dragStage = DragStage.None;
 
 	public constructor (protected readonly host: HTMLElement) {
-		this.drag = this.drag.bind(this);
-		this.dragStart = this.dragStart.bind(this);
-		this.dragEnd = this.dragEnd.bind(this);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		host.addEventListener("mousedown", this.dragStart);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -42,6 +40,7 @@ export default class Draggable {
 		return this;
 	}
 
+	@Bound
 	private dragStart (event: MouseTouchEvent) {
 		const position = this.getMousePosition(event);
 		if (!position)
@@ -60,6 +59,7 @@ export default class Draggable {
 		}
 	}
 
+	@Bound
 	private drag (event: MouseTouchEvent) {
 		const position = this.getMousePosition(event);
 		if (!position)
@@ -89,6 +89,7 @@ export default class Draggable {
 		return eventResult;
 	}
 
+	@Bound
 	private dragEnd (event: MouseTouchEvent) {
 		window.removeEventListener("mousemove", this.drag);
 		window.removeEventListener("mouseup", this.dragEnd);

@@ -1,5 +1,6 @@
 import Component from "ui/Component";
 import Button from "ui/form/Button";
+import Bound from "utility/decorator/Bound";
 
 export enum DropdownClasses {
 	Main = "dropdown",
@@ -27,12 +28,9 @@ export default class Dropdown extends Component {
 			.appendTo(Component.create()
 				.appendTo(this));
 
-		this.onMouseMove = this.onMouseMove.bind(this);
-		this.onKeypress = this.onKeypress.bind(this);
-		this.onActiveElementChange = this.onActiveElementChange.bind(this);
-		this.event.subscribe("mouseenter", this.onMouseEnter.bind(this));
-		this.event.subscribe("focus", this.onFocus.bind(this));
-		this.event.subscribe("blur", this.onBlur.bind(this));
+		this.event.subscribe("mouseenter", this.onMouseEnter);
+		this.event.subscribe("focus", this.onFocus);
+		this.event.subscribe("blur", this.onBlur);
 	}
 
 	public addLabel (initialiser: (label: Component<HTMLLabelElement>) => any) {
@@ -85,11 +83,13 @@ export default class Dropdown extends Component {
 		this.event.emit("change");
 	}
 
+	@Bound
 	private onMouseEnter (event: MouseEvent) {
 		window.addEventListener("mousemove", this.onMouseMove);
 		this.setActive("mouse");
 	}
 
+	@Bound
 	private onMouseMove (event: MouseEvent) {
 		const target = event.target as HTMLElement | null;
 		if (target?.closest(`.${DropdownClasses.Main}`) !== this.element) {
@@ -98,14 +98,17 @@ export default class Dropdown extends Component {
 		}
 	}
 
+	@Bound
 	private onFocus (event: FocusEvent) {
 		window.addEventListener("keypress", this.onKeypress);
 	}
 
+	@Bound
 	private onBlur (event: FocusEvent) {
 		window.removeEventListener("keypress", this.onKeypress);
 	}
 
+	@Bound
 	private onKeypress (event: KeyboardEvent) {
 		if (event.key === " " || event.key === "Enter") {
 			event.preventDefault();
@@ -114,6 +117,7 @@ export default class Dropdown extends Component {
 		}
 	}
 
+	@Bound
 	private onActiveElementChange (event: FocusEvent) {
 		if (document.activeElement?.closest(`.${DropdownClasses.Main}`) !== this.element) {
 			this.setInactive("keyboard");
