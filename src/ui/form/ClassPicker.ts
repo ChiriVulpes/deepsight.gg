@@ -185,6 +185,8 @@ export class ClassPickerButton extends Button {
 		} else {
 			if (option.background)
 				this.style.set("--background", `url("${option.background}")`);
+			else
+				this.style.remove("--background");
 
 			if (option.icon)
 				this.addIcon(icon => icon.style.set("--icon", `url("${option.icon!}")`));
