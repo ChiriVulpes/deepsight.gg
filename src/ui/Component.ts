@@ -121,7 +121,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 					get: (typeof Component)["get"];
 				};
 			},
-		}
+		};
 	}
 
 	public get classes (): ClassManager<this & Component<HTMLElement>> {
@@ -276,7 +276,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			pivot = pivot.element;
 
 		if (componentOrParentNode && (!pivot || pivot.parentElement === componentOrParentNode))
-			componentOrParentNode.insertBefore(this.element, pivot.nextSibling);
+			componentOrParentNode.insertBefore(this.element, pivot?.nextSibling);
 		else
 			this.element.remove();
 
