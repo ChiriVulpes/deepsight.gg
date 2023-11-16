@@ -26,14 +26,13 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const { DestinyInventoryItemDefinition } = manifest;
 
 	let [bucketId, characterIdOrItemId, itemId] = url.split("/") as ["collections" | BucketId, string, string?];
-	if (bucketId !== "collections") {
-		if (itemId)
-			bucketId = `${bucketId}/${characterIdOrItemId}` as BucketId;
-		else
-			itemId = characterIdOrItemId;
+	if (itemId)
+		bucketId = `${bucketId}/${characterIdOrItemId}` as BucketId;
+	else
+		itemId = characterIdOrItemId;
 
+	if (bucketId !== "collections")
 		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
-	}
 
 	const itemDef = await DestinyInventoryItemDefinition.get(itemId);
 
