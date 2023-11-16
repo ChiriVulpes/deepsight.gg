@@ -41,7 +41,7 @@ export class Loadout {
 			component.item = this.inventory?.items?.[component.itemInstanceId as ItemId];
 		}
 
-		console.log("Updated loadout", this);
+		// console.log("Updated loadout", this);
 	}
 }
 
