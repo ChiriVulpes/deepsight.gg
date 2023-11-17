@@ -5,7 +5,6 @@ import type Item from "model/models/items/Item";
 import type { Bucket, CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
-import Button from "ui/form/Button";
 import ClassPicker from "ui/form/ClassPicker";
 import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
