@@ -195,6 +195,7 @@
 		&-emblem {
 			justify-self: right;
 			z-index: 1;
+			margin-top: var(--bucket-inventory-padding);
 			&::before {
 				content: "";
 				display: block;
@@ -213,25 +214,24 @@
 			width: fit-content;
 			padding: var(--bucket-inventory-padding) min(20px, var(--view-padding-x)) var(--bucket-inventory-padding)
 				20px;
-			margin-left: calc(-20px + var(--bucket-inventory-padding));
+			margin-left: calc(-8px + var(--bucket-inventory-padding));
 			margin-right: calc(0px - min(20px, var(--view-padding-x)) + var(--bucket-inventory-padding));
 			padding-bottom: calc(var(--bucket-inventory-padding) + var(--card-gap-y));
 		}
 
 		&-equipped {
-			margin-top: 4px;
 			margin-left: var(--bucket-inventory-padding);
 			position: relative;
 
 			.slot-empty-borders2 {
 				display: block;
 				position: absolute;
-				top: 6px;
-				right: -3px;
-				width: 2px;
-				height: calc(var(--slot-size) - 12px);
-				background: color(background-5);
-				z-index: -2;
+				top: var(--slot-padding);
+				right: -6px;
+				width: 3px;
+				height: calc(var(--slot-size) / 2);
+				background: color(foreground-0, .3);
+				backdrop-filter: blur(5px);
 			}
 		}
 
