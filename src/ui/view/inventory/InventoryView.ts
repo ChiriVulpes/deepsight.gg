@@ -29,6 +29,7 @@ import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
 import Objects from "utility/Objects";
 import Store from "utility/Store";
+import Tuples from "utility/Tuples";
 
 export enum InventoryViewClasses {
 	Main = "view-inventory-slot",
@@ -102,6 +103,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	public vaults!: Partial<Record<InventoryBucketHashes | string, Record<CharacterId, VaultBucket>>>;
 	public bucketEntries!: [BucketId, Bucket][];
 	public itemMap!: Map<Item, ItemComponent>;
+	public bucketOrders?: Record<string, string>;
 	public hints!: Component;
 	public hintsDrawer!: Drawer;
 	public equipped!: Partial<Record<BucketId, ItemComponent>>;
@@ -445,8 +447,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			const slots = bucketComponents.flatMap(component => [
 				...!bucket.isEngrams() ? component.content.children()
 					: (component as BucketComponent & Partial<PostmasterBucket>).engrams?.children() ?? []]);
-			for (const slot of slots)
-				slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
 
 			const sortedItems = this.super.definition.sort.sort(bucket.items)
 				.filter(item => item.definition.inventory?.bucketTypeHash === slot
@@ -457,15 +457,25 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 						&& IInventoryViewDefinition.isLeftoverModificationsVaultItem(item))
 					|| !this.itemMap.get(item));
 
-			sortedBucketItems[bucketId] ??= [];
+			const sortedBucketItemsForBucket = sortedBucketItems[bucketId] ??= [];
+			const index = sortedBucketItemsForBucket.length;
 			sortedBucketItems[bucketId]!.push(...sortedItems);
 
-			for (const item of sortedItems) {
-				const itemComponent = this.itemMap.get(item);
-				if (!itemComponent)
-					// item not included in view
-					continue;
+			const sortedItemComponents = sortedItems.map(item => Arrays.tuple(item, this.itemMap.get(item)))
+				.filter(Tuples.filterNullish(1));
 
+			const order = sortedItemComponents.map(([item]) => `${item.id}${item.equipped ? ":equipped" : ""}`).join(",");
+			const lastOrder = this.bucketOrders?.[`${id}:${bucketId}[${index}]`];
+
+			this.bucketOrders ??= {};
+			this.bucketOrders[`${id}:${bucketId}[${index}]`] = order;
+
+			const reappend = order !== lastOrder;
+			if (reappend)
+				for (const slot of slots)
+					slot.classes.add(InventoryViewClasses.SlotPendingRemoval);
+
+			for (const [item, itemComponent] of sortedItemComponents) {
 				const bucketComponent = bucketComponents.length === 1 ? bucketComponents[0]
 					: bucketComponents.find(component => (component as VaultBucket).character?.classType === item.definition.classType)
 					?? bucketComponents[0];
@@ -473,11 +483,12 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				const slotWrapper = item.reference.bucketHash === InventoryBucketHashes.Engrams ? (bucketComponent as PostmasterBucket).engrams
 					: bucketComponent.content;
 				const slotComponent = item.equipped ? equippedComponent! : Slot.create()
-					.appendTo(slotWrapper);
+					.appendTo(reappend ? slotWrapper : undefined);
 
-				itemComponent
-					.setSortedBy(this.super.definition.sort)
-					.appendTo(slotComponent);
+				if (reappend)
+					itemComponent
+						.setSortedBy(this.super.definition.sort)
+						.appendTo(slotComponent);
 
 				if (item.equipped)
 					this.equipped[bucket.id] = itemComponent;

@@ -99,6 +99,24 @@ namespace Arrays {
 		return values;
 	}
 
+	export function range (end: number): number[];
+	export function range (start: number, end?: number, step?: number): number[] {
+		if (step === 0)
+			throw new Error("Invalid step for range");
+
+		const result: number[] = [];
+
+		if (end === undefined)
+			end = start, start = 0;
+
+		step = end < start ? -1 : 1;
+
+		for (let i = start; step > 0 ? i < end : i > end; i += step)
+			result.push(i);
+
+		return result;
+	}
+
 	export function filterNullish<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined> {
 		return value !== null && value !== undefined;
 	}

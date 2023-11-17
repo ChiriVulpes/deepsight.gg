@@ -142,6 +142,15 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return attributes as any;
 	}
 
+	public get data (): AttributeManager<this & Component<HTMLElement>> {
+		const data = new AttributeManager(this as any as Component<HTMLElement>, "data");
+		Object.defineProperty(this, "data", {
+			value: data,
+		});
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return data as any;
+	}
+
 	public get style (): StyleManager<this & Component<HTMLElement>> {
 		const style = new StyleManager(this as any as Component<HTMLElement>);
 		Object.defineProperty(this, "style", {
@@ -229,7 +238,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
-	public appendTo (componentOrParentNode: ParentNode | AnyComponent) {
+	public appendTo (componentOrParentNode?: ParentNode | AnyComponent) {
 		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
@@ -241,7 +250,7 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this;
 	}
 
-	public prependTo (componentOrParentNode: ParentNode | AnyComponent) {
+	public prependTo (componentOrParentNode?: ParentNode | AnyComponent) {
 		if (componentOrParentNode instanceof Component)
 			componentOrParentNode = componentOrParentNode.element;
 
@@ -279,6 +288,44 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 			componentOrParentNode.insertBefore(this.element, pivot?.nextSibling);
 		else
 			this.element.remove();
+
+		return this;
+	}
+
+	public indexInto (componentOrParentNode: ParentNode | AnyComponent, index: number) {
+		this.data.set("index", `${index}`);
+
+		if (componentOrParentNode instanceof Component)
+			componentOrParentNode = componentOrParentNode.element;
+
+		const children = componentOrParentNode.children as HTMLCollectionOf<HTMLElement>;
+
+		let low = 0;
+		let high = children.length - 1;
+
+		while (low <= high) {
+			const mid = Math.floor((low + high) / 2);
+
+			const indexString = children[mid].dataset.index;
+			if (!indexString)
+				console.error("Unindexed element", children[mid], "in parent node", componentOrParentNode);
+
+			const childIndex = +(indexString ?? 0);
+			if (childIndex === index) {
+				low = mid;
+				break;
+			}
+
+			if (childIndex < index)
+				low = mid + 1;
+			else
+				high = mid - 1;
+		}
+
+		if (low < children.length)
+			componentOrParentNode.insertBefore(this.element, children[low]);
+		else
+			componentOrParentNode.appendChild(this.element);
 
 		return this;
 	}
@@ -474,42 +521,44 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 export class AttributeManager<HOST extends Component<HTMLElement>> {
 
 	private readonly host: WeakRef<HOST>;
+	private readonly prefix: string;
 
-	public constructor (host: HOST) {
+	public constructor (host: HOST, prefix?: string) {
+		this.prefix = prefix ? `${prefix}-` : "";
 		this.host = new WeakRef(host);
 	}
 
 	public get (name: string) {
-		return this.host.deref()?.element.getAttribute(name);
+		return this.host.deref()?.element.getAttribute(`${this.prefix}${name}`);
 	}
 
 	public add (name: string) {
 		const host = this.host.deref();
-		host?.element.setAttribute(name, "");
+		host?.element.setAttribute(`${this.prefix}${name}`, "");
 		return host as HOST;
 	}
 
 	public toggle (present: boolean, name: string, value = "") {
 		const host = this.host.deref();
 		if (present)
-			host?.element.setAttribute(name, value);
+			host?.element.setAttribute(`${this.prefix}${name}`, value);
 		else
-			host?.element.removeAttribute(name);
+			host?.element.removeAttribute(`${this.prefix}${name}`);
 		return host as HOST;
 	}
 
 	public set (name: string, value?: string) {
 		const host = this.host.deref();
 		if (value === undefined)
-			host?.element.removeAttribute(name);
+			host?.element.removeAttribute(`${this.prefix}${name}`);
 		else
-			host?.element.setAttribute(name, value);
+			host?.element.setAttribute(`${this.prefix}${name}`, value);
 		return host as HOST;
 	}
 
 	public remove (name: string) {
 		const host = this.host.deref();
-		host?.element.removeAttribute(name);
+		host?.element.removeAttribute(`${this.prefix}${name}`);
 		return host as HOST;
 	}
 }

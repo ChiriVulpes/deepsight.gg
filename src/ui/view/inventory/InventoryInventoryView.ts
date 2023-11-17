@@ -13,6 +13,7 @@ import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
+import Bound from "utility/decorator/Bound";
 
 export const SORTS_DEFAULT_INVENTORY = [Sort.Rarity, Sort.Name, Sort.Quantity] as const;
 export const SORTS_INAPPLICABLE_INVENTORY = [
@@ -93,6 +94,7 @@ export class InventoryInventoryView extends InventoryView {
 		this.super.content.style.set("--buckets", `${buckets}`);
 	}
 
+	@Bound
 	protected override sort (): void {
 		super.sort();
 		this.consumablesBucket?.as(InventoryBucket)?.update();

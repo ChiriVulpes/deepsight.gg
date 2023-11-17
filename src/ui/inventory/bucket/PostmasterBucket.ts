@@ -2,7 +2,7 @@ import type Character from "model/models/Characters";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
-import Slot from "ui/inventory/Slot";
+import Slot, { SlotClasses } from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/Bucket";
 
 export enum PostmasterBucketClasses {
@@ -39,13 +39,14 @@ export default class PostmasterBucket extends BucketComponent<[Character]> {
 	}
 
 	public update () {
-		const postmasterItems = this.content.element.childElementCount;
+		const empties = this.content.element.getElementsByClassName(SlotClasses.Empty).length;
+		const postmasterItems = this.content.element.childElementCount - empties;
 		const engrams = this.engrams.element.childElementCount;
 		this.classes.toggle(!postmasterItems && !engrams, Classes.Hidden)
 			.classes.toggle(postmasterItems > 15, PostmasterBucketClasses.Warning);
 
 		if (postmasterItems)
-			for (let i = postmasterItems; i < 21; i++)
+			for (let i = postmasterItems + empties; i < 21; i++)
 				Slot.create()
 					.setEmpty()
 					.setSimple()

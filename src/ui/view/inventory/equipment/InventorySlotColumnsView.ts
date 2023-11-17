@@ -14,6 +14,7 @@ import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
 import Arrays from "utility/Arrays";
+import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
 
 export enum InventorySlotColumnsViewClasses {
@@ -116,6 +117,7 @@ export class InventorySlotColumnsView extends InventoryView {
 		this.super.content.style.set("--buckets", `${buckets}`);
 	}
 
+	@Bound
 	protected override sort (): void {
 		const characters: CharacterBucket[] = [];
 		const postmasters: PostmasterBucket[] = [];

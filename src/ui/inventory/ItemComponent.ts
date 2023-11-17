@@ -84,12 +84,26 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 	public item!: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
+	public icon?: Component;
+	public iconShaped?: Component;
+	public momentWatermark?: Component;
+	public iconLock?: Component;
+	public deepsight?: Component;
+	public deepsightHasPattern?: Component;
+	public deepsightPattern?: Component;
+	public masterwork?: Component;
+	public wishlist?: Component;
+	public junk?: Component;
+	public fomo?: Component;
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
 	private sorter?: WeakRef<SortManager>;
 
 	protected override async onMake (item: Item, inventory?: Inventory, ...args: ARGS) {
 		super.onMake(item, inventory, ...args);
+
+		this.tooltipPadding = 0;
+		this.classes.add(ItemClasses.Main);
 
 		this.inventory = inventory;
 
@@ -152,13 +166,9 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
 		});
 
-		this.removeContents();
+		this.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
 
-		this.tooltipPadding = 0;
-		this.classes.add(ItemClasses.Main)
-			.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
-
-		this.extra = Component.create()
+		this.extra ??= Component.create()
 			.classes.add(ItemClasses.Extra);
 
 		const borderless = item.definition.itemType === DestinyItemType.Engram
@@ -176,20 +186,29 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			&& tier?.displayProperties.name === "Legendary"
 			&& item.definition.traitIds?.some(id => id === "item_type.armor" || id.startsWith("item.armor."));
 
-		Component.create()
+		let index = 0;
+
+		(this.icon ??= Component.create()
 			.classes.add(ItemClasses.Icon)
+			.indexInto(this, index++))
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified)
-			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition))
-			.appendTo(this);
+			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition));
+
+		index++;
 
 		const shaped = item.shaped || (item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
 		this.classes.toggle(item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
 		if (shaped && !item.isMasterwork())
-			Component.create()
+			(this.iconShaped ??= Component.create()
 				.classes.add(ItemClasses.Shaped)
 				.append(Component.create())
-				.appendTo(this);
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+		else
+			this.iconShaped?.classes.add(Classes.Hidden);
+
+		index++;
 
 		let watermark: string | undefined;
 		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item.bucket.isCollections());
@@ -198,85 +217,120 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		else
 			watermark = item.definition.iconWatermark ?? item.definition.iconWatermarkShelved;
 
-		if (watermark) {
-			Component.create()
+		if (watermark || item.moment?.displayProperties.icon)
+			(this.momentWatermark ??= Component.create()
 				.classes.add(ItemClasses.MomentWatermark)
-				.style.set("--watermark", `url("https://www.bungie.net${watermark}")`)
-				.appendTo(this);
-		} else if (item.moment?.displayProperties.icon) {
-			Component.create()
-				.classes.add(ItemClasses.MomentWatermark, ItemClasses.MomentWatermarkCustom)
-				.style.set("--icon", `url("${item.moment.displayProperties.icon}")`)
-				.appendTo(this);
-		}
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden)
+				.classes.toggle(!watermark && !!item.moment?.displayProperties.icon, ItemClasses.MomentWatermarkCustom)
+				.style.set("--watermark", watermark && `url("https://www.bungie.net${watermark}")`)
+				.style.set("--icon", item.moment?.displayProperties.icon && `url("${item.moment.displayProperties.icon}")`);
+		else
+			this.momentWatermark?.classes.add(Classes.Hidden);
+
+		index++;
 
 		if ((item.isLocked() || item.isChangingLockState()))
-			Component.create()
-				.classes.add(item.isChangingLockState() ? ItemClasses.Unlocked : ItemClasses.Locked)
-				.classes.toggle(!Store.items.settingsDisplayLocksOnItems, Classes.ShowIfExtraInfo)
-				.appendTo(this);
+			(this.iconLock ??= Component.create()
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden)
+				.classes.toggle(item.isChangingLockState(), ItemClasses.Unlocked)
+				.classes.toggle(!item.isChangingLockState(), ItemClasses.Locked)
+				.classes.toggle(!Store.items.settingsDisplayLocksOnItems, Classes.ShowIfExtraInfo);
+		else
+			this.iconLock?.classes.add(Classes.Hidden);
+
+		index++;
 
 		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
 		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
 		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
 
+		this.deepsight?.classes.add(Classes.Hidden);
+		this.deepsightHasPattern?.classes.add(Classes.Hidden);
+		this.deepsightPattern?.classes.add(Classes.Hidden);
+
 		if (!shaped) {
 			if (item.hasDeepsight())
-				Component.create()
+				(this.deepsight ??= Component.create()
 					.classes.add(ItemClasses.Deepsight)
-					.appendTo(this);
+					.indexInto(this, index))
+					.classes.remove(Classes.Hidden);
 
 			if (item.deepsight?.pattern) {
-				Component.create()
+				(this.deepsightHasPattern ??= Component.create()
 					.classes.add(ItemClasses.DeepsightHasPattern)
-					.appendTo(this);
+					.indexInto(this, index + 1))
+					.classes.remove(Classes.Hidden);
 
 				if (!displayJunkBorder)
-					Component.create()
+					(this.deepsightPattern ??= Component.create()
 						.classes.add(ItemClasses.DeepsightPattern)
-						.classes.toggle(!!item.deepsight.pattern.progress?.complete, ItemClasses.DeepsightPatternUnlocked)
-						.appendTo(this);
+						.indexInto(this, index + 2))
+						.classes.remove(Classes.Hidden)
+						.classes.toggle(!!item.deepsight.pattern.progress?.complete, ItemClasses.DeepsightPatternUnlocked);
 			}
 		}
 
+		index += 3;
+
+		this.masterwork?.classes.add(Classes.Hidden);
+		this.wishlist?.classes.add(Classes.Hidden);
+
 		if (item.isMasterwork())
-			Component.create()
+			(this.masterwork ??= Component.create()
 				.classes.add(ItemClasses.Masterwork)
-				.classes.toggle(displayJunkBorder, ItemClasses.MasterworkShiftedDueToJunkBorder)
 				.append(Component.create()
 					.classes.add(ItemClasses.MasterworkSpinny))
-				.appendTo(this);
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden)
+				.classes.toggle(displayJunkBorder, ItemClasses.MasterworkShiftedDueToJunkBorder);
 
 		else if (displayWishlistedBorder)
-			Component.create()
+			(this.wishlist ??= Component.create()
 				.classes.add(ItemClasses.Wishlist)
 				.append(Component.create()
 					.classes.add(ItemClasses.WishlistIcon))
-				.appendTo(this);
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+
+		index++;
 
 		if (displayJunkBorder)
-			Component.create()
+			(this.junk ??= Component.create()
 				.classes.add(ItemClasses.WishlistNoMatch)
 				.append(Component.create()
 					.classes.add(ItemClasses.WishlistNoMatchIcon))
-				.appendTo(this);
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+		else
+			this.junk?.classes.add(Classes.Hidden);
+
+		index++;
 
 		if (item.isFomo())
-			Component.create()
+			(this.fomo ??= Component.create()
 				.classes.add(ItemClasses.Fomo)
 				.append(Component.create()
 					.classes.add(ItemClasses.FomoIcon))
-				.appendTo(this);
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+		else
+			this.fomo?.classes.add(Classes.Hidden);
+
+		index++;
 
 		void Async.debounce(this.rerenderExtra);
-		this.extra.appendTo(this);
+		this.extra.indexInto(this, index);
+
+		index++;
 
 		this.loadingSpinny = Component.create()
 			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
 			.classes.toggle(!item.transferring, Classes.Hidden)
 			.append(Component.create())
 			.append(Component.create())
-			.appendTo(this);
+			.indexInto(this, index);
 	}
 
 	public setSortedBy (sorter: SortManager) {
