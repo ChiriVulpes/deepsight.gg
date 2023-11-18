@@ -64,6 +64,9 @@ const artifactViewBase = View.create({
 				.classes.add("view-item-title"))
 			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
 
+		if (item.definition.screenshot)
+			view.setBackground(`https://www.bungie.net${item.definition.screenshot}`);
+
 		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()
 				.classes.add(ItemViewClasses.LockButton)
