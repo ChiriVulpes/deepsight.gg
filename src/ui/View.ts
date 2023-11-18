@@ -157,6 +157,7 @@ namespace View {
 	export interface IWrapperComponentEvents extends ComponentEvents<typeof Component> {
 		hide: Event;
 		updateTitle: Event;
+		updateHash: { args: any[] };
 		back: Event;
 	}
 
@@ -252,6 +253,16 @@ namespace View {
 		public setSubtitle (type: "caps" | "small" | "lore", tweak?: (component: Component) => any) {
 			this.header.classes.remove(BaseClasses.Hidden);
 			this.subtitle.classes.add(`${Classes.Subtitle}-${type}`).classes.remove(BaseClasses.Hidden).tweak(tweak);
+			return this;
+		}
+
+		public updateHash (...args: ARGS) {
+			const realArgs = this._args;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			(this as any)._args = [realArgs[0], ...args];
+			this.event.emit("updateHash", { args });
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			(this as any)._args = realArgs;
 			return this;
 		}
 

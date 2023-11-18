@@ -134,7 +134,7 @@ namespace PlayerOverview {
 				}
 
 				const panel = this.panels[character.characterId as CharacterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel);
-				panel.setBucket(this.inventory, character, bucket);
+				panel.set(this.inventory, character, bucket);
 
 				const className = character.class?.displayProperties.name ?? "Unknown";
 				const background = character.emblem?.secondarySpecial ?? character.emblemBackgroundPath;

@@ -445,6 +445,9 @@ class Item {
 				return true;
 		}
 
+		if (this.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts))
+			return true;
+
 		return false;
 	}
 

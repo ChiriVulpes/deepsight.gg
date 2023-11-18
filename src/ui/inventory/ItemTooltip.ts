@@ -1,4 +1,4 @@
-import { InventoryBucketHashes, StatHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -30,6 +30,7 @@ export enum ItemTooltipClasses {
 	Locked = "item-tooltip-locked",
 	Unlocked = "item-tooltip-unlocked",
 	Masterwork = "item-tooltip-masterwork",
+	Artifact = "item-tooltip-artifact",
 	PrimaryInfo = "item-tooltip-primary-info",
 	PrimaryStat = "item-tooltip-primary-stat",
 	PrimaryStatValue = "item-tooltip-primary-stat-value",
@@ -295,7 +296,8 @@ class ItemTooltip extends Tooltip {
 		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
 		this.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.Tier_))
 			.classes.add(`${ItemTooltipClasses.Tier_}${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
-			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork);
+			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork)
+			.classes.toggle(!!item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts), ItemTooltipClasses.Artifact);
 
 		this.title.text.set(Display.name(item.definition));
 		this.subtitle.removeContents();

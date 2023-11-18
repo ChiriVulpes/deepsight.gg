@@ -9,6 +9,7 @@ import ClassPicker from "ui/form/ClassPicker";
 import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
+import Slot from "ui/inventory/Slot";
 import { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
@@ -42,6 +43,13 @@ export enum PlayerOverviewCharacterPanelClasses {
 	PowerTotalLabel = "player-overview-power-total-label",
 	PowerTotalLabelEquipped = "player-overview-power-total-label-equipped",
 	PowerTotalLabelHighestPower = "player-overview-power-total-label-highest-power",
+	LoadoutsButton = "player-overview-loadouts-button",
+	LoadoutsButtonIcon = "player-overview-loadouts-button-icon",
+	LoadoutsButtonIcon1 = "player-overview-loadouts-button-icon-1",
+	LoadoutsButtonIcon2 = "player-overview-loadouts-button-icon-2",
+	LoadoutsButtonIcon3 = "player-overview-loadouts-button-icon-3",
+	ArtifactSlot = "player-overview-artifact-slot",
+	Artifact = "player-overview-artifact",
 }
 
 const slotViews = [
@@ -67,6 +75,9 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	public powerTotalEquipped!: ItemPowerLevel;
 	public powerTotalHighest!: ItemPowerLevel;
 	public slotComponents!: Record<string | InventoryBucketHashes, SlotComponent>;
+	public loadoutsButton!: Component;
+	public artifactSlot!: Component;
+	public artifact!: ItemComponent;
 
 	protected override onMake (): void {
 		this.classes.add(PlayerOverviewCharacterPanelClasses.Main);
@@ -82,6 +93,24 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 					event.setPromise(event.item.equip(event.item.character));
 			})
 			.appendTo(characterSettings);
+
+		this.loadoutsButton = Component.create()
+			.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButton)
+			.append(Component.create()
+				.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon, PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon1))
+			.append(Component.create()
+				.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon, PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon2))
+			.append(Component.create()
+				.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon, PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon3))
+			.appendTo(characterSettings);
+
+		this.artifactSlot = Slot.create()
+			.classes.add(PlayerOverviewCharacterPanelClasses.ArtifactSlot)
+			.appendTo(characterSettings);
+
+		this.artifact = ItemComponent.create([])
+			.classes.add(PlayerOverviewCharacterPanelClasses.Artifact)
+			.appendTo(this.artifactSlot);
 
 		const slotComponent = Component.create()
 			.classes.add(PlayerOverviewCharacterPanelClasses.Slot, PlayerOverviewCharacterPanelClasses.OverviewSlot)
@@ -131,7 +160,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 		}
 	}
 
-	public setBucket (inventory: Inventory, character: Character, buckets: Bucket[]) {
+	public set (inventory: Inventory, character: Character, buckets: Bucket[]) {
 		for (const subclass of inventory.getBucket(InventoryBucketHashes.Subclass, character.characterId as CharacterId)?.items ?? []) {
 			this.subclassPicker.addOption({
 				id: subclass.definition.hash,
@@ -145,6 +174,9 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			if (subclass.equipped)
 				void this.subclassPicker.setCurrent(subclass.definition.hash, true);
 		}
+
+		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
+		void this.artifact.setItem(seasonalArtifact?.equippedItem);
 
 		const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
 		const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};

@@ -34,22 +34,29 @@
 		}
 	}
 
-	&-masterwork > .tooltip-header {
-		&::before {
-			content: "";
-			display: block;
-			position: absolute;
-			inset: 0;
-			max-height: 69px;
-			background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), #d4b73c;
-			background-size: 400% 400%;
-			animation: flash 2s linear infinite reverse;
-			@include blur-disables-animation;
-			-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
-				url("./image/masterworktooltip.png");
-			mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
-				url("./image/masterworktooltip.png");
+	&-masterwork {
+		--masterwork-color: #{color(masterwork)};
+		> .tooltip-header {
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: 0;
+				max-height: 69px;
+				background: linear-gradient(-45deg, transparent 35%, #fff 50%, transparent 65%), var(--masterwork-color);
+				background-size: 400% 400%;
+				animation: flash 2s linear infinite reverse;
+				@include blur-disables-animation;
+				-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+					url("./image/masterworktooltip.png");
+				mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 69"><polygon points="0,0 100,0 100,4 0,4" fill="black"/></svg>'),
+					url("./image/masterworktooltip.png");
+			}
 		}
+	}
+	
+	&-artifact {
+		--masterwork-color: #{color(artifact)};
 	}
 
 	&-content {
