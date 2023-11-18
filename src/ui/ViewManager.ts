@@ -1,3 +1,4 @@
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import { APP_NAME } from "Constants";
 import type Model from "model/Model";
 import type Item from "model/models/items/Item";
@@ -22,6 +23,7 @@ import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
 import InventoryShipView from "ui/view/inventory/slot/InventoryShipView";
 import InventorySparrowView from "ui/view/inventory/slot/InventorySparrowView";
+import ArtifactView from "ui/view/item/ArtifactView";
 import ItemView from "ui/view/item/ItemView";
 import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
@@ -59,6 +61,7 @@ const registry = Object.fromEntries([
 	ItemTooltipView,
 	AboutView,
 	ModsView,
+	ArtifactView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
@@ -131,9 +134,6 @@ export default class ViewManager {
 			void Async.sleep(1000).then(() => oldView.remove());
 		}
 
-		if (URL.hash !== view.hash)
-			URL.hash = view.hash;
-
 		this.view = view;
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).view = view;
@@ -141,13 +141,23 @@ export default class ViewManager {
 		this.event.emit("show", { view });
 		view.event.until("hide", manager => manager
 			.subscribe("updateTitle", () => this.updateDocumentTitle(view))
+			.subscribe("updateHash", () => this.updateHash(view))
 			.subscribe("back", () => this.hide()));
 
 		this.updateDocumentTitle(view);
+		this.updateHash(view);
+	}
+
+	private static updateHash (view: View.WrapperComponent) {
+		if (URL.hash !== view.hash)
+			URL.hash = view.hash;
 	}
 
 	public static showItem (item: Item) {
-		ItemView.show(item);
+		if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts))
+			ArtifactView.show(item);
+		else
+			ItemView.show(item);
 	}
 
 	public static showCollections (item?: Item) {

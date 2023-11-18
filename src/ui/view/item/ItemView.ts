@@ -42,7 +42,7 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	return Item.createFake(manifest, inventory.profile!, itemDef);
 }
 
-enum ItemViewClasses {
+export enum ItemViewClasses {
 	Item = "view-item-header-item",
 	ItemDefinition = "view-item-definition",
 	FlavourText = "view-item-flavour-text",

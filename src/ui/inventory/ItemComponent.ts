@@ -1,4 +1,4 @@
-import { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
@@ -31,6 +31,7 @@ export enum ItemClasses {
 	Masterwork = "item-masterwork",
 	MasterworkSpinny = "item-masterwork-spinny",
 	MasterworkShiftedDueToJunkBorder = "item-masterwork-shifted-due-to-junk-border",
+	Artifact = "item-artifact",
 	Shaped = "item-shaped",
 	CanEnhance = "item-can-enhance",
 	Enhanced = "item-enhanced",
@@ -84,7 +85,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			ItemComponent.hideExtra(id);
 	}
 
-	public item!: Item;
+	public item?: Item;
 	public extra!: Component;
 	public loadingSpinny?: Component;
 	public icon?: Component;
@@ -124,9 +125,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	@Bound
 	private update (event: { item: Item }) {
 		if (!document.contains(this.element)) {
-			this.item.event.unsubscribe("update", this.update);
-			this.item.event.unsubscribe("loadStart", this.loadStart);
-			this.item.event.unsubscribe("loadEnd", this.loadEnd);
+			this.item?.event.unsubscribe("update", this.update);
+			this.item?.event.unsubscribe("loadStart", this.loadStart);
+			this.item?.event.unsubscribe("loadEnd", this.loadEnd);
 			return;
 		}
 
@@ -152,16 +153,16 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	}
 
 	private settingItem?: Promise<void>;
-	public async setItem (item: Item, inventory?: Inventory) {
+	public async setItem (item?: Item, inventory?: Inventory) {
 		this.inventory = inventory ?? this.inventory;
 
 		if (item !== this.item) {
 			this.item?.event.unsubscribe("update", this.update);
 			this.item?.event.unsubscribe("loadStart", this.loadStart);
 			this.item?.event.unsubscribe("loadEnd", this.loadEnd);
-			item.event.subscribe("update", this.update);
-			item.event.subscribe("loadStart", this.loadStart);
-			item.event.subscribe("loadEnd", this.loadEnd);
+			item?.event.subscribe("update", this.update);
+			item?.event.subscribe("loadStart", this.loadStart);
+			item?.event.subscribe("loadEnd", this.loadEnd);
 			this.item = item;
 		}
 
@@ -173,50 +174,49 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		delete this.settingItem;
 	}
 
-	protected async renderItem (item: Item) {
+	protected async renderItem (item?: Item) {
 		this.setTooltip(ItemTooltip, {
-			initialise: tooltip => tooltip.setPadding(this.tooltipPadding)
+			initialise: tooltip => item && tooltip.setPadding(this.tooltipPadding)
 				.setItem(item, this.inventory),
-			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item.reference.itemInstanceId,
+			differs: tooltip => tooltip.item?.reference.itemInstanceId !== item?.reference.itemInstanceId,
 		});
 
-		this.classes.toggle(item.isMasterwork(), ItemClasses.IsMasterwork);
+		this.classes.toggle(!!item?.isMasterwork(), ItemClasses.IsMasterwork);
 
 		this.extra ??= Component.create()
 			.classes.add(ItemClasses.Extra);
 
-		const borderless = item.definition.itemType === DestinyItemType.Engram
-			|| item.definition.itemType === DestinyItemType.Package
-			|| item.definition.itemTypeDisplayName == "Umbral Engram";
+		const borderless = item?.definition.itemType === DestinyItemType.Engram
+			|| item?.definition.itemType === DestinyItemType.Package
+			|| item?.definition.itemTypeDisplayName == "Umbral Engram";
 		this.classes.toggle(borderless, ItemClasses.Borderless);
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
-		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
-		this.classes.add(`item-tier-${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties?.name ?? "Common")?.toLowerCase()}`);
+		const tier = await DestinyItemTierTypeDefinition.get(item?.definition.inventory?.tierTypeHash);
+		this.classes.removeWhere(cls => cls.startsWith("item-tier-"))
+			.classes.add(`item-tier-${(item?.definition.inventory?.tierTypeName ?? tier?.displayProperties?.name ?? "Common")?.toLowerCase()}`);
 
-		const ornament = item.getOrnament();
+		const ornament = item?.getOrnament();
 
 		const hasUniversalOrnament = !!ornament
 			&& tier?.displayProperties.name === "Legendary"
-			&& item.definition.traitIds?.some(id => id === "item_type.armor" || id.startsWith("item.armor."));
+			&& !!item?.definition.traitIds?.some(id => id === "item_type.armor" || id.startsWith("item.armor."));
 
 		let index = 0;
 
-		(this.icon ??= LoadedIcon.create([Display.icon(ornament?.definition, false) ?? Display.icon(item.definition, false)])
+		(this.icon ??= LoadedIcon.create([Display.icon(ornament?.definition, false) ?? Display.icon(item?.definition, false)])
 			.classes.add(ItemClasses.Icon)
 			.tweak(icon => this.initialiseIcon(icon))
 			.indexInto(this, index++))
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
-			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
+			.classes.toggle(item?.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
 
-		index++;
-
-		const shaped = item.shaped || (item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
-		this.classes.toggle(item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
-		if (shaped ? !item.isMasterwork() : item.canEnhance())
+		const shaped = item?.shaped || (item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
+		this.classes.toggle(!!item?.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
+		if (shaped ? !item?.isMasterwork() : item?.canEnhance())
 			(this.iconShaped ??= Component.create()
 				.classes.toggle(!!shaped, ItemClasses.Shaped)
-				.classes.toggle(item.canEnhance(), ItemClasses.CanEnhance)
+				.classes.toggle(!!item?.canEnhance(), ItemClasses.CanEnhance)
 				.append(Component.create())
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -226,26 +226,26 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		let watermark: string | undefined;
-		const powerCap = await DestinyPowerCapDefinition.get(item.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item.bucket.isCollections());
+		const powerCap = await DestinyPowerCapDefinition.get(item?.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item?.bucket.isCollections());
 		if ((powerCap?.powerCap ?? 0) < 900000)
-			watermark = item.definition.iconWatermarkShelved ?? item.definition.iconWatermark;
+			watermark = item?.definition.iconWatermarkShelved ?? item?.definition.iconWatermark;
 		else
-			watermark = item.definition.iconWatermark ?? item.definition.iconWatermarkShelved;
+			watermark = item?.definition.iconWatermark ?? item?.definition.iconWatermarkShelved;
 
-		if (watermark || item.moment?.displayProperties.icon)
+		if (watermark || item?.moment?.displayProperties.icon)
 			(this.momentWatermark ??= Component.create()
 				.classes.add(ItemClasses.MomentWatermark)
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
-				.classes.toggle(!watermark && !!item.moment?.displayProperties.icon, ItemClasses.MomentWatermarkCustom)
+				.classes.toggle(!watermark && !!item?.moment?.displayProperties.icon, ItemClasses.MomentWatermarkCustom)
 				.style.set("--watermark", watermark && `url("https://www.bungie.net${watermark}")`)
-				.style.set("--icon", item.moment?.displayProperties.icon && `url("${item.moment.displayProperties.icon}")`);
+				.style.set("--icon", item?.moment?.displayProperties.icon && `url("${item.moment.displayProperties.icon}")`);
 		else
 			this.momentWatermark?.classes.add(Classes.Hidden);
 
 		index++;
 
-		if ((item.isLocked() || item.isChangingLockState()))
+		if ((item?.isLocked() || item?.isChangingLockState()))
 			(this.iconLock ??= Component.create()
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
@@ -257,7 +257,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		const wishlisted = !item.instance || item.shaped ? undefined : await item.isWishlisted();
+		const wishlisted = !item?.instance || item.shaped ? undefined : await item.isWishlisted();
 		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
 		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
 
@@ -266,13 +266,13 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.deepsightPattern?.classes.add(Classes.Hidden);
 
 		if (!shaped) {
-			if (item.hasDeepsight())
+			if (item?.hasDeepsight())
 				(this.deepsight ??= Component.create()
 					.classes.add(ItemClasses.Deepsight)
 					.indexInto(this, index))
 					.classes.remove(Classes.Hidden);
 
-			if (item.deepsight?.pattern) {
+			if (item?.deepsight?.pattern) {
 				(this.deepsightHasPattern ??= Component.create()
 					.classes.add(ItemClasses.DeepsightHasPattern)
 					.indexInto(this, index + 1))
@@ -292,13 +292,15 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.masterwork?.classes.add(Classes.Hidden);
 		this.wishlist?.classes.add(Classes.Hidden);
 
-		if (item.isMasterwork())
+		const isArtifact = !!item?.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts);
+		if (item?.isMasterwork())
 			(this.masterwork ??= Component.create()
 				.classes.add(ItemClasses.Masterwork)
 				.append(Component.create()
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
+				.classes.toggle(isArtifact, ItemClasses.Artifact)
 				.classes.toggle(displayJunkBorder, ItemClasses.MasterworkShiftedDueToJunkBorder);
 
 		else if (displayWishlistedBorder)
@@ -323,7 +325,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		if (item.isFomo())
+		if (item?.isFomo())
 			(this.fomo ??= Component.create()
 				.classes.add(ItemClasses.Fomo)
 				.append(Component.create()
@@ -340,12 +342,12 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		this.loadingSpinny = Component.create()
+		(this.loadingSpinny ??= Component.create()
 			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
-			.classes.toggle(!item.transferring, Classes.Hidden)
 			.append(Component.create())
 			.append(Component.create())
-			.indexInto(this, index);
+			.indexInto(this, index))
+			.classes.toggle(!item?.transferring, Classes.Hidden);
 	}
 
 	protected initialiseIcon (icon: LoadedIcon) { }
@@ -370,6 +372,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	@Bound
 	private async rerenderExtra () {
 		this.extra.removeContents();
+
+		if (!this.item)
+			return;
 
 		const sorts = this.sorter?.deref()?.get().slice() ?? [];
 		if (this.item.reference.quantity > 1 && !sorts.includes(SortQuantity))
@@ -400,6 +405,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	@Bound
 	private async onClick (event: MouseEvent) {
+		if (!this.item)
+			return;
+
 		if (window.innerWidth <= 800)
 			return viewManager.showItemTooltip(this.item);
 
@@ -426,6 +434,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	@Bound
 	private onContextMenu (event: MouseEvent) {
+		if (!this.item)
+			return;
+
 		if (window.innerWidth <= 800)
 			return;
 

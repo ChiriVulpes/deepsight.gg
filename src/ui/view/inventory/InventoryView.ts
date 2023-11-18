@@ -273,7 +273,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			if (excluded)
 				continue;
 
-			this.itemMap.set(item, this.createItemComponent(item));
+			this.itemMap.set(item, this.createItemComponent(item) as ItemComponent);
 		}
 	}
 
@@ -518,16 +518,16 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 		for (const [bucketId, equipped] of Object.entries(this.equipped) as [BucketId, ItemComponent][]) {
 			const [bucketHash] = Bucket.parseId(bucketId);
-			if (!Arrays.includes(slot, bucketHash))
+			if (!Arrays.includes(slot, bucketHash) || !equipped.item)
 				continue;
 
 			equipped.item.fallbackItem = undefined
 				?? sortedBucketItems[bucketId]?.find(item => true
-					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, equipped.item.tier?.tierType ?? TierType.Superior)
+					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, equipped.item!.tier?.tierType ?? TierType.Superior)
 					&& item !== equipped.item)
 				?? sortedBucketItems[`${InventoryBucketHashes.General}`]?.find(item => true
 					&& Arrays.includes(slot, item.definition.inventory?.bucketTypeHash)
-					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, (equipped.item.tier?.tierType ?? TierType.Superior)));
+					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, (equipped.item!.tier?.tierType ?? TierType.Superior)));
 		}
 
 		for (const [bucketId, items] of Object.entries(sortedBucketItems)) {

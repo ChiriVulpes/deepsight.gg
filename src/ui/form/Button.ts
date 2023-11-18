@@ -27,7 +27,7 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 			return initialised;
 		};
 
-		return Promise.all(buttons.map(button => button.animateWipe(ready)))
+		return Promise.all(buttons.map(button => button.animateWipe(ready)));
 	}
 
 	public static basic () {

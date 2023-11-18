@@ -108,6 +108,11 @@ export default class Inventory implements IItemComponentCharacterHandler {
 			?? this.buckets?.[bucketHash!];
 	}
 
+	public getBucketsOfType (bucketHash?: InventoryBucketHashes) {
+		return Object.values<Bucket>(this.buckets ?? Objects.EMPTY)
+			.filter(bucket => bucket?.hash === bucketHash);
+	}
+
 	public getCharacterBuckets (characterId?: CharacterId) {
 		return Object.values<Bucket>(this.buckets ?? Objects.EMPTY)
 			.filter(bucket => bucket?.characterId === characterId);

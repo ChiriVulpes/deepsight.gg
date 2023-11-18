@@ -107,6 +107,11 @@ $colors: (
 
 	enhance-tooltip-border: color(--deepsight-tooltip-border),
 	enhance-tooltip-background: #5a2e18,
+	
+	artifact: #35a0c0,
+	artifact-dark: #3288a1,
+	masterwork: #ecca3e,
+	masterwork-dark: #cbaf3c,
 );
 
 @mixin override-color($name, $color, $opacity: null) {
