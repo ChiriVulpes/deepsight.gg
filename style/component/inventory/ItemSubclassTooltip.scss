@@ -34,7 +34,7 @@
 		margin: var(--tooltip-padding-negated);
 		margin-bottom: var(--tooltip-padding-y);
 		display: grid;
-		grid-template-areas: stack;
+		grid-template-areas: "stack";
 		
 		&-image, &-name {
 			grid-area: stack;
