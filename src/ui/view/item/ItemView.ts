@@ -97,6 +97,12 @@ const itemViewBase = View.create({
 			.setTitle(title => title.text.set(item.definition.displayProperties.name))
 			.setSubtitle("caps", subtitle => subtitle.text.set(item.definition.itemTypeDisplayName));
 
+		const screenshot = item.getOrnament()?.definition?.screenshot ?? item.definition.screenshot;
+		const secondaryIcon = item.definition.secondaryIcon;
+		if (screenshot)
+			view.setBackground(`https://www.bungie.net${screenshot}`,
+				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : []);
+
 		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()
 				.classes.add(ItemViewClasses.LockButton)

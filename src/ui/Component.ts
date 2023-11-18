@@ -192,6 +192,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		return this instanceof (cls as any) ? this as COMPONENT_CLASS["prototype"] : undefined;
 	}
 
+	public asType<TYPE extends Component<Element>> (): TYPE {
+		return this as any;
+	}
+
 	public make<COMPONENT_CLASS extends ComponentClass> (cls: COMPONENT_CLASS, ...args: ComponentArgs<COMPONENT_CLASS["prototype"]>): COMPONENT_CLASS["prototype"] {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		Object.setPrototypeOf(this, cls.prototype);

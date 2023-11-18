@@ -32,8 +32,16 @@
 			}
 		}
 	}
+	
+	.view-background-1 {
+		min-width: auto;
+		min-height: auto;
+		justify-self: left;
+		opacity: .6;
+	}
 
 	&-title {
+		z-index: 1;
 		display: flex;
 		gap: 0.3em;
 		align-items: center;
@@ -55,6 +63,7 @@
 		grid-column: 1/3;
 		max-width: 650px;
 		margin: 0.5em 0;
+		z-index: 1;
 
 		@include mobile {
 			margin: 0.5em 0;
@@ -75,7 +84,7 @@
 	&-content {
 		display: grid;
 		grid-template-columns: 2fr 1.2fr;
-		gap: 120px;
+		gap: 60px;
 		align-self: flex-start;
 		padding-bottom: 10px;
 		overflow: hidden;
@@ -92,6 +101,22 @@
 
 	&-socket {
 		&s {
+			@include transition(out, backdrop-filter);
+			
+			.card-title {
+				@include transition(out, color);
+			}
+			
+			&:hover, &:focus-within {
+				backdrop-filter: blur(10px);
+				@include transition(in);
+				
+				.card-title {
+					color: color(foreground-0);
+					@include transition(in);
+				}
+			}
+			
 			&-container {
 				width: 100%;
 			}
@@ -104,6 +129,12 @@
 				.view-item-socket:last-child {
 					margin-bottom: 0;
 				}
+			}
+			
+			.card-section-content {
+				background: linear-gradient(to bottom, #fff2, transparent 1px),
+					linear-gradient(to right, #fff2, transparent 1px);
+				background-size: 1.6em 1.6em, 1.6em 1.6em;
 			}
 		}
 
@@ -216,7 +247,7 @@
 
 			&-name {
 				font-family: $font-title;
-				font-size: 13pt;
+				font-size: 15pt;
 				text-transform: uppercase;
 				padding-right: 12px;
 				// grid-row: 1/3;
@@ -228,14 +259,17 @@
 			&-description {
 				// display: none;
 				white-space: pre-wrap;
-				font-size: 0.8em;
+				font-size: 12pt;
+				font-weight: 500;
+				color: color(foreground-2);
+				text-shadow: .1em .1em 0 color(background-0, .3);
 				height: fit-content;
 				margin-bottom: 3px;
 				padding-right: 6px;
 				text-overflow: ellipsis;
 				display: -webkit-box;
 				-webkit-box-orient: vertical;
-				-webkit-line-clamp: 3;
+				-webkit-line-clamp: 2;
 				overflow: hidden;
 				align-self: flex-start;
 			}
@@ -757,10 +791,24 @@
 			margin-top: auto;
 			gap: 20px;
 			padding-bottom: 60px;
+			backdrop-filter: blur(2px);
 		}
 
 		background: none;
 		border: none;
+		
+		.item-stat {
+			font-weight: 500;
+			text-shadow: .1em .1em 0 color(background-0, .3);
+			
+			&-label {
+				color: color(foreground-2);
+			}
+			
+			&-value {
+				color: color(foreground-0);
+			}
+		}
 	}
 
 	&-primary-info {
@@ -816,12 +864,12 @@
 			&-label {
 				text-align: right;
 				opacity: 0.8;
-				font-size: 14pt;
+				font-size: 16pt;
 				font-weight: 200;
 				font-family: $font-title;
 			}
 			grid-column: 2;
-			font-size: 54px;
+			font-size: 44pt;
 			text-transform: uppercase;
 			font-weight: 700;
 			line-height: 28px;

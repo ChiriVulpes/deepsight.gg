@@ -65,6 +65,19 @@
 	&-loadable {
 		display: contents;
 	}
+	
+	&-background {
+		display: grid;
+		grid-template-areas: "stack";
+		justify-items: center;
+		@include view-fade-animation;
+		
+		img {
+			grid-area: stack;
+			min-width: 100%;
+			min-height: 100%;
+		}
+	}
 
 	&-header {
 		grid-row: 2;

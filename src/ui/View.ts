@@ -140,6 +140,7 @@ namespace View {
 		Title = "view-title",
 		Subtitle = "view-subtitle",
 		Subview = "view-subview",
+		Background = "view-background",
 	}
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>]> {
@@ -169,9 +170,38 @@ namespace View {
 		public subtitle!: Component;
 		public content!: ContentComponent<MODELS, ARGS, DEFINITION>;
 		private _footer!: Component;
+		public background?: Component;
+
 		public get footer () {
 			Object.defineProperty(this, "footer", { value: this._footer });
 			return this._footer.classes.remove(BaseClasses.Hidden);
+		}
+
+		public setBackground (...src: string[]) {
+			this.background?.remove();
+			this.background = Component.create()
+				.classes.add(Classes.Background)
+				.prependTo(this);
+
+			if (src.length) {
+				this.background.asType<Component<HTMLImageElement>>()
+					.classes.add(BaseClasses.Hidden);
+
+				let loaded = 0;
+				for (let i = 0; i < src.length; i++) {
+					Component.create("img")
+						.classes.add(`${Classes.Background}-${i}`)
+						.attributes.set("src", src[i])
+						.event.subscribe("load", () => {
+							loaded++;
+							if (loaded >= src.length)
+								this.background?.classes.remove(BaseClasses.Hidden);
+						})
+						.appendTo(this.background);
+				}
+			}
+
+			return this.background;
 		}
 
 		public get hash (): string | null {
