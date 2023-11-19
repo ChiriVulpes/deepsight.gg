@@ -88,7 +88,7 @@ export default class ItemClarity extends Component {
 			.text.set("Clarity")
 			.appendTo(title);
 
-		title.text.add(" / Community Insights")
+		title.text.add(" / Community Insights");
 
 		this.description = Component.create()
 			.appendTo(this);
@@ -168,7 +168,7 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 		const isLine = !!component.linesContent?.length;
 		const isLabel = isLine && extractText(component.linesContent![component.linesContent!.length - 1]).trimEnd().endsWith(":");
 		const isListItem = isLine && extractText(component.linesContent![0]).trimStart().startsWith("• ");
-		const isLabelledLine = isLine && extractText(component).includes(": ");
+		const isLabelledLine = isLine && Strings.includesOnce(extractText(component), ": ");
 		const isEnhancedEffect = isLine && isLast && extractText(component.linesContent![0]).trimStart().startsWith("🡅");
 		const isEnhancedArrow = component.classNames?.includes("enhancedArrow") ?? false;
 		const isSpacer = component.classNames?.includes("spacer") ?? false;

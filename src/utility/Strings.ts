@@ -78,6 +78,25 @@ namespace Strings {
 
 		return new RegExp(exprString.slice(1), flags);
 	}
+
+	export function count (string: string, substring: string, stopAtCount = Infinity) {
+		let count = 0;
+		let lastIndex = -1;
+		while (count < stopAtCount) {
+			const index = string.indexOf(substring, lastIndex + 1);
+			if (index === -1)
+				return count;
+
+			count++;
+			lastIndex = index;
+		}
+
+		return count;
+	}
+
+	export function includesOnce (string: string, substring: string) {
+		return count(string, substring, 2) === 1;
+	}
 }
 
 export default Strings;
