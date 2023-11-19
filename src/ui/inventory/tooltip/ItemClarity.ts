@@ -185,7 +185,7 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 		if (isPVE || isPVP)
 			component = trimTextMatchingFromStart(component, "[PVE] ", "[PVP] ", "[PVE]", "[PVP]", "[PvE] ", "[PvP] ", "[PvE]", "[PvP]");
 
-		Component.create(isLine ? "div" : isSpacer ? "br" : component.table?.length ? "div" : "span")
+		const element = Component.create(isLine ? "div" : isSpacer ? "br" : component.table?.length ? "div" : "span")
 			.classes.toggle(isLine, ItemClarityClasses.Line)
 			.classes.toggle(isListItem, ItemClarityClasses.ListItem)
 			.classes.toggle(isSpacer, ItemClarityClasses.Spacer)
@@ -202,13 +202,15 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 				.classes.add(ItemClarityClasses.LabelPVEVP, isPVE ? ItemClarityClasses.LabelPVE : ItemClarityClasses.LabelPVP)
 				.text.set(isPVE ? "PVE" : "PVP"))
 			.tweak(appendClarityText, isEnhancedArrow ? "" : component.text ?? "", component.classNames ?? [], isPVP || isPVE)
-			.tweak(appendClarityDescriptionComponents, isLabelledLine ? [] : component.linesContent ?? [], definitionIndex, [...isPVE ? ["pve"] : [], ...isPVP ? ["pvp"] : []])
+			.tweak(appendClarityDescriptionComponents, isLabelledLine ? [] : component.linesContent ?? [], definitionIndex, [...isPVE ? ["pve"] : [], ...isPVP ? ["pvp"] : [], ...isListItem ? ["list-item"] : []])
 			.tweak(appendClarityTableRowComponents, component.table ?? [], definitionIndex)
 			.tweak(appendClarityLabelledLineComponents, !isLabelledLine ? [] : component.linesContent!, definitionIndex)
 			.append(!component.title ? undefined : Component.create("sup")
 				.classes.add(ItemClarityClasses.DefinitionTitleIndex)
-				.text.set(`${++definitionIndex.index}`))
-			.appendTo(parent);
+				.text.set(`${++definitionIndex.index}`));
+
+		if (element.element.childNodes.length || element.element.classList.length)
+			element.appendTo(parent);
 	}
 }
 
@@ -308,6 +310,8 @@ const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g;
 const unknownValueBracketsRegex = /\(\?\)|\[\?\]/g;
 const nonNumericNumberRegex = /^\?$|x[\d?]|[\d?](?:th|[%°-])/;
 function appendClarityText (parent: Component, text: string, classNames: string[], isPVEVP: boolean) {
+	text = Strings.trimTextMatchingFromStart(text, "• ");
+
 	if (isPVEVP)
 		// pvp numeric values sometimes are wrapped in square brackets, we don't want them
 		text = Strings.extractFromSquareBrackets(text);
