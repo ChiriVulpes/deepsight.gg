@@ -160,9 +160,6 @@
 		}
 
 		&-plug {
-			flex-basis: 30%;
-			max-width: 30%;
-
 			@include mobile {
 				flex-basis: initial;
 				max-width: none;
@@ -360,6 +357,14 @@
 				right: 6px;
 				bottom: -1px;
 			}
+			
+			&:not(#{&}-socketed) {
+				--plug-background: transparent;
+			}
+			
+			&:not(#{&}-socketed) &-name, &:not(#{&}-socketed) &-description {
+				display: none;
+			}
 
 			&-socketed {
 				flex-grow: 1;
@@ -511,6 +516,8 @@
 				flex-grow: 0;
 				flex-basis: initial;
 				margin: 0;
+			
+				--plug-background: #{color(perk, 0.85)};
 
 				&-name,
 				&-description {

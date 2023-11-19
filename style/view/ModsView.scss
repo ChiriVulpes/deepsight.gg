@@ -35,5 +35,9 @@
 		&-list-page:first-child &:times(25) {
 			@include view-swipe-animation($delay: .02s);
 		}
+		
+		&.view-item-socket-plug-type-perk {
+			--plug-background: #{color(perk, 0.85)} !important;
+		}
 	}
 }
