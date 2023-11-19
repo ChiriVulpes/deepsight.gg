@@ -4,7 +4,6 @@ import Inventory from "model/models/Inventory";
 import type { BucketId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
-import ProfileBatch from "model/models/ProfileBatch";
 import Display from "ui/bungie/DisplayProperties";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -20,27 +19,27 @@ import ItemPerks from "ui/view/item/ItemPerks";
 import Objects from "utility/Objects";
 
 export async function resolveItemURL (url: string, api: IModelGenerationApi) {
-	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 4);
-	const profile = await api.subscribeProgressAndWait(ProfileBatch, 1 / 4, 1 / 4);
-	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 1 / 4, 2 / 4);
-	const { DestinyInventoryItemDefinition } = manifest;
-
 	let [bucketId, characterIdOrItemId, itemId] = url.split("/") as ["collections" | BucketId, string, string?];
 	if (itemId)
 		bucketId = `${bucketId}/${characterIdOrItemId}` as BucketId;
 	else
 		itemId = characterIdOrItemId;
 
+	const total = bucketId === "collections" ? 3 : 2;
+
+	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / total);
+	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 1 / total, 1 / total);
+	const { DestinyInventoryItemDefinition } = manifest;
+
 	if (bucketId !== "collections")
 		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
 
 	const itemDef = await DestinyInventoryItemDefinition.get(itemId);
-
-	api.emitProgress(1);
 	if (!itemDef)
 		return;
 
-	return Item.createFake(manifest, profile, itemDef);
+	api.emitProgress(1);
+	return Item.createFake(manifest, inventory.profile!, itemDef);
 }
 
 enum ItemViewClasses {

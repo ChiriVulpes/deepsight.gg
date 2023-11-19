@@ -10,6 +10,7 @@ import type Item from "model/models/items/Item";
 import type { CharacterId, IItemEvents, ItemId } from "model/models/items/Item";
 import { Bucket } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
+import ProfileBatch from "model/models/ProfileBatch";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
@@ -56,6 +57,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	public characters?: Record<CharacterId, Character>;
 	public sortedCharacters?: Character[];
 	public readonly craftedItems = new Set<number>();
+	public profile?: ProfileBatch;
 	private loaded = false;
 
 	public constructor () {
@@ -64,7 +66,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		const disposed = this.event.waitFor("dispose");
 		Items.event.until(disposed, event => event
 			.subscribe("loading", () => LoadingManager.start("inventory"))
-			.subscribe("loaded", ({ value }) => this.updateItems(value)));
+			.subscribe("loaded", async ({ value }) => {
+				this.profile = await ProfileBatch.await();
+				this.updateItems(value);
+			}));
 
 		ProfileCharacters.event.until(disposed, event => event
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is

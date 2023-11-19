@@ -11,7 +11,7 @@ import GetVendor, { VendorHashes } from "utility/endpoint/bungie/endpoint/destin
 
 type WeaponRotation = Partial<Record<VendorHashes, number[]>>;
 
-const WeaponRotation = Model.createDynamic(Time.seconds(30), async api => {
+const WeaponRotation = Model.createDynamic(Time.minutes(15), async api => {
 	const vendors: VendorHashes[] = [VendorHashes.CommanderZavala, VendorHashes.Saint14];
 
 	const result: WeaponRotation = {};

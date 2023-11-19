@@ -78,10 +78,16 @@ namespace Model {
 		event.emit("clearCache");
 	}
 
+	/**
+	 * Custom model implementation
+	 */
 	export function create<T, R = T, API = undefined> (name: string, model: IModel<T, R, API>) {
 		return new Impl(name, model) as undefined extends API ? Impl<T, R> : Impl<T, R> & API;
 	}
 
+	/**
+	 * Data not cached, with optional name
+	 */
 	export function createTemporary<T> (generate: IModel<T, T>["generate"], name = "") {
 		return new Impl(name, {
 			cache: false,
@@ -89,6 +95,9 @@ namespace Model {
 		});
 	}
 
+	/** 
+	 * Data cached only in memory, with optional reset time & name
+	 */
 	export function createDynamic<T> (resetTime: Exclude<IModel<T, T>["resetTime"], undefined>, generate: IModel<T, T>["generate"], name = "") {
 		return new Impl(name, {
 			cache: "Memory",
