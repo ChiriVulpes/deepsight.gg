@@ -358,11 +358,11 @@
 				bottom: -1px;
 			}
 			
-			&:not(#{&}-socketed) {
+			.view-item &:not(#{&}-socketed) {
 				--plug-background: transparent;
 			}
 			
-			&:not(#{&}-socketed) &-name, &:not(#{&}-socketed) &-description {
+			.view-item &:not(#{&}-socketed) &-name, .view-item &:not(#{&}-socketed) &-description {
 				display: none;
 			}
 
