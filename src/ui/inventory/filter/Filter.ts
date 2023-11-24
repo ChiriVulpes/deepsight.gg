@@ -7,14 +7,15 @@ import Arrays from "utility/Arrays";
 import type { SupplierOr } from "utility/Type";
 
 enum Filter {
-	Shaped,
-	Masterwork,
-	Ammo,
 	Element,
+	Ammo,
 	WeaponType,
+	Masterwork,
+	Locked,
+	Shaped,
+	Harmonizable,
 	Perk,
 	Moment,
-	Locked,
 	Raw,
 }
 

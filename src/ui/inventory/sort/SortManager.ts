@@ -4,6 +4,7 @@ import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
 import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
+import SortHarmonizable from "ui/inventory/sort/sorts/SortHarmonizable";
 import SortLocked from "ui/inventory/sort/sorts/SortLocked";
 import SortMasterwork from "ui/inventory/sort/sorts/SortMasterwork";
 import SortMoment from "ui/inventory/sort/sorts/SortMoment";
@@ -35,6 +36,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.WeaponType]: SortWeaponType,
 	[Sort.Quantity]: SortQuantity,
 	[Sort.Locked]: SortLocked,
+	[Sort.Harmonizable]: SortHarmonizable,
 };
 
 const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [

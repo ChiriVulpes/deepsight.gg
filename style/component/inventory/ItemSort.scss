@@ -85,7 +85,7 @@
 				@include icon("/img/destiny_content/ammo_types/primary.png");
 			}
 			
-			&-pattern-icon, &-shaped-icon {
+			&-pattern-icon, &-shaped-icon, &-harmonizable-icon {
 				&::before {
 					width: .9em;
 					height: .9em;
