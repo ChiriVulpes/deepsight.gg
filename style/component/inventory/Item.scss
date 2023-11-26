@@ -546,6 +546,23 @@ $z-index-loading: 1000;
 		}
 	}
 
+	&-sort-harmonizable {
+		display: flex;
+		align-items: center;
+		gap: .1em;
+		&-icon {
+			display: inline-block;
+			width: .8em;
+			height: .8em;
+			margin-right: .2em;
+			@include mask-icon(url("./image/svg/shaped.svg"));
+		}
+		
+		&-separator, &-denominator {
+			opacity: .7;
+		}
+	}
+
 	&-stat-distribution {
 		&-value {
 			color: gradient-mix(in lch, var(--value), #9e4949, #e04d4d 50%, #ff0 75%, #4eff13);
