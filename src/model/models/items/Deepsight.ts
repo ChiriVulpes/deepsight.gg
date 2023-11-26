@@ -32,10 +32,11 @@ namespace Deepsight {
 	}
 
 	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
+		const pattern = await resolvePattern(manifest, profile, item);
 		return {
 			resonance: await resolveResonance(item),
-			activation: !item.shaped && await resolveActivation(item),
-			pattern: await resolvePattern(manifest, profile, item),
+			pattern,
+			activation: !item.shaped && !pattern?.progress?.complete && await resolveActivation(item),
 		};
 	}
 
