@@ -4,8 +4,8 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 
 export default ISort.create({
 	id: Sort.Harmonizable,
-	name: "Deepsight Activation",
-	shortName: "Activation",
+	name: "Deepsight Harmonizer",
+	shortName: "Harmonizer",
 	renderSortable: sortable => sortable.icon,
 	render: item => {
 		if (!item.deepsight?.activation)
