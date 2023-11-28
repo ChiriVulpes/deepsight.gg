@@ -52,7 +52,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.EventsSolsticeEmbersEmpty:
 			case PlugCategoryHashes.EventsSolsticeKindling:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
-			case PlugCategoryHashes.EventsDawning2022OvenNotMasterworked:
+			case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
 			case PlugCategoryHashes.EventsDawningOvenMasterworked:
 			case PlugCategoryHashes.V400PlugsWeaponsMasterworks:
 			case PlugCategoryHashes.V700WeaponsModsMissionAvalon:
@@ -61,13 +61,13 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers:
 				return DeepsightPlugCategory.Masterwork;
 
-			case PlugCategoryHashes.EventsDawning2022Recipe:
-			case PlugCategoryHashes.EventsDawning2022NoRecipe:
-			case PlugCategoryHashes.EventsDawning2022IngredientA:
-			case PlugCategoryHashes.EventsDawning2022IngredientB:
-			case PlugCategoryHashes.EventsDawning2022OvenCombine:
-			case PlugCategoryHashes.EventsDawning2022OvenEmpty:
-			case PlugCategoryHashes.EventsDawning2022OvenEmptyCombination:
+			case PlugCategoryHashes.EventsDawningTurnkeyRecipe:
+			case PlugCategoryHashes.EventsDawningTurnkeyNoRecipe:
+			case PlugCategoryHashes.EventsDawningTurnkeyIngredientA:
+			case PlugCategoryHashes.EventsDawningTurnkeyIngredientB:
+			case PlugCategoryHashes.EventsDawningTurnkeyOvenCombine:
+			case PlugCategoryHashes.EventsDawningTurnkeyOvenEmpty:
+			case PlugCategoryHashes.EventsDawningTurnkeyOvenEmptyCombination:
 				return DeepsightPlugCategory.Vendor;
 
 			case PlugCategoryHashes.EnhancementsGhostsActivity:
@@ -236,7 +236,7 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeMasterwork.Event;
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
 					return DeepsightPlugTypeMasterwork.ShapedWeapon;
-				case PlugCategoryHashes.EventsDawning2022OvenNotMasterworked:
+				case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
 				case PlugCategoryHashes.EventsDawningOvenMasterworked:
 					return DeepsightPlugTypeMasterwork.HolidayOven;
 				case PlugCategoryHashes.V700WeaponsModsMissionAvalon:
@@ -281,13 +281,13 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Vendor]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
-				case PlugCategoryHashes.EventsDawning2022Recipe:
-				case PlugCategoryHashes.EventsDawning2022NoRecipe:
-				case PlugCategoryHashes.EventsDawning2022IngredientA:
-				case PlugCategoryHashes.EventsDawning2022IngredientB:
-				case PlugCategoryHashes.EventsDawning2022OvenCombine:
-				case PlugCategoryHashes.EventsDawning2022OvenEmpty:
-				case PlugCategoryHashes.EventsDawning2022OvenEmptyCombination:
+				case PlugCategoryHashes.EventsDawningTurnkeyRecipe:
+				case PlugCategoryHashes.EventsDawningTurnkeyNoRecipe:
+				case PlugCategoryHashes.EventsDawningTurnkeyIngredientA:
+				case PlugCategoryHashes.EventsDawningTurnkeyIngredientB:
+				case PlugCategoryHashes.EventsDawningTurnkeyOvenCombine:
+				case PlugCategoryHashes.EventsDawningTurnkeyOvenEmpty:
+				case PlugCategoryHashes.EventsDawningTurnkeyOvenEmptyCombination:
 					return DeepsightPlugTypeVendor.HolidayOven;
 			}
 		},
