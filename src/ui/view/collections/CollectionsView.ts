@@ -42,7 +42,7 @@ export default View.create({
 			}
 
 			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-			if ((+moment.eventCard?.endTime! ?? 0) * 1000 > Date.now())
+			if (profile?.profile?.data?.activeEventCardHash === moment.eventCard?.hash && (+moment.eventCard?.endTime! ?? 0) * 1000 > Date.now())
 				defaultOpen = true;
 
 			CollectionsMoment.create([moment, inventory, defaultOpen])

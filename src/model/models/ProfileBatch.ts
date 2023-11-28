@@ -49,6 +49,8 @@ const ProfileBatch = Model.createDynamic(Time.seconds(30), async api => {
 	api.emitProgress(0, "Loading profile");
 
 	const ProfileQuery = Profile(
+		DestinyComponentType.Profiles,
+
 		// Characters
 		DestinyComponentType.Characters,
 		DestinyComponentType.ProfileProgression,
