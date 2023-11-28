@@ -115,8 +115,7 @@
 			],
 		},
 	},
-	"4103176774": { // Crota's End: Normal
-		rotationActivityHash: 4179289725,
+	"4179289725": { // Crota's End: Normal
 		recordHash: 2045739672,
 		encounters: [
 			{
