@@ -16,6 +16,9 @@ interface Manifest {
 export let DESTINY_MANIFEST_VERSION: string | undefined;
 
 export default Task("destiny_manifest", async () => {
+	if (process.env.DEEPSIGHT_USE_EXISTING_MANIFEST)
+		return Log.info("Using previous Destiny manifest due to DEEPSIGHT_USE_EXISTING_MANIFEST");
+
 	let manifest: Manifest["Response"] | undefined;
 	const maxAttempts = 10;
 	for (let attempts = 0; !manifest && attempts < maxAttempts; attempts++) {

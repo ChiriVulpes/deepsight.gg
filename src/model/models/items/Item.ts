@@ -312,7 +312,7 @@ class Item {
 		const { DestinyInventoryItemDefinition } = manifest;
 
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
-		if (!definition) {
+		if (!definition || !Object.keys(definition).length) {
 			console.warn("No item definition for ", reference.itemHash);
 			return undefined;
 		}

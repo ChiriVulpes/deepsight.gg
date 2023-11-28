@@ -277,7 +277,7 @@ export class Plug {
 			definition,
 			clarity,
 			categorisation,
-			type: categorisation?.fullName,
+			type: categorisation?.fullName ?? "Unknown",
 			perks: await Promise.all((definition?.perks ?? []).map(perk => Perk.resolve(manifest, perk))),
 		};
 	}

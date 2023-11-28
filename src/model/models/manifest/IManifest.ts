@@ -158,6 +158,9 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		const result: IManifest.Component<COMPONENT_NAME>[] = [];
 		const hashes = new Set<number>();
 		for (const value of all) {
+			if (value === null)
+				continue;
+
 			if (value.hash === undefined) {
 				console.warn("Can't filter out duplicates for", this.componentName, "as there is no hash");
 				return all;
