@@ -22,12 +22,12 @@ export class BungieAPI {
 	}
 
 	public get lastWeeklyReset () {
-		const day = (new Date().getUTCDay() + 4) % 7;
+		const day = (new Date().getUTCDay() - 2) % 7;
 		return this.lastDailyReset - day * Time.days(1);
 	}
 
 	public get lastTrialsReset () {
-		const day = (new Date().getUTCDay() + 1) % 7;
+		const day = (new Date().getUTCDay() + 2) % 7;
 		return this.lastDailyReset - day * Time.days(1);
 	}
 
