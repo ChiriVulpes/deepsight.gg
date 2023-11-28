@@ -271,4 +271,11 @@
 		year: 6,
 		seasonHash: 2758726570,
 	},
+	"33": {
+		id: "wish",
+		iconWatermark: { DestinyInventoryItemDefinition: 2189073092 }, // Lethal Abundance auto rifle
+		season: 23,
+		year: 6,
+		seasonHash: 2758726571,
+	},
 }
