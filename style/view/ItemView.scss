@@ -3,6 +3,7 @@
 .view-item {
 	$size: 78px;
 	--slot-size: calc(#{$size} + #{$size * math.div(6, 75)});
+	--view-padding-x: 100px;
 
 	&-header {
 		display: grid;
@@ -38,6 +39,8 @@
 		min-height: auto;
 		justify-self: left;
 		opacity: .6;
+		transform: scale(0.75);
+		transform-origin: top left;
 	}
 
 	&-title {
@@ -84,7 +87,7 @@
 	&-content {
 		display: grid;
 		grid-template-columns: 2fr 1.2fr;
-		gap: 60px;
+		gap: 40px;
 		align-self: flex-start;
 		padding-bottom: 10px;
 		overflow: hidden;
@@ -97,6 +100,11 @@
 			grid-template-columns: 1fr;
 			gap: 0px;
 		}
+	}
+	
+	.item-stat-wrapper {
+		padding-left: 1em;
+		padding-right: 0;
 	}
 
 	&-socket {
