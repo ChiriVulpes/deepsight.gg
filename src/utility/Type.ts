@@ -1,3 +1,4 @@
+export type Supplier<T, ARGS extends any[] = []> = (...args: ARGS) => T;
 export type SupplierOr<T, ARGS extends any[] = []> = T | ((...args: ARGS) => T);
 export type PromiseOr<T> = T | Promise<T>;
 export type AnyFunction<R = any> = (...args: any[]) => R;

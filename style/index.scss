@@ -5,7 +5,13 @@
 @import "mixin/modes";
 @import "mixin/icon";
 @import "shared";
+
+// animations
 @import "animation/animations";
+@import "animation/swipe-up";
+@import "animation/fade";
+@import "animation/views";
+
 
 // form
 @import "component/form/Checkbox";

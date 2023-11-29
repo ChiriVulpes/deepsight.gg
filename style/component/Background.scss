@@ -1,40 +1,48 @@
-.background-surface {
-	position: fixed;
-	$scale: 0.2;
-	top: calc(50% - 50% / #{$scale});
-	left: calc(50% - 50% / #{$scale});
-	width: calc(100% / #{$scale});
-	height: calc(100% / #{$scale});
-	overflow: scroll;
-	transform: scale(#{$scale});
-	transform-origin: center center;
+.background {
+	&-surface {
+		position: fixed;
+		$scale: 0.2;
+		top: calc(50% - 50% / #{$scale});
+		left: calc(50% - 50% / #{$scale});
+		width: calc(100% / #{$scale});
+		height: calc(100% / #{$scale});
+		overflow: scroll;
+		transform: scale(#{$scale});
+		transform-origin: center center;
+		display: grid;
+		grid-template-areas: "stack";
+		justify-items: center;
+		@include view-fade-animation;
+	
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	
+		&-blur {
+			filter: blur(calc(3px / #{$scale}));
+		}
 
-	scrollbar-width: none;
-	&::-webkit-scrollbar {
-		display: none;
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			width: calc(100% + 100% * var(--scroll-amount));
+			height: calc(100% + 100% * var(--scroll-amount));
+			background: color(background-2, 0.5);
+			grid-area: stack;
+		}
 	}
 
-	&-blur {
-		filter: blur(calc(3px / #{$scale}));
-	}
-
-	&::before {
+	&-image {
 		content: "";
 		display: block;
 		position: absolute;
-		width: calc(100% + 100% * var(--scroll-amount));
-		height: calc(100% + 100% * var(--scroll-amount));
+		min-width: calc(100% + 100% * var(--scroll-amount));
+		min-height: calc(100% + 100% * var(--scroll-amount));
 		background: var(--wallpaper);
 		background-size: cover;
 		background-position: center;
-	}
-
-	&::after {
-		content: "";
-		display: block;
-		position: absolute;
-		width: calc(100% + 100% * var(--scroll-amount));
-		height: calc(100% + 100% * var(--scroll-amount));
-		background: color(background-2, 0.5);
+		grid-area: stack;
 	}
 }

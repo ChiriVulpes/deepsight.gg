@@ -1,6 +1,6 @@
 import Model from "model/Model";
 import AppNav from "ui/AppNav";
-import BackgroundManager from "ui/BackgroundManager";
+import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
 import AuthView from "ui/view/AuthView";
 import ViewManager from "ui/ViewManager";
@@ -34,7 +34,7 @@ export default class DeepsightGG {
 				document.documentElement.classList.remove("persist-tooltips");
 		});
 
-		new BackgroundManager();
+		Background.initialiseMain();
 
 		await Env.load();
 

@@ -1,4 +1,5 @@
 import type Model from "model/Model";
+import Background from "ui/BackgroundManager";
 import { Classes as BaseClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
@@ -170,7 +171,7 @@ namespace View {
 		public subtitle!: Component;
 		public content!: ContentComponent<MODELS, ARGS, DEFINITION>;
 		private _footer!: Component;
-		public background?: Component;
+		private background?: Background;
 
 		public get footer () {
 			Object.defineProperty(this, "footer", { value: this._footer });
@@ -179,29 +180,8 @@ namespace View {
 
 		public setBackground (...src: string[]) {
 			this.background?.remove();
-			this.background = Component.create()
-				.classes.add(Classes.Background)
+			this.background = Background.create([src])
 				.prependTo(this);
-
-			if (src.length) {
-				this.background.asType<Component<HTMLImageElement>>()
-					.classes.add(BaseClasses.Hidden);
-
-				let loaded = 0;
-				for (let i = 0; i < src.length; i++) {
-					Component.create("img")
-						.classes.add(`${Classes.Background}-${i}`)
-						.attributes.set("src", src[i])
-						.event.subscribe("load", () => {
-							loaded++;
-							if (loaded >= src.length)
-								this.background?.classes.remove(BaseClasses.Hidden);
-						})
-						.appendTo(this.background);
-				}
-			}
-
-			return this.background;
 		}
 
 		public get hash (): string | null {

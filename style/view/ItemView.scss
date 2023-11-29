@@ -34,8 +34,8 @@
 		}
 	}
 	
-	.view-background-1 {
-		min-width: auto;
+	.background-image-1 {
+		min-width: calc((569 / 1920) * (100% + 100% * var(--scroll-amount)));
 		min-height: auto;
 		justify-self: left;
 		opacity: .6;

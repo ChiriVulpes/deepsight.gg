@@ -1,46 +1,3 @@
-@mixin view-swipe-animation($duration: 0.6s, $delay: 0.03s, $has-view-selector: false) {
-	@include animate-multi($duration, $delay) {
-		@if $has-view-selector {
-			@at-root .view#{&} {
-				// @debug #{&};
-				@include animation-swipe-up-in;
-			}
-			@at-root .view-hidden#{&} {
-				// @debug #{&};
-				@include animation-swipe-down-out;
-			}
-		} @else {
-			.view & {
-				// @debug #{&};
-				@include animation-swipe-up-in;
-			}
-			.view-hidden & {
-				// @debug #{&};
-				@include animation-swipe-down-out;
-			}
-		}
-	}
-}
-@mixin view-fade-animation($duration: 0.6s, $delay: 0.03s, $has-view-selector: false) {
-	@include animate-multi($duration, $delay) {
-		@if $has-view-selector {
-			@at-root .view#{&} {
-				@include animation-fade-in;
-			}
-			@at-root .view-hidden#{&} {
-				@include animation-fade-out;
-			}
-		} @else {
-			.view & {
-				@include animation-fade-in;
-			}
-			.view-hidden & {
-				@include animation-fade-out;
-			}
-		}
-	}
-}
-
 .view {
 	position: absolute;
 	top: 0;
@@ -66,19 +23,6 @@
 		display: contents;
 	}
 	
-	&-background {
-		display: grid;
-		grid-template-areas: "stack";
-		justify-items: center;
-		@include view-fade-animation;
-		
-		img {
-			grid-area: stack;
-			min-width: 100%;
-			min-height: 100%;
-		}
-	}
-
 	&-header {
 		grid-row: 2;
 		padding: 0 var(--view-padding-x);
