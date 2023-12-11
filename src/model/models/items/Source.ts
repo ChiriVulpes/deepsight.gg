@@ -73,7 +73,7 @@ namespace Source {
 			const vendorActivities = await resolveVendorActivities(manifest, profile, vendor);
 
 			for (const activity of vendorActivities) {
-				if (activity.activityTypeHash === ActivityTypeHashes.Nightfall2 && !activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
+				if (activity.activityTypeHash === ActivityTypeHashes.Nightfall575572995 && !activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
 					continue;
 
 				const adept = item.definition.displayProperties.name.trimEnd().endsWith("(Adept)");
@@ -131,7 +131,7 @@ namespace Source {
 	}
 
 	const vendorActivityTypeHashMap: Partial<Record<VendorHashes, number>> = {
-		[VendorHashes.CommanderZavala]: ActivityTypeHashes.Nightfall2,
+		[VendorHashes.CommanderZavala]: ActivityTypeHashes.Nightfall575572995,
 		[VendorHashes.Saint14]: ActivityTypeHashes.TrialsOfOsiris,
 	};
 	async function resolveVendorActivities (manifest: Manifest, profile: ISourceProfile, vendor: VendorHashes) {

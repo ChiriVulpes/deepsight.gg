@@ -8,7 +8,7 @@ import Objects from "utility/Objects";
 
 namespace Trials {
 
-	export const GENERIC_ACTIVITY_HASH = ActivityHashes.TrialsOfOsiris;
+	export const GENERIC_ACTIVITY_HASH = ActivityHashes.TrialsOfOsiris588019350;
 	export const MILESTONE_HASH = MilestoneHashes.TrialsOfOsirisWeekly;
 	export const ADEPT_WEAPON_REWARD_HASH = InventoryItemHashes.AdeptTrialsWeaponRareDummy;
 

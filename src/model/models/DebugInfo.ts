@@ -63,7 +63,7 @@ export default class DebugInfo {
 			return {
 				weapons: filterByCategory(items, ItemCategoryHashes.Weapon),
 				armour: filterByCategory(items, ItemCategoryHashes.Armor),
-				emotes: filterByBucket(items, InventoryBucketHashes.Emotes, InventoryBucketHashes.Emotes2),
+				emotes: filterByBucket(items, InventoryBucketHashes.Emotes_Category0, InventoryBucketHashes.Emotes_Category3),
 				finishers: filterByBucket(items, InventoryBucketHashes.Finishers),
 				quests: filterByBucket(items, InventoryBucketHashes.Quests),
 				ships: filterByCategory(items, ItemCategoryHashes.Ships),
