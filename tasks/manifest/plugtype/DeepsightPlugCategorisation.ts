@@ -12,19 +12,19 @@ namespace DeepsightPlugCategorisation {
 
 	function determinePlugCategory (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.hash) {
-			case InventoryItemHashes.RandomizedPerksIntrinsicDummy:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummy:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummy2:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummy3:
-			case InventoryItemHashes.RandomizedPerks2IntrinsicDummy:
-			case InventoryItemHashes.TraitLocked:
-			case InventoryItemHashes.TraitLocked2:
+			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash2923744131:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3371926948:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3982839338:
+			case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
+			case InventoryItemHashes.TraitLockedPlug2106726848:
+			case InventoryItemHashes.TraitLockedPlug3665398231:
 				return DeepsightPlugCategory.Perk;
 
-			case InventoryItemHashes.EmptyModSocket:
+			case InventoryItemHashes.EmptyModSocketPlug:
 				return DeepsightPlugCategory.Mod;
 
-			case InventoryItemHashes.EmptyMementoSocket:
+			case InventoryItemHashes.EmptyMementoSocketPlug:
 				return DeepsightPlugCategory.Cosmetic;
 		}
 
@@ -225,7 +225,7 @@ namespace DeepsightPlugCategorisation {
 	const plugTypeHandlers: Partial<Record<DeepsightPlugCategory, (context: DeepsightPlugContextDefinition) => number | void>> = {
 		[DeepsightPlugCategory.Masterwork]: context => {
 			switch (context.definition.hash) {
-				case InventoryItemHashes.EmptyEnhancementSocket:
+				case InventoryItemHashes.EmptyEnhancementSocketPlug:
 					return DeepsightPlugTypeMasterwork.EnhancementEmpty;
 			}
 
@@ -293,7 +293,7 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Extractable]: context => {
 			switch (context.definition.hash) {
-				case InventoryItemHashes.EmptyDeepsightSocket:
+				case InventoryItemHashes.EmptyDeepsightSocketPlug:
 					return DeepsightPlugTypeExtractable.DeepsightActivation;
 			}
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -461,15 +461,15 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Perk]: context => {
 			switch (context.definition.hash) {
-				case InventoryItemHashes.RandomizedPerksIntrinsicDummy:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummy:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummy2:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummy3:
-				case InventoryItemHashes.RandomizedPerks2IntrinsicDummy:
+				case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash2923744131:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3371926948:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3982839338:
+				case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
 					return DeepsightPlugTypePerk.Random;
 
-				case InventoryItemHashes.TraitLocked:
-				case InventoryItemHashes.TraitLocked2:
+				case InventoryItemHashes.TraitLockedPlug2106726848:
+				case InventoryItemHashes.TraitLockedPlug3665398231:
 					return DeepsightPlugTypePerk.TraitLocked;
 			}
 
@@ -540,11 +540,11 @@ namespace DeepsightPlugCategorisation {
 				}
 
 				switch (context.definition.hash) {
-					case InventoryItemHashes.DefaultEmblemEmblem:
+					case InventoryItemHashes.DefaultEmblemEmblemPlug:
 						return DeepsightPlugTypeCosmetic.EmblemEmpty;
-					case InventoryItemHashes.BaseRadiance:
+					case InventoryItemHashes.BaseRadiancePlug:
 						return DeepsightPlugTypeCosmetic.Radiance;
-					case InventoryItemHashes.EmptyMementoSocket:
+					case InventoryItemHashes.EmptyMementoSocketPlug:
 						return DeepsightPlugTypeCosmetic.MementoEmpty;
 				}
 
@@ -642,7 +642,7 @@ namespace DeepsightPlugCategorisation {
 	function getArmourModRaidActivityHash (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.itemTypeDisplayName) {
 			case "Deep Stone Crypt Raid Mod":
-				return ActivityHashes.DeepStoneCrypt2;
+				return ActivityHashes.DeepStoneCrypt_GuidedGameUndefined;
 			case "Root of Nightmares Armor Mod":
 				return ActivityHashes.RootOfNightmaresNormal;
 			case "Crota's End Mod":
@@ -650,38 +650,38 @@ namespace DeepsightPlugCategorisation {
 			case "Last Wish Raid Mod":
 				return ActivityHashes.LastWishNormal;
 			case "Garden of Salvation Raid Mod":
-				return ActivityHashes.GardenOfSalvation;
+				return ActivityHashes.GardenOfSalvation1042180643;
 			case "Vault of Glass Armor Mod":
 				return ActivityHashes.VaultOfGlass;
 			case "Vow of the Disciple Raid Mod":
 				return ActivityHashes.VowOfTheDiscipleNormal;
 			case "King's Fall Mod":
-				return ActivityHashes.KingsFallNormal;
+				return ActivityHashes.KingsFallNormal_GuidedGameUndefined;
 		}
 	}
 
 	const subclasses: Record<string, InventoryItemHashes[]> = {
-		"hunter.void": [InventoryItemHashes.NightstalkerHunterSubclass],
-		"hunter.solar": [InventoryItemHashes.GunslingerHunterSubclass],
-		"hunter.arc": [InventoryItemHashes.ArcstriderHunterSubclass],
+		"hunter.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1],
+		"hunter.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1],
+		"hunter.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1],
 		"hunter.stasis": [InventoryItemHashes.RevenantHunterSubclass],
 		"hunter.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass],
 
-		"titan.void": [InventoryItemHashes.SentinelTitanSubclass],
-		"titan.solar": [InventoryItemHashes.SunbreakerTitanSubclass],
-		"titan.arc": [InventoryItemHashes.StrikerTitanSubclass],
+		"titan.void": [InventoryItemHashes.SentinelTitanSubclass_ClassType0],
+		"titan.solar": [InventoryItemHashes.SunbreakerTitanSubclass_ClassType0],
+		"titan.arc": [InventoryItemHashes.StrikerTitanSubclass_ClassType0],
 		"titan.stasis": [InventoryItemHashes.BehemothTitanSubclass],
 		"titan.strand": [InventoryItemHashes.BerserkerTitanSubclass],
 
-		"warlock.void": [InventoryItemHashes.VoidwalkerWarlockSubclass],
-		"warlock.solar": [InventoryItemHashes.DawnbladeWarlockSubclass],
-		"warlock.arc": [InventoryItemHashes.StormcallerWarlockSubclass],
+		"warlock.void": [InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		"warlock.solar": [InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		"warlock.arc": [InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
 		"warlock.stasis": [InventoryItemHashes.ShadebinderWarlockSubclass],
 		"warlock.strand": [InventoryItemHashes.BroodweaverWarlockSubclass],
 
-		"shared.void": [InventoryItemHashes.NightstalkerHunterSubclass, InventoryItemHashes.SentinelTitanSubclass, InventoryItemHashes.VoidwalkerWarlockSubclass],
-		"shared.solar": [InventoryItemHashes.GunslingerHunterSubclass, InventoryItemHashes.SunbreakerTitanSubclass, InventoryItemHashes.DawnbladeWarlockSubclass],
-		"shared.arc": [InventoryItemHashes.ArcstriderHunterSubclass, InventoryItemHashes.StrikerTitanSubclass, InventoryItemHashes.StormcallerWarlockSubclass],
+		"shared.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1, InventoryItemHashes.SentinelTitanSubclass_ClassType0, InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		"shared.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1, InventoryItemHashes.SunbreakerTitanSubclass_ClassType0, InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		"shared.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1, InventoryItemHashes.StrikerTitanSubclass_ClassType0, InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
 		"shared.stasis": [InventoryItemHashes.RevenantHunterSubclass, InventoryItemHashes.BehemothTitanSubclass, InventoryItemHashes.ShadebinderWarlockSubclass],
 		"shared.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
 	};

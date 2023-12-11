@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "../src/node_modules/bungie-api-ts/destiny2";
 import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
 import manifest from "./manifest/DestinyManifest";
+import Objects from "./utilities/Objects";
 import Task from "./utilities/Task";
 
 const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
@@ -13,6 +14,11 @@ const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Rec
 		2401704334: "Dummy Emote",
 		3621873013: "Dummy",
 	},
+};
+
+const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[]>> = {
+	DestinyInventoryItemDefinition: ["collectibleHash"],
+	DestinyActivityDefinition: ["loadouts"],
 };
 
 interface Definition {
@@ -34,12 +40,105 @@ export class EnumHelper {
 			.join("");
 	}
 
-	private readonly encounteredNames = new Set<string>();
+	private readonly encountered = new Map<string, Definition[]>();
+	private diffIndices: Record<string, number> = {};
 
 	public constructor (private readonly type: string) {
 	}
 
-	public name (definition?: Definition | string, dedupe = true) {
+	public encounter (definition?: Definition | string) {
+		const name = this.resolve(definition);
+		if (!name || typeof definition !== "object")
+			return;
+
+		let encountered = this.encountered.get(name);
+		if (!encountered) {
+			this.encountered.set(name, encountered = []);
+		}
+
+		encountered.push(definition);
+	}
+
+	public name (definition?: Definition | string, dedupe = true, excludedPaths: string[] = []) {
+		let name = this.resolve(definition);
+		if (!name)
+			return name;
+
+		if (!dedupe) {
+			const encountered = !!this.encountered.get(name);
+			if (encountered)
+				return undefined;
+
+			this.encountered.set(name, []);
+			return name;
+		}
+
+		const encountered = this.encountered.get(name);
+		if (!encountered || encountered.length === 1)
+			return name;
+
+		const magic = "uwu omg this code is bad lol";
+		const prevIndex = this.diffIndices[name];
+
+		let shortestSuffix: string | undefined;
+		const differences = Objects.findDifferences(...encountered).sort((a, b) => a.path.localeCompare(b.path));
+		for (let i = 0; i < differences.length; i++) {
+			const difference = differences[i];
+			if (difference.path === "index" || excludedPaths.includes(difference.path))
+				// "index" is unstable, it's some internal bungie row index thing, and exclude other paths
+				continue;
+
+			if (difference.unique.size !== encountered.length)
+				continue;
+
+			if (prevIndex !== undefined && prevIndex !== i)
+				continue;
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const value = Objects.path(definition, difference.path);
+			const key = EnumHelper.simplifyName(difference.path.replace(/(?=[A-Z])/g, " "));
+			const differenceString = `${key === "Hash" ? magic : `_${key}`}${this.stringifyValue(value)}`;
+			if (prevIndex === i || differenceString.length < (shortestSuffix?.length ?? Infinity)) {
+				shortestSuffix = differenceString;
+				this.diffIndices[name] = i;
+			}
+		}
+
+		if (!shortestSuffix)
+			throw new Error(`Unable to find difference for ${name}`);
+
+		name += shortestSuffix.replace(magic, "");
+		return name;
+	}
+
+	private stringifyValue (value: any) {
+		if (Array.isArray(value)) {
+			if (value.length === 0)
+				return "ArrayLength0";
+
+			if (typeof value[0] === "object" || value.length > 5)
+				return `ArrayLength${value.length}`;
+
+			return `Array$${value.map(v => EnumHelper.simplifyName(`${v}`)).join("$")}`;
+		}
+
+		if (value === null)
+			return "Null";
+
+		if (value === undefined)
+			return "Undefined";
+
+		if (typeof value === "object")
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			return `ObjectLength${Object.entries(value).length}`;
+
+		if (typeof value === "string")
+			return EnumHelper.simplifyName(value);
+
+		return `${value}`.replace("-", "n");
+	}
+
+	private resolve (definition?: Definition | string) {
 		if (typeof definition !== "string" && definition?.hash === undefined)
 			return undefined;
 
@@ -55,21 +154,16 @@ export class EnumHelper {
 			if (itemDef.itemTypeDisplayName)
 				name += EnumHelper.simplifyName(itemDef.itemTypeDisplayName);
 
-			if (itemDef.itemType === DestinyItemType.Dummy || (itemDef.itemType === DestinyItemType.None && this.encounteredNames.has(name)))
+			if (itemDef.itemType === DestinyItemType.Dummy || (itemDef.itemType === DestinyItemType.None && this.encountered.has(name)))
 				name += "Dummy";
+
+			if (itemDef.plug)
+				name += "Plug";
 
 			if (itemDef.itemType === DestinyItemType.QuestStep && itemDef.setData?.itemList.length)
 				name += `_Step${itemDef.setData.itemList.findIndex(item => item.itemHash === itemDef.hash)}`;
 		}
 
-		if (!dedupe && this.encounteredNames.has(name))
-			return undefined;
-
-		const baseName = name;
-		for (let i = 2; this.encounteredNames.has(name); i++)
-			name = `${baseName}${i}`;
-
-		this.encounteredNames.add(name);
 		return name;
 	}
 }
@@ -90,10 +184,17 @@ export default Task("generate_enums", async () => {
 		let started = false;
 		const componentData = await manifest[componentName].all();
 		const enumHelper = new EnumHelper(componentName);
+
 		for (const definition of Object.values(componentData) as Definition[]) {
 			const nameSource = (componentName === "DestinyTraitDefinition" ? traitIds[definition.hash!] : undefined)
 				?? definition;
-			const name = enumHelper.name(nameSource);
+			enumHelper.encounter(nameSource);
+		}
+
+		for (const definition of Object.values(componentData) as Definition[]) {
+			const nameSource = (componentName === "DestinyTraitDefinition" ? traitIds[definition.hash!] : undefined)
+				?? definition;
+			const name = enumHelper.name(nameSource, undefined, EXCLUDED_PATHS[componentName]);
 			if (!name)
 				continue;
 
