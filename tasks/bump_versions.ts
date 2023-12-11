@@ -18,8 +18,7 @@ async function readData (file: string) {
 				return fs.readFile(file, "utf8")
 					.then(contents => contents
 						.replace(/\/\*.*?\*\//gs, "")
-						.replace(/export declare const enum (\w+)|(\w+) =/g, "\"$1$2\":")
-						.replace(/ =/g, ":")
+						.replace(/export declare const enum (\w+)|([$\w]+) =/g, "\"$1$2\":").replace(/ =/g, ":")
 						.replace(/(?<=})\n+(?=")/g, ",\n")
 						.replace(/,(?=\n+})/g, ""))
 					.then(jsonText => JSON.parse(`{${jsonText}}`));
@@ -66,7 +65,7 @@ export default Task("bump_versions", async () => {
 
 		bumpMap[basename] = true;
 		versions[basename] = (versions[basename] ?? -1) + 1;
-		Log.info(`Bumped ${ansi.lightGreen(file)} version`);
+		Log.info(`Bumped ${ansi.lightGreen(basename)} version`);
 		bumped = true;
 	}
 
