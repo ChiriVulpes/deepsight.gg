@@ -17,26 +17,25 @@ export interface IBungieApiEvents {
 export class BungieAPI {
 
 	public get lastDailyReset () {
-		const time = new Date().setUTCHours(17, 0, 0, 0);
-		return time > Date.now() ? time - Time.days(1) : time;
+		return this.nextDailyReset - Time.days(1);
 	}
 
 	public get lastWeeklyReset () {
-		const day = (7 - (new Date().getUTCDay() + 5)) % 7;
-		return this.lastDailyReset - day * Time.days(1);
+		return this.nextWeeklyReset - Time.weeks(1);
 	}
 
 	public get lastTrialsReset () {
-		const day = (7 - (new Date().getUTCDay() + 1)) % 7;
-		return this.lastDailyReset - day * Time.days(1);
+		return this.nextWeeklyReset - Time.days(4);
 	}
 
 	public get nextDailyReset () {
-		return this.lastDailyReset + Time.days(1);
+		const time = new Date().setUTCHours(17, 0, 0, 0);
+		return time < Date.now() ? time + Time.days(1) : time;
 	}
 
 	public get nextWeeklyReset () {
-		return this.lastWeeklyReset + Time.weeks(1);
+		const daysRemaining = (2 - new Date().getUTCDay()) % 7;
+		return this.nextDailyReset + daysRemaining * Time.days(1);
 	}
 
 	public event = new EventManager<this, IBungieApiEvents>(this)
