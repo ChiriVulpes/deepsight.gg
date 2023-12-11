@@ -1,3 +1,4 @@
+import { ActivityTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import type { BungieIconPath, DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
@@ -72,9 +73,12 @@ namespace Source {
 			const vendorActivities = await resolveVendorActivities(manifest, profile, vendor);
 
 			for (const activity of vendorActivities) {
+				if (activity.activityTypeHash === ActivityTypeHashes.Nightfall2 && !activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
+					continue;
+
 				const adept = item.definition.displayProperties.name.trimEnd().endsWith("(Adept)");
 				const activityAwardsAdept = activity.rewards.some(reward => reward.rewardItems
-					.some(item => item.itemHash === 2119974556 || item.itemHash === Trials.ADEPT_WEAPON_REWARD_HASH));
+					.some(item => item.itemHash === InventoryItemHashes.AdeptNightfallWeaponCommonDummy || item.itemHash === Trials.ADEPT_WEAPON_REWARD_HASH));
 
 				if (adept !== activityAwardsAdept && !activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
 					continue;
@@ -127,8 +131,8 @@ namespace Source {
 	}
 
 	const vendorActivityTypeHashMap: Partial<Record<VendorHashes, number>> = {
-		[VendorHashes.CommanderZavala]: 575572995,
-		[VendorHashes.Saint14]: 2112637710,
+		[VendorHashes.CommanderZavala]: ActivityTypeHashes.Nightfall2,
+		[VendorHashes.Saint14]: ActivityTypeHashes.TrialsOfOsiris,
 	};
 	async function resolveVendorActivities (manifest: Manifest, profile: ISourceProfile, vendor: VendorHashes) {
 		return (await Activities.await())

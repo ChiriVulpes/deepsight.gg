@@ -1,3 +1,4 @@
+import { ActivityHashes, InventoryItemHashes, MilestoneHashes } from "@deepsight.gg/enums";
 import type { DestinyCharacterProgressionComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
@@ -7,9 +8,9 @@ import Objects from "utility/Objects";
 
 namespace Trials {
 
-	export const GENERIC_ACTIVITY_HASH = 588019350;
-	export const MILESTONE_HASH = 3842941126;
-	export const ADEPT_WEAPON_REWARD_HASH = 3482474493;
+	export const GENERIC_ACTIVITY_HASH = ActivityHashes.TrialsOfOsiris;
+	export const MILESTONE_HASH = MilestoneHashes.TrialsOfOsirisWeekly;
+	export const ADEPT_WEAPON_REWARD_HASH = InventoryItemHashes.AdeptTrialsWeaponRareDummy;
 
 	export const Map = Model.create("trials map", {
 		cache: "Global",
