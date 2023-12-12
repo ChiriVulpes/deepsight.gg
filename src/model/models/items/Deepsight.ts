@@ -54,7 +54,7 @@ namespace Deepsight {
 
 	async function resolveResonance (item: IItemInit) {
 		const sockets = await item.sockets;
-		return sockets?.some(socket => socket?.socketedPlug?.is("Extractable/DeepsightResonance"));
+		return sockets?.some(socket => socket?.state?.isVisible && socket.socketedPlug?.is("Extractable/DeepsightResonance"));
 	}
 
 	async function resolveActivation (item: IItemInit) {
