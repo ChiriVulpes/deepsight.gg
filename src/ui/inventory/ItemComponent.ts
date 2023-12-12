@@ -6,6 +6,7 @@ import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
+import LoadedIcon from "ui/bungie/LoadedIcon";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -188,12 +189,11 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		let index = 0;
 
-		(this.icon ??= Component.create()
+		(this.icon ??= LoadedIcon.create([Display.icon(ornament?.definition, false) ?? Display.icon(item.definition, false)])
 			.classes.add(ItemClasses.Icon)
 			.indexInto(this, index++))
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
-			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified)
-			.style.set("--icon", Display.icon(ornament?.definition) ?? Display.icon(item.definition));
+			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
 
 		index++;
 

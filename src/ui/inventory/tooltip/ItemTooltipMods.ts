@@ -3,6 +3,7 @@ import type Item from "model/models/items/Item";
 import type { PlugType } from "model/models/items/Plugs";
 import Component from "ui/Component";
 import Display from "ui/bungie/DisplayProperties";
+import LoadedIcon from "ui/bungie/LoadedIcon";
 
 export enum ItemTooltipModsClasses {
 	Main = "item-tooltip-mods",
@@ -16,9 +17,11 @@ export enum ItemTooltipModsClasses {
 	ModSocketEnhanced = "item-tooltip-mod-socket-enhanced",
 	ModSocketDefinition = "item-tooltip-mod-socket-definition",
 	ModSocketed = "item-tooltip-mod-socketed",
+	ModHasName = "item-tooltip-mod-has-name",
 	ModName = "item-tooltip-mod-name",
 	ModRequiredLevel = "item-tooltip-mod-required-level",
 	ModDescription = "item-tooltip-mod-description",
+	ModIcon = "item-tooltip-mod-icon",
 }
 
 export default class ItemTooltipMods extends Component {
@@ -85,9 +88,10 @@ export default class ItemTooltipMods extends Component {
 				const isEnhanced = plug?.is("=Masterwork/ExoticCatalyst") ?? false;
 
 				Component.create()
-					.classes.add(ItemTooltipModsClasses.Mod, ItemTooltipModsClasses.ModSocketed)
+					.classes.add(ItemTooltipModsClasses.Mod, ItemTooltipModsClasses.ModSocketed, ItemTooltipModsClasses.ModHasName)
 					.classes.toggle(isEnhanced, ItemTooltipModsClasses.ModEnhanced)
-					.style.set("--icon", Display.icon(perk.definition))
+					.append(LoadedIcon.create([Display.icon(perk.definition, false)])
+						.classes.add(ItemTooltipModsClasses.ModIcon))
 					.append(!isEnhanced ? undefined : Component.create()
 						.classes.add(ItemTooltipModsClasses.ModEnhancedArrow))
 					.append(Component.create()
@@ -140,7 +144,8 @@ export default class ItemTooltipMods extends Component {
 					.classes.add(ItemTooltipModsClasses.Mod)
 					.classes.toggle(!!plug?.socketed, ItemTooltipModsClasses.ModSocketed)
 					.classes.toggle(isEnhanced, ItemTooltipModsClasses.ModEnhanced)
-					.style.set("--icon", Display.icon(plug.definition))
+					.append(LoadedIcon.create([Display.icon(plug.definition, false)])
+						.classes.add(ItemTooltipModsClasses.ModIcon))
 					.appendTo(socketComponent);
 
 				if (isEnhanced)
@@ -149,6 +154,7 @@ export default class ItemTooltipMods extends Component {
 						.appendTo(plugComponent);
 
 				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.is("Intrinsic")))) {
+					plugComponent.classes.add(ItemTooltipModsClasses.ModHasName);
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModName)
 						.text.set(Display.name(plug.definition) ?? "Unknown")

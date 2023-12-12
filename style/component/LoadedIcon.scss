@@ -1,0 +1,8 @@
+.loaded-icon {
+	opacity: 1;
+	@include transition(.3s, opacity);
+	
+	&-loading {
+		opacity: 0;
+	}
+}

@@ -268,6 +268,10 @@
 		&s-detailed & {
 			align-items: start;
 		}
+		
+		&-has-name {
+			flex-grow: 1;
+		}
 
 		&-name,
 		&-description {
@@ -323,8 +327,7 @@
 			background: color(tooltip-background-alt);
 		}
 
-		&::before {
-			content: "";
+		&-icon {
 			width: 30px;
 			height: 30px;
 			background: var(--icon);
