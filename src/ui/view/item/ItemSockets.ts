@@ -114,6 +114,9 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 					if (!socket.state && plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced"))
 						continue;
 
+					if (socket.is("Masterwork/ExoticCatalyst") && !this.item.isMasterwork())
+						continue;
+
 					for (const perk of plug.perks) {
 						if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.isDisplayable)
 							continue;

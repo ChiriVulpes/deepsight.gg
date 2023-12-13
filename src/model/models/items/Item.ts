@@ -322,7 +322,7 @@ class Item {
 		// 	return undefined;
 		// }
 
-		const item: IItemInit = {
+		const init: IItemInit = {
 			id: Item.id(reference, occurrence),
 			reference,
 			definition,
@@ -332,17 +332,21 @@ class Item {
 		};
 
 		await Promise.all([
-			Plugs.apply(manifest, profile, item),
-			Stats.apply(manifest, profile, item),
-			Deepsight.apply(manifest, profile, item),
-			Moment.apply(manifest, item),
-			Tier.apply(manifest, item),
-			Collectibles.apply(manifest, profile, item),
-			this.addCollections(manifest, profile, item),
-			Perks.apply(manifest, profile, item),
+			Plugs.apply(manifest, profile, init),
+			Stats.apply(manifest, profile, init),
+			Deepsight.apply(manifest, profile, init),
+			Moment.apply(manifest, init),
+			Tier.apply(manifest, init),
+			Collectibles.apply(manifest, profile, init),
+			this.addCollections(manifest, profile, init),
+			Perks.apply(manifest, profile, init),
 		]);
 
-		return new Item(item);
+		const item = new Item(init);
+		if (item.isExotic())
+			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
+
+		return item;
 	}
 
 	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit) {
@@ -430,11 +434,19 @@ class Item {
 	}
 
 	public isMasterwork () {
-		return !!(this.reference.state & ItemState.Masterwork)
-			|| (!!this.instance
-				&& (this.sockets
-					?.filter(socket => socket?.plugs.some(plug => plug.definition?.itemTypeDisplayName === "Enhanced Trait"))
-					.length ?? 0) >= 2);
+		if (this.reference.state & ItemState.Masterwork)
+			return true;
+
+		if (this.instance && this.getSocketedPlug("Intrinsic/FrameEnhanced") && this.getSocketedPlugs("Perk/TraitEnhanced").length >= 2)
+			return true;
+
+		if (this.isExotic()) {
+			const catalyst = this.getSocket("Masterwork/ExoticCatalyst");
+			if (catalyst && (!catalyst?.state?.isVisible || !catalyst?.getPool<true>("!Masterwork/ExoticCatalystEmpty")?.length))
+				return true;
+		}
+
+		return false;
 	}
 
 	public hasDeepsight () {
@@ -469,18 +481,26 @@ class Item {
 		return Socket.filterType(this.sockets, ...anyOfTypes);
 	}
 
+	public getSocket (...anyOfTypes: PlugType.Query[]): Socket | undefined {
+		return this.getSockets(...anyOfTypes)[0];
+	}
+
 	public getSocketedPlugs (...anyOfTypes: PlugType.Query[]) {
 		return Socket.filterByPlugs(this.sockets, ...anyOfTypes)
 			.filter(socket => socket.socketedPlug.is(...anyOfTypes))
 			.map(socket => socket.socketedPlug);
 	}
 
-	public getOrnament (): Plug | undefined {
-		return this.getSocketedPlugs(
+	public getSocketedPlug (...anyOfTypes: PlugType.Query[]): Plug | undefined {
+		return this.getSocketedPlugs(...anyOfTypes)[0];
+	}
+
+	public getOrnament () {
+		return this.getSocketedPlug(
 			"Cosmetic/OrnamentArmor",
 			"Cosmetic/OrnamentWeapon",
 			"Cosmetic/OrnamentMask",
-		)[0];
+		);
 	}
 
 	/**

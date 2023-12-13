@@ -1,13 +1,15 @@
 import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugCategoryName, DeepsightPlugFullName } from "@deepsight.gg/plugs";
-import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
 import Async from "utility/Async";
+import type { PromiseOr } from "utility/Type";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
 type PlugCat = DeepsightPlugCategoryName;
 type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> = DeepsightPlugFullName<CATEGORY>;
+type PlugRaw = DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition | DestinyItemSocketEntryPlugItemDefinition;
 
 namespace PlugType {
 	export const None = "None" as const;
@@ -19,6 +21,8 @@ namespace PlugType {
 			return false;
 
 		let found = false;
+		let hadNot = false;
+		let hadNotNot = false;
 		for (let query of fragments) {
 			let not = false;
 			if (query[0] === "!") {
@@ -30,12 +34,14 @@ namespace PlugType {
 
 			const startsWith = query[0] === "=" ? type === query.slice(1) : type.startsWith(query);
 			if (startsWith && not)
-				return false;
+				return false; // if any "not"s match, early exit
 
+			hadNot ||= not;
 			found ||= startsWith;
+			hadNotNot ||= !not;
 		}
 
-		return found;
+		return hadNotNot ? found : hadNot;
 	}
 }
 
@@ -81,9 +87,11 @@ export class Socket {
 			}
 		}
 
-		type PlugRaw = DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition;
 		const plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
+
+		if (!socket.state)
+			plugs.concat(socket.definition.reusablePlugItems);
 
 		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
 
@@ -140,20 +148,30 @@ export class Socket {
 
 	public socketedPlug?: Plug;
 	public plugs!: Plug[];
+	private plugPool?: PromiseOr<Plug[]>;
 	public type: PlugType = "None";
 	public types = new Set<PlugType>();
 
 	private constructor () { }
 
-	public async getPool () {
+	public getPool (...anyOfTypes: PlugType.Query[]): PromiseOr<Plug[]>;
+	public getPool<ALREADY_RESOLVED extends true> (...anyOfTypes: PlugType.Query[]): Plug[];
+	public getPool (...anyOfTypes: PlugType.Query[]): PromiseOr<Plug[]> {
 		if (!this.state)
-			return this.plugs;
+			return this.getPlugs(...anyOfTypes);
 
-		const manifest = await Manifest.await();
-		const { DestinyPlugSetDefinition } = manifest;
-		return await Promise.resolve(DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
-			.then(plugSet => plugSet?.reusablePlugItems ?? [])
-			.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))));
+		if (this.plugPool && !(this.plugPool instanceof Promise))
+			return anyOfTypes.length === 0 ? this.plugPool : this.plugPool.filter(plug => plug.is(...anyOfTypes));
+
+		return (async () => {
+			const plugPool = this.plugPool = await (this.plugPool ??= Manifest.await()
+				.then((manifest) => Promise.resolve(manifest.DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
+					.then(plugSet => plugSet?.reusablePlugItems ?? [])
+					.then((plugs: PlugRaw[]) => plugs.concat(this.definition.reusablePlugItems))
+					.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))))));
+
+			return anyOfTypes.length === 0 ? plugPool : plugPool.filter(plug => plug.is(...anyOfTypes));
+		})();
 	}
 
 	public is (...anyOfTypes: PlugType.Query[]) {
@@ -162,6 +180,14 @@ export class Socket {
 
 	public isNot (...anyOfTypes: PlugType.Query[]) {
 		return !PlugType.check(this.type, ...anyOfTypes);
+	}
+
+	public getPlugs (...anyOfTypes: PlugType.Query[]) {
+		return anyOfTypes.length === 0 ? this.plugs : this.plugs.filter(plug => plug.is(...anyOfTypes));
+	}
+
+	public getPlug (...anyOfTypes: PlugType.Query[]): Plug | undefined {
+		return this.getPlugs(...anyOfTypes)[0];
 	}
 }
 
@@ -182,7 +208,7 @@ export namespace Socket {
 
 type PlugBaseStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? never : KEY]?: DestinyItemPlugBase[KEY] };
 type ItemSocketEntryPlugStuff = { [KEY in keyof DestinyItemSocketEntryPlugItemRandomizedDefinition as KEY extends keyof DestinyItemPlugBase ? never : KEY]?: DestinyItemSocketEntryPlugItemRandomizedDefinition[KEY] };
-type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY : never]: DestinyItemPlugBase[KEY] };
+type SharedStuff = { [KEY in keyof DestinyItemPlugBase as KEY extends keyof DestinyItemSocketEntryPlugItemRandomizedDefinition ? KEY extends keyof DestinyItemSocketEntryPlugItemDefinition ? KEY : never : never]: DestinyItemPlugBase[KEY] };
 
 interface PlugDef {
 	definition?: DestinyInventoryItemDefinition;
@@ -216,7 +242,7 @@ export class Plug {
 	public clarity?: ClarityDescription;
 	public categorisation?: DeepsightPlugCategorisation;
 
-	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition, item?: IItemInit) {
+	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition | DestinyItemSocketEntryPlugItemDefinition, item?: IItemInit) {
 		const manifestCacheTime = Manifest.getCacheTime();
 
 		// generic caching doesn't work bcuz we store socketed & objectives data on instances
