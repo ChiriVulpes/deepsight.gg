@@ -332,11 +332,11 @@ class Item {
 		};
 
 		await Promise.all([
+			Tier.apply(manifest, init),
 			Plugs.apply(manifest, profile, init),
 			Stats.apply(manifest, profile, init),
 			Deepsight.apply(manifest, profile, init),
 			Moment.apply(manifest, init),
-			Tier.apply(manifest, init),
 			Collectibles.apply(manifest, profile, init),
 			this.addCollections(manifest, profile, init),
 			Perks.apply(manifest, profile, init),
@@ -354,7 +354,7 @@ class Item {
 	}
 
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true) {
-		const item: IItemInit = {
+		const init: IItemInit = {
 			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: InventoryBucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
 			definition,
@@ -364,17 +364,22 @@ class Item {
 		};
 
 		// deepsight has to finish first because pattern presence is used by plugs
-		await Deepsight.apply(manifest, profile, item);
+		await Deepsight.apply(manifest, profile, init);
 
 		await Promise.all([
-			Plugs.apply(manifest, profile, item),
-			Stats.apply(manifest, profile, item),
-			Moment.apply(manifest, item),
-			Collectibles.apply(manifest, profile, item),
-			source && Source.apply(manifest, profile, item),
+			Tier.apply(manifest, init),
+			Plugs.apply(manifest, profile, init),
+			Stats.apply(manifest, profile, init),
+			Moment.apply(manifest, init),
+			Collectibles.apply(manifest, profile, init),
+			source && Source.apply(manifest, profile, init),
 		]);
 
-		return new Item(item);
+		const item = new Item(init);
+		if (item.isExotic())
+			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
+
+		return item;
 	}
 
 	public readonly event = new EventManager<this, IItemEvents>(this);
@@ -442,7 +447,7 @@ class Item {
 
 		if (this.isExotic()) {
 			const catalyst = this.getSocket("Masterwork/ExoticCatalyst");
-			if (catalyst && (!catalyst?.state?.isVisible || !catalyst?.getPool<true>("!Masterwork/ExoticCatalystEmpty")?.length))
+			if (catalyst?.state && (!catalyst?.state?.isVisible || !catalyst?.getPool<true>("!Masterwork/ExoticCatalystEmpty")?.length))
 				return true;
 		}
 

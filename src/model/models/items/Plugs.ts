@@ -157,9 +157,6 @@ export class Socket {
 	public getPool (...anyOfTypes: PlugType.Query[]): PromiseOr<Plug[]>;
 	public getPool<ALREADY_RESOLVED extends true> (...anyOfTypes: PlugType.Query[]): Plug[];
 	public getPool (...anyOfTypes: PlugType.Query[]): PromiseOr<Plug[]> {
-		if (!this.state)
-			return this.getPlugs(...anyOfTypes);
-
 		if (this.plugPool && !(this.plugPool instanceof Promise))
 			return anyOfTypes.length === 0 ? this.plugPool : this.plugPool.filter(plug => plug.is(...anyOfTypes));
 
