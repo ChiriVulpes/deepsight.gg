@@ -45,6 +45,14 @@ export namespace IFilter {
 	export function create (filter: IFilter) {
 		return filter;
 	}
+	export function createBoolean (filter: Omit<IFilter, "prefix">): IFilter[] {
+		return ["is:", "not:"].map(prefix => ({
+			...filter,
+			prefix,
+			apply: prefix === "not:" ? (filterValue, item) => !filter.apply(filterValue, item)
+				: (filterValue, item) => filter.apply(filterValue, item),
+		}));
+	}
 	export function async (filterGenerator: () => Promise<IFilter>) {
 		return filterGenerator;
 	}

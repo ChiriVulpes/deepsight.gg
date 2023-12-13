@@ -1,8 +1,7 @@
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
-export default IFilter.create({
+export default IFilter.createBoolean({
 	id: Filter.Locked,
-	prefix: "is:",
 	colour: 0xAAAAAA,
 	suggestedValues: ["locked"],
 	matches: value => "locked".startsWith(value),

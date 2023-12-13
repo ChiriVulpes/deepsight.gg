@@ -1,8 +1,7 @@
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
-export default IFilter.create({
+export default IFilter.createBoolean({
 	id: Filter.Shaped,
-	prefix: "is:",
 	colour: 0xff8d5c,
 	suggestedValues: ["shaped"],
 	matches: value => "shaped".startsWith(value),

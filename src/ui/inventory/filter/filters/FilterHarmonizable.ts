@@ -1,8 +1,7 @@
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
-export default IFilter.create({
+export default IFilter.createBoolean({
 	id: Filter.Harmonizable,
-	prefix: "is:",
 	colour: 0xff4e26,
 	suggestedValues: ["harmonizer"],
 	matches: value => "harmonizer".startsWith(value),

@@ -11,6 +11,7 @@ import FilterMoment from "ui/inventory/filter/filters/FilterMoment";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
+import Arrays from "utility/Arrays";
 import Strings from "utility/Strings";
 
 let filterMap: Record<Filter, IFilter> | undefined;
@@ -41,7 +42,7 @@ class FilterManager {
 		if (filterMap)
 			return;
 
-		filterMap = {
+		const initialFilterMap: Record<Filter, Arrays.Or<IFilter>> = {
 			[Filter.Ammo]: FilterAmmo,
 			[Filter.Element]: await ElementFilter(),
 			[Filter.WeaponType]: await FilterWeaponType(),
@@ -60,15 +61,25 @@ class FilterManager {
 			},
 		};
 
-		for (const [type, sort] of Object.entries(filterMap))
-			if (+type !== sort.id)
-				throw new Error(`Filter ${Filter[+type as Filter]} implementation miscategorised`);
+		for (let [type, filterArr] of Object.entries(initialFilterMap)) {
+			filterArr = Arrays.resolve(filterArr);
+			for (let i = 0; i < filterArr.length; i++) {
+				const filter = filterArr[i];
+				if (+type !== filter.id)
+					throw new Error(`Filter ${Filter[+type as Filter]} implementation miscategorised`);
+
+				filter.id = (i ? `${filter.id}:${i}` : filter.id) as Filter;
+				initialFilterMap[filter.id] = filter;
+			}
+		}
+
+		filterMap = initialFilterMap as Record<Filter, IFilter>;
 	}
 
 	public getApplicable () {
 		return Object.values(filterMap!)
 			.filter(filter => !this.inapplicable.includes(filter.id))
-			.sort((a, b) => a.id - b.id);
+			.sort((a, b) => parseInt(`${a.id}`) - parseInt(`${b.id}`));
 	}
 
 	public apply (item: Item) {
