@@ -31,7 +31,9 @@ type DestinyManifest = {
 };
 
 const ManifestURLs = Model.create("manifest urls", {
-	cache: "Memory",
+	cache: "Global",
+	resetTime: 0,
+	useCacheOnError: true,
 	generate: () => GetManifest.query(),
 });
 

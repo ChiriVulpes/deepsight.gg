@@ -28,6 +28,7 @@ export interface IModel<T, R, API = undefined> {
 	resetTime?: "Daily" | "Weekly" | "Trials" | number;
 	version?: string | number | (() => Promise<string | number | undefined>);
 	api?: API;
+	useCacheOnError?: true;
 	generate?(api: IModelGenerationApi): Promise<T>;
 	process?(value: T): R;
 	reset?(value?: T): any;
@@ -305,8 +306,15 @@ namespace Model {
 
 					const generated = Promise.resolve(this.model.generate?.(api));
 
-					void generated.catch(error => {
+					void generated.catch(async error => {
 						console.error(`Model '${this.name}' failed to load:`, error);
+
+						if (this.model.useCacheOnError) {
+							const cached = await this.resolveCache(true);
+							if (cached)
+								return resolve(cached);
+						}
+
 						this.event.emit("errored", { error: error as Error });
 						this.errored = true;
 						reject(error);
