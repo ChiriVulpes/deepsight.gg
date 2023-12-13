@@ -34,7 +34,7 @@ export class BungieAPI {
 	}
 
 	public get nextWeeklyReset () {
-		const daysRemaining = (2 - new Date().getUTCDay()) % 7;
+		const daysRemaining = (2 - new Date().getUTCDay() + 7) % 7;
 		return this.nextDailyReset + daysRemaining * Time.days(1);
 	}
 
