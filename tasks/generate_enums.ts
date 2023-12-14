@@ -16,6 +16,15 @@ const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Rec
 	},
 };
 
+const OVERRIDDEN_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
+	DestinyItemTierTypeDefinition: {
+		3772930460: "Basic Currency",
+		3340296461: "Common",
+		2395677314: "Uncommon",
+		1801258597: "Basic Quest",
+	},
+};
+
 const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[]>> = {
 	DestinyInventoryItemDefinition: ["collectibleHash"],
 	DestinyActivityDefinition: ["loadouts"],
@@ -142,7 +151,8 @@ export class EnumHelper {
 		if (typeof definition !== "string" && definition?.hash === undefined)
 			return undefined;
 
-		let name = (typeof definition === "string" ? definition : definition.displayProperties?.name)
+		let name = OVERRIDDEN_ENUM_NAMES[this.type as keyof AllDestinyManifestComponents]?.[(definition as Definition).hash!]
+			?? (typeof definition === "string" ? definition : definition.displayProperties?.name)
 			?? MISSING_ENUM_NAMES[this.type as keyof AllDestinyManifestComponents]?.[(definition as Definition).hash!];
 
 		name = EnumHelper.simplifyName(name);
