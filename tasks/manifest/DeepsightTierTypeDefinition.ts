@@ -18,6 +18,7 @@ export default Task("DeepsightTierTypeDefinition", async () => {
 		const name = definition.inventory.tierTypeName;
 		const hashed = `${type}.${hash}.${name}`;
 		hashedTypes[hashed] ??= {
+			...await DestinyItemTierTypeDefinition.get(hash),
 			hash,
 			tierType: type,
 			displayProperties: { name },
