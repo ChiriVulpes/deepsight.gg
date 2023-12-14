@@ -1,6 +1,6 @@
-import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
-import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
-import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyItemTierTypeDefinition } from "bungie-api-ts/destiny2";
+import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
+import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
+import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
@@ -16,7 +16,7 @@ import type { ISource } from "model/models/items/Source";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
-import Tier, { TierHashes } from "model/models/items/Tier";
+import Tier from "model/models/items/Tier";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
@@ -253,7 +253,7 @@ export interface IItemInit {
 	shaped?: IWeaponShaped;
 	stats?: IStats;
 	perks?: IPerk[];
-	tier?: DestinyItemTierTypeDefinition;
+	tier?: DeepsightTierTypeDefinition;
 	collectible?: DestinyCollectibleDefinition;
 	/**
 	 * - None: 0
@@ -427,7 +427,7 @@ class Item {
 	}
 
 	public isExotic () {
-		return this.tier?.hash === TierHashes.Exotic;
+		return this.tier?.hash === ItemTierTypeHashes.Exotic;
 	}
 
 	public hasRandomRolls () {

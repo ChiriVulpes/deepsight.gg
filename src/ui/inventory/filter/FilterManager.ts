@@ -9,6 +9,7 @@ import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/inventory/filter/filters/FilterMasterwork";
 import FilterMoment from "ui/inventory/filter/filters/FilterMoment";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
+import FilterRarity from "ui/inventory/filter/filters/FilterRarity";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
 import Arrays from "utility/Arrays";
@@ -52,6 +53,7 @@ class FilterManager {
 			[Filter.Masterwork]: FilterMasterwork,
 			[Filter.Locked]: FilterLocked,
 			[Filter.Harmonizable]: FilterHarmonizable,
+			[Filter.Rarity]: await FilterRarity(),
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",
@@ -78,7 +80,7 @@ class FilterManager {
 
 	public getApplicable () {
 		return Object.values(filterMap!)
-			.filter(filter => !this.inapplicable.includes(filter.id))
+			.filter(filter => !this.inapplicable.some(inapplicable => `${filter.id}`.startsWith(`${inapplicable}`)))
 			.sort((a, b) => parseInt(`${a.id}`) - parseInt(`${b.id}`));
 	}
 

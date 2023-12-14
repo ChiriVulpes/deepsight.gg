@@ -1,8 +1,7 @@
-import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes } from "@deepsight.gg/enums";
 import type { Buckets } from "model/models/Items";
 import type Item from "model/models/items/Item";
 import type { Bucket } from "model/models/items/Item";
-import { TierHashes } from "model/models/items/Tier";
 
 export default class DebugInfo {
 	public static updateBuckets (buckets: Buckets) {
@@ -35,12 +34,13 @@ export default class DebugInfo {
 
 		function getRarities (items: Item[]): ItemRarities {
 			return {
-				basics: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Basic),
-				commons: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Common),
-				uncommons: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Uncommon),
-				rares: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Rare),
-				legendaries: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Legendary),
-				exotics: items.filter(item => item.definition.inventory?.tierTypeHash === TierHashes.Exotic),
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				basics: items.filter(item => [ItemTierTypeHashes.BasicCurrency, ItemTierTypeHashes.BasicQuest].includes(item.definition.inventory?.tierTypeHash!)),
+				commons: items.filter(item => item.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Common),
+				uncommons: items.filter(item => item.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Uncommon),
+				rares: items.filter(item => item.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Rare),
+				legendaries: items.filter(item => item.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Legendary),
+				exotics: items.filter(item => item.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic),
 			};
 		}
 

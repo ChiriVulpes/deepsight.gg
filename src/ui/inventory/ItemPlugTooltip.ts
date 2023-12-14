@@ -1,6 +1,6 @@
+import { ItemTierTypeHashes } from "@deepsight.gg/enums";
 import type Item from "model/models/items/Item";
 import type { Perk, Plug } from "model/models/items/Plugs";
-import { TierHashes } from "model/models/items/Tier";
 import Display from "ui/bungie/DisplayProperties";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
@@ -86,7 +86,7 @@ class ItemPlugTooltip extends Tooltip {
 
 		this.header.classes.toggle(plug.is("Perk"), ItemPlugTooltipClasses.Perk);
 		this.header.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.Enhanced);
-		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemPlugTooltipClasses.Exotic);
+		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic, ItemPlugTooltipClasses.Exotic);
 
 		this.clarity.set(plug.clarity);
 		this.clarityDefinitions.set(plug.clarity);

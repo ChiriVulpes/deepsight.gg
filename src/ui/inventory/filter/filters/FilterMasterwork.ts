@@ -12,4 +12,6 @@ export default IFilter.createBoolean({
 		|| item.definition.hash === 3853748946 // enc core
 		|| item.definition.hash === 2979281381 // upg module
 		|| item.definition.hash === 353704689, // asc alloy
+	maskIcon: value => value === "" ? undefined
+		: "url(\"./image/svg/masterwork.svg\")",
 });

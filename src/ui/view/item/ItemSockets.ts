@@ -1,8 +1,8 @@
+import { ItemTierTypeHashes } from "@deepsight.gg/enums";
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { Perk, Plug, PlugType, Socket } from "model/models/items/Plugs";
-import { TierHashes } from "model/models/items/Tier";
 import Display from "ui/bungie/DisplayProperties";
 import Card, { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
@@ -207,7 +207,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 		this.item = item;
 
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
-			.classes.toggle((plug.is("Intrinsic", "=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === TierHashes.Exotic, ItemSocketsClasses.PlugExotic)
+			.classes.toggle((plug.is("Intrinsic", "=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic, ItemSocketsClasses.PlugExotic)
 			.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
 			.classes.removeWhere(cls => cls.startsWith(ItemSocketsClasses.PlugType))
 			.classes.add(`${ItemSocketsClasses.PlugType}-${plug.categorisation?.categoryName.toLowerCase()}`)

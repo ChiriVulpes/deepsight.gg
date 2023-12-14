@@ -10,12 +10,13 @@ enum Filter {
 	Element,
 	Ammo,
 	WeaponType,
+	Rarity,
 	Masterwork,
-	Locked,
 	Shaped,
 	Harmonizable,
 	Perk,
 	Moment,
+	Locked,
 	Raw,
 }
 

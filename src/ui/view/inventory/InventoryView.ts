@@ -1,10 +1,10 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { TierType } from "bungie-api-ts/destiny2";
 import type Character from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import { Bucket } from "model/models/items/Item";
-import { TierIndex } from "model/models/items/Tier";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
@@ -523,11 +523,11 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 			equipped.item.fallbackItem = undefined
 				?? sortedBucketItems[bucketId]?.find(item => true
-					&& (item.tier?.index ?? 0) <= Math.min(TierIndex.Legendary, equipped.item.tier?.index ?? TierIndex.Legendary)
+					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, equipped.item.tier?.tierType ?? TierType.Superior)
 					&& item !== equipped.item)
 				?? sortedBucketItems[`${InventoryBucketHashes.General}`]?.find(item => true
 					&& Arrays.includes(slot, item.definition.inventory?.bucketTypeHash)
-					&& (item.tier?.index ?? 0) <= Math.min(TierIndex.Legendary, (equipped.item.tier?.index ?? TierIndex.Legendary)));
+					&& (item.tier?.tierType ?? 0) <= Math.min(TierType.Superior, (equipped.item.tier?.tierType ?? TierType.Superior)));
 		}
 
 		for (const [bucketId, items] of Object.entries(sortedBucketItems)) {
