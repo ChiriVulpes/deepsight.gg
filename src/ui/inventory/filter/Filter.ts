@@ -32,6 +32,7 @@ export interface IFilter {
 	prefix: string;
 	suggestedValues?: (IFilterSuggestedValue | string)[];
 	suggestedValueHint?: string;
+	or?: true;
 	matches?(filterValue: string): boolean;
 	apply (filterValue: string, item: Item): boolean;
 	tweakChip?(chip: FilterChipButton, filterValue: string): any;

@@ -45,7 +45,6 @@ export default IFilter.async(async () => {
 		colour: 0x4887ba,
 		suggestedValueHint: "perk name",
 		suggestedValues: perks,
-		icon: filterValue => getMatchingPerk(filterValue)?.icon,
 		apply: (value, item) => {
 			return item.sockets.some(socket => socket?.plugs.some(plug => {
 				if (!plug.definition)
@@ -56,6 +55,7 @@ export default IFilter.async(async () => {
 				return plug.definition.displayProperties.nameLowerCase.startsWith(value);
 			})) ?? false;
 		},
+		icon: filterValue => getMatchingPerk(filterValue)?.icon,
 		tweakChip: (chip, filterValue) => {
 			const perk = getMatchingPerk(filterValue);
 			if (!perk?.plug)

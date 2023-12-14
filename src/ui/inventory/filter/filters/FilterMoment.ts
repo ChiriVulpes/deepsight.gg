@@ -25,6 +25,7 @@ export default IFilter.async(async () => {
 		colour: 0x3B3287,
 		suggestedValueHint: "expansion, season, or event",
 		suggestedValues: sources.map(source => Display.name(source) ?? source.id),
+		or: true,
 		apply: (value, item) => !item.moment ? false : momentMatches(item.moment, value),
 		maskIcon: value => {
 			if (!value)

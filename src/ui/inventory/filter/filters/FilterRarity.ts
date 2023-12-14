@@ -27,6 +27,7 @@ export default IFilter.async(async () => {
 		id: Filter.Rarity,
 		prefix: "rarity:",
 		suggestedValues: Array.from(new Set(tiers.map(element => element.displayProperties.name?.toLowerCase()).filter(v => v))) as string[],
+		or: true,
 		matches: value => tiers.some(element => element.displayProperties.name?.toLowerCase().startsWith(value)),
 		apply: (value, item) => definition(value, item) !== undefined,
 		colour: value => Rarities.getColour(definition(value)?.hash) ?? 0xdddddd,

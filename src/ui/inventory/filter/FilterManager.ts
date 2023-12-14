@@ -85,7 +85,14 @@ class FilterManager {
 	}
 
 	public apply (item: Item) {
-		return this.current.every(filter => filterMap![filter.filter].apply(filter.value, item));
+		const orFilters = Array.from(new Set(this.current.map(filter => filter.filter)))
+			.filter(filterId => filterMap![filterId].or)
+			.map(filterId => this.current.filter(filter => filter.filter === filterId));
+
+		const otherFilters = this.current.filter(filter => !filterMap![filter.filter].or);
+
+		return otherFilters.every(filter => filterMap![filter.filter].apply(filter.value, item))
+			&& orFilters.every(instances => instances.some(filter => filterMap![filter.filter].apply(filter.value, item)));
 	}
 
 	public add (token: string) {

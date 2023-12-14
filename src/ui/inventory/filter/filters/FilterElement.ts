@@ -45,6 +45,7 @@ export default IFilter.async(async () => {
 		id: Filter.Element,
 		prefix: "element:",
 		suggestedValues: damages.map(element => element.displayProperties.name.toLowerCase()),
+		or: true,
 		matches: value => damages.some(element => element.displayProperties.name.toLowerCase().startsWith(value)),
 		apply: (value, item) => definition(value, item) !== undefined,
 		colour: value => ElementTypes.getColour(definition(value)?.displayProperties.name.toLowerCase()) ?? 0xaaaaaa,

@@ -7,6 +7,7 @@ export default IFilter.create({
 	prefix: "ammo:",
 	colour: 0x444444,
 	suggestedValues: ["primary", "special"],
+	or: true,
 	matches: value => "primary".startsWith(value) || "special".startsWith(value) || "heavy".startsWith(value),
 	apply: (value, item) => value === ""
 		|| item.definition.equippingBlock?.ammoType === (
