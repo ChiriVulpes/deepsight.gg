@@ -20,7 +20,9 @@ export enum ItemTooltipModsClasses {
 	ModHasName = "item-tooltip-mod-has-name",
 	ModName = "item-tooltip-mod-name",
 	ModRequiredLevel = "item-tooltip-mod-required-level",
+	ModRequiredLevelAdept = "item-tooltip-mod-required-level-adept",
 	ModDescription = "item-tooltip-mod-description",
+	ModHasDescription = "item-tooltip-mod-has-description",
 	ModIcon = "item-tooltip-mod-icon",
 }
 
@@ -110,6 +112,7 @@ export default class ItemTooltipMods extends Component {
 		const isCollections = item.bucket.isCollections();
 
 		let i = 0;
+		let traitIndex = 0;
 		for (const socket of item.getSockets(...anyOfTypes)) {
 			if (!socket || socket.state?.isVisible === false)
 				continue;
@@ -154,6 +157,17 @@ export default class ItemTooltipMods extends Component {
 						.classes.add(ItemTooltipModsClasses.ModEnhancedArrow)
 						.appendTo(plugComponent);
 
+				if (item.shaped && item.isAdept() && socket.is("Perk/Trait")) {
+					const requiredLevel = traitIndex ? 17 : 11;
+					const currentLevel = item.shaped.level?.progress.progress ?? 0;
+					if (currentLevel < requiredLevel)
+						Component.create()
+							.classes.add(ItemTooltipModsClasses.ModRequiredLevel, ItemTooltipModsClasses.ModRequiredLevelAdept)
+							.text.set(`${requiredLevel}`)
+							.appendTo(plugComponent);
+					traitIndex++;
+				}
+
 				if (plug?.socketed && (socket.state || (socket.plugs.length === 1 || socket.is("Intrinsic")))) {
 					plugComponent.classes.add(ItemTooltipModsClasses.ModHasName);
 					Component.create()
@@ -166,7 +180,7 @@ export default class ItemTooltipMods extends Component {
 						Component.create()
 							.classes.add(ItemTooltipModsClasses.ModDescription)
 							.text.set(description)
-							.appendTo(plugComponent);
+							.appendTo(plugComponent.classes.add(ItemTooltipModsClasses.ModHasDescription));
 
 				} else if (item.deepsight?.pattern && isCollections && this.isShaped()) {
 					Component.create()

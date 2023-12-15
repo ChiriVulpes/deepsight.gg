@@ -76,6 +76,7 @@ $z-index-loading: 1000;
 
 	&-masterwork,
 	&-shaped,
+	&-adept,
 	&-deepsight,
 	&-wishlist,
 	&-wishlist-no-match,
@@ -279,6 +280,25 @@ $z-index-loading: 1000;
 		z-index: $z-index-shaped;
 		> * {
 			@include item-icon(url("./image/svg/shaped.svg"), color(shaped));
+		}
+	}
+
+	&-adept {
+		z-index: $z-index-shaped;
+		> * {
+			@include item-icon(url("./image/svg/enhanced.svg"), color(foreground)) {
+				width: 22%;
+				height: 22%;
+			}
+		}
+	}
+	
+	&-shaped#{&}-adept {
+		> * {
+			@include item-icon(url("./image/svg/enhanced.svg"), color(enhanced)) {
+				width: 22%;
+				height: 22%;
+			}
 		}
 	}
 

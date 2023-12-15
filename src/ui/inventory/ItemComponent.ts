@@ -32,6 +32,8 @@ export enum ItemClasses {
 	MasterworkSpinny = "item-masterwork-spinny",
 	MasterworkShiftedDueToJunkBorder = "item-masterwork-shifted-due-to-junk-border",
 	Shaped = "item-shaped",
+	Adept = "item-adept",
+	Enhanced = "item-enhanced",
 	Deepsight = "item-deepsight",
 	DeepsightHasPattern = "item-deepsight-has-pattern",
 	DeepsightPattern = "item-deepsight-pattern",
@@ -199,9 +201,10 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		const shaped = item.shaped || (item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash));
 		this.classes.toggle(item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
-		if (shaped && !item.isMasterwork())
+		if (shaped ? !item.isMasterwork() : item.isAdept())
 			(this.iconShaped ??= Component.create()
-				.classes.add(ItemClasses.Shaped)
+				.classes.toggle(!!shaped, ItemClasses.Shaped)
+				.classes.toggle(item.isAdept(), ItemClasses.Adept)
 				.append(Component.create())
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);

@@ -41,6 +41,7 @@ export enum ItemTooltipClasses {
 	WeaponLevel = "item-tooltip-weapon-level",
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
+	WeaponLevelEnhanced = "item-tooltip-weapon-level-enhanced",
 	Description = "item-tooltip-description",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
@@ -50,6 +51,7 @@ export enum ItemTooltipClasses {
 	DeepsightPatternRequiredUnit = "item-tooltip-deepsight-pattern-required-unit",
 	DeepsightProgressBar = "item-tooltip-deepsight-progress-bar",
 	DeepsightProgressValue = "item-tooltip-deepsight-progress-value",
+	Enhance = "item-tooltip-enhance",
 	Wishlist = "item-tooltip-wishlist",
 	Wishlisted = "item-tooltip-wishlisted",
 	Fomo = "item-tooltip-fomo",
@@ -87,6 +89,8 @@ class ItemTooltip extends Tooltip {
 	public deepsightPatternOutOf!: Component;
 	public deepsightPatternRequired!: Component;
 	public deepsightPatternRequiredUnit!: Component;
+	public enhance!: Component;
+	public enhanceText!: Component;
 	public wishlist!: Component;
 	public fomo!: Component;
 	public note!: Component;
@@ -187,6 +191,11 @@ class ItemTooltip extends Tooltip {
 					.classes.add(ItemTooltipClasses.DeepsightPatternRequired))
 				.append(this.deepsightPatternRequiredUnit = Component.create()
 					.classes.add(ItemTooltipClasses.DeepsightPatternRequiredUnit)))
+			.appendTo(this.content);
+
+		this.enhance = Component.create()
+			.classes.add(ItemTooltipClasses.Note, ItemTooltipClasses.Enhance)
+			.append(this.enhanceText = Component.create())
 			.appendTo(this.content);
 
 		this.wishlist = Component.create()
@@ -397,6 +406,12 @@ class ItemTooltip extends Tooltip {
 		this.fomo.classes.toggle(!fomoState, Classes.Hidden)
 			.text.set(fomoState === ItemFomoState.TemporaryAvailability ? "This item is currently available."
 				: "This item's activity is currently repeatable.");
+
+		const enhancementSocket = item.getSocket("Masterwork/Enhancement");
+		this.enhance.classes.toggle(!enhancementSocket, Classes.Hidden);
+		this.enhanceText.text.set(item.shaped ? "This weapon can be modified at the [b]Relic[/b]."
+			: "This weapon can be [b]Enhanced[/b].");
+		this.weaponLevel.classes.toggle(!!enhancementSocket, ItemTooltipClasses.WeaponLevelEnhanced);
 
 		this.note.classes.add(Classes.Hidden);
 

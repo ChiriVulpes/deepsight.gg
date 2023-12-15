@@ -3,6 +3,14 @@ import Component from "ui/Component";
 import Display from "ui/bungie/DisplayProperties";
 import Strings from "utility/Strings";
 
+const EXCLUDED_NOTIFICATIONS_SUBSTRINGS = [
+	"Deepsight activation is available for this weapon.",
+	"Deepsight activation is not available for this weapon instance.",
+	"This weapon's Pattern can be extracted.",
+	"This weapon can be enhanced.",
+	"This weapon can be modified at the Relic.",
+];
+
 export enum ItemTooltipNotificationsClasses {
 	Main = "item-tooltip-notifications",
 	Notification = "item-tooltip-notification",
@@ -24,12 +32,7 @@ export default class ItemTooltipPerks extends Component {
 			if (!notification)
 				continue;
 
-			// fragile, but tbf it's only this exact text we don't want to see
-			if (notification.displayString.includes("Deepsight activation is available for this weapon."))
-				continue;
-			if (notification.displayString.includes("Deepsight activation is not available for this weapon instance."))
-				continue;
-			if (notification.displayString.includes("This weapon's Pattern can be extracted."))
+			if (EXCLUDED_NOTIFICATIONS_SUBSTRINGS.some(substring => notification.displayString.includes(substring)))
 				continue;
 
 			Component.create()
