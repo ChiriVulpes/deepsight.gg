@@ -446,6 +446,9 @@ namespace DeepsightPlugCategorisation {
 				}
 			})();
 
+			if (plugType === DeepsightPlugTypeMod.Weapon && context.definition.plug?.insertionRules.some(rule => rule.failureMessage === "Requires Adept Weapon"))
+				return DeepsightPlugTypeMod.WeaponAdept;
+
 			if (context.definition.displayProperties?.name.endsWith("Mod Socket")) {
 				switch (plugType) {
 					case DeepsightPlugTypeMod.Armor:
