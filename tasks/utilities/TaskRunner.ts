@@ -123,6 +123,13 @@ const taskApi: ITaskApi = {
 // Code
 //
 
+function onError (err: Error) {
+	Log.error(err.stack ?? err);
+}
+
+process.on("uncaughtException", onError);
+process.on("unhandledRejection", onError);
+
 const [, , ...tasks] = process.argv;
 void (async () => {
 	let errors = false;
