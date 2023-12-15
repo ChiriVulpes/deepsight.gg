@@ -17,6 +17,10 @@ export default Task("serve", () => {
 	const app = require("https-localhost")() as Express.Application;
 	const root = "docs";
 
+	// https-localhost adds an uncaughtException handler that does process.exit() >:(
+	const listeners = process.listeners("uncaughtException");
+	process.off("uncaughtException", listeners[listeners.length - 1]);
+
 	app.use((req, res, next) => {
 		Log.info(ansi.darkGray(`${req.method}`), ansi.cyan(`${req.url}`), req.headers["user-agent"]);
 		next();
