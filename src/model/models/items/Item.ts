@@ -454,6 +454,10 @@ class Item {
 		return false;
 	}
 
+	public isAdept () {
+		return !!this.getSocket("Mod/Weapon")?.getPlug("Mod/WeaponAdept");
+	}
+
 	public hasDeepsight () {
 		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress?.complete ?? false);
 		return !this.deepsight?.resonance ? false : hasIncompletePattern;

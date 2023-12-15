@@ -2,6 +2,7 @@ import type Item from "model/models/items/Item";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import type ItemFilter from "ui/inventory/filter/ItemFilter";
+import FilterAdept from "ui/inventory/filter/filters/FilterAdept";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterHarmonizable from "ui/inventory/filter/filters/FilterHarmonizable";
@@ -54,6 +55,7 @@ class FilterManager {
 			[Filter.Locked]: FilterLocked,
 			[Filter.Harmonizable]: FilterHarmonizable,
 			[Filter.Rarity]: await FilterRarity(),
+			[Filter.Adept]: FilterAdept,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

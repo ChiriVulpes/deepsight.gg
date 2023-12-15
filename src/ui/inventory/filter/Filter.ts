@@ -12,6 +12,7 @@ enum Filter {
 	WeaponType,
 	Rarity,
 	Masterwork,
+	Adept,
 	Shaped,
 	Harmonizable,
 	Perk,

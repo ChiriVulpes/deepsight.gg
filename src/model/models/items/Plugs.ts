@@ -1,5 +1,5 @@
 import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugCategoryName, DeepsightPlugFullName } from "@deepsight.gg/plugs";
-import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinySandboxPerkDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinyPlugSetsComponent, DestinySandboxPerkDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
@@ -141,6 +141,21 @@ export class Socket {
 			const smallest = smallestFirst[0];
 			if (smallestFirst.every(type => type.startsWith(smallest)))
 				socket.type = smallest;
+
+			if (socket.type === PlugType.None) {
+				// we still don't have a type, so now we grab the smallest type and see how much we can shorten it to make all match
+				let type = smallestFirst[0];
+				while (type.length) {
+					type = type.slice(0, -1) as PlugType;
+					if (!type.includes("/"))
+						break;
+
+					if (smallestFirst.every(t => t.startsWith(type))) {
+						socket.type = type;
+						break;
+					}
+				}
+			}
 		}
 
 		return socket;
@@ -149,7 +164,7 @@ export class Socket {
 	public socketedPlug?: Plug;
 	public plugs!: Plug[];
 	private plugPool?: PromiseOr<Plug[]>;
-	public type: PlugType = "None";
+	public type: PlugType = PlugType.None;
 	public types = new Set<PlugType>();
 
 	private constructor () { }
@@ -342,6 +357,7 @@ namespace Plugs {
 
 	export interface IPlugsProfile {
 		itemComponents?: DestinyItemComponentSetOfint64;
+		profilePlugSets?: SingleComponentResponse<DestinyPlugSetsComponent>;
 	}
 
 	export function resetInitialisedPlugTypes () {
