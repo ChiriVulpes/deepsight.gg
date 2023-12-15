@@ -37,6 +37,7 @@ export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.Perk,
 	Filter.Shaped,
 	Filter.Harmonizable,
+	Filter.Adept,
 ] as const;
 
 export const VIEW_ID_INVENTORY = "inventory";

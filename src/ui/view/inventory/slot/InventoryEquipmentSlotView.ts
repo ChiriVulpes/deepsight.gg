@@ -28,6 +28,7 @@ export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.Shaped,
 	Filter.WeaponType,
 	Filter.Harmonizable,
+	Filter.Adept,
 ] as const;
 
 export const VIEW_ID_EQUIPMENT = "equipment";

@@ -23,6 +23,7 @@ export const FILTERS_INAPPLICABLE_ARMOUR = [
 	Filter.Shaped,
 	Filter.Element,
 	Filter.Harmonizable,
+	Filter.Adept,
 ] as const;
 
 export const VIEW_ID_ARMOUR = "armour";
