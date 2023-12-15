@@ -114,7 +114,7 @@ class FilterManager {
 			}
 		}
 
-		throw new Error(`Somehow, no filters matched the token "${token}" 😕`);
+		console.error(`Somehow, no filters matched the token "${token}" 😕`);
 	}
 
 	public reset () {

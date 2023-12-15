@@ -483,7 +483,9 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 					token.raw = `!${token.raw.slice(1)}`;
 			}
 
-			const filter = this.filterer.add(raw) ?? {};
+			const filter = this.filterer.add(raw);
+			if (!filter)
+				continue;
 
 			const valueRaw = token.text.slice(filter.prefix.length);
 			const value = Strings.extractFromQuotes(valueRaw).toLowerCase();
