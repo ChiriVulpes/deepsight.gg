@@ -193,8 +193,8 @@
 			}
 
 			@mixin hidden($selector) {
-				&:not(:hover):not(#{unquote($selector)}) .app-nav-destination:not(.active, :first-child),
-				&:not(:hover):not(#{unquote($selector)}).app-nav-destination-child-active
+				&:not(:hover, #{unquote($selector)}) .app-nav-destination:not(.active, :first-child),
+				&:not(:hover, #{unquote($selector)}).app-nav-destination-child-active
 					.app-nav-destination:first-child:not(.active) {
 					max-height: 0px;
 					margin-top: 0px;

@@ -120,9 +120,9 @@
 		overflow: hidden;
 
 		@mixin hidden($selector) {
-			&:not(:hover):not(#{unquote($selector)}) .dropdown-option:not(.dropdown-option-active),
-			&:not(:hover):not(#{unquote($selector)}).dropdown-option-active
-				.dropdown-option:not(.dropdown-option-active) {
+			&:not(:hover, #{unquote($selector)}) .dropdown-option:not(.dropdown-option-active, :first-child),
+			&:not(:hover, #{unquote($selector)}).dropdown-option-active
+				.dropdown-option:first-child:not(.dropdown-option-active) {
 				max-height: 0px;
 				margin-top: 0px;
 				margin-bottom: 0px;
@@ -132,7 +132,7 @@
 			}
 		}
 
-		@include hidden(":visible-within");
+		@include hidden(":focus-within");
 		@supports selector(:has(:focus-visible)) {
 			@include hidden(":has(:focus-visible)");
 		}
