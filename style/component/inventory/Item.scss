@@ -257,7 +257,8 @@ $z-index-loading: 1000;
 				height: 22%;
 			}
 			
-			.item-deepsight-pattern ~ .item-fomo & {
+			.item-deepsight-pattern ~ .item-fomo &,
+			.item-can-enhance ~ .item-fomo & {
 				display: none;
 			}
 		}
@@ -283,7 +284,7 @@ $z-index-loading: 1000;
 		}
 	}
 
-	&-adept {
+	&-can-enhance {
 		z-index: $z-index-shaped;
 		> * {
 			@include item-icon(url("./image/svg/enhanced.svg"), color(foreground)) {
@@ -293,7 +294,7 @@ $z-index-loading: 1000;
 		}
 	}
 	
-	&-shaped#{&}-adept {
+	&-shaped#{&}-can-enhance {
 		> * {
 			@include item-icon(url("./image/svg/enhanced.svg"), color(enhanced)) {
 				width: 22%;

@@ -455,7 +455,11 @@ class Item {
 	}
 
 	public isAdept () {
-		return !!this.getSocket("Mod/Weapon")?.getPlug("Mod/WeaponAdept");
+		return this.canEnhance() || (!this.bucket.isCollections() && !!this.getSocket("Mod/Weapon")?.getPlug("Mod/WeaponAdept"));
+	}
+
+	public canEnhance () {
+		return !!this.getSocket("Masterwork/Enhancement");
 	}
 
 	public hasDeepsight () {
