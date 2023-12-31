@@ -13,9 +13,9 @@ namespace DeepsightPlugCategorisation {
 	function determinePlugCategory (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.hash) {
 			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash2923744131:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3371926948:
-			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3982839338:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug2443995506:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug4114716976:
+			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug440670601:
 			case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
 			case InventoryItemHashes.TraitLockedPlug2106726848:
 			case InventoryItemHashes.TraitLockedPlug3665398231:
@@ -465,9 +465,9 @@ namespace DeepsightPlugCategorisation {
 		[DeepsightPlugCategory.Perk]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash2923744131:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3371926948:
-				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug_Perks0PerkHash3982839338:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug2443995506:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug4114716976:
+				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug440670601:
 				case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
 					return DeepsightPlugTypePerk.Random;
 
@@ -645,7 +645,7 @@ namespace DeepsightPlugCategorisation {
 	function getArmourModRaidActivityHash (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.itemTypeDisplayName) {
 			case "Deep Stone Crypt Raid Mod":
-				return ActivityHashes.DeepStoneCrypt_GuidedGameUndefined;
+				return ActivityHashes.DeepStoneCrypt_RewardsLength0;
 			case "Root of Nightmares Armor Mod":
 				return ActivityHashes.RootOfNightmaresNormal;
 			case "Crota's End Mod":
@@ -659,7 +659,7 @@ namespace DeepsightPlugCategorisation {
 			case "Vow of the Disciple Raid Mod":
 				return ActivityHashes.VowOfTheDiscipleNormal;
 			case "King's Fall Mod":
-				return ActivityHashes.KingsFallNormal_GuidedGameUndefined;
+				return ActivityHashes.KingsFallNormal_ModifiersLength8;
 		}
 	}
 

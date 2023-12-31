@@ -38,6 +38,16 @@ namespace Objects {
 				if (arrays.every(arr => arr.length === 0))
 					continue;
 
+				if (!arrays.some(arr => arrays.some(arr2 => arr !== arr2 && arr.length === arr2.length))) {
+					// all arrays have different lengths
+					differences.push({
+						path: `${key}.length`,
+						type: DifferenceType.Value,
+						unique: new Set(arrays.map(arr => `${arr.length}`)),
+					});
+					continue;
+				}
+
 				if (typeof arrays[0][0] === "object") {
 					const maxLength = Math.max(...arrays.map(arr => arr.length));
 					for (let i = 0; i < maxLength; i++)

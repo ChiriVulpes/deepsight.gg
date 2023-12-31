@@ -53,11 +53,20 @@ export declare interface DeepsightDropTableEncounterDefinition {
 	/**
 	 * Phase hashes are based on data from `characterProgressions.milestones[milestone hash].activities[activity index].phases`
 	 */
-	phaseHash: number;
+	phaseHash?: number;
+	/**
+	 * True if this is a traversal phase (not a real encounter)
+	 */
+	traversal?: true;
 	/**
 	 * Every encounter is guaranteed to have a partial display properties object.
 	 */
-	displayProperties: DeepsightDisplayPropertiesDefinition;
+	displayProperties: DeepsightDisplayPropertiesDefinition & {
+		/**
+		 * An alternative title for the encounter, generally wordier.
+		 */
+		directive?: string;
+	};
 	/**
 	 * Determines the way that this encounter's drop table should be applied to the base activity drop table.
 	 * - "replace" = this encounter-specific drop table should be used instead of the base drop table.

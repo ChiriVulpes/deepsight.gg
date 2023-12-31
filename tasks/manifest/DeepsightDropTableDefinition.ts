@@ -1,8 +1,8 @@
 import fs from "fs-extra";
-import JSON5 from "../utilities/JSON5";
 import Task from "../utilities/Task";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./DestinyManifest";
 import DestinyManifestReference from "./DestinyManifestReference";
+import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 
 interface DeepsightDropTableDefinition {
 	hash: number;
@@ -16,8 +16,6 @@ interface DeepsightDropTableDefinition {
 }
 
 export default Task("DeepsightDropTableDefinition", async () => {
-	const DeepsightDropTableDefinition = await JSON5.readFile<Record<number, DeepsightDropTableDefinition>>("static/manifest/DeepsightDropTableDefinition.json5");
-
 	const { DestinyActivityDefinition, DestinyRecordDefinition } = manifest;
 
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {

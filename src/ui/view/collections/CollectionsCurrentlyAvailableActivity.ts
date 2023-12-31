@@ -35,7 +35,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		this.setDisplayMode(CardClasses.DisplayModeCard);
 		this.classes.add(CollectionsCurrentlyAvailableActivityClasses.Activity);
 
-		const icon = source?.dropTable.displayProperties?.icon ?? source?.record?.displayProperties?.icon;
+		const icon = source?.dropTable.displayProperties?.icon;
 
 		// wrap the icon in a container so we can make it really big and use overflow hidden on it 
 		Component.create()
