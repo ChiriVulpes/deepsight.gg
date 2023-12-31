@@ -73,7 +73,6 @@ export default class ItemTooltipSource extends Component {
 				.classes.add(ItemTooltipSourceClasses.Activity)
 				.style.set("--icon", undefined
 					?? Display.icon(source.dropTable.displayProperties)
-					?? Display.icon(source.record)
 					?? Display.icon(activity))
 				.appendTo(this.activityWrapper);
 
@@ -172,8 +171,13 @@ export default class ItemTooltipSource extends Component {
 		if (!source.dropTable.encounters?.length)
 			return;
 
+		let realEncounterIndex = 0;
 		for (let i = 0; i < source.dropTable.encounters.length; i++) {
 			const encounter = source.dropTable.encounters[i];
+			if (encounter.traversal)
+				continue;
+
+			realEncounterIndex++;
 			const dropTable = encounter.dropTableMergeStrategy === "replace" ? encounter.dropTable
 				: { ...source.dropTable.dropTable, ...encounter.dropTable };
 			if (!dropTable?.[item.definition.hash])
@@ -185,7 +189,7 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseIndex)
-				.text.set(`${i + 1}`)
+				.text.set(`${realEncounterIndex}`)
 				.appendTo(phaseComponent);
 
 			Component.create()

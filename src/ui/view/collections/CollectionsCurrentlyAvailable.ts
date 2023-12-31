@@ -1,4 +1,5 @@
 import { type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
+import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2/interfaces";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
@@ -100,21 +101,25 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition, DestinyActivityDefinition } = manifest;
 
-		const activities = Object.values<DestinyCharacterActivitiesComponent>(profile?.characterActivities?.data ?? Objects.EMPTY)
+		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile?.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
 
 		const dropTables = await DeepsightDropTableDefinition.all();
 		for (const source of dropTables) {
-			const activity = activities.find(activity => activity.activityHash === source.rotationActivityHash)
-				?? activities.find(activity => activity.activityHash === source.hash);
+			const activityInstances = availableActivities.filter(activity => activity.activityHash === source.rotationActivityHash);
+			if (!activityInstances.length)
+				activityInstances.push(...availableActivities.filter(activity => activity.activityHash === source.hash));
 
-			const masterActivity = !source.master?.activityHash ? undefined :
-				activities.find(activity => activity.activityHash === source.master!.activityHash);
+			const masterActivity = !source.master?.activityHash ? undefined
+				: availableActivities.find(activity => activity.activityHash === source.master!.activityHash);
 
 			const masterActivityDefinition = await DestinyActivityDefinition.get(masterActivity?.activityHash);
 
-			const challenges = await Promise.all(activity?.challenges?.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)) ?? []);
-			if (challenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */) {
+			const activityChallengeStates = activityInstances.flatMap(activity => activity?.challenges ?? []);
+			const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
+				.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
+
+			if (activityChallenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */) {
 				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))
 					itemHashes.add(+dropHash);
 

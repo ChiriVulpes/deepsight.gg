@@ -1,7 +1,7 @@
 import { ActivityTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import type { BungieIconPath, DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
-import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DestinyRecordDefinition, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
+import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import Activities from "model/models/Activities";
 import type Manifest from "model/models/Manifest";
 import Trials from "model/models/Trials";
@@ -28,7 +28,6 @@ export interface ISource {
 	activeChallenge?: DestinyActivityModifierDefinition;
 	isActiveDrop: boolean;
 	isActiveMasterDrop: boolean;
-	record?: DestinyRecordDefinition;
 	type: SourceType;
 	endTime?: number;
 	requiresQuest?: DestinyInventoryItemDefinition | null;
@@ -156,21 +155,23 @@ namespace Source {
 	}
 
 	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
-		const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition, DestinyInventoryItemDefinition } = manifest;
+		const { DestinyActivityDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition, DestinyInventoryItemDefinition } = manifest;
 
 		const weeks = Math.floor((Date.now() - (table.rotations?.anchor ?? 0)) / Time.weeks(1));
 
 		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
 
-		const activity = availableActivities.find(activity => activity.activityHash === table.rotationActivityHash)
-			?? availableActivities.find(activity => activity.activityHash === table.hash);
+		const activityInstances = availableActivities.filter(activity => activity.activityHash === table.rotationActivityHash);
+		if (!activityInstances.length)
+			activityInstances.push(...availableActivities.filter(activity => activity.activityHash === table.hash));
 
-		const activityChallenges = (await Promise.all(activity?.challenges?.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)) ?? []))
+		const activityChallengeStates = activityInstances.flatMap(activity => activity?.challenges ?? []);
+		const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
 			.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
 
-		const masterActivity = !table.master?.activityHash ? undefined : availableActivities
-			.find(activity => activity.activityHash === table.master!.activityHash);
+		const masterActivity = !table.master?.activityHash ? undefined
+			: availableActivities.find(activity => activity.activityHash === table.master!.activityHash);
 
 		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
@@ -195,7 +196,7 @@ namespace Source {
 
 		return {
 			dropTable: table,
-			activity,
+			activity: activityInstances[0],
 			activityDefinition: activityDefinition!,
 			activityChallenges,
 			masterActivityDefinition,
@@ -205,7 +206,6 @@ namespace Source {
 			isActiveDrop: table.rotations?.drops ? isRotationDrop
 				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
 			isActiveMasterDrop: isMaster,
-			record: await DestinyRecordDefinition.get(table.recordHash),
 			type,
 			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),

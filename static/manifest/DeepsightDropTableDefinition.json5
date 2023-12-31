@@ -810,155 +810,6 @@
 			],
 		},
 	},
-	"313828469": { // Ghosts of the Deep
-		recordHash: 4038749769,
-		displayProperties: {
-			icon: "./image/png/activity/gotd.png",
-		},
-		dropTable: {
-			"3262192268": {}, // no survivors
-			"839786290": {}, // cold comfort
-			"2977663932": {}, // titan arms
-			"409820272": {}, // hunter arms
-			"587762963": {}, // warlock arms
-		},
-		encounters: [
-			{
-				displayProperties: {
-					name: "Hive Ritual",
-					description: "Break the Ritual",
-				},
-				dropTable: {
-					"1125217994": {}, // new pacific epitaph
-
-					"2324998093": {}, // titan helm
-					"2363472582": {}, // titan legs
-					"896458489": {}, // hunter helm
-					"726878794": {}, // hunter legs
-					"540625098": {}, // warlock helm
-					"322717029": {}, // warlock legs
-				},
-			},
-			{
-				displayProperties: {
-					name: "Ecthar, the Shield of Savathûn",
-					description: "Defeat the Shield of Savathûn",
-				},
-				dropTable: {
-					"1757202961": {}, // greasy luck
-
-					"2978918436": {}, // titan chest
-					"3722748537": {}, // titan mark
-					"42941848": {}, // hunter chest
-					"2733403573": {}, // hunter cloak
-					"457617725": {}, // warlock chest
-					"1961182320": {}, // warlock bond
-				},
-			},
-			{
-				displayProperties: {
-					name: "Šimmumah ur-Nokru",
-					description: "Defeat Šimmumah ur-Nokru",
-				},
-				dropTable: {
-					"1125217994": {}, // new pacific epitaph
-					"1757202961": {}, // greasy luck
-
-					"1441805468": {}, // the navigator
-
-					"2324998093": {}, // titan helm
-					"2978918436": {}, // titan chest
-					"2363472582": {}, // titan legs
-					"3722748537": {}, // titan mark
-					"896458489": {}, // hunter helm
-					"42941848": {}, // hunter chest
-					"726878794": {}, // hunter legs
-					"2733403573": {}, // hunter cloak
-					"540625098": {}, // warlock helm
-					"457617725": {}, // warlock chest
-					"322717029": {}, // warlock legs
-					"1961182320": {}, // warlock bond
-				},
-			},
-		],
-		master: {
-			activityHash: 2716998124,
-		},
-	},
-	"1262462921": { // Spire of the Watcher
-		recordHash: 2401440736,
-		displayProperties: {
-			icon: { DestinyRecordDefinition: 2302993504 }, // unknown record
-		},
-		dropTable: {
-			"487205709": {}, // terminus horizon
-			"1480429241": {}, // titan arms
-			"918537443": {}, // hunter arms
-			"1088225118": {}, // warlock arms
-		},
-		encounters: [
-			{
-				displayProperties: {
-					name: "Spire Ascent",
-					description: "Ascend the Spire",
-				},
-				dropTable: {
-					"8293111": {}, // long arm
-					"4070357005": {}, // seventh seraph carbine
-					"2599025960": {}, // titan helm
-					"119121067": {}, // titan legs
-					"2976233114": {}, // hunter helm
-					"2839517205": {}, // hunter legs
-					"2014814167": {}, // warlock helm
-					"1932168248": {}, // warlock legs
-				},
-			},
-			{
-				displayProperties: {
-					name: "Akelous, the Siren's Current",
-					description: "Silence the Siren",
-				},
-				dropTable: {
-					"1555959830": {}, // officer revolver
-					"3088058655": {}, // titan chest
-					"506181038": {}, // titan mark
-					"597199405": {}, // hunter chest
-					"3006077984": {}, // hunter cloak
-					"3185363346": {}, // warlock chest
-					"3780604323": {}, // warlock bond
-				},
-			},
-			{
-				displayProperties: {
-					name: "Persys, Primordial Ruin",
-					description: "Prompt Critical",
-				},
-				dropTable: {
-					"8293111": {}, // long arm
-					"4070357005": {}, // seventh seraph carbine
-					"1555959830": {}, // officer revolver
-					"3138208275": {}, // liminal vigil
-					"2306182339": {}, // wilderflight
-					"4174431791": {}, // hierarchy of needs
-					"2599025960": {}, // titan helm
-					"3088058655": {}, // titan chest
-					"119121067": {}, // titan legs
-					"506181038": {}, // titan mark
-					"2976233114": {}, // hunter helm
-					"597199405": {}, // hunter chest
-					"2839517205": {}, // hunter legs
-					"3006077984": {}, // hunter cloak
-					"2014814167": {}, // warlock helm
-					"3185363346": {}, // warlock chest
-					"1932168248": {}, // warlock legs
-					"3780604323": {}, // warlock bond
-				},
-			},
-		],
-		master: {
-			activityHash: 2296818662,
-		},
-	},
 	"2823159265": { // Duality
 		recordHash: 1829136540,
 		displayProperties: {
@@ -1100,83 +951,6 @@
 			activityHash: 1112917203,
 		}
 	},
-	"1077850348": {  // Prophecy
-		recordHash: 969826320,
-		displayProperties: {
-			name: { activity: true },
-		},
-		encounters: [
-			{
-				displayProperties: {
-					name: "Phalanx Echo",
-					description: "Defeat the Phalanx Echo",
-				},
-				dropTable: {
-					"1476654960": {}, // judgement
-					"3326850591": {}, // the long walk
-					"1219883244": {}, // titan legs (coda)
-					"1900280383": {}, // titan mark (coda)
-					"3155320806": {}, // hunter legs (coda)
-					"1717940633": {}, // hunter cloak (coda)
-					"2022923313": {}, // warlock legs (coda)
-					"2966633380": {}, // warlock bond (coda)
-				},
-			},
-			{
-				displayProperties: {
-					name: "Hexahedron",
-					description: "Escape",
-				},
-				dropTable: {
-					"1626503676": {}, // a swift verdict
-					"507038823": {}, // the last breath
-					"818644818": {}, // titan arms (coda)
-					"4194072668": {}, // hunter arms (coda)
-					"1406846351": {}, // warlock arms (coda)
-				},
-			},
-			{
-				displayProperties: {
-					name: "Kell Echo",
-					description: "Defeat the Kell Echo",
-				},
-				dropTable: {
-					"2481758391": {}, // darkest before
-					"2855157553": {}, // a sudden death
-
-					"3976073347": {}, // titan helm (coda)
-					"2570653206": {}, // titan chest (coda)
-					"1900280383": {}, // titan mark (coda)
-
-					"2234240008": {}, // titan helm (moonfang)
-					"1581574297": {}, // titan arms (moonfang)
-					"1571337215": {}, // titan chest (moonfang)
-					"178689419": {}, // titan legs (moonfang)
-					"3242850062": {}, // titan mark (moonfang)
-
-					"3075372781": {}, // hunter helm (coda)
-					"508076356": {}, // hunter chest (coda)
-					"1717940633": {}, // hunter cloak (coda)
-
-					"2623956730": {}, // hunter helm (moonfang)
-					"100226755": {}, // hunter arms (moonfang)
-					"4121885325": {}, // hunter chest (moonfang)
-					"2487240821": {}, // hunter legs (moonfang)
-					"2701727616": {}, // hunter cloak (moonfang)
-
-					"2602907742": {}, // warlock helm (coda)
-					"1652467433": {}, // warlock chest (coda)
-					"2966633380": {}, // warlock bond (coda)
-
-					"2288398391": {}, // warlock helm (moonfang)
-					"1361912510": {}, // warlock arms (moonfang)
-					"1658294130": {}, // warlock chest (moonfang)
-					"1781294872": {}, // warlock legs (moonfang)
-					"2295111683": {}, // warlock bond (moonfang)
-				},
-			},
-		],
-	},
 	"2582501063": { // Pit of Heresy
 		rotationActivityHash: 1375089621,
 		recordHash: 469433408,
@@ -1302,6 +1076,12 @@
 					name: "Erebus",
 					description: "Search for safe passage",
 				},
+			},
+			{
+				displayProperties: {
+					name: "The Descent",
+					description: "Journey to the spire",
+				}
 			},
 			{
 				displayProperties: {
