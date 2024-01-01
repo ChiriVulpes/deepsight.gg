@@ -31,7 +31,6 @@ jobs:
       
       - name: Commit
         run: |
-          cd manifest
           if [[ -n $(git diff) ]]; then
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
