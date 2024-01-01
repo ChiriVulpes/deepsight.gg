@@ -28,6 +28,19 @@ jobs:
           DEEPSIGHT_MANIFEST_API_KEY: ${{ secrets.DEEPSIGHT_MANIFEST_API_KEY }}
         run: node check.js
         continue-on-error: true
+      
+      - name: Commit
+        run: |
+          cd manifest
+          if [[ -n $(git diff) ]]; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add .
+            git commit -m "Updated reference PGCR"
+            git push
+          else
+            echo "No changes to commit"
+          fi
         
     outputs:
       updated: ${{ steps.updated.outcome }}
