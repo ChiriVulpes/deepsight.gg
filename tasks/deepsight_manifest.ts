@@ -8,12 +8,14 @@ import DeepsightPlugTypeDefinition from "./manifest/DeepsightPlugCategorisation"
 import DeepsightTierTypeDefinition from "./manifest/DeepsightTierTypeDefinition";
 import DeepsightTypes from "./manifest/DeepsightTypes";
 import DeepsightWallpaperDefinition from "./manifest/DeepsightWallpaperDefinition";
+import refresh_token from "./refresh_token";
 import Task from "./utilities/Task";
 
 export default Task("deepsight_manifest", task => task.series(
 	copy_manifest,
 	destiny_manifest,
 	generate_enums,
+	refresh_token,
 	task.parallel(
 		DeepsightMomentDefinition,
 		DeepsightDropTableDefinition,

@@ -1,3 +1,65 @@
+export type ISOString = `${bigint}-${bigint}-${bigint}T${bigint}:${bigint}:${bigint}Z`;
+
+export interface DeepsightManifest {
+	/**
+	 * This number increments whenever any other property changes (excluding Destiny2/Manifest)
+	 */
+	deepsight: number;
+	/**
+	 * A datetime string in the ISO format, yyyy-mm-ddThh:mm:ssZ, representing the last time any property has changed
+	 */
+	updated: ISOString;
+
+	DeepsightDropTableDefinition: number;
+	DeepsightMomentDefinition: number;
+	DeepsightPlugCategorisation: number;
+	DeepsightWallpaperDefinition: number;
+	DeepsightTierTypeDefinition: number;
+	Enums: number;
+	Interfaces: number;
+
+	/**
+	 * The version of the Destiny manifest the current deepsight manifest supports
+	 */
+	"Destiny2/Manifest": string;
+
+	/**
+	 * The last daily reset from when this manifest was last updated.  
+	 * 
+	 * **Note that this is only set after 30 minutes, at minimum, sometimes longer.**
+	 */
+	lastDailyReset: number;
+	/**
+	 * The last weekly reset from when this manifest was last updated.  
+	 * 
+	 * **Note that this is only set after 30 minutes, at minimum, sometimes longer.**
+	 */
+	lastWeeklyReset: number;
+	/**
+	 * The last Trials reset from when this manifest was last updated. When Trials is not active, this is the start of Trials on the previous week.
+	 * 
+	 * **Note that this does not take into account weeks when Trials is not active at all, such as when Iron Banner replaces it.**  
+	 * 
+	 * **Note that this is only set after 30 minutes, at minimum, sometimes longer.**
+	 */
+	lastTrialsReset: number;
+
+	/**
+	 * The `instanceId` and `period` datetime of a PGCR created since the last daily reset. 
+	 * 
+	 * **Note that this is only set after 30 minutes, at minimum, sometimes longer.**
+	 * 
+	 * For reference, the PGCR chosen is generally not notable in any way, 
+	 * it's simply the first PGCR that a binary search happened to stumble upon in the correct day.
+	 */
+	referencePostGameCarnageReportSinceDailyReset: DeepsightManifestReferencePGCR;
+}
+
+export declare interface DeepsightManifestReferencePGCR {
+	instanceId: `${bigint}`;
+	period: ISOString;
+}
+
 export declare interface DeepsightDisplayPropertiesDefinition {
 	name?: string;
 	description?: string;
@@ -15,12 +77,14 @@ export declare type BungieIconPath = `/${string}`;
 export declare interface DeepsightDropTableDefinition {
 	/**
 	 * `DestinyActivityDefinition` hash.
-	 * Refers to the version of the raid that's always available.
+	 * Refers to the version of the activity that's always available.
 	 */
 	hash: number;
 	/**
 	 * `DestinyActivityDefinition` hash.
-	 * Refers to the version of the raid that rotates in and has all challenges available (if different.)
+	 * Refers to the version of the activity that rotates in (if different.)
+	 * 
+	 * In the case of raids, this refers to the activity definition that lists all challenges available.
 	 */
 	rotationActivityHash?: number;
 	/**

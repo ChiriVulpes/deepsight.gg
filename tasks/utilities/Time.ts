@@ -1,4 +1,5 @@
-import ansi, { AnsicolorMethods } from "ansicolor";
+import type { AnsicolorMethods } from "ansicolor";
+import ansi from "ansicolor";
 import { performance } from "perf_hooks";
 
 export type Stopwatch = ReturnType<typeof stopwatch>;
@@ -27,7 +28,7 @@ export function elapsed (elapsed: number) {
 
 function elapsedRaw (elapsed: number) {
 	if (elapsed < 1)
-		return `${Math.floor(elapsed * 1_000)} μs`
+		return `${Math.floor(elapsed * 1_000)} μs`;
 
 	if (elapsed < 1_000)
 		return `${Math.floor(elapsed)} ms`;
@@ -41,4 +42,33 @@ function elapsedRaw (elapsed: number) {
 const format = new Intl.DateTimeFormat("en-GB", { hour: "numeric", minute: "numeric", second: "numeric", hour12: false, timeZone: "Australia/Melbourne" });
 export function timestamp (color: keyof AnsicolorMethods = "darkGray") {
 	return ansi[color](format.format(new Date()));
+}
+
+export default class Time {
+	static get lastDailyReset () {
+		return this.nextDailyReset - this.days(1);
+	}
+
+	static get lastWeeklyReset () {
+		return this.nextWeeklyReset - this.days(7);
+	}
+
+	static get lastTrialsReset () {
+		return this.nextWeeklyReset - this.days(4);
+	}
+
+	static get nextDailyReset () {
+		const time = new Date().setUTCHours(17, 0, 0, 0);
+		return time < Date.now() ? time + this.days(1) : time;
+	}
+
+	static get nextWeeklyReset () {
+		const daysRemaining = (2 - new Date().getUTCDay() + 7) % 7;
+		return this.nextDailyReset + daysRemaining * Time.days(1);
+	}
+
+	static days (days: number) {
+		return days * 1000 * 60 * 60 * 24;
+	}
+
 }

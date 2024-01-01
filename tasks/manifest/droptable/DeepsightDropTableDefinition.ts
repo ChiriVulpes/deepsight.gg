@@ -33,4 +33,4 @@ export default {
 	// [DeepStoneCrypt.hash]: DeepStoneCrypt,
 	// [GardenOfSalvataion.hash]: GardenOfSalvataion,
 	// [LastWish.hash]: LastWish,
-} as Partial<Record<ActivityHashes, DeepsightDropTableDefinition>>;
+} as Partial<Record<ActivityHashes | "trials" | "nightfall" | "lostSector", DeepsightDropTableDefinition>>;
