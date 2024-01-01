@@ -7,13 +7,14 @@
 		"watch": "npx ts-node tasks/utilities/TaskRunner.ts clean ensure_enums build serve watch",
 		"clean": "npx ts-node tasks/utilities/TaskRunner.ts clean",
 		"manifest": "npx ts-node tasks/utilities/TaskRunner.ts install ensure_enums deepsight_manifest",
-		"bump_versions": "npx ts-node tasks/utilities/TaskRunner.ts bump_versions"
+		"bump_versions": "npx ts-node tasks/utilities/TaskRunner.ts bump_versions",
+		"refresh_token": "npx ts-node tasks/utilities/TaskRunner.ts refresh_token"
 	},
 	"devDependencies": {
 		"fs-extra": "10.1.0",
 		"@types/fs-extra": "9.0.13",
 		"ts-node": "10.8.0",
-		"typescript": "5.3.0-beta",
+		"typescript": "5.3.3",
 		"sass": "1.52.1",
 		"@types/sass": "1.43.1",
 		"del": "6.1.1",
@@ -38,6 +39,7 @@
 		"https-localhost": "4.7.1",
 		"@types/express": "4.17.13",
 		"json-diff": "1.0.6",
-		"@types/json-diff": "1.0.1"
+		"@types/json-diff": "1.0.1",
+		"@actions/core": "1.10.1"
 	}
 }

@@ -6,3 +6,4 @@ static/js/vendor
 tasks/manifest/Enums.d.ts
 static/manifest/DeepsightPlugCategorisation.d.ts
 static/manifest/Enums.d.ts
+auth.json

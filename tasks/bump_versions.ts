@@ -69,8 +69,10 @@ export default Task("bump_versions", async () => {
 		bumped = true;
 	}
 
-	if (bumped)
+	if (bumped) {
 		versions.deepsight = (versions.deepsight ?? -1) + 1;
+		versions.updated = new Date().toISOString().slice(0, -5) + "Z";
+	}
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
 	await fs.writeJson(versionsFilePath, versions, { spaces: "\t" });
