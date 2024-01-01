@@ -24,6 +24,8 @@ jobs:
 
       - name: Check updated
         id: updated
+        env:
+          DEEPSIGHT_MANIFEST_API_KEY: ${{ secrets.DEEPSIGHT_MANIFEST_API_KEY }}
         run: node check.js
         continue-on-error: true
         
