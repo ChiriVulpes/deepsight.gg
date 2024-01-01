@@ -120,7 +120,6 @@ export const IStatDistribution = new class StatDistributionManager {
 		for (const group of ARMOUR_STAT_GROUPS) {
 			let groupEnabledNearnessTotal = 0;
 			let groupDisabledTotal = 0;
-			let disabledStatsMax = ARMOUR_GROUP_STATS_MAX;
 			let stats = 0;
 			for (const stat of group) {
 				const statValue = item.stats.values[stat]?.roll ?? 0;
@@ -129,14 +128,14 @@ export const IStatDistribution = new class StatDistributionManager {
 					continue;
 				}
 
-				disabledStatsMax -= statValue;
+				groupDisabledTotal += statValue;
 				const nearness = 1 - Math.abs(this.getPreferredValue(stat, item.definition.classType) - statValue) / ARMOUR_STAT_MAX;
 				groupEnabledNearnessTotal += nearness;
 				stats++;
 			}
 
 			if (groupDisabledTotal) {
-				const qualityOfDisabledStats = groupDisabledTotal / disabledStatsMax;
+				const qualityOfDisabledStats = groupDisabledTotal / ARMOUR_GROUP_STATS_MAX;
 				groupEnabledNearnessTotal += qualityOfDisabledStats;
 				stats++;
 			}
