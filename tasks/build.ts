@@ -4,7 +4,7 @@ import install from "./install";
 import sass from "./sass";
 import _static from "./static";
 import ts from "./ts";
-import Task from "./utilities/Task";
+import Task from "./utility/Task";
 
 export default Task("build", task => task.series(
 	clean,

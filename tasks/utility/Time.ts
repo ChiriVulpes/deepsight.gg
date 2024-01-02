@@ -1,6 +1,7 @@
 import type { AnsicolorMethods } from "ansicolor";
 import ansi from "ansicolor";
 import { performance } from "perf_hooks";
+import type { ISOString } from "../../static/manifest/Interfaces";
 
 export type Stopwatch = ReturnType<typeof stopwatch>;
 
@@ -63,7 +64,7 @@ export default class Time {
 	}
 
 	static get nextWeeklyReset () {
-		const daysRemaining = (2 - new Date().getUTCDay() + 7) % 7;
+		const daysRemaining = (8 - new Date().getUTCDay()) % 7;
 		return this.nextDailyReset + daysRemaining * Time.days(1);
 	}
 
@@ -71,4 +72,9 @@ export default class Time {
 		return days * 1000 * 60 * 60 * 24;
 	}
 
+	static iso (time?: Date | number | string) {
+		return (time === undefined ? new Date() : typeof time === "object" ? time : new Date(time))
+			.toISOString()
+			.slice(0, -5) + "Z" as ISOString;
+	}
 }

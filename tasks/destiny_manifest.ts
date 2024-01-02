@@ -1,8 +1,9 @@
 import ansi from "ansicolor";
 import * as fs from "fs-extra";
 import * as https from "https";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
 interface Manifest {
 	Response: {
@@ -16,7 +17,7 @@ interface Manifest {
 export let DESTINY_MANIFEST_VERSION: string | undefined;
 
 export default Task("destiny_manifest", async () => {
-	if (process.env.DEEPSIGHT_USE_EXISTING_MANIFEST)
+	if (Env.DEEPSIGHT_USE_EXISTING_MANIFEST)
 		return Log.info("Using previous Destiny manifest due to DEEPSIGHT_USE_EXISTING_MANIFEST");
 
 	let manifest: Manifest["Response"] | undefined;

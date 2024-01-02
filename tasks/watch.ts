@@ -2,8 +2,8 @@ import chokidar from "chokidar";
 import sass from "./sass";
 import _static from "./static";
 import { tsWatch } from "./ts";
-import Hash from "./utilities/Hash";
-import Task from "./utilities/Task";
+import Hash from "./utility/Hash";
+import Task from "./utility/Task";
 
 export default Task("watch", async task => {
 	chokidar.watch(["style/**/*.scss"], { ignoreInitial: true })

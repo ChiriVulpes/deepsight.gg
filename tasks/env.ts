@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import type { IEnvironment } from "../src/utility/Env";
-import Task from "./utilities/Task";
+import Task from "./utility/Task";
 
 function env<KEY extends keyof IEnvironment> (key: KEY, orElse?: IEnvironment[KEY]) {
 	const result = process.env[key] ?? orElse;

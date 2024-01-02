@@ -1,11 +1,12 @@
 /* eslint-disable no-control-regex */
 import ansicolor from "ansicolor";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
-import type { Stopwatch } from "./utilities/Time";
-import { elapsed, stopwatch } from "./utilities/Time";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
+import type { Stopwatch } from "./utility/Time";
+import { elapsed, stopwatch } from "./utility/Time";
 
-const options = process.env.DEEPSIGHT_ENVIRONMENT === "dev"
+const options = Env.DEEPSIGHT_ENVIRONMENT === "dev"
 	? ["--inlineSourceMap", "--inlineSources", "--incremental"]
 	: ["--pretty"];
 
@@ -42,13 +43,13 @@ class Reformatter {
 				this.lastStart = stopwatch();
 			}
 
-			if (!process.env.WAYWARD_NO_COLOURIZE_ERRORS) {
+			if (!Env.NO_COLOURIZE_ERRORS) {
 				line = line
 					.replace(/(?<!\d)0 errors/, ansicolor.lightGreen("0 errors"))
 					.replace(/(?<!\d)(?!0)(\d+) errors/, ansicolor.lightRed("$1 errors"));
 			}
 
-			if (!process.env.WAYWARD_NO_LOG_TSC_DURATION && line.includes(". Watching for file changes.")) {
+			if (!Env.NO_LOG_TSC_DURATION && line.includes(". Watching for file changes.")) {
 				line = line.replace(". Watching for file changes.", ` after ${ansicolor.magenta(elapsed(this.lastStart!.elapsed))}`);
 				delete this.lastStart;
 			}

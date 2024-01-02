@@ -1,11 +1,12 @@
-import type { DestinyInventoryBucketDefinition } from "../../../src/node_modules/bungie-api-ts/destiny2";
+import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import { EnumHelper } from "../../generate_enums";
-import Log from "../../utilities/Log";
-import manifest from "../DestinyManifest";
+import Env from "../../utility/Env";
+import Log from "../../utility/Log";
 import type { StatHashes } from "../Enums";
 import { ActivityHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, TraitHashes } from "../Enums";
 import type { DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
 import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
+import manifest from "../utility/endpoint/DestinyManifest";
 import DeepsightPlugContextDefinition from "./DeepsightPlugContextDefinition";
 
 namespace DeepsightPlugCategorisation {
@@ -750,7 +751,7 @@ namespace DeepsightPlugCategorisation {
 			const categoryName = DeepsightPlugCategory[category];
 			const typeName = plugTypeEnum?.[type!];
 			DeepsightPlugCategorisation[+plugItemHash] = {
-				...process.env.DEEPSIGHT_ENVIRONMENT !== "dev" ? undefined : {
+				...Env.DEEPSIGHT_ENVIRONMENT !== "dev" ? undefined : {
 					name: context.definition.displayProperties?.name,
 					itemTypeName: context.definition.itemTypeDisplayName,
 					itemTypeAndTierName: context.definition.itemTypeAndTierDisplayName,
@@ -784,7 +785,7 @@ namespace DeepsightPlugCategorisation {
 						.join(" / "))
 				.join("\n- ")}`;
 
-			if (process.env.DEEPSIGHT_ENVIRONMENT === "dev")
+			if (Env.DEEPSIGHT_ENVIRONMENT === "dev")
 				Log.warn(message);
 			else
 				throw new Error(message);

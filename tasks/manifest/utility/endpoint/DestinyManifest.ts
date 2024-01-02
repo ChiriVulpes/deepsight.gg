@@ -1,7 +1,7 @@
+import type { AllDestinyManifestComponents } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import * as path from "path";
-import type { AllDestinyManifestComponents } from "../../src/node_modules/bungie-api-ts/destiny2";
-import Log from "../utilities/Log";
+import Log from "../../../utility/Log";
 
 type PromiseOr<T> = T | Promise<T>;
 

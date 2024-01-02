@@ -4,9 +4,11 @@ import fs from "fs-extra";
 import { diff } from "json-diff";
 import path from "path";
 import { DESTINY_MANIFEST_VERSION } from "./destiny_manifest";
-import Hash from "./utilities/Hash";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Hash from "./utility/Hash";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
+import Time from "./utility/Time";
 
 async function readData (file: string) {
 	switch (path.extname(file)) {
@@ -28,8 +30,10 @@ async function readData (file: string) {
 	}
 }
 
+const DEFAULT_VERSION = Env.DEEPSIGHT_ENVIRONMENT === "dev" ? Date.now() : -1;
+
 export default Task("bump_versions", async () => {
-	const isDev = process.env.DEEPSIGHT_ENVIRONMENT === "dev";
+	const isDev = Env.DEEPSIGHT_ENVIRONMENT === "dev";
 	if (!isDev && !await fs.pathExists("manifest"))
 		throw new Error("No output folder detected");
 
@@ -64,14 +68,14 @@ export default Task("bump_versions", async () => {
 			continue;
 
 		bumpMap[basename] = true;
-		versions[basename] = (versions[basename] ?? -1) + 1;
+		versions[basename] = (versions[basename] ?? DEFAULT_VERSION) + 1;
 		Log.info(`Bumped ${ansi.lightGreen(basename)} version`);
 		bumped = true;
 	}
 
 	if (bumped) {
-		versions.deepsight = (versions.deepsight ?? -1) + 1;
-		versions.updated = new Date().toISOString().slice(0, -5) + "Z";
+		versions.deepsight = (versions.deepsight ?? DEFAULT_VERSION) + 1;
+		versions.updated = Time.iso();
 	}
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;

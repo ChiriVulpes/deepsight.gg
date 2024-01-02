@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import type { DeepsightTierTypeDefinition } from "../../static/manifest/Interfaces";
-import Task from "../utilities/Task";
-import manifest from "./DestinyManifest";
+import Task from "../utility/Task";
+import manifest from "./utility/endpoint/DestinyManifest";
 
 export default Task("DeepsightTierTypeDefinition", async () => {
 	const { DestinyItemTierTypeDefinition, DestinyInventoryItemDefinition } = manifest;

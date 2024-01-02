@@ -1,8 +1,9 @@
 import ansi from "ansicolor";
 import fs from "fs-extra";
 import * as path from "path";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
 export default Task("install", async () => {
 	const lockFilePath = path.join(process.cwd(), "package-lock.json");
@@ -10,12 +11,12 @@ export default Task("install", async () => {
 	let sha = lockFileData["@deepsight.gg/enums"];
 
 	await Task.cli({ cwd: "src" }, "PATH:npm", "install");
-	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
+	if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
 		Log.info(`Installing ${ansi.lightCyan("bungie-api-ts@latest")}...`);
 		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest");
 	}
 
-	if (process.env.DEEPSIGHT_ENVIRONMENT === "dev") {
+	if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
 		const commit = await fetch("https://api.github.com/repos/ChiriVulpes/deepsight.gg/commits/manifest")
 			.then(response => response.json()) as { sha: string };
 		if (sha !== commit.sha) {

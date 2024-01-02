@@ -1,6 +1,6 @@
 import fs from "fs-extra";
-import JSON5 from "../utilities/JSON5";
-import Task from "../utilities/Task";
+import JSON5 from "../utility/JSON5";
+import Task from "../utility/Task";
 
 export default Task("DeepsightWallpaperDefinition", async () => {
 	const DeepsightWallpaperDefinition = await JSON5.readFile<Record<number, string[]>>("static/manifest/DeepsightWallpaperDefinition.json5");

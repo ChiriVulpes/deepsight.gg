@@ -1,8 +1,8 @@
 import fs from "fs-extra";
-import JSON5 from "../utilities/JSON5";
-import Task from "../utilities/Task";
-import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./DestinyManifest";
+import JSON5 from "../utility/JSON5";
+import Task from "../utility/Task";
 import DestinyManifestReference from "./DestinyManifestReference";
+import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
 interface DeepsightMomentDefinition {
 	displayProperties?: {

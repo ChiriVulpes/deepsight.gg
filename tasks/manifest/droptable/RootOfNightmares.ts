@@ -180,7 +180,7 @@ export default {
         activityHash: ActivityHashes.RootOfNightmaresMaster,
     },
     rotations: {
-        anchor: 1680022800000,
+        anchor: "2023-03-28T17:00:00Z",
         masterDrops: [
             InventoryItemHashes.MykelsReverenceAdeptSidearm_ItemType3,
             InventoryItemHashes.AcasiasDejectionAdeptTraceRifle_ItemType3,

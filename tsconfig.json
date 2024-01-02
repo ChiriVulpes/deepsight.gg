@@ -8,6 +8,10 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"paths": {
+			"bungie-api-ts/*": ["./src/node_modules/bungie-api-ts/*"],
+			"@app/utility/*": ["./src/utility/*"]
+		}
 	}
 }

@@ -1,7 +1,7 @@
 import fs from "fs-extra";
-import JSON5 from "./utilities/JSON5";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import JSON5 from "./utility/JSON5";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
 export default Task("copy_manifest", async () => {
 	while (!await fs.copy("static/manifest", "docs/manifest")

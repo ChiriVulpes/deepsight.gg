@@ -3,8 +3,9 @@ import fs from "fs-extra";
 import * as path from "path";
 import type deepsight_manifest from "./deepsight_manifest";
 import DeepsightTypes from "./manifest/DeepsightTypes";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
 export default Task("static", async (task, file?: string) => {
 	if (file)
@@ -13,7 +14,7 @@ export default Task("static", async (task, file?: string) => {
 	while (!await fs.copy("static", "docs")
 		.then(() => true).catch(() => false));
 
-	if (process.env.DEEPSIGHT_ENVIRONMENT !== "dev") {
+	if (Env.DEEPSIGHT_ENVIRONMENT !== "dev") {
 		await task.run(DeepsightTypes);
 		// manifests are handled in a separate task in the build
 		await fs.rm("docs/manifest", { recursive: true });

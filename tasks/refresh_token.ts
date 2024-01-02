@@ -2,16 +2,15 @@ import actions from "@actions/core";
 import ansicolor from "ansicolor";
 import fs from "fs/promises";
 import { DestinyComponentType } from "../src/node_modules/bungie-api-ts/destiny2";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
-let accessToken = process.env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN;
-let refreshToken = process.env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN;
-const membershipId = process.env.DEEPSIGHT_MANIFEST_USER_MEMBERSHIP_ID;
-const membershipType = process.env.DEEPSIGHT_MANIFEST_USER_MEMBERSHIP_TYPE;
-const apiKey = process.env.DEEPSIGHT_MANIFEST_API_KEY;
-const clientId = process.env.DEEPSIGHT_MANIFEST_CLIENT_ID;
-const clientSecret = process.env.DEEPSIGHT_MANIFEST_CLIENT_SECRET;
+const membershipId = Env.DEEPSIGHT_MANIFEST_USER_MEMBERSHIP_ID;
+const membershipType = Env.DEEPSIGHT_MANIFEST_USER_MEMBERSHIP_TYPE;
+const apiKey = Env.DEEPSIGHT_MANIFEST_API_KEY;
+const clientId = Env.DEEPSIGHT_MANIFEST_CLIENT_ID;
+const clientSecret = Env.DEEPSIGHT_MANIFEST_CLIENT_SECRET;
 
 interface Auth {
 	token_type: "Bearer",
@@ -26,20 +25,18 @@ let auth: Auth | undefined;
 try {
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	auth = require("../auth.json");
-	accessToken = auth?.access_token;
-	refreshToken = auth?.refresh_token;
-	process.env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN = accessToken;
-	process.env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN = refreshToken;
+	Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN = auth?.access_token;
+	Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN = auth?.refresh_token;
 } catch { }
 
-if (!apiKey || !membershipId || !refreshToken || !accessToken || !clientId || !clientSecret)
+if (!apiKey || !membershipId || !Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN || !Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN || !clientId || !clientSecret)
 	throw new Error("Missing required secrets");
 
 export default Task("refresh_token", async () => {
 	const isValid = await fetch(`https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=${DestinyComponentType.PlatformSilver}`, {
 		headers: {
 			"X-API-Key": apiKey,
-			Authorization: `Bearer ${accessToken}`,
+			Authorization: `Bearer ${Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN}`,
 		},
 	})
 		.then(response => response.json())
@@ -60,7 +57,7 @@ export default Task("refresh_token", async () => {
 			Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
-		body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+		body: `grant_type=refresh_token&refresh_token=${Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN}`,
 	}).then(response => response.json()).catch(err => {
 		Log.error(err);
 	}) as Auth | undefined;
@@ -70,11 +67,11 @@ export default Task("refresh_token", async () => {
 
 	Log.info(ansicolor.lightGreen("Token refreshed!"));
 
-	process.env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN = result.access_token;
-	process.env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN = result.refresh_token;
+	Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN = result.access_token;
+	Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN = result.refresh_token;
 
 	if (auth) {
-		await fs.writeFile("../auth.json", JSON.stringify(result));
+		await fs.writeFile("./auth.json", JSON.stringify(result));
 
 	} else {
 		actions.setSecret(result.access_token);

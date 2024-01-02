@@ -1,5 +1,5 @@
-import type { DestinyInventoryItemDefinition } from "../../../src/node_modules/bungie-api-ts/destiny2";
-import manifest from "../DestinyManifest";
+import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import manifest from "../utility/endpoint/DestinyManifest";
 
 export enum DeepsightPlugContext {
 	Intrinsic,
