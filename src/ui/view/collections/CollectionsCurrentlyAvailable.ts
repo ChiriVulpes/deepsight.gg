@@ -1,11 +1,10 @@
+import { ActivityModeHashes, ActivityTypeHashes } from "@deepsight.gg/enums";
 import { type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2/interfaces";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type ProfileBatch from "model/models/ProfileBatch";
-import Trials from "model/models/Trials";
-import type WeaponRotation from "model/models/WeaponRotation";
 import Item from "model/models/items/Item";
 import Source from "model/models/items/Source";
 import Details from "ui/Details";
@@ -26,15 +25,15 @@ export enum CollectionsCurrentlyAvailableClasses {
 	ActivityWrapperPage = "view-collections-currently-available-activity-wrapper-page",
 }
 
-export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation, inventory?: Inventory]> {
-	protected override async onMake (manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation, inventory?: Inventory) {
-		super.onMake(manifest, profile, weaponRotation, inventory);
+export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory]> {
+	protected override async onMake (manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory) {
+		super.onMake(manifest, profile, inventory);
 		this.classes.add(CollectionsCurrentlyAvailableClasses.Main, CollectionsMomentClasses.Moment);
 
 		this.summary.text.set("Currently Available");
 		this.open();
 
-		const items = await this.discoverItems(manifest, profile, weaponRotation);
+		const items = await this.discoverItems(manifest, profile);
 
 		const sources = items.flatMap(item => item.sources ?? Arrays.EMPTY)
 			.flatMap(source => [
@@ -82,10 +81,12 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			// eslint-disable-next-line no-constant-condition
 			const activityType: DisplayPropertied | undefined = false ? undefined
 				// dungeon type doesn't have icon, use mode instead
-				: activity.activityTypeHash === 608898761 ? await DestinyActivityModeDefinition.get(608898761)
+				: activity.activityTypeHash === ActivityTypeHashes.Dungeon ? await DestinyActivityModeDefinition.get(ActivityModeHashes.Dungeon)
 					// trials type doesn't have icon, use mode instead
-					: activity.hash === Trials.GENERIC_ACTIVITY_HASH ? await DestinyActivityModeDefinition.get(activity.directActivityModeHash)
-						: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
+					: activity.activityTypeHash === ActivityTypeHashes.TrialsOfOsiris ? await DestinyActivityModeDefinition.get(ActivityModeHashes.TrialsOfOsiris)
+						// lost sector type doesn't have icon, use mode instead
+						: activity.activityTypeHash === ActivityTypeHashes.LostSector ? await DestinyActivityModeDefinition.get(ActivityModeHashes.LostSector)
+							: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
 
 			CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
 				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
@@ -93,11 +94,8 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		}
 	}
 
-	private async discoverItems (manifest: Manifest, profile?: ProfileBatch, weaponRotation?: WeaponRotation) {
+	private async discoverItems (manifest: Manifest, profile?: ProfileBatch) {
 		const itemHashes = new Set<number>();
-
-		for (const hash of Object.values(weaponRotation ?? Objects.EMPTY).flat())
-			itemHashes.add(hash as number);
 
 		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition, DestinyActivityDefinition } = manifest;
 
@@ -119,21 +117,35 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
 				.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
 
-			if (activityChallenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */) {
+			const intervals = Math.floor((Date.now() - new Date(source.rotations?.anchor ?? 0).getTime())
+				/ (source.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
+
+			if (source.availability || activityChallenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Raid || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Dungeon) {
 				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))
 					itemHashes.add(+dropHash);
 
 				for (const encounter of source.encounters ?? [])
 					for (const dropHash of Object.keys(encounter.dropTable ?? Objects.EMPTY))
 						itemHashes.add(+dropHash);
+
+				if (source.rotations) {
+					const drop = resolveRotation(source.rotations.drops, intervals);
+					if (typeof drop === "number")
+						itemHashes.add(drop);
+					else if (typeof drop === "object")
+						for (const id of Object.keys(drop))
+							itemHashes.add(+id);
+				}
 			}
 
 			if (masterActivity) {
 				if (source.rotations) {
-					const weeks = Math.floor((Date.now() - (source.rotations?.anchor ?? 0)) / Time.weeks(1));
-					const masterDrop = resolveRotation(source.rotations.masterDrops, weeks);
-					if (masterDrop)
+					const masterDrop = resolveRotation(source.rotations.masterDrops, intervals);
+					if (typeof masterDrop === "number")
 						itemHashes.add(masterDrop);
+					else if (typeof masterDrop === "object")
+						for (const id of Object.keys(masterDrop))
+							itemHashes.add(+id);
 				}
 
 				for (const dropHash of Object.keys(source.master?.dropTable ?? Objects.EMPTY))
@@ -147,6 +159,6 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 	}
 }
 
-function resolveRotation<T> (rotation: T[] | undefined, weeks: number) {
-	return !rotation?.length ? undefined : rotation?.[weeks % rotation.length];
+function resolveRotation<T> (rotation: T[] | undefined, interval: number) {
+	return !rotation?.length ? undefined : rotation?.[interval % rotation.length];
 }

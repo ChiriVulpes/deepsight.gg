@@ -1,7 +1,6 @@
 import type { DestinyActivityDefinition, DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
-import Trials from "model/models/Trials";
 import Objects from "utility/Objects";
 
 namespace Activities {
@@ -21,12 +20,6 @@ namespace Activities {
 
 			Activities.push(activity);
 			activityHashes.add(activity.hash);
-		}
-
-		if (await Trials.isActive(profile)) {
-			const trials = await DestinyActivityDefinition.get(Trials.GENERIC_ACTIVITY_HASH);
-			if (trials)
-				Activities.push(trials);
 		}
 
 		Object.assign(window, { Activities });

@@ -1,16 +1,12 @@
-import { ActivityTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums";
-import type { BungieIconPath, DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
+import { ActivityTypeHashes } from "@deepsight.gg/enums";
+import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
-import { DestinyActivityModeType, type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
-import Activities from "model/models/Activities";
+import { type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import type Manifest from "model/models/Manifest";
-import Trials from "model/models/Trials";
-import WeaponRotation from "model/models/WeaponRotation";
 import type { IItemInit } from "model/models/items/Item";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
 import Bungie from "utility/endpoint/bungie/Bungie";
-import { VendorHashes } from "utility/endpoint/bungie/endpoint/destiny2/GetVendor";
 
 export enum SourceType {
 	Playlist,
@@ -50,92 +46,10 @@ namespace Source {
 
 	async function resolve (manifest: Manifest, profile: ISourceProfile, item: IItemInit): Promise<ISource[] | undefined> {
 		const dropTableSources = await resolveDropTables(manifest, profile, item);
-		const weaponRotationSources = await resolveWeaponRotation(manifest, profile, item);
-		if (!dropTableSources?.length && !weaponRotationSources.size)
+		if (!dropTableSources?.length)
 			return undefined;
 
-		return [...dropTableSources ?? [], ...weaponRotationSources.values()];
-	}
-
-	async function resolveWeaponRotation (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
-		const sources = new Map<number, ISource>();
-
-		const { DestinyActivityDefinition, DestinyActivityModeDefinition } = manifest;
-		const activities = await DestinyActivityDefinition.all();
-		const availableActivities = await Activities.await();
-
-		const weaponRotation = await WeaponRotation.await();
-		for (const [vendor, itemHashes] of Object.entries(weaponRotation) as any[] as [VendorHashes, number[]][]) {
-			if (!itemHashes.includes(item.definition.hash))
-				continue;
-
-			const vendorActivities = await resolveVendorActivities(manifest, profile, vendor);
-
-			for (const activity of vendorActivities) {
-				if (activity.activityTypeHash === ActivityTypeHashes.Nightfall575572995 && !activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
-					continue;
-
-				const adept = item.definition.displayProperties.name.trimEnd().endsWith("(Adept)");
-				const activityAwardsAdept = activity.rewards.some(reward => reward.rewardItems
-					.some(item => item.itemHash === InventoryItemHashes.AdeptNightfallWeaponCommonDummy || item.itemHash === Trials.ADEPT_WEAPON_REWARD_HASH));
-
-				if (adept !== activityAwardsAdept && !activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
-					continue;
-
-				if (activityAwardsAdept && activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)) {
-					const hasWeeklyNightfall = availableActivities.some(a => a.hash !== activity.hash
-						&& a.displayProperties.description === activity.displayProperties.description
-						&& a.originalDisplayProperties.name === "Nightfall");
-					if (!hasWeeklyNightfall)
-						continue;
-				}
-
-				let rootActivity: DestinyActivityDefinition | undefined;
-				if (activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
-					rootActivity = activities.find(a => a.activityModeTypes?.includes(DestinyActivityModeType.Strike)
-						&& a.displayProperties.name === activity.displayProperties.description);
-
-				let dropTable: DeepsightDropTableDefinition = { hash: activity.hash };
-
-				if (activity.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
-					dropTable = {
-						...dropTable,
-						displayProperties: {
-							icon: "./image/png/activity/strike.png",
-						},
-					};
-				else if (activity.activityModeTypes?.includes(DestinyActivityModeType.TrialsOfOsiris))
-					dropTable = {
-						...dropTable,
-						displayProperties: {
-							icon: (await DestinyActivityModeDefinition.get(activity.directActivityModeHash))?.displayProperties.icon as BungieIconPath | undefined,
-						},
-					};
-
-				sources.set(activity.hash, {
-					dropTable: dropTable,
-					activityChallenges: [],
-					activityDefinition: rootActivity ?? activity,
-					masterActivity: activityAwardsAdept ? true : undefined,
-					masterActivityDefinition: activity,
-					isActiveDrop: true,
-					isActiveMasterDrop: activityAwardsAdept,
-					type: SourceType.Playlist,
-					endTime: Bungie.nextWeeklyReset,
-				});
-			}
-		}
-
-		return sources;
-	}
-
-	const vendorActivityTypeHashMap: Partial<Record<VendorHashes, number>> = {
-		[VendorHashes.CommanderZavala]: ActivityTypeHashes.Nightfall575572995,
-		[VendorHashes.Saint14]: ActivityTypeHashes.TrialsOfOsiris,
-	};
-	async function resolveVendorActivities (manifest: Manifest, profile: ISourceProfile, vendor: VendorHashes) {
-		return (await Activities.await())
-			.filter(activity => activity?.activityTypeHash === vendorActivityTypeHashMap[vendor]);
+		return dropTableSources ?? [];
 	}
 
 	async function resolveDropTables (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
@@ -145,8 +59,8 @@ namespace Source {
 			|| table.dropTable?.[item.definition.hash]
 			|| table.encounters?.some(encounter => encounter.dropTable?.[item.definition.hash])
 			|| table.master?.dropTable?.[item.definition.hash]
-			|| table.rotations?.drops?.includes(item.definition.hash)
-			|| table.rotations?.masterDrops?.includes(item.definition.hash));
+			|| table.rotations?.drops?.some(drop => drop === item.definition.hash || typeof drop === "object" && item.definition.hash in drop)
+			|| table.rotations?.masterDrops?.some(drop => drop === item.definition.hash || typeof drop === "object" && item.definition.hash in drop));
 
 		if (!dropTables.length)
 			return undefined;
@@ -157,7 +71,8 @@ namespace Source {
 	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
 		const { DestinyActivityDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition, DestinyInventoryItemDefinition } = manifest;
 
-		const weeks = Math.floor((Date.now() - (table.rotations?.anchor ?? 0)) / Time.weeks(1));
+		const intervals = Math.floor((Date.now() - new Date(table.rotations?.anchor ?? 0).getTime())
+			/ (table.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
 
 		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
 			.flatMap(activities => activities.availableActivities);
@@ -177,16 +92,20 @@ namespace Source {
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
 
 		const type = undefined
+			?? (table.availability === "rotator" ? SourceType.Rotator : undefined)
+			?? (table.availability === "repeatable" ? SourceType.Repeatable : undefined)
 			?? (activityChallenges.some(Source.isWeeklyChallenge) ? SourceType.Rotator : undefined)
-			?? (activityDefinition?.activityTypeHash === 2043403989 /* Raid */ || masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */ ? SourceType.Repeatable : undefined)
+			?? (activityDefinition?.activityTypeHash === ActivityTypeHashes.Raid || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Dungeon ? SourceType.Repeatable : undefined)
 			?? SourceType.Playlist;
 
 		const dropDef = table.dropTable?.[item.definition.hash]
 			?? table.encounters?.find(encounter => encounter.dropTable?.[item.definition.hash])?.dropTable?.[item.definition.hash]
 			?? table.master?.dropTable?.[item.definition.hash];
 
-		const isRotationDrop = resolveRotation(table.rotations?.drops, weeks) === item.definition.hash;
-		const isMasterRotationDrop = resolveRotation(table.rotations?.masterDrops, weeks) === item.definition.hash;
+		const rotatedDrop = resolveRotation(table.rotations?.drops, intervals);
+		const isRotationDrop = rotatedDrop === item.definition.hash || typeof rotatedDrop === "object" && item.definition.hash in rotatedDrop;
+		const rotatedMasterDrop = resolveRotation(table.rotations?.masterDrops, intervals);
+		const isMasterRotationDrop = rotatedMasterDrop === item.definition.hash || typeof rotatedMasterDrop === "object" && item.definition.hash in rotatedMasterDrop;
 
 		const isMaster = !!table.master?.dropTable?.[item.definition.hash] || isMasterRotationDrop;
 
@@ -202,20 +121,20 @@ namespace Source {
 			masterActivityDefinition,
 			masterActivity,
 			activeChallenge: !isRotatingChallengeRelevant ? undefined
-				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, weeks)),
+				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, intervals)),
 			isActiveDrop: table.rotations?.drops ? isRotationDrop
 				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
 			isActiveMasterDrop: isMaster,
 			type,
-			endTime: type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
+			endTime: table.endTime ? new Date(table.endTime).getTime() : type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),
 			requiresItems: !dropDef?.requiresItems?.length ? undefined : await Promise.all(dropDef.requiresItems.map(async hash => (await DestinyInventoryItemDefinition.get(hash)) ?? null)),
 			purchaseOnly: dropDef?.purchaseOnly,
 		};
 	}
 
-	function resolveRotation<T> (rotation: T[] | undefined, weeks: number) {
-		return !rotation?.length ? undefined : rotation?.[weeks % rotation.length];
+	function resolveRotation<T> (rotation: T[] | undefined, intervals: number) {
+		return !rotation?.length ? undefined : rotation?.[intervals % rotation.length];
 	}
 
 	export function isWeeklyChallenge (objective?: DestinyObjectiveDefinition): objective is DestinyObjectiveDefinition {

@@ -1,5 +1,6 @@
 import ansi from "ansicolor";
 import dotenv from "dotenv";
+import * as tsconfigpaths from "tsconfig-paths";
 import Log from "./Log";
 import type { TaskFunction, TaskFunctionDef } from "./Task";
 import Task from "./Task";
@@ -8,6 +9,8 @@ import { stopwatch } from "./Time";
 try {
 	dotenv.config();
 } catch { }
+
+tsconfigpaths.register();
 
 export interface ITaskApi {
 	lastError?: Error;

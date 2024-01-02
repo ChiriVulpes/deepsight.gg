@@ -1,4 +1,4 @@
-export type ISOString = `${bigint}-${bigint}-${bigint}T${bigint}:${bigint}:${bigint}Z`;
+export type ISOString = `${bigint}-${"0" | ""}${bigint}-${"0" | ""}${bigint}T${"0" | ""}${bigint}:${"0" | ""}${bigint}:${"0" | ""}${bigint}Z`;
 
 export interface DeepsightManifest {
 	/**
@@ -111,6 +111,15 @@ export declare interface DeepsightDropTableDefinition {
 	 * If challenges or drops rotate, this field will be filled.
 	 */
 	rotations?: DeepsightDropTableRotationsDefinition;
+
+	/**
+	 * If this activity is only available for a certain period of time, this specifies whether it's available as a rotator or whether it's a repeatable activity (IE, the most recent ones)
+	 */
+	availability?: "rotator" | "repeatable";
+	/**
+	 * A datetime string in the ISO format, yyyy-mm-ddThh:mm:ssZ, representing the time when this activity will no longer be available
+	 */
+	endTime?: ISOString;
 }
 
 export declare interface DeepsightDropTableEncounterDefinition {
@@ -172,21 +181,27 @@ export declare interface DeepsightDropTableDropDefinition {
 
 export declare interface DeepsightDropTableRotationsDefinition {
 	/**
-	 * Unix timestamp (ms) of a Destiny reset, referring to the following week's rotation.
+	 * A datetime string in the ISO format, yyyy-mm-ddThh:mm:ssZ, representing the time the rotations start from.
 	 */
-	anchor: number;
+	anchor: ISOString;
 	/**
-	 * `DestinyInventoryItemDefinition` hashes.
-	 * The first drop will be the active drop during the week of the anchor reset, then the next drop the next week,
+	 * Whether this rotation is daily or weekly. If not provided, it should default to "weekly"
+	 */
+	interval?: "daily" | "weekly";
+	/**
+	 * An array of drop table objects (containing all possible drops) or `DestinyInventoryItemDefinition` hashes (for a single drop).
+	 * 
+	 * The first item in the array will be the active drop(s) during the week of the anchor reset, then the next drop the next week,
 	 * and so on until all drops are exhausted. At that point, it cycles back to the first drop.
 	 */
-	drops?: number[];
+	drops?: (Record<number, DeepsightDropTableDropDefinition> | number)[];
 	/**
-	 * `DestinyInventoryItemDefinition` hashes.
-	 * The first drop will be the active drop during the week of the anchor reset, then the next drop the next week,
+	 *  An array of drop table objects (containing all possible drops) or `DestinyInventoryItemDefinition` hashes (for a single drop).
+	 * 
+	 * The first item in the array will be the active drop(s) during the week of the anchor reset, then the next drop the next week,
 	 * and so on until all drops are exhausted. At that point, it cycles back to the first drop.
 	 */
-	masterDrops?: number[];
+	masterDrops?: (Record<number, DeepsightDropTableDropDefinition> | number)[];
 	/**
 	 * `DestinyActivityModifierDefinition` hashes.
 	 * The first challenge will be the active challenge during the week of the anchor reset, then the next challenge the next week,

@@ -1,6 +1,6 @@
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition } from "../../src/node_modules/bungie-api-ts/destiny2";
-import type { DestinyManifestComponentValue } from "./DestinyManifest";
-import manifest from "./DestinyManifest";
+import type { DestinyManifestComponentValue } from "./utility/endpoint/DestinyManifest";
+import manifest from "./utility/endpoint/DestinyManifest";
 
 interface HasDisplayPropertiesOrIconWatermark {
 	displayProperties?: DestinyDisplayPropertiesDefinition;

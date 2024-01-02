@@ -1,9 +1,9 @@
 import fs from "fs-extra";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "../src/node_modules/bungie-api-ts/destiny2";
 import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
-import manifest from "./manifest/DestinyManifest";
-import Objects from "./utilities/Objects";
-import Task from "./utilities/Task";
+import manifest from "./manifest/utility/endpoint/DestinyManifest";
+import Objects from "./utility/Objects";
+import Task from "./utility/Task";
 
 const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
 	DestinyInventoryBucketDefinition: {
@@ -33,6 +33,7 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 	],
 	DestinyActivityDefinition: ["loadouts*", "destinationHash"],
 	DestinyRecordDefinition: ["loreHash", "completionInfo.ScoreValue", "objectiveHashes*", "parentNodeHashes*"],
+	DestinyVendorDefinition: ["itemList.*"],
 };
 
 const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, Record<string, keyof AllDestinyManifestComponents>>> = {

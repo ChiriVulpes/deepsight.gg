@@ -3,27 +3,26 @@ import Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import Moments from "model/models/Moments";
 import ProfileBatch from "model/models/ProfileBatch";
-import WeaponRotation from "model/models/WeaponRotation";
 import View from "ui/View";
 import CollectionsCurrentlyAvailable from "ui/view/collections/CollectionsCurrentlyAvailable";
 import CollectionsMoment from "ui/view/collections/CollectionsMoment";
 import Arrays from "utility/Arrays";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
-const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, WeaponRotation?, Inventory?]> =>
+const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, Inventory?]> =>
 	!Bungie.authenticated ? []
-		: api.subscribeProgressAndWaitAll(Arrays.tuple(ProfileBatch, WeaponRotation, Inventory.createModel()), 1));
+		: api.subscribeProgressAndWaitAll(Arrays.tuple(ProfileBatch, Inventory.createModel()), 1));
 
 export default View.create({
 	models: [Manifest, Moments, CollectionsViewModel] as const,
 	id: "collections",
 	name: "Collections",
 	auth: "optional",
-	initialise: (view, manifest, moments, [profile, weaponRotation, inventory]) => {
+	initialise: (view, manifest, moments, [profile, inventory]) => {
 		view.setTitle(title => title.text.set("Collections"));
 
-		if (profile && weaponRotation && inventory)
-			CollectionsCurrentlyAvailable.create([manifest, profile, weaponRotation, inventory])
+		if (profile && inventory)
+			CollectionsCurrentlyAvailable.create([manifest, profile, inventory])
 				.appendTo(view.content);
 
 		let shownExpansion = false;

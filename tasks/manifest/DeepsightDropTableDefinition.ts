@@ -1,12 +1,15 @@
+import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
-import Log from "../utilities/Log";
-import Task from "../utilities/Task";
-import Time from "../utilities/Time";
-import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./DestinyManifest";
+import Log from "../utility/Log";
+import Task from "../utility/Task";
+import Time from "../utility/Time";
 import DestinyManifestReference from "./DestinyManifestReference";
-import { ActivityModeHashes } from "./Enums";
+import type { ActivityHashes } from "./Enums";
+import { ActivityModeHashes, InventoryItemHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
-import PGCR, { DestinyActivityModeType } from "./droptable/PGCR";
+import VendorDropTables from "./droptable/VendorDropTables";
+import PGCR from "./utility/PGCR";
+import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
 interface DeepsightDropTableDefinition {
 	hash: number;
@@ -59,39 +62,87 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		definition.displayProperties.description ??= "";
 	}
 
-	if (Time.lastTrialsReset > Time.lastWeeklyReset) {
-		const trialsPGCR = await PGCR.findByMode(DestinyActivityModeType.TrialsOfOsiris);
-		const activityDef = await manifest.DestinyActivityDefinition.get(trialsPGCR?.activityDetails.referenceId);
-		Log.info("Trials Map:", activityDef?.displayProperties.name, trialsPGCR?.activityDetails.referenceId);
-		DeepsightDropTableDefinition.trials = activityDef && {
-			hash: activityDef.hash,
-			displayProperties: {
-				name: activityDef.displayProperties.name,
-				description: activityDef.displayProperties.description,
-				icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.TrialsOfOsiris))?.displayProperties.icon,
-			},
-		};
+	interface ActivityCache {
+		asOf?: number;
+		trials?: ActivityHashes;
+		lostSector?: ActivityHashes;
 	}
 
-	const lostSectorPGCR = await PGCR.findByMode(DestinyActivityModeType.LostSector);
-	const lostSectorDef = await manifest.DestinyActivityDefinition.get(lostSectorPGCR?.activityDetails.referenceId);
-	Log.info("Lost Sector:", lostSectorDef?.displayProperties.name, lostSectorPGCR?.activityDetails.referenceId);
+	const cache = await fs.readFile("activitycache.json", "utf8")
+		.then(contents => JSON.parse(contents))
+		.catch(() => ({})) as ActivityCache;
+
+	if (!cache.asOf || cache.asOf < Time.lastDailyReset) {
+		if (Time.lastTrialsReset > Time.lastWeeklyReset) {
+			const trialsPGCR = await PGCR.findByMode(DestinyActivityModeType.TrialsOfOsiris);
+			cache.trials = trialsPGCR?.activityDetails.referenceId;
+		}
+
+		const lostSectorPGCR = await PGCR.findByMode(DestinyActivityModeType.LostSector);
+		cache.lostSector = lostSectorPGCR?.activityDetails.referenceId;
+
+		cache.asOf = Time.lastDailyReset;
+		await fs.writeFile("activitycache.json", JSON.stringify(cache));
+	}
+
+	const vendorDropTables = await VendorDropTables();
+
+	const activityDef = await manifest.DestinyActivityDefinition.get(cache.trials);
+	Log.info("Trials Map:", activityDef?.displayProperties.name, cache.trials);
+	DeepsightDropTableDefinition.trials = activityDef && {
+		hash: activityDef.hash,
+		displayProperties: {
+			name: activityDef.displayProperties.name,
+			description: activityDef.displayProperties.description,
+			icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.TrialsOfOsiris))?.displayProperties.icon,
+		},
+		...vendorDropTables.trials,
+	};
+
+	const lostSectorDef = await manifest.DestinyActivityDefinition.get(cache.lostSector);
+	Log.info("Lost Sector:", lostSectorDef?.displayProperties.name, cache.lostSector);
 	DeepsightDropTableDefinition.lostSector = lostSectorDef && {
 		hash: lostSectorDef.hash,
 		displayProperties: {
 			name: lostSectorDef.originalDisplayProperties.name,
 			icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.LostSector))?.displayProperties.icon,
 		},
+		rotations: {
+			anchor: Time.iso(1701190800000),
+			interval: "daily",
+			drops: [
+				{
+					[InventoryItemHashes.NoxPerennialVFusionRifle]: {},
+					[InventoryItemHashes.OldSterlingAutoRifle]: {},
+					[InventoryItemHashes.MarsilionCGrenadeLauncher]: {},
+					[InventoryItemHashes.SenunaSi6Sidearm]: {},
+				},
+				{
+					[InventoryItemHashes.PsiHermeticVPulseRifle]: {},
+					[InventoryItemHashes.Glissando47ScoutRifle]: {},
+					[InventoryItemHashes.IrukandjiSniperRifle]: {},
+					[InventoryItemHashes.NasreddinSword_InventoryTierType5]: {},
+				},
+				{
+					[InventoryItemHashes.HeliocentricQscSidearm]: {},
+					[InventoryItemHashes.LastForaySniperRifle]: {},
+					[InventoryItemHashes.HandInHandShotgun_InventoryTierType5]: {},
+					[InventoryItemHashes.BattleScarPulseRifle_IconWatermarkShelvedUndefined]: {},
+				},
+				{
+					[InventoryItemHashes.GeodeticHsmSword]: {},
+					[InventoryItemHashes.CombinedActionHandCannon]: {},
+					[InventoryItemHashes.HarshLanguageGrenadeLauncher_InventoryTierType5]: {},
+					[InventoryItemHashes.Coronach22AutoRifle]: {},
+				},
+			],
+		},
+		availability: "rotator",
+		endTime: Time.iso(Time.nextDailyReset),
 	};
 
-	// Log.info("Nightfall:", nightfallDef?.displayProperties.name, nightfallPGCR?.activityDetails.referenceId);
-	// DeepsightDropTableDefinition.nightfall = nightfallDef && {
-	// 	hash: nightfallDef.hash,
-	// 	displayProperties: {
-	// 		name: nightfallDef.originalDisplayProperties.name,
-	// 		icon: "./image/png/activity/strike.png",
-	// 	},
-	// };
+	Log.info("Nightfall:", vendorDropTables.nightfall?.displayProperties?.name, vendorDropTables.nightfall?.hash);
+	DeepsightDropTableDefinition.nightfall = vendorDropTables.nightfall;
 
 	await fs.mkdirp("docs/manifest");
 	await fs.writeJson("docs/manifest/DeepsightDropTableDefinition.json", DeepsightDropTableDefinition, { spaces: "\t" });

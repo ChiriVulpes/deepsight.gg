@@ -9,8 +9,9 @@ import parseUrl from "parseurl";
 import path from "path";
 import serveStatic from "serve-static";
 import url from "url";
-import Log from "./utilities/Log";
-import Task from "./utilities/Task";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
+import Task from "./utility/Task";
 
 export default Task("serve", () => {
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-call
@@ -35,7 +36,7 @@ export default Task("serve", () => {
 		res.end();
 	}) as ErrorHandleFunction);
 
-	const port = process.env.PORT ? +process.env.PORT : 4000;
+	const port = Env.PORT ? +Env.PORT : 4000;
 
 	// remove console.info function to skip the log that https-localhost has
 	console.info = () => { };
@@ -48,7 +49,7 @@ export default Task("serve", () => {
 			delete (console as any).info;
 
 			const networkInterfaces = os.networkInterfaces();
-			Log.info("Serving", ansi.cyan(root), "on:", ...(process.env.HOSTNAME ? [process.env.HOSTNAME]
+			Log.info("Serving", ansi.cyan(root), "on:", ...(Env.HOSTNAME ? [Env.HOSTNAME]
 				: Object.values(networkInterfaces)
 					.flatMap(interfaces => interfaces)
 					.filter((details): details is os.NetworkInterfaceInfoIPv4 => details?.family === "IPv4")

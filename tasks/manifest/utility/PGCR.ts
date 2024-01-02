@@ -1,12 +1,10 @@
-import type { DestinyPostGameCarnageReportData, ServerResponse } from "../../../src/node_modules/bungie-api-ts/destiny2";
-import { DestinyActivityModeType } from "../../../src/node_modules/bungie-api-ts/destiny2";
+import type { DestinyActivityModeType, DestinyPostGameCarnageReportData, ServerResponse } from "bungie-api-ts/destiny2";
 import type { DeepsightManifest, DeepsightManifestReferencePGCR } from "../../../static/manifest/Interfaces";
-import Log from "../../utilities/Log";
+import Env from "../../utility/Env";
+import Log from "../../utility/Log";
 import type { ActivityTypeHashes } from "../Enums";
 
-export { DestinyActivityModeType };
-
-const apiKey = process.env.DEEPSIGHT_MANIFEST_API_KEY;
+const apiKey = Env.DEEPSIGHT_MANIFEST_API_KEY;
 if (!apiKey)
 	throw new Error("No API key set");
 

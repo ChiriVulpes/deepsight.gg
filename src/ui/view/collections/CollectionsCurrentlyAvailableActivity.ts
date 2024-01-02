@@ -1,7 +1,6 @@
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
-import Trials from "model/models/Trials";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
 import { SourceType } from "model/models/items/Source";
@@ -44,10 +43,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.style.set("--icon", Display.icon(icon) ?? Display.icon(activity)))
 			.prependTo(this);
 
-		if (activity.hash === Trials.GENERIC_ACTIVITY_HASH)
-			void Trials.Map.await().then(activity => activity && this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`));
-		else
-			this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`);
+		this.background.attributes.set("src", `https://www.bungie.net${activity.pgcrImage}`);
 
 		// ensure fake card header (which contains the card hover sheen and the box shadow contrast reducer border) 
 		// is after the icon & background

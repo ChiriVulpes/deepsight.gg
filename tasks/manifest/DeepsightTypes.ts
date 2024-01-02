@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import Task from "../utilities/Task";
+import Task from "../utility/Task";
 
 export default Task("DeepsightTypes", async () => {
 	await emit("DeepsightPlugCategorisation");
