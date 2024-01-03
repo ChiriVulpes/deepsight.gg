@@ -1,3 +1,4 @@
+import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import Log from "../utility/Log";
@@ -9,6 +10,7 @@ import { ActivityModeHashes, InventoryItemHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
 import PGCR from "./utility/PGCR";
+import DestinyActivities from "./utility/endpoint/DestinyActivities";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
 interface DeepsightDropTableDefinition {
@@ -23,7 +25,8 @@ interface DeepsightDropTableDefinition {
 }
 
 export default Task("DeepsightDropTableDefinition", async () => {
-	const { DestinyActivityDefinition, DestinyRecordDefinition } = manifest;
+	const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyObjectiveDefinition } = manifest;
+	const activities = await DestinyActivities.get();
 
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {
 		definition.hash = +hash;
@@ -60,6 +63,27 @@ export default Task("DeepsightDropTableDefinition", async () => {
 
 		definition.displayProperties.name ??= "";
 		definition.displayProperties.description ??= "";
+
+		////////////////////////////////////
+		// Use live profile data to determine whether raids & dungeons are rotators or repeatable (new)
+
+		const activityInstances = activities.filter(activity => activity.activity.activityHash === definition.rotationActivityHash);
+		if (!activityInstances.length)
+			activityInstances.push(...activities.filter(activity => activity.activity.activityHash === definition.hash));
+
+		const activityChallengeStates = activityInstances.flatMap(activity => activity.activity?.challenges ?? []);
+		const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
+			.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
+
+		const isWeekly = activityChallenges.some(challenge => challenge?.displayProperties?.name === "Weekly Dungeon Challenge" || challenge?.displayProperties?.name === "Weekly Raid Challenge");
+		if (isWeekly) {
+			definition.availability = "rotator";
+			definition.endTime = Time.iso(Time.nextWeeklyReset);
+		}
+
+		const masterActivityAvailable = definition.master && !!activities.filter(activity => activity.activity.activityHash === definition.master?.activityHash).length;
+		if (masterActivityAvailable)
+			definition.availability ??= "repeatable";
 	}
 
 	interface ActivityCache {

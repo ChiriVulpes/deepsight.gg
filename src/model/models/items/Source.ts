@@ -1,10 +1,8 @@
-import { ActivityTypeHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
-import { type DestinyActivity, type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
+import { type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
-import Objects from "utility/Objects";
 import Time from "utility/Time";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
@@ -16,11 +14,8 @@ export enum SourceType {
 
 export interface ISource {
 	dropTable: DeepsightDropTableDefinition;
-	activity?: DestinyActivity;
 	activityDefinition: DestinyActivityDefinition;
-	activityChallenges: DestinyObjectiveDefinition[];
 	masterActivityDefinition?: DestinyActivityDefinition;
-	masterActivity?: DestinyActivity | true;
 	activeChallenge?: DestinyActivityModifierDefinition;
 	isActiveDrop: boolean;
 	isActiveMasterDrop: boolean;
@@ -69,24 +64,10 @@ namespace Source {
 	}
 
 	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
-		const { DestinyActivityDefinition, DestinyActivityModifierDefinition, DestinyObjectiveDefinition, DestinyInventoryItemDefinition } = manifest;
+		const { DestinyActivityDefinition, DestinyActivityModifierDefinition, DestinyInventoryItemDefinition } = manifest;
 
 		const intervals = Math.floor((Date.now() - new Date(table.rotations?.anchor ?? 0).getTime())
 			/ (table.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
-
-		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile.characterActivities?.data ?? Objects.EMPTY)
-			.flatMap(activities => activities.availableActivities);
-
-		const activityInstances = availableActivities.filter(activity => activity.activityHash === table.rotationActivityHash);
-		if (!activityInstances.length)
-			activityInstances.push(...availableActivities.filter(activity => activity.activityHash === table.hash));
-
-		const activityChallengeStates = activityInstances.flatMap(activity => activity?.challenges ?? []);
-		const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
-			.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
-
-		const masterActivity = !table.master?.activityHash ? undefined
-			: availableActivities.find(activity => activity.activityHash === table.master!.activityHash);
 
 		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
@@ -94,8 +75,6 @@ namespace Source {
 		const type = undefined
 			?? (table.availability === "rotator" ? SourceType.Rotator : undefined)
 			?? (table.availability === "repeatable" ? SourceType.Repeatable : undefined)
-			?? (activityChallenges.some(Source.isWeeklyChallenge) ? SourceType.Rotator : undefined)
-			?? (activityDefinition?.activityTypeHash === ActivityTypeHashes.Raid || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Dungeon ? SourceType.Repeatable : undefined)
 			?? SourceType.Playlist;
 
 		const dropDef = table.dropTable?.[item.definition.hash]
@@ -115,16 +94,12 @@ namespace Source {
 
 		return {
 			dropTable: table,
-			activity: activityInstances[0],
 			activityDefinition: activityDefinition!,
-			activityChallenges,
 			masterActivityDefinition,
-			masterActivity,
 			activeChallenge: !isRotatingChallengeRelevant ? undefined
 				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, intervals)),
-			isActiveDrop: table.rotations?.drops ? isRotationDrop
-				: activityChallenges.some(isWeeklyChallenge) || !!masterActivity,
-			isActiveMasterDrop: isMaster,
+			isActiveDrop: !!table.rotations?.drops && isRotationDrop,
+			isActiveMasterDrop: !!table.availability && isMaster,
 			type,
 			endTime: table.endTime ? new Date(table.endTime).getTime() : type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),
