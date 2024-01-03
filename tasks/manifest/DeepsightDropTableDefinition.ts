@@ -86,6 +86,7 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			definition.availability ??= "repeatable";
 	}
 
+
 	interface ActivityCache {
 		asOf?: number;
 		trials?: ActivityHashes;
@@ -96,7 +97,7 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		.then(contents => JSON.parse(contents))
 		.catch(() => ({})) as ActivityCache;
 
-	if (!cache.asOf || cache.asOf < Time.lastDailyReset) {
+	if (!cache.asOf || (cache.asOf < Time.lastDailyReset && Date.now() - Time.lastDailyReset > Time.minutes(30))) {
 		if (Time.lastTrialsReset > Time.lastWeeklyReset) {
 			const trialsPGCR = await PGCR.findByMode(DestinyActivityModeType.TrialsOfOsiris);
 			cache.trials = trialsPGCR?.activityDetails.referenceId;

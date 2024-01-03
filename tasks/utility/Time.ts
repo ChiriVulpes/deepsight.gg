@@ -70,6 +70,10 @@ export default class Time {
 		return week < Date.now() ? week + this.weeks(1) : week;
 	}
 
+	static minutes (minutes: number) {
+		return minutes * 1000 * 60;
+	}
+
 	static hours (hours: number) {
 		return hours * 1000 * 60 * 60;
 	}
