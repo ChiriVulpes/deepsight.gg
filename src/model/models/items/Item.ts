@@ -521,7 +521,7 @@ class Item {
 	 */
 	public isFomo () {
 		for (const source of this.sources ?? []) {
-			if (source.isActiveDrop && (source.activityChallenges.some(Source.isWeeklyChallenge) || source.masterActivityDefinition?.activityTypeHash === 2043403989 /* Raid */ || source.masterActivityDefinition?.activityTypeHash === 608898761 /* Dungeon */))
+			if (source.dropTable.availability)
 				return ItemFomoState.TemporaryRepeatability;
 
 			if (source.dropTable.dropTable?.[this.definition.hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash]))
@@ -531,7 +531,7 @@ class Item {
 			if (source.isActiveDrop)
 				return ItemFomoState.TemporaryAvailability;
 
-			if (source.masterActivity && source.isActiveMasterDrop)
+			if (source.isActiveMasterDrop)
 				return ItemFomoState.TemporaryRepeatability;
 		}
 

@@ -1,12 +1,9 @@
 import { ActivityModeHashes, ActivityTypeHashes } from "@deepsight.gg/enums";
-import { type DestinyCharacterActivitiesComponent } from "bungie-api-ts/destiny2";
-import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2/interfaces";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type ProfileBatch from "model/models/ProfileBatch";
 import Item from "model/models/items/Item";
-import Source from "model/models/items/Source";
 import Details from "ui/Details";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Paginator from "ui/form/Paginator";
@@ -36,11 +33,9 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		const items = await this.discoverItems(manifest, profile);
 
 		const sources = items.flatMap(item => item.sources ?? Arrays.EMPTY)
-			.flatMap(source => [
-				source.isActiveMasterDrop && source.masterActivityDefinition && !source.masterActivityDefinition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)
-					? Arrays.tuple(source.masterActivityDefinition.hash, source.masterActivityDefinition, source)
-					: Arrays.tuple(source.activityDefinition.hash, source.activityDefinition, source),
-			])
+			.map(source => source.masterActivityDefinition && (source.isActiveMasterDrop || source.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
+				? Arrays.tuple(source.masterActivityDefinition.hash, source.masterActivityDefinition, source)
+				: Arrays.tuple(source.activityDefinition.hash, source.activityDefinition, source))
 			.sort(([, , a], [, , b]) => a.type - b.type);
 		// .filter((source): source is [number, DestinyActivityDefinition, ISource] => !!source);
 
@@ -66,13 +61,14 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 			const sourceItems = items.filter(item => item.sources?.some(source => {
 				if (source.activityDefinition.hash === hash)
-					return hash in (source.dropTable.dropTable ?? Objects.EMPTY)
-						|| source.dropTable.encounters?.some(encounter => hash in (encounter.dropTable ?? Objects.EMPTY))
+					return item.definition.hash in (source.dropTable.dropTable ?? Objects.EMPTY)
+						|| source.dropTable.encounters?.some(encounter => item.definition.hash in (encounter.dropTable ?? Objects.EMPTY))
 						|| source.isActiveDrop
 						|| false;
 
-				return (source.masterActivityDefinition?.hash === hash && source.isActiveMasterDrop)
-					|| false;
+				return source.masterActivityDefinition?.hash === hash
+					&& (source.isActiveMasterDrop
+						|| source.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall));
 			}));
 
 			if (!sourceItems.length)
@@ -97,30 +93,16 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 	private async discoverItems (manifest: Manifest, profile?: ProfileBatch) {
 		const itemHashes = new Set<number>();
 
-		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition, DestinyActivityDefinition } = manifest;
-
-		const availableActivities = Object.values<DestinyCharacterActivitiesComponent>(profile?.characterActivities?.data ?? Objects.EMPTY)
-			.flatMap(activities => activities.availableActivities);
+		const { DeepsightDropTableDefinition, DestinyInventoryItemDefinition, DestinyActivityDefinition } = manifest;
 
 		const dropTables = await DeepsightDropTableDefinition.all();
 		for (const source of dropTables) {
-			const activityInstances = availableActivities.filter(activity => activity.activityHash === source.rotationActivityHash);
-			if (!activityInstances.length)
-				activityInstances.push(...availableActivities.filter(activity => activity.activityHash === source.hash));
-
-			const masterActivity = !source.master?.activityHash ? undefined
-				: availableActivities.find(activity => activity.activityHash === source.master!.activityHash);
-
-			const masterActivityDefinition = await DestinyActivityDefinition.get(masterActivity?.activityHash);
-
-			const activityChallengeStates = activityInstances.flatMap(activity => activity?.challenges ?? []);
-			const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
-				.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
+			const masterActivityDefinition = await DestinyActivityDefinition.get(source.master?.activityHash);
 
 			const intervals = Math.floor((Date.now() - new Date(source.rotations?.anchor ?? 0).getTime())
 				/ (source.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
 
-			if (source.availability || activityChallenges.some(Source.isWeeklyChallenge) || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Raid || masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Dungeon) {
+			if (source.availability) {
 				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))
 					itemHashes.add(+dropHash);
 
@@ -138,7 +120,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 				}
 			}
 
-			if (masterActivity) {
+			if (masterActivityDefinition) {
 				if (source.rotations) {
 					const masterDrop = resolveRotation(source.rotations.masterDrops, intervals);
 					if (typeof masterDrop === "number")

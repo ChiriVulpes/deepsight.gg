@@ -55,7 +55,8 @@ export default class Time {
 	}
 
 	static get lastTrialsReset () {
-		return this.nextWeeklyReset - this.days(4);
+		const trialsReset = this.lastWeeklyReset - this.days(4);
+		return trialsReset > Date.now() ? trialsReset - this.weeks(1) : trialsReset;
 	}
 
 	static get nextDailyReset () {
@@ -64,12 +65,21 @@ export default class Time {
 	}
 
 	static get nextWeeklyReset () {
-		const daysRemaining = (8 - new Date().getUTCDay()) % 7;
-		return this.nextDailyReset + daysRemaining * Time.days(1);
+		const now = Date.now();
+		const week = now + (this.weeks(1) - (now % this.weeks(1))) - this.days(1) - this.hours(7);
+		return week < Date.now() ? week + this.weeks(1) : week;
+	}
+
+	static hours (hours: number) {
+		return hours * 1000 * 60 * 60;
 	}
 
 	static days (days: number) {
 		return days * 1000 * 60 * 60 * 24;
+	}
+
+	static weeks (weeks: number) {
+		return weeks * 1000 * 60 * 60 * 24 * 7;
 	}
 
 	static iso (time?: Date | number | string) {

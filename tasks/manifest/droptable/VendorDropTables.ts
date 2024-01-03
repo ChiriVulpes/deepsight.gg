@@ -1,6 +1,6 @@
 import Strings from "@app/utility/Strings";
 import type { DestinyInventoryItemDefinition, DestinyVendorSaleItemComponent } from "bungie-api-ts/destiny2";
-import { DestinyActivityModeType, DestinyComponentType } from "bungie-api-ts/destiny2";
+import { DestinyActivityModeType, DestinyComponentType, DestinyVendorItemState, VendorItemStatus } from "bungie-api-ts/destiny2";
 import Time from "../../utility/Time";
 import { ActivityTypeHashes, InventoryItemHashes, VendorHashes } from "../Enums";
 import ItemEquippableDummies from "../utility/ItemEquippableDummies";
@@ -75,26 +75,51 @@ async function getTrialsDropTable (): Promise<Partial<DeepsightDropTableDefiniti
 	};
 }
 
+function createFakeSaleItem (itemHash: InventoryItemHashes): DestinyVendorSaleItemComponent {
+	return {
+		saleStatus: VendorItemStatus.DisplayOnly,
+		requiredUnlocks: [],
+		unlockStatuses: [],
+		failureIndexes: [],
+		augments: DestinyVendorItemState.Featured,
+		itemValueVisibility: [],
+		vendorItemIndex: -1,
+		itemHash,
+		quantity: 1,
+		costs: [],
+	};
+}
+
 async function getVendorWeapons (vendorHash: VendorHashes) {
 	const { DestinyInventoryItemDefinition } = manifest;
 	const result: DestinyInventoryItemDefinition[] = [];
 
-	for (const vendor of await DestinyVendor.get(vendorHash, DestinyComponentType.VendorSales)) {
-		for (const sale of Object.values<DestinyVendorSaleItemComponent>(vendor.sales.data ?? {})) {
-			const definition = await DestinyInventoryItemDefinition.get(sale.itemHash);
-			const name = definition?.displayProperties?.name.trimEnd();
-			if (!name?.endsWith("(Adept)"))
-				continue;
+	function addItem (item?: DestinyInventoryItemDefinition) {
+		if (!item || result.includes(item))
+			return;
 
-			const item = await ItemEquippableDummies.findPreferredCopy(definition!);
-			const nonAdept = await ItemEquippableDummies.findPreferredCopy(Strings.trimTextMatchingFromEnd(name, " (Adept)"));
-
-			if (item)
-				result.push(item);
-			if (nonAdept)
-				result.push(nonAdept);
-		}
+		result.push(item);
 	}
 
-	return result;
+	const sales = await Promise.resolve(DestinyVendor.get(vendorHash, DestinyComponentType.VendorSales))
+		.then(vendors => vendors.flatMap(vendor => Object.values<DestinyVendorSaleItemComponent>(vendor.sales.data ?? {})));
+
+	// if (vendorHash === Saint14FocusedDecoding)
+	// 	sales.push(createFakeSaleItem(InventoryItemHashes.EyeOfSolAdeptSniperRifle_QualityCurrentVersion0));
+
+	for (const sale of sales) {
+		const definition = await DestinyInventoryItemDefinition.get(sale.itemHash);
+		const name = definition?.displayProperties?.name.trimEnd();
+
+		const isAdept = name?.endsWith("(Adept)");
+		if (vendorHash !== Saint14FocusedDecoding && !isAdept)
+			continue;
+
+		addItem(await ItemEquippableDummies.findPreferredCopy(definition!));
+
+		if (isAdept)
+			addItem(await ItemEquippableDummies.findPreferredCopy(Strings.trimTextMatchingFromEnd(name!, " (Adept)")));
+	}
+
+	return [...result];
 }

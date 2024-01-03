@@ -12,10 +12,15 @@ export default async function <T> (path: string) {
 			Authorization: `Bearer ${accessToken}`,
 		},
 	})
-		.then(response => response.json().catch(async err => {
-			console.log(await response.text());
-			throw err;
-		}) as Promise<ServerResponse<T>>)
+		.then(response => response.text())
+		.then(text => {
+			try {
+				return JSON.parse(text) as ServerResponse<T>;
+			} catch (err) {
+				console.log(text);
+				throw err;
+			}
+		})
 		.then(response => {
 			if (!response.Response)
 				throw new Error(`${response.ErrorCode} ${response.Message}`);

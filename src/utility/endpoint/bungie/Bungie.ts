@@ -34,8 +34,9 @@ export class BungieAPI {
 	}
 
 	public get nextWeeklyReset () {
-		const daysRemaining = (8 - new Date().getUTCDay()) % 7;
-		return this.nextDailyReset + daysRemaining * Time.days(1);
+		const now = Date.now();
+		const week = now + (Time.weeks(1) - (now % Time.weeks(1))) - Time.days(1) - Time.hours(7);
+		return week < Date.now() ? week + Time.weeks(1) : week;
 	}
 
 	public event = new EventManager<this, IBungieApiEvents>(this)
