@@ -2,6 +2,7 @@ import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase }
 import type DestinyManifestReference from "../DestinyManifestReference";
 import type { ActivityHashes } from "../Enums";
 import GhostsOfTheDeep from "./GhostsOfTheDeep";
+import KingsFall from "./KingsFall";
 import Prophecy from "./Prophecy";
 import RootOfNightmares from "./RootOfNightmares";
 import SpireOfTheWatcher from "./SpireOfTheWatcher";
@@ -27,7 +28,7 @@ export default {
 
 	// [CrotasEnd.hash]: CrotasEnd,
 	[RootOfNightmares.hash]: RootOfNightmares,
-	// [KingsFall.hash]: KingsFall,
+	[KingsFall.hash]: KingsFall,
 	// [VowOfTheDisciple.hash]: VowOfTheDisciple,
 	// [VaultOfGlass.hash]: VaultOfGlass,
 	// [DeepStoneCrypt.hash]: DeepStoneCrypt,

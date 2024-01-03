@@ -1,4 +1,5 @@
 import Model from "model/Model";
+import Activities from "model/models/Activities";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -9,6 +10,10 @@ import Env from "utility/Env";
 import URL from "utility/URL";
 
 void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+(window as any).Activities = Activities;
+
 
 export default class DeepsightGG {
 
