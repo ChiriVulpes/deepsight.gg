@@ -57,6 +57,9 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 			if (added.has(hash) || added.has(source.activityDefinition.hash))
 				continue;
 
+			if (source.endTime && new Date(source.endTime).getTime() < Date.now())
+				continue;
+
 			added.add(hash);
 
 			const sourceItems = items.filter(item => item.sources?.some(source => {
