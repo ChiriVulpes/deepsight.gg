@@ -15,7 +15,7 @@ $z-index-loading: 1000;
 	margin: 0;
 	padding: 0;
 	transition-property: background, border, color, transform, filter, opacity;
-	background: var(--background-color);
+	background: var(--background-color) !important;
 
 	&::after {
 		content: "";
@@ -732,6 +732,16 @@ $z-index-loading: 1000;
 			@include item-icon($icon, $to: after) {
 				bottom: 40%;
 			}
+		}
+	}
+	
+	&-exotic-armour-reward {
+		.item-icon {
+			opacity: 0.7;
+			width: 80%;
+			height: 80%;
+			inset: 10%;
+			position: absolute;
 		}
 	}
 }

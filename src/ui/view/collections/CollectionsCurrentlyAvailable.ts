@@ -140,7 +140,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		return Promise.all(Array.from(itemHashes).map(hash => Promise.resolve(DestinyInventoryItemDefinition.get(hash))
 			.then(def => def && Item.createFake(manifest, profile ?? {}, def))))
-			.then(items => items.filter((item): item is Item => !!item?.isWeapon()));
+			.then(items => items.filter((item): item is Item => !!item && (item.isWeapon() || item.isExotic())));
 	}
 }
 
