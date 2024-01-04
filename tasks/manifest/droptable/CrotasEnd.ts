@@ -83,7 +83,8 @@ export default {
             phaseHash: 1463700798,
             displayProperties: {
                 name: "Ir Yût, the Deathsinger",
-                description: "Defeat Ir Yût, the Deathsinger",
+                directive: "Reach the Summoning Crystal",
+                description: "Defeat the Hive Wizard guarding the summoning crystal."
             },
             dropTable: {
                 [InventoryItemHashes.WordOfCrotaHandCannon_ItemType3]: {},
@@ -110,7 +111,8 @@ export default {
             phaseHash: 4240994016,
             displayProperties: {
                 name: "Crota, Son of Oryx",
-                description: "Defeat Crota, Son of Oryx",
+                directive: "Defeat Crota",
+                description: "Use Crota's most powerful weapon against him.",
             },
             dropTable: {
                 [InventoryItemHashes.NecrochasmAutoRifle]: { requiresQuest: InventoryItemHashes.BottomlessPitQuestStep_Step2 }, // Necrochasm
@@ -147,7 +149,7 @@ export default {
         },
     },
     rotations: {
-        anchor: "2023-10-17T17:00:00", // oct 18
+        anchor: "2023-10-17T17:00:00Z",
         challenges: [
             [ActivityModifierHashes.ConservationOfEnergy],
             [ActivityModifierHashes.PrecariousBalance],
