@@ -1,9 +1,10 @@
 import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHashes } from "../Enums";
+import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-    hash: ActivityHashes.CrotasEnd,
+    hash: ActivityHashes.CrotasEndNormal,
     displayProperties: {
-        icon: { DestinyRecordDefinition: RecordHashes.CrotasEnd2045739672 }
+        icon: { DestinyRecordDefinition: RecordHashes.CrotasEnd2045739672 },
     },
     encounters: [
         {
@@ -11,7 +12,7 @@ export default {
             displayProperties: {
                 name: "Descend into the Hellmouth",
                 description: "Find a safe path into the Hellmouth.",
-            }
+            },
         },
         {
 
@@ -77,14 +78,14 @@ export default {
             displayProperties: {
                 name: "Enter Crota's Chamber",
                 description: "Breach the Hive barrier to access Crota's Chamber.",
-            }
+            },
         },
         {
             phaseHash: 1463700798,
             displayProperties: {
                 name: "Ir Yût, the Deathsinger",
                 directive: "Reach the Summoning Crystal",
-                description: "Defeat the Hive Wizard guarding the summoning crystal."
+                description: "Defeat the Hive Wizard guarding the summoning crystal.",
             },
             dropTable: {
                 [InventoryItemHashes.WordOfCrotaHandCannon_ItemType3]: {},
@@ -115,7 +116,7 @@ export default {
                 description: "Use Crota's most powerful weapon against him.",
             },
             dropTable: {
-                [InventoryItemHashes.NecrochasmAutoRifle]: { requiresQuest: InventoryItemHashes.BottomlessPitQuestStep_Step2 }, // Necrochasm
+                [InventoryItemHashes.NecrochasmAutoRifle]: { requiresQuest: InventoryItemHashes.BottomlessPitQuestStep_Step2 },
                 [InventoryItemHashes.WordOfCrotaHandCannon_ItemType3]: {},
                 [InventoryItemHashes.AbyssDefiantAutoRifle_ItemType3]: {},
                 [InventoryItemHashes.SwordbreakerShotgun_ItemType3]: {},
@@ -151,10 +152,10 @@ export default {
     rotations: {
         anchor: "2023-10-17T17:00:00Z",
         challenges: [
-            [ActivityModifierHashes.ConservationOfEnergy],
-            [ActivityModifierHashes.PrecariousBalance],
-            [ActivityModifierHashes.EqualVessels],
-            [ActivityModifierHashes.AllForOne],
+            ActivityModifierHashes.ConservationOfEnergy,
+            ActivityModifierHashes.PrecariousBalance,
+            ActivityModifierHashes.EqualVessels,
+            ActivityModifierHashes.AllForOne,
         ],
     },
-}
+} satisfies DeepsightDropTableDefinition;
