@@ -103,6 +103,7 @@
 			width: var(--card-width);
 			height: var(--card-height);
 			overflow: initial;
+			outline: none;
 
 			$sleeps: 2;
 			@at-root sleep:times(#{$sleeps}),
@@ -279,7 +280,21 @@
 					}
 					
 					&-expiry {
-						color: color(foreground-4);
+						color: color(foreground-3);
+						pointer-events: all;
+						z-index: 1;
+						position: relative;
+						
+						&-link {
+							text-decoration: none;
+							color: inherit;
+							@include transition(out, color);
+							&:hover, &:focus-visible {
+								color: color(foreground-0);
+								@include transition(in);
+								outline: none;
+							}
+						}
 					}
 				}
 			}
