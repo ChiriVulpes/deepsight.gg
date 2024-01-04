@@ -13,6 +13,20 @@ import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Display from "ui/bungie/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 
+const moreInfoLinks: Record<string, string | undefined> = {
+	nightfall: "https://bray.tech/weeklies/nightfall",
+	"lost-sector": "https://bray.tech/weeklies/lost-sector",
+	dungeon: "https://bray.tech/weeklies/dungeon",
+	raid: "https://bray.tech/weeklies/raid",
+};
+
+const rotationLinks: Record<string, string | undefined> = {
+	nightfall: "https://bray.tech/weeklies/rotations/nightfalls",
+	"lost-sector": "https://bray.tech/weeklies/rotations/lost-sectors",
+	dungeon: "https://bray.tech/weeklies/rotations/dungeons",
+	raid: "https://bray.tech/weeklies/rotations/raids",
+};
+
 export enum CollectionsCurrentlyAvailableActivityClasses {
 	Activity = "view-collections-currently-available-activity",
 	ActivityIcon = "view-collections-currently-available-activity-icon",
@@ -27,6 +41,7 @@ export enum CollectionsCurrentlyAvailableActivityClasses {
 	ActivityHeaderSubtitle = "view-collections-currently-available-activity-header-subtitle",
 	ActivityHeaderSubtitleNote = "view-collections-currently-available-activity-header-subtitle-note",
 	ActivityHeaderSubtitleExpiry = "view-collections-currently-available-activity-header-subtitle-expiry",
+	ActivityHeaderSubtitleExpiryLink = "view-collections-currently-available-activity-header-subtitle-expiry-link",
 }
 
 export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory?: Inventory]> {
@@ -35,6 +50,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		super.onMake(activity, source, activityType, items, inventory);
 		this.setDisplayMode(CardClasses.DisplayModeCard);
 		this.classes.add(CollectionsCurrentlyAvailableActivityClasses.Activity);
+		this.attributes.set("tabindex", "0");
 
 		const icon = source?.dropTable.displayProperties?.icon;
 
@@ -61,9 +77,11 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			?? Display.name(activityType)
 			?? "Unknown";
 
+		const activityTypeRefName = activityTypeName?.toLowerCase().replace(/\W+/g, "-");
+
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderBookmark)
-			.style.set("--background", `var(--background-${activityTypeName?.toLowerCase().replace(/\W+/g, "-")})`)
+			.style.set("--background", `var(--background-${activityTypeRefName})`)
 			.append(Component.create()
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderBookmarkIcon)
 				.style.set("--icon", Display.icon(activityType)))
@@ -73,6 +91,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			: source.type === SourceType.Repeatable ? "Repeatable"
 				: undefined;
 
+		let expiryWrapper: Component | undefined;
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitle)
 			.text.add(activityTypeName)
@@ -80,11 +99,23 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleNote)
 				.text.add(" \xa0 // \xa0 ")
 				.text.add(note))
-			.append(!source.endTime ? undefined : Component.create("span")
+			.append(!source.endTime ? undefined : expiryWrapper = Component.create("span")
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleExpiry)
-				.text.add(" \xa0 / \xa0 ")
-				.append(Timestamp.create([source.endTime, "relative", { components: 2, label: false }])))
+				.text.add(" \xa0 / \xa0 "))
 			.appendTo(this.header);
+
+		const rotationLink = expiryWrapper && rotationLinks[activityTypeRefName];
+		if (rotationLink)
+			Component.create("a")
+				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleExpiryLink)
+				.attributes.set("href", rotationLink)
+				.attributes.set("target", "_blank")
+				.append(Timestamp.create([source.endTime, "relative", { components: 2, label: false }]))
+				.appendTo(expiryWrapper);
+
+		const moreInfoLink = moreInfoLinks[activityTypeRefName];
+		if (moreInfoLink)
+			this.event.subscribe("contextmenu", () => window.open(moreInfoLink, "_blank"));
 
 		this.title.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityTitle)
 			.text.set(undefined
