@@ -1,7 +1,10 @@
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
 import ProfileBatch from "model/models/ProfileBatch";
+import type { EnumModelMapString } from "model/models/enum/EnumModelMap";
+import EnumModelMap from "model/models/enum/EnumModelMap";
 import type { CharacterId } from "model/models/items/Item";
 import Component from "ui/Component";
+import EnumIcon from "ui/bungie/EnumIcon";
 
 declare module "bungie-api-ts/destiny2/interfaces" {
 	interface DestinyDisplayPropertiesDefinition {
@@ -46,13 +49,27 @@ namespace Display {
 				.name;
 	}
 
-	const varRegex = /\{var:(\d+)\}/g;
-	export async function applyDescription (component: Component, description?: string, character?: CharacterId) {
+	const interpolationRegex = /(\{var:\d+\})|(\[[\w-]+\])/g;
+	interface DescriptionOptions {
+		character?: CharacterId;
+		/**
+		 * Whether to convert newlines into slashes.
+		 */
+		singleLine?: true;
+	}
+
+	export async function applyDescription (component: Component, description?: string, options?: DescriptionOptions | CharacterId) {
 		component.removeContents();
 		if (!description)
 			return;
 
-		const split = description.split(varRegex);
+		const character = typeof options === "string" ? options : options?.character;
+		options = typeof options === "string" ? {} : options;
+
+		if (options?.singleLine)
+			description = description.replace(/(\s*\n\s*)+/g, " \xa0 / \xa0 ");
+
+		const split = description.split(interpolationRegex);
 		if (split.length < 2)
 			return component.text.set(description);
 
@@ -61,18 +78,37 @@ namespace Display {
 			if (!section)
 				continue;
 
-			if (isNaN(+section)) {
-				component.text.add(section);
-				continue;
+			switch (section[0]) {
+				case "[": {
+					const iconName = section
+						.slice(1, -1)
+						.toLowerCase()
+						.replace(/\W+/g, "-");
+
+					const enumIconPath = EnumModelMap[iconName as EnumModelMapString];
+					if (!enumIconPath) {
+						console.warn("No entry in EnumModelMap for", iconName);
+						break;
+					}
+
+					component.append(EnumIcon.create([...enumIconPath]));
+					break;
+				}
+				case "{": {
+					const hash = section.slice(5, -1);
+					const value = characterStringVariables?.data?.[character!]?.integerValuesByHash[+hash]
+						?? profileStringVariables?.data?.integerValuesByHash[+hash]
+						?? 0;
+
+					component.append(Component.create("span")
+						.classes.add("var")
+						.text.set(`${value}`));
+					break;
+				}
+				default:
+					component.text.add(section);
 			}
 
-			const value = characterStringVariables?.data?.[character!]?.integerValuesByHash[+section]
-				?? profileStringVariables?.data?.integerValuesByHash[+section]
-				?? 0;
-
-			component.append(Component.create("span")
-				.classes.add("var")
-				.text.set(`${value}`));
 		}
 	}
 
