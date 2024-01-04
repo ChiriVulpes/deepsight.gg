@@ -1,18 +1,17 @@
 import { ActivityHashes, InventoryItemHashes, RecordHashes } from "../Enums";
-import { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
-
+import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
     hash: ActivityHashes.DeepStoneCrypt_RewardsLength0,
     displayProperties: {
-        icon: { DestinyRecordDefinition: RecordHashes.DeepStoneCrypt3185876102 }
+        icon: { DestinyRecordDefinition: RecordHashes.DeepStoneCrypt3185876102 },
     },
     encounters: [
         {
             traversal: true,
             displayProperties: {
                 name: "Locate the Deep Stone Crypt",
-                description: "Survive the cold while locating the Deep Stone Crypt",
+                description: "Survive the cold while locating the Deep Stone Crypt.",
             },
         },
         {
@@ -42,8 +41,8 @@ export default {
             },
         },
         {
-            traversal: true,
             phaseHash: 3847348336,
+            traversal: true,
             displayProperties: {
                 name: "Locate Eramis's Followers",
                 description: "Push deeper into the Crypt and locate Eramis's followers.",
@@ -52,9 +51,9 @@ export default {
         {
             phaseHash: 416127450,
             displayProperties: {
-                name: "Atraks-1, Fallen Exo",
+                name: "Atraks-1",
                 directive: "Defeat Atraks-1",
-                description: "Take down the Fallen Exo Atraks-1."
+                description: "Take down the Fallen Exo Atraks-1.",
             },
             dropTable: {
                 [InventoryItemHashes.SuccessionSniperRifle_ItemType3]: {},
@@ -77,11 +76,11 @@ export default {
             },
         },
         {
-            traversal: true,
             phaseHash: 1370965191,
+            traversal: true,
             displayProperties: {
                 name: "Locate the Nuclear Contingency Chamber",
-                description: "Reach the nuclear contingency chamber."
+                description: "Reach the nuclear contingency chamber.",
             },
         },
         {
@@ -89,7 +88,7 @@ export default {
             displayProperties: {
                 name: "Descent",
                 directive: "Prevent Europa's Destruction",
-                description: "Disarm the Nuclear Descent Protocol",
+                description: "Disarm the Nuclear Descent Protocol.",
             },
             dropTable: {
                 [InventoryItemHashes.PosterityHandCannon_ItemType3]: {},
@@ -123,7 +122,7 @@ export default {
             displayProperties: {
                 name: "Taniks, the Abomination",
                 directive: "Defeat Taniks, the Abomination",
-                description: "Defeat Taniks for good."
+                description: "Defeat Taniks for good.",
             },
             dropTable: {
                 [InventoryItemHashes.BequestSword_ItemType3]: {},
