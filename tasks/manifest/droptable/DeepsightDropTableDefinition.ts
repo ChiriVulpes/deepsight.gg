@@ -3,6 +3,7 @@ import type DestinyManifestReference from "../DestinyManifestReference";
 import type { ActivityHashes } from "../Enums";
 import CrotasEnd from "./CrotasEnd";
 import GhostsOfTheDeep from "./GhostsOfTheDeep";
+import GraspOfAvarice from "./GraspOfAvarice";
 import KingsFall from "./KingsFall";
 import LastWish from "./LastWish";
 import Prophecy from "./Prophecy";
@@ -23,7 +24,7 @@ export default {
 	[GhostsOfTheDeep.hash]: GhostsOfTheDeep,
 	[SpireOfTheWatcher.hash]: SpireOfTheWatcher,
 	// [Duality.hash]: Duality,
-	// [GraspOfAvarice.hash]: GraspOfAvarice,
+	[GraspOfAvarice.hash]: GraspOfAvarice,
 	[Prophecy.hash]: Prophecy,
 	// [PitOfHeresy.hash]: PitOfHeresy,
 	// [TheShatteredThrone.hash]: TheShatteredThrone,

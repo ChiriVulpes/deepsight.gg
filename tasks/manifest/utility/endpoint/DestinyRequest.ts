@@ -17,6 +17,20 @@ export default async function <T> (path: string) {
 			try {
 				return JSON.parse(text) as ServerResponse<T>;
 			} catch (err) {
+				if (text.includes("Server Error")) {
+					const [code, message, detail] = text.match(/<h2>(\d+) - ([^<]*)<\/h2>(\n|\s)*<h3>([^<]*)<\/h3>/) ?? [];
+					if (message) {
+						return {
+							Response: undefined,
+							ErrorCode: +code!,
+							ThrottleSeconds: 0,
+							ErrorStatus: message,
+							Message: detail || "",
+							MessageData: {},
+						} satisfies ServerResponse<undefined>;
+					}
+				}
+
 				console.log(text);
 				throw err;
 			}
