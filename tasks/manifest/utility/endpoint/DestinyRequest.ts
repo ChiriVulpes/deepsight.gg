@@ -2,14 +2,11 @@ import type { ServerResponse } from "bungie-api-ts/destiny2";
 import Env from "../../../utility/Env";
 import Log from "../../../utility/Log";
 
-const accessToken = Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN;
-const apiKey = Env.DEEPSIGHT_MANIFEST_API_KEY;
-
 export default async function <T> (path: string) {
 	return fetch(path.startsWith("https://") ? path : `https://www.bungie.net/Platform/${path}`, {
 		headers: {
-			"X-API-Key": apiKey!,
-			Authorization: `Bearer ${accessToken}`,
+			"X-API-Key": Env.DEEPSIGHT_MANIFEST_API_KEY!,
+			Authorization: `Bearer ${Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN}`,
 		},
 	})
 		.then(response => response.text())
