@@ -1,8 +1,10 @@
 import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase } from "../../../static/manifest/Interfaces";
 import type DestinyManifestReference from "../DestinyManifestReference";
 import type { ActivityHashes } from "../Enums";
+import CrotasEnd from "./CrotasEnd";
 import GhostsOfTheDeep from "./GhostsOfTheDeep";
 import KingsFall from "./KingsFall";
+import LastWish from "./LastWish";
 import Prophecy from "./Prophecy";
 import RootOfNightmares from "./RootOfNightmares";
 import SpireOfTheWatcher from "./SpireOfTheWatcher";
@@ -26,12 +28,12 @@ export default {
 	// [PitOfHeresy.hash]: PitOfHeresy,
 	// [TheShatteredThrone.hash]: TheShatteredThrone,
 
-	// [CrotasEnd.hash]: CrotasEnd,
+	[CrotasEnd.hash]: CrotasEnd,
 	[RootOfNightmares.hash]: RootOfNightmares,
 	[KingsFall.hash]: KingsFall,
 	// [VowOfTheDisciple.hash]: VowOfTheDisciple,
 	// [VaultOfGlass.hash]: VaultOfGlass,
 	// [DeepStoneCrypt.hash]: DeepStoneCrypt,
 	// [GardenOfSalvataion.hash]: GardenOfSalvataion,
-	// [LastWish.hash]: LastWish,
+	[LastWish.hash]: LastWish,
 } as Partial<Record<ActivityHashes | "trials" | "nightfall" | "lostSector", DeepsightDropTableDefinition>>;

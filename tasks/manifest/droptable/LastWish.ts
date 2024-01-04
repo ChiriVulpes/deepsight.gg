@@ -1,10 +1,10 @@
-import { ActivityHashes, InventoryItemHashes, RecordHashes } from "../Enums";
+import { ActivityHashes, InventoryItemHashes, MilestoneHashes } from "../Enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
 	hash: ActivityHashes.LastWishNormal,
 	displayProperties: {
-		icon: { DestinyRecordDefinition: RecordHashes.LastWish },
+		icon: { DestinyMilestoneDefinition: MilestoneHashes.LastWish },
 	},
 	dropTable: {
 		[InventoryItemHashes.ChatteringBonePulseRifle501329015]: {},
