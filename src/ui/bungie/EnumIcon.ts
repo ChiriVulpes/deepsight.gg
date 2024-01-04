@@ -37,7 +37,6 @@ export default class EnumIcon extends Component<HTMLElement, readonly [model: En
 			iconPath = `https://www.bungie.net${iconPath}`;
 
 		return iconPath;
-
 	}
 
 	protected static override defaultType = "img";
