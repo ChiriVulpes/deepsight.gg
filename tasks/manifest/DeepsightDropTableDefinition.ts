@@ -137,24 +137,28 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			interval: "daily",
 			drops: [
 				{
+					[InventoryItemHashes.IfSoloExoticChestArmorRareDummy]: {},
 					[InventoryItemHashes.NoxPerennialVFusionRifle]: {},
 					[InventoryItemHashes.OldSterlingAutoRifle]: {},
 					[InventoryItemHashes.MarsilionCGrenadeLauncher]: {},
 					[InventoryItemHashes.SenunaSi6Sidearm]: {},
 				},
 				{
+					[InventoryItemHashes.IfSoloExoticHeadArmorRareDummy]: {},
 					[InventoryItemHashes.PsiHermeticVPulseRifle]: {},
 					[InventoryItemHashes.Glissando47ScoutRifle]: {},
 					[InventoryItemHashes.IrukandjiSniperRifle]: {},
 					[InventoryItemHashes.NasreddinSword_InventoryTierType5]: {},
 				},
 				{
+					[InventoryItemHashes.IfSoloExoticLegsArmorRareDummy]: {},
 					[InventoryItemHashes.HeliocentricQscSidearm]: {},
 					[InventoryItemHashes.LastForaySniperRifle]: {},
 					[InventoryItemHashes.HandInHandShotgun_InventoryTierType5]: {},
 					[InventoryItemHashes.BattleScarPulseRifle_IconWatermarkShelvedUndefined]: {},
 				},
 				{
+					[InventoryItemHashes.IfSoloExoticArmsArmorRareDummy]: {},
 					[InventoryItemHashes.GeodeticHsmSword]: {},
 					[InventoryItemHashes.CombinedActionHandCannon]: {},
 					[InventoryItemHashes.HarshLanguageGrenadeLauncher_InventoryTierType5]: {},

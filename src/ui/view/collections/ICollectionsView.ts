@@ -6,6 +6,7 @@ import type Component from "ui/Component";
 import Display from "ui/bungie/DisplayProperties";
 import ItemComponent from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
+import ExoticArmourRewardComponent from "ui/view/collections/ExoticArmourRewardComponent";
 
 namespace ICollectionsView {
 	const bucketOrder = [
@@ -22,8 +23,8 @@ namespace ICollectionsView {
 	export function addItems (component: Component, items: Item[], inventory?: Inventory) {
 		component.append(...items
 			.sort(
-				item => item.isWeapon() ? 1 : 0,
 				item => item.definition.inventory?.tierType ?? TierType.Unknown,
+				item => item.isWeapon() ? 1 : 0,
 				item => item.deepsight?.pattern ? inventory?.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress?.complete ? 3 : 2 : 1,
 				item => item.definition.classType ?? DestinyClass.Unknown,
 				(a, b) => (a.collectible?.sourceHash ?? -1) - (b.collectible?.sourceHash ?? -1),
@@ -32,7 +33,8 @@ namespace ICollectionsView {
 				(a, b) => (a.collectible?.index ?? 0) - (b.collectible?.index ?? 0),
 				(a, b) => (Display.name(a.definition) ?? "").localeCompare(Display.name(b.definition) ?? ""))
 			.map(item => Slot.create()
-				.append(ItemComponent.create([item, inventory]))));
+				.append(ExoticArmourRewardComponent.is(item) ? ExoticArmourRewardComponent.create([item, inventory])
+					: ItemComponent.create([item, inventory]))));
 	}
 
 }

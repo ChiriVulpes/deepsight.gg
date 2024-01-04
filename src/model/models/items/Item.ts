@@ -430,6 +430,10 @@ class Item {
 		return this.tier?.hash === ItemTierTypeHashes.Exotic;
 	}
 
+	public isDummy () {
+		return this.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies);
+	}
+
 	public hasRandomRolls () {
 		return this.getSockets("Perk").some(socket => socket.plugs.length > 1);
 	}

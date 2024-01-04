@@ -162,7 +162,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 		return this.renderItem(item);
 	}
 
-	private async renderItem (item: Item) {
+	protected async renderItem (item: Item) {
 		this.setTooltip(ItemTooltip, {
 			initialiser: tooltip => tooltip.setPadding(this.tooltipPadding)
 				.setItem(item, this.inventory),
@@ -193,6 +193,7 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 
 		(this.icon ??= LoadedIcon.create([Display.icon(ornament?.definition, false) ?? Display.icon(item.definition, false)])
 			.classes.add(ItemClasses.Icon)
+			.tweak(icon => this.initialiseIcon(icon))
 			.indexInto(this, index++))
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
@@ -335,6 +336,8 @@ export default class ItemComponent<ARGS extends any[] = any[]> extends Button<[I
 			.append(Component.create())
 			.indexInto(this, index);
 	}
+
+	protected initialiseIcon (icon: LoadedIcon) { }
 
 	public setSortedBy (sorter: SortManager) {
 		this.sorter = new WeakRef(sorter);
