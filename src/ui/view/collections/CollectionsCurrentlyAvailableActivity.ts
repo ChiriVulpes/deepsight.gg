@@ -21,10 +21,10 @@ const moreInfoLinks: Record<string, string | undefined> = {
 };
 
 const rotationLinks: Record<string, string | undefined> = {
-	nightfall: "https://bray.tech/weeklies/rotations/nightfalls",
-	"lost-sector": "https://bray.tech/weeklies/rotations/lost-sectors",
-	dungeon: "https://bray.tech/weeklies/rotations/dungeons",
-	raid: "https://bray.tech/weeklies/rotations/raids",
+	nightfall: "https://bray.tech/weeklies/rotations/nightfall",
+	"lost-sector": "https://bray.tech/weeklies/rotations/lost-sector",
+	dungeon: "https://bray.tech/weeklies/rotations/dungeon",
+	raid: "https://bray.tech/weeklies/rotations/raid",
 };
 
 export enum CollectionsCurrentlyAvailableActivityClasses {
