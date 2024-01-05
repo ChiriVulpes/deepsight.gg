@@ -52,7 +52,8 @@ export default class Timestamp extends Component<HTMLElement, [time?: number, fo
 	@Bound
 	private render () {
 		this.rendering = true;
-		this.text.set(Time[this.mode!]?.(this.time ?? 0, this.options));
+		const time = this.time ?? 0;
+		this.text.set(time - Date.now() < 0 ? "expired" : Time[this.mode!]?.(this.time ?? 0, this.options));
 		if (this.mode === "relative")
 			window.setTimeout(this.render, 900); // less than 1 second so that we never miss a second
 		else
