@@ -33,6 +33,10 @@ namespace Time {
 		if (Math.abs(ms) < seconds(1))
 			return "now";
 
+		const ago = ms < 0;
+		if (ago)
+			ms = Math.abs(ms);
+
 		let limit = options.components ?? Infinity;
 
 		let value = ms;
@@ -66,7 +70,7 @@ namespace Time {
 		if (value && limit-- > 0) result += `${value} second${value === 1 ? "" : "s"}`;
 
 		result = Strings.trimTextMatchingFromEnd(result, ", ");
-		return `${result}${ms < 0 && options.label !== false ? " ago" : ""}`;
+		return `${result}${ago && options.label !== false ? " ago" : ""}`;
 	}
 
 	function relativeIntl (ms: number, locale: string, options: Intl.RelativeTimeFormatOptions) {
