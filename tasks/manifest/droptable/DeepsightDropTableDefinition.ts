@@ -1,4 +1,4 @@
-import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase } from "../../../static/manifest/Interfaces";
+import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase, DeepsightDropTableRotationsDefinition as DeepsightDropTableRotationsDefinitionBase, ISOString } from "../../../static/manifest/Interfaces";
 import type DestinyManifestReference from "../DestinyManifestReference";
 import type { ActivityHashes } from "../Enums";
 import CrotasEnd from "./CrotasEnd";
@@ -18,12 +18,19 @@ import VaultOfGlass from "./VaultOfGlass";
 import VowOfTheDisciple from "./VowOfTheDisciple";
 import WarlordsRuin from "./WarlordsRuin";
 
-export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties"> {
+export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations"> {
 	displayProperties?: {
 		name?: string | DestinyManifestReference;
 		description?: string | DestinyManifestReference;
 		icon?: string | DestinyManifestReference;
 	};
+	rotations?: DeepsightDropTableRotationsDefinition;
+}
+
+export interface DeepsightDropTableRotationsDefinition extends Omit<DeepsightDropTableRotationsDefinitionBase, "interval" | "current" | "next"> {
+	interval?: "daily";
+	current?: number;
+	next?: ISOString;
 }
 
 export default {
