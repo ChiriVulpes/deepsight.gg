@@ -7,7 +7,7 @@ import Task from "../utility/Task";
 import Time from "../utility/Time";
 import DestinyManifestReference from "./DestinyManifestReference";
 import type { ActivityHashes } from "./Enums";
-import { ActivityModeHashes, InventoryItemHashes } from "./Enums";
+import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
 import PGCR from "./utility/PGCR";
@@ -52,7 +52,11 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			definition.displayProperties.name ??= activity.displayProperties.name;
 			if (activity.displayProperties.icon !== DESTINY_MANIFEST_MISSING_ICON_PATH)
 				definition.displayProperties.icon ??= activity.displayProperties.icon;
+
+			if (activity.activityTypeHash === ActivityTypeHashes.Raid || activity.activityTypeHash === ActivityTypeHashes.Dungeon)
+				definition.displayProperties.name = activity.originalDisplayProperties.name;
 		}
+
 
 		definition.displayProperties.name ??= "";
 		definition.displayProperties.description ??= "";
@@ -126,6 +130,7 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		hash: lostSectorDef.hash,
 		displayProperties: {
 			name: lostSectorDef.originalDisplayProperties.name,
+			description: lostSectorDef.originalDisplayProperties.description,
 			icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.LostSector))?.displayProperties.icon,
 		},
 		rotations: {
