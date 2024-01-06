@@ -1,4 +1,4 @@
-import actions from "@actions/core";
+import * as actions from "@actions/core";
 import ansicolor from "ansicolor";
 import fs from "fs/promises";
 import Env from "./utility/Env";
