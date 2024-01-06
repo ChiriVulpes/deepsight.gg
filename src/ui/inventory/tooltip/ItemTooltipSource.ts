@@ -78,12 +78,16 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityName)
-				.text.set(Display.name(activity))
+				.text.set(Display.name(source.dropTable.displayProperties) ?? Display.name(activity))
 				.appendTo(activityComponent);
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityDescription)
-				.text.set(Display.description(activity))
+				.tweak(Display.applyDescription, Display.description(source.dropTable.displayProperties) ?? Display.description(activity),
+					{
+						character: item.owner,
+						singleLine: true,
+					})
 				.appendTo(activityComponent);
 
 			const phasesWrapper = Component.create()
