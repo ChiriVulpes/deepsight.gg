@@ -1,4 +1,3 @@
-import { ActivityTypeHashes } from "@deepsight.gg/enums";
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
@@ -119,7 +118,6 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 
 		this.title.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityTitle)
 			.text.set(undefined
-				?? (activity.activityTypeHash === ActivityTypeHashes.Raid || source.masterActivityDefinition?.activityTypeHash === ActivityTypeHashes.Dungeon ? Display.name(activity.originalDisplayProperties) : undefined)
 				?? Display.name(source.dropTable.displayProperties)
 				?? Display.name(activity))
 			.appendTo(this.content); // the title should be part of the content instead of part of the header
