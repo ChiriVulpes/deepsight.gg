@@ -8,8 +8,13 @@ import Log from "./utility/Log";
 import Task from "./utility/Task";
 
 export default Task("static", async (task, file?: string) => {
-	if (file)
-		Log.info("Detected file change:", ansi.lightGreen(file.replace(/\\/g, "/")));
+	file = file?.replace(/\\/g, "/");
+	if (file) {
+		Log.info("Detected file change:", ansi.lightGreen(file));
+		if (file === "tasks/generate_enums.ts")
+			Env.ENUMS_NEED_UPDATE = "true";
+	}
+
 
 	while (!await fs.copy("static", "docs")
 		.then(() => true).catch(() => false));
@@ -23,12 +28,13 @@ export default Task("static", async (task, file?: string) => {
 
 	// uncache deepsight manifest generation stuff before using it in case there were changes
 	const deepsightManifestEntryPoint = path.join(__dirname, "deepsight_manifest.ts");
+	const generateEnumsEntryPoint = path.join(__dirname, "generate_enums.ts");
 	const deepsightManifestGenerationDir = path.join(__dirname, "manifest") + path.sep;
 	const cachedModulePaths = Object.keys(require.cache);
 	// console.log(cachedModulePaths);
 	// console.log(deepsightManifestEntryPoint, deepsightManifestGenerationDir);
 	for (const modulePath of cachedModulePaths) {
-		if (modulePath === deepsightManifestEntryPoint)
+		if (modulePath === deepsightManifestEntryPoint || modulePath === generateEnumsEntryPoint)
 			delete require.cache[modulePath];
 
 		if (modulePath.startsWith(deepsightManifestGenerationDir))

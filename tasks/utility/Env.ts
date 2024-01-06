@@ -12,4 +12,9 @@ export default process.env as {
 	HOSTNAME?: string;
 	NO_COLOURIZE_ERRORS?: string;
 	NO_LOG_TSC_DURATION?: string;
+
+	/**
+	 * Modified in memory by tasks, used to track whether generate_enums task should be run
+	 */
+	ENUMS_NEED_UPDATE?: "true";
 };

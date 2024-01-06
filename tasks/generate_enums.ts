@@ -1,7 +1,10 @@
+import ansicolor from "ansicolor";
 import fs from "fs-extra";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "../src/node_modules/bungie-api-ts/destiny2";
 import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
 import manifest from "./manifest/utility/endpoint/DestinyManifest";
+import Env from "./utility/Env";
+import Log from "./utility/Log";
 import Objects from "./utility/Objects";
 import Task from "./utility/Task";
 
@@ -236,6 +239,11 @@ export class EnumHelper {
 }
 
 export default Task("generate_enums", async () => {
+	if (!Env.ENUMS_NEED_UPDATE) {
+		Log.info(ansicolor.lightGreen("Enums OK!"));
+		return;
+	}
+
 	const componentNames = await manifest.ALL;
 
 	const stream = fs.createWriteStream("tasks/manifest/Enums.d.ts");
@@ -317,6 +325,7 @@ export default Task("generate_enums", async () => {
 	if (!stream.writableFinished)
 		await new Promise(resolve => stream.on("finish", resolve));
 
+	delete Env.ENUMS_NEED_UPDATE;
 	await fs.mkdirp("docs/manifest");
 	await fs.copyFile("tasks/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
 
