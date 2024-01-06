@@ -224,15 +224,19 @@
 					--background-raid: #3a353a;
 					--background-dungeon: #766252;
 					--background-lost-sector: #565283;
-					background: var(--background, #{color(background-6)});
+					
+					--_background: var(--background, #{color(background-6)});
+					background: var(--_background);
 					position: relative;
+					align-self: start;
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 					justify-content: center;
-					filter: drop-shadow(0 0 2px #000a);
+					filter: drop-shadow(2px 2px 0 #0006);
 					z-index: 1;
 					top: -2px;
+					@include transition(out, background, filter, height, padding);
 					
 					&::before, &::after {
 						content: "";
@@ -240,16 +244,17 @@
 						position: absolute;
 						bottom: -1em;
 						border-bottom: 1em solid transparent;
+						@include transition(out, border);
 					}
 					
 					&::before {
 						left: 0;
-						border-left: 1.5em solid var(--background, #{color(background-6)});
+						border-left: 1.5em solid var(--_background);
 					}
 					
 					&::after {
 						right: 0;
-						border-right: 1.5em solid var(--background, #{color(background-6)});
+						border-right: 1.5em solid var(--_background);
 					}
 					
 					&-icon {
@@ -261,6 +266,18 @@
 						background-repeat: no-repeat;
 						position: relative;
 						top: 3px;
+					}
+					
+					.view-collections-currently-available-activity:where(:hover, :focus-within) & {
+						--_background: color-mix(in lch, var(--background, #{color(background-6)}), #fff 20%);
+						filter: drop-shadow(2px 2px 2px #000);
+						padding-top: .2em;
+						
+						@include transition(in);
+					
+						&::before, &::after {
+							@include transition(in);
+						}
 					}
 				}
 				
