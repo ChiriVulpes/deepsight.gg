@@ -236,7 +236,8 @@
 					filter: drop-shadow(2px 2px 0 #0006);
 					z-index: 1;
 					top: -2px;
-					@include transition(out, background, filter, height, padding);
+					box-shadow: 0 0 0 0 var(--_background), 0 0 0 0 var(--_background);
+					@include transition(out, background, filter, transform, box-shadow);
 					
 					&::before, &::after {
 						content: "";
@@ -271,7 +272,8 @@
 					.view-collections-currently-available-activity:where(:hover, :focus-within) & {
 						--_background: color-mix(in lch, var(--background, #{color(background-6)}), #fff 20%);
 						filter: drop-shadow(2px 2px 2px #000);
-						padding-top: .2em;
+						transform: translateY(.2em);
+						box-shadow: 0 -.2em 0 0 var(--_background), 0 2px 0 0 var(--_background);
 						
 						@include transition(in);
 					
