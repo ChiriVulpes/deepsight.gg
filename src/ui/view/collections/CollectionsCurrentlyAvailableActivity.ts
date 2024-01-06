@@ -14,17 +14,17 @@ import Display from "ui/bungie/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 
 const moreInfoLinks: Record<string, string | undefined> = {
-	nightfall: "https://bray.tech/weeklies/nightfall",
-	"lost-sector": "https://bray.tech/weeklies/lost-sector",
-	dungeon: "https://bray.tech/weeklies/dungeon",
-	raid: "https://bray.tech/weeklies/raid",
+	nightfall: "https://bray.tech/weeklies#nightfall",
+	"lost-sector": "https://bray.tech/weeklies#lost-sector",
+	dungeon: "https://bray.tech/weeklies#dungeon",
+	raid: "https://bray.tech/weeklies#raid",
 };
 
 const rotationLinks: Record<string, string | undefined> = {
-	nightfall: "https://bray.tech/weeklies/rotations/nightfall",
-	"lost-sector": "https://bray.tech/weeklies/rotations/lost-sector",
-	dungeon: "https://bray.tech/weeklies/rotations/dungeon",
-	raid: "https://bray.tech/weeklies/rotations/raid",
+	nightfall: "https://bray.tech/weeklies/rotations#nightfall",
+	"lost-sector": "https://bray.tech/weeklies/rotations#lost-sector",
+	dungeon: "https://bray.tech/weeklies/rotations#dungeon",
+	raid: "https://bray.tech/weeklies/rotations#raid",
 };
 
 export enum CollectionsCurrentlyAvailableActivityClasses {
