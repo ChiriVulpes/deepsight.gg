@@ -1,3 +1,4 @@
+import { ActivityModeHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
@@ -76,14 +77,24 @@ export default class ItemTooltipSource extends Component {
 					?? Display.icon(activity))
 				.appendTo(this.activityWrapper);
 
+			const lostSectorDisplay = !source.activityDefinition.activityModeHashes?.includes(ActivityModeHashes.LostSector) ? undefined
+				: source.isActiveDrop ? undefined
+					: { name: "Lost Sector", description: "This item is not currently available." };
+
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityName)
-				.text.set(Display.name(source.dropTable.displayProperties) ?? Display.name(activity))
+				.text.set(undefined
+					?? Display.name(lostSectorDisplay)
+					?? Display.name(source.dropTable.displayProperties)
+					?? Display.name(activity))
 				.appendTo(activityComponent);
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityDescription)
-				.tweak(Display.applyDescription, Display.description(source.dropTable.displayProperties) ?? Display.description(activity),
+				.tweak(Display.applyDescription,
+					(Display.description(lostSectorDisplay)
+						?? Display.description(source.dropTable.displayProperties)
+						?? Display.description(activity)),
 					{
 						character: item.owner,
 						singleLine: true,
@@ -150,7 +161,8 @@ export default class ItemTooltipSource extends Component {
 		const challenge = source.activeChallenge!;
 		const challengeHashes = source.dropTable.rotations?.challenges;
 		const challengeIndex = challengeHashes?.indexOf(challenge.hash) ?? -1;
-		const phase = challengeHashes?.length === source.dropTable.encounters?.length ? source.dropTable.encounters?.[challengeIndex] : undefined;
+		const encounters = source.dropTable.encounters?.filter(encounter => !encounter.traversal);
+		const phase = challengeHashes?.length === encounters?.length ? encounters?.[challengeIndex] : undefined;
 
 		const challengeComponent = Component.create()
 			.classes.add(ItemTooltipSourceClasses.ActivityChallenge)

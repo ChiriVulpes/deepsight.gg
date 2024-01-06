@@ -162,6 +162,10 @@ export declare interface DeepsightDropTableMasterDefinition {
 	 * A non-rotating drop table of items from the master activity.
 	 */
 	dropTable?: Record<number, DeepsightDropTableDropDefinition>;
+	/**
+	 * If this activity is only available for a certain period of time, this specifies whether it's available as a rotator or whether it's a repeatable activity (IE, the most recent ones)
+	 */
+	availability?: "rotator" | "repeatable";
 }
 
 export declare interface DeepsightDropTableDropDefinition {

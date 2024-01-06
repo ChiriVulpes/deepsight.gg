@@ -1,3 +1,4 @@
+import { ActivityModeHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
@@ -86,9 +87,10 @@ namespace Source {
 
 		const isMaster = !!table.master?.dropTable?.[item.definition.hash] || isMasterRotationDrop;
 
-		const isRotatingChallengeRelevant = isMaster
-			? isMasterRotationDrop || !table.rotations?.masterDrops
-			: isRotationDrop || !table.rotations?.drops;
+		const isRotatingChallengeRelevant = table.availability === "rotator" ? false
+			: isMaster
+				? isMasterRotationDrop || !table.rotations?.masterDrops
+				: isRotationDrop || !table.rotations?.drops;
 
 		return {
 			dropTable: table,
@@ -96,8 +98,9 @@ namespace Source {
 			masterActivityDefinition,
 			activeChallenge: !isRotatingChallengeRelevant ? undefined
 				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, intervals)),
-			isActiveDrop: !!table.rotations?.drops && isRotationDrop,
-			isActiveMasterDrop: !!table.availability && isMaster,
+			isActiveDrop: (!!table.rotations?.drops && isRotationDrop)
+				|| (!!table.availability && !!activityDefinition?.activityModeHashes?.includes(ActivityModeHashes.Strikes)),
+			isActiveMasterDrop: !!table.master?.availability && isMaster,
 			type,
 			endTime: table.endTime ? new Date(table.endTime).getTime() : type === SourceType.Rotator ? Bungie.nextWeeklyReset : undefined,
 			requiresQuest: !dropDef?.requiresQuest ? undefined : (await DestinyInventoryItemDefinition.get(dropDef.requiresQuest) ?? null),

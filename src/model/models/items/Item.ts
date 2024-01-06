@@ -525,18 +525,16 @@ class Item {
 	 */
 	public isFomo () {
 		for (const source of this.sources ?? []) {
-			if (source.dropTable.availability)
-				return ItemFomoState.TemporaryRepeatability;
+			if (source.dropTable.dropTable?.[this.definition.hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash])) {
+				if (source.dropTable.availability)
+					return ItemFomoState.TemporaryRepeatability;
 
-			if (source.dropTable.dropTable?.[this.definition.hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash]))
 				// always available in specific encounters
 				continue;
+			}
 
-			if (source.isActiveDrop)
+			if (source.isActiveMasterDrop || source.isActiveDrop)
 				return ItemFomoState.TemporaryAvailability;
-
-			if (source.isActiveMasterDrop)
-				return ItemFomoState.TemporaryRepeatability;
 		}
 
 		return ItemFomoState.NoMo;

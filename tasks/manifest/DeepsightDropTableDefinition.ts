@@ -76,11 +76,15 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		if (isWeekly) {
 			definition.availability = "rotator";
 			definition.endTime = Time.iso(Time.nextWeeklyReset);
+			if (definition.master)
+				definition.master.availability = "rotator";
 		}
 
 		const masterActivityAvailable = definition.master && !!activities.filter(activity => activity.activity.activityHash === definition.master?.activityHash).length;
-		if (masterActivityAvailable)
+		if (masterActivityAvailable) {
 			definition.availability ??= "repeatable";
+			definition.master!.availability ??= "repeatable";
+		}
 	}
 
 
