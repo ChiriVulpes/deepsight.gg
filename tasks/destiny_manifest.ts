@@ -78,6 +78,7 @@ export default Task("destiny_manifest", async () => {
 	}
 
 	await fs.writeFile("static/testiny/.v", bungieVersion);
+	Env.ENUMS_NEED_UPDATE = "true";
 
 	Log.info("Manifest download complete.");
 });
