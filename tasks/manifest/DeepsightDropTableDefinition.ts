@@ -1,6 +1,7 @@
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
+import type { DeepsightDropTableRotationsDefinition } from "../../static/manifest/Interfaces";
 import Log from "../utility/Log";
 import Task from "../utility/Task";
 import Time from "../utility/Time";
@@ -13,20 +14,12 @@ import PGCR from "./utility/PGCR";
 import DestinyActivities from "./utility/endpoint/DestinyActivities";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
-interface DeepsightDropTableDefinition {
-	hash: number;
-	rotationActivityHash?: number;
-	recordHash?: number;
-	displayProperties?: {
-		name?: string | DestinyManifestReference;
-		description?: string | DestinyManifestReference;
-		icon?: string | DestinyManifestReference;
-	};
-}
-
 export default Task("DeepsightDropTableDefinition", async () => {
 	const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyObjectiveDefinition } = manifest;
 	const activities = await DestinyActivities.get();
+
+	////////////////////////////////////
+	// Fix up drop static tables based on manifest and profile data
 
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {
 		definition.hash = +hash;
@@ -86,6 +79,9 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			definition.availability ??= "repeatable";
 	}
 
+
+	////////////////////////////////////
+	// Generate drop tables for rotators such as lost sectors, nightfalls, and trials
 
 	interface ActivityCache {
 		asOf?: number;
@@ -172,6 +168,33 @@ export default Task("DeepsightDropTableDefinition", async () => {
 
 	Log.info("Nightfall:", vendorDropTables.nightfall?.displayProperties?.name, vendorDropTables.nightfall?.hash);
 	DeepsightDropTableDefinition.nightfall = vendorDropTables.nightfall;
+
+
+	////////////////////////////////////
+	// Fill in current rotation info for rotator drops
+
+	for (const table of Object.values(DeepsightDropTableDefinition)) {
+		if (!table?.rotations)
+			continue;
+
+		const rotations = table.rotations as DeepsightDropTableRotationsDefinition;
+		rotations.interval ??= "weekly";
+
+		const interval = rotations.interval === "daily" ? Time.days(1) : Time.weeks(1);
+
+		const anchorTime = new Date(rotations.anchor).getTime();
+		const intervals = Math.floor((Date.now() - anchorTime) / interval);
+
+		rotations.current = intervals;
+
+		const currentStart = anchorTime + interval * intervals;
+		const next = currentStart + interval;
+		rotations.next = Time.iso(next);
+	}
+
+
+	////////////////////////////////////
+	// Write!
 
 	await fs.mkdirp("docs/manifest");
 	await fs.writeJson("docs/manifest/DeepsightDropTableDefinition.json", DeepsightDropTableDefinition, { spaces: "\t" });

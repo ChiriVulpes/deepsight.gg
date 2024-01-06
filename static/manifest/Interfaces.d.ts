@@ -185,9 +185,20 @@ export declare interface DeepsightDropTableRotationsDefinition {
 	 */
 	anchor: ISOString;
 	/**
-	 * Whether this rotation is daily or weekly. If not provided, it should default to "weekly"
+	 * Whether this rotation is daily or weekly.
 	 */
-	interval?: "daily" | "weekly";
+	interval: "daily" | "weekly";
+	/**
+	 * The current index into `drops`, `masterDrops`, and `challenges`. This will no longer be valid when the interval ends.
+	 * 
+	 * This can't be used directly as an index into the arrays, and must first be normalised to the respective array's length.
+	 * IE: `drops[current % drops.length]`
+	 */
+	current: number;
+	/**
+	 * A datetime string in the ISO format, yyyy-mm-ddThh:mm:ssZ, representing the time the current rotation will change to the next one.
+	 */
+	next: ISOString;
 	/**
 	 * An array of drop table objects (containing all possible drops) or `DestinyInventoryItemDefinition` hashes (for a single drop).
 	 * 

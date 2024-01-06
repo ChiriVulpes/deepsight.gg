@@ -11,7 +11,6 @@ import { CollectionsCurrentlyAvailableActivity } from "ui/view/collections/Colle
 import { CollectionsMomentClasses } from "ui/view/collections/CollectionsMoment";
 import Arrays from "utility/Arrays";
 import Objects from "utility/Objects";
-import Time from "utility/Time";
 
 export enum CollectionsCurrentlyAvailableClasses {
 	Main = "view-collections-currently-available",
@@ -102,8 +101,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		for (const source of dropTables) {
 			const masterActivityDefinition = await DestinyActivityDefinition.get(source.master?.activityHash);
 
-			const intervals = Math.floor((Date.now() - new Date(source.rotations?.anchor ?? 0).getTime())
-				/ (source.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
+			const intervals = source.rotations?.current ?? 0;
 
 			if (source.availability) {
 				for (const dropHash of Object.keys(source.dropTable ?? Objects.EMPTY))

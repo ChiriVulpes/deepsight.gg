@@ -3,7 +3,6 @@ import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, Destiny
 import { type DestinyActivityModifierDefinition, type DestinyCharacterActivitiesComponent, type DictionaryComponentResponse } from "bungie-api-ts/destiny2/interfaces";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
-import Time from "utility/Time";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum SourceType {
@@ -66,8 +65,7 @@ namespace Source {
 	async function resolveDropTable (manifest: Manifest, profile: ISourceProfile, table: DeepsightDropTableDefinition, item: IItemInit): Promise<ISource> {
 		const { DestinyActivityDefinition, DestinyActivityModifierDefinition, DestinyInventoryItemDefinition } = manifest;
 
-		const intervals = Math.floor((Date.now() - new Date(table.rotations?.anchor ?? 0).getTime())
-			/ (table.rotations?.interval === "daily" ? Time.days(1) : Time.weeks(1)));
+		const intervals = table.rotations?.current ?? 0;
 
 		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
