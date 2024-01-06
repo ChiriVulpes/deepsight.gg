@@ -1,7 +1,6 @@
 import actions from "@actions/core";
 import ansicolor from "ansicolor";
 import fs from "fs/promises";
-import { DestinyComponentType } from "../src/node_modules/bungie-api-ts/destiny2";
 import Env from "./utility/Env";
 import Log from "./utility/Log";
 import Task from "./utility/Task";
@@ -33,7 +32,7 @@ if (!apiKey || !membershipId || !Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN || !En
 	throw new Error("Missing required secrets");
 
 export default Task("refresh_token", async () => {
-	const isValid = await fetch(`https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=${DestinyComponentType.PlatformSilver}`, {
+	const isValid = await fetch(`https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=105`, {
 		headers: {
 			"X-API-Key": apiKey,
 			Authorization: `Bearer ${Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN}`,
