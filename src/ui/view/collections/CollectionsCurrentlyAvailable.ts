@@ -33,8 +33,8 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		const sources = items.flatMap(item => item.sources ?? Arrays.EMPTY)
 			.map(source => source.masterActivityDefinition && (source.isActiveMasterDrop || source.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall))
-				? Arrays.tuple(source.masterActivityDefinition.hash, source.masterActivityDefinition, source)
-				: Arrays.tuple(source.activityDefinition.hash, source.activityDefinition, source))
+				? Arrays.tuple(source.dropTable.hash, source.masterActivityDefinition, source)
+				: Arrays.tuple(source.dropTable.hash, source.activityDefinition, source))
 			.sort(([, , a], [, , b]) => a.type - b.type);
 		// .filter((source): source is [number, DestinyActivityDefinition, ISource] => !!source);
 
@@ -53,7 +53,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 		const added = new Set<number>();
 		for (const [hash, activity, source] of sources) {
-			if (added.has(hash) || added.has(source.activityDefinition.hash))
+			if (added.has(hash))
 				continue;
 
 			if (source.endTime && new Date(source.endTime).getTime() < Date.now())
@@ -61,17 +61,11 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 
 			added.add(hash);
 
-			const sourceItems = items.filter(item => item.sources?.some(source => {
-				if (source.activityDefinition.hash === hash)
-					return item.definition.hash in (source.dropTable.dropTable ?? Objects.EMPTY)
-						|| source.dropTable.encounters?.some(encounter => item.definition.hash in (encounter.dropTable ?? Objects.EMPTY))
-						|| source.isActiveDrop
-						|| false;
-
-				return source.masterActivityDefinition?.hash === hash
-					&& (source.isActiveMasterDrop
-						|| source.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall));
-			}));
+			const sourceItems = items.filter(item => item.sources?.some(source => source.dropTable.hash === hash && (false
+				|| item.definition.hash in (source.dropTable.dropTable ?? Objects.EMPTY)
+				|| source.dropTable.encounters?.some(encounter => item.definition.hash in (encounter.dropTable ?? Objects.EMPTY))
+				|| source.isActiveDrop
+				|| source.isActiveMasterDrop)));
 
 			if (!sourceItems.length)
 				continue;
