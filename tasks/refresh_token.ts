@@ -29,7 +29,18 @@ try {
 } catch { }
 
 if (!apiKey || !membershipId || !Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN || !Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN || !clientId || !clientSecret)
-	throw new Error("Missing required secrets");
+	throw new Error("Missing required secrets: "
+		+ Object.entries({
+			apiKey: !!apiKey,
+			membershipId: !!membershipId,
+			accessToken: !!Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN,
+			refreshToken: !!Env.DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN,
+			clientId: !!clientId,
+			clientSecret: !!clientSecret,
+		})
+			.filter(([name, present]) => !present)
+			.map(([name]) => name)
+			.join(", "));
 
 export default Task("refresh_token", async () => {
 	const isValid = await fetch(`https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=105`, {
