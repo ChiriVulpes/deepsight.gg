@@ -48,7 +48,9 @@ jobs:
     needs: check
     if: ${{ needs.check.outputs.updated != 'failure' }}
     uses: ./.github/workflows/manifest.yml
+    secrets: inherit
 
   deploy:
     needs: manifest
     uses: ./.github/workflows/deploy.yml  
+    secrets: inherit
