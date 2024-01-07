@@ -1,7 +1,7 @@
 import type { DamageTypeHashes } from "@deepsight.gg/enums";
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
-import type { DeepsightPlugCategorisationSubclass } from "@deepsight.gg/plugs";
+import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
@@ -419,7 +419,7 @@ class Item {
 	}
 
 	public getDamageType (): DamageTypeHashes | undefined {
-		return this.getSocketedPlug("=Subclass/Super")?.getCategorisationAs<DeepsightPlugCategorisationSubclass>()?.damageType
+		return this.getSocketedPlug("=Subclass/Super")?.getCategorisationAs(DeepsightPlugCategory.Subclass)?.damageType
 			|| (this.instance?.damageTypeHash ?? this.definition.defaultDamageTypeHash) as DamageTypeHashes
 			|| undefined;
 	}
