@@ -1,4 +1,40 @@
 .player-overview {
+	
+	&-wip {
+		&::before {
+			content: 
+				"l WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"lllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A" 
+				"lllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"lllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llllllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"lllllllllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llllllllllllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A" 
+				"lllllllllllllllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A"
+				"llllllllllllllllllllllllllllllllll WIP WIP WIP WIP WIP WIP WIP WIP WIP\A";
+			white-space: pre-wrap;
+			font-family: $font-sans-serif;
+			font-weight: 900;
+			font-size: 64px;
+			line-height: 72px;
+			width: 2000px;
+			height: 150%;
+			transform: translate(-50%, -50%) rotate(-30deg);
+			transform-origin: center;
+			position: absolute;
+			left: 50%;
+			top: 52%;
+			opacity: .08;
+		}
+		
+		overflow: hidden;
+		position: absolute;
+		inset: 24px;
+	}
+	
 	&,
 	&-container {
 		display: flex;

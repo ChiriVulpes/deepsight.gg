@@ -23,6 +23,7 @@ export enum PlayerOverviewClasses {
 	ClassSelection = "player-overview-class-selection",
 	CharacterPicker = "player-overview-character-picker",
 	CharacterPickerButton = "player-overview-character-picker-button",
+	WIP = "player-overview-wip",
 }
 
 namespace PlayerOverview {
@@ -61,6 +62,8 @@ namespace PlayerOverview {
 				.appendTo(this);
 
 			this.currencyOverview = InfoBlock.create()
+				.append(BaseComponent.create()
+					.classes.add(PlayerOverviewClasses.WIP))
 				.appendTo(this.drawer);
 
 			this.classSelection = BaseComponent.create()
@@ -81,6 +84,8 @@ namespace PlayerOverview {
 				.appendTo(this.classSelection);
 
 			this.statsOverview = InfoBlock.create()
+				.append(BaseComponent.create()
+					.classes.add(PlayerOverviewClasses.WIP))
 				.appendTo(this.drawer);
 
 			this.panels = {};
