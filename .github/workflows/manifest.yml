@@ -38,6 +38,7 @@ jobs:
         run: npm run refresh_token
         
       - name: Update access token
+        if: ${{ steps.refresh_token.outputs != null && steps.refresh_token.outputs.access_token != null }}
         uses: action-pack/set-secret@v1
         with:
           name: 'DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN'
@@ -45,6 +46,7 @@ jobs:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           
       - name: Update refresh token
+        if: ${{ steps.refresh_token.outputs != null && steps.refresh_token.outputs.refresh_token != null }}
         uses: action-pack/set-secret@v1
         with:
           name: 'DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN'
