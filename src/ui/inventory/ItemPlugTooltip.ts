@@ -82,7 +82,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.subtitle.removeContents();
 
 		this.subtitle.text.set(plug.is("=Masterwork/ExoticCatalyst") ? "Catalyst" : plug.definition?.itemTypeDisplayName ?? "Unknown");
-		this.description.text.set(Display.description(perk?.definition) ?? Display.description(plug.definition));
+		this.description.tweak(Display.applyDescription, Display.description(perk?.definition) ?? Display.description(plug.definition), item?.owner);
 
 		this.header.classes.toggle(plug.is("Perk"), ItemPlugTooltipClasses.Perk);
 		this.header.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.Enhanced);
