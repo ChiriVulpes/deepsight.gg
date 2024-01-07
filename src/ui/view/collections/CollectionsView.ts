@@ -6,12 +6,16 @@ import ProfileBatch from "model/models/ProfileBatch";
 import View from "ui/View";
 import CollectionsCurrentlyAvailable from "ui/view/collections/CollectionsCurrentlyAvailable";
 import CollectionsMoment from "ui/view/collections/CollectionsMoment";
-import Arrays from "utility/Arrays";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
-const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, Inventory?]> =>
-	!Bungie.authenticated ? []
-		: api.subscribeProgressAndWaitAll(Arrays.tuple(ProfileBatch, Inventory.createModel()), 1));
+const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, Inventory?]> => {
+	if (!Bungie.authenticated)
+		return [];
+
+	const profile = await api.subscribeProgressAndWait(ProfileBatch, 0.5);
+	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 0.5, 0.5);
+	return [profile, inventory];
+});
 
 export default View.create({
 	models: [Manifest, Moments, CollectionsViewModel] as const,
