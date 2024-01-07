@@ -1,9 +1,10 @@
 import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import type { EnumModelDefinitionObject } from "model/models/enum/EnumModel";
 import EnumModel from "model/models/enum/EnumModel";
 import type Arrays from "utility/Arrays";
 
-export interface DestinyWeaponTypeDefinition {
+export interface DestinyWeaponTypeDefinition extends EnumModelDefinitionObject {
 	enumValue: Arrays.Or<ItemCategoryHashes>;
 	displayProperties: DestinyDisplayPropertiesDefinition;
 }
@@ -141,30 +142,6 @@ const WeaponTypes = EnumModel.create("WeaponTypes", {
 			bow: types.find(type => type.enumValue === ItemCategoryHashes.Bows)!,
 			glaive: types.find(type => type.enumValue === ItemCategoryHashes.Glaives)!,
 		};
-	},
-	async get (this: EnumModel<WeaponTypesDefinition, DestinyWeaponTypeDefinition>, hash?: Arrays.Or<string | number>) {
-		const types = await this.all;
-		if (!Array.isArray(hash)) {
-			const byHash = types.array.find(def => def.enumValue === +hash!);
-			if (byHash)
-				return byHash;
-
-			const nameLowerCase = `${hash!}`.toLowerCase();
-			if (!nameLowerCase)
-				// match none on zero length
-				return undefined;
-
-			const matching = types.array.filter(type => type.displayProperties.nameLowerCase!.startsWith(nameLowerCase));
-			if (matching.length > 1)
-				// return undefined on more than one match too
-				return undefined;
-
-			return matching[0];
-		}
-
-		hash = hash.map(hash => +hash);
-		return types.array.find(def => !Array.isArray(def.enumValue) ? (hash as number[]).includes(def.enumValue)
-			: def.enumValue.every(enumValue => (hash as number[]).includes(enumValue)));
 	},
 });
 

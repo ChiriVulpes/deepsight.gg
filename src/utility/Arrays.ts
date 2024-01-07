@@ -1,3 +1,5 @@
+import Define from "utility/Define";
+
 declare global {
 	interface Array<T> {
 		/**
@@ -42,6 +44,16 @@ declare global {
 		 * The mapper will be called for each of the two items to compare, and then the produced numbers of each will be compared.
 		 */
 		sort (...sorters: (((a: T, b: T) => number))[]): this;
+
+		collect<RETURN, ARGS extends any[] = []> (collector: (array: T[], ...args: ARGS) => RETURN, ...args: ARGS): RETURN;
+		collect<RETURN, ARGS extends any[] = []> (collector?: (array: T[], ...args: ARGS) => RETURN, ...args: ARGS): RETURN | undefined;
+
+		splat<RETURN, ARGS extends any[] = []> (collector: (...args: [...T[], ...ARGS]) => RETURN, ...args: ARGS): RETURN;
+		splat<RETURN, ARGS extends any[] = []> (collector?: (...args: [...T[], ...ARGS]) => RETURN, ...args: ARGS): RETURN | undefined;
+
+		toObject (): T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never;
+		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper: MAPPER): Record<KEY, VALUE>;
+		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper?: MAPPER): Record<KEY, VALUE> | (T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never);
 	}
 }
 
@@ -126,52 +138,60 @@ namespace Arrays {
 	}
 
 	export function applyPrototypes () {
-		Object.defineProperty(Array.prototype, "findLast", {
-			value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
-				if (this.length > 0)
-					for (let i = this.length - 1; i >= 0; i--)
-						if (predicate(this[i], i, this))
-							return this[i];
+		Define(Array.prototype, "findLast", function (predicate) {
+			if (this.length > 0)
+				for (let i = this.length - 1; i >= 0; i--)
+					if (predicate(this[i], i, this))
+						return this[i];
 
-				return undefined;
-			},
+			return undefined;
 		});
 
-		Object.defineProperty(Array.prototype, "findLastIndex", {
-			value (this: any[], predicate: (value: any, index: number, obj: any[]) => any) {
-				if (this.length > 0)
-					for (let i = this.length - 1; i >= 0; i--)
-						if (predicate(this[i], i, this))
-							return i;
+		Define(Array.prototype, "findLastIndex", function (predicate) {
+			if (this.length > 0)
+				for (let i = this.length - 1; i >= 0; i--)
+					if (predicate(this[i], i, this))
+						return i;
 
-				return -1;
-			},
+			return -1;
 		});
 
 		const originalSort = Array.prototype.sort;
-		Object.defineProperty(Array.prototype, "sort", {
-			value (this: any[], ...sorters: (((a: any, b: any) => number) | ((item: any) => number))[]) {
-				if (this.length <= 1)
-					return this;
+		Define(Array.prototype, "sort", function (...sorters) {
+			if (this.length <= 1)
+				return this;
 
-				if (!sorters.length)
-					return originalSort.call(this);
+			if (!sorters.length)
+				return originalSort.call(this);
 
-				return originalSort.call(this, (a, b) => {
-					for (const sorter of sorters) {
-						if (sorter.length === 1) {
-							const mapper = sorter as (item: any) => number;
-							const sortValue = mapper(b) - mapper(a);
-							if (sortValue) return sortValue;
-						} else {
-							const sortValue = sorter(a, b);
-							if (sortValue) return sortValue;
-						}
+			return originalSort.call(this, (a, b) => {
+				for (const sorter of sorters) {
+					if (sorter.length === 1) {
+						const mapper = sorter as (item: any) => number;
+						const sortValue = mapper(b) - mapper(a);
+						if (sortValue) return sortValue;
+					} else {
+						const sortValue = sorter(a, b);
+						if (sortValue) return sortValue;
 					}
+				}
 
-					return 0;
-				});
-			},
+				return 0;
+			});
+		});
+
+		Define(Array.prototype, "collect", function (collector, ...args) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			return collector?.(this, ...args);
+		});
+
+		Define(Array.prototype, "splat", function (collector, ...args) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			return collector?.(...this, ...args);
+		});
+
+		Define(Array.prototype, "toObject", function (mapper) {
+			return Object.fromEntries(mapper ? this.map(mapper) : this);
 		});
 	}
 }

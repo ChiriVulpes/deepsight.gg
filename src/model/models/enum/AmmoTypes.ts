@@ -54,11 +54,7 @@ const AmmoTypes = EnumModel.create("AmmoTypes", {
 			primary: types.find(type => type.enumValue === DestinyAmmunitionType.Primary)!,
 			special: types.find(type => type.enumValue === DestinyAmmunitionType.Special)!,
 			heavy: types.find(type => type.enumValue === DestinyAmmunitionType.Heavy)!,
-		}
-	},
-	async get (this: EnumModel<AmmoTypesDefinition, DestinyAmmunitionTypeDefinition>, hash?: string | number) {
-		const types = await this.all;
-		return types.array.find(type => type.enumValue === +hash!);
+		};
 	},
 });
 

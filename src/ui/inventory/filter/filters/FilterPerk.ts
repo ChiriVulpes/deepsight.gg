@@ -62,7 +62,7 @@ export default IFilter.async(async () => {
 				return;
 
 			chip.setTooltip(ItemPlugTooltip, {
-				initialise: tooltip => perk?.plug && tooltip.setPlug(perk.plug),
+				initialise: tooltip => perk?.plug && tooltip.set(perk.plug),
 				differs: tooltip => tooltip.plug?.plugItemHash !== perk?.plug.plugItemHash,
 			});
 		},

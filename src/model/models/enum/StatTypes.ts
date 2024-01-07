@@ -45,10 +45,6 @@ const StatTypes = EnumModel.create("StatTypes", {
 			strength,
 		};
 	},
-	async get (this: EnumModel<StatTypesDefinition, DestinyStatDefinition>, hash?: string | number) {
-		const types = await this.all;
-		return types.array.find(type => type.hash === +hash!);
-	},
 });
 
 type StatTypes = typeof StatTypes;

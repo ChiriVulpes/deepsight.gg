@@ -29,10 +29,6 @@ const ClassTypes = EnumModel.create("ClassTypes", {
 
 		return result;
 	},
-	async get (this: EnumModel<ClassTypesDefinition, DestinyClassDefinition>, hash?: string | number) {
-		const types = await this.all;
-		return types.array.find(type => type.hash === +hash! || type.classType === +hash!);
-	},
 });
 
 type ClassTypes = typeof ClassTypes;

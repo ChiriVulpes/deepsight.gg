@@ -1,6 +1,16 @@
 .item-plug-tooltip {
+
+	@each $damage-type in $damage-types {
+		&--damage-type-#{$damage-type} .tooltip-header {
+			background: color(damage-type-#{$damage-type}-background, 0.85);
+		}
+	}
+	
 	&-image {
-		width: 100%;
+		margin: var(--tooltip-padding-negated);
+		margin-bottom: var(--tooltip-padding-y);
+		width: calc(100% + var(--tooltip-padding-x) * 2);
+		aspect-ratio: 21/6;
 	}
 	
 	&-description {

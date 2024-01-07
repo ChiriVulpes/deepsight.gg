@@ -230,7 +230,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 				.appendTo(this);
 
 		this.setTooltip(ItemPlugTooltip, {
-			initialise: tooltip => tooltip.setPlug(plug, perk, item),
+			initialise: tooltip => tooltip.set(plug, perk, item),
 			differs: tooltip => tooltip.plug?.plugItemHash !== plug.plugItemHash,
 		});
 	}

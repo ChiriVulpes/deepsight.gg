@@ -434,15 +434,15 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 		return [...host?.element.classList ?? []];
 	}
 
-	public add (...classes: string[]) {
+	public add (...classes: (string | undefined)[]) {
 		const host = this.host.deref();
-		host?.element.classList.add(...classes);
+		host?.element.classList.add(...classes.filter(Boolean) as string[]);
 		return host as HOST;
 	}
 
-	public remove (...classes: string[]) {
+	public remove (...classes: (string | undefined)[]) {
 		const host = this.host.deref();
-		host?.element.classList.remove(...classes);
+		host?.element.classList.remove(...classes.filter(Boolean) as string[]);
 		return host as HOST;
 	}
 
@@ -453,8 +453,8 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 	}
 
 	public toggle (...classes: string[]): HOST;
-	public toggle (present: boolean, ...classes: string[]): HOST;
-	public toggle (present: boolean | string, ...classes: string[]) {
+	public toggle (present: boolean, ...classes: (string | undefined)[]): HOST;
+	public toggle (present: boolean | string, ...classes: (string | undefined)[]) {
 		const host = this.host.deref();
 
 		const element = host?.element;
@@ -462,12 +462,13 @@ export class ClassManager<HOST extends Component<HTMLElement>> implements IBasic
 			if (typeof present === "string") {
 				classes.unshift(present);
 				for (const cls of classes)
-					element.classList.toggle(cls);
+					if (cls)
+						element.classList.toggle(cls);
 
 			} else if (present)
-				element.classList.add(...classes);
+				element.classList.add(...classes.filter(Boolean) as string[]);
 			else
-				element.classList.remove(...classes);
+				element.classList.remove(...classes.filter(Boolean) as string[]);
 		}
 
 		return host as HOST;

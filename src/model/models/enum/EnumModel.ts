@@ -1,63 +1,76 @@
-import Model from "model/Model";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import type Arrays from "utility/Arrays";
 
-export interface EnumModelDefinition<ALL, INDIVIDUAL extends DisplayPropertied> {
+export interface EnumModelDefinitionObject extends DisplayPropertied {
+	hash?: number;
+	enumValue?: Arrays.Or<number>;
+}
+
+export type EnumModelAll<INDIVIDUAL extends EnumModelDefinitionObject> = Record<string, INDIVIDUAL> & {
+	array: INDIVIDUAL[];
+}
+
+export type EnumModelIndividual<ALL> = Omit<ALL, "array"> extends Record<string, infer OBJECT extends EnumModelDefinitionObject> ? OBJECT : never;
+
+export interface EnumModelDefinition<ALL> {
 	generate (): Promise<ALL>;
-	get (id?: Arrays.Or<string | number>): Promise<INDIVIDUAL | undefined>;
+	get?(id?: Arrays.Or<string | number>): EnumModelIndividual<ALL> | undefined;
 }
 
-interface EnumModel<ALL, INDIVIDUAL extends DisplayPropertied> {
-	get (id?: Arrays.Or<string | number>): Promise<INDIVIDUAL | undefined>;
-}
+class EnumModel<ALL extends EnumModelAll<INDIVIDUAL>, INDIVIDUAL extends EnumModelDefinitionObject> {
 
-class EnumModel<ALL, INDIVIDUAL extends DisplayPropertied> {
+	private static promises?: Promise<any>[] = [];
 
-	public static create<DEF extends EnumModelDefinition<any, any>> (id: string, definition: DEF) {
-		const model = new EnumModel(id, definition.generate);
+	public static create<DEF extends EnumModelDefinition<any>> (id: string, definition: DEF) {
+		const model = new EnumModel(id);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+		const promise = definition.generate().then(all => (model as any).all = all);
 		Object.assign(model, definition);
-		return model as (DEF extends EnumModelDefinition<infer ALL, infer INDIVIDUAL> ? EnumModel<ALL, INDIVIDUAL> : never) & Omit<DEF, "generate">;
+		EnumModel.promises?.push(promise);
+		return model as any as (Omit<DEF, "generate">
+			& (DEF extends EnumModelDefinition<infer ALL> ? EnumModelIndividual<ALL> extends infer INDIVIDUAL extends EnumModelDefinitionObject
+				? EnumModel<Extract<Omit<ALL, "array">, Record<string, INDIVIDUAL>> & { array: INDIVIDUAL[] }, INDIVIDUAL> : never : never));
 	}
 
-	private readonly model: Model<ALL>;
-
-	private constructor (public readonly id: string, generate: () => Promise<ALL>) {
-		this.model = Model.create(id, {
-			cache: "Memory",
-			resetTime: "Daily",
-			generate,
-			reset: () => {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				delete (this as any).all;
-			},
-		});
+	public static async awaitAll () {
+		if (EnumModel.promises)
+			await Promise.all(EnumModel.promises);
+		delete EnumModel.promises;
 	}
 
-	public get all (): ALL | Promise<ALL> {
-		let promise: Promise<ALL>;
-		// eslint-disable-next-line prefer-const
-		promise = (async () => {
-			const value = await this.model.await();
+	public readonly all!: ALL;
 
-			if (this.all !== promise!)
-				// reset happened
-				return value;
+	private constructor (public readonly id: string) { }
 
-			Object.defineProperty(this, "all", {
-				value,
-				configurable: true,
-				writable: false,
-			});
+	public get (id?: Arrays.Or<string | number>) {
+		if (!Array.isArray(id)) {
+			const byHash = this.all.array.find(def => def.enumValue === +id! || def.hash === +id!);
+			if (byHash)
+				return byHash;
 
-			return value;
-		})();
+			const nameLowerCase = `${id!}`.toLowerCase();
+			if (!nameLowerCase)
+				// match none on zero length
+				return undefined;
 
-		Object.defineProperty(this, "all", {
-			value: promise,
-			configurable: true,
-		});
+			const matching = this.all.array.filter(type => type.displayProperties.nameLowerCase!.startsWith(nameLowerCase));
+			if (matching.length > 1)
+				// return undefined on more than one match too
+				return undefined;
 
-		return this.all;
+			return matching[0];
+		}
+
+		id = id.map(hash => +hash);
+		return this.all.array.find(def => !Array.isArray(def.enumValue) ? (id as number[]).includes(def.enumValue!)
+			: def.enumValue.every(enumValue => (id as number[]).includes(enumValue)));
+	}
+
+	public nameOf (id?: Arrays.Or<string | number>) {
+		const def = this.get(id);
+		return Object.entries(this.all)
+			.find(([, d]) => d === def)
+			?.[0];
 	}
 }
 

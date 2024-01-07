@@ -24,6 +24,7 @@ enum ItemPlugTooltipClasses {
 	IsPerk = "item-plug-tooltip--perk",
 	IsEnhanced = "item-plug-tooltip--enhanced",
 	IsExotic = "item-plug-tooltip--exotic",
+	IsDamageType = "item-plug-tooltip--damage-type",
 	Perks = "item-plug-tooltip-perks",
 	Perk = "item-plug-tooltip-perk",
 	PerkIsDisabled = "item-plug-tooltip-perk--disabled",
@@ -42,7 +43,7 @@ class ItemPlugTooltip extends Tooltip {
 	public perk?: Perk;
 	public item?: Item;
 
-	public image!: Component<HTMLImageElement>;
+	public image!: LoadedIcon;
 	public description!: Component;
 	public perks!: Component;
 	public clarity!: ItemClarity;
@@ -53,7 +54,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.classes.add(ItemPlugTooltipClasses.Main);
 		this.content.classes.add(ItemPlugTooltipClasses.Content);
 
-		this.image = Component.create("img")
+		this.image = LoadedIcon.create([])
 			.classes.add(ItemPlugTooltipClasses.Image)
 			.appendTo(this.content);
 
@@ -90,7 +91,7 @@ class ItemPlugTooltip extends Tooltip {
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
 	}
 
-	public setPlug (plug: Plug, perk?: Perk, item?: Item) {
+	public set (plug: Plug, perk?: Perk, item?: Item) {
 		this.plug = plug;
 		this.perk = perk;
 		this.item = item;
@@ -99,6 +100,10 @@ class ItemPlugTooltip extends Tooltip {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).perk = perk;
 		console.log(Display.name(perk?.definition) ?? Display.name(plug.definition), plug, perk);
+
+		const damageType = plug.getCategorisationAs(DeepsightPlugCategory.Subclass)?.damageType;
+		this.classes.removeWhere(cls => cls.startsWith(ItemPlugTooltipClasses.IsDamageType))
+			.classes.add(damageType && `${ItemPlugTooltipClasses.IsDamageType}-${DamageTypes.nameOf(damageType)}`);
 
 		this.title.text.set(Display.name(perk?.definition) ?? Display.name(plug.definition));
 		this.subtitle.removeContents();
@@ -111,7 +116,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic, ItemPlugTooltipClasses.IsExotic);
 
 		this.image.classes.toggle(!plug.definition?.secondaryIcon, Classes.Hidden)
-			.attributes.set("src", plug.definition?.secondaryIcon && `https://www.bungie.net${plug.definition.secondaryIcon}`);
+			.setPath(plug.definition?.secondaryIcon && `https://www.bungie.net${plug.definition.secondaryIcon}`);
 
 		this.perks.removeContents();
 		if (!perk) {

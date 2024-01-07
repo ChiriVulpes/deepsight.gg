@@ -29,11 +29,7 @@ const DamageTypes = EnumModel.create("DamageTypes", {
 			stasis: types.find(type => type.enumValue === DamageType.Stasis)!,
 			strand: types.find(type => type.enumValue === DamageType.Strand)!,
 			raid: types.find(type => type.enumValue === DamageType.Raid)!,
-		}
-	},
-	async get (this: EnumModel<DamageTypesDefinition, DestinyDamageTypeDefinition>, hash?: string | number) {
-		const types = await this.all;
-		return types.array.find(type => type.hash === +hash! || type.enumValue === +hash!);
+		};
 	},
 });
 

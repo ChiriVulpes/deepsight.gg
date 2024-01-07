@@ -19,11 +19,7 @@ const BreakerTypes = EnumModel.create("BreakerTypes", {
 			barrier: types.find(type => type.enumValue === DestinyBreakerType.ShieldPiercing)!,
 			overload: types.find(type => type.enumValue === DestinyBreakerType.Disruption)!,
 			unstoppable: types.find(type => type.enumValue === DestinyBreakerType.Stagger)!,
-		}
-	},
-	async get (this: EnumModel<BreakerTypesDefinition, DestinyBreakerTypeDefinition>, hash?: string | number) {
-		const types = await this.all;
-		return types.array.find(type => type.hash === +hash! || type.enumValue === +hash!);
+		};
 	},
 });
 
