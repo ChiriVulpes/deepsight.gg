@@ -3,7 +3,7 @@ import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
 import type { StatHashes } from "../Enums";
-import { ActivityHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, TraitHashes } from "../Enums";
+import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, TraitHashes } from "../Enums";
 import type { DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
 import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";
@@ -690,6 +690,14 @@ namespace DeepsightPlugCategorisation {
 		"shared.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
 	};
 
+	const damageTypes: Record<string, DamageTypeHashes> = {
+		"void": DamageTypeHashes.Void,
+		"solar": DamageTypeHashes.Solar,
+		"arc": DamageTypeHashes.Arc,
+		"stasis": DamageTypeHashes.Stasis,
+		"strand": DamageTypeHashes.Strand,
+	};
+
 	let DestinyInventoryBucketDefinition: Record<number, DestinyInventoryBucketDefinition> | undefined;
 
 	const additionalDetailsHandlers: Partial<Record<DeepsightPlugCategory, (context: DeepsightPlugContextDefinition, type?: number) => any>> = {
@@ -725,9 +733,12 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Subclass]: (context, type?: DeepsightPlugTypeMod) => {
 			const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier;
+			const subclassIdentifier = plugCategoryIdentifier?.slice(0, plugCategoryIdentifier.lastIndexOf("."));
+			const damageTypeIdentifier = subclassIdentifier?.slice(subclassIdentifier.lastIndexOf(".") + 1);
+
 			const result = {
-				subclasses: !plugCategoryIdentifier ? undefined
-					: subclasses[plugCategoryIdentifier.slice(0, plugCategoryIdentifier.lastIndexOf("."))],
+				subclasses: !subclassIdentifier ? undefined : subclasses[subclassIdentifier],
+				damageType: !damageTypeIdentifier ? undefined : damageTypes[damageTypeIdentifier],
 			} as Partial<DeepsightPlugCategorisationSubclass>;
 
 			return result;

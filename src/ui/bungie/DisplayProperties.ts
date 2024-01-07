@@ -88,6 +88,7 @@ namespace Display {
 					const enumIconPath = EnumModelMap[iconName as EnumModelMapString];
 					if (!enumIconPath) {
 						console.warn("No entry in EnumModelMap for", iconName);
+						component.text.add(section);
 						break;
 					}
 

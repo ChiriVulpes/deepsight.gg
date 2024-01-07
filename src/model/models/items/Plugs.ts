@@ -254,6 +254,10 @@ export class Plug {
 	public clarity?: ClarityDescription;
 	public categorisation?: DeepsightPlugCategorisation;
 
+	public getCategorisationAs<CATEGORY extends DeepsightPlugCategory> (category: CATEGORY) {
+		return this.categorisation?.category === category ? this.categorisation as DeepsightPlugCategorisation<CATEGORY> : undefined;
+	}
+
 	public static async resolve (manifest: Manifest, plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition | DestinyItemSocketEntryPlugItemDefinition, item?: IItemInit) {
 		const manifestCacheTime = Manifest.getCacheTime();
 
