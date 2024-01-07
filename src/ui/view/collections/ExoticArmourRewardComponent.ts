@@ -32,7 +32,7 @@ export default class ExoticArmourRewardComponent extends ItemComponent {
 	}
 
 	protected override initialiseIcon (icon: LoadedIcon) {
-		const path = paths[this.item.definition.hash as InventoryItemHashes];
+		const path = paths[this.item?.definition.hash as InventoryItemHashes];
 		if (path) {
 			icon.setPath(path);
 		}

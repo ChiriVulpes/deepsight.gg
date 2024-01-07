@@ -292,10 +292,6 @@ export class Plug {
 		return plug;
 	}
 
-	public getCategorisationAs<TYPE extends DeepsightPlugCategorisation<DeepsightPlugCategory>> () {
-		return this.categorisation as TYPE | undefined;
-	}
-
 	// private static getGenericPlugHash (plugBase: DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition) {
 	// 	if ("enabled" in plugBase)
 	// 		return plugBase.enableFailIndexes?.length || plugBase.insertFailIndexes?.length ? undefined
