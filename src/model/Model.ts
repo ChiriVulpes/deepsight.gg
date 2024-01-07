@@ -29,6 +29,10 @@ export interface IModel<T, R, API = undefined> {
 	version?: string | number | (() => Promise<string | number | undefined>);
 	api?: API;
 	useCacheOnError?: true;
+	/**
+	 * On initial load, assuming the cached data is not older than the provided elapsed ms, it will be used instead.
+	 */
+	useCacheOnInitial?: number;
 	generate?(api: IModelGenerationApi): Promise<T>;
 	process?(value: T): R;
 	reset?(value?: T): any;
@@ -142,7 +146,7 @@ namespace Model {
 			Object.assign(this, model.api);
 		}
 
-		public isCacheValid (cacheTime = this.cacheTime, version = this.version) {
+		public isCacheValid (cacheTime = this.cacheTime, version = this.version, resetTime = this.model.resetTime) {
 			if (cacheTime === undefined)
 				return false;
 
@@ -155,17 +159,16 @@ namespace Model {
 			if (!this.model.cache)
 				return false;
 
-			if (this.model.resetTime === undefined)
+			if (resetTime === undefined)
 				return true;
 
-			const resetTime = this.model.resetTime;
 			if (typeof resetTime === "number")
 				return Date.now() < cacheTime + resetTime;
 
 			return cacheTime > Bungie[`last${resetTime}Reset`];
 		}
 
-		public async resolveCache (includeExpired = false) {
+		public async resolveCache (includeExpired: boolean | "initial" = false) {
 			if (!this.model.cache || this.model.cache === "Memory")
 				return undefined;
 
@@ -174,7 +177,7 @@ namespace Model {
 				return undefined;
 
 			await this.getModelVersion();
-			if (includeExpired || this.isCacheValid(cached.cacheTime, cached.version)) {
+			if (includeExpired === true || this.isCacheValid(cached.cacheTime, cached.version, includeExpired === "initial" ? this.model.useCacheOnInitial : undefined)) {
 				// this cached value is valid
 				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`);
 				this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;

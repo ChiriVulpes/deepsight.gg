@@ -80,6 +80,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 		super(`profile#${type} [${applicableKeys.join(",")}]`, {
 			cache: "Session",
 			resetTime: Time.seconds(20),
+			useCacheOnInitial: Time.days(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
 		});
@@ -127,6 +128,8 @@ function mergeProfileKey (key: DestinyComponentName, value1: any, value2: any): 
 	return value1 ?? value2;
 }
 
+let isInitial = true;
+
 function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMPONENTS): Model<{ [PROFILE_RESPONSE_KEY in DestinyComponentName as (
 	((typeof profileResponseComponentMap)[PROFILE_RESPONSE_KEY] extends infer COMPONENTS ?
 		COMPONENTS extends readonly DestinyComponentType[] ? COMPONENTS[number] : COMPONENTS
@@ -137,6 +140,9 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 	)] extends [never] ? never : PROFILE_RESPONSE_KEY
 	: never
 )]?: DestinyProfileResponse[PROFILE_RESPONSE_KEY] } & { lastModified: Date }> {
+	const initial = isInitial;
+	isInitial = false;
+
 	components.sort();
 
 	for (const component of components)
@@ -156,7 +162,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 			api.emitProgress(0, "Fetching profile");
 			const missingComponents: DestinyComponentType[] = [];
 			for (const component of components) {
-				const cached = await models[component]?.resolveCache();
+				const cached = await models[component]?.resolveCache(initial ? "initial" : undefined);
 				if (cached) {
 					mergeProfile(result, cached);
 				} else
