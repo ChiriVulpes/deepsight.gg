@@ -121,6 +121,7 @@ namespace Model {
 		private _loadingInfo?: { progress: number, messages: string[] };
 		private loadId = loadId;
 		private errored = false;
+		private _latest?: R;
 
 		private modelVersion?: string | number;
 		private async getModelVersion () {
@@ -140,6 +141,10 @@ namespace Model {
 
 		public get loadingInfo () {
 			return this._loadingInfo;
+		}
+
+		public get latest () {
+			return this._latest;
 		}
 
 		public constructor (private readonly name: string, private readonly model: IModel<T, R, any>) {
@@ -180,7 +185,7 @@ namespace Model {
 			if (includeExpired === true || this.isCacheValid(cached.cacheTime, cached.version, includeExpired === "initial" ? this.model.useCacheOnInitial : undefined)) {
 				// this cached value is valid
 				console.debug(`Using cached data for '${this.name}', cached at ${new Date(cached.cacheTime).toLocaleString()}`);
-				this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;
+				this._latest = this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;
 				this.event.emit("loaded", { value: this.value ?? undefined as any as R });
@@ -197,7 +202,7 @@ namespace Model {
 
 		public async reset (value?: T) {
 			if (!this.model.reset)
-				this.value = value = undefined;
+				this._latest = this.value = value = undefined;
 			else {
 				if (!value) {
 					const cached = await Model.cacheDB.get("models", this.name);
@@ -342,7 +347,7 @@ namespace Model {
 
 		protected async set (value: T) {
 			const filtered = (this.model.process?.(value) ?? value) as R;
-			this.value = (filtered ?? null) as R;
+			this._latest = this.value = (filtered ?? null) as R;
 			this.cacheTime = Date.now();
 			this.version = await this.getModelVersion();
 			this.loadId = loadId;

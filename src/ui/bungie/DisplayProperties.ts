@@ -151,7 +151,7 @@ namespace Display {
 		}
 
 		const addedKeywords: DestinyTraitDefinition[] = [];
-		const { profileStringVariables, characterStringVariables } = await ProfileBatch.resolveCache(true) ?? await ProfileBatch.await();
+		const { profileStringVariables, characterStringVariables } = ProfileBatch.latest ?? {};
 		for (const section of split) {
 			if (!section)
 				continue;
