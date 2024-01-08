@@ -119,7 +119,7 @@ export default class ViewManager {
 		if (view !== registry[hash])
 			args.push(Strings.sliceAfter(hash, "/"));
 
-		this.show(view.show(...args as []));
+		view.show(...args as []);
 	}
 
 	public static show (view: View.WrapperComponent) {

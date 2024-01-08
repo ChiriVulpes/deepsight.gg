@@ -1,4 +1,5 @@
 import type Model from "model/Model";
+import EnumModel from "model/models/enum/EnumModel";
 import Background from "ui/BackgroundManager";
 import { Classes as BaseClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
@@ -84,6 +85,7 @@ namespace View {
 				...definition,
 				models: this.otherModels,
 				initialise: async (component, ...requirements) => {
+					await EnumModel.awaitAll();
 					for (const initialiser of [...this.initialisers, definition.initialise]) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 						await initialiser?.(component as any, ...requirements);
@@ -112,7 +114,6 @@ namespace View {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const view = WrapperComponent.create([this as any, ...args]);
 			View.event.emit("show", { view });
-			return view as WrapperComponent<MODELS, ARGS, DEFINITION>;
 		}
 
 		public hide () {

@@ -1,6 +1,5 @@
 import Model from "model/Model";
 import Activities from "model/models/Activities";
-import EnumModel from "model/models/enum/EnumModel";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -43,7 +42,6 @@ export default class DeepsightGG {
 		Background.initialiseMain();
 
 		await Env.load();
-		await EnumModel.awaitAll();
 
 		Bungie.event.subscribe("resetAuthentication", async _ => {
 			await Model.clearCache();
