@@ -66,10 +66,13 @@ export default class DeepsightGG {
 		AppNav.create([ViewManager])
 			.appendTo(document.body);
 
-		if (URL.hash === AuthView.id)
-			URL.hash = "";
+		const path = URL.path ?? URL.hash;
+		if (path === AuthView.id) {
+			URL.hash = null;
+			URL.path = null;
+		}
 
-		ViewManager.showByHash(URL.hash);
+		ViewManager.showByHash(URL.path ?? URL.hash);
 		if (!ViewManager.hasView())
 			ViewManager.showDefaultView();
 	}

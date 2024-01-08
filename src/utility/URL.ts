@@ -40,6 +40,21 @@ export default class URL {
 			history.pushState(null, "", `${location.origin}${location.pathname}${location.search}${value ? `#${value}` : ""}`);
 	}
 
+	public static get path () {
+		return location.pathname.slice(location.pathname.startsWith("/beta/") ? 6 : 1);
+	}
+
+	public static set path (value: string | null) {
+		if (value && location.pathname.startsWith("/beta/"))
+			value = `/beta/${value}`;
+
+		if (value && !value?.startsWith("/"))
+			value = `/${value}`;
+
+		if (!poppingState)
+			history.pushState(null, "", `${location.origin}${value ?? "/"}${location.search}`);
+	}
+
 	public static get params () {
 		return params ??= new Proxy(query ??= new URLSearchParams(location.search), {
 			has (params, key) {

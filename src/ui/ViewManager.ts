@@ -67,7 +67,7 @@ const registry = Object.fromEntries([
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
 View.event.subscribe("hide", () => ViewManager.hide());
 URL.event.subscribe("navigate", () => {
-	ViewManager.showByHash(URL.hash);
+	ViewManager.showByHash(URL.path ?? URL.hash);
 });
 
 export interface IViewManagerEvents {
@@ -149,8 +149,11 @@ export default class ViewManager {
 	}
 
 	private static updateHash (view: View.WrapperComponent) {
-		if (URL.hash !== view.hash)
-			URL.hash = view.hash;
+		if (URL.path !== view.hash)
+			URL.path = view.hash;
+
+		if (URL.hash === URL.path)
+			URL.hash = null;
 	}
 
 	public static showItem (item: Item) {
@@ -185,7 +188,7 @@ export default class ViewManager {
 }
 
 window.addEventListener("popstate", event => {
-	ViewManager.showByHash(URL.hash);
+	ViewManager.showByHash(URL.path ?? URL.hash);
 	if (!ViewManager.hasView())
 		ViewManager.showDefaultView();
 });
