@@ -6,6 +6,7 @@ import type { Perk, Plug, PlugType, Socket } from "model/models/items/Plugs";
 import Display from "ui/bungie/DisplayProperties";
 import Card, { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemPlugTooltip from "ui/inventory/ItemPlugTooltip";
@@ -31,6 +32,7 @@ export enum ItemSocketsClasses {
 
 export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
+	private maxSocketPlugs!: number;
 	private addedSockets!: ItemSocket[];
 	public item!: Item;
 	public inventory!: Inventory;
@@ -47,6 +49,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		this.title.text.set(this.getTitle());
 
 		this.addedSockets = [];
+		this.maxSocketPlugs = 0;
 		await this.initialise();
 		this.classes.toggle(!this.addedSockets.length, Classes.Hidden);
 		Component.create()
@@ -139,8 +142,21 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 	protected addSocket (initialiser?: (socket: ItemSocket) => any) {
 		const socket = ItemSocket.create()
 			.tweak(initialiser);
+
+		socket.event.subscribe("addPlug", () => this.updateSocket(socket));
+
 		this.addedSockets.push(socket);
+		this.updateSocket(socket);
 		return socket;
+	}
+
+	protected updateSocket (socket: ItemSocket) {
+		const old = this.maxSocketPlugs;
+		this.maxSocketPlugs = Math.max(this.maxSocketPlugs, socket.plugs.length);
+		if (old === this.maxSocketPlugs)
+			return;
+
+		this.style.set("--max-socket-plugs", `${this.maxSocketPlugs}`);
 	}
 
 	protected hasSockets () {
@@ -148,7 +164,13 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 	}
 }
 
+export interface IItemSocketEvents extends ComponentEvents {
+	addPlug: Event;
+}
+
 export class ItemSocket extends Component<HTMLElement, []> {
+
+	public override event!: ComponentEventManager<this, IItemSocketEvents>;
 
 	public plugs!: ItemPlug[];
 
@@ -170,6 +192,7 @@ export class ItemSocket extends Component<HTMLElement, []> {
 			.appendTo(this);
 
 		this.plugs.push(component);
+		this.event.emit("addPlug");
 		return component;
 	}
 }
