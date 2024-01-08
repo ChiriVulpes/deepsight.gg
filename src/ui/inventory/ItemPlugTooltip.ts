@@ -1,5 +1,6 @@
 import { ItemTierTypeHashes } from "@deepsight.gg/enums";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
+import type { DestinyTraitDefinition } from "bungie-api-ts/destiny2";
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import DamageTypes from "model/models/enum/DamageTypes";
 import type Item from "model/models/items/Item";
@@ -15,6 +16,7 @@ import TooltipManager, { Tooltip } from "ui/TooltipManager";
 import type { IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Bound from "utility/decorator/Bound";
+import type { PromiseOr } from "utility/Type";
 
 enum ItemPlugTooltipClasses {
 	Main = "item-plug-tooltip",
@@ -31,6 +33,11 @@ enum ItemPlugTooltipClasses {
 	PerkIcon = "item-plug-tooltip-perk-icon",
 	PerkIconIsStat = "item-plug-tooltip-perk-icon--stat",
 	PerkDescription = "item-plug-tooltip-perk-description",
+	Keyword = "item-plug-tooltip-keyword",
+	Keywords = "item-plug-tooltip-keywords",
+	KeywordIcon = "item-plug-tooltip-keyword-icon",
+	KeywordName = "item-plug-tooltip-keyword-name",
+	KeywordDescription = "item-plug-tooltip-keyword-description",
 	ClarityURL = "item-plug-tooltip-clarity-url",
 	Extra = "item-plug-tooltip-extra",
 	ExtraHeader = "item-plug-tooltip-extra-header",
@@ -47,6 +54,7 @@ class ItemPlugTooltip extends Tooltip {
 	public description!: Component;
 	public perks!: Component;
 	public clarity!: ItemClarity;
+	public keywords!: ItemPlugKeywords;
 	public clarityDefinitions!: ItemClarityDefinitions;
 	public hintShowDefinitions!: Hint;
 
@@ -85,6 +93,9 @@ class ItemPlugTooltip extends Tooltip {
 		this.extra.header.classes.add(ItemPlugTooltipClasses.ExtraHeader);
 		this.extra.content.classes.add(ItemPlugTooltipClasses.ExtraContent);
 
+		this.keywords = ItemPlugKeywords.create()
+			.appendTo(this.extra.content);
+
 		this.clarityDefinitions = ItemClarityDefinitions.create()
 			.appendTo(this.extra.content);
 
@@ -118,6 +129,7 @@ class ItemPlugTooltip extends Tooltip {
 		this.image.classes.toggle(!plug.definition?.secondaryIcon, Classes.Hidden)
 			.setPath(plug.definition?.secondaryIcon && `https://www.bungie.net${plug.definition.secondaryIcon}`);
 
+		const keywords: PromiseOr<DestinyTraitDefinition[]>[] = [];
 		this.perks.removeContents();
 		if (!perk) {
 			for (const perk of plug.perks) {
@@ -135,14 +147,18 @@ class ItemPlugTooltip extends Tooltip {
 						: LoadedIcon.create([`https://www.bungie.net${perk.definition.displayProperties.icon}`])
 							.classes.toggle(perk.definition.displayProperties.name === "Stat Penalty" || perk.definition.displayProperties.name === "Stat Increase", ItemPlugTooltipClasses.PerkIconIsStat);
 
+				const description: Display.DescriptionOptions = {};
 				Component.create()
 					.classes.add(ItemPlugTooltipClasses.Perk)
 					.classes.toggle(perk.perkVisibility === ItemPerkVisibility.Disabled, ItemPlugTooltipClasses.PerkIsDisabled)
 					.append(icon?.classes.add(ItemPlugTooltipClasses.PerkIcon))
 					.append(Component.create()
 						.classes.add(ItemPlugTooltipClasses.PerkDescription)
-						.tweak(Display.applyDescription, Display.description(perk.definition)))
+						.tweak(Display.applyDescription, Display.description(perk.definition), description))
 					.appendTo(this.perks);
+
+				if (description.keywords)
+					keywords.push(description.keywords);
 			}
 		}
 
@@ -151,12 +167,55 @@ class ItemPlugTooltip extends Tooltip {
 		this.footer.classes.toggle(!this.clarity.isPresent, Classes.Hidden);
 		this.extra.classes.toggle(!this.clarityDefinitions.isPresent, Classes.Hidden);
 		this.hintShowDefinitions.classes.toggle(!this.clarityDefinitions.isPresent, Classes.Hidden);
+
+		void this.keywords.set(Promise.all(keywords).then(keywords => keywords.flat()).then(keywords => {
+			if (this.plug === plug) {
+				const hasDefs = this.clarityDefinitions.isPresent || !!keywords.length;
+				this.footer.classes.toggle(!this.clarity.isPresent && !hasDefs, Classes.Hidden);
+				this.extra.classes.toggle(!hasDefs, Classes.Hidden);
+				this.hintShowDefinitions.classes.toggle(!hasDefs, Classes.Hidden);
+			}
+
+			return keywords;
+		}));
 	}
 
 	@Bound
 	protected onGlobalKeyup (event: IKeyUpEvent) {
 		if (this.clarity.isPresent && event.hovering(".view-item-socket-plug") && event.use("MouseMiddle")) {
 			window.open("https://www.d2clarity.com", "_blank");
+		}
+	}
+}
+
+let set = 0;
+class ItemPlugKeywords extends Component {
+	protected override onMake (): void {
+		this.classes.add(ItemPlugTooltipClasses.Keywords);
+	}
+
+	private setTime = 0;
+	public async set (keywords: PromiseOr<DestinyTraitDefinition[]>) {
+		this.removeContents();
+
+		const time = this.setTime = set++;
+		keywords = await keywords;
+		if (this.setTime !== time)
+			return;
+
+		for (const keyword of new Set(keywords)) {
+			Component.create()
+				.classes.add(ItemPlugTooltipClasses.Keyword)
+				.append(!keyword.displayProperties.icon ? undefined
+					: LoadedIcon.create([`https://www.bungie.net${keyword.displayProperties.icon}`])
+						.classes.add(ItemPlugTooltipClasses.KeywordIcon))
+				.append(Component.create()
+					.classes.add(ItemPlugTooltipClasses.KeywordName)
+					.text.set(Display.name(keyword)))
+				.append(Component.create()
+					.classes.add(ItemPlugTooltipClasses.KeywordDescription)
+					.tweak(Display.applyDescription, Display.description(keyword)))
+				.appendTo(this);
 		}
 	}
 }

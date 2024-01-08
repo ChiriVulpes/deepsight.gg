@@ -1,10 +1,12 @@
-import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyDisplayPropertiesDefinition, DestinyTraitDefinition } from "bungie-api-ts/destiny2";
+import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import type { EnumModelMapString } from "model/models/enum/EnumModelMap";
 import EnumModelMap from "model/models/enum/EnumModelMap";
 import type { CharacterId } from "model/models/items/Item";
 import Component from "ui/Component";
 import EnumIcon from "ui/bungie/EnumIcon";
+import type { PromiseOr } from "utility/Type";
 
 declare module "bungie-api-ts/destiny2/interfaces" {
 	interface DestinyDisplayPropertiesDefinition {
@@ -50,30 +52,106 @@ namespace Display {
 	}
 
 	const interpolationRegex = /(\{var:\d+\})|(\[[\w-]+\])/g;
-	interface DescriptionOptions {
+	export interface DescriptionOptions {
 		character?: CharacterId;
 		/**
 		 * Whether to convert newlines into slashes.
 		 */
 		singleLine?: true;
+		/**
+		 * Do not fill this in yourself, this property will be filled in by `applyDescription`
+		 */
+		keywords?: PromiseOr<DestinyTraitDefinition[]>;
+	}
+
+	interface TraitDef extends DestinyTraitDefinition {
+		displayProperties: DestinyTraitDefinition["displayProperties"] & {
+			nameLowercaseVariations: string[];
+		};
+	}
+
+	function getVariations (name: string) {
+		const variations = [name];
+		variations.push(name + "d", name + "ed");
+
+		if (name.endsWith("d"))
+			variations.push(...getVariations(name.slice(0, -1)));
+
+		if (name.endsWith("ed"))
+			variations.push(...getVariations(name.slice(0, -2)));
+
+		if (name.endsWith("ing")) {
+			variations.push(name.slice(0, -3));
+			if (name[name.length - 4] === name[name.length - 5])
+				variations.push(name.slice(0, -4));
+		} else {
+			variations.push(name + "ing", name + name[name.length - 1] + "ing");
+			if (name.endsWith("y"))
+				variations.push(name.slice(0, -1) + "ing");
+		}
+
+		if (name.endsWith("ion")) {
+			variations.push(...getVariations(name.slice(0, -3)));
+			if (name[name.length - 4] === name[name.length - 5])
+				variations.push(name.slice(0, -4));
+		} else
+			variations.push(name + "ion");
+
+		if (name.endsWith("er"))
+			variations.push(name.slice(0, -1), name.slice(0, -2));
+		else {
+			variations.push(name + "r", name + "er");
+			if (name.endsWith("y"))
+				variations.push(name.slice(0, -1) + "ier");
+		}
+
+		if (name.endsWith("ier"))
+			variations.push(name.slice(0, -3) + "y");
+
+		variations.push(name + "s", name + "es");
+		if (name.endsWith("s"))
+			variations.push(name.slice(0, -1));
+		else {
+			if (name.endsWith("y"))
+				variations.push(name.slice(0, -1) + "ies");
+		}
+
+		return variations;
 	}
 
 	export async function applyDescription (component: Component, description?: string, options?: DescriptionOptions | CharacterId) {
 		component.removeContents();
 		if (!description)
-			return;
+			return [];
 
 		const character = typeof options === "string" ? options : options?.character;
 		options = typeof options === "string" ? {} : options;
+		options ??= {};
+		options.character = character;
+		let resolveKeywords!: (traits: DestinyTraitDefinition[]) => void;
+		options.keywords = new Promise<DestinyTraitDefinition[]>(resolve => resolveKeywords = resolve);
 
 		if (options?.singleLine)
 			description = description.replace(/(\s*\n\s*)+/g, " \xa0 / \xa0 ");
 
-		const split = description.split(interpolationRegex);
-		if (split.length < 2)
-			return component.text.set(description);
+		const { DestinyTraitDefinition } = await Manifest.await();
+		let traits = await DestinyTraitDefinition.all() as TraitDef[];
+		traits = traits.filter(trait => trait.displayProperties.name && trait.displayProperties.description);
+		for (const trait of traits) {
+			const name = trait.displayProperties.nameLowerCase ??= trait.displayProperties.name.toLowerCase();
+			trait.displayProperties.nameLowercaseVariations ??= getVariations(name);
+		}
 
-		const { profileStringVariables, characterStringVariables } = await ProfileBatch.await();
+		const split = description.split(interpolationRegex);
+		if (split.length < 2) {
+			const addedTraits = applyDescriptionHighlightKeywords(component, description, traits);
+			options.keywords = addedTraits;
+			resolveKeywords(addedTraits);
+			return addedTraits;
+		}
+
+		const addedKeywords: DestinyTraitDefinition[] = [];
+		const { profileStringVariables, characterStringVariables } = await ProfileBatch.resolveCache(true) ?? await ProfileBatch.await();
 		for (const section of split) {
 			if (!section)
 				continue;
@@ -107,10 +185,80 @@ namespace Display {
 					break;
 				}
 				default:
-					component.text.add(section);
+					addedKeywords.push(...applyDescriptionHighlightKeywords(component, section, traits));
 			}
-
 		}
+
+		options.keywords = addedKeywords;
+		resolveKeywords(addedKeywords);
+		return options.keywords;
+	}
+
+	function applyDescriptionHighlightKeywords (component: Component, description: string, traits: TraitDef[]) {
+		const addedKeywords: DestinyTraitDefinition[] = [];
+
+		let matching = traits;
+		let keyword: string | undefined = "";
+		let holding = "";
+		let holdingSpaceIndex: number | undefined;
+		let rawSection = "";
+		for (let i = 0; i < description.length; i++) {
+			const char = description[i];
+			if (keyword !== undefined) {
+				if ((char === " " || char === "\n" || char === "(") && !keyword) {
+					rawSection += char;
+					continue;
+				}
+
+				holding += char;
+				keyword += char.toLowerCase();
+				const nextChar = description[i + 1];
+				const nextCharIsWordBreak = nextChar === " " || nextChar === "\n" || nextChar === "," || nextChar === "." || nextChar === ";" || nextChar === ":" || nextChar === ")";
+				const variations = getVariations(keyword);
+
+				matching = matching.filter(trait => variations.some(keyword => trait.displayProperties.nameLowercaseVariations.some(name => name.startsWith(keyword))));
+				if (!matching.length) {
+					keyword = char === " " || char === "\n" || char === "(" ? "" : undefined;
+					matching = traits;
+					if (holdingSpaceIndex) {
+						holding = holding.slice(0, -(i - holdingSpaceIndex));
+						i = holdingSpaceIndex;
+						keyword = "";
+					}
+
+					rawSection += holding;
+					holding = "";
+					holdingSpaceIndex = undefined;
+
+				} else if (matching.length === 1 && nextCharIsWordBreak && matching[0].displayProperties.nameLowercaseVariations.some(name => variations.includes(name))) {
+					addedKeywords.push(matching[0]);
+					component.text.add(rawSection);
+					component.append(Component.create("span")
+						.classes.add("description-keyword")
+						.text.set(holding[0].toUpperCase() + holding.slice(1)));
+					keyword = undefined;
+					holding = "";
+					rawSection = "";
+					matching = traits;
+					holdingSpaceIndex = undefined;
+
+				} else if (char === " ") {
+					holdingSpaceIndex ??= i;
+				}
+
+			} else {
+				if (char === " " || char === "\n" || char === "(") {
+					keyword = "";
+				}
+
+				rawSection += char;
+			}
+		}
+
+		if (rawSection)
+			component.text.add(rawSection);
+
+		return addedKeywords;
 	}
 
 	export function description (displayProperties?: PartialDisplayPropertiesOrD) {

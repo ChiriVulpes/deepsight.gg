@@ -112,6 +112,8 @@ $colors: (
 	artifact-dark: #3288a1,
 	masterwork: #ecca3e,
 	masterwork-dark: #cbaf3c,
+	
+	keyword: #aad3f3,
 );
 
 @mixin override-color($name, $color, $opacity: null) {

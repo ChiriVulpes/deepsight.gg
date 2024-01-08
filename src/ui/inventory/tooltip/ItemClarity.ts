@@ -38,8 +38,8 @@ export enum ItemClarityClasses {
 	LabelPVP = "item-plug-tooltip-clarity-label-pvp",
 	Definitions = "item-plug-tooltip-clarity-definitions",
 	Definition = "item-plug-tooltip-clarity-definition",
-	DefinitionTitle = "item-plug-tooltip-clarity-definition-title",
-	DefinitionTitleIndex = "item-plug-tooltip-clarity-definition-title-index",
+	DefinitionName = "item-plug-tooltip-clarity-definition-name",
+	DefinitionNameIndex = "item-plug-tooltip-clarity-definition-name-index",
 }
 
 export default class ItemClarity extends Component {
@@ -117,9 +117,9 @@ export class ItemClarityDefinitions extends Component {
 				.classes.add(ItemClarityClasses.Definition)
 				.classes.add(...classNames(definition))
 				.append(Component.create("p")
-					.classes.add(ItemClarityClasses.DefinitionTitle)
+					.classes.add(ItemClarityClasses.DefinitionName)
 					.append(Component.create("sup")
-						.classes.add(ItemClarityClasses.DefinitionTitleIndex)
+						.classes.add(ItemClarityClasses.DefinitionNameIndex)
 						.text.set(`${i + 1}`))
 					.text.add(definition.text ?? ""))
 				.tweak(appendClarityDescriptionComponents, definition.title, { index: 0 })
@@ -175,7 +175,7 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 			.classes.toggle(isPVE, ItemClarityClasses.PVE)
 			.classes.toggle(isPVP, ItemClarityClasses.PVP)
 			.classes.toggle(isPVE || isPVP, ItemClarityClasses.PVEVP)
-			.classes.toggle(!!component.title, ItemClarityClasses.DefinitionTitle)
+			.classes.toggle(!!component.title, ItemClarityClasses.DefinitionName)
 			.classes.add(...isLine ? [ItemClarityClasses.Line] : [], ...classNames(component))
 			.append(!isPVE && !isPVP ? undefined : Component.create("span")
 				.classes.add(ItemClarityClasses.LabelPVEVP, isPVE ? ItemClarityClasses.LabelPVE : ItemClarityClasses.LabelPVP)
@@ -185,7 +185,7 @@ function appendClarityDescriptionComponents (parent: Component, content: string 
 			.tweak(appendClarityTableRowComponents, component.table ?? [], definitionIndex)
 			.tweak(appendClarityLabelledLineComponents, !isLabelledLine ? [] : component.linesContent!, definitionIndex)
 			.append(!component.title ? undefined : Component.create("sup")
-				.classes.add(ItemClarityClasses.DefinitionTitleIndex)
+				.classes.add(ItemClarityClasses.DefinitionNameIndex)
 				.text.set(`${++definitionIndex.index}`));
 
 		if (element.element.childNodes.length || element.element.classList.length)
