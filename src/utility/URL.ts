@@ -41,7 +41,8 @@ export default class URL {
 	}
 
 	public static get path () {
-		return location.pathname.slice(location.pathname.startsWith("/beta/") ? 6 : 1);
+		const path = location.pathname.slice(location.pathname.startsWith("/beta/") ? 6 : 1);
+		return !path || path === "/" ? null : path;
 	}
 
 	public static set path (value: string | null) {
