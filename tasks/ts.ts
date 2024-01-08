@@ -1,5 +1,6 @@
 /* eslint-disable no-control-regex */
 import ansicolor from "ansicolor";
+import fs from "fs/promises";
 import Env from "./utility/Env";
 import Log from "./utility/Log";
 import Task from "./utility/Task";
@@ -60,9 +61,10 @@ class Reformatter {
 	};
 }
 
-export default Task("ts", () =>
-	Task.cli({ cwd: "src", stdout: new Reformatter().out }, "tsc", "--pretty",
-		...options));
+export default Task("ts", task => task.series(
+	() => Task.cli({ cwd: "src", stdout: new Reformatter().out }, "tsc", "--pretty",
+		...options),
+	() => fs.unlink("docs/index.tsbuildinfo")));
 
 export const tsWatch = Task("ts (watch)", () =>
 	Task.cli({ cwd: "src", stdout: new Reformatter().out }, "tsc", "--watch", "--preserveWatchOutput", "--pretty",
