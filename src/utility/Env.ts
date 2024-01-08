@@ -11,7 +11,9 @@ export interface IEnvironment {
 interface Env extends Readonly<IEnvironment> { }
 class Env {
 	public async load () {
-		Object.assign(this, await fetch("./env.json").then(response => response.json()));
+		const origin = location.origin;
+		const root = location.pathname.startsWith("/beta/") ? "/beta/" : "/";
+		Object.assign(this, await fetch(origin + root + "env.json").then(response => response.json()));
 		document.documentElement.classList.add(`environment-${this.DEEPSIGHT_ENVIRONMENT}`);
 	}
 }
