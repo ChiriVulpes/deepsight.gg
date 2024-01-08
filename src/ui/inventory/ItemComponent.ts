@@ -447,6 +447,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			return;
 
 		event.preventDefault();
+		event.stopPropagation();
 		if (event.shiftKey)
 			viewManager.showCollections(this.item);
 		else
