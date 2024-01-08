@@ -164,8 +164,8 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		this.viewPos = { x, y };
 	}
 
-	private tryInsertPlayerOverview () {
-		if (!Bungie.authenticated)
+	@Bound private tryInsertPlayerOverview () {
+		if (!Bungie.authenticated || this.playerOverview)
 			return;
 
 		this.playerOverview = PlayerOverview.create()
