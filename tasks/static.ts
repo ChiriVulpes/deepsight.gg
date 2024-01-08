@@ -19,6 +19,12 @@ export default Task("static", async (task, file?: string) => {
 	while (!await fs.copy("static", "docs")
 		.then(() => true).catch(() => false));
 
+	if (!Env.DEEPSIGHT_PATH)
+		throw new Error("DEEPSIGHT_PATH env var must be set");
+
+	const html = await fs.readFile("docs/index.html", "utf8");
+	await fs.writeFile("docs/index.html", html.replace(/\.\//g, Env.DEEPSIGHT_PATH));
+
 	if (Env.DEEPSIGHT_ENVIRONMENT !== "dev") {
 		await task.run(DeepsightTypes);
 		// manifests are handled in a separate task in the build

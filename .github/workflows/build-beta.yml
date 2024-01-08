@@ -29,6 +29,7 @@ jobs:
       - name: Build
         env:
           DEEPSIGHT_ENVIRONMENT: beta
+          DEEPSIGHT_PATH: https://deepsight.gg/beta/
           DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
           DEEPSIGHT_BUNGIE_API_KEY: ${{ secrets.DEEPSIGHT_BUNGIE_API_KEY }}
           DEEPSIGHT_BUNGIE_API_SECRET: ${{ secrets.DEEPSIGHT_BUNGIE_API_SECRET }}

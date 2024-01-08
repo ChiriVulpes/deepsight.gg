@@ -27,10 +27,79 @@ export default Task("serve", () => {
 		next();
 	});
 
+	enum CheckType {
+		Equals,
+		StartsWith,
+	}
+
+	interface Check {
+		type: CheckType;
+		not?: true;
+		compare: string;
+	}
+
+	const equalsToken = "http.request.uri.path eq \"";
+	const notEqualsToken = "http.request.uri.path ne \"";
+	const startsWithToken = "starts_with(http.request.uri.path, \"";
+	const rewrite = (Env.DEEPSIGHT_REWRITE?.slice(1, -1) ?? "").split(" and ")
+		.map(expr => {
+			const check: Partial<Check> = {};
+			if (expr.startsWith("not ")) {
+				check.not = true;
+				expr = expr.slice(4);
+			}
+
+			if (expr.startsWith(startsWithToken)) {
+				check.type = CheckType.StartsWith;
+				check.compare = expr.slice(startsWithToken.length, -2);
+			}
+
+			if (expr.startsWith(equalsToken)) {
+				check.type = CheckType.Equals;
+				check.compare = expr.slice(equalsToken.length, -1);
+			}
+
+			if (expr.startsWith(notEqualsToken)) {
+				check.type = CheckType.Equals;
+				check.not = true;
+				check.compare = expr.slice(notEqualsToken.length, -1);
+			}
+
+			return check as Check;
+		});
+
+	app.use((req, res, next) => {
+		const shouldRewrite = rewrite.every(rewrite => {
+			let result: boolean;
+			switch (rewrite.type) {
+				case CheckType.Equals:
+					result = rewrite.compare === req.path;
+					break;
+				case CheckType.StartsWith:
+					result = req.path.startsWith(rewrite.compare);
+					break;
+			}
+			return rewrite.not ? !result : result;
+		});
+
+		if (shouldRewrite) {
+			res.sendFile(path.resolve(`${root}/index.html`), (err) => {
+				if (err) {
+					Log.error("Error sending file:", err);
+					res.status(500).end();
+				}
+			});
+		} else
+			next();
+	});
+
 	app.use(serveStaticFixer(root));
 	app.use(serveStatic(root, { fallthrough: false, extensions: ["html"] }));
 
 	app.use(((err: Error & { status: number }, req, res, next) => {
+		if (!err.status)
+			return next(err);
+
 		Log.error(ansi.darkGray(`${req.method!}`), ansi.cyan(`${req.url!}`), ansi.red(err.status.toString()), ansi.red(err.message));
 		res.write(`Cannot ${req.method!} ${req.url!}`);
 		res.end();
