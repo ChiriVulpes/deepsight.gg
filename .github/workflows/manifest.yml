@@ -70,6 +70,7 @@ jobs:
         run: npm run manifest
 
       - name: Save testiny artifact
+        if: github.event_name != 'workflow_dispatch'
         uses: actions/upload-artifact@v3
         with:
           name: testiny-data
