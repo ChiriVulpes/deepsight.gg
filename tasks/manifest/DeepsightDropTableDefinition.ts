@@ -7,10 +7,11 @@ import Task from "../utility/Task";
 import Time from "../utility/Time";
 import DestinyManifestReference from "./DestinyManifestReference";
 import type { ActivityHashes } from "./Enums";
-import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes } from "./Enums";
+import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
 import PGCR from "./utility/PGCR";
+import type { Activity } from "./utility/endpoint/DestinyActivities";
 import DestinyActivities from "./utility/endpoint/DestinyActivities";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
@@ -18,11 +19,63 @@ export default Task("DeepsightDropTableDefinition", async () => {
 	const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyObjectiveDefinition } = manifest;
 	const activities = await DestinyActivities.get();
 
+
+	////////////////////////////////////
+	// Generate exotic rotator drop table
+
+	let normalExoticMission: Activity | undefined;
+	let legendExoticMission: Activity | undefined;
+
+	for (const activity of activities) {
+		const exoticRotatorChallenge = await Promise.all((activity.activity.challenges ?? [])
+			.map(challenge => manifest.DestinyObjectiveDefinition.get(challenge.objective.objectiveHash)))
+			.then(challenges => challenges.find(challenge => challenge?.displayProperties?.name === "Weekly Exotic Rotator Challenge"));
+
+		if (!exoticRotatorChallenge || !activity.definition)
+			continue;
+
+		if (activity.definition?.selectionScreenDisplayProperties?.name === "Normal")
+			normalExoticMission = activity;
+		else
+			legendExoticMission = activity;
+	}
+
+	if (!normalExoticMission || !legendExoticMission)
+		throw new Error("Failed to get the current exotic mission :(");
+
+	const exoticWeapon = await Promise.all(normalExoticMission.definition!.rewards
+		.flatMap(reward => reward.rewardItems)
+		.map(item => manifest.DestinyInventoryItemDefinition.get(item.itemHash)))
+		.then(rewardItems => rewardItems.find(item => item?.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)));
+
+	if (!exoticWeapon)
+		throw new Error("Failed to get the exotic weapon from the current exotic mission :(");
+
+	Log.info("Exotic Mission:", normalExoticMission.definition!.displayProperties.name, normalExoticMission.activity.activityHash);
+	DeepsightDropTableDefinition.exoticMission = {
+		hash: normalExoticMission.activity.activityHash,
+		displayProperties: {
+			name: normalExoticMission.definition!.originalDisplayProperties.name,
+			description: normalExoticMission.definition!.originalDisplayProperties.description,
+			icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
+		},
+		dropTable: {
+			[exoticWeapon.hash]: {},
+		},
+		master: {
+			activityHash: legendExoticMission.activity.activityHash,
+			availability: "rotator",
+		},
+		availability: "rotator",
+		endTime: Time.iso(Time.nextWeeklyReset),
+	};
+
+
 	////////////////////////////////////
 	// Fix up drop static tables based on manifest and profile data
 
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {
-		definition.hash = +hash;
+		definition.hash ??= +hash;
 
 		const record = await DestinyRecordDefinition.get(definition.recordHash);
 		const activity = await DestinyActivityDefinition.get(hash) ?? await DestinyActivityDefinition.get(definition.rotationActivityHash);
@@ -61,6 +114,10 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		definition.displayProperties.name ??= "";
 		definition.displayProperties.description ??= "";
 
+		if (definition.availability)
+			// availability already filled out
+			continue;
+
 		////////////////////////////////////
 		// Use live profile data to determine whether raids & dungeons are rotators or repeatable (new)
 
@@ -72,7 +129,10 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		const activityChallenges = (await Promise.all(activityChallengeStates.map(challenge => DestinyObjectiveDefinition.get(challenge.objective.objectiveHash))))
 			.filter((challenge): challenge is DestinyObjectiveDefinition => !!challenge);
 
-		const isWeekly = activityChallenges.some(challenge => challenge?.displayProperties?.name === "Weekly Dungeon Challenge" || challenge?.displayProperties?.name === "Weekly Raid Challenge");
+		const isWeekly = activityChallenges.some(challenge => false
+			|| challenge?.displayProperties?.name === "Weekly Dungeon Challenge"
+			|| challenge?.displayProperties?.name === "Weekly Raid Challenge");
+
 		if (isWeekly) {
 			definition.availability = "rotator";
 			definition.endTime = Time.iso(Time.nextWeeklyReset);
