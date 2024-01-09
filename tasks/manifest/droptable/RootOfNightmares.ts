@@ -178,18 +178,17 @@ export default {
     ],
     master: {
         activityHash: ActivityHashes.RootOfNightmaresMaster,
+        dropTable: {
+            [InventoryItemHashes.MykelsReverenceAdeptSidearm_ItemType3]: {},
+            [InventoryItemHashes.AcasiasDejectionAdeptTraceRifle_ItemType3]: {},
+            [InventoryItemHashes.RufussFuryAdeptAutoRifle_ItemType3]: {},
+            [InventoryItemHashes.KoraxissDistressAdeptGrenadeLauncher_ItemType3]: {},
+            [InventoryItemHashes.BriarsContemptAdeptLinearFusionRifle_ItemType3]: {},
+            [InventoryItemHashes.NessasOblationAdeptShotgun_ItemType3]: {},
+        },
     },
     rotations: {
         anchor: "2023-03-28T17:00:00Z",
-        masterDrops: [
-            InventoryItemHashes.MykelsReverenceAdeptSidearm_ItemType3,
-            InventoryItemHashes.AcasiasDejectionAdeptTraceRifle_ItemType3,
-            InventoryItemHashes.RufussFuryAdeptAutoRifle_ItemType3,
-            InventoryItemHashes.KoraxissDistressAdeptGrenadeLauncher_ItemType3,
-            InventoryItemHashes.BriarsContemptAdeptLinearFusionRifle_ItemType3,
-            InventoryItemHashes.NessasOblationAdeptShotgun_ItemType3,
-
-        ],
         challenges: [
             ActivityModifierHashes.IlluminatedTormentChallenge,
             ActivityModifierHashes.CrossfireChallenge,
