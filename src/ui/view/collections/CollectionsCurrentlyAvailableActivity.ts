@@ -1,3 +1,4 @@
+import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -11,18 +12,19 @@ import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Display from "ui/bungie/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 
-const moreInfoLinks: Record<string, string | undefined> = {
+const moreInfoLinks: Partial<Record<DeepsightDropTableDefinition["type"], string | undefined>> = {
 	nightfall: "https://bray.tech/weeklies#nightfall",
 	"lost-sector": "https://bray.tech/weeklies#lost-sector",
 	dungeon: "https://bray.tech/weeklies#dungeon",
 	raid: "https://bray.tech/weeklies#raid",
 };
 
-const rotationLinks: Record<string, string | undefined> = {
+const rotationLinks: Partial<Record<DeepsightDropTableDefinition["type"], string | undefined>> = {
 	nightfall: "https://bray.tech/weeklies/rotations#nightfall",
 	"lost-sector": "https://bray.tech/weeklies/rotations#lost-sector",
 	dungeon: "https://bray.tech/weeklies/rotations#dungeon",
 	raid: "https://bray.tech/weeklies/rotations#raid",
+	"exotic-mission": "https://bray.tech/weeklies/rotations#exotic-mission",
 };
 
 export enum CollectionsCurrentlyAvailableActivityClasses {
