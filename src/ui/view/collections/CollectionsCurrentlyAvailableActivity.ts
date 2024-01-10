@@ -103,13 +103,16 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.text.add(" \xa0 / \xa0 "))
 			.appendTo(this.header);
 
+		const timestamp = expiryWrapper && Timestamp.create([source.endTime, "relative", { components: 2, label: false }])
+			.appendTo(expiryWrapper);
+
 		const rotationLink = expiryWrapper && rotationLinks[activityTypeRefName];
 		if (rotationLink)
 			Component.create("a")
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleExpiryLink)
 				.attributes.set("href", rotationLink)
 				.attributes.set("target", "_blank")
-				.append(Timestamp.create([source.endTime, "relative", { components: 2, label: false }]))
+				.append(timestamp)
 				.appendTo(expiryWrapper);
 
 		const moreInfoLink = moreInfoLinks[activityTypeRefName];
