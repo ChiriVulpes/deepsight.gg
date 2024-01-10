@@ -224,6 +224,7 @@
 					--background-raid: #3a353a;
 					--background-dungeon: #766252;
 					--background-lost-sector: #565283;
+					--background-exotic-mission: #{color(tier-exotic-background)};
 					
 					--_background: var(--background, #{color(background-6)});
 					background: var(--_background);

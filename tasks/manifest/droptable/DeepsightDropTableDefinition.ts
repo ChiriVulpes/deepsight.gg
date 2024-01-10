@@ -18,13 +18,11 @@ import VaultOfGlass from "./VaultOfGlass";
 import VowOfTheDisciple from "./VowOfTheDisciple";
 import WarlordsRuin from "./WarlordsRuin";
 
-export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations"> {
-	displayProperties?: {
-		name?: string | DestinyManifestReference;
-		description?: string | DestinyManifestReference;
-		icon?: string | DestinyManifestReference;
-	};
+export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations" | "type" | "typeDisplayProperties"> {
+	displayProperties?: DestinyManifestReference.DisplayPropertiesDefinition;
 	rotations?: DeepsightDropTableRotationsDefinition;
+	type?: DeepsightDropTableDefinitionBase["type"];
+	typeDisplayProperties?: DeepsightDropTableDefinitionBase["typeDisplayProperties"];
 }
 
 export interface DeepsightDropTableRotationsDefinition extends Omit<DeepsightDropTableRotationsDefinitionBase, "interval" | "current" | "next"> {

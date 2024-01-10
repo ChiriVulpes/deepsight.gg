@@ -2,6 +2,7 @@ import Strings from "@app/utility/Strings";
 import type { DestinyInventoryItemDefinition, DestinyVendorSaleItemComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, DestinyComponentType, DestinyVendorItemState, VendorItemStatus } from "bungie-api-ts/destiny2";
 import Time from "../../utility/Time";
+import DestinyManifestReference from "../DestinyManifestReference";
 import { ActivityTypeHashes, InventoryItemHashes, VendorHashes } from "../Enums";
 import ItemEquippableDummies from "../utility/ItemEquippableDummies";
 import DestinyActivities from "../utility/endpoint/DestinyActivities";
@@ -42,7 +43,8 @@ async function getNightfallDropTable (): Promise<DeepsightDropTableDefinition | 
 		&& activity.definition?.activityTypeHash === ActivityTypeHashes.Nightfall575572995
 		&& activity.definition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)
 		&& a.definition?.rewards?.some(reward => reward.rewardItems
-			.some(item => item.itemHash === InventoryItemHashes.AdeptNightfallWeaponCommonDummy)));
+			.some(item => item.itemHash === InventoryItemHashes.AdeptNightfallWeaponCommonDummy))
+		&& a.definition.displayProperties?.description === activity.definition.displayProperties.description);
 
 	const weapons = await getVendorWeapons(ZavalaFocusedDecoding);
 
@@ -63,6 +65,12 @@ async function getNightfallDropTable (): Promise<DeepsightDropTableDefinition | 
 		},
 		availability: "rotator",
 		endTime: Time.iso(Time.nextWeeklyReset),
+		type: "nightfall",
+		typeDisplayProperties: await DestinyManifestReference.resolveAll({
+			name: { DestinyActivityTypeDefinition: ActivityTypeHashes.Nightfall272800122 },
+			description: { DestinyActivityTypeDefinition: ActivityTypeHashes.Nightfall272800122 },
+			icon: { DestinyActivityTypeDefinition: ActivityTypeHashes.Nightfall272800122 },
+		}),
 	};
 }
 

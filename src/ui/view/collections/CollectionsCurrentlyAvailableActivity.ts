@@ -1,5 +1,4 @@
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
-import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
@@ -71,19 +70,12 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeader)
 			.insertToBefore(this, this.contentWrapper);
 
-		const activityTypeName = undefined
-			?? (source?.masterActivityDefinition?.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall) ? Display.name(source.masterActivityDefinition.originalDisplayProperties) : undefined)
-			?? Display.name(activityType)
-			?? "Unknown";
-
-		const activityTypeRefName = activityTypeName?.toLowerCase().replace(/\W+/g, "-");
-
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderBookmark)
-			.style.set("--background", `var(--background-${activityTypeRefName})`)
+			.style.set("--background", `var(--background-${source.dropTable.type})`)
 			.append(Component.create()
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderBookmarkIcon)
-				.style.set("--icon", Display.icon(activityType) ?? Display.icon(icon) ?? Display.icon(activity)))
+				.style.set("--icon", Display.icon(source.dropTable.typeDisplayProperties) ?? Display.icon(icon) ?? Display.icon(activity)))
 			.appendTo(this.header);
 
 		const note = source.type === SourceType.Rotator ? "Rotator"
@@ -93,7 +85,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		let expiryWrapper: Component | undefined;
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitle)
-			.text.add(activityTypeName)
+			.text.add(Display.name(source.dropTable.typeDisplayProperties) ?? "Unknown")
 			.append(note && Component.create("span")
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleNote)
 				.text.add(" \xa0 // \xa0 ")
@@ -106,7 +98,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		const timestamp = expiryWrapper && Timestamp.create([source.endTime, "relative", { components: 2, label: false }])
 			.appendTo(expiryWrapper);
 
-		const rotationLink = expiryWrapper && rotationLinks[activityTypeRefName];
+		const rotationLink = expiryWrapper && rotationLinks[source.dropTable.type];
 		if (rotationLink)
 			Component.create("a")
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderSubtitleExpiryLink)
@@ -115,7 +107,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 				.append(timestamp)
 				.appendTo(expiryWrapper);
 
-		const moreInfoLink = moreInfoLinks[activityTypeRefName];
+		const moreInfoLink = moreInfoLinks[source.dropTable.type];
 		if (moreInfoLink)
 			this.event.subscribe("contextmenu", () => window.open(moreInfoLink, "_blank"));
 

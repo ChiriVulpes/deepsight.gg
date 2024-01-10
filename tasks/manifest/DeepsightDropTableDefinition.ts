@@ -1,13 +1,13 @@
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
-import type { DeepsightDropTableRotationsDefinition } from "../../static/manifest/Interfaces";
+import type { DeepsightDisplayPropertiesDefinition, DeepsightDropTableRotationsDefinition } from "../../static/manifest/Interfaces";
 import Log from "../utility/Log";
 import Task from "../utility/Task";
 import Time from "../utility/Time";
 import DestinyManifestReference from "./DestinyManifestReference";
 import type { ActivityHashes } from "./Enums";
-import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes } from "./Enums";
+import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
 import PGCR from "./utility/PGCR";
@@ -68,6 +68,12 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		},
 		availability: "rotator",
 		endTime: Time.iso(Time.nextWeeklyReset),
+		type: "exotic-mission",
+		typeDisplayProperties: await DestinyManifestReference.resolveAll({
+			name: { DestinyPresentationNodeDefinition: PresentationNodeHashes.ExoticMission_ObjectiveHash3349214720 },
+			description: { DestinyActivityTypeDefinition: ActivityTypeHashes.Dungeon },
+			icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
+		}),
 	};
 
 
@@ -77,28 +83,12 @@ export default Task("DeepsightDropTableDefinition", async () => {
 	for (const [hash, definition] of Object.entries(DeepsightDropTableDefinition)) {
 		definition.hash ??= +hash;
 
-		const record = await DestinyRecordDefinition.get(definition.recordHash);
 		const activity = await DestinyActivityDefinition.get(hash) ?? await DestinyActivityDefinition.get(definition.rotationActivityHash);
 
-		if (definition.displayProperties) {
-			definition.displayProperties.name = await DestinyManifestReference.resolve(definition.displayProperties.name, "name", { record, activity });
-			definition.displayProperties.description = await DestinyManifestReference.resolve(definition.displayProperties.description, "description", { record, activity });
-			const icon = await DestinyManifestReference.resolve(definition.displayProperties.icon, "icon", { record, activity });
-			if (icon !== DESTINY_MANIFEST_MISSING_ICON_PATH)
-				definition.displayProperties.icon = icon;
-		}
-
-		definition.displayProperties ??= {};
+		definition.displayProperties = await DestinyManifestReference.resolveAll(definition.displayProperties, { activity });
 
 		if (activity) {
 			definition.displayProperties.description ??= activity.displayProperties.description;
-		}
-
-		if (record) {
-			definition.displayProperties.name ??= record.displayProperties.name;
-			definition.displayProperties.description ??= record.displayProperties.description;
-			if (record.displayProperties.icon !== DESTINY_MANIFEST_MISSING_ICON_PATH)
-				definition.displayProperties.icon ??= record.displayProperties.icon;
 		}
 
 		if (activity) {
@@ -109,10 +99,6 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			if (activity.activityTypeHash === ActivityTypeHashes.Raid || activity.activityTypeHash === ActivityTypeHashes.Dungeon)
 				definition.displayProperties.name = activity.originalDisplayProperties.name;
 		}
-
-
-		definition.displayProperties.name ??= "";
-		definition.displayProperties.description ??= "";
 
 		if (definition.availability)
 			// availability already filled out
@@ -144,6 +130,18 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		if (masterActivityAvailable) {
 			definition.availability ??= "repeatable";
 			definition.master!.availability ??= "repeatable";
+		}
+
+		if (activity?.activityTypeHash === ActivityTypeHashes.Raid) {
+			definition.type = "raid";
+			definition.typeDisplayProperties = await DestinyManifestReference.displayOf("DestinyActivityTypeDefinition", ActivityTypeHashes.Raid) as DeepsightDisplayPropertiesDefinition;
+		} else if (activity?.activityTypeHash === ActivityTypeHashes.Dungeon) {
+			definition.type = "dungeon";
+			definition.typeDisplayProperties = await DestinyManifestReference.resolveAll({
+				name: { DestinyActivityTypeDefinition: ActivityTypeHashes.Dungeon },
+				description: { DestinyActivityTypeDefinition: ActivityTypeHashes.Dungeon },
+				icon: { DestinyActivityModeDefinition: ActivityModeHashes.Dungeon },
+			});
 		}
 	}
 
@@ -180,23 +178,29 @@ export default Task("DeepsightDropTableDefinition", async () => {
 	Log.info("Trials Map:", activityDef?.displayProperties.name, cache.trials);
 	DeepsightDropTableDefinition.trials = activityDef && {
 		hash: activityDef.hash,
-		displayProperties: {
+		displayProperties: await DestinyManifestReference.resolveAll({
 			name: activityDef.displayProperties.name,
 			description: activityDef.displayProperties.description,
-			icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.TrialsOfOsiris))?.displayProperties.icon,
-		},
+			icon: { DestinyActivityModeDefinition: ActivityModeHashes.TrialsOfOsiris },
+		}),
 		...vendorDropTables.trials,
+		type: "trials",
+		typeDisplayProperties: await DestinyManifestReference.resolveAll({
+			name: { DestinyActivityTypeDefinition: ActivityTypeHashes.TrialsOfOsiris },
+			description: { DestinyActivityTypeDefinition: ActivityTypeHashes.TrialsOfOsiris },
+			icon: { DestinyActivityModeDefinition: ActivityModeHashes.TrialsOfOsiris },
+		}),
 	};
 
 	const lostSectorDef = await manifest.DestinyActivityDefinition.get(cache.lostSector);
 	Log.info("Lost Sector:", lostSectorDef?.displayProperties.name, cache.lostSector);
 	DeepsightDropTableDefinition.lostSector = lostSectorDef && {
 		hash: lostSectorDef.hash,
-		displayProperties: {
+		displayProperties: await DestinyManifestReference.resolveAll({
 			name: lostSectorDef.originalDisplayProperties.name,
 			description: lostSectorDef.originalDisplayProperties.description,
-			icon: (await manifest.DestinyActivityModeDefinition.get(ActivityModeHashes.LostSector))?.displayProperties.icon,
-		},
+			icon: { DestinyActivityModeDefinition: ActivityModeHashes.LostSector },
+		}),
 		rotations: {
 			anchor: Time.iso(1701190800000),
 			interval: "daily",
@@ -233,6 +237,12 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		},
 		availability: "rotator",
 		endTime: Time.iso(Time.nextDailyReset),
+		type: "lost-sector",
+		typeDisplayProperties: await DestinyManifestReference.resolveAll({
+			name: { DestinyActivityModeDefinition: ActivityModeHashes.LostSector },
+			description: { DestinyActivityTypeDefinition: ActivityTypeHashes.LostSector },
+			icon: { DestinyActivityModeDefinition: ActivityModeHashes.LostSector },
+		}),
 	};
 
 	Log.info("Nightfall:", vendorDropTables.nightfall?.displayProperties?.name, vendorDropTables.nightfall?.hash);
