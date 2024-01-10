@@ -53,6 +53,7 @@ export default Task("bump_versions", async () => {
 			const oldPath = `manifest/${file}`;
 			const jsonOld = await readData(oldPath).catch(() => undefined);
 			const jsonNew = await readData(newPath);
+			console.log(jsonOld, jsonNew);
 			if (jsonOld && (typeof jsonNew === "string" ? jsonOld === jsonNew : !diff(jsonOld, jsonNew)))
 				continue;
 
