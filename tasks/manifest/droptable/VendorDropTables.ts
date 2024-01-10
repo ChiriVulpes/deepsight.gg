@@ -24,7 +24,8 @@ async function getNightfallDropTable (): Promise<DeepsightDropTableDefinition | 
 
 	const matchingActivities = activities.filter(activity => true
 		&& activity.definition?.activityTypeHash === ActivityTypeHashes.Nightfall575572995
-		&& activity.definition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall));
+		&& activity.definition.activityModeTypes?.includes(DestinyActivityModeType.ScoredNightfall)
+		&& activity.definition.originalDisplayProperties?.name !== "Nightfall Grandmaster");
 
 	const activity = matchingActivities[0];
 	if (!activity)
