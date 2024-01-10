@@ -2,6 +2,7 @@ import ansicolor from "ansicolor";
 import fs from "fs-extra";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "../src/node_modules/bungie-api-ts/destiny2";
 import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
+import { getDeepsightMomentDefinition } from "./manifest/DeepsightMomentDefinition";
 import manifest from "./manifest/utility/endpoint/DestinyManifest";
 import Env from "./utility/Env";
 import Log from "./utility/Log";
@@ -239,7 +240,7 @@ export class EnumHelper {
 }
 
 export default Task("generate_enums", async () => {
-	if (!Env.ENUMS_NEED_UPDATE) {
+	if (!Env.ENUMS_NEED_UPDATE && fs.existsSync("tasks/manifest/Enums.d.ts")) {
 		Log.info(ansicolor.lightGreen("Enums OK!"));
 		return;
 	}
@@ -253,12 +254,16 @@ export default Task("generate_enums", async () => {
 	const traitIds: Record<number, string> = {};
 	const dedupeFailures: string[] = [];
 
-	async function generateEnum (componentName: keyof AllDestinyManifestComponents) {
+	async function generateEnum (componentName: keyof AllDestinyManifestComponents): Promise<void>;
+	async function generateEnum (componentName: string, componentDefs: Record<number, any>): Promise<void>;
+	async function generateEnum (componentName: string, componentDefs?: Record<number, any>) {
 		let enumName: string = componentName;
 		enumName = enumName.endsWith("Definition") ? enumName.slice(0, -10) : enumName;
-		enumName = enumName.startsWith("Destiny") ? enumName.slice(7) : enumName;
+		enumName = enumName.startsWith("Destiny") ? enumName.slice(7)
+			: enumName.startsWith("Deepsight") ? enumName.slice(9)
+				: enumName;
 		let started = false;
-		const componentData = await manifest[componentName].all();
+		const componentData = componentDefs ?? await manifest[componentName as keyof AllDestinyManifestComponents].all();
 		const enumHelper = new EnumHelper(componentName);
 
 		for (const definition of Object.values(componentData) as Definition[]) {
@@ -270,7 +275,7 @@ export default Task("generate_enums", async () => {
 		for (const definition of Object.values(componentData) as Definition[]) {
 			const nameSource = (componentName === "DestinyTraitDefinition" ? traitIds[definition.hash!] : undefined)
 				?? definition;
-			const name = await enumHelper.name(nameSource, undefined, componentName);
+			const name = await enumHelper.name(nameSource, undefined, componentName as keyof AllDestinyManifestComponents);
 			if (!name)
 				continue;
 
@@ -318,6 +323,9 @@ export default Task("generate_enums", async () => {
 			await generateEnum(componentName);
 
 	await generateEnum("DestinyTraitDefinition");
+
+	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();
+	await generateEnum("DeepsightMomentDefinition", DeepsightMomentDefinition);
 
 	stream.write(`/*\n * Unnameable components:\n * ${componentNamesWithoutDefinitionNames.join("\n * ")}\n */\n`);
 	stream.close();

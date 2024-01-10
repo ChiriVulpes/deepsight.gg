@@ -17,7 +17,7 @@ interface DeepsightMomentDefinition {
 	hash?: number;
 }
 
-export default Task("DeepsightMomentDefinition", async () => {
+export async function getDeepsightMomentDefinition () {
 	const DeepsightMomentDefinition = await JSON5.readFile<Record<number, DeepsightMomentDefinition>>("static/manifest/DeepsightMomentDefinition.json5");
 
 	const { DestinySeasonDefinition, DestinyEventCardDefinition } = manifest;
@@ -57,6 +57,12 @@ export default Task("DeepsightMomentDefinition", async () => {
 		definition.displayProperties.name ??= "";
 		definition.displayProperties.description ??= "";
 	}
+
+	return DeepsightMomentDefinition;
+}
+
+export default Task("DeepsightMomentDefinition", async () => {
+	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();
 
 	await fs.mkdirp("docs/manifest");
 	await fs.writeJson("docs/manifest/DeepsightMomentDefinition.json", DeepsightMomentDefinition, { spaces: "\t" });
