@@ -242,6 +242,7 @@ export class EnumHelper {
 export default Task("generate_enums", async () => {
 	if (!Env.ENUMS_NEED_UPDATE && fs.existsSync("tasks/manifest/Enums.d.ts")) {
 		Log.info(ansicolor.lightGreen("Enums OK!"));
+		await fs.copyFile("tasks/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
 		return;
 	}
 
@@ -339,7 +340,4 @@ export default Task("generate_enums", async () => {
 
 	if (dedupeFailures.length)
 		throw new Error(`Failed to dedupe the following enums:\n\n${dedupeFailures.join("\n\n")}`);
-
-	Log.info(ansicolor.lightGreen("Enums regenerated!"));
-	console.log(fs.readFileSync("docs/manifest/Enums.d.ts", "utf8"));
 });
