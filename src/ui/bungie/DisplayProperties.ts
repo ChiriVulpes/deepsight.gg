@@ -20,6 +20,8 @@ export type PartialDisplayPropertiesOrD = Partial<DestinyDisplayPropertiesDefini
 
 namespace Display {
 
+	export const DESTINY_MANIFEST_MISSING_ICON_PATH = "/img/misc/missing_icon_d2.png";
+
 	export function make (name: string, description = "", others?: Partial<DestinyDisplayPropertiesDefinition>): DestinyDisplayPropertiesDefinition {
 		return {
 			name,
@@ -38,6 +40,9 @@ namespace Display {
 		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
 		if (!url)
+			return undefined;
+
+		if (url === DESTINY_MANIFEST_MISSING_ICON_PATH)
 			return undefined;
 
 		if (!url.startsWith("https://") && !url.startsWith("./"))

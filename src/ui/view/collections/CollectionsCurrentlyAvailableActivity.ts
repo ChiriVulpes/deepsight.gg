@@ -83,7 +83,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			.style.set("--background", `var(--background-${activityTypeRefName})`)
 			.append(Component.create()
 				.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityHeaderBookmarkIcon)
-				.style.set("--icon", Display.icon(activityType)))
+				.style.set("--icon", Display.icon(activityType) ?? Display.icon(icon) ?? Display.icon(activity)))
 			.appendTo(this.header);
 
 		const note = source.type === SourceType.Rotator ? "Rotator"
