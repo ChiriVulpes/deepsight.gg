@@ -39,6 +39,7 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 	DestinyActivityDefinition: ["loadouts*", "destinationHash"],
 	DestinyRecordDefinition: ["loreHash", "completionInfo.ScoreValue", "objectiveHashes*", "parentNodeHashes*"],
 	DestinyVendorDefinition: ["itemList.*"],
+	DestinyPresentationNodeDefinition: ["children.*"],
 };
 
 const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, Record<string, keyof AllDestinyManifestComponents>>> = {
