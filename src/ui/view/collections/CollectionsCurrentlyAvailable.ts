@@ -1,4 +1,5 @@
 import { ActivityModeHashes, ActivityTypeHashes } from "@deepsight.gg/enums";
+import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2/interfaces";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
@@ -20,6 +21,17 @@ export enum CollectionsCurrentlyAvailableClasses {
 	ActivityWrapper = "view-collections-currently-available-activity-wrapper",
 	ActivityWrapperPage = "view-collections-currently-available-activity-wrapper-page",
 }
+
+const activityOrder = Object.keys({
+	trials: true,
+	"lost-sector": true,
+	nightfall: true,
+	raid: true,
+	dungeon: true,
+	"exotic-mission": true,
+} satisfies Record<DeepsightDropTableDefinition["type"], true>);
+
+const availabilityOrder = ["rotator", "repeatable", undefined];
 
 export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory]> {
 	protected override async onMake (manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory) {
@@ -52,6 +64,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		const { DestinyActivityTypeDefinition, DestinyActivityModeDefinition } = manifest;
 
 		const added = new Set<number>();
+		const activityCards: CollectionsCurrentlyAvailableActivity[] = [];
 		for (const [hash, activity, source] of sources) {
 			if (added.has(hash))
 				continue;
@@ -80,10 +93,14 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 						: activity.activityTypeHash === ActivityTypeHashes.LostSector ? await DestinyActivityModeDefinition.get(ActivityModeHashes.LostSector)
 							: await DestinyActivityTypeDefinition.get(activity.activityTypeHash);
 
-			CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
-				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source))
-				.appendTo(activityFiller.increment());
+			activityCards.push(CollectionsCurrentlyAvailableActivity.create([activity, source, activityType, sourceItems, inventory])
+				.event.subscribe("mouseenter", () => console.log(activity?.displayProperties?.name, activity, source)));
 		}
+
+		activityCards
+			.sort((a, b) => activityOrder.indexOf(a.source.dropTable.type) - activityOrder.indexOf(b.source.dropTable.type))
+			.sort((a, b) => availabilityOrder.indexOf(a.source.dropTable.availability) - availabilityOrder.indexOf(b.source.dropTable.availability))
+			.forEach(card => card.appendTo(activityFiller.increment()));
 	}
 
 	private async discoverItems (manifest: Manifest, profile?: ProfileBatch) {

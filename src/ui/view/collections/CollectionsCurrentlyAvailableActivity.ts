@@ -46,8 +46,13 @@ export enum CollectionsCurrentlyAvailableActivityClasses {
 
 export class CollectionsCurrentlyAvailableActivity extends Card<[activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory?: Inventory]> {
 
+	public source!: ISource;
+
 	protected override onMake (activity: DestinyActivityDefinition, source: ISource, activityType: DisplayPropertied | undefined, items: Item[], inventory?: Inventory): void {
 		super.onMake(activity, source, activityType, items, inventory);
+
+		this.source = source;
+
 		this.setDisplayMode(CardClasses.DisplayModeCard);
 		this.classes.add(CollectionsCurrentlyAvailableActivityClasses.Activity);
 		this.attributes.set("tabindex", "0");
