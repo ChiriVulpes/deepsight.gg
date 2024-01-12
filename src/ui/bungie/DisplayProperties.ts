@@ -94,7 +94,7 @@ namespace Display {
 
 		const { DestinyTraitDefinition } = await Manifest.await();
 		let traits = await DestinyTraitDefinition.all() as TraitDef[];
-		traits = traits.filter(trait => trait.displayProperties.name && trait.displayProperties.description);
+		traits = traits.filter(trait => trait.displayProperties.name && trait.displayProperties.description && trait.displayHint === "keyword");
 		for (const trait of traits) {
 			const name = trait.displayProperties.nameLowerCase ??= trait.displayProperties.name.toLowerCase();
 			trait.displayProperties.nameLowercaseVariations ??= Strings.getVariations(name);
@@ -193,7 +193,7 @@ namespace Display {
 					component.text.add(rawSection);
 					component.append(Component.create("span")
 						.classes.add("description-keyword")
-						.text.set(holding[0].toUpperCase() + holding.slice(1)));
+						.text.set(Strings.toTitleCase(holding)));
 					keyword = undefined;
 					holding = "";
 					rawSection = "";

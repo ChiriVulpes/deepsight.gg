@@ -227,6 +227,13 @@ namespace Strings {
 
 		return matches / (matches + misses) >= options.missingWordsThreshold;
 	}
+
+	const REGEX_NON_WORD_MULTI_PREV = /(?<=\W+)/g;
+	export function toTitleCase (text: string) {
+		return text.split(REGEX_NON_WORD_MULTI_PREV)
+			.map(word => word[0].toUpperCase() + word.slice(1))
+			.join("");
+	}
 }
 
 export default Strings;
