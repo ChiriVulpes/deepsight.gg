@@ -119,8 +119,15 @@ class ItemPlugTooltip extends Tooltip {
 		this.title.text.set(Display.name(perk?.definition) ?? Display.name(plug.definition));
 		this.subtitle.removeContents();
 
+		const keywords: PromiseOr<DestinyTraitDefinition[]>[] = [];
+		const description: Display.DescriptionOptions = {
+			character: item?.owner,
+		};
+
 		this.subtitle.text.set(plug.is("=Masterwork/ExoticCatalyst") ? "Catalyst" : plug.definition?.itemTypeDisplayName ?? "Unknown");
-		this.description.tweak(Display.applyDescription, Display.description(perk?.definition) ?? Display.description(plug.definition), item?.owner);
+		this.description.tweak(Display.applyDescription, Display.description(perk?.definition) ?? Display.description(plug.definition), description);
+		if (description.keywords)
+			keywords.push(description.keywords);
 
 		this.header.classes.toggle(plug.is("Perk"), ItemPlugTooltipClasses.IsPerk);
 		this.header.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.IsEnhanced);
@@ -129,7 +136,6 @@ class ItemPlugTooltip extends Tooltip {
 		this.image.classes.toggle(!plug.definition?.secondaryIcon, Classes.Hidden)
 			.setPath(plug.definition?.secondaryIcon && `https://www.bungie.net${plug.definition.secondaryIcon}`);
 
-		const keywords: PromiseOr<DestinyTraitDefinition[]>[] = [];
 		this.perks.removeContents();
 		if (!perk) {
 			for (const perk of plug.perks) {
