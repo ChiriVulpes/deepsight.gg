@@ -16,6 +16,7 @@ import TooltipManager, { Tooltip } from "ui/TooltipManager";
 import type { IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Bound from "utility/decorator/Bound";
+import Strings from "utility/Strings";
 import type { PromiseOr } from "utility/Type";
 
 enum ItemPlugTooltipClasses {
@@ -142,7 +143,7 @@ class ItemPlugTooltip extends Tooltip {
 				if (perk.perkVisibility === ItemPerkVisibility.Hidden || !perk.definition.displayProperties.description)
 					continue;
 
-				if (perk.definition.displayProperties.description === plug.definition?.displayProperties.description)
+				if (plug.definition?.displayProperties.description && (perk.definition.displayProperties.description === plug.definition.displayProperties.description || Strings.fuzzyMatches(perk.definition.displayProperties.description, plug.definition.displayProperties.description)))
 					continue;
 
 				const subclassCategorisation = (perk.definition.displayProperties.name === plug.definition?.displayProperties.name || perk.definition.displayProperties.icon === plug.definition?.displayProperties.icon)

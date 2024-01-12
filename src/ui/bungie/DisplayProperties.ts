@@ -6,6 +6,7 @@ import EnumModelMap from "model/models/enum/EnumModelMap";
 import type { CharacterId } from "model/models/items/Item";
 import Component from "ui/Component";
 import EnumIcon from "ui/bungie/EnumIcon";
+import Strings from "utility/Strings";
 import type { PromiseOr } from "utility/Type";
 
 declare module "bungie-api-ts/destiny2/interfaces" {
@@ -75,54 +76,6 @@ namespace Display {
 		};
 	}
 
-	function getVariations (name: string) {
-		const variations = [name];
-		variations.push(name + "d", name + "ed");
-
-		if (name.endsWith("d"))
-			variations.push(...getVariations(name.slice(0, -1)));
-
-		if (name.endsWith("ed"))
-			variations.push(...getVariations(name.slice(0, -2)));
-
-		if (name.endsWith("ing")) {
-			variations.push(name.slice(0, -3));
-			if (name[name.length - 4] === name[name.length - 5])
-				variations.push(name.slice(0, -4));
-		} else {
-			variations.push(name + "ing", name + name[name.length - 1] + "ing");
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ing");
-		}
-
-		if (name.endsWith("ion")) {
-			variations.push(...getVariations(name.slice(0, -3)));
-			if (name[name.length - 4] === name[name.length - 5])
-				variations.push(name.slice(0, -4));
-		} else
-			variations.push(name + "ion");
-
-		if (name.endsWith("er"))
-			variations.push(name.slice(0, -1), name.slice(0, -2));
-		else {
-			variations.push(name + "r", name + "er");
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ier");
-		}
-
-		if (name.endsWith("ier"))
-			variations.push(name.slice(0, -3) + "y");
-
-		variations.push(name + "s", name + "es");
-		if (name.endsWith("s"))
-			variations.push(name.slice(0, -1));
-		else {
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ies");
-		}
-
-		return variations;
-	}
 
 	export async function applyDescription (component: Component, description?: string, options?: DescriptionOptions | CharacterId) {
 		component.removeContents();
@@ -144,7 +97,7 @@ namespace Display {
 		traits = traits.filter(trait => trait.displayProperties.name && trait.displayProperties.description);
 		for (const trait of traits) {
 			const name = trait.displayProperties.nameLowerCase ??= trait.displayProperties.name.toLowerCase();
-			trait.displayProperties.nameLowercaseVariations ??= getVariations(name);
+			trait.displayProperties.nameLowercaseVariations ??= Strings.getVariations(name);
 		}
 
 		const split = description.split(interpolationRegex);
@@ -219,7 +172,7 @@ namespace Display {
 				keyword += char.toLowerCase();
 				const nextChar = description[i + 1];
 				const nextCharIsWordBreak = nextChar === " " || nextChar === "\n" || nextChar === "," || nextChar === "." || nextChar === ";" || nextChar === ":" || nextChar === ")";
-				const variations = getVariations(keyword);
+				const variations = Strings.getVariations(keyword);
 
 				matching = matching.filter(trait => variations.some(keyword => trait.displayProperties.nameLowercaseVariations.some(name => name.startsWith(keyword))));
 				if (!matching.length) {
