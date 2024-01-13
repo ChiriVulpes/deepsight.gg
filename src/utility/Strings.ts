@@ -159,20 +159,20 @@ namespace Strings {
 	export interface FuzzyMatchOptions {
 		/** 
 		 * A number between 0 and 1 representing the fractional threshold of number of matching words vs missing words.
-		 * Defaults to `0.7`
+		 * Defaults to `0.4`
 		 */
 		missingWordsThreshold?: number;
 		/**
 		 * The number of words that can be missing between two fuzzy matched sections of text.
-		 * Defaults to `3`
+		 * Defaults to `4`
 		 */
 		maxMissingWordsForFuzzy?: number;
 	}
 
 	export function fuzzyMatches (a: string, b: string, options?: FuzzyMatchOptions) {
 		options ??= {};
-		options.missingWordsThreshold ??= 0.7;
-		options.maxMissingWordsForFuzzy = 3;
+		options.missingWordsThreshold ??= 0.4;
+		options.maxMissingWordsForFuzzy = 4;
 
 		const wordsA = getWords(a).map(getVariations);
 		const wordsB = getWords(b).map(getVariations);
@@ -195,7 +195,7 @@ namespace Strings {
 			}
 
 			let loopMisses = 0;
-			for (let ia2 = ia; ia2 < wordsA.length && loopMisses < options.maxMissingWordsForFuzzy; ia2++) {
+			for (let ia2 = ia; ia2 < wordsA.length && loopMisses <= options.maxMissingWordsForFuzzy; ia2++) {
 				const va = wordsA[ia2];
 				if (va.some(va => vb.includes(va))) {
 					ia = ia2 + 1;
@@ -209,7 +209,7 @@ namespace Strings {
 			}
 
 			loopMisses = 0;
-			for (let ib2 = ib; ib2 < wordsB.length && loopMisses < options.maxMissingWordsForFuzzy; ib2++) {
+			for (let ib2 = ib; ib2 < wordsB.length && loopMisses <= options.maxMissingWordsForFuzzy; ib2++) {
 				const vb = wordsB[ib2];
 				if (vb.some(vb => va.includes(vb))) {
 					ia++;
