@@ -65,6 +65,12 @@
 		margin-bottom: 24px;
 		user-select: none;
 		
+		.details-summary {
+			pointer-events: none;
+			backdrop-filter: none !important;
+			position: relative;
+		}
+		
 		&-activity {
 			&-wrapper {
 				&-paginator {
