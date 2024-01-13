@@ -193,6 +193,12 @@
 			}
 
 			@mixin hidden($selector) {
+				&:not(:hover, #{unquote($selector)}) {
+					&::before {
+						backdrop-filter: none;
+					}
+				}
+				
 				&:not(:hover, #{unquote($selector)}) .app-nav-destination:not(.active, :first-child),
 				&:not(:hover, #{unquote($selector)}).app-nav-destination-child-active
 					.app-nav-destination:first-child:not(.active) {
