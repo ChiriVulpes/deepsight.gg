@@ -12,7 +12,7 @@ const CollectionsViewModel = Model.createTemporary(async (api): Promise<[Profile
 	if (!Bungie.authenticated)
 		return [];
 
-	const profile = await api.subscribeProgressAndWait(ProfileBatch, 0.5);
+	const profile = ProfileBatch.latest ?? await api.subscribeProgressAndWait(ProfileBatch, 0.5);
 	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 0.5, 0.5);
 	return [profile, inventory];
 });
