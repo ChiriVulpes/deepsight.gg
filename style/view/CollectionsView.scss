@@ -18,7 +18,7 @@
 		.details-summary {
 			font-size: 16pt;
 			position: sticky;
-			top: 0;
+			top: calc(0px - var(--view-padding-top));
 		}
 		
 		& & .details-summary {

@@ -1,3 +1,4 @@
+import Component from "ui/Component";
 import View from "ui/View";
 import SettingsBackground from "ui/view/settings/SettingsBackground";
 import SettingsDeviceStorage from "ui/view/settings/SettingsDeviceStorage";
@@ -12,9 +13,10 @@ export default View.create({
 		button.text.remove(),
 	initialise: view => view
 		.setTitle(title => title.text.set("Settings"))
-		.tweak(view => view.content
+		.tweak(view => view.content.append(Component.create()
+			.classes.add("view-settings-cards")
 			.append(SettingsInventoryDisplay.create())
 			.append(SettingsItemMovement.create())
 			.append(SettingsBackground.create())
-			.append(SettingsDeviceStorage.create())),
+			.append(SettingsDeviceStorage.create()))),
 });

@@ -1,11 +1,13 @@
 .view-settings {
-	&-content {
+	&-cards {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
 		align-content: flex-start;
 		row-gap: 30px;
 		column-gap: 40px;
+		overflow-y: hidden;
+		max-height: 100%;
 	}
 
 	.card {

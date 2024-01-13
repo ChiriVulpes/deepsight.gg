@@ -147,10 +147,26 @@ namespace View {
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>]> {
 
+		public header!: Component;
+		public title!: Component;
+		public subtitle!: Component;
 		public definition!: IView<MODELS, [], ARGS, DEFINITION>;
 
 		protected override onMake (definition: IView<MODELS, [], ARGS, DEFINITION>): void {
 			this.definition = definition;
+
+			this.header = Component.create()
+				.classes.add(Classes.Header, Classes.Header.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
+				.appendTo(this);
+
+			this.title = Component.create()
+				.classes.add(Classes.Title, Classes.Title.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
+				.appendTo(this.header);
+
+			this.subtitle = Component.create()
+				.classes.add(Classes.Subtitle, Classes.Subtitle.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
+				.appendTo(this.header);
+
 			this.classes.add(Classes.Content, `view-${this.definition.id}-content`);
 		}
 	}
@@ -168,12 +184,13 @@ namespace View {
 
 		public override event!: ComponentEventManager<this, IWrapperComponentEvents>;
 
-		public header!: Component;
-		public title!: Component;
-		public subtitle!: Component;
 		public content!: ContentComponent<MODELS, ARGS, DEFINITION>;
 		private _footer!: Component;
 		private background?: Background;
+
+		public get header () { return this.content.header; }
+		public get title () { return this.content.title; }
+		public get subtitle () { return this.content.subtitle; }
 
 		public get footer () {
 			Object.defineProperty(this, "footer", { value: this._footer });
@@ -208,21 +225,9 @@ namespace View {
 
 			this.style.set("--index", `${WrapperComponent.index++}`);
 
-			this.header = Component.create()
-				.classes.add(Classes.Header, Classes.Header.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
-				.appendTo(this);
-
 			this._footer = Component.create()
 				.classes.add(Classes.Footer, Classes.Footer.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
 				.appendTo(this);
-
-			this.title = Component.create()
-				.classes.add(Classes.Title, Classes.Title.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
-				.appendTo(this.header);
-
-			this.subtitle = Component.create()
-				.classes.add(Classes.Subtitle, Classes.Subtitle.replace("-", `-${this.definition.id}-`), BaseClasses.Hidden)
-				.appendTo(this.header);
 
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
 			this.content = ContentComponent.create([definition as any])
@@ -245,15 +250,15 @@ namespace View {
 		}
 
 		public setTitle (tweak?: (component: Component) => any) {
-			this.header.classes.remove(BaseClasses.Hidden);
-			this.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
+			this.content.header.classes.remove(BaseClasses.Hidden);
+			this.content.title.classes.remove(BaseClasses.Hidden).tweak(tweak);
 			this.event.emit("updateTitle");
 			return this;
 		}
 
 		public setSubtitle (type: "caps" | "small" | "lore", tweak?: (component: Component) => any) {
-			this.header.classes.remove(BaseClasses.Hidden);
-			this.subtitle.classes.add(`${Classes.Subtitle}-${type}`).classes.remove(BaseClasses.Hidden).tweak(tweak);
+			this.content.header.classes.remove(BaseClasses.Hidden);
+			this.content.subtitle.classes.add(`${Classes.Subtitle}-${type}`).classes.remove(BaseClasses.Hidden).tweak(tweak);
 			return this;
 		}
 
