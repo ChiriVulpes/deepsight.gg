@@ -72,6 +72,7 @@ class FilterManager {
 				if (+type !== filter.id)
 					throw new Error(`Filter ${Filter[+type as Filter]} implementation miscategorised`);
 
+				filter.internalName ??= Filter[filter.id].toLowerCase();
 				filter.id = (i ? `${filter.id}:${i}` : filter.id) as Filter;
 				initialFilterMap[filter.id] = filter;
 			}

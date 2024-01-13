@@ -67,6 +67,10 @@
 				left: 0;
 				width: fit-content;
 				padding: 4px 10px 0;
+				@include grotesk(title) {
+					font-weight: 600;
+					letter-spacing: 0.07em;
+				}
 			}
 
 			&-list {

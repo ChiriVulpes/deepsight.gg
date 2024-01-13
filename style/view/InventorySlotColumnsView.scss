@@ -102,8 +102,10 @@
 			font-size: 56px;
 			font-weight: 600;
 			text-transform: uppercase;
-			font-family: $font-title;
 			line-height: 1em;
+			@include grotesk(title) {
+				
+			}
 
 			@media (max-width: 1400px) {
 				font-size: 30px;

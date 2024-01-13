@@ -7,6 +7,7 @@ import AuthView from "ui/view/AuthView";
 import ViewManager from "ui/ViewManager";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
+import Fonts from "utility/Fonts";
 import URL from "utility/URL";
 
 void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
@@ -42,6 +43,7 @@ export default class DeepsightGG {
 		Background.initialiseMain();
 
 		await Env.load();
+		void Fonts.check();
 
 		Bungie.event.subscribe("resetAuthentication", async _ => {
 			await Model.clearCache();

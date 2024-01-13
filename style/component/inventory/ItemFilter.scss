@@ -81,6 +81,8 @@
 		margin: 0;
 		font-size: 0.95em;
 		align-items: baseline;
+		font-family: $font-title;
+		letter-spacing: 0.02em;
 		&::after {
 			content: "";
 			display: block;
@@ -121,9 +123,23 @@
 				display: inline-block;
 				width: 1em;
 				height: 1em;
-				margin-right: 0.2em;
+				margin-right: 0.25em;
+				margin-left: .1em;
 				margin-bottom: 0.15em;
 				vertical-align: middle;
+				
+				.item-filter-id-weapontype & {
+					width: 2em;
+				}
+				
+				.item-filter-id-harmonizable &, .item-filter-id-shaped & {
+					width: .9em;
+					height: .9em;
+				}
+				
+				.item-filter-id-ammo & {
+					width: 1.4em;
+				}
 			}
 		}
 
@@ -137,19 +153,12 @@
 			mask-size: contain;
 			mask-position: center;
 			mask-repeat: no-repeat;
-		}
+		} 
 		&-has-icon::before {
 			background-image: var(--icon);
 			background-size: contain;
 			background-position: center;
 			background-repeat: no-repeat;
-		}
-	}
-
-	&-chip-WeaponType,
-	&-chip-button-WeaponType .item-filter-chip-button-value-has-mask-icon {
-		&::before {
-			width: 2em;
 		}
 	}
 

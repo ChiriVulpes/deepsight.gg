@@ -47,6 +47,7 @@ export enum ItemFilterClasses {
 	DrawerPanel = "item-filter-drawer-panel",
 	FiltersHeading = "item-filter-heading",
 	SuggestedFilters = "item-filter-suggested",
+	FilterId = "item-filter-id",
 	FilterChipButton = "item-filter-chip-button",
 	FilterChipButtonPrefix = "item-filter-chip-button-prefix",
 	FilterChipButtonValue = "item-filter-chip-button-value",
@@ -86,7 +87,7 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 
 		this.classes.add(ItemFilterClasses.FilterChipButton)
 			.classes.toggle(this.shouldHideByDefault, Classes.Hidden)
-			.classes.add(`${ItemFilterClasses.FilterChipButton}-${Filter[filter.id]}`)
+			.classes.add(`${ItemFilterClasses.FilterId}-${filter.internalName}`)
 			.attributes.set("data-id", this.id)
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonPrefix)
@@ -516,7 +517,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 
 			Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChip, ItemFilterClasses.FilterChipValue)
-				.classes.add(`${ItemFilterClasses.FilterChip}-${Filter[filter.id]}`)
+				.classes.add(`${ItemFilterClasses.FilterId}-${filter.internalName}`)
 				.classes.toggle(filter.id === Filter.Raw, ItemFilterClasses.FilterChipRaw)
 				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipValueHasIcon)
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipValueHasMaskIcon)

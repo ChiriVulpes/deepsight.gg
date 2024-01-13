@@ -17,3 +17,19 @@ $font-sans-serif: "Open Sans";
 
 @include googleFont("DM+Sans", 400, 400 italic, 500, 500 italic, 600, 600 italic, 700, 700 italic);
 $font-title: "DM Sans";
+$font-numeric: var(--font-neue-haas-grotesk, "Open Sans"), "Open Sans";
+
+@mixin grotesk($alternate: "Open Sans") {
+	@if $alternate == numeric {
+		$alternate: "Open Sans";
+	}
+	
+	@if $alternate == title {
+		$alternate: "DM Sans";
+	}
+	
+	font-family: var(--font-neue-haas-grotesk, #{$alternate}), $alternate;
+	:where(.has-font-neue-haas-grotesk) & {
+		@content;
+	}
+}

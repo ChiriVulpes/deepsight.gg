@@ -30,6 +30,7 @@ export type IFilterSuggestedValue = {
 
 export interface IFilter {
 	id: Filter;
+	internalName?: string;
 	prefix: string;
 	suggestedValues?: (IFilterSuggestedValue | string)[];
 	suggestedValueHint?: string;

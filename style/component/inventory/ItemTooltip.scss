@@ -82,6 +82,11 @@
 			font-weight: 700;
 			line-height: 28px;
 			letter-spacing: -0.02em;
+			@include grotesk(numeric) {
+				font-size: 48px;
+				line-height: 34px;
+				letter-spacing: 0;
+			}
 		}
 
 		&-damage {
@@ -129,6 +134,9 @@
 			margin-right: 0.25em;
 			transform: translateY(0.03em);
 			align-items: center;
+			@include grotesk(numeric) {
+				
+			}
 
 			&::before {
 				content: "";
@@ -460,6 +468,8 @@
 		font-size: inherit;
 		line-height: 1.2em;
 		white-space: pre-wrap;
+		font-family: $font-sans-serif;
+		font-weight: 400;
 	}
 
 	@each $icon in lock, unlock {

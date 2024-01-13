@@ -4,7 +4,7 @@
 	border-radius: 0;
 	position: relative;
 	margin: 8px 0;
-	padding: 4px 8px 6px;
+	padding: 5px 8px 6px;
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
@@ -16,6 +16,11 @@
 	transform: translateY(0);
 	letter-spacing: 0.02em;
 	font-weight: 300;
+	@include grotesk(title) {
+		padding: 6px 8px;
+		letter-spacing: 0.07em;
+	}
+	
 	display: flex;
 	align-items: center;
 	@include transition(out, background, border, color, transform);

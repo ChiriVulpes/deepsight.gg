@@ -49,10 +49,12 @@
 		font-size: 44pt;
 		font-weight: 600;
 		text-transform: uppercase;
-		font-family: $font-title;
 		line-height: 1em;
 		margin-bottom: 0.15em;
 		margin-left: -0.05em;
+		@include grotesk(title) {
+			
+		}
 	}
 
 	&-subtitle {

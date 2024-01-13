@@ -2,7 +2,7 @@
 	border-radius: 0;
 	position: relative;
 	margin: 8px 0;
-	padding: 5px calc(8px + var(--content-width, 0px)) 7px 8px;
+	padding: 6px calc(8px + var(--content-width, 0px)) 7px 8px;
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
@@ -13,6 +13,10 @@
 	transform: translateY(0);
 	letter-spacing: 0.02em;
 	font-weight: 300;
+	@include grotesk(title) {
+		padding: 7px calc(8px + var(--content-width, 0px)) 7px 8px;
+		letter-spacing: 0.07em;
+	}
 	display: flex;
 	align-items: center;
 	z-index: 0;
@@ -69,6 +73,11 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		position: relative;
+		
+		@include grotesk {
+			margin: 6px 8px;
+			letter-spacing: 0.07em;
+		}
 
 		&::after {
 			content: "";

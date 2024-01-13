@@ -891,6 +891,11 @@
 			letter-spacing: -0.02em;
 			display: inline-flex;
 			justify-self: flex-end;
+			font-family: $font-numeric;
+			.has-font-neue-haas-grotesk & {
+				letter-spacing: 0em;
+				line-height: 32px;
+			}
 		}
 
 		&-ammo {
