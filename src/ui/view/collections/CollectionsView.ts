@@ -25,9 +25,8 @@ export default View.create({
 	initialise: (view, manifest, moments, [profile, inventory]) => {
 		view.setTitle(title => title.text.set("Collections"));
 
-		if (profile && inventory)
-			CollectionsCurrentlyAvailable.create([manifest, profile, inventory])
-				.appendTo(view.content);
+		CollectionsCurrentlyAvailable.create([manifest, profile, inventory])
+			.appendTo(view.content);
 
 		let shownExpansion = false;
 		let shownSeason = false;
