@@ -12,6 +12,7 @@
 		display: grid;
 		grid-template-areas: "stack";
 		justify-items: center;
+		pointer-events: none;
 		@include view-fade-animation;
 	
 		scrollbar-width: none;
