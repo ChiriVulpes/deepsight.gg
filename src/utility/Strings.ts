@@ -223,6 +223,8 @@ namespace Strings {
 			}
 
 			misses++;
+			ia++;
+			ib++;
 		}
 
 		return matches / (matches + misses) >= options.missingWordsThreshold;
