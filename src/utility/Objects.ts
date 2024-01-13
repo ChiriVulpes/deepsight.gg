@@ -1,3 +1,5 @@
+import type { PromiseOr } from "utility/Type";
+
 namespace Objects {
 	export const EMPTY = {};
 
@@ -25,6 +27,48 @@ namespace Objects {
 			obj = obj?.[key];
 
 		return obj;
+	}
+
+	interface JITGet<T> {
+		(): PromiseOr<T>;
+		compute: () => PromiseOr<T>;
+	}
+
+	export function applyJIT<T extends object, K extends keyof T> (obj: T, key: K, compute: () => PromiseOr<T[K]>) {
+		const get = (() => {
+			const promise = compute();
+			delete obj[key];
+			obj[key] = promise as T[K];
+
+			if (promise instanceof Promise)
+				void promise.then(value => obj[key] = value);
+
+			return promise;
+		}) as JITGet<T[K]>;
+
+		get.compute = compute;
+
+		Object.defineProperty(obj, key, {
+			configurable: true,
+			get,
+		});
+	}
+
+	export function copyJIT<T extends object, K extends keyof T> (target: T, from: T, key: K) {
+		const descriptor = Object.getOwnPropertyDescriptor(from, key);
+		if (!descriptor)
+			return;
+
+		if ("value" in descriptor) {
+			target[key] = from[key];
+			return;
+		}
+
+		const compute = (descriptor.get as JITGet<T[K]> | undefined)?.compute;
+		if (!compute)
+			return;
+
+		applyJIT(target, key, compute);
 	}
 }
 
