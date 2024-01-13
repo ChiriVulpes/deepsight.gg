@@ -253,7 +253,6 @@
 			}
 
 			&-name {
-				font-family: $font-title;
 				font-size: 15pt;
 				text-transform: uppercase;
 				padding-right: 12px;
@@ -261,6 +260,9 @@
 				margin-top: 4px;
 				align-self: flex-end;
 				font-weight: 600;
+				@include grotesk(title) {
+					
+				}
 			}
 
 			&-description {
