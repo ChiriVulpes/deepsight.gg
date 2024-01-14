@@ -1,10 +1,10 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type Character from "model/models/Characters";
-import type Inventory from "model/models/Inventory";
+import { Bucket, type BucketId } from "model/models/items/Item";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
-import BucketComponent from "ui/inventory/bucket/Bucket";
+import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum VaultBucketClasses {
 	Main = "view-inventory-slot-vault-bucket",
@@ -12,41 +12,40 @@ export enum VaultBucketClasses {
 	Quantity = "view-inventory-slot-vault-bucket-quantity",
 }
 
-export default class VaultBucket extends BucketComponent<[Character?]> {
+export default class VaultBucket extends BucketComponent<BucketId<InventoryBucketHashes.General>> {
 
-	public character?: Character;
-
+	public classLabel?: Component;
 	public quantityLabel!: Component;
 
-	protected override onMake (character?: Character): void {
-		super.onMake(character);
-		this.character = character;
+	protected override onMake (view: InventoryView, bucketId?: BucketId<InventoryBucketHashes.General>): void {
+		super.onMake(view, bucketId ?? Bucket.id(InventoryBucketHashes.General));
 		this.classes.add(VaultBucketClasses.Main);
 		this.setDisplayMode(CardClasses.DisplayModeSection);
 		this.icon.style.set("--icon", "url(\"https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/vault2.svg\")");
 		this.title.text.add("Vault");
-		const className = character?.class?.displayProperties.name;
-		if (className)
-			Component.create()
-				.classes.add(VaultBucketClasses.Class)
-				.text.set(`\xa0 (${className})`)
-				.appendTo(this.title);
+		this.classLabel = Component.create()
+			.classes.add(VaultBucketClasses.Class)
+			.appendTo(this.title);
 
 		this.quantityLabel = Component.create()
 			.classes.add(VaultBucketClasses.Quantity)
 			.appendTo(this.title);
 	}
 
-	public update (inventory: Inventory) {
-		const vaultBucket = inventory.buckets?.[InventoryBucketHashes.General];
-		const vaultItemCount = vaultBucket?.items.length;
-		const vaultCapacity = vaultBucket?.capacity;
-		const renderedItemCount = this.content.element.childElementCount;
+	public override update () {
+		const className = this.character?.class?.displayProperties.name;
+		this.classLabel?.classes.toggle(!className, Classes.Hidden)
+			.text.set(`\xa0 (${className})`);
+
+		const updated = super.update();
+		if (!updated)
+			return false;
+
+		const vaultBucket = this.view?.inventory.getBucket(InventoryBucketHashes.General);
+		const vaultItemCount = this.bucket?.items.length ?? 0;
+		const vaultCapacity = this.bucket?.capacity;
 		this.quantityLabel.classes.toggle(!vaultCapacity, Classes.Hidden);
-		if (!vaultCapacity)
-			return;
-
-		this.quantityLabel.text.set(`${(renderedItemCount)} / ${Math.max(renderedItemCount, vaultItemCount ?? 0)} / ${vaultCapacity}`);
-
+		this.quantityLabel.text.set(`${(vaultItemCount)} / ${vaultBucket?.items.length ?? 0} / ${vaultCapacity}`);
+		return true;
 	}
 }

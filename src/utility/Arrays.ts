@@ -54,6 +54,9 @@ declare global {
 		toObject (): T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never;
 		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper: MAPPER): Record<KEY, VALUE>;
 		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper?: MAPPER): Record<KEY, VALUE> | (T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never);
+
+		distinct (): this;
+		distinct (mapper: (value: T) => any): this;
 	}
 }
 
@@ -192,6 +195,24 @@ namespace Arrays {
 
 		Define(Array.prototype, "toObject", function (mapper) {
 			return Object.fromEntries(mapper ? this.map(mapper) : this);
+		});
+
+		Define(Array.prototype, "distinct", function <T> (this: T[], mapper?: (value: T) => any) {
+			const result: T[] = [];
+			const encountered = mapper ? [] : result;
+
+			for (const value of this) {
+				const encounterValue = mapper ? mapper(value) : value;
+				if (encountered.includes(encounterValue))
+					continue;
+
+				if (mapper)
+					encountered.push(encounterValue);
+
+				result.push(value);
+			}
+
+			return result;
 		});
 	}
 }

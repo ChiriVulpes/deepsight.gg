@@ -1,4 +1,5 @@
 import type { UserMembershipData } from "bungie-api-ts/user";
+import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type { CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
@@ -105,8 +106,9 @@ namespace PlayerOverview {
 			viewManager.event.subscribe("show", () => this.drawer.close(true));
 
 			this.drawer.event.subscribe("openDrawer", () => {
-				if (inventory.sortedCharacters?.[0].characterId)
-					void this.characterPicker.setCurrent(inventory.sortedCharacters?.[0].characterId as CharacterId, true);
+				const currentCharacterId = Characters.getCurrent()?.characterId;
+				if (currentCharacterId)
+					void this.characterPicker.setCurrent(currentCharacterId, true);
 			});
 		}
 
@@ -118,9 +120,11 @@ namespace PlayerOverview {
 		}
 
 		private updateCharacters () {
-			const characters = (this.inventory.sortedCharacters ?? []).slice()
+			const characters = Characters.getSorted()
+				.slice()
 				// sort characters by active option so that the active option stays the visible panel
 				.sort((a, b) => a.characterId === this.characterPicker.currentOption ? -1 : b.characterId === this.characterPicker.currentOption ? 1 : 0);
+
 			if (!characters.length) {
 				console.warn("No characters found");
 				this.drawer.removePanels();

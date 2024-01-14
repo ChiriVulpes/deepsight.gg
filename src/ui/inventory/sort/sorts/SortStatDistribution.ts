@@ -1,4 +1,5 @@
 import { DestinyClass } from "bungie-api-ts/destiny2";
+import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
@@ -81,15 +82,7 @@ export default ISort.create({
 		.onReady(inventory => {
 			const container = Component.create();
 
-			const classes = [DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock]
-				.filter(classType => inventory.sortedCharacters?.some(character => character.classType === classType));
-
-			if (inventory.sortedCharacters?.length) {
-				const index = (classType: DestinyClass) =>
-					inventory.sortedCharacters!.findIndex(character => character.classType === classType);
-				classes.sort((classTypeA, classTypeB) => index(classTypeA) - index(classTypeB));
-			}
-
+			const classes = Characters.getSortedClasses();
 			for (let i = 0; i < classes.length; i++) {
 				const classType = classes[i];
 

@@ -1,5 +1,5 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type Character from "model/models/Characters";
+import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { Bucket, CharacterId } from "model/models/items/Item";

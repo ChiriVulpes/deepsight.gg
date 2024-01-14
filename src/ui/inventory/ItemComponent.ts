@@ -1,6 +1,6 @@
 import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
-import type Character from "model/models/Characters";
+import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";

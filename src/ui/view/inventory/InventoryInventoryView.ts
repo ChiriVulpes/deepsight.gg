@@ -2,9 +2,6 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import View from "ui/View";
-import ConsumablesBucket from "ui/inventory/bucket/ConsumablesBucket";
-import InventoryBucket from "ui/inventory/bucket/InventoryBucket";
-import ModificationsBucket from "ui/inventory/bucket/ModificationsBucket";
 import Filter from "ui/inventory/filter/Filter";
 import type { IFilterManagerConfiguration } from "ui/inventory/filter/FilterManager";
 import FilterManager from "ui/inventory/filter/FilterManager";
@@ -13,7 +10,6 @@ import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
-import Bound from "utility/decorator/Bound";
 
 export const SORTS_DEFAULT_INVENTORY = [Sort.Rarity, Sort.Name, Sort.Quantity] as const;
 export const SORTS_INAPPLICABLE_INVENTORY = [
@@ -72,37 +68,37 @@ export class InventoryInventoryView extends InventoryView {
 
 	protected override async onMake (inventory: Inventory): Promise<void> {
 		this.super.content.classes.add(InventoryInventoryViewClasses.Content);
-		this.modificationsBucket = ModificationsBucket.create()
-			.classes.add(InventoryInventoryViewClasses.ModificationsBucket)
-			.prependTo(this.super.content);
-		this.consumablesBucket = ConsumablesBucket.create()
-			.classes.add(InventoryInventoryViewClasses.ConsumablesBucket)
-			.prependTo(this.super.content);
+		// this.modificationsBucket = ModificationsBucket.create()
+		// 	.classes.add(InventoryInventoryViewClasses.ModificationsBucket)
+		// 	.prependTo(this.super.content);
+		// this.consumablesBucket = ConsumablesBucket.create()
+		// 	.classes.add(InventoryInventoryViewClasses.ConsumablesBucket)
+		// 	.prependTo(this.super.content);
 
 		await super.onMake(inventory);
 
-		this.postmasterBucketsContainer.classes.add(InventoryInventoryViewClasses.PostmasterBuckets);
-		this.vaultBucketsContainer.classes.add(InventoryInventoryViewClasses.VaultBuckets);
+		// this.postmasterBucketsContainer.classes.add(InventoryInventoryViewClasses.PostmasterBuckets);
+		// this.vaultBucketsContainer.classes.add(InventoryInventoryViewClasses.VaultBuckets);
 	}
 
 	protected override preUpdateInit (): void {
-		this.characterBucketsContainer.remove();
+		// this.characterBucketsContainer.remove();
 	}
 
-	protected override updateCharacters () {
-		super.updateCharacters();
+	// protected override updateCharacters () {
+	// 	super.updateCharacters();
 
-		const buckets = 0;
+	// 	const buckets = 0;
 
-		this.super.content.style.set("--buckets", `${buckets}`);
-	}
+	// 	this.super.content.style.set("--buckets", `${buckets}`);
+	// }
 
-	@Bound
-	protected override sort (): void {
-		super.sort();
-		this.consumablesBucket?.as(InventoryBucket)?.update();
-		this.modificationsBucket?.as(InventoryBucket)?.update();
-	}
+	// @Bound
+	// protected override sort (): void {
+	// 	super.sort();
+	// 	this.consumablesBucket?.as(InventoryBucket)?.update();
+	// 	this.modificationsBucket?.as(InventoryBucket)?.update();
+	// }
 
 }
 
