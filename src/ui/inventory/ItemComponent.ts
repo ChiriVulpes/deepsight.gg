@@ -226,7 +226,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		let watermark: string | undefined;
-		const powerCap = await DestinyPowerCapDefinition.get(item?.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash, item?.bucket.isCollections());
+		const powerCap = await DestinyPowerCapDefinition.get(item?.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash);
 		if ((powerCap?.powerCap ?? 0) < 900000)
 			watermark = item?.definition.iconWatermarkShelved ?? item?.definition.iconWatermark;
 		else

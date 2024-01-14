@@ -90,12 +90,9 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		});
 	}
 
-	public get (key?: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
-	public get (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null, cached?: boolean): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
-	public get (index?: string | number | null, key?: string | number | null | boolean, cached = true): any {
-		if (typeof key === "boolean")
-			cached = key, key = undefined;
-
+	public get (key?: string | number | null): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
+	public get (index: IManifest.Indices<COMPONENT_NAME>, key: string | number | null): IManifest.Component<COMPONENT_NAME> | Promise<IManifest.Component<COMPONENT_NAME>> | undefined;
+	public get (index?: string | number | null, key?: string | number | null): any {
 		if (key === undefined)
 			key = index, index = undefined;
 
@@ -106,7 +103,7 @@ export class ManifestItem<COMPONENT_NAME extends IManifest.AllComponentNames> {
 		if (memoryCacheKey in this.memoryCache)
 			return this.memoryCache[memoryCacheKey] ?? undefined;
 
-		return this.resolve(memoryCacheKey, key, index, cached);
+		return this.resolve(memoryCacheKey, key, index);
 	}
 
 	private async resolve (memoryCacheKey: string, key: string | number, index?: string | number | null, cached = true) {

@@ -3,7 +3,6 @@ import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, De
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
-import Async from "utility/Async";
 import type { PromiseOr } from "utility/Type";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
@@ -101,13 +100,13 @@ export class Socket {
 
 		// } else {
 		socket.plugs = [];
-		let lastPause = Date.now();
+		// let lastPause = Date.now();
 		for (const plug of plugs) {
 			socket.plugs.push(/*plug instanceof Plug ? plug :*/ await Plug.resolve(manifest, plug, item));
-			if (Date.now() - lastPause > 30) {
-				await Async.sleep(1);
-				lastPause = Date.now();
-			}
+			// if (Date.now() - lastPause > 30) {
+			// 	await Async.sleep(1);
+			// 	lastPause = Date.now();
+			// }
 		}
 
 		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
