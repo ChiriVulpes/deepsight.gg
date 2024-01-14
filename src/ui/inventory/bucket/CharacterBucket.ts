@@ -1,7 +1,9 @@
-import type Character from "model/models/Characters";
+import type Item from "model/models/items/Item";
+import type { BucketId } from "model/models/items/Item";
 import type Component from "ui/Component";
 import Slot from "ui/inventory/Slot";
-import BucketComponent from "ui/inventory/bucket/Bucket";
+import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum CharacterBucketClasses {
 	Main = "view-inventory-slot-character-bucket",
@@ -10,13 +12,12 @@ export enum CharacterBucketClasses {
 	Inventory = "view-inventory-slot-character-bucket-inventory",
 }
 
-export default class CharacterBucket extends BucketComponent<[]> {
+export default class CharacterBucket extends BucketComponent {
 
-	public character!: Character;
 	public equippedSlot!: Component;
 
-	protected override onMake (): void {
-		super.onMake();
+	protected override onMake (view: InventoryView, bucketId: BucketId): void {
+		super.onMake(view, bucketId);
 		this.classes.add(CharacterBucketClasses.Main);
 
 		Slot.create()
@@ -32,27 +33,27 @@ export default class CharacterBucket extends BucketComponent<[]> {
 		this.registerDropTarget(this.equippedSlot, true);
 	}
 
-	public setCharacter (character: Character) {
-		this.character = character;
-		const className = character.class?.displayProperties.name ?? "Unknown";
+	public override update () {
+		const character = this.character;
+		const className = character?.class?.displayProperties.name ?? "Unknown";
 		this.icon.style.set("--icon",
 			`url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg")`);
 
 		this.title.text.set(className);
 
-		const background = character.emblem?.secondarySpecial ?? character.emblemBackgroundPath;
-		if (background)
-			this.style.set("--background", `url("https://www.bungie.net${background}")`);
+		this.style.set("--background", character && `url("https://www.bungie.net${character.emblem?.secondarySpecial ?? character.emblemBackgroundPath}")`)
+			.style.set("--emblem", character && `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);
 
-		this.style.set("--emblem", `url("https://www.bungie.net${character.emblem?.secondaryOverlay ?? character.emblemPath}")`);
-		return this;
+		return super.update();
 	}
 
-	public update () {
-		const slotItems = this.content.element.childElementCount;
-		for (let i = slotItems; i < 9; i++)
-			Slot.create()
-				.setEmpty()
-				.appendTo(this.content);
+	public override render (requiredSlots = 9): void {
+		super.render(requiredSlots);
+		this.view?.getItemComponent(this.bucket?.equippedItem)?.appendTo(this.equippedSlot);
 	}
+
+	public override shouldDisplayItem (item: Item): boolean {
+		return !item.equipped;
+	}
+
 }

@@ -1,5 +1,6 @@
-import Slot from "ui/inventory/Slot";
-import BucketComponent from "ui/inventory/bucket/Bucket";
+import type { BucketId } from "model/models/items/Item";
+import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum InventoryBucketClasses {
 	Main = "view-inventory-inventory-bucket",
@@ -7,18 +8,16 @@ export enum InventoryBucketClasses {
 	Content = "view-inventory-inventory-bucket-content",
 }
 
-export default class InventoryBucket extends BucketComponent<[]> {
+export default class InventoryBucket extends BucketComponent {
 
-	protected override onMake (): void {
-		super.onMake();
+	protected override onMake (view: InventoryView, bucketId: BucketId): void {
+		super.onMake(view, bucketId);
 		this.classes.add(InventoryBucketClasses.Main);
 		this.content.classes.add(InventoryBucketClasses.Content);
 	}
 
-	public update () {
-		for (let i = this.content.element.childElementCount; i < 50; i++)
-			Slot.create()
-				.setEmpty()
-				.appendTo(this.content);
+	public override render (requiredSlots = 50): void {
+		super.render(requiredSlots);
 	}
+
 }

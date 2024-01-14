@@ -1,8 +1,7 @@
 import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
-import type Character from "model/models/Characters";
-import { ProfileCharacters } from "model/models/Characters";
+import Characters from "model/models/Characters";
 import DebugInfo from "model/models/DebugInfo";
 import type { Buckets } from "model/models/Items";
 import Items from "model/models/Items";
@@ -54,8 +53,6 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 	public items?: Record<ItemId, Item>;
 	public buckets?: Buckets;
-	public characters?: Record<CharacterId, Character>;
-	public sortedCharacters?: Character[];
 	public readonly craftedItems = new Set<number>();
 	public profile?: ProfileBatch;
 	private loaded = false;
@@ -71,17 +68,13 @@ export default class Inventory implements IItemComponentCharacterHandler {
 				this.updateItems(value);
 			}));
 
-		ProfileCharacters.event.until(disposed, event => event
+		Characters.event.until(disposed, event => event
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
-			.subscribe("loaded", ({ value }) => {
-				this.sortedCharacters = Object.values(value)
-					.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
-						new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
-				this.characters = Object.fromEntries(this.sortedCharacters.map(character => [character.characterId, character]));
+			.subscribe("loaded", ({ characters, sorted }) => {
 				for (const item of Object.values(this.items ?? {}))
-					item["_owner"] = this.sortedCharacters[0].characterId as CharacterId;
+					item["_owner"] = sorted[0].characterId as CharacterId;
 
-				for (const character of this.sortedCharacters)
+				for (const character of sorted)
 					for (const loadout of character.loadouts)
 						loadout.setInventory(this);
 			}));
@@ -94,8 +87,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	public get currentCharacter () {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		return this.sortedCharacters?.[0]!;
+		return Characters.getCurrent()!;
 	}
 
 	public hasBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
@@ -119,7 +111,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	public getCharacter (id?: CharacterId) {
-		return this.characters?.[id!] ?? this.currentCharacter;
+		return Characters.getOrCurrent(id)!;
 	}
 
 	private shouldSkipCharacters?: () => boolean;
@@ -135,12 +127,6 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 		progress?.subscribeProgress(Manifest, 1 / 3);
 		await Manifest.await();
-
-		progress?.emitProgress(1 / 3, "Loading characters");
-		progress?.subscribeProgress(ProfileCharacters, 1 / 3, 1 / 3);
-		const charactersLoadedPromise = ProfileCharacters.await();
-		if (!this.characters)
-			await charactersLoadedPromise;
 
 		progress?.emitProgress(2 / 3, "Loading items");
 		progress?.subscribeProgress(Items, 1 / 3, 2 / 3);
@@ -200,7 +186,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 		item.inventory = this;
 
-		item["_owner"] = this.sortedCharacters?.[0].characterId as CharacterId;
+		item["_owner"] = this.currentCharacter.characterId as CharacterId;
 
 		if (item.shaped)
 			this.craftedItems.add(item.definition.hash);

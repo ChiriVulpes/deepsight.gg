@@ -1,17 +1,17 @@
 import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import type { GroupUserInfoCard } from "bungie-api-ts/groupv2";
 import type { IModelGenerationApi } from "model/Model";
-import Model from "model/Model";
 import type { ILoadoutsProfile, Loadout } from "model/models/Loadouts";
 import Loadouts from "model/models/Loadouts";
 import Manifest from "model/models/Manifest";
 import { getCurrentDestinyMembership } from "model/models/Memberships";
 import ProfileBatch from "model/models/ProfileBatch";
 import type { CharacterId } from "model/models/items/Item";
+import { EventManager } from "utility/EventManager";
 import Objects from "utility/Objects";
-import Time from "utility/Time";
 
-interface Character extends DestinyCharacterComponent {
+export interface Character extends Omit<DestinyCharacterComponent, "characterId"> {
+	characterId: CharacterId;
 	class: DestinyClassDefinition;
 	emblem?: DestinyInventoryItemDefinition;
 	/**
@@ -27,7 +27,7 @@ interface IProfileProgression {
 	profileProgression?: SingleComponentResponse<DestinyProfileProgressionComponent>;
 }
 
-class Character {
+export class Character {
 
 	public static async get (characterComponent: DestinyCharacterComponent, manifest: Manifest, profile: IProfileProgression & ILoadoutsProfile) {
 		const character = new Character();
@@ -43,17 +43,80 @@ class Character {
 	}
 }
 
-export default Character;
+type Characters = Record<CharacterId, Character>;
 
-export const ProfileCharacters = Model.createDynamic(Time.seconds(30), async progress => {
-	progress.emitProgress(0 / 2, "Fetching characters");
-	const profile = await ProfileBatch.await();
-
-	const manifest = await progress.subscribeProgressAndWait(Manifest, 1 / 2, 1 / 2);
-
-	return Objects.mapAsync(profile.characters?.data ?? {}, async ([key, character]) =>
+let characters: Characters = {};
+let charactersSorted: Character[] = [];
+ProfileBatch.event.subscribe("loaded", async ({ value: profile }) => {
+	const manifest = await Manifest.await();
+	characters = await Objects.mapAsync(profile.characters?.data ?? {}, async ([key, character]) =>
 		[key, await Character.get(character, manifest, profile)]);
+	charactersSorted = Object.values(characters)
+		.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
+			new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
+	Characters.event.emit("loaded", { characters, sorted: charactersSorted });
 });
+
+namespace Characters {
+	export interface ICharactersEvents {
+		loaded: { characters: Characters, sorted: Character[] };
+	}
+
+	export const event = new EventManager<{}, ICharactersEvents>({});
+
+	/**
+	 * @returns Whether deepsight.gg has any characters available
+	 */
+	export function hasAny () {
+		return !!charactersSorted.length;
+	}
+
+	/**
+	 * @returns A record of character IDs to Character class
+	 */
+	export function all () {
+		return characters;
+	}
+
+	/**
+	 * @returns The Character class of a given character ID, if available
+	 */
+	export function get (id?: CharacterId): Character | undefined {
+		return characters[id!];
+	}
+
+	/**
+	 * @returns Character classes sorted most recently active first
+	 */
+	export function getSorted () {
+		return charactersSorted;
+	}
+
+	/**
+	 * @returns Distinct character class types sorted most recently active first
+	 */
+	export function getSortedClasses () {
+		return getSorted()
+			.map(character => character.classType)
+			.distinct();
+	}
+
+	/**
+	 * @returns The most recently active character
+	 */
+	export function getCurrent (): Character | undefined {
+		return charactersSorted[0];
+	}
+
+	/**
+	 * @returns The Character class of a given character ID, if available. Otherwise, the most recently active character
+	 */
+	export function getOrCurrent (id?: CharacterId): Character | undefined {
+		return characters?.[id!] ?? charactersSorted[0];
+	}
+}
+
+export default Characters;
 
 export interface CharacterInfoCard extends GroupUserInfoCard {
 	characterId?: CharacterId;

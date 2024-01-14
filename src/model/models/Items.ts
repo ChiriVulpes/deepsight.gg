@@ -1,6 +1,7 @@
 import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryBucketDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import Characters from "model/models/Characters";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import Item, { Bucket } from "model/models/items/Item";
 import Plugs from "model/models/items/Plugs";
@@ -72,7 +73,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	const bucketInits: Partial<Record<BucketId, BucketInit>> = {};
 	function bucketItem (item: DestinyItemComponent, characterId?: CharacterId) {
-		const bucketHash = item.bucketHash;
+		const bucketHash = item.bucketHash as InventoryBucketHashes;
 		if (bucketHash === undefined) {
 			console.warn("No bucket hash", item);
 			return;
@@ -98,7 +99,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	const buckets: Partial<Record<BucketId, Bucket>> = {};
 	for (const [id, bucketInit] of Object.entries(bucketInits) as [BucketId, BucketInit][]) {
-
 		let bucketDef = await manifest.DestinyInventoryBucketDefinition.get(bucketInit.bucketHash);
 		if (!bucketDef) {
 			console.warn("No definition for bucket", bucketInit.bucketHash);
@@ -109,7 +109,10 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			} as DestinyInventoryBucketDefinition;
 		}
 
-		const bucket = new Bucket(id, bucketDef, []);
+		const bucket = new Bucket({
+			definition: bucketDef,
+			character: Characters.all()[bucketInit.characterId!],
+		});
 		const equippedItems = profile.characterEquipment?.data?.[bucket.characterId!]?.items ?? [];
 
 		for (const itemComponent of bucketInit.items) {
@@ -123,6 +126,43 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		}
 
 		buckets[id] = bucket;
+	}
+
+	for (const bucket of Object.values(buckets)) {
+		if (!bucket || bucket.characterId)
+			continue;
+
+		// create character-scoped versions of this account bucket
+		for (const characterId of Object.keys(profile.characterInventories?.data ?? {}) as CharacterId[]) {
+			const classType = profile.characters?.data?.[characterId].classType;
+			let characterBucket: Bucket | undefined;
+			for (const item of bucket.items) {
+				if (item.definition.classType === classType) {
+					characterBucket ??= new Bucket({ definition: bucket.definition, character: Characters.get(characterId) });
+					buckets[characterBucket.id] ??= characterBucket;
+					characterBucket.items.push(item);
+				}
+			}
+		}
+	}
+
+	for (const bucket of Object.values(buckets)) {
+		if (!bucket?.characterId)
+			continue;
+
+		// create sub buckets for items with differing 
+		const subBuckets = {} as Partial<Record<number, Bucket>>;
+		for (const item of bucket.items) {
+			if (item.definition.inventory?.bucketTypeHash && item.definition.inventory.bucketTypeHash !== bucket.definition.hash) {
+				const subBucket = subBuckets[item.definition.inventory.bucketTypeHash] ??= new Bucket({
+					definition: bucket.definition,
+					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(item.definition.inventory.bucketTypeHash),
+					character: Characters.get(bucket.characterId),
+				});
+				buckets[subBucket.id] ??= subBucket;
+				subBucket.items.push(item);
+			}
+		}
 	}
 
 	Plugs.resetInitialisedPlugTypes();

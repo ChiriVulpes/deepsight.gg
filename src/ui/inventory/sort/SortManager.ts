@@ -19,6 +19,7 @@ import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
 import GenerateStatsSorts from "ui/inventory/sort/sorts/SortStats";
 import SortWeaponType from "ui/inventory/sort/sorts/SortWeaponType";
 import Store from "utility/Store";
+import Bound from "utility/decorator/Bound";
 
 const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Name]: SortName,
@@ -138,21 +139,19 @@ class SortManager {
 		Store.set(`sort-${this.id}`, this.current.map(sort => typeof sort.id === "number" ? Sort[sort.id] : sort.id));
 	}
 
-	public sort (items: readonly Item[]) {
-		return items.slice().sort((itemA, itemB) => {
-			for (const sort of this.current) {
-				const result = sort.sort(itemA, itemB);
-				if (result !== 0)
-					return result;
-			}
+	@Bound public sort (itemA: Item, itemB: Item) {
+		for (const sort of this.current) {
+			const result = sort.sort(itemA, itemB);
+			if (result !== 0)
+				return result;
+		}
 
-			const hasInstanceDifference = Number(!!itemB.reference.itemInstanceId) - Number(!!itemA.reference.itemInstanceId);
-			if (hasInstanceDifference)
-				// sort things with an instance id before things without an instance id
-				return hasInstanceDifference;
+		const hasInstanceDifference = Number(!!itemB.reference.itemInstanceId) - Number(!!itemA.reference.itemInstanceId);
+		if (hasInstanceDifference)
+			// sort things with an instance id before things without an instance id
+			return hasInstanceDifference;
 
-			return (itemA.reference.itemInstanceId ?? `${itemA.reference.itemHash}`)?.localeCompare(itemB.reference.itemInstanceId ?? `${itemB.reference.itemHash}`);
-		});
+		return (itemA.reference.itemInstanceId ?? `${itemA.reference.itemHash}`)?.localeCompare(itemB.reference.itemInstanceId ?? `${itemB.reference.itemHash}`);
 	}
 }
 

@@ -1,6 +1,7 @@
 import type { DeepsightMomentDefinition } from "@deepsight.gg/interfaces";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
+import Characters from "model/models/Characters";
 import Collections from "model/models/Collections";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
@@ -57,11 +58,7 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 						.tweak(ICollectionsView.addItems, weapons, inventory)
 						.appendTo(wrapper);
 
-				const classes = [DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock]
-					.sort((a, b) => (inventory?.sortedCharacters?.findIndex(character => character.classType === a) ?? 0)
-						- (inventory?.sortedCharacters?.findIndex(character => character.classType === b) ?? 0));
-
-				for (const cls of classes) {
+				for (const cls of Characters.getSortedClasses()) {
 					const items = classItems[cls];
 					if (!items?.length)
 						continue;

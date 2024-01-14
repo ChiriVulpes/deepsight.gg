@@ -15,6 +15,13 @@ export default class Slot extends Component {
 			.appendTo(this);
 	}
 
+	/**
+	 * @returns Whether this slot is set as empty. **Warning:** Does not actually check if there's content inside it.
+	 */
+	public isEmpty () {
+		return this.classes.has(SlotClasses.Empty);
+	}
+
 	public setEmpty (empty = true) {
 		this.classes.toggle(empty, SlotClasses.Empty);
 		return this;
