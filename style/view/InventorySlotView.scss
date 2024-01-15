@@ -152,6 +152,18 @@
 			height: auto;
 		}
 	}
+	
+	&-layout {
+		&-columns, &-rows {
+			display: grid;
+		}
+		&-columns {
+			grid-auto-flow: column;
+		}
+		&-rows {
+			grid-auto-flow: row;
+		}
+	}
 
 	&-hint {
 		&s {
@@ -533,11 +545,12 @@
 			max-width: calc(var(--slot-size) * 7);
 		}
 
-		&-engrams {
+		&-engrams .bucket-inventory {
 			--slot-size: calc(var(--bucket-inventory-inner-width) / 10);
 			display: grid;
 			grid-template-columns: repeat(10, 1fr);
 			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
+			max-width: none;
 		}
 
 		@include vertical-or-tablet {

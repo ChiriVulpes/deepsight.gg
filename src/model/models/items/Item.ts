@@ -31,7 +31,7 @@ import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/item
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 
 export type CharacterId = `${bigint}`;
-export type BucketId<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> = `${BUCKET}` | `${BUCKET}/${CharacterId}` | `${BUCKET}/${CharacterId}/${bigint}`;
+export type BucketId<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
 
 export class Bucket {
 
@@ -45,16 +45,16 @@ export class Bucket {
 	});
 
 	public static id<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> (bucketHash: BUCKET, characterId?: CharacterId, inventoryBucketHash?: InventoryBucketHashes): BucketId<BUCKET> {
-		return !characterId ? `${bucketHash}` : !inventoryBucketHash ? `${bucketHash}/${characterId}` : `${bucketHash}/${characterId}/${inventoryBucketHash}`;
+		return `${bucketHash}/${characterId || ""}/${inventoryBucketHash || ""}`;
 	}
 
 	public static parseId (id: BucketId) {
 		const [bucketHashString, characterString, inventoryBucketHashString] = id.split(/\//g);
 		return [
 			+bucketHashString,
-			characterString,
+			characterString || undefined,
 			+inventoryBucketHashString || undefined,
-		].filter(Boolean) as [InventoryBucketHashes, CharacterId?, InventoryBucketHashes?];
+		] as [InventoryBucketHashes, CharacterId?, InventoryBucketHashes?];
 	}
 
 	public readonly id: BucketId;
@@ -197,11 +197,11 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 
 			const characterId = item.bucket.characterId!;
 			await PullFromPostmaster.query(item, characterId);
-			return { bucket: `${item.definition.inventory!.bucketTypeHash as InventoryBucketHashes}/${characterId}` };
+			return { bucket: Bucket.id(item.definition.inventory!.bucketTypeHash as InventoryBucketHashes, characterId) };
 		},
 	},
 	[TransferType.TransferToVault]: {
-		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory.buckets?.[InventoryBucketHashes.General],
+		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory.getBucket(InventoryBucketHashes.General),
 		async transfer (item, ifNotCharacter) {
 			if (!this.applicable(item, ifNotCharacter))
 				throw new Error("Not in character bucket");
@@ -209,7 +209,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 			const characterId = item.character!;
 			await TransferItem.query(item, characterId, "vault");
 			return {
-				bucket: `${InventoryBucketHashes.General}`,
+				bucket: Bucket.id(InventoryBucketHashes.General),
 				undo: [TransferType.TransferToCharacterFromVault, characterId],
 			};
 		},

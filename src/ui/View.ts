@@ -64,15 +64,15 @@ namespace View {
 			return this as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER & NEW_HELPER> & HELPER & NEW_HELPER;
 		}
 
-		protected definition = {} as DEFINITION;
-		public configure<PROVIDED extends Partial<DEFINITION>> (definition: PROVIDED) {
-			Object.assign(this.definition, definition);
+		protected definition: (DEFINITION | ((definition: DEFINITION) => DEFINITION))[] = [];
+		public configure<PROVIDED extends Partial<DEFINITION>> (definition: PROVIDED | ((definition: DEFINITION) => PROVIDED)) {
+			this.definition.push(definition as any);
 			return this as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION & PROVIDED> & HELPER;
 		}
 
 		public clone () {
 			const clone = Object.assign(new Factory(), this) as any as Factory<OTHER_MODELS, ARGS, DEFINITION, HELPER, PROVIDED_DEFINITION, WRAPPER> & HELPER;
-			this.definition = { ...this.definition };
+			this.definition = this.definition.slice();
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			this.otherModels = [...this.otherModels] as any;
 			this.initialisers = [...this.initialisers];
@@ -80,9 +80,13 @@ namespace View {
 		}
 
 		public create (definition: IView<[], OTHER_MODELS, ARGS, DEFINITION, PROVIDED_DEFINITION, WRAPPER>) {
+			for (let i = this.definition.length - 1; i >= 0; i--) {
+				const currentDef = this.definition[i];
+				definition = typeof currentDef === "function" ? { ...currentDef(definition as DEFINITION), ...definition } : { ...currentDef, ...definition };
+			}
+
 			return new Handler<OTHER_MODELS, ARGS, DEFINITION>({
-				...this.definition,
-				...definition,
+				...definition as DEFINITION,
 				models: this.otherModels,
 				initialise: async (component, ...requirements) => {
 					await EnumModel.awaitAll();

@@ -54,18 +54,18 @@ export class InventorySlotColumnsView extends InventoryView {
 			if (typeof name === "function")
 				name = name();
 
-			const component = Component.create()
-				.classes.add(InventorySlotColumnsViewClasses.SlotColumn)
-				.append(Component.create()
-					.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
-					.text.set(name))
-				.appendTo(this.super.content);
+			// const component = Component.create()
+			// 	.classes.add(InventorySlotColumnsViewClasses.SlotColumn)
+			// 	.append(Component.create()
+			// 		.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
+			// 		.text.set(name))
+			// 	.appendTo(this.super.content);
 
-			this.columns.push({
-				slot: view.definition.slot!,
-				name,
-				component,
-			});
+			// this.columns.push({
+			// 	slot: view.definition.slot!,
+			// 	name,
+			// 	component,
+			// });
 		}
 
 		this.super.definition.preUpdateInit?.(this, this.super);

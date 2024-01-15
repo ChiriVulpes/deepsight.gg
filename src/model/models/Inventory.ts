@@ -91,13 +91,11 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	public hasBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
-		return !!this.buckets?.[Bucket.id(bucketHash!, characterId)]
-			|| !!this.buckets?.[bucketHash!];
+		return !!this.buckets?.[Bucket.id(bucketHash!, characterId)];
 	}
 
 	public getBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
-		return this.buckets?.[Bucket.id(bucketHash!, characterId)]
-			?? this.buckets?.[bucketHash!];
+		return this.buckets?.[Bucket.id(bucketHash!, characterId)];
 	}
 
 	public getBucketsOfType (bucketHash?: InventoryBucketHashes) {

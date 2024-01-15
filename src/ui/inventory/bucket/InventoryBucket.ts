@@ -1,4 +1,5 @@
 import type { BucketId } from "model/models/items/Item";
+import { CardClasses } from "ui/Card";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
@@ -14,6 +15,7 @@ export default class InventoryBucket extends BucketComponent {
 		super.onMake(view, bucketId);
 		this.classes.add(InventoryBucketClasses.Main);
 		this.content.classes.add(InventoryBucketClasses.Content);
+		this.setDisplayMode(CardClasses.DisplayModeSection);
 	}
 
 	public override render (requiredSlots = 50): void {
