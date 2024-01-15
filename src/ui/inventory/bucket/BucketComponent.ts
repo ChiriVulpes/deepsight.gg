@@ -1,13 +1,18 @@
-import { TierType } from "bungie-api-ts/destiny2";
+import { DestinyInventoryBucketDefinition, TierType } from "bungie-api-ts/destiny2";
 import Characters from "model/models/Characters";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
-import type { BucketId } from "model/models/items/Item";
+import { Bucket, type BucketId } from "model/models/items/Item";
 import Card from "ui/Card";
 import type Component from "ui/Component";
 import type ItemComponent from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
+
+let bucketDefs: DestinyInventoryBucketDefinition[] = [];
+Manifest.event.subscribe("loaded", async ({ value: Manifest }) =>
+	bucketDefs = await Manifest.DestinyInventoryBucketDefinition.all());
 
 export enum BucketClasses {
 	Main = "bucket",
@@ -41,7 +46,39 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 	}
 
 	public get bucket () {
-		return this.view?.inventory.buckets?.[this.bucketId];
+		if (!this.view?.inventory.buckets)
+			return undefined;
+
+		const bucket = this.view.inventory.buckets[this.bucketId];
+		if (bucket)
+			return bucket;
+
+		const [hash, characterId, subInventoryHash] = Bucket.parseId(this.bucketId);
+		if (!subInventoryHash) {
+			const definition = bucketDefs.find(def => def.hash === hash);
+			if (!definition)
+				return undefined;
+
+			return this.view.inventory.buckets[this.bucketId] = new Bucket({
+				definition,
+				character: Characters.get(characterId),
+			});
+		}
+
+		const mainBucket = this.view.inventory.buckets[`${hash}//`];
+		if (!mainBucket)
+			return undefined;
+
+		const subBucketDefinition = bucketDefs.find(def => def.hash === subInventoryHash);
+		if (!subBucketDefinition)
+			return undefined;
+
+		const subBucket = new Bucket({
+			definition: mainBucket.definition,
+			character: Characters.get(characterId),
+			subBucketDefinition,
+		}, mainBucket.items.filter(item => item.definition.inventory?.bucketTypeHash === subInventoryHash));
+		return this.view.inventory.buckets[subBucket.id] = subBucket;
 	}
 
 	public get owner () {
@@ -84,7 +121,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	public setSortedBy (sort: SortManager) {
 		this._sort = new WeakRef(sort);
-		this.sort();
+		this.update();
 		return this;
 	}
 
@@ -139,9 +176,9 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		if (!this.bucket || !sort)
 			return false;
 
-		this.bucket.items.slice().sort(sort.sort);
+		this.bucket.items.sort(sort.sort);
 		const sortHash = this.bucket.items.map(item => item.id).join(",");
-		if (this.sortHash !== sortHash)
+		if (this.sortHash === sortHash)
 			return false;
 
 		this.sortHash = sortHash;

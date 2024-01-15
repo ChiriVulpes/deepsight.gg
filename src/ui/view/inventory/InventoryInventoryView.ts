@@ -111,7 +111,27 @@ export default new View.Factory()
 	.create({
 		id: VIEW_ID_INVENTORY,
 		name: VIEW_NAME_INVENTORY,
-		slot: [InventoryBucketHashes.Consumables, InventoryBucketHashes.Modifications],
+		layout: {
+			columns: [
+				{
+					rows: [
+						{
+							columns: [
+								{ hash: InventoryBucketHashes.Consumables, merged: true, size: "fixed" },
+								{ hash: InventoryBucketHashes.General, subInventoryHash: InventoryBucketHashes.Consumables, merged: true },
+							],
+						},
+						{
+							columns: [
+								{ hash: InventoryBucketHashes.Modifications, merged: true, size: "fixed" },
+								{ hash: InventoryBucketHashes.General, subInventoryHash: InventoryBucketHashes.Modifications, merged: true },
+							],
+						},
+					],
+				},
+				{ hash: InventoryBucketHashes.LostItems, size: "fixed" },
+			],
+		},
 		sort: new SortManager(SORT_MANAGER_INVENTORY_DEFINITION),
 		filter: new FilterManager(FILTER_MANAGER_INVENTORY_DEFINITION),
 	});

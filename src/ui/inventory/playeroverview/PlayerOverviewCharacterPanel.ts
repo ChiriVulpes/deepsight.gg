@@ -10,7 +10,6 @@ import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
 import Slot from "ui/inventory/Slot";
-import { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
@@ -19,7 +18,6 @@ import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
 import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
-import Arrays from "utility/Arrays";
 import Maths from "utility/maths/Maths";
 
 export enum PlayerOverviewCharacterPanelClasses {
@@ -150,12 +148,9 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 				.appendTo(this);
 
 			for (const view of viewGroup) {
-				for (const slot of Arrays.resolve(view.definition.slot)) {
-					const id = IInventoryViewDefinition.resolveSlotId(slot);
-					this.slotComponents[id] = SlotComponent.create([groupIndex])
-						.classes.add(PlayerOverviewCharacterPanelClasses.Slot)
-						.appendTo(groupColumn);
-				}
+				this.slotComponents[view.definition.slot] = SlotComponent.create([groupIndex])
+					.classes.add(PlayerOverviewCharacterPanelClasses.Slot)
+					.appendTo(groupColumn);
 			}
 		}
 	}
@@ -178,20 +173,21 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
 		void this.artifact.setItem(seasonalArtifact?.equippedItem);
 
-		const equippedItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
-		const highestPowerItems: Partial<Record<InventoryBucketHashes | string, Item>> = {};
+		const equippedItems: Partial<Record<InventoryBucketHashes, Item>> = {};
+		const highestPowerItems: Partial<Record<InventoryBucketHashes, Item>> = {};
 		for (const item of buckets.flatMap(bucket => bucket.items)) {
 			const view = slotViews.flat().find(view => item.definition.inventory?.bucketTypeHash === view.definition.slot);
-			for (const slot of Arrays.resolve(view?.definition.slot)) {
-				const id = IInventoryViewDefinition.resolveSlotId(slot);
-				if (item.equipped)
-					equippedItems[id] = item;
+			if (!view)
+				continue;
 
-				const highestPower = highestPowerItems[id]?.instance?.primaryStat?.value ?? 0;
-				const itemPower = item.instance?.primaryStat?.value ?? 0;
-				if (itemPower > highestPower || (itemPower === highestPower && item.equipped))
-					highestPowerItems[id] = item;
-			}
+			const slot = view.definition.slot;
+			if (item.equipped)
+				equippedItems[slot] = item;
+
+			const highestPower = highestPowerItems[slot]?.instance?.primaryStat?.value ?? 0;
+			const itemPower = item.instance?.primaryStat?.value ?? 0;
+			if (itemPower > highestPower || (itemPower === highestPower && item.equipped))
+				highestPowerItems[slot] = item;
 		}
 
 		const currentPower = Maths.average(...Object.values(equippedItems)
@@ -212,39 +208,37 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			const viewGroup = slotViews[groupIndex];
 
 			for (const view of viewGroup) {
-				for (const slot of Arrays.resolve(view.definition.slot)) {
-					const id = IInventoryViewDefinition.resolveSlotId(slot);
+				const slot = view.definition.slot;
 
-					let name = view.definition.name ?? "Unknown View";
-					if (typeof name === "function")
-						name = name();
+				let name = view.definition.name ?? "Unknown View";
+				if (typeof name === "function")
+					name = name();
 
-					const equippedItem = equippedItems[id];
-					if (!equippedItem) {
-						console.warn(`No equipped item for slot ${name}`);
-						continue;
-					}
-
-					const slotComponent = this.slotComponents[id]
-						.attributes.set("data-name", name);
-
-					if (previous[i++] !== equippedItem.reference.itemInstanceId) {
-						equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
-						previous[i - 1] = equippedItem.reference.itemInstanceId!;
-					}
-
-					const highestPowerItem = highestPowerItems[id];
-					if (!highestPowerItem)
-						console.warn(`No highest power item for slot ${name}`);
-					else {
-						if (previous[i++] !== highestPowerItem.reference.itemInstanceId) {
-							highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
-							previous[i - 1] = highestPowerItem.reference.itemInstanceId!;
-						}
-					}
-
-					slotComponent.set(inventory, equippedItem, highestPowerItem, maximisedPower);
+				const equippedItem = equippedItems[slot];
+				if (!equippedItem) {
+					console.warn(`No equipped item for slot ${name}`);
+					continue;
 				}
+
+				const slotComponent = this.slotComponents[slot]
+					.attributes.set("data-name", name);
+
+				if (previous[i++] !== equippedItem.reference.itemInstanceId) {
+					equippedLog.push(`\n    ${name}:`, equippedItem?.definition.displayProperties.name, equippedItem);
+					previous[i - 1] = equippedItem.reference.itemInstanceId!;
+				}
+
+				const highestPowerItem = highestPowerItems[slot];
+				if (!highestPowerItem)
+					console.warn(`No highest power item for slot ${name}`);
+				else {
+					if (previous[i++] !== highestPowerItem.reference.itemInstanceId) {
+						highestPowerLog.push(`\n    ${name}:`, highestPowerItem?.definition.displayProperties.name, highestPowerItem);
+						previous[i - 1] = highestPowerItem.reference.itemInstanceId!;
+					}
+				}
+
+				slotComponent.set(inventory, equippedItem, highestPowerItem, maximisedPower);
 			}
 		}
 

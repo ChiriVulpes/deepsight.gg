@@ -5,7 +5,7 @@ import type Item from "model/models/items/Item";
 import type { BucketId, CharacterId } from "model/models/items/Item";
 import { Bucket } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
-import Component from "ui/Component";
+import Component, { AnyComponent } from "ui/Component";
 import { Hint, IInput } from "ui/Hints";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -15,11 +15,11 @@ import Drawer from "ui/form/Drawer";
 import DraggableItem from "ui/inventory/DraggableItemComponent";
 import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import BucketComponents from "ui/inventory/bucket/BucketComponents";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import SortManager from "ui/inventory/sort/SortManager";
-import Arrays from "utility/Arrays";
 import Store from "utility/Store";
 import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
@@ -40,36 +40,39 @@ export enum InventoryViewClasses {
 	Hint = "view-inventory-slot-hint",
 	HintIcon = "view-inventory-slot-hint-icon",
 	ItemFilteredOut = "view-inventory-slot-item-filtered-out",
+	LayoutColumns = "view-inventory-slot-layout-columns",
+	LayoutRows = "view-inventory-slot-layout-rows",
+	LayoutBucket = "view-inventory-slot-layout-bucket",
+}
+
+export interface InventoryViewComponentBase {
+	size?: "auto" | "fixed";
+}
+
+export type InventoryViewComponent = InventoryViewLayoutColumnsComponent | InventoryViewLayoutRowsComponent | InventoryViewBucketComponent;
+
+export interface InventoryViewLayoutColumnsComponent extends InventoryViewComponentBase {
+	columns: InventoryViewComponent[];
+	rows?: undefined;
+}
+export interface InventoryViewLayoutRowsComponent extends InventoryViewComponentBase {
+	columns?: undefined;
+	rows: InventoryViewComponent[];
+}
+
+export interface InventoryViewBucketComponent extends InventoryViewComponentBase {
+	columns?: undefined;
+	rows?: undefined;
+	hash: InventoryBucketHashes;
+	subInventoryHash?: InventoryBucketHashes;
+	merged?: true;
 }
 
 export interface IInventoryViewDefinition {
 	sort: SortManager;
-	slot?: Arrays.Or<Arrays.Or<InventoryBucketHashes>>;
+	layout?: InventoryViewComponent;
 	filter: FilterManager;
 	separateVaults?: true;
-}
-
-export namespace IInventoryViewDefinition {
-	export function resolveSlotId (slot: Arrays.Or<InventoryBucketHashes>) {
-		return Array.isArray(slot) ? slot.join(",") : slot;
-	}
-
-	export function resolveSlotIds (slot?: IInventoryViewDefinition["slot"]) {
-		return Arrays.resolve(slot).map(slot => Array.isArray(slot) ? slot.join(",") : slot);
-	}
-
-	const handledBuckets = new Set([
-		InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons,
-		InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor,
-		InventoryBucketHashes.LostItems, InventoryBucketHashes.Engrams,
-		InventoryBucketHashes.Consumables,
-		InventoryBucketHashes.Ghost, InventoryBucketHashes.Vehicle, InventoryBucketHashes.Ships,
-	]);
-	export function isLeftoverModificationsVaultItem (item: Item) {
-		return item.bucket.isVault()
-			&& (!item.definition.inventory?.bucketTypeHash
-				|| !handledBuckets.has(item.definition.inventory.bucketTypeHash));
-	}
 }
 
 class InventoryViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<[]> & IInventoryViewDefinition> { }
@@ -108,14 +111,17 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.equipped = {};
 		this.itemMap = new Map<Item, ItemComponent>();
 
+		await SortManager.init();
+
+		if (this.super.definition.layout)
+			this.appendLayoutComponent(this.super.content, this.super.definition.layout);
+
 		inventory.event.subscribe("update", this.update);
 		this.event.subscribe("hide", () => {
 			inventory.event.unsubscribe("update", this.update);
 			if (InventoryView.current === this)
 				delete InventoryView.current;
 		});
-
-		await SortManager.init();
 
 		this.preUpdateInit();
 		this.update();
@@ -169,6 +175,36 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				.text.add("\xa0 Configure filter"));
 
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
+	}
+
+	@Bound private appendLayoutComponent (into: AnyComponent, layout: InventoryViewComponent) {
+		if (layout.columns || layout.rows) {
+			into.classes.add(layout.columns ? InventoryViewClasses.LayoutColumns : InventoryViewClasses.LayoutRows);
+			let template = "";
+			for (const child of layout.columns ?? layout.rows ?? []) {
+				const size = child.size ?? "auto";
+				template += ` ${size === "auto" ? "1fr" : "auto"}`;
+				Component.create()
+					.tweak(this.appendLayoutComponent, child)
+					.appendTo(into);
+			}
+			into.style.set(`grid-template-${layout.columns ? "columns" : "rows"}`, template);
+		} else {
+			if (layout.merged) {
+				this.appendBucket(into, layout);
+			} else {
+				for (const character of Characters.getSorted()) {
+					this.appendBucket(into, layout, character.characterId);
+				}
+			}
+		}
+	}
+
+	private appendBucket (into: AnyComponent, layout: InventoryViewBucketComponent, characterId?: CharacterId) {
+		const bucketId = Bucket.id(layout.hash, characterId, layout.subInventoryHash);
+		const component = this.bucketComponents[bucketId] = BucketComponents.create(bucketId, this) as BucketComponent;
+		component.setSortedBy(this.super.definition.sort).appendTo(into);
+		into.classes.add(`${InventoryViewClasses.LayoutBucket}-${component.bucket?.definition.displayProperties.name.toLowerCase().replace(/\W+/g, "-") ?? "unknown"}`);
 	}
 
 	public getVaultBucket (character?: CharacterId) {

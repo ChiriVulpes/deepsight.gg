@@ -5,6 +5,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum PostmasterBucketClasses {
@@ -17,6 +18,7 @@ export enum PostmasterBucketClasses {
 export default class PostmasterBucket extends BucketComponent {
 
 	public engrams!: BucketComponent;
+	private className!: Component;
 
 	protected override onMake (view: InventoryView, bucketId: BucketId): void {
 		super.onMake(view, bucketId);
@@ -30,16 +32,23 @@ export default class PostmasterBucket extends BucketComponent {
 
 		this.icon.style.set("--icon", "url(\"./image/svg/postmaster.svg\")");
 		this.title.text.set("Postmaster");
+
+		this.className = Component.create()
+			.classes.add(PostmasterBucketClasses.Class, Classes.Hidden)
+			.appendTo(this.title);
+	}
+
+	public override setSortedBy (sort: SortManager) {
+		this.engrams.setSortedBy(sort);
+		return super.setSortedBy(sort);
 	}
 
 	public override update () {
 		const character = this.character;
 		const className = character?.class?.displayProperties.name;
 		if (className)
-			Component.create()
-				.classes.add(PostmasterBucketClasses.Class)
-				.text.set(`\xa0 (${className})`)
-				.appendTo(this.title);
+			this.className.classes.remove(Classes.Hidden)
+				.text.set(`\xa0 / \xa0${className}`);
 
 		const updated = super.update();
 		const engramsUpdated = this.engrams.update();
@@ -66,5 +75,13 @@ export default class PostmasterBucket extends BucketComponent {
 class EngramsBucket extends BucketComponent<BucketId<InventoryBucketHashes.Engrams>> {
 	protected override onMake (view: InventoryView, bucketId: BucketId<InventoryBucketHashes.Engrams>): void {
 		super.onMake(view, bucketId);
+	}
+
+	public override render (requiredSlots = 10): void {
+		super.render(requiredSlots);
+	}
+
+	public override createEmptySlot (): Slot {
+		return super.createEmptySlot().setSimple();
 	}
 }
