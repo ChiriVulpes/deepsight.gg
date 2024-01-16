@@ -1,4 +1,4 @@
-import type { BucketId } from "model/models/items/Item";
+import type { BucketId } from "model/models/items/Bucket";
 import { CardClasses } from "ui/Card";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type InventoryView from "ui/view/inventory/InventoryView";

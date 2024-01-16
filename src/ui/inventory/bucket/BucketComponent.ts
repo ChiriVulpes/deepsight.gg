@@ -1,8 +1,10 @@
-import { DestinyInventoryBucketDefinition, TierType } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
+import { TierType } from "bungie-api-ts/destiny2";
 import Characters from "model/models/Characters";
 import Manifest from "model/models/Manifest";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import { Bucket, type BucketId } from "model/models/items/Item";
 import Card from "ui/Card";
 import type Component from "ui/Component";
 import type ItemComponent from "ui/inventory/ItemComponent";

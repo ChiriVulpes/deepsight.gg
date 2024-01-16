@@ -2,11 +2,12 @@ import type { DamageTypeHashes } from "@deepsight.gg/enums";
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
-import type { DestinyCollectibleDefinition, DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, TierType } from "bungie-api-ts/destiny2";
+import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, TierType } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
-import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
@@ -31,111 +32,6 @@ import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/item
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
 
 export type CharacterId = `${bigint}`;
-export type BucketId<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
-
-export class Bucket {
-
-	public static COLLECTIONS = new Bucket({
-		definition: {
-			hash: "collections" as any as InventoryBucketHashes,
-			displayProperties: {
-				name: "Collections",
-			} as DestinyDisplayPropertiesDefinition,
-		} as DestinyInventoryBucketDefinition,
-	});
-
-	public static id<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> (bucketHash: BUCKET, characterId?: CharacterId, inventoryBucketHash?: InventoryBucketHashes): BucketId<BUCKET> {
-		return `${bucketHash}/${characterId || ""}/${inventoryBucketHash || ""}`;
-	}
-
-	public static parseId (id: BucketId) {
-		const [bucketHashString, characterString, inventoryBucketHashString] = id.split(/\//g);
-		return [
-			+bucketHashString,
-			characterString || undefined,
-			+inventoryBucketHashString || undefined,
-		] as [InventoryBucketHashes, CharacterId?, InventoryBucketHashes?];
-	}
-
-	public readonly id: BucketId;
-	public readonly hash: InventoryBucketHashes;
-	public readonly characterId?: CharacterId;
-	public readonly inventoryHash?: InventoryBucketHashes;
-	public readonly name: string;
-	public readonly capacity: number;
-	public fallbackRemovalItem?: Item;
-
-	public readonly definition: DestinyInventoryBucketDefinition;
-	public readonly character?: Character;
-	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
-	public readonly items: Item[];
-
-	public constructor ({ definition, subBucketDefinition, character }: { definition: DestinyInventoryBucketDefinition, subBucketDefinition?: DestinyInventoryBucketDefinition, character?: Character }, items?: Item[]) {
-		this.name = definition.displayProperties?.name ?? "?";
-		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
-		this.capacity = definition.itemCount;
-		this.items = items ?? [];
-
-		if (this.inventoryHash)
-			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
-
-		this.hash = definition.hash;
-		this.inventoryHash = subBucketDefinition?.hash;
-		this.characterId = character?.characterId as CharacterId | undefined;
-		this.definition = definition;
-		this.subBucketDefinition = subBucketDefinition;
-	}
-
-	public get equippedItem () {
-		return this.items.find(item => item.equipped);
-	}
-
-	public is (bucket: InventoryBucketHashes) {
-		return this.id.startsWith(`${bucket}`);
-	}
-
-	public isCollections () {
-		return this === Bucket.COLLECTIONS;
-	}
-
-	public isVault () {
-		return this.is(InventoryBucketHashes.General);
-	}
-
-	public isCharacter (character?: CharacterId) {
-		return character === undefined ? !!this.characterId : this.characterId === character;
-	}
-
-	public isPostmaster () {
-		return this.is(InventoryBucketHashes.LostItems);
-	}
-
-	public isEngrams () {
-		return this.is(InventoryBucketHashes.Engrams);
-	}
-
-	public async makeSpace (swapBucket?: Bucket) {
-		if (!this.fallbackRemovalItem)
-			return false;
-
-		if (swapBucket)
-			return this.fallbackRemovalItem.transferToBucket(swapBucket).then(() => true).catch(() => false);
-
-		return this.fallbackRemovalItem.transferToVault().then(() => true).catch(() => false);
-	}
-
-	public matches (item: Item) {
-		if (item.bucket === this)
-			return true;
-
-		if (this.inventoryHash)
-			return item.bucket.hash === this.definition.hash && item.definition.inventory?.bucketTypeHash === this.inventoryHash;
-
-		return false
-			|| item.bucket.hash === this.definition.hash
-			|| item.definition.inventory?.bucketTypeHash === this.definition.hash;
-	}
-}
 
 export enum ItemFomoState {
 	NoMo,

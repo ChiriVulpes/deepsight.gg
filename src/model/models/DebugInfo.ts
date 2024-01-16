@@ -1,7 +1,7 @@
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes } from "@deepsight.gg/enums";
 import type { Buckets } from "model/models/Items";
+import type { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import type { Bucket } from "model/models/items/Item";
 
 export default class DebugInfo {
 	public static updateBuckets (buckets: Buckets) {

@@ -1,5 +1,6 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import { Bucket, type BucketId } from "model/models/items/Item";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";

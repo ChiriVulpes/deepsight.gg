@@ -1,12 +1,13 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import { Bucket, BucketId } from "model/models/items/Item";
-import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
+import type BucketComponent from "ui/inventory/bucket/BucketComponent";
 import CharacterBucket from "ui/inventory/bucket/CharacterBucket";
 import ConsumablesBucket from "ui/inventory/bucket/ConsumablesBucket";
 import ModificationsBucket from "ui/inventory/bucket/ModificationsBucket";
 import PostmasterBucket from "ui/inventory/bucket/PostmasterBucket";
 import VaultBucket from "ui/inventory/bucket/VaultBucket";
-import InventoryView from "ui/view/inventory/InventoryView";
+import type InventoryView from "ui/view/inventory/InventoryView";
 
 namespace BucketComponents {
 
