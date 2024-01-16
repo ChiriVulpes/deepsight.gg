@@ -6,10 +6,10 @@ import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum CharacterBucketClasses {
-	Main = "view-inventory-slot-character-bucket",
-	Emblem = "view-inventory-slot-character-bucket-emblem",
-	Equipped = "view-inventory-slot-character-bucket-equipped",
-	Inventory = "view-inventory-slot-character-bucket-inventory",
+	Main = "view-inventory-character-bucket",
+	Emblem = "view-inventory-character-bucket-emblem",
+	Equipped = "view-inventory-character-bucket-equipped",
+	Inventory = "view-inventory-character-bucket-inventory",
 }
 
 export default class CharacterBucket extends BucketComponent {

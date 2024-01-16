@@ -7,9 +7,9 @@ import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum VaultBucketClasses {
-	Main = "view-inventory-slot-vault-bucket",
-	Class = "view-inventory-slot-vault-bucket-class",
-	Quantity = "view-inventory-slot-vault-bucket-quantity",
+	Main = "view-inventory-vault-bucket",
+	Class = "view-inventory-vault-bucket-class",
+	Quantity = "view-inventory-vault-bucket-quantity",
 }
 
 export default class VaultBucket extends BucketComponent<BucketId<InventoryBucketHashes.General>> {
@@ -35,7 +35,7 @@ export default class VaultBucket extends BucketComponent<BucketId<InventoryBucke
 	public override update () {
 		const className = this.character?.class?.displayProperties.name;
 		this.classLabel?.classes.toggle(!className, Classes.Hidden)
-			.text.set(`\xa0 (${className})`);
+			.text.set(`\xa0 / \xa0${className}`);
 
 		const updated = super.update();
 		if (!updated)
@@ -45,7 +45,7 @@ export default class VaultBucket extends BucketComponent<BucketId<InventoryBucke
 		const vaultItemCount = this.bucket?.items.length ?? 0;
 		const vaultCapacity = this.bucket?.capacity;
 		this.quantityLabel.classes.toggle(!vaultCapacity, Classes.Hidden);
-		this.quantityLabel.text.set(`${(vaultItemCount)} / ${vaultBucket?.items.length ?? 0} / ${vaultCapacity}`);
+		this.quantityLabel.text.set(`${(vaultItemCount)} / ${vaultBucket?.items.length ?? 0} // ${vaultCapacity}`);
 		return true;
 	}
 }
