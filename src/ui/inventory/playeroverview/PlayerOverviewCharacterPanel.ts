@@ -1,8 +1,8 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
+import type { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import type { Bucket, CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import ClassPicker from "ui/form/ClassPicker";
@@ -156,7 +156,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	}
 
 	public set (inventory: Inventory, character: Character, buckets: Bucket[]) {
-		for (const subclass of inventory.getBucket(InventoryBucketHashes.Subclass, character.characterId as CharacterId)?.items ?? []) {
+		for (const subclass of inventory.getBucket(InventoryBucketHashes.Subclass, character.characterId)?.items ?? []) {
 			this.subclassPicker.addOption({
 				id: subclass.definition.hash,
 				background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,

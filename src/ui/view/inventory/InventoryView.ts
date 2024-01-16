@@ -1,9 +1,10 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import type { BucketId, CharacterId } from "model/models/items/Item";
-import { Bucket } from "model/models/items/Item";
+import type { CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";

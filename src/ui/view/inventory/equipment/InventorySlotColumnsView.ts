@@ -2,7 +2,7 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
 import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
-import { Bucket } from "model/models/items/Item";
+import { Bucket } from "model/models/items/Bucket";
 import Component from "ui/Component";
 import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";

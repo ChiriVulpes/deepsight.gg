@@ -5,9 +5,9 @@ import Characters from "model/models/Characters";
 import DebugInfo from "model/models/DebugInfo";
 import type { Buckets } from "model/models/Items";
 import Items from "model/models/Items";
+import { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import type { CharacterId, IItemEvents, ItemId } from "model/models/items/Item";
-import { Bucket } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import ProfileBatch from "model/models/ProfileBatch";
 import FocusManager from "ui/FocusManager";
@@ -72,7 +72,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
 			.subscribe("loaded", ({ characters, sorted }) => {
 				for (const item of Object.values(this.items ?? {}))
-					item["_owner"] = sorted[0].characterId as CharacterId;
+					item["_owner"] = sorted[0].characterId;
 
 				for (const character of sorted)
 					for (const loadout of character.loadouts)
@@ -184,7 +184,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 		item.inventory = this;
 
-		item["_owner"] = this.currentCharacter.characterId as CharacterId;
+		item["_owner"] = this.currentCharacter.characterId;
 
 		if (item.shaped)
 			this.craftedItems.add(item.definition.hash);

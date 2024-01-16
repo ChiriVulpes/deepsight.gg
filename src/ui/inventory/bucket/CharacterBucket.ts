@@ -1,5 +1,5 @@
+import type { BucketId } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import type { BucketId } from "model/models/items/Item";
 import type Component from "ui/Component";
 import Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";

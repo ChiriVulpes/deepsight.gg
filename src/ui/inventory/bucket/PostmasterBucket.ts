@@ -1,11 +1,13 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import { Bucket, type BucketId, type CharacterId } from "model/models/items/Item";
+import type { BucketId } from "model/models/items/Bucket";
+import { Bucket } from "model/models/items/Bucket";
+import type { CharacterId } from "model/models/items/Item";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
-import SortManager from "ui/inventory/sort/SortManager";
+import type SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum PostmasterBucketClasses {

@@ -1,5 +1,5 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import { Bucket } from "model/models/items/Item";
+import { Bucket } from "model/models/items/Bucket";
 import InventoryBucket from "ui/inventory/bucket/InventoryBucket";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
