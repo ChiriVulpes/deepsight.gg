@@ -7,6 +7,9 @@ export default class DebugInfo {
 	public static updateBuckets (buckets: Buckets) {
 		const encountered = new Map<Item, Set<Bucket>>();
 		for (const bucket of Object.values(buckets)) {
+			if (bucket?.deepsight)
+				continue;
+
 			for (const item of bucket?.items ?? []) {
 				let buckets = encountered.get(item);
 				if (!buckets) {
