@@ -140,7 +140,11 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			let characterBucket: Bucket | undefined;
 			for (const item of bucket.items) {
 				if (item.definition.classType === classType) {
-					characterBucket ??= new Bucket({ definition: bucket.definition, character: Characters.get(characterId) });
+					characterBucket ??= new Bucket({
+						definition: bucket.definition,
+						character: Characters.get(characterId),
+						deepsight: true,
+					});
 					buckets[characterBucket.id] ??= characterBucket;
 					characterBucket.items.push(item);
 				}
@@ -160,6 +164,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					definition: bucket.definition,
 					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(item.definition.inventory.bucketTypeHash),
 					character: Characters.get(bucket.characterId),
+					deepsight: true,
 				});
 				buckets[subBucket.id] ??= subBucket;
 				subBucket.items.push(item);

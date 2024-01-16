@@ -36,6 +36,7 @@ export class Bucket {
 	public readonly inventoryHash?: InventoryBucketHashes;
 	public readonly name: string;
 	public readonly capacity: number;
+	public readonly deepsight: boolean;
 	public fallbackRemovalItem?: Item;
 
 	public readonly definition: DestinyInventoryBucketDefinition;
@@ -43,7 +44,7 @@ export class Bucket {
 	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
 	public readonly items: Item[];
 
-	public constructor ({ definition, subBucketDefinition, character }: { definition: DestinyInventoryBucketDefinition, subBucketDefinition?: DestinyInventoryBucketDefinition, character?: Character }, items?: Item[]) {
+	public constructor ({ definition, subBucketDefinition, character, deepsight }: { definition: DestinyInventoryBucketDefinition, subBucketDefinition?: DestinyInventoryBucketDefinition, character?: Character, deepsight?: true }, items?: Item[]) {
 		this.name = definition.displayProperties?.name ?? "?";
 		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
 		this.capacity = definition.itemCount;
@@ -57,6 +58,7 @@ export class Bucket {
 		this.characterId = character?.characterId;
 		this.definition = definition;
 		this.subBucketDefinition = subBucketDefinition;
+		this.deepsight = deepsight ?? false;
 	}
 
 	public get equippedItem () {
