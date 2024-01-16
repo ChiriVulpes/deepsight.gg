@@ -3,8 +3,8 @@ import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type { BucketId } from "model/models/items/Bucket";
 import { Bucket } from "model/models/items/Bucket";
-import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
+import Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";
@@ -174,6 +174,26 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		return this;
 	}
 
+	public getBuckets () {
+		return Object.values(this.bucketComponents ?? {});
+	}
+
+	public getBucket (item?: Item): BucketComponent | undefined;
+	public getBucket (bucket?: Bucket): BucketComponent | undefined;
+	public getBucket (bucketId?: BucketId): BucketComponent | undefined;
+	public getBucket (value?: Item | Bucket | BucketId) {
+		if (!value)
+			return undefined;
+
+		const bucket = this.bucketComponents[typeof value === "string" ? value : value instanceof Bucket ? value.id : value.bucket.id];
+		if (bucket)
+			return bucket;
+
+		return !(value instanceof Item) ? undefined
+			: Object.values(this.bucketComponents)
+				.find(bucket => bucket?.items.includes(value));
+	}
+
 	public getVaultBucket (character?: CharacterId) {
 		return (character && this.bucketComponents[Bucket.id(InventoryBucketHashes.General, character)])
 			?? this.bucketComponents[Bucket.id(InventoryBucketHashes.General)];
@@ -298,69 +318,61 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				if (window.innerWidth <= 800)
 					return event.preventDefault();
 
-				// const bucketComponents = this.getBucket(item.bucket);
-
-				// for (const bucketComponent of bucketComponents)
-				// 	bucketComponent.classes.add(InventoryViewClasses.BucketMovingFrom);
+				this.getBucket(item)
+					?.classes.add(InventoryViewClasses.BucketMovingFrom);
 
 				this.onItemMoveStart(item, event);
 			},
 			move: event => {
-				// for (const [, dropBucket] of this.bucketEntries) {
-				// 	if (dropBucket.is(InventoryBucketHashes.Consumables) || dropBucket.is(InventoryBucketHashes.Modifications) || dropBucket.isPostmaster())
-				// 		continue;
+				for (const bucket of this.getBuckets()) {
+					if (!bucket || bucket.is(InventoryBucketHashes.Consumables, InventoryBucketHashes.Modifications, InventoryBucketHashes.LostItems))
+						continue;
 
-				// 	const buckets = this.getBucket(dropBucket);
-				// 	for (const bucket of buckets)
-				// 		for (const { component } of bucket.getDropTargets())
-				// 			component.classes.toggle(
-				// 				component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`),
-				// 				InventoryViewClasses.BucketDropTarget);
-				// }
+					for (const { component } of bucket.getDropTargets())
+						component.classes.toggle(
+							component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`),
+							InventoryViewClasses.BucketDropTarget);
+				}
 			},
 			moveEnd: async event => {
-				// const bucketComponents = this.getBucket(item.bucket);
-				// for (const bucketComponent of bucketComponents)
-				// 	bucketComponent.classes.remove(InventoryViewClasses.BucketMovingFrom);
+				this.getBucket(item)
+					?.classes.remove(InventoryViewClasses.BucketMovingFrom);
 
-				// let dropBucket: Bucket | undefined;
-				// let dropEquipped = false;
-				// for (const [, bucket] of this.bucketEntries) {
-				// 	if (bucket.is(InventoryBucketHashes.Consumables) || bucket.is(InventoryBucketHashes.Modifications) || bucket.isPostmaster() || bucket.is(InventoryBucketHashes.Subclass))
-				// 		continue;
+				let dropBucket: BucketComponent | undefined;
+				let dropEquipped = false;
+				for (const bucket of this.getBuckets()) {
+					if (!bucket || bucket.is(InventoryBucketHashes.Consumables, InventoryBucketHashes.Modifications, InventoryBucketHashes.LostItems, InventoryBucketHashes.Subclass))
+						continue;
 
-				// 	const buckets = this.getBucket(bucket);
-				// 	let intersections = false;
-				// 	for (const bucket of buckets) {
-				// 		for (const { component, equipped } of bucket.getDropTargets()) {
-				// 			component.classes.remove(InventoryViewClasses.BucketDropTarget);
-				// 			if (!intersections && !dropBucket && component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
-				// 				intersections = true;
-				// 				dropEquipped = equipped;
-				// 			}
-				// 		}
-				// 	}
+					let intersections = false;
+					for (const { component, equipped } of bucket.getDropTargets()) {
+						component.classes.remove(InventoryViewClasses.BucketDropTarget);
+						if (!intersections && !dropBucket && component.intersects(event.mouse, true) && !component.element.matches(`.${Classes.Hidden} *`)) {
+							intersections = true;
+							dropEquipped = equipped;
+						}
+					}
 
-				// 	if (!intersections || dropBucket)
-				// 		continue;
+					if (!intersections || dropBucket)
+						continue;
 
-				// 	dropBucket = bucket;
-				// }
+					dropBucket = bucket;
+				}
 
-				// if (!dropBucket)
-				// 	return;
+				if (!dropBucket?.bucket)
+					return;
 
-				// if (item.bucket === dropBucket && item.equipped === dropEquipped)
-				// 	return;
+				if (item.bucket.id === dropBucket.bucket.id && item.equipped === dropEquipped)
+					return;
 
-				// if (dropBucket.isCharacter()) {
-				// 	if (dropEquipped)
-				// 		return item.equip(dropBucket.characterId!);
-				// 	else if (item.equipped && item.bucket === dropBucket)
-				// 		return item.unequip();
-				// }
+				if (dropBucket.bucket.isCharacter()) {
+					if (dropEquipped)
+						return item.equip(dropBucket.bucket.characterId);
+					else if (item.equipped && item.bucket.id === dropBucket.bucket.id)
+						return item.unequip();
+				}
 
-				// await item.transferToBucket(dropBucket);
+				await item.transferToBucket(dropBucket.bucket);
 			},
 		}]);
 	}

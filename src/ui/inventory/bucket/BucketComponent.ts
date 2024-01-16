@@ -1,3 +1,4 @@
+import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import { TierType } from "bungie-api-ts/destiny2";
 import Characters from "model/models/Characters";
@@ -116,6 +117,11 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		this.itemComponents = [];
 	}
 
+	public is (...hashes: InventoryBucketHashes[]) {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		return hashes.includes(this.bucket?.hash!);
+	}
+
 	public registerDropTarget (component: Component, equipped?: true) {
 		this.dropTargets ??= [];
 		this.dropTargets.push({ component, equipped: equipped ?? false });
@@ -141,7 +147,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 	}
 
 	public render (requiredSlots = 0) {
-		this.slots.splice(0, Infinity);
+		const oldSlots = this.slots.splice(0, Infinity);
 		this.itemComponents.splice(0, Infinity);
 
 		let displayedItems = 0;
@@ -166,6 +172,9 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			const slot = this.createEmptySlot().appendTo(this.content);
 			this.slots.push(slot);
 		}
+
+		for (const slot of oldSlots)
+			slot.remove();
 	}
 
 	public createEmptySlot () {
@@ -179,7 +188,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			return false;
 
 		this.bucket.items.sort(sort.sort);
-		const sortHash = this.bucket.items.map(item => item.id).join(",");
+		const sortHash = this.bucket.items.map(item => `${item.id}:${item.equipped}`).join(",");
 		if (this.sortHash === sortHash)
 			return false;
 

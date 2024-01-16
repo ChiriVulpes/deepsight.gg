@@ -65,8 +65,8 @@ export class Bucket {
 		return this.items.find(item => item.equipped);
 	}
 
-	public is (bucket: InventoryBucketHashes) {
-		return this.id.startsWith(`${bucket}`);
+	public is (hash: InventoryBucketHashes) {
+		return this.hash === hash;
 	}
 
 	public isCollections () {
@@ -77,7 +77,7 @@ export class Bucket {
 		return this.is(InventoryBucketHashes.General);
 	}
 
-	public isCharacter (character?: CharacterId) {
+	public isCharacter (character?: CharacterId): this is Bucket & { characterId: CharacterId } {
 		return character === undefined ? !!this.characterId : this.characterId === character;
 	}
 
