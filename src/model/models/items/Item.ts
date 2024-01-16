@@ -407,11 +407,19 @@ class Item {
 		return (this.tier?.tierType ?? 0) <= Math.min(tier ?? 0, max ?? 0);
 	}
 
-	public getPower () {
+	public getPower (onlyPower: true): number | undefined;
+	public getPower (): number;
+	public getPower (onlyPower = false) {
 		const isValidStat = this.instance?.primaryStat?.statHash === StatHashes.Power
-			|| this.instance?.primaryStat?.statHash === StatHashes.Attack
-			|| this.instance?.primaryStat?.statHash === StatHashes.Defense
-			|| this.instance?.primaryStat?.statHash === StatHashes.Speed;
+			|| (!onlyPower
+				&& (false
+					|| this.instance?.primaryStat?.statHash === StatHashes.Attack
+					|| this.instance?.primaryStat?.statHash === StatHashes.Defense
+					|| this.instance?.primaryStat?.statHash === StatHashes.Speed));
+
+		if (onlyPower && !isValidStat)
+			return undefined;
+
 		const primaryStatPower = isValidStat ? this.instance!.primaryStat.value : 0;
 		const itemLevelQualityPower = (this.instance?.itemLevel ?? 0) * 10 + (this.instance?.quality ?? 0);
 		return Math.max(primaryStatPower, itemLevelQualityPower);
