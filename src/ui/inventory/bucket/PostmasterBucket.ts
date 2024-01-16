@@ -9,10 +9,10 @@ import SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
 export enum PostmasterBucketClasses {
-	Main = "view-inventory-slot-postmaster-bucket",
-	Engrams = "view-inventory-slot-postmaster-bucket-engrams",
-	Warning = "view-inventory-slot-postmaster-bucket-warning",
-	Class = "view-inventory-slot-postmaster-bucket-class",
+	Main = "view-inventory-postmaster-bucket",
+	Engrams = "view-inventory-postmaster-bucket-engrams",
+	Warning = "view-inventory-postmaster-bucket-warning",
+	Class = "view-inventory-postmaster-bucket-class",
 }
 
 export default class PostmasterBucket extends BucketComponent {

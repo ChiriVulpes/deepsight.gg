@@ -29,4 +29,5 @@ export default InventorySlotView.clone().configure({
 	sort: new SortManager(SORT_MANAGER_WEAPONS_DEFINITION),
 	filter: new FilterManager(FILTER_MANAGER_WEAPONS_DEFINITION),
 	parentViewId: VIEW_ID_WEAPONS,
+	mergedVaults: true,
 });

@@ -1,13 +1,14 @@
-import type { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
+import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
-import type Item from "model/models/items/Item";
+import { Bucket } from "model/models/items/Item";
 import Component from "ui/Component";
 import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
-import Arrays from "utility/Arrays";
-import type { IVector2 } from "utility/maths/Vector2";
+import type { IInventorySlotViewDefinition } from "ui/view/inventory/slot/InventorySlotView";
+import Functions from "utility/Functions";
 
 export enum InventorySlotColumnsViewClasses {
 	Content = "view-slot-columns-content",
@@ -20,141 +21,57 @@ export enum InventorySlotColumnsViewClasses {
 	SlotColumnTitle = "view-slot-columns-slot-column-title",
 }
 
-interface ISlotColumn {
-	slot?: Arrays.Or<Arrays.Or<InventoryBucketHashes>>;
-	name: string;
-	component: Component;
-}
-
 export interface IInventorySlotColumnsViewDefinition extends IInventoryViewDefinition {
-	childViews: View.Handler<readonly [Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>[];
-	preUpdateInit?(view: InventorySlotColumnsView, wrapper: InventorySlotColumnsViewWrapper): any;
-	onItemMoveStart?(view: InventorySlotColumnsView, wrapper: InventorySlotColumnsViewWrapper, item: Item, event: Event & { mouse: IVector2 }): any;
-}
-
-class InventorySlotColumnsViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<any[]> & IInventorySlotColumnsViewDefinition> { }
-
-export class InventorySlotColumnsView extends InventoryView {
-
-	public override super!: InventorySlotColumnsViewWrapper;
-
-	public columns!: ISlotColumn[];
-
-	protected override async onMake (inventory: Inventory): Promise<void> {
-		this.super.content.classes.add(InventorySlotColumnsViewClasses.Content);
-
-		await super.onMake(inventory);
-	}
-
-	protected override preUpdateInit (): void {
-		this.columns = [];
-
-		for (const view of this.super.definition.childViews) {
-			let name = view.definition.name ?? "Unknown View";
-			if (typeof name === "function")
-				name = name();
-
-			// const component = Component.create()
-			// 	.classes.add(InventorySlotColumnsViewClasses.SlotColumn)
-			// 	.append(Component.create()
-			// 		.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
-			// 		.text.set(name))
-			// 	.appendTo(this.super.content);
-
-			// this.columns.push({
-			// 	slot: view.definition.slot!,
-			// 	name,
-			// 	component,
-			// });
-		}
-
-		this.super.definition.preUpdateInit?.(this, this.super);
-	}
-
-	// protected override updateCharacters () {
-	// 	super.updateCharacters();
-
-	// 	let buckets = 0;
-
-	// 	for (const column of this.columns) {
-	// 		if (!column.slot) {
-	// 			const result = this.generateSortedPostmasters();
-	// 			if (result.changed)
-	// 				column.component.append(...result.postmasters);
-	// 		} else {
-	// 			for (const slot of Arrays.resolve(column.slot)) {
-	// 				const result = this.generateSortedBuckets(slot, undefined, true);
-
-	// 				if (this.super.definition.separateVaults) {
-	// 					buckets = Math.max(buckets, result.buckets.length * 2);
-	// 					if (result.changed) {
-	// 						column.component.append(...result.buckets.flatMap(({ character, vault }) => [character, vault]));
-	// 					}
-
-	// 				} else {
-	// 					buckets = Math.max(buckets, result.buckets.length + 1);
-	// 					if (result.changed) {
-	// 						column.component.append(...result.buckets.map(({ character }) => character));
-	// 						column.component.append(...result.buckets.map(({ vault }) => vault));
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-
-	// 	this.super.content.style.set("--buckets", `${buckets}`);
-	// }
-
-	// @Bound
-	// protected override sort (): void {
-	// 	const characters: CharacterBucket[] = [];
-	// 	const postmasters: PostmasterBucket[] = [];
-	// 	const vaults: VaultBucket[] = [];
-
-	// 	let postmasterColumn: ISlotColumn | undefined;
-	// 	for (const column of this.columns) {
-	// 		if (column.slot) {
-	// 			for (const slot of Arrays.resolve(column.slot)) {
-	// 				this.sortSlot(slot);
-	// 				for (const bucket of column.component.children<CharacterBucket | VaultBucket>())
-	// 					if (bucket.classes.has(CharacterBucketClasses.Main))
-	// 						characters.push(bucket as CharacterBucket);
-	// 					else if (bucket.classes.has(VaultBucketClasses.Main))
-	// 						vaults.push(bucket as VaultBucket);
-	// 			}
-
-	// 		} else {
-	// 			postmasterColumn = column;
-	// 			for (const bucket of column.component.children<PostmasterBucket>())
-	// 				if (bucket.classes.has(PostmasterBucketClasses.Main))
-	// 					postmasters.push(bucket);
-	// 		}
-	// 	}
-
-	// 	let postmasterVisible = false;
-	// 	for (const postmaster of postmasters) {
-	// 		postmaster.update();
-	// 		if (!postmaster.classes.has(Classes.Hidden))
-	// 			postmasterVisible = true;
-	// 	}
-
-	// 	postmasterColumn?.component.classes.toggle(!postmasterVisible, Classes.Hidden);
-
-	// 	for (const character of characters)
-	// 		character.update();
-
-	// 	for (const vault of vaults)
-	// 		vault.update(this.inventory);
-	// }
-
-	protected override onItemMoveStart (item: Item, event: Event & { mouse: IVector2; }): void {
-		this.super.definition.onItemMoveStart?.(this, this.super, item, event);
-	}
+	childViews: View.Handler<readonly [Model<Inventory>], [], IInventorySlotViewDefinition & View.IViewBase<[]>>[];
+	mergedVaults: boolean;
+	scrollToTop?: true;
 }
 
 export default new View.Factory()
 	.using(Inventory.createModel())
 	.define<IInventorySlotColumnsViewDefinition>()
 	.initialise((view, model) =>
-		view.make(InventorySlotColumnsView, model))
-	.wrapper<InventorySlotColumnsView & View.WrapperComponent<[Model<Inventory>], [], IInventorySlotColumnsViewDefinition & View.IViewBase<[]>>>();
+		view.make(InventoryView, model))
+	.wrapper<InventoryView & View.WrapperComponent<[Model<Inventory>], [], IInventorySlotColumnsViewDefinition & View.IViewBase<[]>>>()
+	.configure(definition => ({
+		layout: view => {
+			const chars = Characters.getSorted();
+			view.super.content
+				.classes.add(InventorySlotColumnsViewClasses.Content)
+				.style.set("--buckets", `${definition.mergedVaults ? chars.length + 1 : chars.length * 2}`);
+
+			for (const childView of definition.childViews) {
+				const column = Component.create()
+					.classes.add(InventorySlotColumnsViewClasses.SlotColumn)
+					.appendTo(view.super.content);
+
+				Component.create()
+					.classes.add(InventorySlotColumnsViewClasses.SlotColumnTitle)
+					.text.set(Functions.resolve(childView.name) ?? "?")
+					.appendTo(column);
+
+				for (const character of chars) {
+					view.addBucketsTo(column, Bucket.id(childView.definition.slot, character.characterId));
+					if (!definition.mergedVaults)
+						view.addBucketsTo(column, Bucket.id(InventoryBucketHashes.General, character.characterId, childView.definition.slot));
+				}
+
+				if (definition.mergedVaults)
+					view.addBucketsTo(column, Bucket.id(InventoryBucketHashes.General, undefined, childView.definition.slot));
+			}
+
+			if (definition.childViews.length <= 3)
+				Component.create()
+					.classes.add(InventorySlotColumnsViewClasses.SlotColumn, InventorySlotColumnsViewClasses.PostmasterColumn)
+					.append(Component.create())
+					.appendTo(view.super.content)
+					.tweak(column => chars
+						.map(character => Bucket.id(InventoryBucketHashes.LostItems, character.characterId))
+						.collect(bucketIds => view.addBucketsTo(column, bucketIds)));
+		},
+		onItemMoveStart (view, wrapper, item, event) {
+			if (definition.scrollToTop) {
+				wrapper.content.element.scrollTo({ top: 0, behavior: "smooth" });
+			}
+		},
+	}));

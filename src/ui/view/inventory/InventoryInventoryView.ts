@@ -1,6 +1,9 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type Model from "model/Model";
+import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
+import { Bucket } from "model/models/items/Item";
+import Component from "ui/Component";
 import View from "ui/View";
 import Filter from "ui/inventory/filter/Filter";
 import type { IFilterManagerConfiguration } from "ui/inventory/filter/FilterManager";
@@ -60,77 +63,33 @@ export enum InventoryInventoryViewClasses {
 	ModificationsBucket = "view-inventory-inventory-modifications-bucket",
 }
 
-class InventoryConsumablesViewWrapper extends View.WrapperComponent<[], [], View.IViewBase<any[]> & IInventoryViewDefinition> { }
-
-export class InventoryInventoryView extends InventoryView {
-
-	public override super!: InventoryConsumablesViewWrapper;
-
-	protected override async onMake (inventory: Inventory): Promise<void> {
-		this.super.content.classes.add(InventoryInventoryViewClasses.Content);
-		// this.modificationsBucket = ModificationsBucket.create()
-		// 	.classes.add(InventoryInventoryViewClasses.ModificationsBucket)
-		// 	.prependTo(this.super.content);
-		// this.consumablesBucket = ConsumablesBucket.create()
-		// 	.classes.add(InventoryInventoryViewClasses.ConsumablesBucket)
-		// 	.prependTo(this.super.content);
-
-		await super.onMake(inventory);
-
-		// this.postmasterBucketsContainer.classes.add(InventoryInventoryViewClasses.PostmasterBuckets);
-		// this.vaultBucketsContainer.classes.add(InventoryInventoryViewClasses.VaultBuckets);
-	}
-
-	protected override preUpdateInit (): void {
-		// this.characterBucketsContainer.remove();
-	}
-
-	// protected override updateCharacters () {
-	// 	super.updateCharacters();
-
-	// 	const buckets = 0;
-
-	// 	this.super.content.style.set("--buckets", `${buckets}`);
-	// }
-
-	// @Bound
-	// protected override sort (): void {
-	// 	super.sort();
-	// 	this.consumablesBucket?.as(InventoryBucket)?.update();
-	// 	this.modificationsBucket?.as(InventoryBucket)?.update();
-	// }
-
-}
-
 export default new View.Factory()
 	.using(Inventory.createModel())
 	.define<IInventoryViewDefinition>()
 	.initialise((view, model) =>
-		view.make(InventoryInventoryView, model))
-	.wrapper<InventoryInventoryView & View.WrapperComponent<[Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>>()
+		view.make(InventoryView, model))
+	.wrapper<InventoryView & View.WrapperComponent<[Model<Inventory>], [], IInventoryViewDefinition & View.IViewBase<[]>>>()
 	.create({
 		id: VIEW_ID_INVENTORY,
 		name: VIEW_NAME_INVENTORY,
-		layout: {
-			columns: [
-				{
-					rows: [
-						{
-							columns: [
-								{ hash: InventoryBucketHashes.Consumables, merged: true, size: "fixed" },
-								{ hash: InventoryBucketHashes.General, subInventoryHash: InventoryBucketHashes.Consumables, merged: true },
-							],
-						},
-						{
-							columns: [
-								{ hash: InventoryBucketHashes.Modifications, merged: true, size: "fixed" },
-								{ hash: InventoryBucketHashes.General, subInventoryHash: InventoryBucketHashes.Modifications, merged: true },
-							],
-						},
-					],
-				},
-				{ hash: InventoryBucketHashes.LostItems, size: "fixed" },
-			],
+		layout: view => {
+			view.addBuckets([
+				Bucket.id(InventoryBucketHashes.Consumables),
+				Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Consumables),
+			]);
+			view.addBuckets([
+				Bucket.id(InventoryBucketHashes.Modifications),
+				Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Modifications),
+			]);
+
+
+			const postmasters = Component.create()
+				.classes.add(InventoryInventoryViewClasses.PostmasterBuckets)
+				.appendTo(view.super.content);
+
+			Characters.getSorted()
+				.map(character => Bucket.id(InventoryBucketHashes.LostItems, character.characterId))
+				.collect(bucketIds => view.addBucketsTo(postmasters, bucketIds));
 		},
 		sort: new SortManager(SORT_MANAGER_INVENTORY_DEFINITION),
 		filter: new FilterManager(FILTER_MANAGER_INVENTORY_DEFINITION),

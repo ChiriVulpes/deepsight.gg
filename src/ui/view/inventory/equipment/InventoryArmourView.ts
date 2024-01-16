@@ -11,14 +11,8 @@ import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 export default InventoryEquipmentView.clone().create({
 	id: VIEW_ID_ARMOUR,
 	name: VIEW_NAME_ARMOUR,
-	childViews: [
-		InventoryHelmetView,
-		InventoryArmsView,
-		InventoryChestView,
-		InventoryLegsView,
-		InventoryClassItemView,
-	],
 	sort: new SortManager(SORT_MANAGER_ARMOUR_DEFINITION),
 	filter: new FilterManager(FILTER_MANAGER_ARMOUR_DEFINITION),
-	separateVaults: true,
+	childViews: [InventoryHelmetView, InventoryArmsView, InventoryChestView, InventoryLegsView, InventoryClassItemView],
+	mergedVaults: false,
 });

@@ -30,7 +30,7 @@
 		@include vertical-or-tablet {
 			display: contents;
 
-			.view-inventory-slot-vault-bucket {
+			.view-inventory-vault-bucket {
 				grid-column: 1;
 
 				&:nth-child(1) {
@@ -58,9 +58,9 @@
 	}
 	
 	@at-root sleep,
-		.view-inventory .bucket:times(2),
-		.view-inventory .view-inventory-slot-vault-bucket:times(2),
-		.view-inventory .view-inventory-slot-postmaster-bucket:times(3) {
+		.view-inventory .bucket:times(4),
+		.view-inventory .view-inventory-vault-bucket:times(6),
+		.view-inventory .view-inventory-postmaster-bucket:times(3) {
 		@include view-swipe-animation($has-view-selector: true);
 	}
 }

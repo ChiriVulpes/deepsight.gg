@@ -1,4 +1,4 @@
-.view-inventory-slot {
+.view-inventory {
 	--view-padding-x: 12px;
 	--bucket-inventory-inner-width: calc(var(--slot-size) * 4 + var(--bucket-inventory-padding));
 	--bucket-inventory-width: calc(
@@ -44,7 +44,7 @@
 		
 		.item-sort,
 		.item-filter,
-		.view-inventory-slot-hints {
+		.view-inventory-hints {
 			position: relative;
 			height: 100%;
 			&-drawer {
@@ -73,14 +73,14 @@
 
 		.item-filter {
 			flex-grow: 1;
-			@at-root .view-inventory-slot :where(.item-filter-drawer) {
+			@at-root .view-inventory :where(.item-filter-drawer) {
 				max-height: 30vh;
 			}
 
 			z-index: 100;
 		}
 
-		.view-inventory-slot-hints {
+		.view-inventory-hints {
 			grid-column: 3;
 			--icon: url("./image/svg/help.svg");
 
@@ -462,7 +462,7 @@
 			}
 		}
 
-		&.view-inventory-slot-vault-bucket::after {
+		&.view-inventory-vault-bucket::after {
 			background-image: linear-gradient(-45deg, transparent 46%, #fff3 50%, transparent 54%);
 		}
 	}
@@ -545,13 +545,18 @@
 			max-width: calc(var(--slot-size) * 7);
 		}
 
-		&-engrams .bucket-inventory {
-			--slot-size: calc(var(--bucket-inventory-inner-width) / 10);
-			display: grid;
-			grid-template-columns: repeat(10, 1fr);
-			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
-			max-width: none;
-		}
+		&-engrams {
+			animation: none !important;
+			opacity: 1 !important;
+			transform: none !important;
+			.bucket-inventory {
+				--slot-size: calc(var(--bucket-inventory-inner-width) / 10);
+				display: grid;
+				grid-template-columns: repeat(10, 1fr);
+				padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
+				max-width: none;
+			}
+		} 
 
 		@include vertical-or-tablet {
 			&s {
@@ -607,10 +612,34 @@
 	}
 
 	@at-root {
-		.view-inventory-slot-character-bucket:times(3),
-		.view-inventory-slot-vault-bucket:times(3),
-		.view-inventory-slot-postmaster-bucket:times(3) {
+		.view-inventory-character-bucket:times(3),
+		.view-inventory-vault-bucket:times(3),
+		.view-inventory-postmaster-bucket:times(3) {
 			@include view-swipe-animation;
+		}
+	}
+	
+	&-slot {
+		&-column {
+			display: contents;
+		}
+		
+		&-vault-bucket {
+			grid-column: 2;
+		}
+		
+		&-postmaster-bucket {
+			grid-column: 3;
+		}
+		
+		&-postmaster-bucket, &-vault-bucket {
+			&:where(:nth-child(1)) { grid-row: 1 }
+			&:where(:nth-child(2)) { grid-row: 2 }
+			&:where(:nth-child(3)) { grid-row: 3 }
+		}
+		
+		&-vault-bucket-merged {
+			grid-row: 1/4;
 		}
 	}
 }
