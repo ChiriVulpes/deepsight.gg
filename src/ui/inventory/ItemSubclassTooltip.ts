@@ -1,6 +1,7 @@
 import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
+import LoadedIcon from "ui/bungie/LoadedIcon";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type { Hint } from "ui/Hints";
@@ -26,7 +27,7 @@ class ItemSubclassTooltip extends Tooltip {
 
 	public damageTypeIcon!: Component;
 	public superWrapper!: Component;
-	public superImage!: Component<HTMLImageElement>;
+	public superImage!: LoadedIcon;
 	public superName!: Component;
 	public flavour!: Component;
 	public hintShowDefinitions!: Hint;
@@ -46,7 +47,7 @@ class ItemSubclassTooltip extends Tooltip {
 			.classes.add(ItemSubclassTooltipClasses.Super)
 			.appendTo(this.content);
 
-		this.superImage = Component.create("img")
+		this.superImage = LoadedIcon.create([])
 			.classes.add(ItemSubclassTooltipClasses.SuperImage)
 			.appendTo(this.superWrapper);
 
@@ -82,7 +83,7 @@ class ItemSubclassTooltip extends Tooltip {
 			this.superName.text.set(superName);
 			const highResIcon = superAbility?.definition?.displayProperties.highResIcon;
 			this.superImage.classes.toggle(!highResIcon, Classes.Hidden)
-				.attributes.set("src", highResIcon && `https://www.bungie.net${highResIcon}`);
+				.setPath(highResIcon && `https://www.bungie.net${highResIcon}`);
 		}
 
 		this.flavour.text.set(item.definition.flavorText);
