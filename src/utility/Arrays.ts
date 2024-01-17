@@ -82,16 +82,21 @@ namespace Arrays {
 	 * Removes one instance of the given value from the given array.
 	 * @returns `true` if removed, `false` otherwise
 	 */
-	export function remove (array: any[] | undefined, value: any) {
+	export function remove (array: any[] | undefined, ...values: any[]) {
 		if (!array)
 			return false;
 
-		const index = array.indexOf(value);
-		if (index === -1)
-			return false;
+		let removed = false;
+		for (const value of values) {
+			const index = array.indexOf(value);
+			if (index === -1)
+				continue;
 
-		array.splice(index, 1);
-		return true;
+			array.splice(index, 1);
+			removed = true;
+		}
+
+		return removed;
 	}
 
 	/**

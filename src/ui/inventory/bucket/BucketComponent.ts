@@ -80,7 +80,8 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			definition: mainBucket.definition,
 			character: Characters.get(characterId),
 			subBucketDefinition,
-		}, mainBucket.items.filter(item => item.definition.inventory?.bucketTypeHash === subInventoryHash));
+			items: () => mainBucket.items.filter(item => item.definition.inventory?.bucketTypeHash === subInventoryHash),
+		});
 		return this.view.inventory.buckets[subBucket.id] = subBucket;
 	}
 
@@ -92,10 +93,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		return Characters.get(this.bucket?.characterId);
 	}
 
-	public get items (): Item[] {
-		return this.bucket?.items ?? [];
-	}
-
+	public items!: Item[];
 	public itemComponents!: ItemComponent[];
 	public slots!: Slot[];
 
@@ -115,6 +113,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		this.bucketId = bucketId;
 		this.slots = [];
 		this.itemComponents = [];
+		this.items = [];
 	}
 
 	public is (...hashes: InventoryBucketHashes[]) {
@@ -187,23 +186,24 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		if (!this.bucket || !sort)
 			return false;
 
-		this.bucket.items.sort(sort.sort);
-		const sortHash = this.bucket.items.map(item => `${item.id}:${item.equipped}`).join(",");
+		const items = this.bucket.items.slice().sort(sort.sort);
+		const sortHash = items.map(item => `${item.id}:${item.equipped}`).join(",");
 		if (this.sortHash === sortHash)
 			return false;
 
 		this.sortHash = sortHash;
-		this.bucket.fallbackRemovalItem = this.bucket.items[this.bucket.items.length - 1];
+		this.bucket.fallbackRemovalItem = items[items.length - 1];
 
 		const equippedItem = this.bucket?.equippedItem;
 		if (equippedItem)
 			equippedItem.fallbackItem = undefined
-				?? this.bucket.items.find(item => item !== equippedItem
+				?? items.find(item => item !== equippedItem
 					&& (item.isTierLessThan(equippedItem.tier?.tierType, TierType.Superior)))
 				?? this.view?.getVaultBucket(this.bucket?.characterId)?.items.find(item => item !== equippedItem
 					&& this.bucket?.matches(item)
 					&& item.isTierLessThan(equippedItem.tier?.tierType, TierType.Superior));
 
+		this.items = items;
 		return true;
 	}
 }

@@ -1,10 +1,17 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type { DestinyDisplayPropertiesDefinition, DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
+import { type DestinyDisplayPropertiesDefinition, type DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 
 export type BucketId<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
+
+export interface BucketDefinition {
+	definition: DestinyInventoryBucketDefinition;
+	subBucketDefinition?: DestinyInventoryBucketDefinition;
+	character?: Character;
+	items?(): Item[];
+}
 
 export class Bucket {
 
@@ -42,23 +49,29 @@ export class Bucket {
 	public readonly definition: DestinyInventoryBucketDefinition;
 	public readonly character?: Character;
 	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
-	public readonly items: Item[];
+	public readonly items!: Item[];
 
-	public constructor ({ definition, subBucketDefinition, character, deepsight }: { definition: DestinyInventoryBucketDefinition, subBucketDefinition?: DestinyInventoryBucketDefinition, character?: Character, deepsight?: true }, items?: Item[]) {
+	public constructor ({ definition, subBucketDefinition, character, items }: BucketDefinition) {
 		this.name = definition.displayProperties?.name ?? "?";
 		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
 		this.capacity = definition.itemCount;
-		this.items = items ?? [];
-
-		if (this.inventoryHash)
-			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
+		if (typeof items === "function")
+			Object.defineProperty(this, "items", { get: () => Object.freeze(items()) });
+		else
+			this.items = items ?? [];
 
 		this.hash = definition.hash;
 		this.inventoryHash = subBucketDefinition?.hash;
 		this.characterId = character?.characterId;
 		this.definition = definition;
 		this.subBucketDefinition = subBucketDefinition;
-		this.deepsight = deepsight ?? false;
+		this.deepsight = !!items;
+
+		if (character)
+			this.name += ` / ${character.class.displayProperties.name}`;
+
+		if (this.inventoryHash)
+			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
 	}
 
 	public get equippedItem () {
