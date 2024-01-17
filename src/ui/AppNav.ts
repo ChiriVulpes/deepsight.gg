@@ -11,6 +11,7 @@ import type ViewManager from "ui/ViewManager";
 import Bound from "utility/decorator/Bound";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
+import URL from "utility/URL";
 
 export enum ClassesAppNav {
 	Main = "app-nav",
@@ -48,6 +49,13 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 
 		this.appInfo = AppInfo.create()
 			.appendTo(this);
+
+		viewManager.registerHashAction("overview", () => {
+			viewManager.event.subscribeOnce("show", () => {
+				if (Bungie.authenticated)
+					URL.hash = "overview";
+			});
+		});
 
 		this.tryInsertPlayerOverview();
 		Bungie.event.subscribe("authenticated", this.tryInsertPlayerOverview);

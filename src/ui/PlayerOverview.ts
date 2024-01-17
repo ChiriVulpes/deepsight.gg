@@ -11,8 +11,8 @@ import PlayerOverviewCharacterPanel from "ui/inventory/playeroverview/PlayerOver
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
+import Async from "utility/Async";
 import Bound from "utility/decorator/Bound";
-
 
 export enum PlayerOverviewClasses {
 	Main = "player-overview",
@@ -103,7 +103,10 @@ namespace PlayerOverview {
 			UiEventBus.subscribe("keydown", this.onKeydown);
 			UiEventBus.subscribe("keyup", this.onKeyup);
 
-			viewManager.event.subscribe("show", () => this.drawer.close(true));
+			viewManager.event.subscribe("show", () =>
+				Async.schedule(10, this.showIfHash));
+
+			viewManager.event.subscribe("initialise", this.showIfHash);
 
 			this.drawer.event.subscribe("openDrawer", () => {
 				const currentCharacterId = Characters.getCurrent()?.characterId;
@@ -134,21 +137,21 @@ namespace PlayerOverview {
 			}
 
 			for (const character of characters) {
-				const bucket = this.inventory.getCharacterBuckets(character.characterId as CharacterId);
+				const bucket = this.inventory.getCharacterBuckets(character.characterId);
 
 				if (!bucket) {
 					console.warn(`No bucket found for the character ${character.characterId}`);
-					this.drawer.removePanel(this.panels[character.characterId as CharacterId]);
+					this.drawer.removePanel(this.panels[character.characterId]);
 					continue;
 				}
 
-				const panel = this.panels[character.characterId as CharacterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel);
+				const panel = this.panels[character.characterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel);
 				panel.set(this.inventory, character, bucket);
 
 				const className = character.class?.displayProperties.name ?? "Unknown";
 				const background = character.emblem?.secondarySpecial ?? character.emblemBackgroundPath;
 				this.characterPicker.addOption({
-					id: character.characterId as CharacterId,
+					id: character.characterId,
 					background: background && `https://www.bungie.net${background}`,
 					icon: `https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/class_${className.toLowerCase()}.svg`,
 				});
@@ -193,6 +196,13 @@ namespace PlayerOverview {
 			}
 
 			if (!this.element.contains(document.activeElement) && !event.matches("e"))
+				this.drawer.close(true);
+		}
+
+		@Bound private showIfHash () {
+			if (location.hash === "#overview")
+				this.drawer.open("hash");
+			else
 				this.drawer.close(true);
 		}
 	}

@@ -73,6 +73,7 @@ URL.event.subscribe("navigate", () => {
 export interface IViewManagerEvents {
 	hide: { view: View.WrapperComponent };
 	show: { view: View.WrapperComponent };
+	initialise: { view: View.WrapperComponent };
 }
 
 export default class ViewManager {
@@ -82,6 +83,8 @@ export default class ViewManager {
 	public static get registry () {
 		return registry;
 	}
+
+	public static readonly actionRegistry: Record<string, () => any> = {};
 
 	public static view?: View.WrapperComponent;
 
@@ -111,7 +114,11 @@ export default class ViewManager {
 			return this.showByHash(view.redirectOnLoad);
 
 		if (!view) {
-			console.warn(`Tried to navigate to an unknown view '${hash}'`);
+			if (this.actionRegistry[hash])
+				this.actionRegistry[hash]();
+
+			else if (location.hash !== `#${hash}`)
+				console.warn(`Tried to navigate to an unknown view '${hash}'`);
 			return;
 		}
 
@@ -138,14 +145,16 @@ export default class ViewManager {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		(window as any).view = view;
 		view.appendTo(document.body);
-		this.event.emit("show", { view });
 		view.event.until("hide", manager => manager
 			.subscribe("updateTitle", () => this.updateDocumentTitle(view))
 			.subscribe("updateHash", () => this.updateHash(view))
-			.subscribe("back", () => this.hide()));
+			.subscribe("back", () => this.hide())
+			.subscribe("initialise", () => this.event.emit("initialise", { view })));
 
 		this.updateDocumentTitle(view);
 		this.updateHash(view);
+
+		this.event.emit("show", { view });
 	}
 
 	private static updateHash (view: View.WrapperComponent) {
@@ -184,6 +193,11 @@ export default class ViewManager {
 			name = name(...view._args.slice(1) as []);
 
 		document.title = name ? `${name} // ${APP_NAME}` : APP_NAME;
+	}
+
+	public static registerHashAction (hash: string, action: () => any) {
+		this.actionRegistry[hash] = action;
+		return this;
 	}
 }
 

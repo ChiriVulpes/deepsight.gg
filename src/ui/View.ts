@@ -180,6 +180,7 @@ namespace View {
 		updateTitle: Event;
 		updateHash: { args: any[] };
 		back: Event;
+		initialise: Event;
 	}
 
 	export class WrapperComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>, ...ARGS]> {
@@ -278,6 +279,7 @@ namespace View {
 
 		private initialise (...args: Model.ResolveList<MODELS>) {
 			this.definition.initialise?.(this, ...args);
+			this.event.emit("initialise");
 			return this.content;
 		}
 
