@@ -1,5 +1,5 @@
 import type { InventoryBucketHashes } from "@deepsight.gg/enums";
-import type { DestinyInventoryBucketDefinition, DestinyItemComponent } from "bungie-api-ts/destiny2";
+import { DestinyClass, type DestinyInventoryBucketDefinition, type DestinyItemComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Characters from "model/models/Characters";
 import type { BucketId } from "model/models/items/Bucket";
@@ -140,10 +140,17 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			let characterBucket: Bucket | undefined;
 			for (const item of bucket.items) {
 				if (item.definition.classType === classType) {
+					const character = Characters.get(characterId);
+					if (!character) {
+						console.warn("Unable to get character", characterId);
+						continue;
+					}
+
 					characterBucket ??= new Bucket({
 						definition: bucket.definition,
-						character: Characters.get(characterId),
+						character,
 						items: () => bucket.items.filter(item => true
+							&& (item.definition.classType === DestinyClass.Unknown || item.definition.classType === character.classType)
 							&& item.definition.inventory?.bucketTypeHash
 							&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
 					});
@@ -154,20 +161,22 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	}
 
 	for (const bucket of Object.values(buckets)) {
-		if (!bucket?.characterId)
+		if (!bucket)
 			continue;
 
 		// create sub buckets for items with differing 
 		const subBuckets = {} as Partial<Record<number, Bucket>>;
 		for (const item of bucket.items) {
-			if (item.definition.inventory?.bucketTypeHash && item.definition.inventory.bucketTypeHash !== bucket.definition.hash) {
-				const subBucket = subBuckets[item.definition.inventory.bucketTypeHash] ??= new Bucket({
+			const subInventoryHash = item.definition.inventory?.bucketTypeHash;
+			if (subInventoryHash && subInventoryHash !== bucket.definition.hash) {
+				const subBucket = subBuckets[subInventoryHash] ??= new Bucket({
 					definition: bucket.definition,
-					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(item.definition.inventory.bucketTypeHash),
+					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subInventoryHash),
 					character: Characters.get(bucket.characterId),
 					items: () => bucket.items.filter(item => true
 						&& item.definition.inventory?.bucketTypeHash
-						&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
+						&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
+						&& item.definition.inventory.bucketTypeHash === subInventoryHash),
 				});
 
 				buckets[subBucket.id] ??= subBucket;
