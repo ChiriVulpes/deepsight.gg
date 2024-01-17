@@ -143,17 +143,20 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		this.buckets = buckets;
 		const iterableBuckets = Object.values(this.buckets) as Bucket[];
 		for (const bucket of iterableBuckets)
-			for (let i = 0; i < bucket.items.length; i++)
-				this.updateItem(bucket, i);
+			if (!bucket.deepsight)
+				for (const item of [...bucket.items])
+					this.updateItem(bucket, item);
 
 		DebugInfo.updateBuckets(buckets);
 
 		for (const bucket of iterableBuckets) {
-			if (!bucket.characterId) continue;
+			if (!bucket.characterId || bucket.deepsight)
+				continue;
 
 			const equipped: Partial<Record<InventoryBucketHashes, Item>> = {};
 			for (const item of bucket.items) {
-				if (!item.equipped) continue;
+				if (!item.equipped)
+					continue;
 
 				const bucketHash = item.definition.inventory?.bucketTypeHash as InventoryBucketHashes;
 				if (!equipped[bucketHash]) {
@@ -161,13 +164,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 					continue;
 				}
 
-				if (item.shouldTrustBungie() && equipped[bucketHash]?.shouldTrustBungie()) {
-					// replace equipped item
-					delete equipped[bucketHash]!.equipped;
-					equipped[bucketHash] = item;
-				} else {
-					delete item.equipped;
-				}
+				console.warn(`Multiple items equipped in ${bucket.name}:`, item, equipped[bucketHash]);
 			}
 		}
 
@@ -175,12 +172,12 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		LoadingManager.end("inventory");
 	}
 
-	private updateItem (bucket: Bucket, itemIndex: number) {
+	private updateItem (newBucket: Bucket, item: Item) {
 		const items = this.items!;
 
-		let item = bucket.items[itemIndex];
+		const oldItem = items[item.id] as Item | undefined;
 		// use old item if it exists
-		item = bucket.items[itemIndex] = items[item.id] = items[item.id]?.update(item) ?? item;
+		item = items[item.id] = oldItem?.update(item) ?? item;
 
 		item.inventory = this;
 

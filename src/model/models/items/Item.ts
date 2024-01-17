@@ -21,6 +21,7 @@ import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
+import Display from "ui/bungie/DisplayProperties";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
@@ -54,8 +55,8 @@ interface ITransferArgs {
 	[TransferType.PullFromPostmaster]: [],
 	[TransferType.TransferToVault]: [ifNotCharacter?: CharacterId],
 	[TransferType.TransferToCharacterFromVault]: [character: CharacterId, swapBucket?: Bucket],
-	[TransferType.Equip]: [character: CharacterId],
-	[TransferType.Unequip]: [],
+	[TransferType.Equip]: [character: CharacterId, item?: ItemId],
+	[TransferType.Unequip]: [item?: ItemId],
 }
 
 type Transfer = {
@@ -76,10 +77,16 @@ interface IGenericTransferDefinition {
 	transfer (item: Item, ...args: ITransferArgs[TransferType]): Promise<ITransferResult>;
 }
 
+interface ITransferResultSideEffect {
+	item: Item;
+	result: Omit<ITransferResult, "sideEffects" | "undo">;
+}
+
 interface ITransferResult {
 	bucket: BucketId;
 	equipped?: true;
 	undo?: Transfer;
+	sideEffects?: ITransferResultSideEffect[];
 }
 
 const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
@@ -130,7 +137,18 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 	},
 	[TransferType.Equip]: {
 		applicable: item => item.bucket.isCharacter() && !item.equipped,
-		async transfer (item, characterId) {
+		async transfer (item, characterId, equipItemId) {
+			if (equipItemId) {
+				const equipItem = item.inventory.items?.[equipItemId];
+				if (!equipItem)
+					throw new Error(`Could not find item ${equipItemId}`);
+
+				if (item === equipItem)
+					equipItemId = undefined;
+
+				item = equipItem;
+			}
+
 			if (!this.applicable(item, characterId))
 				throw new Error("Not in character bucket");
 
@@ -147,24 +165,71 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 				}
 			}
 
+			const currentlyEquippedItem = item.bucket.equippedItem;
 			await EquipItem.query(item, characterId);
 			return {
 				bucket: item.bucket.id,
-				equipped: true,
-				undo: [TransferType.Unequip],
+				equipped: equipItemId ? undefined : true,
+				undo:
+					// there's another item that was equipped, re-equip it
+					currentlyEquippedItem ? [TransferType.Equip, characterId, currentlyEquippedItem.id]
+						// idk, unequip this item then i guess
+						: [TransferType.Unequip, equipItemId],
+				sideEffects: [
+					!currentlyEquippedItem ? undefined : {
+						item: currentlyEquippedItem,
+						result: {
+							bucket: item.bucket.id,
+						},
+					},
+					!equipItemId ? undefined : {
+						item,
+						result: {
+							bucket: item.bucket.id,
+							equipped: true as const,
+						},
+					},
+				].filter(Arrays.filterNullish),
 			};
 		},
 	},
 	[TransferType.Unequip]: {
 		applicable: item => item.bucket.isCharacter() && !!item.equipped,
-		async transfer (item) {
+		async transfer (item, unequipItemId) {
+			if (unequipItemId) {
+				const unequipItem = item.inventory.items?.[unequipItemId];
+				if (!unequipItem)
+					throw new Error(`Could not find item ${unequipItemId}`);
+
+				if (item === unequipItem)
+					unequipItemId = undefined;
+
+				item = unequipItem;
+			}
+
 			if (!this.applicable(item))
 				throw new Error("Not equipped in character bucket");
 
+			const fallbackItem = item.fallbackItem;
 			await item.unequip();
 			return {
 				bucket: item.bucket.id,
-				undo: [TransferType.Equip, item.character!],
+				undo: [TransferType.Equip, item.character!, unequipItemId],
+				sideEffects: [
+					!fallbackItem ? undefined : {
+						item: fallbackItem,
+						result: {
+							bucket: item.bucket.id,
+							equipped: true as const,
+						},
+					},
+					!unequipItemId ? undefined : {
+						item,
+						result: {
+							bucket: item.bucket.id,
+						},
+					},
+				].filter(Arrays.filterNullish),
 			};
 		},
 	},
@@ -320,9 +385,13 @@ class Item {
 
 	public bucket!: Bucket;
 	public inventory!: Inventory;
+	protected readonly name: string;
 
 	private constructor (item: IItemInit) {
+		this.name = item.definition.displayProperties?.name;
 		Object.assign(this, item);
+		this.undoTransfers = [];
+		this.trustTransferUntil = 0;
 		this.collectibleState ??= DestinyCollectibleState.None;
 	}
 
@@ -527,19 +596,30 @@ class Item {
 			this.shaped = item.shaped;
 			this.stats = item.stats;
 
-			let newBucket = this.bucket;
-			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(item.bucket.id)) {
+			let newBucketId = this.bucket.id;
+			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(`${item.bucket.id}:${item.equipped ? "equipped" : "unequipped"}`)) {
 				delete this.bucketHistory;
-				newBucket = item.bucket;
+				newBucketId = item.bucket.id;
 				this.equipped = item.equipped;
-			} else {
-				newBucket = this.inventory.buckets?.[this.bucket.id] ?? this.bucket;
 			}
 
-			if (this.bucket !== newBucket) {
-				Arrays.remove(this.bucket.items, item);
-				Arrays.add(newBucket.items, item);
-				this.bucket = newBucket;
+			const correctBucket = this.inventory.buckets?.[newBucketId];
+			if (!correctBucket)
+				console.warn(`Could not find correct bucket ${newBucketId} for ${Display.name(this.definition)}`);
+			else {
+				for (const bucket of Object.values(this.inventory.buckets ?? {})) {
+					if (bucket?.deepsight)
+						continue;
+
+					if (bucket !== correctBucket)
+						Arrays.remove(bucket?.items, item, this);
+
+					if (bucket === correctBucket)
+						Arrays.remove(bucket?.items, item);
+				}
+
+				this.bucket = correctBucket;
+				Arrays.add(correctBucket.items, this);
 			}
 		}
 
@@ -548,9 +628,9 @@ class Item {
 	}
 
 	private _transferPromise?: Promise<void>;
-	private undoTransfers: Transfer[] = [];
-	private bucketHistory?: BucketId[];
-	private trustTransferUntil = 0;
+	private readonly undoTransfers: Transfer[];
+	private bucketHistory?: `${BucketId}:${"equipped" | "unequipped"}`[];
+	private trustTransferUntil: number;
 
 	public get transferring () {
 		return !!this._transferPromise;
@@ -582,7 +662,7 @@ class Item {
 
 		return this.transfer(
 			TransferType.PullFromPostmaster,
-			TransferType.Unequip,
+			[TransferType.Unequip],
 			...this.bucket.isCharacter() ? [Arrays.tuple(TransferType.TransferToVault as const)] : [],
 			[TransferType.TransferToCharacterFromVault, character, this.bucket],
 		);
@@ -591,7 +671,7 @@ class Item {
 	public transferToVault () {
 		return this.transfer(
 			TransferType.PullFromPostmaster,
-			TransferType.Unequip,
+			[TransferType.Unequip],
 			[TransferType.TransferToVault],
 		);
 	}
@@ -609,7 +689,7 @@ class Item {
 
 		return this.transfer(
 			TransferType.PullFromPostmaster,
-			TransferType.Unequip,
+			[TransferType.Unequip],
 			[TransferType.TransferToVault, character],
 			[TransferType.TransferToCharacterFromVault, character, this.bucket],
 			[TransferType.Equip, character],
@@ -655,24 +735,30 @@ class Item {
 
 			try {
 				const result = await definition.transfer(this, ...args);
+				const sideEffects = [{ item: this, result }, ...result.sideEffects ?? []];
+				const pendingEmits: { item: Item, oldBucket: Bucket, equipped: true | undefined }[] = [];
+				for (const { item, result } of sideEffects) {
+					const oldBucket = item.bucket;
+					item.bucketHistory ??= [];
+					item.bucketHistory.push(`${oldBucket.id}:${item.equipped ? "equipped" : "unequipped"}`);
+
+					const newBucket = item.inventory.buckets?.[result.bucket];
+					if (!newBucket)
+						console.warn("Missing bucket", result.bucket, "for item after transfer", item);
+					else
+						item.bucket = newBucket;
+					item.equipped = result.equipped;
+					item.trustTransferUntil = Date.now();
+					pendingEmits.push({ item, oldBucket, equipped: item.equipped });
+				}
+
+				for (const { item, oldBucket, equipped } of pendingEmits)
+					item.event.emit("bucketChange", { item, oldBucket, equipped });
 
 				if (result.undo)
 					this.undoTransfers.push(result.undo);
 				else
 					this.undoTransfers.splice(0, Infinity);
-
-				const oldBucket = this.bucket;
-				this.bucketHistory ??= [];
-				this.bucketHistory.push(oldBucket.id);
-
-				const newBucket = this.inventory.buckets?.[result.bucket];
-				if (!newBucket)
-					console.warn("Missing bucket", result.bucket, "for item after transfer", this);
-				else
-					this.bucket = newBucket;
-				this.equipped = result.equipped;
-				this.trustTransferUntil = Date.now();
-				this.event.emit("bucketChange", { item: this, oldBucket, equipped: this.equipped });
 
 			} catch (error) {
 				console.error(error);

@@ -143,10 +143,11 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					characterBucket ??= new Bucket({
 						definition: bucket.definition,
 						character: Characters.get(characterId),
-						deepsight: true,
+						items: () => bucket.items.filter(item => true
+							&& item.definition.inventory?.bucketTypeHash
+							&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
 					});
 					buckets[characterBucket.id] ??= characterBucket;
-					characterBucket.items.push(item);
 				}
 			}
 		}
@@ -164,10 +165,12 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					definition: bucket.definition,
 					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(item.definition.inventory.bucketTypeHash),
 					character: Characters.get(bucket.characterId),
-					deepsight: true,
+					items: () => bucket.items.filter(item => true
+						&& item.definition.inventory?.bucketTypeHash
+						&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
 				});
+
 				buckets[subBucket.id] ??= subBucket;
-				subBucket.items.push(item);
 			}
 		}
 	}
