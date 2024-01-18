@@ -53,6 +53,10 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		return Characters.get(this.bucket?.characterId);
 	}
 
+	public get sorter () {
+		return this._sort?.deref();
+	}
+
 	public items!: Item[];
 	public itemComponents!: ItemComponent[];
 	public slots!: Slot[];
@@ -114,7 +118,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			if (item && !this.shouldDisplayItem(item))
 				continue;
 
-			const itemComponent = this.view?.getItemComponent(item);
+			const itemComponent = this.view?.getItemComponent(item)?.setSortedBy(this.sorter);
 			if (!itemComponent)
 				continue;
 
@@ -142,7 +146,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	private sortHash?: string;
 	private sort () {
-		const sort = this._sort?.deref();
+		const sort = this.sorter;
 		if (!this.bucket || !sort)
 			return false;
 

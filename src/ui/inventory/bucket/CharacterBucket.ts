@@ -49,7 +49,9 @@ export default class CharacterBucket extends BucketComponent {
 
 	public override render (requiredSlots = 9): void {
 		super.render(requiredSlots);
-		this.view?.getItemComponent(this.bucket?.equippedItem)?.appendTo(this.equippedSlot);
+		this.view?.getItemComponent(this.bucket?.equippedItem)
+			?.setSortedBy(this.sorter)
+			?.appendTo(this.equippedSlot);
 	}
 
 	public override shouldDisplayItem (item: Item): boolean {

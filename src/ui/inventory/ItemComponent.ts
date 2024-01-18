@@ -353,8 +353,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	protected initialiseIcon (icon: LoadedIcon) { }
 
-	public setSortedBy (sorter: SortManager) {
-		this.sorter = new WeakRef(sorter);
+	public setSortedBy (sorter?: SortManager) {
+		this.sorter = sorter && new WeakRef(sorter);
 		void Async.debounce(this.rerenderExtra);
 		return this;
 	}
