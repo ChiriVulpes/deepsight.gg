@@ -79,7 +79,7 @@ export const IStatDistribution = new class StatDistributionManager {
 		let enabled = this.enabled[classType]?.[stat];
 		if (enabled === undefined) {
 			this.enabled[classType] ??= {};
-			this.enabled[classType]![stat] = enabled = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`) ?? true;
+			this.enabled[classType]![stat] = enabled = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}.enabled`) ?? false;
 		}
 		return enabled;
 	}
@@ -88,7 +88,7 @@ export const IStatDistribution = new class StatDistributionManager {
 		let preferred = this.preferred[classType]?.[stat];
 		if (preferred === undefined) {
 			this.preferred[classType] ??= {};
-			this.preferred[classType]![stat] = preferred = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}`) ?? ARMOUR_STAT_MAX;
+			this.preferred[classType]![stat] = preferred = Store.get(`preferredStatDistribution.${classType}.${Stat[stat]}`) ?? Math.floor(ARMOUR_GROUP_STATS_MAX / 3);
 		}
 		return preferred;
 	}

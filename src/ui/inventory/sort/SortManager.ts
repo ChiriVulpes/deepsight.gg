@@ -18,7 +18,9 @@ import SortStatDistribution from "ui/inventory/sort/sorts/SortStatDistribution";
 import SortStatTotal from "ui/inventory/sort/sorts/SortStatTotal";
 import GenerateStatsSorts from "ui/inventory/sort/sorts/SortStats";
 import SortWeaponType from "ui/inventory/sort/sorts/SortWeaponType";
+import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
+import type { Mutable } from "utility/Type";
 import Bound from "utility/decorator/Bound";
 
 const BASE_SORT_MAP: Record<Sort, ISort> = {
@@ -47,6 +49,10 @@ const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [
 for (const [type, sort] of Object.entries(BASE_SORT_MAP))
 	if (+type !== sort.id)
 		throw new Error(`Sort ${Sort[+type as Sort]} implementation miscategorised`);
+
+export interface ISortManagerEvents {
+	update: Event;
+}
 
 export interface ISortManagerConfiguration {
 	id: string;
@@ -96,6 +102,8 @@ class SortManager {
 			onInit();
 	}
 
+	public readonly event = new EventManager<this, ISortManagerEvents>(this);
+
 	private current!: ISort[];
 	public constructor (configuration: ISortManagerConfiguration) {
 		this.setConfiguration(configuration);
@@ -107,6 +115,8 @@ class SortManager {
 		this.inapplicableIds = configuration.inapplicable.filter((sort): sort is number => typeof sort === "number");
 		this.inapplicableRegExp = configuration.inapplicable.filter((sort): sort is string => typeof sort === "string")
 			.map(regexString => new RegExp(`^${regexString}$`));
+
+		(this as Mutable<SortManager>).default = this.default.filter(sort => !this.isInapplicable(SortManager.sortMap[sort]));
 
 		SortManager.onInit(() => {
 			let sort: readonly (Sort | string)[] = (Store.get(`sort-${this.id}`) as string[] ?? [])
@@ -126,17 +136,21 @@ class SortManager {
 
 	public getDisabled () {
 		return Object.values(SortManager.sortMap)
-			.filter(sort => !this.current.includes(sort)
-				&& !this.inapplicableIds.includes(sort.id as number)
-				&& !this.inapplicableRegExp.some(regex => regex.test(`${sort.id}`)))
+			.filter(sort => !this.current.includes(sort) && !this.isInapplicable(sort))
 			.sort((a, b) => 0
 				|| (typeof a.id === "number" ? a.id : 99999999999) - (typeof b.id === "number" ? b.id : 99999999999)
 				|| `${a.id}`.localeCompare(`${b.id}`));
 	}
 
+	@Bound private isInapplicable (sort: ISort) {
+		return this.inapplicableIds.includes(sort.id as number)
+			|| this.inapplicableRegExp.some(regex => regex.test(`${sort.id}`));
+	}
+
 	public set (sort: ISort[]) {
 		this.current.splice(0, Infinity, ...sort);
 		Store.set(`sort-${this.id}`, this.current.map(sort => typeof sort.id === "number" ? Sort[sort.id] : sort.id));
+		this.event.emit("update");
 	}
 
 	@Bound public sort (itemA: Item, itemB: Item) {

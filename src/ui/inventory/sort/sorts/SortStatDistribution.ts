@@ -193,7 +193,7 @@ class StatRow extends Component<HTMLElement, [Stat, DestinyClass]> {
 		// if (event)
 		// 	this.checkbox.checked = true;
 
-		if (event || force)
+		if (event)
 			this.event.emit("update", { value: this.input.value, oldValue });
 
 		return this;
