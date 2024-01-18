@@ -5,8 +5,8 @@ import Inventory from "model/models/Inventory";
 import { Bucket } from "model/models/items/Bucket";
 import Component from "ui/Component";
 import View from "ui/View";
-import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
+import type { IInventorySlotViewDefinition } from "ui/view/inventory/slot/IInventorySlotView";
 
 export enum InventorySlotViewClasses {
 	Column = "view-inventory-slot-column",
@@ -17,11 +17,6 @@ export enum InventorySlotViewClasses {
 	VaultBucketMerged = "view-inventory-slot-vault-bucket-merged",
 	PostmasterBucket = "view-inventory-slot-postmaster-bucket",
 	PostmasterBuckets = "view-inventory-slot-postmaster-buckets",
-}
-
-export interface IInventorySlotViewDefinition extends IInventoryViewDefinition {
-	slot: InventoryBucketHashes;
-	mergedVaults?: true;
 }
 
 export default new View.Factory()

@@ -57,6 +57,9 @@ declare global {
 
 		distinct (): this;
 		distinct (mapper: (value: T) => any): this;
+
+		findMap<FILTER extends T, RETURN> (predicate: (value: T, index: number, obj: T[]) => value is FILTER, mapper: (value: FILTER, index: number, obj: T[]) => RETURN): RETURN | undefined;
+		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined;
 	}
 }
 
@@ -218,6 +221,14 @@ namespace Arrays {
 			}
 
 			return result;
+		});
+
+		Define(Array.prototype, "findMap", function (predicate, mapper) {
+			for (let i = 0; i < this.length; i++)
+				if (predicate(this[i], i, this))
+					return mapper(this[i], i, this);
+
+			return undefined;
 		});
 	}
 }

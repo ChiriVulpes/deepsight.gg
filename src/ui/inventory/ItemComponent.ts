@@ -8,6 +8,7 @@ import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import LoadedIcon from "ui/bungie/LoadedIcon";
 import { Classes } from "ui/Classes";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
@@ -64,6 +65,10 @@ export interface IItemComponentCharacterHandler {
 	getCharacter (id?: CharacterId): Character;
 }
 
+export interface IItemComponentEvents extends ComponentEvents {
+	setSorter: Event;
+}
+
 export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = [Item?, Inventory?]> extends Button<ARGS> {
 
 	private static readonly showers = new Set<string>();
@@ -84,6 +89,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		else
 			ItemComponent.hideExtra(id);
 	}
+
+	public override readonly event!: ComponentEventManager<this, IItemComponentEvents>;
 
 	public item?: Item;
 	public extra!: Component;
@@ -355,6 +362,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	public setSortedBy (sorter?: SortManager) {
 		this.sorter = sorter && new WeakRef(sorter);
+		this.event.emit("setSorter");
+		sorter?.event.until(this.event.waitFor("setSorter"), event => event
+			.subscribe("update", () => Async.debounce(this.rerenderExtra)));
 		void Async.debounce(this.rerenderExtra);
 		return this;
 	}

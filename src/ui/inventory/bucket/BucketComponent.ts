@@ -118,7 +118,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			if (item && !this.shouldDisplayItem(item))
 				continue;
 
-			const itemComponent = this.view?.getItemComponent(item)?.setSortedBy(this.sorter);
+			const itemComponent = this.view?.getItemComponent(item)?.setSortedBy(this.getSorter(item));
 			if (!itemComponent)
 				continue;
 
@@ -142,6 +142,10 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	public createEmptySlot () {
 		return Slot.create().setEmpty();
+	}
+
+	protected getSorter (item: Item) {
+		return this.sorter;
 	}
 
 	private sortHash?: string;

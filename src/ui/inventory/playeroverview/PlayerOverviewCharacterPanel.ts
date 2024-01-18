@@ -10,6 +10,7 @@ import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
 import Slot from "ui/inventory/Slot";
+import { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
 import InventoryClassItemView from "ui/view/inventory/slot/InventoryClassItemView";
@@ -294,7 +295,8 @@ class SlotComponent extends Component<HTMLElement, [type: number]> {
 	}
 
 	public set (inventory: Inventory, equippedItem: Item, highestPowerItem: Item | undefined, maximisedTotalPower: number) {
-		void this.itemEquipped.setItem(equippedItem, inventory);
+		void this.itemEquipped.setSortedBy(InventorySlotViewHandler.getSorter(equippedItem))
+			.setItem(equippedItem, inventory);
 
 		const equippedPower = equippedItem.instance?.primaryStat?.value ?? 0;
 		this.powerLevelEquipped.setPower(equippedPower, equippedPower - Math.floor(maximisedTotalPower));
@@ -308,7 +310,8 @@ class SlotComponent extends Component<HTMLElement, [type: number]> {
 		this.itemHighestPowerIsSame.classes.add(Classes.Hidden);
 		this.itemHighestPower.classes.remove(Classes.Hidden);
 
-		void this.itemHighestPower.setItem(highestPowerItem, inventory);
+		void this.itemHighestPower.setSortedBy(InventorySlotViewHandler.getSorter(highestPowerItem))
+			.setItem(highestPowerItem, inventory);
 
 		const highestPowerPower = highestPowerItem.instance?.primaryStat?.value ?? 0;
 		this.powerLevelHighest.setPower(highestPowerPower, highestPowerPower - Math.floor(maximisedTotalPower));

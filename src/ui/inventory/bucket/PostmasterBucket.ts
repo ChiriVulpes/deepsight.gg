@@ -1,6 +1,7 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { BucketId } from "model/models/items/Bucket";
 import { Bucket } from "model/models/items/Bucket";
+import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 import { CardClasses } from "ui/Card";
 import { Classes } from "ui/Classes";
@@ -9,6 +10,7 @@ import type Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
+import { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
 
 export enum PostmasterBucketClasses {
 	Main = "view-inventory-postmaster-bucket",
@@ -71,6 +73,10 @@ export default class PostmasterBucket extends BucketComponent {
 
 	public override createEmptySlot (): Slot {
 		return super.createEmptySlot().setSimple();
+	}
+
+	protected override getSorter (item: Item) {
+		return InventorySlotViewHandler.getSorter(item);
 	}
 }
 

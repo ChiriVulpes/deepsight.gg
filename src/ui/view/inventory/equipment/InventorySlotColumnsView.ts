@@ -7,7 +7,7 @@ import Component from "ui/Component";
 import View from "ui/View";
 import type { IInventoryViewDefinition } from "ui/view/inventory/InventoryView";
 import InventoryView from "ui/view/inventory/InventoryView";
-import type { IInventorySlotViewDefinition } from "ui/view/inventory/slot/InventorySlotView";
+import type { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
 import Functions from "utility/Functions";
 
 export enum InventorySlotColumnsViewClasses {
@@ -22,7 +22,7 @@ export enum InventorySlotColumnsViewClasses {
 }
 
 export interface IInventorySlotColumnsViewDefinition extends IInventoryViewDefinition {
-	childViews: View.Handler<readonly [Model<Inventory>], [], IInventorySlotViewDefinition & View.IViewBase<[]>>[];
+	childViews: InventorySlotViewHandler[];
 	mergedVaults: boolean;
 	scrollToTop?: true;
 }
