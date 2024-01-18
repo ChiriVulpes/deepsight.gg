@@ -4,7 +4,7 @@ import type { IStat } from "model/models/items/Stats";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type { StatOrder } from "ui/inventory/Stat";
-import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX, IStatDistribution, Stat } from "ui/inventory/Stat";
+import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX_VISUAL, IStatDistribution, Stat } from "ui/inventory/Stat";
 import RecoilDirection from "ui/inventory/tooltip/stats/RecoilDirection";
 
 enum CustomStat {
@@ -146,12 +146,12 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	[Stat.Range]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
 
 	// armour
-	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
-	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
-	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
-	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
-	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
-	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX, render: renderArmourStat },
+	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
 
 	...customStats,
 };

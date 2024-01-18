@@ -63,6 +63,7 @@ export const ARMOUR_STAT_GROUPS: StatGroup[] = [
 
 export const ARMOUR_STAT_MIN = 2;
 export const ARMOUR_STAT_MAX = 30;
+export const ARMOUR_STAT_MAX_VISUAL = 44;
 export const ARMOUR_GROUP_STATS_MAX = 34;
 
 export interface IStatDistribution {
