@@ -88,11 +88,12 @@
 	&-content {
 		display: grid;
 		grid-template-columns: 2fr 1.2fr;
+		grid-template-rows: auto 1fr auto;
 		column-gap: 40px;
 		align-self: flex-start;
-		padding-bottom: 10px;
-		overflow: hidden;
+		padding-bottom: 40px;
 		align-content: flex-start;
+		z-index: 1;
 	}
 
 	@include vertical-or-tablet-or-mobile {
@@ -810,6 +811,8 @@
 			margin-top: auto;
 			gap: 20px;
 			backdrop-filter: blur(2px);
+			position: sticky;
+			bottom: 0px;
 		}
 
 		background: none;
