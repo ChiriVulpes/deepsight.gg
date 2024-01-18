@@ -3,6 +3,7 @@ import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinitio
 
 export default {
 	hash: ActivityHashes.LastWishNormal,
+	rotationActivityHash: ActivityHashes.LastWishLevel552122313384,
 	displayProperties: {
 		icon: { DestinyMilestoneDefinition: MilestoneHashes.LastWish },
 	},
