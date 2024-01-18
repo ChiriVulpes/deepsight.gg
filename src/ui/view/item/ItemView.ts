@@ -1,7 +1,7 @@
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
-import type { BucketId } from "model/models/items/Bucket";
+import type { ItemId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
@@ -19,11 +19,7 @@ import ItemPerks from "ui/view/item/ItemPerks";
 import Objects from "utility/Objects";
 
 export async function resolveItemURL (url: string, api: IModelGenerationApi) {
-	let [bucketId, characterIdOrItemId, itemId] = url.split("/") as ["collections" | BucketId, string, string?];
-	if (itemId)
-		bucketId = `${bucketId}/${characterIdOrItemId}` as BucketId;
-	else
-		itemId = characterIdOrItemId;
+	const [bucketId, itemId] = url.split("/") as ["collections" | "inventory", ItemId];
 
 	const total = bucketId === "collections" ? 3 : 2;
 
@@ -32,7 +28,7 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const { DestinyInventoryItemDefinition } = manifest;
 
 	if (bucketId !== "collections")
-		return inventory.buckets?.[bucketId]?.items.find(item => item.id === itemId);
+		return inventory.items?.[itemId];
 
 	const itemDef = await DestinyInventoryItemDefinition.get(itemId);
 	if (!itemDef)
@@ -65,7 +61,7 @@ const itemViewBase = View.create({
 	models: (item: Item | string) =>
 		[Manifest, Inventory.createModel(), Model.createTemporary(async api => typeof item !== "string" ? item : resolveItemURL(item, api), "resolveItemURL")] as const,
 	id: "item",
-	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket.isCollections() ? "collections" : item.bucket.id}/${item.bucket.isCollections() ? item.definition.hash : item.id}`,
+	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket.isCollections() ? "collections" : "inventory"}/${item.bucket.isCollections() ? item.definition.hash : item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,
 	noDestinationButton: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
