@@ -45,6 +45,7 @@ export enum ItemTooltipClasses {
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
 	WeaponLevelEnhanced = "item-tooltip-weapon-level-enhanced",
 	Description = "item-tooltip-description",
+	Stats = "item-tooltip-stats",
 	Deepsight = "item-tooltip-deepsight",
 	DeepsightPatternLabel = "item-tooltip-deepsight-pattern-label",
 	DeepsightPatternNumber = "item-tooltip-deepsight-pattern-number",
@@ -172,6 +173,7 @@ class ItemTooltip extends Tooltip {
 			.appendTo(this.primaryInfo);
 
 		this.stats = ItemStat.Wrapper.create()
+			.classes.add(ItemTooltipClasses.Stats)
 			.appendTo(this.content);
 
 		this.mods = ItemTooltipMods.create()

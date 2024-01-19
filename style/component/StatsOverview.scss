@@ -1,0 +1,30 @@
+.stats-overview {
+	width: fit-content;
+	grid-template-columns: auto 1fr auto;
+	place-self: center;
+	
+	.item-stat {
+		font-size: 18px;
+		
+		&-label { grid-column: 1 }
+		&-bar { grid-column: 2 }
+		
+		&-combined {
+			display: block !important;
+		}
+		
+		&-value-component {
+			display: none;
+		}
+		
+		&-total {
+			display: none;
+		}
+	}
+
+	@each $damage-type in $damage-types {
+		&--damage-type-#{$damage-type} {
+			--color-stat-subclass: #{color(damage-type-#{$damage-type})};
+		}
+	}
+}

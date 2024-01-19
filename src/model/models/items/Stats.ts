@@ -1,3 +1,4 @@
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DestinyItemComponentSetOfint64, DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
@@ -18,6 +19,7 @@ export interface IStat {
 	roll: number;
 	masterwork: number;
 	mod: number;
+	subclass: number;
 }
 
 export interface IStats {
@@ -88,6 +90,7 @@ namespace Stats {
 				roll: 0,
 				mod: 0,
 				masterwork: 0,
+				subclass: !item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Subclasses) ? 0 : value,
 			};
 
 			const statDisplay = statGroupDefinition.scaledStats.find(statDisplay => statDisplay.statHash === hash);

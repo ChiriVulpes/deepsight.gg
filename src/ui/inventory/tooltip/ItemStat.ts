@@ -7,12 +7,13 @@ import type { StatOrder } from "ui/inventory/Stat";
 import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX_VISUAL, IStatDistribution, Stat } from "ui/inventory/Stat";
 import RecoilDirection from "ui/inventory/tooltip/stats/RecoilDirection";
 
-enum CustomStat {
+export enum CustomStat {
 	Total = -1,
 	Distribution = -2,
+	Tiers = -3,
 }
 
-interface ICustomStatDisplayDefinition extends Partial<IStat> {
+export interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	hash: number;
 	order: StatOrder;
 	name?: string;
@@ -21,13 +22,15 @@ interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	max?: number;
 	bar?: boolean;
 	plus?: true;
+	chunked?: true;
 	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
-	render?(item: Item, stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[]): boolean;
-	calculate?(item: Item, stat: ICustomStatDisplayDefinition): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
-	renderFormula?(item: Item, stat: ICustomStatDisplayDefinition): Component[];
-	renderBar?(bar: Component, item: Item, value: number): any;
+	render?(stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item?: Item): boolean;
+	calculate?(stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item?: Item): Omit<ICustomStatDisplayDefinition, "calculate" | "definition" | "order" | "hash"> | undefined;
+	renderFormula?(stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item?: Item): Component[];
+	renderBar?(bar: Component, stat: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item?: Item): any;
+	override?: Partial<ICustomStatDisplayDefinition>;
 }
 
 export enum ItemStatClasses {
@@ -37,6 +40,7 @@ export enum ItemStatClasses {
 	LabelMasterwork = "item-stat-label-masterwork",
 	GroupLabel = "item-stat-group-label",
 	Bar = "item-stat-bar",
+	BarChunked = "item-stat-bar-chunked",
 	BarBlock = "item-stat-bar-block",
 	BarBlockNegative = "item-stat-bar-block-negative",
 	Value = "item-stat-value",
@@ -47,35 +51,40 @@ export enum ItemStatClasses {
 	Random = "item-stat-random",
 	Masterwork = "item-stat-masterwork",
 	Mod = "item-stat-mod",
+	Subclass = "item-stat-subclass",
 	Formula = "item-stat-formula",
 	Distribution = "item-stat-distribution-component",
 	DistributionGroupLabel = "item-stat-distribution-component-group-label",
 }
 
-const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
+const customStats: Partial<Record<CustomStat, ICustomStatDisplayDefinition>> = {
 	[CustomStat.Total]: {
 		hash: CustomStat.Total,
 		order: 1000,
 		name: "Total",
-		calculate: item => {
+		calculate: (stat, stats, item) => {
 			const armourStats = ARMOUR_STAT_GROUPS.flat();
-			const totalIntrinsic = armourStats.map(stat => item.stats?.values[stat]?.intrinsic ?? 0)
+			stats = stats.filter(stat => armourStats.includes(stat.hash));
+			const totalIntrinsic = stats.map(stat => stat?.intrinsic ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalRandom = armourStats.map(stat => item.stats?.values[stat]?.roll ?? 0)
+			const totalRandom = stats.map(stat => stat?.roll ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMasterwork = armourStats.map(stat => item.stats?.values[stat]?.masterwork ?? 0)
+			const totalMasterwork = stats.map(stat => stat?.masterwork ?? 0)
 				.reduce((a, b) => a + b, 0);
-			const totalMod = armourStats.map(stat => item.stats?.values[stat]?.mod ?? 0)
+			const totalMod = stats.map(stat => stat?.mod ?? 0)
+				.reduce((a, b) => a + b, 0);
+			const totalSubclass = stats.map(stat => stat?.subclass ?? 0)
 				.reduce((a, b) => a + b, 0);
 			if (totalIntrinsic + totalMasterwork + totalMod === 0)
 				return undefined; // this item doesn't have armour stats
 
 			return {
-				value: totalIntrinsic + totalRandom + totalMasterwork + totalMod,
+				value: totalIntrinsic + totalRandom + totalMasterwork + totalMod + totalSubclass,
 				intrinsic: totalIntrinsic,
 				roll: totalRandom,
 				masterwork: totalMasterwork,
 				mod: totalMod,
+				subclass: totalSubclass,
 			};
 		},
 	},
@@ -83,9 +92,9 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 		hash: CustomStat.Distribution,
 		order: 1001,
 		name: "Distribution",
-		calculate: item => {
-			const distribution = IStatDistribution.get(item);
-			if (!distribution.overall)
+		calculate: (stat, stats, item) => {
+			const distribution = item && IStatDistribution.get(item);
+			if (!distribution?.overall)
 				return undefined; // this item doesn't have armour stats
 
 			return {
@@ -104,16 +113,16 @@ const customStats: Record<CustomStat, ICustomStatDisplayDefinition> = {
 	},
 };
 
-const renderArmourStat = (item: Item, _: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[]) =>
+const renderArmourStat = (_: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item: Item) =>
 	ARMOUR_STAT_GROUPS.flat()
 		.map(stat => allStats.find(display => display.hash === stat))
 		.some(display => {
-			const cdisplay = display?.calculate?.(item, display) ?? display;
+			const cdisplay = display?.calculate?.(display, allStats, item) ?? display;
 			return cdisplay?.combinedValue ?? (cdisplay?.intrinsic ?? 0) + (cdisplay?.masterwork ?? 0) + (cdisplay?.mod ?? 0);
 		});
 
 type StatDisplayDef = Partial<ICustomStatDisplayDefinition> | false;
-const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<Stat, StatDisplayDef>> = {
+const customStatDisplays: Partial<Record<CustomStat, StatDisplayDef>> & Partial<Record<Stat, StatDisplayDef>> = {
 	// undrendered
 	[Stat.Attack]: false,
 	[Stat.Defense]: false,
@@ -127,23 +136,24 @@ const customStatDisplays: Record<CustomStat, StatDisplayDef> & Partial<Record<St
 	// weapons
 	[Stat.AirborneEffectiveness]: {
 		name: "Airborne Aim",
-		render: item => item.definition.itemSubType !== DestinyItemSubType.Sword,
+		render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword,
 	},
 	[Stat.RPM]: { name: "RPM", max: undefined },
 	[Stat.DrawTime]: { max: undefined },
 	[Stat.ChargeTime]: {
 		bar: true,
-		render: item => item.definition.itemSubType !== DestinyItemSubType.Bow && item.definition.itemSubType !== DestinyItemSubType.Sword,
+		render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Bow
+			&& item?.definition.itemSubType !== DestinyItemSubType.Sword,
 	},
 	[Stat.RecoilDirection]: {
 		bar: true,
-		renderBar: (bar, item, stat) => bar.removeContents()
-			.append(RecoilDirection(stat)),
+		renderBar: (bar, stat) => bar.removeContents()
+			.append(RecoilDirection(stat.value ?? 0)),
 	},
-	[Stat.Magazine]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
-	[Stat.Zoom]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
-	[Stat.Stability]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
-	[Stat.Range]: { render: item => item.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Magazine]: { render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Zoom]: { render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Stability]: { render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword },
+	[Stat.Range]: { render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword },
 
 	// armour
 	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
@@ -172,6 +182,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 	public intrinsicBar?: Component;
 	public masterworkBar?: Component;
 	public modBar?: Component;
+	public subclassBar?: Component;
 	public combinedText!: Component;
 	public intrinsicText!: Component;
 	public masterworkText!: Component;
@@ -205,6 +216,8 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Masterwork))
 				.append(this.modBar = Component.create()
 					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Mod))
+				.append(this.subclassBar = Component.create()
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Subclass))
 				.appendTo(this);
 
 		Component.create()
@@ -230,11 +243,11 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			this.label.style.set("--icon", `url("${icon}")`);
 	}
 
-	public set (display: ICustomStatDisplayDefinition, item: Item) {
+	public set (display: ICustomStatDisplayDefinition, allStats: ICustomStatDisplayDefinition[], item?: Item) {
 		this.stat = display;
 
 		if (display?.calculate) {
-			const calculatedDisplay = display.calculate(item, display);
+			const calculatedDisplay = display.calculate(display, allStats, item);
 			if (!calculatedDisplay) {
 				this.classes.add(Classes.Hidden);
 				return false;
@@ -245,14 +258,14 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		this.classes.remove(Classes.Hidden);
 
-		if (display.group !== undefined && this.groupLabel) {
+		if (display.group !== undefined && this.groupLabel && item) {
 			const distribution = IStatDistribution.get(item);
 			if (distribution.overall) {
 				this.groupLabel.style.set("--value", `${distribution.groups[display.group]}`);
 			}
 		}
 
-		this.label.classes.toggle(!!display.masterwork && (item.isWeapon() ?? false), ItemStatClasses.LabelMasterwork);
+		this.label.classes.toggle(!!display.masterwork && (item?.isWeapon() ?? false), ItemStatClasses.LabelMasterwork);
 
 		if (display.intrinsic === undefined && display.masterwork === undefined && display.mod === undefined && display.renderFormula === undefined) {
 			const render = this.render(display, display.value, true);
@@ -269,7 +282,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		let combinedValue = undefined;
 		if (combinedValue === undefined) {
-			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0);
+			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0) + (display.subclass ?? 0);
 			if (combinedValue < (display.min ?? -Infinity))
 				combinedValue = display.min!;
 
@@ -282,8 +295,10 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			.text.set(display.combinedText ?? render?.text);
 
 		if (display.bar && display.max) {
-			this.bar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
-				.tweak(display.renderBar, item, render?.value ?? 0);
+			this.bar!
+				.style.set("--value", `${(render?.value ?? 0) / display.max}`)
+				.classes.toggle(display.chunked ?? false, ItemStatClasses.BarChunked)
+				.tweak(display.renderBar, { ...display, ...render }, allStats, item);
 		}
 
 		render = this.render(display, display.intrinsic, true);
@@ -305,9 +320,17 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			this.modBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 
+		render = this.render(display, display.subclass, !render);
+		// this.modText.text.set(render?.text)
+		// 	.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.ValueComponentNegative)
+		// 	.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
+		if (display.bar && display.max)
+			this.subclassBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
+				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
+
 		this.formulaText.classes.toggle(!display.renderFormula, Classes.Hidden)
 			.removeContents()
-			.append(...display.renderFormula?.(item, display) ?? []);
+			.append(...display.renderFormula?.(display, allStats, item) ?? []);
 
 		return true;
 	}
@@ -334,9 +357,13 @@ namespace ItemStat {
 		}
 
 		public setItem (item: Item) {
+			const stats = Object.values(item.stats?.values ?? {}) as ICustomStatDisplayDefinition[];
+			return this.setStats(stats, item);
+		}
+
+		public setStats (stats: ICustomStatDisplayDefinition[], item?: Item) {
+			stats = stats.concat(Object.values(customStats));
 			let hasAnyVisible = false;
-			const stats = (Object.values(item.stats?.values ?? {}) as ICustomStatDisplayDefinition[])
-				.concat(Object.values(customStats));
 
 			while (true) {
 				let sorted = false;
@@ -366,15 +393,16 @@ namespace ItemStat {
 			const statDisplays: Record<number, ICustomStatDisplayDefinition | undefined> = {};
 			for (const stat of stats) {
 				const custom = customStatDisplays[stat.hash as Stat];
-				if (custom === false || custom?.render?.(item, stat, stats) === false)
+				if (custom === false || custom?.render?.(stat, stats, item) === false)
 					continue;
 
 				const display = {
 					...stat,
 					...custom,
+					...stat.override,
 				};
 				const component = (this.map[stat.hash] ??= ItemStat.create([display])).appendTo(this);
-				const isVisible = component.set(display, item);
+				const isVisible = component.set(display, stats, item);
 				hasAnyVisible ||= isVisible;
 				if (isVisible)
 					statDisplays[stat.hash] = display;

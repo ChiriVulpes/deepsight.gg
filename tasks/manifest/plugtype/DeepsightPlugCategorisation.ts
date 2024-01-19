@@ -1,9 +1,9 @@
 import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
+import { DestinyClass } from "bungie-api-ts/destiny2";
 import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
-import type { StatHashes } from "../Enums";
-import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, TraitHashes } from "../Enums";
+import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "../Enums";
 import type { DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
 import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";
@@ -690,6 +690,13 @@ namespace DeepsightPlugCategorisation {
 		"shared.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
 	};
 
+	const classStats: Record<DestinyClass, StatHashes | undefined> = {
+		[DestinyClass.Hunter]: StatHashes.Mobility,
+		[DestinyClass.Titan]: StatHashes.Resilience,
+		[DestinyClass.Warlock]: StatHashes.Recovery,
+		[DestinyClass.Unknown]: undefined,
+	};
+
 	const damageTypes: Record<string, DamageTypeHashes> = {
 		"void": DamageTypeHashes.Void,
 		"solar": DamageTypeHashes.Solar,
@@ -736,9 +743,13 @@ namespace DeepsightPlugCategorisation {
 			const subclassIdentifier = plugCategoryIdentifier?.slice(0, plugCategoryIdentifier.lastIndexOf("."));
 			const damageTypeIdentifier = subclassIdentifier?.slice(subclassIdentifier.lastIndexOf(".") + 1);
 
+			const affectsClassStat = !!plugCategoryIdentifier?.startsWith("shared.")
+				&& Object.values(classStats).every(hash => !hash || context.definition.investmentStats.some(stat => stat.statTypeHash === hash && stat.value));
+
 			return {
 				subclasses: !subclassIdentifier ? undefined : subclasses[subclassIdentifier],
 				damageType: !damageTypeIdentifier ? undefined : damageTypes[damageTypeIdentifier],
+				affectsClassStat: affectsClassStat,
 			} as Partial<DeepsightPlugCategorisationSubclass>;
 		},
 	};

@@ -20,7 +20,7 @@ import GenerateStatsSorts from "ui/inventory/sort/sorts/SortStats";
 import SortWeaponType from "ui/inventory/sort/sorts/SortWeaponType";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
-import type { Mutable } from "utility/Type";
+import type { Mutable, PromiseOr } from "utility/Type";
 import Bound from "utility/decorator/Bound";
 
 const BASE_SORT_MAP: Record<Sort, ISort> = {
@@ -75,7 +75,7 @@ class SortManager {
 		this.sortMap[id] = sort;
 	}
 
-	private static initialised = false;
+	private static initialised: false | PromiseOr<true> = false;
 	private static onInitFunctions: (() => void)[] = [];
 	private static onInit (fn: () => void) {
 		if (SortManager.initialised)
@@ -88,18 +88,21 @@ class SortManager {
 		if (SortManager.initialised)
 			return;
 
-		SortManager.initialised = true;
-		for (const gen of DYNAMIC_SORTS) {
-			for (const sort of await gen()) {
-				if (typeof sort.id === "number")
-					throw new Error(`Cannot dynamically register sorts with numeric IDs, registered ${sort.id}`);
+		return SortManager.initialised = (async () => {
+			for (const gen of DYNAMIC_SORTS) {
+				for (const sort of await gen()) {
+					if (typeof sort.id === "number")
+						throw new Error(`Cannot dynamically register sorts with numeric IDs, registered ${sort.id}`);
 
-				this.registerSort(sort.id, sort);
+					this.registerSort(sort.id, sort);
+				}
 			}
-		}
 
-		for (const onInit of SortManager.onInitFunctions)
-			onInit();
+			for (const onInit of SortManager.onInitFunctions)
+				onInit();
+
+			return SortManager.initialised = true as const;
+		})();
 	}
 
 	public readonly event = new EventManager<this, ISortManagerEvents>(this);

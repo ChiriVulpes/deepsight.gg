@@ -387,7 +387,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
-		const sorts = this.sorter?.deref()?.get().slice() ?? [];
+		const sorts = this.sorter?.deref()?.get()?.slice() ?? [];
 		if (this.item.reference.quantity > 1 && !sorts.includes(SortQuantity))
 			sorts.push(SortQuantity);
 

@@ -53,7 +53,7 @@ class EnumModel<ALL extends EnumModelAll<INDIVIDUAL>, INDIVIDUAL extends EnumMod
 				// match none on zero length
 				return undefined;
 
-			const matching = this.all.array.filter(type => type.displayProperties.nameLowerCase!.startsWith(nameLowerCase));
+			const matching = this.all.array.filter(type => type.displayProperties.nameLowerCase?.startsWith(nameLowerCase));
 			if (matching.length > 1)
 				// return undefined on more than one match too
 				return undefined;

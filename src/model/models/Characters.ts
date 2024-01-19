@@ -1,4 +1,5 @@
-import type { DestinyCharacterComponent, DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyProfileProgressionComponent, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import { StatHashes } from "@deepsight.gg/enums";
+import { DestinyClass, type DestinyCharacterComponent, type DestinyClassDefinition, type DestinyInventoryItemDefinition, type DestinyProfileProgressionComponent, type DestinyStatDefinition, type SingleComponentResponse } from "bungie-api-ts/destiny2";
 import type { GroupUserInfoCard } from "bungie-api-ts/groupv2";
 import type { IModelGenerationApi } from "model/Model";
 import type { ILoadoutsProfile, Loadout } from "model/models/Loadouts";
@@ -21,11 +22,19 @@ export interface Character extends Omit<DestinyCharacterComponent, "characterId"
 	 */
 	power: number;
 	loadouts: Loadout[];
+	stat?: DestinyStatDefinition;
 }
 
 interface IProfileProgression {
 	profileProgression?: SingleComponentResponse<DestinyProfileProgressionComponent>;
 }
+
+export const CLASSES: Record<DestinyClass, StatHashes | undefined> = {
+	[DestinyClass.Unknown]: undefined,
+	[DestinyClass.Hunter]: StatHashes.Mobility,
+	[DestinyClass.Titan]: StatHashes.Resilience,
+	[DestinyClass.Warlock]: StatHashes.Recovery,
+};
 
 export class Character {
 
@@ -33,11 +42,12 @@ export class Character {
 		const character = new Character();
 		Object.assign(character, characterComponent);
 
-		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = manifest;
+		const { DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyStatDefinition } = manifest;
 		character.class = await DestinyClassDefinition.get(character.classHash)!;
 		character.emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
 		character.power = (character.light ?? 0) - (profile.profileProgression?.data?.seasonalArtifact.powerBonus ?? 0);
 		Loadouts.apply(character, profile);
+		character.stat = await DestinyStatDefinition.get(CLASSES[character.classType]);
 
 		return character;
 	}

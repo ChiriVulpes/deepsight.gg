@@ -5,11 +5,13 @@ import type { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
+import InfoBlock from "ui/InfoBlock";
 import ClassPicker from "ui/form/ClassPicker";
 import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
 import Slot from "ui/inventory/Slot";
+import StatsOverview from "ui/inventory/playeroverview/StatsOverview";
 import { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
 import InventoryChestView from "ui/view/inventory/slot/InventoryChestView";
@@ -24,6 +26,7 @@ import Maths from "utility/maths/Maths";
 export enum PlayerOverviewCharacterPanelClasses {
 	Main = "player-overview-drawer-panel",
 	CharacterSettings = "player-overview-character-settings",
+	CharacterWrapper = "player-overview-character-wrapper",
 	SubclassPicker = "player-overview-subclass-picker",
 	SlotGroup = "player-overview-slot-group",
 	Slot = "player-overview-slot",
@@ -49,6 +52,7 @@ export enum PlayerOverviewCharacterPanelClasses {
 	LoadoutsButtonIcon3 = "player-overview-loadouts-button-icon-3",
 	ArtifactSlot = "player-overview-artifact-slot",
 	Artifact = "player-overview-artifact",
+	StatsOverviewBlock = "player-overview-stats-overview-block",
 }
 
 const slotViews = [
@@ -77,13 +81,18 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	public loadoutsButton!: Component;
 	public artifactSlot!: Component;
 	public artifact!: ItemComponent;
+	public statsOverview!: StatsOverview;
 
 	protected override onMake (): void {
 		this.classes.add(PlayerOverviewCharacterPanelClasses.Main);
 
+		const wrapper = Component.create()
+			.classes.add(PlayerOverviewCharacterPanelClasses.CharacterWrapper)
+			.appendTo(this);
+
 		const characterSettings = Component.create()
 			.classes.add(PlayerOverviewCharacterPanelClasses.CharacterSettings)
-			.appendTo(this);
+			.appendTo(wrapper);
 
 		this.subclassPicker = (ClassPicker.create([]) as ClassPicker<number>)
 			.classes.add(PlayerOverviewCharacterPanelClasses.SubclassPicker)
@@ -113,7 +122,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 
 		const slotComponent = Component.create()
 			.classes.add(PlayerOverviewCharacterPanelClasses.Slot, PlayerOverviewCharacterPanelClasses.OverviewSlot)
-			.appendTo(this);
+			.appendTo(wrapper);
 
 		const slotOptionHighestPower = Component.create()
 			.classes.add(PlayerOverviewCharacterPanelClasses.SlotOption, PlayerOverviewCharacterPanelClasses.SlotOptionHighestPower)
@@ -146,7 +155,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			const viewGroup = slotViews[groupIndex];
 			const groupColumn = Component.create()
 				.classes.add(PlayerOverviewCharacterPanelClasses.SlotGroup)
-				.appendTo(this);
+				.appendTo(wrapper);
 
 			for (const view of viewGroup) {
 				this.slotComponents[view.definition.slot] = SlotComponent.create([groupIndex])
@@ -154,9 +163,19 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 					.appendTo(groupColumn);
 			}
 		}
+
+		InfoBlock.create()
+			.classes.add(PlayerOverviewCharacterPanelClasses.StatsOverviewBlock)
+			.append(this.statsOverview = StatsOverview.create())
+			.appendTo(this);
 	}
 
 	public set (inventory: Inventory, character: Character, buckets: Bucket[]) {
+		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
+		void this.artifact.setItem(seasonalArtifact?.equippedItem);
+
+		this.statsOverview.set(character, buckets);
+
 		for (const subclass of inventory.getBucket(InventoryBucketHashes.Subclass, character.characterId)?.items ?? []) {
 			this.subclassPicker.addOption({
 				id: subclass.definition.hash,
@@ -170,9 +189,6 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			if (subclass.equipped)
 				void this.subclassPicker.setCurrent(subclass.definition.hash, true);
 		}
-
-		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
-		void this.artifact.setItem(seasonalArtifact?.equippedItem);
 
 		const equippedItems: Partial<Record<InventoryBucketHashes, Item>> = {};
 		const highestPowerItems: Partial<Record<InventoryBucketHashes, Item>> = {};

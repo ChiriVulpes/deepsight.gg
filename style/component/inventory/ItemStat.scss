@@ -1,12 +1,5 @@
 .item-stat {
 	&-wrapper {
-		padding: var(--tooltip-padding);
-		padding-right: 1.5em;
-		padding-left: 1.5em;
-		background: color(tooltip-background);
-		border: 2px solid rgba(white, 0.25);
-		border-left: none;
-		border-right: none;
 		display: grid;
 		grid-template-columns: auto auto 1fr repeat(3, auto);
 		column-gap: 0.5em;
@@ -19,10 +12,12 @@
 	}
 
 	display: contents;
+	font-weight: 500;
+	text-shadow: .1em .1em 0 color(background-0, .3);
 
 	&-label {
 		text-align: right;
-		color: color(foreground-3);
+		color: color(foreground-2);
 		grid-column: 2;
 		&-masterwork {
 			font-weight: 600;
@@ -98,12 +93,17 @@
 		top: 1px;
 		display: flex;
 		overflow: hidden;
+		
 		&-block {
 			height: 100%;
 			width: calc(100% * var(--value));
 			background: currentColor;
 			flex-shrink: 0;
 			&-negative {
+				&.item-stat-mod {
+					color: color(stat-negative);
+				}
+				
 				display: contents;
 				&::before,
 				&::after {
@@ -113,7 +113,7 @@
 					top: 50%;
 					width: calc(100% * var(--value) * -1);
 					margin-left: calc(100% * var(--value));
-					background: color(stat-negative);
+					background: color-mix(in srgb, currentColor, #000 30%);
 					flex-shrink: 0;
 				}
 				&::after {
@@ -137,6 +137,26 @@
 				stroke-width: 0.1;
 			}
 		}
+		
+		&-chunked {
+			width: calc(20px * 10 + 2px * 10);
+			height: 20px;
+			margin: 4px 0;
+			margin-left: -0.5px;
+			@function box($i) {
+				@return (
+					calc(#{$i * 10%} + 1px) 0%,
+					calc(#{$i * 10%} + 1px) 100%,
+					calc(#{$i * 10% + 10%} - 1px) 100%,
+					calc(#{$i * 10% + 10%} - 1px) 0%,
+				);
+			}
+			$path: ();
+			@for $i from 0 to 10 {
+				$path: join($path, box($i));
+			}
+			clip-path: polygon($path);
+		}
 	}
 
 	&-masterwork {
@@ -147,6 +167,10 @@
 	&-mod {
 		grid-column: 6;
 		color: color(stat-mod);
+	}
+
+	&-subclass {
+		color: var(--color-stat-subclass);
 	}
 
 	&-value {

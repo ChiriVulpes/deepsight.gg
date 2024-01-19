@@ -685,4 +685,22 @@
 			}
 		}
 	}
+	
+	&-stat {
+		&s {
+			font-weight: 400;
+			text-shadow: none;
+			padding: var(--tooltip-padding);
+			padding-right: 1.5em;
+			padding-left: 1.5em;
+			background: color(tooltip-background);
+			border: 2px solid rgba(white, 0.25);
+			border-left: none;
+			border-right: none;
+		}
+		
+		&-label {
+			color: color(foreground-3);
+		}
+	}
 }

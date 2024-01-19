@@ -1,7 +1,7 @@
 .item-subclass-tooltip {
 
 	@each $damage-type in $damage-types {
-		&-damage-type-#{$damage-type} .tooltip-header {
+		&--damage-type-#{$damage-type} .tooltip-header {
 			background: color(damage-type-#{$damage-type}-background, 0.85);
 		}
 	}

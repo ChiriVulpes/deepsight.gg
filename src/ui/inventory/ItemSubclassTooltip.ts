@@ -1,5 +1,5 @@
+import DamageTypes from "model/models/enum/DamageTypes";
 import type Item from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import LoadedIcon from "ui/bungie/LoadedIcon";
 import { Classes } from "ui/Classes";
@@ -11,7 +11,7 @@ enum ItemSubclassTooltipClasses {
 	Main = "item-subclass-tooltip",
 	Header = "item-subclass-tooltip-header",
 	DamageTypeIcon = "item-subclass-tooltip-damage-type-icon",
-	DamageType_ = "item-subclass-tooltip-damage-type-",
+	IsDamageType = "item-subclass-tooltip--damage-type",
 	Title = "item-subclass-tooltip-title",
 	Subtitle = "item-subclass-tooltip-subtitle",
 	Content = "item-subclass-tooltip-content",
@@ -60,16 +60,14 @@ class ItemSubclassTooltip extends Tooltip {
 			.appendTo(this.content);
 	}
 
-	public async set (item: Item) {
+	public set (item: Item) {
 		this.item = item;
 		console.log(Display.name(item.definition), item);
 
-		const { DestinyDamageTypeDefinition } = await Manifest.await();
+		this.classes.removeWhere(cls => cls.startsWith(ItemSubclassTooltipClasses.IsDamageType))
+			.classes.add(`${ItemSubclassTooltipClasses.IsDamageType}-${DamageTypes.nameOf(item.getDamageType())}`);
 
-		const damageType = await DestinyDamageTypeDefinition.get(item.getDamageType());
-		this.classes.removeWhere(cls => cls.startsWith(ItemSubclassTooltipClasses.DamageType_))
-			.classes.add(`${ItemSubclassTooltipClasses.DamageType_}${(damageType?.displayProperties.name ?? "Unknown")?.toLowerCase()}`);
-
+		const damageType = DamageTypes.get(item.getDamageType());
 		this.damageTypeIcon.classes.toggle(!damageType?.displayProperties.icon, Classes.Hidden)
 			.style.set("--icon", Display.icon(damageType));
 

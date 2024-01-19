@@ -46,10 +46,15 @@ $colors: (
 	tier-exotic-active: #fff4b5,
 	
 	damage-type-void-background: #644b75,
+	damage-type-void: #7c5fd2,
 	damage-type-solar-background: #8d421c,
+	damage-type-solar: #e2831d,
 	damage-type-arc-background: #4e798f,
+	damage-type-arc: #6dc8d8,
 	damage-type-stasis-background: #3650a5,
+	damage-type-stasis: #3250ae,
 	damage-type-strand-background: #24743d,
+	damage-type-strand: #2ec370,
 
 	background-drawer: var(--background-2) var(--background-4),
 	button-background: color(--background-5),
@@ -82,6 +87,7 @@ $colors: (
 	stat-masterwork: #fdd223,
 	stat-masterwork-bar: #ceae32,
 	stat-mod: #58a6ff,
+	stat-mod-conditional: #a7bddc,
 	stat-negative: #9c47ec,
 
 	perk: #559acf,

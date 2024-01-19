@@ -8,6 +8,7 @@ import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
 import InfoBlock from "ui/InfoBlock";
 import PlayerOverviewCharacterPanel from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
+import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -34,14 +35,13 @@ namespace PlayerOverview {
 		private inventory!: Inventory;
 		public currencyOverview!: InfoBlock;
 		public classSelection!: BaseComponent;
-		public statsOverview!: InfoBlock;
 		public characterPicker!: ClassPicker<CharacterId>;
 		private panels!: Record<CharacterId, PlayerOverviewCharacterPanel>;
 
 		public displayName!: string;
 		public code!: string;
 
-		protected override onMake (memberships: UserMembershipData, inventory: Inventory): void {
+		protected override async onMake (memberships: UserMembershipData, inventory: Inventory) {
 			this.classes.add(PlayerOverviewClasses.Main);
 			this.inventory = inventory;
 			this.displayName = memberships.bungieNetUser.cachedBungieGlobalDisplayName;
@@ -84,12 +84,9 @@ namespace PlayerOverview {
 				})
 				.appendTo(this.classSelection);
 
-			this.statsOverview = InfoBlock.create()
-				.append(BaseComponent.create()
-					.classes.add(PlayerOverviewClasses.WIP))
-				.appendTo(this.drawer);
-
 			this.panels = {};
+
+			await SortManager.init();
 
 			inventory.event.subscribe("update", this.update);
 			inventory.event.subscribe("itemUpdate", this.update);
@@ -118,7 +115,6 @@ namespace PlayerOverview {
 		@Bound
 		public update () {
 			this.updateCharacters();
-			this.statsOverview.appendTo(this.drawer);
 			this.drawer.enable();
 		}
 
