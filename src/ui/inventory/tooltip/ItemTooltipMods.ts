@@ -73,8 +73,9 @@ export default class ItemTooltipMods extends Component {
 
 			const plug = socket.socketedPlug;
 			const displayablePerks = socket.socketedPlug?.perks
-				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden && perk.definition.isDisplayable
-					&& (socket.is("Masterwork/ExoticCatalyst") ? item.isMasterwork() : undefined))
+				.filter(perk => perk.perkVisibility !== ItemPerkVisibility.Hidden
+					&& perk.definition.isDisplayable
+					&& (socket.is("Masterwork/ExoticCatalyst") ? item.isMasterwork() : true))
 				?? [];
 
 			for (const perk of displayablePerks) {
