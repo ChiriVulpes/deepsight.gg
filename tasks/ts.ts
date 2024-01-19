@@ -18,7 +18,7 @@ class Reformatter {
 		data = data.toString("utf8");
 
 		data = data
-			.replace(/\[\x1b\[90m\d{1,2}:\d{2}:\d{2}[ \xa0\u202f][AP]M\x1b\[0m\][ \xa0\u202f]/gi, "") // remove time
+			.replace(/\[\x1b\[90m\d{1,2}:\d{2}:\d{2}[ \xa0\u202f][AP]\.?M\.?\x1b\[0m\][ \xa0\u202f]/gi, "") // remove time
 			.replace(/(\x1b\[96m)(.*?\x1b\[0m:\x1b\[93m)/g, "$1src/$2"); // longer file paths
 
 		const lines = data.split("\n");
