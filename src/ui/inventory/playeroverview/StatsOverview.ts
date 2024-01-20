@@ -99,8 +99,13 @@ export default class StatsOverview extends ItemStat.Wrapper {
 				const armourStats = ARMOUR_STAT_GROUPS.flat();
 				stats = stats.filter(stat => armourStats.includes(stat.hash));
 				const tiers = stats.map(stat => Math.floor((stat.value ?? 0) / 10)).splat(Maths.sum);
+				const chargeTiers = stats.map(stat => Math.floor((stat.charge ?? 0) / 10)).splat(Maths.sum);
 
-				return { value: tiers };
+				return {
+					value: tiers + chargeTiers,
+					intrinsic: tiers,
+					charge: chargeTiers,
+				};
 			},
 		});
 		this.setStats(displays);

@@ -319,18 +319,20 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 				.tweak(display.renderBar, { ...display, ...render }, allStats, item);
 		}
 
-		render = this.render(display, display.intrinsic, true);
+		let hadRender = render = this.render(display, display.intrinsic, true);
 		this.intrinsicText.text.set(render?.text);
 		if (display.bar && display.max)
 			this.intrinsicBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`);
 
-		render = this.render(display, display.masterwork, !render);
+		render = this.render(display, display.masterwork, !hadRender);
+		hadRender ||= render;
 		this.masterworkText.text.set(render?.text)
 			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
 		if (display.bar && display.max)
 			this.masterworkBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`);
 
-		render = this.render(display, display.mod, !render);
+		render = this.render(display, display.mod, !hadRender);
+		hadRender ||= render;
 		this.modText.text.set(render?.text)
 			.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.ValueComponentNegative)
 			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
@@ -338,12 +340,14 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			this.modBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 
-		render = this.render(display, display.subclass, !render);
+		render = this.render(display, display.subclass, !hadRender);
+		hadRender ||= render;
 		if (display.bar && display.max)
 			this.subclassBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 
-		render = this.render(display, display.charge, !render);
+		render = this.render(display, display.charge, !hadRender);
+		hadRender ||= render;
 		this.chargeText.text.set(render?.text)
 			.data.set("charge-value", render?.text)
 			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);

@@ -9,11 +9,11 @@
 		&-label { grid-column: 1 }
 		&-bar { grid-column: 2 }
 		
-		&-combined {
+		&-bar + .item-stat-value .item-stat-combined {
 			display: block !important;
 		}
 		
-		&-value-component {
+		&-bar + .item-stat-value .item-stat-value-component {
 			display: none;
 		}
 		
