@@ -55,7 +55,7 @@ export default class Time {
 	}
 
 	static get lastTrialsReset () {
-		const trialsReset = this.lastWeeklyReset - this.days(4);
+		const trialsReset = this.nextWeeklyReset - this.days(4);
 		return trialsReset > Date.now() ? trialsReset - this.weeks(1) : trialsReset;
 	}
 
