@@ -14,7 +14,8 @@ export interface ClassTypesDefinition {
 const ClassTypes = EnumModel.create("ClassTypes", {
 	async generate (): Promise<ClassTypesDefinition> {
 		const { DestinyClassDefinition } = await Manifest.await();
-		const types = await DestinyClassDefinition.all();
+		const types = (await DestinyClassDefinition.all())
+			.map(type => ({ ...type, enumValue: type.classType }));
 
 		const result: ClassTypesDefinition = {
 			array: types,
