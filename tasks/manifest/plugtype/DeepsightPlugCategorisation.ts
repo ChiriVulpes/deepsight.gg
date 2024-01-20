@@ -4,7 +4,7 @@ import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
 import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "../Enums";
-import type { DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
+import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
 import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";
 import DeepsightPlugContextDefinition from "./DeepsightPlugContextDefinition";
@@ -705,6 +705,19 @@ namespace DeepsightPlugCategorisation {
 		"strand": DamageTypeHashes.Strand,
 	};
 
+	const baseArmourChargeStat = {
+		value: [30, 50, 60],
+		isConditionallyActive: true,
+	};
+	const armourChargeStats: Partial<Record<InventoryItemHashes, DeepsightItemInvestmentStatDefinition[]>> = {
+		[InventoryItemHashes.FontOfAgilityLegArmorModPlug_PlugEnabledRulesLength3]: [{ statTypeHash: StatHashes.Mobility, ...baseArmourChargeStat }],
+		[InventoryItemHashes.FontOfEnduranceChestArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Resilience, ...baseArmourChargeStat }],
+		[InventoryItemHashes.FontOfRestorationClassItemArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Recovery, ...baseArmourChargeStat }],
+		[InventoryItemHashes.FontOfFocusArmsArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Discipline, ...baseArmourChargeStat }],
+		[InventoryItemHashes.FontOfWisdomHelmetArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Intellect, ...baseArmourChargeStat }],
+		[InventoryItemHashes.FontOfVigorArmsArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Strength, ...baseArmourChargeStat }],
+	};
+
 	let DestinyInventoryBucketDefinition: Record<number, DestinyInventoryBucketDefinition> | undefined;
 
 	const additionalDetailsHandlers: Partial<Record<DeepsightPlugCategory, (context: DeepsightPlugContextDefinition, type?: number) => any>> = {
@@ -734,6 +747,7 @@ namespace DeepsightPlugCategorisation {
 				raid: activityHash !== undefined,
 				activityHash,
 				artifice: context.definition.plug?.plugCategoryHash === PlugCategoryHashes.EnhancementsArtifice,
+				armourChargeStats: armourChargeStats[context.definition.hash as InventoryItemHashes],
 			} as Partial<DeepsightPlugCategorisationMod>;
 
 			return result;

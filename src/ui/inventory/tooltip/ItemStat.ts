@@ -6,6 +6,7 @@ import Component from "ui/Component";
 import type { StatOrder } from "ui/inventory/Stat";
 import { ARMOUR_STAT_GROUPS, ARMOUR_STAT_MAX_VISUAL, IStatDistribution, Stat } from "ui/inventory/Stat";
 import RecoilDirection from "ui/inventory/tooltip/stats/RecoilDirection";
+import Maths from "utility/maths/Maths";
 
 export enum CustomStat {
 	Total = -1,
@@ -23,6 +24,7 @@ export interface ICustomStatDisplayDefinition extends Partial<IStat> {
 	bar?: boolean;
 	plus?: true;
 	chunked?: true;
+	uncapped?: true;
 	displayEntireFormula?: true;
 	combinedValue?: number;
 	combinedText?: string;
@@ -52,6 +54,7 @@ export enum ItemStatClasses {
 	Masterwork = "item-stat-masterwork",
 	Mod = "item-stat-mod",
 	Subclass = "item-stat-subclass",
+	Charge = "item-stat-charge",
 	Formula = "item-stat-formula",
 	Distribution = "item-stat-distribution-component",
 	DistributionGroupLabel = "item-stat-distribution-component-group-label",
@@ -75,16 +78,19 @@ const customStats: Partial<Record<CustomStat, ICustomStatDisplayDefinition>> = {
 				.reduce((a, b) => a + b, 0);
 			const totalSubclass = stats.map(stat => stat?.subclass ?? 0)
 				.reduce((a, b) => a + b, 0);
-			if (totalIntrinsic + totalMasterwork + totalMod === 0)
+			const totalCharge = stats.map(stat => stat?.charge ?? 0)
+				.reduce((a, b) => a + b, 0);
+			if (totalIntrinsic + totalMasterwork + totalMod + totalCharge === 0)
 				return undefined; // this item doesn't have armour stats
 
 			return {
-				value: totalIntrinsic + totalRandom + totalMasterwork + totalMod + totalSubclass,
+				value: totalIntrinsic + totalRandom + totalMasterwork + totalMod + totalSubclass + totalCharge,
 				intrinsic: totalIntrinsic,
 				roll: totalRandom,
 				masterwork: totalMasterwork,
 				mod: totalMod,
 				subclass: totalSubclass,
+				charge: totalCharge,
 			};
 		},
 	},
@@ -118,7 +124,7 @@ const renderArmourStat = (_: ICustomStatDisplayDefinition, allStats: ICustomStat
 		.map(stat => allStats.find(display => display.hash === stat))
 		.some(display => {
 			const cdisplay = display?.calculate?.(display, allStats, item) ?? display;
-			return cdisplay?.combinedValue ?? (cdisplay?.intrinsic ?? 0) + (cdisplay?.masterwork ?? 0) + (cdisplay?.mod ?? 0);
+			return cdisplay?.combinedValue ?? (cdisplay?.intrinsic ?? 0) + (cdisplay?.masterwork ?? 0) + (cdisplay?.mod ?? 0) + (cdisplay?.subclass ?? 0) + (cdisplay?.charge ?? 0);
 		});
 
 type StatDisplayDef = Partial<ICustomStatDisplayDefinition> | false;
@@ -156,12 +162,12 @@ const customStatDisplays: Partial<Record<CustomStat, StatDisplayDef>> & Partial<
 	[Stat.Range]: { render: (s, ss, item) => item?.definition.itemSubType !== DestinyItemSubType.Sword },
 
 	// armour
-	[Stat.Mobility]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
-	[Stat.Resilience]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
-	[Stat.Recovery]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
-	[Stat.Discipline]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
-	[Stat.Intellect]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
-	[Stat.Strength]: { plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Mobility]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Resilience]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Recovery]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Discipline]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Intellect]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
+	[Stat.Strength]: { uncapped: true, plus: true, max: ARMOUR_STAT_MAX_VISUAL, render: renderArmourStat },
 
 	...customStats,
 };
@@ -183,10 +189,12 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 	public masterworkBar?: Component;
 	public modBar?: Component;
 	public subclassBar?: Component;
+	public chargeBar?: Component;
 	public combinedText!: Component;
 	public intrinsicText!: Component;
 	public masterworkText!: Component;
 	public modText!: Component;
+	public chargeText!: Component;
 	public formulaText!: Component;
 
 	protected override onMake (stat: ICustomStatDisplayDefinition) {
@@ -210,14 +218,16 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 		if (this.stat?.bar)
 			this.bar = Component.create()
 				.classes.add(ItemStatClasses.Bar, `${ItemStatClasses.Bar}-${(statName).toLowerCase()}`)
+				.append(this.subclassBar = Component.create()
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Subclass))
 				.append(this.intrinsicBar = Component.create()
 					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Intrinsic))
 				.append(this.masterworkBar = Component.create()
 					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Masterwork))
 				.append(this.modBar = Component.create()
 					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Mod))
-				.append(this.subclassBar = Component.create()
-					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Subclass))
+				.append(this.chargeBar = Component.create()
+					.classes.add(ItemStatClasses.BarBlock, ItemStatClasses.Charge))
 				.appendTo(this);
 
 		Component.create()
@@ -230,6 +240,8 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Masterwork))
 			.append(this.modText = Component.create()
 				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Mod))
+			.append(this.chargeText = Component.create()
+				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Charge))
 			.append(this.formulaText = Component.create()
 				.classes.add(ItemStatClasses.ValueComponent, ItemStatClasses.Formula))
 			.appendTo(this);
@@ -282,21 +294,27 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 
 		let combinedValue = undefined;
 		if (combinedValue === undefined) {
-			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0) + (display.subclass ?? 0);
+			combinedValue = display.combinedValue ?? (display.intrinsic ?? 0) + (display.masterwork ?? 0) + (display.mod ?? 0) + (display.subclass ?? 0) + (display.charge ?? 0);
 			if (combinedValue < (display.min ?? -Infinity))
 				combinedValue = display.min!;
 
-			if (combinedValue > (display.max ?? Infinity))
+			if (!display.uncapped && combinedValue > (display.max ?? Infinity))
 				combinedValue = display.max!;
 		}
+
+		const combinedWithoutNegatives = combinedValue
+			- [display.intrinsic ?? 0, display.masterwork ?? 0, display.mod ?? 0, display.subclass ?? 0, display.charge ?? 0]
+				.filter(v => v < 0).splat(Maths.sum);
 
 		let render = this.render(display, combinedValue, true);
 		this.combinedText.style.set("--value", `${render?.value ?? 0}`)
 			.text.set(display.combinedText ?? render?.text);
 
 		if (display.bar && display.max) {
+			const renderWithoutNegatives = this.render(display, combinedWithoutNegatives, true);
 			this.bar!
 				.style.set("--value", `${(render?.value ?? 0) / display.max}`)
+				.style.set("--value-total", `${(renderWithoutNegatives?.value ?? 0) / display.max}`)
 				.classes.toggle(display.chunked ?? false, ItemStatClasses.BarChunked)
 				.tweak(display.renderBar, { ...display, ...render }, allStats, item);
 		}
@@ -321,12 +339,16 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
 
 		render = this.render(display, display.subclass, !render);
-		// this.modText.text.set(render?.text)
-		// 	.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.ValueComponentNegative)
-		// 	.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
 		if (display.bar && display.max)
 			this.subclassBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`)
 				.classes.toggle((render?.value ?? 0) < 0, ItemStatClasses.BarBlockNegative);
+
+		render = this.render(display, display.charge, !render);
+		this.chargeText.text.set(render?.text)
+			.data.set("charge-value", render?.text)
+			.classes.toggle(!render?.value && !display.displayEntireFormula, Classes.Hidden);
+		if (display.bar && display.max)
+			this.chargeBar!.style.set("--value", `${(render?.value ?? 0) / display.max}`);
 
 		this.formulaText.classes.toggle(!display.renderFormula, Classes.Hidden)
 			.removeContents()

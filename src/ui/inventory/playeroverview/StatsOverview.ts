@@ -42,6 +42,7 @@ export default class StatsOverview extends ItemStat.Wrapper {
 					masterwork: 0,
 					roll: 0,
 					subclass: 0,
+					charge: 0,
 				} satisfies Partial<IStat>;
 
 				for (const item of equippedItems) {
@@ -51,6 +52,7 @@ export default class StatsOverview extends ItemStat.Wrapper {
 					statValues.intrinsic += stat?.intrinsic ?? 0;
 					statValues.masterwork += stat?.masterwork ?? 0;
 					statValues.roll += stat?.roll ?? 0;
+					statValues.charge += stat?.charge ?? 0;
 					statInstance ??= stat;
 
 					if (item?.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Subclasses)) {

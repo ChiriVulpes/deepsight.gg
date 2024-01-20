@@ -1,7 +1,7 @@
 .item-stat {
 	&-wrapper {
 		display: grid;
-		grid-template-columns: auto auto 1fr repeat(3, auto);
+		grid-template-columns: auto auto 1fr repeat(4, auto);
 		column-gap: 0.5em;
 		row-gap: 2px;
 		align-items: center;
@@ -104,20 +104,22 @@
 					color: color(stat-negative);
 				}
 				
-				display: contents;
-				&::before,
-				&::after {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				background: none;
+				
+				&::before {
 					position: relative;
 					content: "";
+					display: block;
 					height: 50%;
 					top: 50%;
-					width: calc(100% * var(--value) * -1);
-					margin-left: calc(100% * var(--value));
+					margin-right: calc(100% * (1 - var(--value-total)));
+					margin-left: auto;
+					width: calc(100% * (var(--value) * -1));
 					background: color-mix(in srgb, currentColor, #000 30%);
-					flex-shrink: 0;
-				}
-				&::after {
-					transform: translateX(calc(100% / (var(--value) * -1) + 1px));
+					z-index: 10;
 				}
 			}
 		}
@@ -173,6 +175,37 @@
 		color: var(--color-stat-subclass);
 	}
 
+	&-charge {
+		grid-column: 7;
+		color: color(stat-mod, .3);
+		position: relative;
+		&::before {
+			content: attr(data-charge-value);
+			display: block;
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(-45deg, transparent 40%, #{color(stat-mod-charge, .7)} 50%, transparent 60%);
+			background-size: 1500px 100%;
+			background-position-y: center;
+			animation: fixed-flash 3s linear infinite;
+			@include blur-disables-animation;
+			@keyframes fixed-flash {
+				0% {
+					background-position-x: 0px;
+				}
+				20% {
+					background-position-x: 0px;
+				}
+				60% {
+					background-position-x: -900px;
+				}
+				100% {
+					background-position-x: -900px;
+				}
+			}
+		}
+	}
+
 	&-value {
 		display: flex;
 		gap: 0.5em;
@@ -181,6 +214,10 @@
 		&-component {
 			&:empty {
 				display: none;
+			}
+			
+			&.item-stat-charge::before {
+				background-clip: text;
 			}
 		}
 

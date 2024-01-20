@@ -1,4 +1,5 @@
 import { ItemCategoryHashes } from "@deepsight.gg/enums";
+import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { DestinyItemComponentSetOfint64, DestinyItemStatBlockDefinition, DestinyStatDefinition, DestinyStatDisplayDefinition, DestinyStatGroupDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
@@ -20,6 +21,7 @@ export interface IStat {
 	masterwork: number;
 	mod: number;
 	subclass: number;
+	charge: number;
 }
 
 export interface IStats {
@@ -66,6 +68,9 @@ namespace Stats {
 		const modStats = item.bucket.isCollections() ? [] : Socket.filterExcludePlugs(sockets, "Intrinsic", "Masterwork")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
+		const chargeStats = item.bucket.isCollections() ? [] : Socket.filterByPlugs(sockets, "Mod/Armor")
+			.flatMap(socket => socket.socketedPlug.getCategorisationAs(DeepsightPlugCategory.Mod)?.armourChargeStats ?? []);
+
 		const result: Record<number, IStat> = {};
 
 		for (const [hashString, { value }] of Object.entries(stats ?? {})) {
@@ -91,6 +96,7 @@ namespace Stats {
 				mod: 0,
 				masterwork: 0,
 				subclass: !item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Subclasses) ? 0 : value,
+				charge: 0,
 			};
 
 			const statDisplay = statGroupDefinition.scaledStats.find(statDisplay => statDisplay.statHash === hash);
@@ -122,6 +128,11 @@ namespace Stats {
 			for (const mod of modStats)
 				if (hash === mod?.statTypeHash && !mod.isConditionallyActive)
 					stat.mod += mod.value;
+
+			let chargeCount = 0;
+			for (const mod of chargeStats)
+				if (hash === mod?.statTypeHash)
+					stat.charge = typeof mod.value === "number" ? mod.value : mod.value[chargeCount++];
 
 			const { intrinsic, roll, masterwork, mod } = stat;
 			stat.intrinsic = interpolate(intrinsic + roll);
