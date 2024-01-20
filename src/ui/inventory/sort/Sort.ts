@@ -20,6 +20,7 @@ enum Sort {
 	Quantity,
 	Locked,
 	Harmonizable,
+	Exotic,
 }
 
 export default Sort;

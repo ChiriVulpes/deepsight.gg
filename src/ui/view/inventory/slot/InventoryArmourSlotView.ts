@@ -6,7 +6,7 @@ import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
 import SortManager from "ui/inventory/sort/SortManager";
 import InventorySlotView from "ui/view/inventory/slot/InventorySlotView";
 
-export const SORTS_DEFAULT_ARMOUR = [Sort.StatDistribution, Sort.Rarity, Sort.Masterwork, Sort.Power, Sort.Energy] as const;
+export const SORTS_DEFAULT_ARMOUR = [Sort.Exotic, Sort.Rarity, Sort.StatDistribution, Sort.Masterwork, Sort.Power, Sort.Energy] as const;
 export const SORTS_INAPPLICABLE_ARMOUR = [
 	Sort.Pattern,
 	Sort.AmmoType,

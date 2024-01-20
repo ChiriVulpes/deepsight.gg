@@ -51,10 +51,12 @@ namespace Display {
 		return wrapped ? `url("${url}")` : url;
 	}
 
-	export function name (displayProperties?: PartialDisplayPropertiesOrD) {
-		return displayProperties === undefined ? undefined
-			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties)
-				.name;
+	export function name (displayProperties: PartialDisplayPropertiesOrD | undefined, orElse: string): string;
+	export function name (displayProperties?: PartialDisplayPropertiesOrD, orElse?: string): string | undefined;
+	export function name (displayProperties?: PartialDisplayPropertiesOrD, orElse?: string) {
+		return displayProperties === undefined ? orElse
+			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties).name
+			?? orElse;
 	}
 
 	const interpolationRegex = /(\{var:\d+\})|(\[[\w-]+\])/g;

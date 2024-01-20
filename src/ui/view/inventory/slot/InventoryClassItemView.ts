@@ -11,6 +11,6 @@ export default InventoryArmourSlotView.create({
 		id: "class-items",
 		name: "Class Items",
 		default: SORTS_DEFAULT_ARMOUR,
-		inapplicable: [...SORTS_INAPPLICABLE_ARMOUR, Sort.StatDistribution, Sort.StatTotal, "stat-.*"],
+		inapplicable: [...SORTS_INAPPLICABLE_ARMOUR, Sort.Exotic, Sort.StatDistribution, Sort.StatTotal, "stat-.*"],
 	}),
 });

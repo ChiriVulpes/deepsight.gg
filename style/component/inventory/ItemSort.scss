@@ -187,7 +187,7 @@
 				}
 			}
 			
-			&-rarity-icon::before {
+			&-rarity-icon::before, &-exotic-icon::before {
 				@include mask-icon("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/engram.svg");
 			}
 			
