@@ -1,3 +1,4 @@
+import Arrays from "@app/utility/Arrays";
 import ansicolor from "ansicolor";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
@@ -8,6 +9,8 @@ import Env from "./utility/Env";
 import Log from "./utility/Log";
 import Objects from "./utility/Objects";
 import Task from "./utility/Task";
+
+Arrays.applyPrototypes();
 
 const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
 	DestinyInventoryBucketDefinition: {
