@@ -73,7 +73,5 @@ export default class DeepsightGG {
 		}
 
 		ViewManager.showByHash(URL.path ?? URL.hash);
-		if (!ViewManager.hasView())
-			ViewManager.showDefaultView();
 	}
 }

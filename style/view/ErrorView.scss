@@ -1,6 +1,6 @@
 .view-error {
-	&-p,
 	&-button {
+		margin-top: 60px;
 		@include view-swipe-animation;
 	}
 }

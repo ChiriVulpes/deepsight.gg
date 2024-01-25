@@ -28,6 +28,7 @@ namespace View {
 		displayDestinationButton?(): boolean;
 		redirectOnLoad?: true | string;
 		parentViewId?: string;
+		noHashChange?: true;
 	}
 
 	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =

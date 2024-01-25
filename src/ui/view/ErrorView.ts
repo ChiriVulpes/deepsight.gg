@@ -1,47 +1,62 @@
-import Component from "ui/Component";
 import Button from "ui/form/Button";
 import View from "ui/View";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 enum ErrorViewClasses {
-	Paragraph = "view-error-p",
 	Button = "view-error-button",
 }
 
-export default View.create({
+export interface ErrorViewDefinition {
+	title: string;
+	subtitle: string;
+	buttonText: string;
+	buttonClick (): any;
+}
+
+export default View.create<[], [code?: number, definition?: ErrorViewDefinition]>({
 	id: "error",
 	name: "Error",
 	redirectOnLoad: true,
 	noDestinationButton: true,
+	noHashChange: true,
 	initialise: view => {
-		if (Bungie.apiDown) {
-			view.setTitle(title => title.text.set("Bungie API Error"));
+		let [_, code, definition] = view._args;
 
-			Component.create("p")
-				.classes.add(ErrorViewClasses.Paragraph)
-				.text.set("I might not be responsible for this one! Maybe the API is down?")
-				.appendTo(view.content);
+		if (!definition) {
+			if (Bungie.apiDown)
+				definition = {
+					title: "Error: Weasel",
+					subtitle: "Could not connect to Destiny 2 servers...",
+					buttonText: "Bungie Help Twitter",
+					buttonClick: () => window.open("https://twitter.com/BungieHelp", "_blank")?.focus(),
+				};
 
-			Button.create()
-				.classes.add(ErrorViewClasses.Button)
-				.text.set("Bungie Help Twitter")
-				.event.subscribe("click", () => window.open("https://twitter.com/BungieHelp", "_blank")?.focus())
-				.appendTo(view.content);
+			else if (code === 404)
+				definition = {
+					title: "Error: Not Found",
+					subtitle: "You are forever lost in the dark corners of time...",
+					buttonText: "Return to Orbit",
+					buttonClick: () => viewManager.showDefaultView(),
+				};
 
-			return;
+			else
+				definition = {
+					title: "Your Light Fades Away...",
+					subtitle: "Restarting From Last Checkpoint...",
+					buttonText: "Reload App",
+					buttonClick: () => location.reload(),
+				};
 		}
 
-		view.setTitle(title => title.text.set("Unknown Error"));
-
-		Component.create("p")
-			.classes.add(ErrorViewClasses.Paragraph)
-			.text.set("Something went wrong.")
-			.appendTo(view.content);
+		view.setTitle(title => title.text.set(definition!.title));
+		view.setSubtitle("small", subtitle => subtitle.text.set(definition!.subtitle));
 
 		Button.create()
 			.classes.add(ErrorViewClasses.Button)
-			.text.set("Reload App")
-			.event.subscribe("click", () => location.reload())
+			.setPrimary()
+			.setAttention()
+			.text.set(definition.buttonText)
+			.event.subscribe("click", definition.buttonClick)
 			.appendTo(view.content);
 	},
 });

@@ -14,6 +14,7 @@ import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
+import ErrorView from "ui/view/ErrorView";
 import ItemIntrinsics from "ui/view/item/ItemIntrinsics";
 import ItemPerks from "ui/view/item/ItemPerks";
 import Objects from "utility/Objects";
@@ -69,19 +70,12 @@ const itemViewBase = View.create({
 
 		const item = itemResult;
 		if (!item) {
-			view.setTitle(title => title.text.set("No Item Was Found..."));
-			view.setSubtitle("small", subtitle => subtitle.text.set("Your ghost continues its search..."));
-
-			const content = Component.create()
-				.appendTo(view.content);
-
-			Button.create()
-				.text.set("View Collections")
-				.setPrimary()
-				.setAttention()
-				.event.subscribe("click", () => viewManager.showCollections())
-				.appendTo(content);
-			return;
+			return ErrorView.show(404, {
+				title: "Error: No Item Found",
+				subtitle: "Your ghost continues its search...",
+				buttonText: "View Collections",
+				buttonClick: () => viewManager.showCollections(),
+			});
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

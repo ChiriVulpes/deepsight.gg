@@ -119,6 +119,8 @@ export default class ViewManager {
 
 			else if (location.hash !== `#${hash}`)
 				console.warn(`Tried to navigate to an unknown view '${hash}'`);
+
+			ErrorView.show(404);
 			return;
 		}
 
@@ -158,6 +160,9 @@ export default class ViewManager {
 	}
 
 	private static updateHash (view: View.WrapperComponent) {
+		if (view.definition.noHashChange)
+			return;
+
 		if (URL.path !== view.hash)
 			URL.path = view.hash;
 
