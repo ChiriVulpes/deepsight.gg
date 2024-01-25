@@ -1,7 +1,7 @@
 import ansicolor from "ansicolor";
+import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
-import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "../src/node_modules/bungie-api-ts/destiny2";
-import { DestinyItemType } from "../src/node_modules/bungie-api-ts/destiny2";
 import { getDeepsightMomentDefinition } from "./manifest/DeepsightMomentDefinition";
 import manifest from "./manifest/utility/endpoint/DestinyManifest";
 import Env from "./utility/Env";
@@ -63,6 +63,20 @@ const UNRENDERABLE_PATHS: Partial<Record<keyof AllDestinyManifestComponents, str
 	DestinyActivityDefinition: ["pgcrImage"],
 };
 
+const COMPONENT_NAME_GENERATORS: { [KEY in keyof AllDestinyManifestComponents]?: (definition: AllDestinyManifestComponents[KEY][number], get: (component: keyof AllDestinyManifestComponents, hash?: number) => Promise<string | undefined>) => Promise<string | undefined> | string | undefined } = {
+	DestinyVendorGroupDefinition: def => def.categoryName,
+	DestinyLoadoutNameDefinition: def => def.name,
+	DestinyLocationDefinition: async (def, get) => Promise
+		.all(([] as (Promise<string | undefined> | string | undefined)[])
+			.concat(get("DestinyVendorDefinition", def.vendorHash))
+			.concat((def.locationReleases ?? []).flatMap(location => ([location.displayProperties.name] as (Promise<string | undefined> | string | undefined)[])
+				.concat(get("DestinyDestinationDefinition", location.destinationHash))
+				.concat(get("DestinyActivityDefinition", location.activityHash)))))
+		.then(locations => locations.filter(Boolean).distinct().join("$") || undefined),
+	DestinyMedalTierDefinition: def => def.tierName,
+	DestinyPowerCapDefinition: def => `${def.powerCap}`,
+};
+
 interface Definition {
 	hash?: number;
 	displayProperties?: DestinyDisplayPropertiesDefinition;
@@ -89,8 +103,8 @@ export class EnumHelper {
 	public constructor (private readonly type: string) {
 	}
 
-	public encounter (definition?: Definition | string) {
-		const name = this.resolve(definition);
+	public async encounter (definition?: Definition | string) {
+		const name = await this.resolve(definition);
 		if (!name || typeof definition !== "object")
 			return;
 
@@ -103,7 +117,7 @@ export class EnumHelper {
 	}
 
 	public async name (definition?: Definition | string, dedupe = true, componentName?: keyof AllDestinyManifestComponents) {
-		let name = this.resolve(definition);
+		let name = await this.resolve(definition);
 		if (!name)
 			return name;
 
@@ -209,17 +223,30 @@ export class EnumHelper {
 		return `${value}`.replace("-", "n");
 	}
 
-	private resolve (definition?: Definition | string) {
+	private static async getEnumableName (type: keyof AllDestinyManifestComponents, definition?: number | Definition): Promise<string | undefined> {
+		if (typeof definition === "number")
+			definition = await manifest[type].get(definition) as Definition | undefined;
+
+		if (!definition)
+			return undefined;
+
+		const name = OVERRIDDEN_ENUM_NAMES[type]?.[definition.hash!]
+			?? definition.displayProperties?.name
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			?? await COMPONENT_NAME_GENERATORS[type]?.(definition as any, async (c, h) => (await EnumHelper.getEnumableName(c, h)) ?? "")
+			?? MISSING_ENUM_NAMES[type]?.[definition.hash!];
+
+		return name;
+	}
+
+	private async resolve (definition?: Definition | string) {
 		if (typeof definition !== "string" && definition?.hash === undefined)
 			return undefined;
 
-		let name = OVERRIDDEN_ENUM_NAMES[this.type as keyof AllDestinyManifestComponents]?.[(definition as Definition).hash!]
-			?? (typeof definition === "string" ? definition : definition.displayProperties?.name)
-			?? MISSING_ENUM_NAMES[this.type as keyof AllDestinyManifestComponents]?.[(definition as Definition).hash!];
+		let name = typeof definition === "string" ? definition
+			: await EnumHelper.getEnumableName(this.type as keyof AllDestinyManifestComponents, definition);
 
 		name = EnumHelper.simplifyName(name);
-		if (!name)
-			return undefined;
 
 		if (this.type === "DestinyInventoryItemDefinition") {
 			const itemDef = definition as DestinyInventoryItemDefinition;
@@ -271,7 +298,7 @@ export default Task("generate_enums", async () => {
 		for (const definition of Object.values(componentData) as Definition[]) {
 			const nameSource = (componentName === "DestinyTraitDefinition" ? traitIds[definition.hash!] : undefined)
 				?? definition;
-			enumHelper.encounter(nameSource);
+			await enumHelper.encounter(nameSource);
 		}
 
 		for (const definition of Object.values(componentData) as Definition[]) {
