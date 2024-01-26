@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '3/5 * * * *'
 
+concurrency: 
+  group: check-manifest
+
 jobs:
   check:
     runs-on: ubuntu-latest
