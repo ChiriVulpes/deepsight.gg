@@ -53,6 +53,9 @@ jobs:
           value: ${{ steps.refresh_token.outputs.refresh_token }}
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
+      - name: Install
+        run: npm run install-src
+
       - name: Manifest
         env:
           DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
