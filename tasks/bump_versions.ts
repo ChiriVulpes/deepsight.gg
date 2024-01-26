@@ -37,7 +37,8 @@ export default Task("bump_versions", async () => {
 	if (!isDev && !await fs.pathExists("manifest"))
 		throw new Error("No output folder detected");
 
-	const versionsFilePath = `${isDev ? "docs/" : ""}manifest/versions.json`;
+	const dir = `${isDev ? "docs/" : ""}manifest/`;
+	const versionsFilePath = `${dir}versions.json`;
 	const versions = await fs.readJson(versionsFilePath).catch(() => ({}));
 	const files = await fs.readdir("docs/manifest");
 
@@ -76,6 +77,10 @@ export default Task("bump_versions", async () => {
 	if (bumped) {
 		versions.deepsight = (versions.deepsight ?? DEFAULT_VERSION) + 1;
 		versions.updated = Time.iso();
+
+		const packageJson = JSON.parse(await fs.readFile(`${dir}package.json`, "utf8"));
+		packageJson.version = `1.0.${versions.deepsight}`;
+		await fs.writeFile(`${dir}package.json`, JSON.stringify(packageJson, null, "\t"));
 	}
 
 	versions["Destiny2/Manifest"] = DESTINY_MANIFEST_VERSION;
