@@ -43,3 +43,8 @@ jobs:
         uses: geekyeggo/delete-artifact@v2
         with:
           name: testiny-data
+    
+      - name: Delete versions artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: versions

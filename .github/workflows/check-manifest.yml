@@ -26,21 +26,16 @@ jobs:
         id: updated
         env:
           DEEPSIGHT_MANIFEST_API_KEY: ${{ secrets.DEEPSIGHT_MANIFEST_API_KEY }}
+          DEEPSIGHT_MANIFEST_NO_INCREMENT_VERSION: true
         run: node check.js
         continue-on-error: true
-      
-      - name: Commit
-        run: |
-          if [[ -n $(git diff) ]]; then
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-            git add .
-            git commit -m "Updated reference PGCR"
-            git push
-          else
-            echo "No changes to commit"
-          fi
-        
+
+      - name: Save versions.json artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: versions
+          path: versions.json
+
     outputs:
       updated: ${{ steps.updated.outcome }}
 

@@ -56,6 +56,12 @@ jobs:
       - name: Install
         run: npm run install-src
 
+      - name: Download versions artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: versions
+          path: manifest
+
       - name: Manifest
         env:
           DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
