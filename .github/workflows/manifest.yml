@@ -61,6 +61,7 @@ jobs:
         with:
           name: versions
           path: manifest
+        continue-on-error: true
 
       - name: Manifest
         env:
