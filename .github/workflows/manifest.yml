@@ -21,6 +21,8 @@ jobs:
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
+        with:
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci --force
@@ -78,15 +80,8 @@ jobs:
           DEEPSIGHT_BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run manifest
-
-      - name: Save testiny artifact
-        if: github.event_name != 'workflow_dispatch'
-        uses: actions/upload-artifact@v3
-        with:
-          name: testiny-data
-          path: static/testiny
         
-      - name: Commit
+      - name: Commit & Publish
         run: |
           cd manifest
           if [[ -n $(git diff) ]]; then
@@ -95,6 +90,16 @@ jobs:
             git add .
             git commit -m "Updated manifests"
             git push
+            npm publish
           else
-            echo "No changes to commit"
+            echo "No changes to commit & publish"
           fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Save testiny artifact
+        if: github.event_name != 'workflow_dispatch'
+        uses: actions/upload-artifact@v3
+        with:
+          name: testiny-data
+          path: static/testiny

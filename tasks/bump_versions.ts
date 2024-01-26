@@ -78,8 +78,9 @@ export default Task("bump_versions", async () => {
 		versions.deepsight = (versions.deepsight ?? DEFAULT_VERSION) + 1;
 		versions.updated = Time.iso();
 
-		const packageJson = JSON.parse(await fs.readFile(`${dir}package.json`, "utf8"));
-		packageJson.version = `1.0.${versions.deepsight}`;
+		const packageJson = JSON.parse(await fs.readFile(`${dir}package.json`, "utf8")) as { version: string };
+		const packageJsonVersionMinor = packageJson.version.slice(0, packageJson.version.lastIndexOf("."));
+		packageJson.version = `${packageJsonVersionMinor}.${versions.deepsight}`;
 		await fs.writeFile(`${dir}package.json`, JSON.stringify(packageJson, null, "\t"));
 	}
 
