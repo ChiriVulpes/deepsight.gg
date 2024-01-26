@@ -1,3 +1,4 @@
+import type { InventoryItemHashes } from "@deepsight.gg/enums";
 import { ActivityModeHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition, DestinyInventoryItemDefinition, DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
@@ -49,13 +50,16 @@ namespace Source {
 
 	async function resolveDropTables (manifest: Manifest, profile: ISourceProfile, item: IItemInit) {
 		const { DeepsightDropTableDefinition } = manifest;
+
+		const hash = item.definition.hash as InventoryItemHashes;
+
 		let dropTables = await DeepsightDropTableDefinition.all();
 		dropTables = dropTables.filter(table => false
-			|| table.dropTable?.[item.definition.hash]
-			|| table.encounters?.some(encounter => encounter.dropTable?.[item.definition.hash])
-			|| table.master?.dropTable?.[item.definition.hash]
-			|| table.rotations?.drops?.some(drop => drop === item.definition.hash || typeof drop === "object" && item.definition.hash in drop)
-			|| table.rotations?.masterDrops?.some(drop => drop === item.definition.hash || typeof drop === "object" && item.definition.hash in drop));
+			|| table.dropTable?.[hash]
+			|| table.encounters?.some(encounter => encounter.dropTable?.[hash])
+			|| table.master?.dropTable?.[hash]
+			|| table.rotations?.drops?.some(drop => drop === hash || typeof drop === "object" && hash in drop)
+			|| table.rotations?.masterDrops?.some(drop => drop === hash || typeof drop === "object" && hash in drop));
 
 		if (!dropTables.length)
 			return undefined;
@@ -76,16 +80,18 @@ namespace Source {
 			?? (table.availability === "repeatable" ? SourceType.Repeatable : undefined)
 			?? SourceType.Playlist;
 
-		const dropDef = table.dropTable?.[item.definition.hash]
-			?? table.encounters?.find(encounter => encounter.dropTable?.[item.definition.hash])?.dropTable?.[item.definition.hash]
-			?? table.master?.dropTable?.[item.definition.hash];
+		const hash = item.definition.hash as InventoryItemHashes;
+
+		const dropDef = table.dropTable?.[hash]
+			?? table.encounters?.find(encounter => encounter.dropTable?.[hash])?.dropTable?.[hash]
+			?? table.master?.dropTable?.[hash];
 
 		const rotatedDrop = resolveRotation(table.rotations?.drops, intervals);
-		const isRotationDrop = rotatedDrop === item.definition.hash || typeof rotatedDrop === "object" && item.definition.hash in rotatedDrop;
+		const isRotationDrop = rotatedDrop === hash || typeof rotatedDrop === "object" && hash in rotatedDrop;
 		const rotatedMasterDrop = resolveRotation(table.rotations?.masterDrops, intervals);
-		const isMasterRotationDrop = rotatedMasterDrop === item.definition.hash || typeof rotatedMasterDrop === "object" && item.definition.hash in rotatedMasterDrop;
+		const isMasterRotationDrop = rotatedMasterDrop === hash || typeof rotatedMasterDrop === "object" && hash in rotatedMasterDrop;
 
-		const isMaster = !!table.master?.dropTable?.[item.definition.hash] || isMasterRotationDrop;
+		const isMaster = !!table.master?.dropTable?.[hash] || isMasterRotationDrop;
 
 		const isRotatingChallengeRelevant = table.availability === "rotator" ? false
 			: isMaster

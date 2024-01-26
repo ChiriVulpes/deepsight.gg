@@ -1,6 +1,6 @@
+import type { ActivityHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase, DeepsightDropTableRotationsDefinition as DeepsightDropTableRotationsDefinitionBase, ISOString } from "../../../static/manifest/Interfaces";
 import type DestinyManifestReference from "../DestinyManifestReference";
-import type { ActivityHashes } from "../Enums";
 import CrotasEnd from "./CrotasEnd";
 import DeepStoneCrypt from "./DeepStoneCrypt";
 import Duality from "./Duality";
@@ -18,7 +18,8 @@ import VaultOfGlass from "./VaultOfGlass";
 import VowOfTheDisciple from "./VowOfTheDisciple";
 import WarlordsRuin from "./WarlordsRuin";
 
-export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations" | "type" | "typeDisplayProperties"> {
+export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations" | "type" | "typeDisplayProperties" | "hash"> {
+	hash: ActivityHashes;
 	displayProperties?: DestinyManifestReference.DisplayPropertiesDefinition;
 	rotations?: DeepsightDropTableRotationsDefinition;
 	type?: DeepsightDropTableDefinitionBase["type"];

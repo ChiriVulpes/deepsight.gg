@@ -1,9 +1,9 @@
+import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
-import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "../Enums";
 import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
 import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";

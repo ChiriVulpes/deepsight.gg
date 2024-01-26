@@ -1,4 +1,4 @@
-import Arrays from "@app/utility/Arrays";
+import Arrays from "@deepsight.gg/utility/Arrays";
 import bump_versions from "./bump_versions";
 import copy_manifest from "./copy_manifest";
 import destiny_manifest from "./destiny_manifest";
@@ -8,6 +8,7 @@ import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
 import DeepsightPlugTypeDefinition from "./manifest/DeepsightPlugCategorisation";
 import DeepsightTierTypeDefinition from "./manifest/DeepsightTierTypeDefinition";
 import DeepsightTypes from "./manifest/DeepsightTypes";
+import DeepsightVendorDefinition from "./manifest/DeepsightVendorDefinition";
 import DeepsightWallpaperDefinition from "./manifest/DeepsightWallpaperDefinition";
 import refresh_token from "./refresh_token";
 import Task from "./utility/Task";
@@ -24,6 +25,7 @@ export default Task("deepsight_manifest", task => task.series(
 		DeepsightDropTableDefinition,
 		DeepsightWallpaperDefinition,
 		DeepsightTierTypeDefinition,
+		DeepsightVendorDefinition,
 		DeepsightTypes,
 	),
 	DeepsightPlugTypeDefinition,

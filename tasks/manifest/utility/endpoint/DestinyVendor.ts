@@ -1,7 +1,7 @@
+import type { VendorHashes } from "@deepsight.gg/enums";
 import type { DestinyComponentType, DestinyVendorResponse } from "bungie-api-ts/destiny2";
 import Env from "../../../utility/Env";
 import Model from "../../../utility/Model";
-import type { VendorHashes } from "../../Enums";
 import DestinyCharacters from "./DestinyCharacters";
 import DestinyRequest from "./DestinyRequest";
 

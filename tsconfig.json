@@ -11,7 +11,8 @@
 		"skipLibCheck": true,
 		"paths": {
 			"bungie-api-ts/*": ["./src/node_modules/bungie-api-ts/*"],
-			"@app/utility/*": ["./src/utility/*"]
+			"@deepsight.gg/utility/*": ["./src/utility/*"],
+			"@deepsight.gg/enums": ["./static/manifest/Enums.d.ts"]
 		}
 	}
 }

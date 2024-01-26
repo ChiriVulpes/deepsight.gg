@@ -1,8 +1,8 @@
+import type { ActivityTypeHashes } from "@deepsight.gg/enums";
 import type { DestinyActivityModeType, DestinyPostGameCarnageReportData, ServerResponse } from "bungie-api-ts/destiny2";
 import type { DeepsightManifest, DeepsightManifestReferencePGCR } from "../../../static/manifest/Interfaces";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
-import type { ActivityTypeHashes } from "../Enums";
 
 const apiKey = Env.DEEPSIGHT_MANIFEST_API_KEY;
 if (!apiKey)

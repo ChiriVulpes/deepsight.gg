@@ -1,3 +1,4 @@
+import type { InventoryItemHashes } from "@deepsight.gg/enums";
 import { ActivityModeHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
@@ -196,7 +197,7 @@ export default class ItemTooltipSource extends Component {
 			realEncounterIndex++;
 			const dropTable = encounter.dropTableMergeStrategy === "replace" ? encounter.dropTable
 				: { ...source.dropTable.dropTable, ...encounter.dropTable };
-			if (!dropTable?.[item.definition.hash])
+			if (!dropTable?.[item.definition.hash as InventoryItemHashes])
 				continue;
 
 			const phaseComponent = Component.create()

@@ -1,4 +1,4 @@
-import Arrays from "@app/utility/Arrays";
+import Arrays from "@deepsight.gg/utility/Arrays";
 import ansicolor from "ansicolor";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
@@ -279,7 +279,8 @@ export default Task("generate_enums", async () => {
 
 	const componentNames = await manifest.ALL;
 
-	const stream = fs.createWriteStream("tasks/manifest/Enums.d.ts");
+	await fs.mkdirp("docs/manifest");
+	const stream = fs.createWriteStream("docs/manifest/Enums.d.ts");
 
 	const componentNamesWithoutDefinitionNames: string[] = [];
 	const plugHelper = new EnumHelper("DestinyItemPlugDefinition");
@@ -366,8 +367,6 @@ export default Task("generate_enums", async () => {
 		await new Promise(resolve => stream.on("finish", resolve));
 
 	delete Env.ENUMS_NEED_UPDATE;
-	await fs.mkdirp("docs/manifest");
-	await fs.copyFile("tasks/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
 
 	if (dedupeFailures.length)
 		throw new Error(`Failed to dedupe the following enums:\n\n${dedupeFailures.join("\n\n")}`);

@@ -1,4 +1,4 @@
-import type { DamageTypeHashes } from "@deepsight.gg/enums";
+import type { DamageTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
@@ -528,8 +528,9 @@ class Item {
 	 * Some items are only very rarely available, such as adept raid weapons. Do you have the fomo? You should!
 	 */
 	public isFomo () {
+		const hash = this.definition.hash as InventoryItemHashes;
 		for (const source of this.sources ?? []) {
-			if (source.dropTable.dropTable?.[this.definition.hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[this.definition.hash])) {
+			if (source.dropTable.dropTable?.[hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[hash])) {
 				if (source.dropTable.availability)
 					return ItemFomoState.TemporaryRepeatability;
 

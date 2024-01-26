@@ -1,3 +1,5 @@
+import type { ActivityHashes } from "@deepsight.gg/enums";
+import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "@deepsight.gg/enums";
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
@@ -6,8 +8,6 @@ import Log from "../utility/Log";
 import Task from "../utility/Task";
 import Time from "../utility/Time";
 import DestinyManifestReference from "./DestinyManifestReference";
-import type { ActivityHashes } from "./Enums";
-import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "./Enums";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
 import PGCR from "./utility/PGCR";

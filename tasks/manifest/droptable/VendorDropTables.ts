@@ -1,9 +1,9 @@
-import Strings from "@app/utility/Strings";
+import { ActivityTypeHashes, InventoryItemHashes, VendorHashes } from "@deepsight.gg/enums";
+import Strings from "@deepsight.gg/utility/Strings";
 import type { DestinyInventoryItemDefinition, DestinyVendorSaleItemComponent } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType, DestinyComponentType, DestinyVendorItemState, VendorItemStatus } from "bungie-api-ts/destiny2";
 import Time from "../../utility/Time";
 import DestinyManifestReference from "../DestinyManifestReference";
-import { ActivityTypeHashes, InventoryItemHashes, VendorHashes } from "../Enums";
 import ItemEquippableDummies from "../utility/ItemEquippableDummies";
 import DestinyActivities from "../utility/endpoint/DestinyActivities";
 import manifest from "../utility/endpoint/DestinyManifest";

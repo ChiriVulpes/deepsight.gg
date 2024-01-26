@@ -1,6 +1,6 @@
 
+import { ItemCategoryHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
-import { ItemCategoryHashes } from "../Enums";
 import manifest from "./endpoint/DestinyManifest";
 
 namespace ItemEquippableDummies {

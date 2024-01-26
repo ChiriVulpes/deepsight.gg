@@ -60,6 +60,8 @@ declare global {
 
 		findMap<FILTER extends T, RETURN> (predicate: (value: T, index: number, obj: T[]) => value is FILTER, mapper: (value: FILTER, index: number, obj: T[]) => RETURN): RETURN | undefined;
 		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined;
+
+		groupBy<GROUP> (grouper: (value: T, index: number, obj: T[]) => GROUP): [GROUP, T[]][];
 	}
 }
 
@@ -148,6 +150,52 @@ namespace Arrays {
 		return !!value;
 	}
 
+	export function mergeSorted<T> (...arrays: T[][]): T[] {
+		return arrays.reduce((prev, curr) => mergeSorted2(prev, curr), []);
+	}
+
+	function mergeSorted2<T> (array1: T[], array2: T[]) {
+		const merged: T[] = [];
+
+		let index1 = 0;
+		let index2 = 0;
+
+		while (index1 < array1.length || index2 < array2.length) {
+			const v1 = index1 < array1.length ? array1[index1] : undefined;
+			const v2 = index2 < array2.length ? array2[index2] : undefined;
+
+			if (v1 === v2) {
+				merged.push(v1!);
+				index1++;
+				index2++;
+				continue;
+			}
+
+			if (v1 === undefined && v2 !== undefined) {
+				merged.push(v2);
+				index2++;
+				continue;
+			}
+
+			if (v2 === undefined && v1 !== undefined) {
+				merged.push(v1);
+				index1++;
+				continue;
+			}
+
+			const indexOfPerson1InList2 = array2.indexOf(v1!, index2);
+			if (indexOfPerson1InList2 === -1) {
+				merged.push(v1!);
+				index1++;
+			} else {
+				merged.push(v2!);
+				index2++;
+			}
+		}
+
+		return merged;
+	}
+
 	export function applyPrototypes () {
 		Define(Array.prototype, "findLast", function (predicate) {
 			if (this.length > 0)
@@ -229,6 +277,14 @@ namespace Arrays {
 					return mapper(this[i], i, this);
 
 			return undefined;
+		});
+
+		Define(Array.prototype, "groupBy", function (grouper) {
+			const result: Record<string, any[]> = {};
+			for (let i = 0; i < this.length; i++)
+				(result[String(grouper(this[i], i, this))] ??= []).push(this[i]);
+
+			return Object.entries(result);
 		});
 	}
 }
