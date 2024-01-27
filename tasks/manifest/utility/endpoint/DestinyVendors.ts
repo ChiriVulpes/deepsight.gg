@@ -1,14 +1,41 @@
-import type { VendorHashes } from "@deepsight.gg/enums";
+import { DestinationHashes, VendorHashes } from "@deepsight.gg/enums";
 import Arrays from "@deepsight.gg/utility/Arrays";
 import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse } from "bungie-api-ts/destiny2";
 import { diff } from "json-diff";
 import type { DeepsightDisplayPropertiesDefinition, DeepsightVendorDefinition, DeepsightVendorItemDefinition } from "../../../../static/manifest/Interfaces";
 import Env from "../../../utility/Env";
 import Model from "../../../utility/Model";
+import Rotation from "../Rotations";
 import DestinyCharacters from "./DestinyCharacters";
 import DestinyComponents from "./DestinyComponents";
 import DestinyManifest from "./DestinyManifest";
 import DestinyRequest from "./DestinyRequest";
+
+const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes, string>>>> = {
+	[VendorHashes.LordSaladin]: "lordsaladin",
+	[VendorHashes.Nimbus]: "nimbus",
+	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
+	[VendorHashes.Fynch]: "fynch",
+	[VendorHashes.Xur_LocationsLength1]: "xurtreasurehoard",
+	[VendorHashes.Xur_LocationsLength3]: {
+		// [DestinationHashes.TheLastCity1737926756]:
+		// [DestinationHashes.EuropeanDeadZone_Bubbles18Hash12377074]:
+		[DestinationHashes.ArcadianValley_PlaceHash3607432451]: "xurarcadianvalley",
+	},
+	[VendorHashes.Ada1_Enabledtrue]: "ada1",
+	[VendorHashes.Banshee44_Enabledtrue]: "banshee44",
+	[VendorHashes.CommanderZavala_Enabledtrue]: "commanderzavala",
+	[VendorHashes.TheDrifter_Enabledtrue]: "thedrifter",
+	[VendorHashes.Saint14]: "saint14",
+	[VendorHashes.LordShaxx_Enabledtrue]: "lordshaxx",
+	[VendorHashes.DevrimKay]: "devrimkay",
+	[VendorHashes.Failsafe]: "failsafe",
+	[VendorHashes.ErisMorn]: "erismorn",
+	[VendorHashes.LecternOfEnchantment]: "lecternofenchantment",
+	[VendorHashes.ShawHan]: "shawhan",
+	[VendorHashes.PetraVenj]: `petravenj${Rotation.resolve({ anchor: "2024-01-16T17:00:00Z" }, ["thestrand", "divalianmists", "rheasilvia"])}`,
+	[VendorHashes.VariksTheLoyal]: "varikstheloyal",
+};
 
 function one<T> (array: T[], id: string, def: { displayProperties: DestinyDisplayPropertiesDefinition }, hash?: (value: T) => any) {
 	if (array.length === 0)
@@ -42,29 +69,36 @@ export default Model(async () =>
 			const vendorDefs = await DestinyManifest.DestinyVendorDefinition.all();
 			const itemDefs = await DestinyManifest.DestinyInventoryItemDefinition.all();
 
-			return Object.fromEntries(hashes.map((catHash): [number, DeepsightVendorDefinition] => {
-				const vendors = responses.map(response => response.vendors.data![catHash]).filter(v => v);
+			return Object.fromEntries(hashes.map((vendorHash): [number, DeepsightVendorDefinition] => {
+				const vendors = responses.map(response => response.vendors.data![vendorHash]).filter(v => v);
 
-				const def = vendorDefs[catHash];
+				const def = vendorDefs[vendorHash];
 				if (!def)
-					throw new Error(`Unable to find definition for vendor ${catHash}`);
+					throw new Error(`Unable to find definition for vendor ${vendorHash}`);
 
-				const sales = responses.map(response => response.sales.data?.[catHash])
+				const sales = responses.map(response => response.sales.data?.[vendorHash])
 					.filter(Arrays.filterNullish);
 
 				const itemComponents = responses.map(response => response.itemComponents);
 
-				return [catHash, {
-					hash: catHash,
+				const location = def.locations
+					?.[vendors.map(vendor => vendor.vendorLocationIndex)
+						.collect(one, "location", def)!];
+
+				let background = VENDOR_BACKGROUNDS[vendorHash];
+				if (typeof background === "object")
+					background = background[location?.destinationHash as DestinationHashes];
+
+				return [vendorHash, {
+					hash: vendorHash,
 					displayProperties: def.displayProperties as DeepsightDisplayPropertiesDefinition,
+					background: background === undefined ? undefined : `./image/png/vendor/background/${background}.png`,
+					location,
 					groups: responses.flatMap(response => response.vendorGroups.data?.groups ?? [])
-						.filter(group => group.vendorHashes.includes(catHash))
+						.filter(group => group.vendorHashes.includes(vendorHash))
 						.map(group => group.vendorGroupHash)
 						.distinct(),
-					location: def.locations
-						?.[vendors.map(vendor => vendor.vendorLocationIndex)
-							.collect(one, "location", def)!],
-					categories: responses.map(response => response.categories.data?.[catHash])
+					categories: responses.map(response => response.categories.data?.[vendorHash])
 						.filter(Arrays.filterNullish)
 						.flatMap(categories => categories.categories)
 						.groupBy(category => category.displayCategoryIndex)
@@ -90,7 +124,7 @@ export default Model(async () =>
 													.map(cost => `${cost.itemHash}#${cost.quantity}`)
 													.join(""))),
 										}),
-									itemComponent: itemComponents.map(itemComponents => itemComponents[catHash])
+									itemComponent: itemComponents.map(itemComponents => itemComponents[vendorHash])
 										.filter(Arrays.filterNullish)
 										.collect(itemComponents =>
 											([
