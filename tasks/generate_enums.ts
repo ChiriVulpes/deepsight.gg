@@ -43,6 +43,7 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 	DestinyRecordDefinition: ["loreHash", "completionInfo.ScoreValue", "objectiveHashes*", "parentNodeHashes*"],
 	DestinyVendorDefinition: ["itemList.*"],
 	DestinyPresentationNodeDefinition: ["children.*"],
+	DestinyDestinationDefinition: ["bubble*", "activityGraphEntries*"],
 };
 
 const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, Record<string, keyof AllDestinyManifestComponents>>> = {
@@ -58,6 +59,10 @@ const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, R
 		loreHash: "DestinyLoreDefinition",
 		objectiveHashes: "DestinyObjectiveDefinition",
 		parentNodeHashes: "DestinyRecordDefinition",
+	},
+	DestinyDestinationDefinition: {
+		placeHash: "DestinyPlaceDefinition",
+		defaultFreeroamActivityHash: "DestinyActivityDefinition",
 	},
 };
 
@@ -149,7 +154,7 @@ export class EnumHelper {
 		let shortestSuffix: string | undefined;
 		const differences = Objects.findDifferences(...encountered).sort((a, b) => a.path.localeCompare(b.path));
 
-		for (let i = 0; i < differences.length; i++) {
+		NextDifference: for (let i = 0; i < differences.length; i++) {
 			const difference = differences[i];
 			if (difference.path === "index" || difference.path === "displayProperties.name")
 				// "index" is unstable, it's some internal bungie row index thing, and exclude other paths
@@ -169,18 +174,29 @@ export class EnumHelper {
 			if (isUnrenderablePath && (encountered.length > 2 || !difference.unique.has("undefined")))
 				continue;
 
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const value = Objects.path(definition, difference.path);
+			const getValueString = async (definition?: string | Definition) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				const value = Objects.path(definition, difference.path);
+
+				const valueHashComponent = COMPONENT_HASH_PATHS[componentName!]?.[difference.path];
+				return undefined
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+					?? (valueHashComponent && EnumHelper.simplifyName((await manifest[valueHashComponent].get(value) as Definition)?.displayProperties?.name))
+					?? this.stringifyValue(!isUnrenderablePath ? value
+						: value ? "present" : undefined);
+			};
+
+			if (prevIndex === undefined) {
+				const allValueStrings = new Set(await Promise.all(encountered.map(getValueString)));
+				if (allValueStrings.size !== encountered.length)
+					continue NextDifference;
+			}
+
+			const valueString = await getValueString(definition);
+
 			const key = EnumHelper.simplifyName(difference.path.replace(/(?=[A-Z])/g, " "));
-
-			const valueHashComponent = COMPONENT_HASH_PATHS[componentName!]?.[difference.path];
-			const valueString = undefined
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				?? (valueHashComponent && EnumHelper.simplifyName((await manifest[valueHashComponent].get(value) as Definition)?.displayProperties?.name))
-				?? this.stringifyValue(!isUnrenderablePath ? value
-					: value ? "present" : undefined);
-
 			const differenceString = `${key === "Hash" ? magic : `_${key}`}${valueString}`;
+
 			if (prevIndex === i || differenceString.length < (shortestSuffix?.length ?? Infinity)) {
 				shortestSuffix = differenceString;
 				this.diffIndices[name] = i;
@@ -188,7 +204,7 @@ export class EnumHelper {
 		}
 
 		if (!shortestSuffix)
-			throw new Error(`Unable to find difference for ${name}`);
+			throw new Error(`Unable to find difference for ${name} (${this.type})`);
 
 		name += shortestSuffix.replace(magic, "");
 
