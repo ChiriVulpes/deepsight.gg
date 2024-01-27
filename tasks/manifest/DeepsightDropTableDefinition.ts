@@ -161,7 +161,8 @@ export default Task("DeepsightDropTableDefinition", async () => {
 
 	if (!cache.asOf || (cache.asOf < Time.lastDailyReset && Date.now() - Time.lastDailyReset > Time.minutes(30))) {
 		if (Time.lastTrialsReset > Time.lastWeeklyReset) {
-			const trialsPGCR = await PGCR.findByMode(DestinyActivityModeType.TrialsOfOsiris);
+			const hasIronBanner = activities.some(activity => activity.definition?.activityTypeHash === ActivityTypeHashes.IronBanner);
+			const trialsPGCR = hasIronBanner ? undefined : await PGCR.findByMode(DestinyActivityModeType.TrialsOfOsiris);
 			cache.trials = trialsPGCR?.activityDetails.referenceId;
 		}
 
