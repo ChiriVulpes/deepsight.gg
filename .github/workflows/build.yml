@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
 
       - name: Install dependencies
         run: npm ci --force
@@ -25,7 +25,7 @@ jobs:
         run: echo "BUILD_NUMBER=$(($NUM+447))" >> "$GITHUB_ENV"
 
       - name: Download testiny artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: testiny-data
           path: static/testiny
@@ -48,7 +48,7 @@ jobs:
 
       - name: Prepare for GitHub Pages
         if: success()
-        uses: crazy-max/ghaction-github-pages@v3
+        uses: crazy-max/ghaction-github-pages@v4
         with:
           fqdn: deepsight.gg
           target_branch: build

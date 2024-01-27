@@ -23,7 +23,7 @@ jobs:
           ref: manifest
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
 
       - name: Check updated
         id: updated
@@ -34,7 +34,7 @@ jobs:
         continue-on-error: true
 
       - name: Save versions.json artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: versions
           path: versions.json
