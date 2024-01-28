@@ -18,9 +18,9 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.Fynch]: "fynch",
 	[VendorHashes.Xur_LocationsLength1]: "xurtreasurehoard",
 	[VendorHashes.Xur_LocationsLength3]: {
-		// [DestinationHashes.TheLastCity1737926756]:
-		// [DestinationHashes.EuropeanDeadZone_Bubbles18Hash12377074]:
-		[DestinationHashes.ArcadianValley_PlaceHash3607432451]: "xurarcadianvalley",
+		[DestinationHashes.TheLastCity1737926756]: "xurthelastcity",
+		[DestinationHashes.EuropeanDeadZone697502628]: "xureuropeandeadzone",
+		[DestinationHashes.ArcadianValley3607432451]: "xurarcadianvalley",
 	},
 	[VendorHashes.Ada1_Enabledtrue]: "ada1",
 	[VendorHashes.Banshee44_Enabledtrue]: "banshee44",
