@@ -1,6 +1,7 @@
 {
 	"private": true,
 	"dependencies": {
-		"bungie-api-ts": "^5.0.0"
+		"bungie-api-ts": "^5.0.0",
+		"deepsight.gg": "^1.0.91"
 	}
 }
