@@ -136,7 +136,7 @@ process.on("unhandledRejection", onError);
 
 const [, , ...tasks] = process.argv;
 void (async () => {
-	let errors = false;
+	let errors: number | undefined;
 	for (const task of tasks) {
 		try {
 			if (tasks.length === 1) {
@@ -150,20 +150,26 @@ void (async () => {
 				continue;
 			}
 
-			await new Promise((resolve, reject) => {
+			await new Promise<void>((resolve, reject) => {
 				const p = spawn("npx", ["ts-node", __filename, task], { shell: true, stdio: "inherit" });
 				p.on("error", reject);
-				p.on("close", resolve);
+				p.on("close", code => {
+					if (code) errors = code;
+					resolve();
+				});
 			});
+
+			if (errors)
+				break;
 
 		} catch (err) {
 			if (!loggedErrors.has(err as Error))
 				Log.error(err);
-			errors = true;
+			errors = 1;
 			break;
 		}
 	}
 
 	if (errors || taskApi.lastError)
-		process.exit(1);
+		process.exit(errors ?? 1);
 })();
