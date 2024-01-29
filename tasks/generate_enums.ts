@@ -295,8 +295,7 @@ export default Task("generate_enums", async () => {
 
 	const componentNames = await manifest.ALL;
 
-	await fs.mkdirp("docs/manifest");
-	const stream = fs.createWriteStream("docs/manifest/Enums.d.ts");
+	const stream = fs.createWriteStream("static/manifest/Enums.d.ts");
 
 	const componentNamesWithoutDefinitionNames: string[] = [];
 	const plugHelper = new EnumHelper("DestinyItemPlugDefinition");
@@ -386,4 +385,7 @@ export default Task("generate_enums", async () => {
 
 	if (dedupeFailures.length)
 		throw new Error(`Failed to dedupe the following enums:\n\n${dedupeFailures.join("\n\n")}`);
+
+	await fs.mkdirp("docs/manifest");
+	await fs.copyFile("static/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
 });
