@@ -2,11 +2,9 @@
 	"name": "deepsight.gg",
 	"private": true,
 	"scripts": {
-		"build": "npx ts-node tasks/utility/TaskRunner.ts install ensure_enums build",
-		"rebuild": "npx ts-node tasks/utility/TaskRunner.ts clean ensure_enums build",
-		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean ensure_enums build serve watch",
-		"clean": "npx ts-node tasks/utility/TaskRunner.ts clean",
-		"manifest": "npx ts-node tasks/utility/TaskRunner.ts install ensure_enums deepsight_manifest",
+		"build": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums build",
+		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums build -- serve watch",
+		"manifest": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums deepsight_manifest",
 		"bump_versions": "npx ts-node tasks/utility/TaskRunner.ts bump_versions",
 		"refresh_token": "npx ts-node tasks/utility/TaskRunner.ts refresh_token"
 	},

@@ -137,9 +137,15 @@ process.on("unhandledRejection", onError);
 const [, , ...tasks] = process.argv;
 void (async () => {
 	let errors: number | undefined;
+	let remainingInMain = false;
 	for (const task of tasks) {
+		if (task === "--") {
+			remainingInMain = true;
+			continue;
+		}
+
 		try {
-			if (tasks.length === 1) {
+			if (tasks.length === 1 || remainingInMain) {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-var-requires
 				const taskFunction = require(`../${task}.ts`)?.default;
 				if (!taskFunction)

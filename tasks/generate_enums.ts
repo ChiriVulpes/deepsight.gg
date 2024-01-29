@@ -287,9 +287,11 @@ export class EnumHelper {
 }
 
 export default Task("generate_enums", async () => {
-	if (!Env.ENUMS_NEED_UPDATE && fs.existsSync("tasks/manifest/Enums.d.ts")) {
+	const enumsTime = await fs.stat("static/manifest/Enums.d.ts").then(stats => stats.mtimeMs).catch(() => 0);
+	const manifestTime = await fs.stat("static/testiny/.v").then(stats => stats.mtimeMs).catch(() => 0);
+	if (enumsTime > manifestTime && !Env.ENUMS_NEED_UPDATE) {
 		Log.info(ansicolor.lightGreen("Enums OK!"));
-		await fs.copyFile("tasks/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
+		await fs.copyFile("static/manifest/Enums.d.ts", "docs/manifest/Enums.d.ts");
 		return;
 	}
 
