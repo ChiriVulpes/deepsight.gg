@@ -26,8 +26,8 @@ jobs:
           path: static/testiny
         continue-on-error: true
 
-      - name: Install
-        run: npm run install-src
+      - name: Setup
+        run: npm run setup
 
       - name: Build
         env:

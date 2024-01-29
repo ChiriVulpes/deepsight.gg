@@ -55,8 +55,8 @@ jobs:
           value: ${{ steps.refresh_token.outputs.refresh_token }}
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
-      - name: Install
-        run: npm run install-src
+      - name: Setup
+        run: npm run setup
 
       - name: Download versions artifact
         uses: actions/download-artifact@v4
