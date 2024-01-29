@@ -26,9 +26,6 @@ jobs:
           path: static/testiny
         continue-on-error: true
 
-      - name: Setup
-        run: npm run setup
-
       - name: Build
         env:
           DEEPSIGHT_ENVIRONMENT: beta

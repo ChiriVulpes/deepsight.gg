@@ -30,9 +30,6 @@ jobs:
           name: testiny-data
           path: static/testiny
 
-      - name: Setup
-        run: npm run setup
-
       - name: Build
         env:
           DEEPSIGHT_PATH: https://deepsight.gg/

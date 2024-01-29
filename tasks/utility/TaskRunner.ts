@@ -1,4 +1,5 @@
 import ansi from "ansicolor";
+import { spawn } from "child_process";
 import dotenv from "dotenv";
 import * as tsconfigpaths from "tsconfig-paths";
 import Log from "./Log";
@@ -138,13 +139,22 @@ void (async () => {
 	let errors = false;
 	for (const task of tasks) {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-var-requires
-			const taskFunction = require(`../${task}.ts`)?.default;
-			if (!taskFunction)
-				throw new Error(`No task function found by name "${task}"`);
+			if (tasks.length === 1) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-var-requires
+				const taskFunction = require(`../${task}.ts`)?.default;
+				if (!taskFunction)
+					throw new Error(`No task function found by name "${task}"`);
 
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			await taskApi.run(taskFunction);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				await taskApi.run(taskFunction);
+				continue;
+			}
+
+			await new Promise((resolve, reject) => {
+				const p = spawn("npx", ["ts-node", __filename, task], { shell: true, stdio: "inherit" });
+				p.on("error", reject);
+				p.on("close", resolve);
+			});
 
 		} catch (err) {
 			if (!loggedErrors.has(err as Error))
