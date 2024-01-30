@@ -32,19 +32,10 @@ jobs:
     needs: [build-beta, build, manifest]
     if: always() && needs.build.result == 'success' && needs.manifest.result == 'success'
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit
     
   cleanup:
     needs: deploy
     if: always()
-    runs-on: ubuntu-latest
-    
-    steps: 
-      - name: Delete testiny artifact
-        uses: geekyeggo/delete-artifact@v4
-        with:
-          name: testiny-data
-    
-      - name: Delete versions artifact
-        uses: geekyeggo/delete-artifact@v4
-        with:
-          name: versions
+    uses: ./.github/workflows/cleanup.yml
+    secrets: inherit

@@ -15,3 +15,4 @@ jobs:
   deploy:
     needs: build-beta
     uses: ./.github/workflows/deploy.yml  
+    secrets: inherit

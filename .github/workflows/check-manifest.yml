@@ -53,3 +53,9 @@ jobs:
     needs: manifest
     uses: ./.github/workflows/deploy.yml  
     secrets: inherit
+
+  cleanup:
+    needs: deploy
+    if: always()
+    uses: ./.github/workflows/cleanup.yml
+    secrets: inherit
