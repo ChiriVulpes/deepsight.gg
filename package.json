@@ -3,7 +3,7 @@
 	"private": true,
 	"scripts": {
 		"build": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums build",
-		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums build -- serve watch",
+		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums pre_watch_build -- serve watch",
 		"manifest": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums deepsight_manifest",
 		"bump_versions": "npx ts-node tasks/utility/TaskRunner.ts bump_versions",
 		"refresh_token": "npx ts-node tasks/utility/TaskRunner.ts refresh_token"

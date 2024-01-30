@@ -14,10 +14,12 @@ try {
 tsconfigpaths.register();
 
 export interface ITaskApi {
+	noErrors?: true;
 	lastError?: Error;
 	series (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
 	parallel (...tasks: TaskFunctionDef<any>[]): TaskFunction<any>;
-	run<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): T | Promise<T>;
+	run<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): Promise<T>;
+	try<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): Promise<T>;
 	debounce<T, ARGS extends any[]> (task: TaskFunctionDef<T, ARGS>, ...args: ARGS): void;
 }
 
@@ -34,19 +36,30 @@ const taskApi: ITaskApi = {
 	lastError: undefined,
 	series (...tasks): TaskFunction<Promise<void>> {
 		return Task(null, async api => {
+			const shouldError = !api.noErrors;
+			delete api.noErrors;
 			for (const task of tasks)
-				await api.run(task);
+				await api[shouldError ? "run" : "try"](task);
 		});
 	},
 	parallel (...tasks): TaskFunction<Promise<void>> {
 		return Task(null, async api => {
-			await Promise.all(tasks.map(task => Promise.resolve(api.run(task))));
+			const shouldError = !api.noErrors;
+			delete api.noErrors;
+			await Promise.all(tasks.map(task => Promise.resolve(api[shouldError ? "run" : "try"](task))));
 		});
 	},
+	try (task, ...args) {
+		this.noErrors = true;
+		return this.run(task, ...args);
+	},
 	/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
-	run (task, ...args: any[]) {
+	async run (task, ...args: any[]) {
+		const shouldError = !this.noErrors;
+		delete this.noErrors;
+
 		let result: any;
-		const taskName = ansi.cyan(task.name);
+		const taskName = ansi.cyan(task.name || "<anonymous>");
 
 		if (task.name)
 			Log.info(`Starting ${taskName}...`);
@@ -55,53 +68,45 @@ const taskApi: ITaskApi = {
 		let err: Error | undefined;
 		try {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			result = (task as TaskFunctionDef<any, any[]>)(this, ...args);
+			result = await (task as TaskFunctionDef<any, any[]>)(shouldError ? this : { ...this, noErrors: true }, ...args);
 		} catch (caught: any) {
 			err = caught;
-			this.lastError = caught;
+			if (shouldError)
+				this.lastError = caught;
 		}
-
-		if (err)
-			throw err;
 
 		function logResult () {
 			const time = watch.time();
 			if (err) {
 				if (!loggedErrors.has(err)) {
 					loggedErrors.add(err);
-					Log.error(`Task ${taskName ?? ansi.cyan("<anonymous>")} errored after ${time}:`, err);
+					Log.error(`Task ${taskName} errored after ${time}:`, err);
 				}
 			} else if (task.name)
 				Log.info(`Finished ${taskName} in ${time}`);
 		}
 
-		if (result instanceof Promise) {
-			result = result
-				.then(result => {
-					logResult();
-					if (Task.is(result))
-						return this.run(result);
-
-					return result;
-				})
-				.catch(caught => {
-					this.lastError = caught;
-					err = caught;
-					logResult();
+		while (true) {
+			if (err) {
+				logResult();
+				if (shouldError)
 					throw err;
-				});
+			}
 
-			return result;
+			if (!Task.is(result))
+				break;
+
+			result = await (!shouldError ? this.try(result) : this.run(result));
 		}
 
 		logResult();
-		if (Task.is(result))
-			return this.run(result);
-
 		return result;
 	},
 	/* eslint-enable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 	debounce (task, ...args) {
+		const shouldError = !this.noErrors;
+		delete this.noErrors;
+
 		let debouncedTask = debouncedTasks.get(task as TaskFunctionDef<any, any[]>);
 		if (!debouncedTask) {
 			debouncedTask = {
@@ -115,7 +120,7 @@ const taskApi: ITaskApi = {
 			debouncedTask.count++;
 			debouncedTask.promise = debouncedTask.promise.then(async () => {
 				try {
-					await this.run(task as TaskFunctionDef<any, any[]>, ...args);
+					await this[shouldError ? "run" : "try"](task as TaskFunctionDef<any, any[]>, ...args);
 				} catch { }
 				debouncedTask!.count--;
 			});
