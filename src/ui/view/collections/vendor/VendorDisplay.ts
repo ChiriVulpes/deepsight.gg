@@ -5,6 +5,7 @@ import BaseButton from "ui/form/Button";
 export enum VendorDisplayClasses {
 	Main = "vendor-display",
 	Title = "vendor-display-title",
+	TitleText = "vendor-display-title-text",
 	TitleBox = "vendor-display-title-box",
 	TitleHasDescription = "vendor-display-title--has-description",
 	Subtitle = "vendor-display-subtitle",
@@ -26,7 +27,9 @@ class VendorDisplay extends Component<HTMLElement, [def: DeepsightVendorDefiniti
 		Component.create()
 			.classes.add(VendorDisplayClasses.Title)
 			.classes.toggle(hasDescription, VendorDisplayClasses.TitleHasDescription)
-			.text.set(vendor.displayProperties.name)
+			.append(Component.create()
+				.classes.add(VendorDisplayClasses.TitleText)
+				.text.set(vendor.displayProperties.name))
 			.append(Component.create()
 				.classes.add(VendorDisplayClasses.TitleBox))
 			.appendTo(this);

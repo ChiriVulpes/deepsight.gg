@@ -1,18 +1,68 @@
 .view-vendor {
 	
 	&-content {
-		padding-bottom: 40px;
+		padding: 0;
 		display: grid;
+		grid-template-columns: repeat(2, 1fr);
 		grid-template-areas: 
 			"vendor wares"
 			"title wares";
+			
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			box-shadow: inset 0 -60px 0 0 #0002;
+			pointer-events: none;
+		}
+	}
+	
+	&-wares {
+		grid-area: wares;
+		backdrop-filter: blur(10px);
+		@include animation(1s ease-out 1s backwards) {
+			from { backdrop-filter: none }
+		}
+		.view-hidden & {
+			@include animation(1s ease-out forwards) {
+				to { backdrop-filter: none }
+			}
+		}
+		
+		&, &-backdrop-2 {
+			&::before, &::after {
+				content: "";
+				display: block;
+				position: absolute;
+				inset: 0;
+				left: auto;
+				width: 100%;
+				background: #00000008;
+				@include animation(1s ease-out var(--delay, 0s) backwards) {
+					from { width: 0% }
+				}
+				
+				.view-hidden & {
+					@include animation(1s ease-out var(--delay, 0s) both) {
+						to { width: 0% }
+					}
+				}
+			}
+		}
+		
+		&::after { --delay: 0.1s }
+		&-backdrop-2 {
+			&::before { --delay: 0.2s }
+			&::after { --delay: 0.3s }
+		}
 	}
 	
 	.vendor-display {
 		&-button {
 			@include view-swipe-animation($has-view-selector: true);
 			grid-area: title;
-			margin-bottom: 40px;
+			margin-bottom: 100px;
 			margin-left: 120px;
 			height: fit-content;
 			width: fit-content;

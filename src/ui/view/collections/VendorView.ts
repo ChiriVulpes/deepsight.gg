@@ -2,6 +2,7 @@ import type { DeepsightVendorDefinition } from "@deepsight.gg/interfaces";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
+import Component from "ui/Component";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
 import Display from "ui/bungie/DisplayProperties";
@@ -26,6 +27,11 @@ export async function resolveVendorURL (vendorId: string, api: IModelGenerationA
 	const searchHash = +vendorId;
 	return vendors.find(vendor => vendor.hash === searchHash
 		|| vendorId === getId(vendor));
+}
+
+export enum VendorViewClasses {
+	Wares = "view-vendor-wares",
+	WaresBackdrop2 = "view-vendor-wares-backdrop-2",
 }
 
 const vendorViewBase = View.create({
@@ -57,6 +63,12 @@ const vendorViewBase = View.create({
 
 		VendorDisplay.Button.create([vendor])
 			.event.subscribe("click", () => viewManager.showVendors())
+			.appendTo(view.content);
+
+		Component.create()
+			.classes.add(VendorViewClasses.Wares)
+			.append(Component.create()
+				.classes.add(VendorViewClasses.WaresBackdrop2))
 			.appendTo(view.content);
 	},
 });

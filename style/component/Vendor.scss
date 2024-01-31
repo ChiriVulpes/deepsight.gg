@@ -9,7 +9,7 @@
 	text-align: left;
 	padding-left: 10px;
 	opacity: .9;
-	@include animation(m(2s) var(--swipe-up-in-animation-delay, 0s) backwards) {
+	@include animation(m(1.2s) var(--swipe-up-in-animation-delay, 0s) backwards) {
 		from { opacity: 0 }
 	}
 	
@@ -31,6 +31,16 @@
 			position: absolute;
 			inset: .35em -6px;
 			border: 2px solid #fff3;
+		}
+
+		&-text {
+			padding-right: 1em;
+			margin-right: -1em;
+			mask-image: linear-gradient(to right, black calc(100% - 1em), transparent);
+			mask-repeat: no-repeat;
+			@include animation(1s ease-out) {
+				from { mask-position: -500px 0 }
+			}
 		}
 		
 		&::before {
@@ -58,7 +68,7 @@
 				width: calc(100% - 8px);
 				height: 2px;
 				background: #fff6;
-				@include animation(m(1s) calc(#{m(1s)} + var(--swipe-up-in-animation-delay, 0s)) backwards) {
+				@include animation(m(1s) calc(#{m(.4s)} + var(--swipe-up-in-animation-delay, 0s)) backwards) {
 					from { opacity: 0 }
 				}
 			}
@@ -91,12 +101,12 @@
 		position: relative;
 		padding-top: 10px;
 		padding-left: 8px;
-		@include animation(m(.6s) calc(#{m(1.4s)} + var(--swipe-up-in-animation-delay, 0s)) backwards ease-out) { 
+		@include animation(m(.6s) calc(#{m(.8s)} + var(--swipe-up-in-animation-delay, 0s)) backwards ease-out) { 
 			from { opacity: 0 } 
 		}
 		&-text {
 			position: relative;
-			@include animation(m(1s) calc(#{m(1s)} + var(--swipe-up-in-animation-delay, 0s)) backwards ease-out) { 
+			@include animation(m(1s) calc(#{m(.4s)} + var(--swipe-up-in-animation-delay, 0s)) backwards ease-out) { 
 				from { transform: translateY(-30px) }
 			}
 		}
