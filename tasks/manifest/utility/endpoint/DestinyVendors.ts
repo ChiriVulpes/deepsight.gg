@@ -131,10 +131,8 @@ export default Model(async () =>
 						.filter(Arrays.filterNullish)
 						.flatMap(categories => categories.categories)
 						.groupBy(category => category.displayCategoryIndex)
-						.map(([categoryIndex, categories]) => ({
-							...def.categories[categoryIndex],
-							vendorItemIndexes: undefined,
-							items: categories
+						.map(([categoryIndex, categories]) => {
+							const items = categories
 								.map(category => category.itemIndexes)
 								.concat(def.categories[categoryIndex]?.vendorItemIndexes ?? [])
 								.splat(Arrays.mergeSorted)
@@ -177,8 +175,17 @@ export default Model(async () =>
 													privacy: ComponentPrivacySetting.None,
 												} satisfies DictionaryComponentResponse<any>] as const)
 												.toObject() as DeepsightVendorItemDefinition["itemComponent"]),
-								})),
-						})),
+								}));
+
+							const displayCategory = def.displayCategories[categoryIndex];
+							return {
+								...displayCategory,
+								sortValue: def.categories[items[0].categoryIndex].sortValue,
+								items,
+							};
+						})
+						.sort((a, b) => a.sortValue - b.sortValue)
+						.map(category => ({ ...category, sortValue: undefined })),
 				} satisfies DeepsightVendorDefinition];
 			}));
 		}));

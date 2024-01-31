@@ -140,6 +140,8 @@ export default class Card<ARGS extends readonly any[] = readonly any[]> extends 
 		this._background?.classes.add(`${displayMode}-background` satisfies `${CardClasses}`);
 		this._backgroundWrapper?.classes.add(`${displayMode}-background-wrapper` satisfies `${CardClasses}`);
 		titleButtons.forEach(button => button.classes.add(`${displayMode}-title-button` satisfies `${CardClasses}`));
+
+		return this;
 	}
 
 }

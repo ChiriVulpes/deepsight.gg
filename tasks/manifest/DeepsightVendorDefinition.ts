@@ -28,6 +28,7 @@ export default Task("DeepsightVendorDefinition", async () => {
 		[VendorHashes.ShawHan]: vendors[VendorHashes.ShawHan],
 		[VendorHashes.PetraVenj]: vendors[VendorHashes.PetraVenj],
 		[VendorHashes.VariksTheLoyal]: vendors[VendorHashes.VariksTheLoyal],
+		[VendorHashes.WarTable]: vendors[VendorHashes.WarTable],
 	};
 
 	////////////////////////////////////

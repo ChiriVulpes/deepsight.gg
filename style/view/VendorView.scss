@@ -39,6 +39,7 @@
 				left: auto;
 				width: 100%;
 				background: #00000008;
+				pointer-events: none;
 				@include animation(1s ease-out var(--delay, 0s) backwards) {
 					from { width: 0% }
 				}

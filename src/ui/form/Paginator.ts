@@ -25,6 +25,10 @@ export interface PaginatorFiller {
 	 * Returns the current page that components should be appended to, creating new pages when necessary.
 	 */
 	increment (pageInitialiser?: (page: PaginatorPage) => any): PaginatorPage;
+	/**
+	 * Returns the current page that components should be appended to, creating new pages when necessary.
+	 */
+	add (value: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorPage;
 }
 
 export default class Paginator extends Component {
@@ -80,25 +84,21 @@ export default class Paginator extends Component {
 
 	public filler (perPage: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
 		let page: PaginatorPage | undefined;
-		let index = 0;
+		let index = Infinity;
 		const result: PaginatorFiller = {
 			perPage,
 			increment: incrementPageInitialiser => {
-				page ??= this.page()
-					.tweak(pageInitialiser)
-					.tweak(incrementPageInitialiser)
-					.style.set("--paginator-page-size", `${perPage}`);
+				return result.add(1, incrementPageInitialiser);
+			},
+			add: (value, incrementPageInitialiser) => {
+				if (index >= perPage)
+					index = 0, page = this.page()
+						.tweak(pageInitialiser)
+						.tweak(incrementPageInitialiser)
+						.style.set("--paginator-page-size", `${perPage}`);
 
-				index++;
-				if (index <= perPage)
-					return page;
-
-				page = this.page()
-					.tweak(pageInitialiser)
-					.tweak(incrementPageInitialiser)
-					.style.set("--paginator-page-size", `${perPage}`);
-				index = 1;
-				return page;
+				index += value;
+				return page!;
 			},
 		};
 		return result;
