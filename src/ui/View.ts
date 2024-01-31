@@ -205,7 +205,7 @@ namespace View {
 
 		public setBackground (...src: string[]) {
 			this.background?.remove();
-			this.background = Background.create([src])
+			return this.background = Background.create([src])
 				.prependTo(this);
 		}
 

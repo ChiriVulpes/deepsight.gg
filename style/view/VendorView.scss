@@ -1,0 +1,35 @@
+.view-vendor {
+	
+	&-content {
+		padding-bottom: 40px;
+		display: grid;
+		grid-template-areas: 
+			"vendor wares"
+			"title wares";
+	}
+	
+	.vendor-display {
+		&-button {
+			@include view-swipe-animation($has-view-selector: true);
+			grid-area: title;
+			margin-bottom: 40px;
+			margin-left: 120px;
+			height: fit-content;
+			width: fit-content;
+			align-self: end;
+		}
+		
+		&-title {
+			font-size: 44pt;
+			font-weight: 700;
+		}
+		
+		&-subtitle, &-description {
+			font-size: 12pt;
+		}
+		
+		&-description {
+			max-width: 520px;
+		}
+	}
+}

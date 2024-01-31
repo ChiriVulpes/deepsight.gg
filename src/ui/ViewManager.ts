@@ -1,4 +1,6 @@
+import type { VendorHashes } from "@deepsight.gg/enums";
 import { ItemCategoryHashes } from "@deepsight.gg/enums";
+import type { DeepsightVendorDefinition } from "@deepsight.gg/interfaces";
 import { APP_NAME } from "Constants";
 import type Model from "model/Model";
 import type Item from "model/models/items/Item";
@@ -8,6 +10,7 @@ import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
 import ModsView from "ui/view/collections/ModsView";
 import VendorsView from "ui/view/collections/VendorsView";
+import VendorView from "ui/view/collections/VendorView";
 import ErrorView from "ui/view/ErrorView";
 import InventoryArmourView from "ui/view/inventory/equipment/InventoryArmourView";
 import InventoryEquipmentView from "ui/view/inventory/equipment/InventoryEquipmentView";
@@ -64,6 +67,7 @@ const registry = Object.fromEntries([
 	ModsView,
 	ArtifactView,
 	VendorsView,
+	VendorView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
@@ -177,6 +181,14 @@ export default class ViewManager {
 			ArtifactView.show(item);
 		else
 			ItemView.show(item);
+	}
+
+	public static showVendors () {
+		VendorsView.show();
+	}
+
+	public static showVendor (vendor: DeepsightVendorDefinition | VendorHashes | string) {
+		VendorView.show(typeof vendor === "number" ? `${vendor}` : vendor);
 	}
 
 	public static showCollections (item?: Item) {

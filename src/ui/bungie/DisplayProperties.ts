@@ -11,6 +11,7 @@ import type { PromiseOr } from "utility/Type";
 
 declare module "bungie-api-ts/destiny2/interfaces" {
 	interface DestinyDisplayPropertiesDefinition {
+		subtitle?: string;
 		nameLowerCase?: string;
 	}
 }
@@ -56,6 +57,14 @@ namespace Display {
 	export function name (displayProperties?: PartialDisplayPropertiesOrD, orElse?: string) {
 		return displayProperties === undefined ? orElse
 			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties).name
+			?? orElse;
+	}
+
+	export function subtitle (displayProperties: PartialDisplayPropertiesOrD | undefined, orElse: string): string;
+	export function subtitle (displayProperties?: PartialDisplayPropertiesOrD, orElse?: string): string | undefined;
+	export function subtitle (displayProperties?: PartialDisplayPropertiesOrD, orElse?: string) {
+		return displayProperties === undefined ? orElse
+			: ("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties).subtitle
 			?? orElse;
 	}
 

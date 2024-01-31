@@ -9,6 +9,7 @@ import Bound from "utility/decorator/Bound";
 enum BackgroundClasses {
 	Surface = "background-surface",
 	Blur = "background-surface-blur",
+	Darkened = "background-surface--darkened",
 	Image = "background-image",
 }
 
@@ -30,14 +31,17 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	}
 
 	private blurred?: SupplierOr<boolean | undefined>;
+	private darkened?: SupplierOr<boolean | undefined>;
 	private path!: SupplierOr<Arrays.Or<string> | undefined>;
 
 	protected override onMake (path: SupplierOr<Arrays.Or<string> | undefined>): void {
 		this.path = path;
 		this.classes.add(BackgroundClasses.Surface);
+		this.darkened = true;
 
 		this.updateBackground();
 		this.updateBackgroundBlur();
+		this.updateBackgroundDarkened();
 		this.updateBackgroundFollowMouse();
 
 		document.body.addEventListener("mousemove", event => {
@@ -55,6 +59,12 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	public setBlurred (blurred: SupplierOr<boolean | undefined>) {
 		this.blurred = blurred;
 		this.updateBackgroundBlur();
+		return this;
+	}
+
+	public setDarkened (darkened: SupplierOr<boolean | undefined>) {
+		this.darkened = darkened;
+		this.updateBackgroundDarkened();
 		return this;
 	}
 
@@ -82,6 +92,10 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 
 	@Bound private updateBackgroundBlur () {
 		this.classes.toggle(!!Functions.resolve(this.blurred), BackgroundClasses.Blur);
+	}
+
+	@Bound private updateBackgroundDarkened () {
+		this.classes.toggle(!!Functions.resolve(this.darkened), BackgroundClasses.Darkened);
 	}
 
 	@Bound private updateBackgroundFollowMouse () {

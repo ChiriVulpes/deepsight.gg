@@ -1,5 +1,6 @@
 import type { DeepsightVendorDefinition } from "@deepsight.gg/interfaces";
 import Component from "ui/Component";
+import BaseButton from "ui/form/Button";
 
 export enum VendorDisplayClasses {
 	Main = "vendor-display",
@@ -9,9 +10,10 @@ export enum VendorDisplayClasses {
 	Subtitle = "vendor-display-subtitle",
 	Description = "vendor-display-description",
 	DescriptionText = "vendor-display-description-text",
+	Button = "vendor-display-button",
 }
 
-export default class VendorDisplay extends Component<HTMLElement, [def: DeepsightVendorDefinition, description?: false]> {
+class VendorDisplay extends Component<HTMLElement, [def: DeepsightVendorDefinition, description?: false]> {
 	protected override onMake (vendor: DeepsightVendorDefinition, description = true): void {
 		this.classes.add(VendorDisplayClasses.Main);
 
@@ -38,3 +40,20 @@ export default class VendorDisplay extends Component<HTMLElement, [def: Deepsigh
 				.appendTo(this);
 	}
 }
+
+namespace VendorDisplay {
+	export class Button extends BaseButton<[DeepsightVendorDefinition]> {
+
+		public display!: VendorDisplay;
+
+		protected override onMake (vendor: DeepsightVendorDefinition): void {
+			super.onMake(vendor);
+			this.classes.add(VendorDisplayClasses.Button);
+
+			this.display = VendorDisplay.create([vendor])
+				.appendTo(this);
+		}
+	}
+}
+
+export default VendorDisplay;

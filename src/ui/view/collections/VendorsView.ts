@@ -2,16 +2,12 @@ import { VendorGroupHashes } from "deepsight.gg/Enums";
 import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 import View from "ui/View";
-import Button from "ui/form/Button";
+import VendorView from "ui/view/collections/VendorView";
 import VendorDisplay from "ui/view/collections/vendor/VendorDisplay";
 
 export enum VendorsViewClasses {
-	Group = "view-vendors-group",
-	GroupTitle = "view-vendors-group-title",
-	GroupContents = "view-vendors-group-contents",
 	Vendor = "view-vendors-vendor",
-	VendorTitle = "view-vendors-vendor-title",
-	VendorSubtitle = "view-vendors-vendor-subtitle",
+	GroupTitle = "view-vendors-group-title",
 }
 
 export default View.create({
@@ -37,9 +33,9 @@ export default View.create({
 				.appendTo(view.content);
 
 			for (const vendor of groupVendors) {
-				Button.create()
+				VendorDisplay.Button.create([vendor])
 					.classes.add(VendorsViewClasses.Vendor)
-					.append(VendorDisplay.create([vendor]))
+					.event.subscribe("click", () => VendorView.show(vendor))
 					.appendTo(view.content);
 			}
 		}

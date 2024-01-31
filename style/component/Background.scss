@@ -30,8 +30,12 @@
 			position: absolute;
 			width: calc(100% + 100% * var(--scroll-amount));
 			height: calc(100% + 100% * var(--scroll-amount));
-			background: color(background-2, 0.5);
 			grid-area: stack;
+			@include transition(1s, background);
+		}
+		
+		&--darkened::after {
+			background: color(background-2, 0.5);
 		}
 	}
 

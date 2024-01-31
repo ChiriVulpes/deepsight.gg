@@ -90,7 +90,8 @@ const itemViewBase = View.create({
 		const secondaryIcon = item.definition.secondaryIcon;
 		if (screenshot)
 			view.setBackground(`https://www.bungie.net${screenshot}`,
-				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : []);
+				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : [])
+				.setDarkened(false);
 
 		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()
