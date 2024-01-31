@@ -1,9 +1,10 @@
-import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation } from "@deepsight.gg/plugs";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";
 import GetDeepsightTierTypeDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightTierTypeDefinition";
+import GetDeepsightVendorDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightVendorDefinition";
 import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
 import Endpoint from "utility/endpoint/Endpoint";
 
@@ -13,6 +14,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightDropTableDefinition: Record<number, DeepsightDropTableDefinition>;
 	DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation>;
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>;
+	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -27,6 +29,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightDropTableDefinition: await GetDeepsightDropTableDefinition.query(),
 			DeepsightPlugCategorisation: await GetDeepsightPlugCategorisation.query(),
 			DeepsightTierTypeDefinition: await GetDeepsightTierTypeDefinition.query(),
+			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

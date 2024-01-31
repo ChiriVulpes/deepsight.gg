@@ -51,5 +51,19 @@
 // other
 @import "component/PlayerOverview";
 @import "component/StatsOverview";
+@import "component/Vendor";
 
+// views
 @import "view/Views";
+@import "view/AuthView";
+@import "view/SettingsView";
+@import "view/InventorySlotView";
+@import "view/InventorySlotColumnsView";
+@import "view/InventoryInventoryView";
+@import "view/ItemView";
+@import "view/ErrorView";
+@import "view/ItemTooltipView";
+@import "view/CollectionsView";
+@import "view/AboutView";
+@import "view/ModsView";
+@import "view/VendorsView";

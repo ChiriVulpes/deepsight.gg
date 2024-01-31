@@ -5,6 +5,7 @@
 	@if $delay == null {
 		$delay: 0s;
 	}
+	--swipe-up-in-animation-delay: #{$delay};
 	--swipe-up-in-animation-end-delay: #{$delay + $duration};
 	animation:
 		animation-swipe-up-in-pre ($delay + 0.01s) linear,

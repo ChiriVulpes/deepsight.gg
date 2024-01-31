@@ -2,7 +2,7 @@ $animation-duration-global: null;
 $animation-delay-global: null;
 
 @mixin animate-multi($duration: 0.3s, $delay: 0.2s) {
-	$split-selectors: str-split(#{&}, ",");
+	$split-selectors: str-split-selector(#{&});
 	$selectors: ();
 	@each $selector in $split-selectors {
 		$selector: str-trim($selector);

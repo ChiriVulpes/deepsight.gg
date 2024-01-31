@@ -1,0 +1,48 @@
+.view-vendors {
+	--vendor-animation-duration-multiplier: 0.7;
+	
+	&-content {
+		display: grid;
+		gap: 20px;
+		grid-template-columns: repeat(3, 1fr);
+		padding-bottom: 40px;
+		
+		@media (max-width: 1919px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		
+		@media (max-width: 1299px) {
+			grid-template-columns: 1fr;
+		}
+	}
+	
+	&-group-title {
+		grid-column: 1/4;
+		margin-bottom: -10px;
+		
+		& ~ & {
+			margin-top: 20px;
+		}
+	}
+	
+	&-vendor {
+		min-width: 300px;
+		max-width: 600px;
+		margin: 0;
+		padding: 10px 20px;
+		background: none !important;
+		border-color: transparent;
+		backdrop-filter: blur(0px);
+		@include transition(out, backdrop-filter, border, background);
+		
+		&:hover {
+			background: #fff3 !important;
+			backdrop-filter: blur(5px);
+			@include transition(in);
+		}
+	}
+	
+	@at-root :where(#{&}-group-title, #{&}-vendor):times(30) {
+		@include view-swipe-animation($delay: 0.05s);
+	}
+}

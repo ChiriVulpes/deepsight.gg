@@ -29,6 +29,15 @@
     }
 }
 
+@function str-contains-any($mainString, $substrings...) {
+    @each $substring in $substrings {
+        @if str-index($mainString, $substring) {
+            @return true;
+        }
+    }
+    @return false;
+}
+
 @function str-split($string, $separator) {
     // empty array/list
     $split-arr: ();
@@ -49,6 +58,38 @@
     $split-arr: append($split-arr, $string);
 
     @return $split-arr;
+}
+
+@function str-split-selector($string) {
+    $selectors: ();
+    $selector: "";
+    $paren: 0;
+
+    @for $i from 1 through str-length($string) {
+        $char: str-slice($string, $i, $i);
+
+        @if $char == "(" {
+            $paren: $paren + 1;
+            $selector: #{$selector}#{$char};
+        } @else if $char == ")" {
+            $paren: $paren - 1;
+            $selector: #{$selector}#{$char};
+            @if $paren < 0 {
+                @error "Error: Unmatched closing parenthesis at position #{$i}.";
+            }
+        } @else if $char == "," and $paren == 0 {
+            $selectors: append($selectors, $selector);
+            $selector: "";
+        } @else {
+            $selector: #{$selector}#{$char};
+        }
+    }
+
+    @if $selector != "" {
+        $selectors: append($selectors, $selector);
+    }
+
+    @return $selectors;
 }
 
 @function str-starts-with($string, $substring) {
@@ -77,6 +118,21 @@
 
 @function str-trim($str) {
     @return str-trim-start(str-trim-end($str));
+}
+
+$anim-id: 0;
+@mixin animation($shorthand...) {
+    $name: "generated-animation-#{$anim-id}";
+    $anim-id: $anim-id + 1 !global;
+    $shorthand: "#{$shorthand}";
+    @if not str-contains-any($shorthand, linear, ease, ease-in, ease-out, ease-in-out, step-start, step-end, cubic-bezier, steps) {
+        $shorthand: "linear #{$shorthand}";
+    }
+    
+    animation: unquote($name) unquote($shorthand);
+    @keyframes #{$name} {
+        @content;
+    }
 }
 
 @import "util/gradient-mix";

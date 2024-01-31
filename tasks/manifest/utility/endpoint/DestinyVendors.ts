@@ -1,6 +1,7 @@
-import { DestinationHashes, VendorHashes } from "@deepsight.gg/enums";
+import { DestinationHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
 import Arrays from "@deepsight.gg/utility/Arrays";
-import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse } from "bungie-api-ts/destiny2";
+import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
+import { ComponentPrivacySetting } from "bungie-api-ts/destiny2";
 import { diff } from "json-diff";
 import type { DeepsightDisplayPropertiesDefinition, DeepsightVendorDefinition, DeepsightVendorItemDefinition } from "../../../../static/manifest/Interfaces";
 import Env from "../../../utility/Env";
@@ -37,6 +38,27 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.VariksTheLoyal]: "varikstheloyal",
 };
 
+const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
+	[VendorHashes.LordSaladin]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
+	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
+	[VendorHashes.Fynch]: [VendorGroupHashes.Destination, VendorGroupHashes.TheWitchQueen],
+	[VendorHashes.Xur_LocationsLength1]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
+};
+
+const VENDOR_MOMENTS: Partial<Record<VendorHashes, MomentHashes>> = {
+	[VendorHashes.Nimbus]: MomentHashes.Lightfall,
+	[VendorHashes.SpiritOfRiven_Enabledtrue]: MomentHashes.SeasonOfTheWish,
+	[VendorHashes.Fynch]: MomentHashes.TheWitchQueen,
+	[VendorHashes.Xur_LocationsLength1]: MomentHashes.Bungie30thAnniversary,
+	[VendorHashes.DevrimKay]: MomentHashes.TheRedWar,
+	[VendorHashes.Failsafe]: MomentHashes.TheRedWar,
+	[VendorHashes.ErisMorn]: MomentHashes.Shadowkeep,
+	[VendorHashes.LecternOfEnchantment]: MomentHashes.Shadowkeep,
+	[VendorHashes.ShawHan]: MomentHashes.BeyondLight,
+	[VendorHashes.PetraVenj]: MomentHashes.Forsaken,
+	[VendorHashes.VariksTheLoyal]: MomentHashes.BeyondLight,
+};
+
 function one<T> (array: T[], id: string, def: { displayProperties: DestinyDisplayPropertiesDefinition }, hash?: (value: T) => any) {
 	if (array.length === 0)
 		return undefined;
@@ -68,6 +90,7 @@ export default Model(async () =>
 
 			const vendorDefs = await DestinyManifest.DestinyVendorDefinition.all();
 			const itemDefs = await DestinyManifest.DestinyInventoryItemDefinition.all();
+			const factionDefs = await DestinyManifest.DestinyFactionDefinition.all();
 
 			return Object.fromEntries(hashes.map((vendorHash): [number, DeepsightVendorDefinition] => {
 				const vendors = responses.map(response => response.vendors.data![vendorHash]).filter(v => v);
@@ -91,12 +114,18 @@ export default Model(async () =>
 
 				return [vendorHash, {
 					hash: vendorHash,
-					displayProperties: def.displayProperties as DeepsightDisplayPropertiesDefinition,
+					displayProperties: {
+						...def.displayProperties,
+						subtitle: factionDefs[def.factionHash]?.displayProperties?.name ?? def.displayProperties.subtitle,
+					} as DeepsightDisplayPropertiesDefinition,
 					background: background === undefined ? undefined : `./image/png/vendor/background/${background}.png`,
 					location,
-					groups: responses.flatMap(response => response.vendorGroups.data?.groups ?? [])
-						.filter(group => group.vendorHashes.includes(vendorHash))
-						.map(group => group.vendorGroupHash)
+					moment: VENDOR_MOMENTS[vendorHash],
+					groups: (undefined
+						?? VENDOR_GROUP_OVERRIDES[vendorHash]
+						?? responses.flatMap(response => response.vendorGroups.data?.groups ?? [])
+							.filter(group => group.vendorHashes.includes(vendorHash))
+							.map(group => group.vendorGroupHash))
 						.distinct(),
 					categories: responses.map(response => response.categories.data?.[vendorHash])
 						.filter(Arrays.filterNullish)
@@ -139,9 +168,14 @@ export default Model(async () =>
 												"objectives",
 												"perks",
 											] as (keyof DestinyItemComponentSetOfint32)[])
-												.map(component => [component, itemComponents.map(itemComponents => itemComponents[component]?.data?.[itemIndex])
-													.filter(Arrays.filterNullish)
-													?.[0]] as const)
+												.map(component => [component, {
+													data: {
+														[itemIndex]: itemComponents.map(itemComponents => itemComponents[component]?.data?.[itemIndex])
+															.filter(Arrays.filterNullish)
+															?.[0],
+													},
+													privacy: ComponentPrivacySetting.None,
+												} satisfies DictionaryComponentResponse<any>] as const)
 												.toObject() as DeepsightVendorItemDefinition["itemComponent"]),
 								})),
 						})),
