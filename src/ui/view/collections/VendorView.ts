@@ -1,15 +1,16 @@
-import type { DeepsightVendorDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightVendorDefinition, DeepsightVendorItemDefinition } from "@deepsight.gg/interfaces";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
 import Item from "model/models/items/Item";
 import Card, { CardClasses } from "ui/Card";
+import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";
 import LoadingManager from "ui/LoadingManager";
 import View from "ui/View";
 import Display from "ui/bungie/DisplayProperties";
 import Paginator from "ui/form/Paginator";
-import ItemComponent from "ui/inventory/ItemComponent";
+import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
 import ErrorView from "ui/view/ErrorView";
 import VendorDisplay from "ui/view/collections/vendor/VendorDisplay";
@@ -35,6 +36,7 @@ export async function resolveVendorURL (vendorId: string, api: IModelGenerationA
 }
 
 export enum VendorViewClasses {
+	Information = "view-vendor-information",
 	Wares = "view-vendor-wares",
 	WaresBackdrop2 = "view-vendor-wares-backdrop-2",
 	CategoryPaginator = "view-vendor-category-paginator",
@@ -72,6 +74,30 @@ const vendorViewBase = View.create({
 			.event.subscribe("click", () => viewManager.showVendors())
 			.appendTo(view.content);
 
+		const appendItemSlot = async (to: AnyComponent, itemRef: DeepsightVendorItemDefinition, initialiser?: (itemComponent: ItemComponent) => any) => {
+			const itemDef = await manifest.DestinyInventoryItemDefinition.get(itemRef.itemHash);
+			if (!itemDef)
+				return;
+
+			const item = await Item.createFake(manifest, { itemComponents: itemRef.itemComponent }, itemDef);
+			const itemComponent = ItemComponent.create([])
+				.appendTo(Slot.create().appendTo(to)) as ItemComponent;
+
+			await itemComponent.setItem(item);
+
+			initialiser?.(itemComponent);
+		};
+
+		const informationIndex = vendor.categories.findIndex(category => category.identifier === "tooltip.help.name");
+		const informationCategory = vendor.categories[informationIndex];
+		const categories = vendor.categories.filter(category => category !== informationCategory);
+
+		if (informationCategory)
+			Component.create()
+				.classes.add(VendorViewClasses.Information)
+				.tweak(appendItemSlot, informationCategory.items[0], item => item.classes.add(ItemClasses.Borderless))
+				.appendTo(view.content);
+
 		const wares = Component.create()
 			.classes.add(VendorViewClasses.Wares)
 			.append(Component.create()
@@ -84,10 +110,10 @@ const vendorViewBase = View.create({
 
 		const filler = categoryPaginator.filler(20);
 
-		for (const category of vendor.categories) {
+		for (const category of categories) {
 			let size = 0;
 			const categorySection = Card.create()
-				.classes.add(VendorViewClasses.Category)
+				.classes.add(VendorViewClasses.Category, `${VendorViewClasses.Category}-${category.identifier.toLowerCase().replace(/[^a-z]+/g, "-")}`)
 				.setDisplayMode(CardClasses.DisplayModeSection);
 
 			if (category.displayProperties.name) {
@@ -96,14 +122,7 @@ const vendorViewBase = View.create({
 			}
 
 			for (const itemRef of category.items) {
-				const itemDef = await manifest.DestinyInventoryItemDefinition.get(itemRef.itemHash);
-				if (!itemDef)
-					continue;
-
-				const item = await Item.createFake(manifest, { itemComponents: itemRef.itemComponent }, itemDef);
-				ItemComponent.create()
-					.appendTo(Slot.create().appendTo(categorySection.content))
-					.setItem(item);
+				await appendItemSlot(categorySection.content, itemRef);
 			}
 
 			categorySection.appendTo(filler.add(size));

@@ -1,4 +1,5 @@
 import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -295,9 +296,16 @@ class ItemTooltip extends Tooltip {
 		const character = inventory?.getCharacter(item.character);
 
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyClassDefinition } = await Manifest.await();
-		const tier = await DestinyItemTierTypeDefinition.get(item.definition.inventory?.tierTypeHash);
+
+		let tierHash = item.definition.inventory?.tierTypeHash;
+		if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies) || item.definition.itemType === DestinyItemType.None)
+			tierHash = undefined;
+
+		const tier = await DestinyItemTierTypeDefinition.get(tierHash);
+		const tierName = (tierHash === undefined ? "none" : item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "none")?.toLowerCase();
+
 		this.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.Tier_))
-			.classes.add(`${ItemTooltipClasses.Tier_}${(item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "Common")?.toLowerCase()}`)
+			.classes.add(`${ItemTooltipClasses.Tier_}${tierName}`)
 			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork)
 			.classes.toggle(!!item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts), ItemTooltipClasses.Artifact);
 
@@ -305,7 +313,7 @@ class ItemTooltip extends Tooltip {
 		this.subtitle.removeContents();
 
 		this.subtitle.text.set(item.definition.itemTypeDisplayName ?? "Unknown");
-		this.tier.text.set(item.definition.inventory?.tierTypeName);
+		this.tier.text.set(tier && item.definition.inventory?.tierTypeName);
 
 		this.locked.classes.toggle(!item.isLocked(), Classes.Hidden);
 

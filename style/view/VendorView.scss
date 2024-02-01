@@ -57,6 +57,12 @@
 			&::before { --delay: 0.2s }
 			&::after { --delay: 0.3s }
 		}
+		
+		padding: 40px;
+		padding-right: 140px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 	
 	.vendor-display {
@@ -81,6 +87,26 @@
 		
 		&-description {
 			max-width: 520px;
+		}
+	}
+	
+	&-information {
+		grid-area: vendor;
+		margin-top: 40px;
+		margin-left: 140px;
+		
+		.item-borderless {
+			opacity: .6;
+			@include transition(out, opacity);
+			
+			&:hover {
+				opacity: 1;
+				@include transition(in);
+			}
+			
+			&::before {
+				display: none;
+			}
 		}
 	}
 }
