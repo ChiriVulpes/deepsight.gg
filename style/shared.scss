@@ -87,6 +87,11 @@ html .hidden {
 	// &:hover, &:has(:focus-visible) {
 	// 	content-visibility: visible;
 	// }
+	
+	&--wide {
+		width: auto;
+		aspect-ratio: 41/18;
+	}
 
 	&-empty {
 		opacity: 0.2;

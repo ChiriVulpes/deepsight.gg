@@ -12,6 +12,8 @@ import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
+import type Slot from "ui/inventory/Slot";
+import { SlotClasses } from "ui/inventory/Slot";
 import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
@@ -54,6 +56,7 @@ export enum ItemClasses {
 	Unlocked = "item-unlocked",
 	Fomo = "item-fomo",
 	FomoIcon = "item-fomo-icon",
+	IsContainer = "item--container",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -197,6 +200,10 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			|| item?.definition.itemType === DestinyItemType.Package
 			|| item?.definition.itemTypeDisplayName == "Umbral Engram";
 		this.classes.toggle(borderless, ItemClasses.Borderless);
+
+		const isContainer = item?.definition.uiItemDisplayStyle === "ui_display_style_set_container";
+		this.classes.toggle(isContainer, ItemClasses.IsContainer);
+		this.parent<Slot>(`.${SlotClasses.Main}`)?.setWide(isContainer);
 
 		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item?.definition.inventory?.tierTypeHash);

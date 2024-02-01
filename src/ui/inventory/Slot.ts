@@ -5,6 +5,7 @@ export enum SlotClasses {
 	Empty = "slot-empty",
 	EmptyBorders2 = "slot-empty-borders2",
 	Simple = "slot-empty-simple",
+	Wide = "slot--wide",
 }
 
 export default class Slot extends Component {
@@ -29,6 +30,11 @@ export default class Slot extends Component {
 
 	public setSimple (simple = true) {
 		this.classes.toggle(simple, SlotClasses.Simple);
+		return this;
+	}
+
+	public setWide (wide = true) {
+		this.classes.toggle(wide, SlotClasses.Wide);
 		return this;
 	}
 }

@@ -215,8 +215,11 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 
 	protected onMake (...args: ARGS) { }
 
-	public parent (): AnyComponent | undefined {
-		return Component.get(this.element.parentElement ?? undefined);
+	public parent<COMPONENT extends AnyComponent = AnyComponent> (selector?: string): COMPONENT | undefined {
+		if (selector && !this.element.parentElement?.matches(selector))
+			return undefined;
+
+		return Component.get<COMPONENT>(this.element.parentElement ?? undefined);
 	}
 
 	public hasContents () {

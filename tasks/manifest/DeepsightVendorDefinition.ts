@@ -29,6 +29,9 @@ export default Task("DeepsightVendorDefinition", async () => {
 		[VendorHashes.PetraVenj]: vendors[VendorHashes.PetraVenj],
 		[VendorHashes.VariksTheLoyal]: vendors[VendorHashes.VariksTheLoyal],
 		[VendorHashes.WarTable]: vendors[VendorHashes.WarTable],
+		[VendorHashes.LecternOfDivination]: vendors[VendorHashes.LecternOfDivination],
+		[VendorHashes.SonarStation]: vendors[VendorHashes.SonarStation],
+		[VendorHashes.RitualTable]: vendors[VendorHashes.RitualTable],
 	};
 
 	////////////////////////////////////

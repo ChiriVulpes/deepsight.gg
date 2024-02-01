@@ -36,6 +36,10 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.ShawHan]: "shawhan",
 	[VendorHashes.PetraVenj]: `petravenj${Rotation.resolve({ anchor: "2024-01-16T17:00:00Z" }, ["thestrand", "divalianmists", "rheasilvia"])}`,
 	[VendorHashes.VariksTheLoyal]: "varikstheloyal",
+	[VendorHashes.RitualTable]: "ritualtable",
+	[VendorHashes.LecternOfDivination]: "lecternofdivination",
+	[VendorHashes.WarTable]: "wartable",
+	[VendorHashes.SonarStation]: "wartable",
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
@@ -48,6 +52,10 @@ const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>>
 const VENDOR_MOMENTS: Partial<Record<VendorHashes, MomentHashes>> = {
 	[VendorHashes.Nimbus]: MomentHashes.Lightfall,
 	[VendorHashes.SpiritOfRiven_Enabledtrue]: MomentHashes.SeasonOfTheWish,
+	[VendorHashes.LecternOfDivination]: MomentHashes.SeasonOfTheWitch,
+	[VendorHashes.RitualTable]: MomentHashes.SeasonOfTheWitch,
+	[VendorHashes.SonarStation]: MomentHashes.SeasonOfTheDeep,
+	[VendorHashes.WarTable]: MomentHashes.SeasonOfDefiance,
 	[VendorHashes.Fynch]: MomentHashes.TheWitchQueen,
 	[VendorHashes.Xur_LocationsLength1]: MomentHashes.Bungie30thAnniversary,
 	[VendorHashes.DevrimKay]: MomentHashes.TheRedWar,
@@ -112,11 +120,12 @@ export default Model(async () =>
 				if (typeof background === "object")
 					background = background[location?.destinationHash as DestinationHashes];
 
+				const subtitle = factionDefs[def.factionHash]?.displayProperties?.name ?? def.displayProperties.subtitle;
 				return [vendorHash, {
 					hash: vendorHash,
 					displayProperties: {
 						...def.displayProperties,
-						subtitle: factionDefs[def.factionHash]?.displayProperties?.name ?? def.displayProperties.subtitle,
+						subtitle: subtitle.length > 36 ? undefined : subtitle,
 					} as DeepsightDisplayPropertiesDefinition,
 					background: background === undefined ? undefined : `./image/png/vendor/background/${background}.png`,
 					location,
@@ -180,8 +189,10 @@ export default Model(async () =>
 							const displayCategory = def.displayCategories[categoryIndex];
 							return {
 								...displayCategory,
-								sortValue: def.categories[items[0].categoryIndex].sortValue,
-								items,
+								sortValue: def.categories[items[0].categoryIndex]?.sortValue ?? 0,
+								items: items.sort(
+									item => -def.originalCategories[item.originalCategoryIndex]?.sortValue,
+									item => -item.vendorItemIndex),
 							};
 						})
 						.sort((a, b) => a.sortValue - b.sortValue)
