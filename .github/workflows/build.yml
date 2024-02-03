@@ -33,7 +33,7 @@ jobs:
       - name: Build
         env:
           DEEPSIGHT_PATH: https://deepsight.gg/
-          DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ secrets.DEEPSIGHT_BUNGIE_CLIENT_ID }}
+          DEEPSIGHT_BUNGIE_CLIENT_ID: ${{ vars.DEEPSIGHT_BUNGIE_CLIENT_ID }}
           DEEPSIGHT_BUNGIE_API_KEY: ${{ secrets.DEEPSIGHT_BUNGIE_API_KEY }}
           DEEPSIGHT_BUNGIE_API_SECRET: ${{ secrets.DEEPSIGHT_BUNGIE_API_SECRET }}
           DEEPSIGHT_BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
