@@ -72,7 +72,16 @@
 	&-category {
 		overflow: visible;
 		
+		@include animation(.7s ease-out 1.2s backwards) { from { opacity: 0 } }
+		.view-hidden & {
+			@include animation(.5s ease-out forwards) { to { opacity: 0 } }
+		}
+		
 		&-paginator {
+			@include animation(1.5s ease-out) { from { margin-left: 200px } }
+			.view-hidden & {
+				@include animation(1.5s ease-in forwards) { to { margin-left: 200px } }
+			}
 			--paginator-content-width: calc(var(--slot-size) * 7);
 			&-page-wrapper {
 				padding-top: 0;
@@ -118,6 +127,8 @@
 		grid-area: vendor;
 		margin-top: var(--view-padding-top);
 		margin-left: var(--view-padding-x);
+		
+		@include view-swipe-animation;
 		
 		.item-borderless {
 			opacity: .6;
