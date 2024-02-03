@@ -1,18 +1,24 @@
+:root {
+	--paginator-button-width: 35px;
+	--paginator-button-margin: 8px;
+}
+
 .paginator {
 	display: grid;
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto auto;
-	margin: 0 -43px;
+	margin: 0 calc(0px - var(--paginator-button-margin) - var(--paginator-button-width));
 	width: fit-content;
 	&-button {
-		width: 35px;
+		width: var(--paginator-button-width);
 		height: 100%;
 		margin: 0;
 		padding: 0;
 		background: transparent;
 		transform: none;
+		--after-transition-background: #8886;
 		@include animation-swipe-up-in-background-color-dodge($important: true) {
-			background: #8886;
+			background: var(--after-transition-background);
 		}
 		border: none;
 		display: grid;
@@ -23,7 +29,7 @@
 			z-index: initial;
 			mix-blend-mode: color-dodge;
 			background: transparent;
-			@include animation-swipe-up-in-background-color-dodge {
+			@include animation-swipe-up-in-background-color-dodge($delay: .02s) {
 				background: #555;
 			}
 			@include transition(out, background);
@@ -52,15 +58,15 @@
 		}
 		
 		&-prev {
-			margin-right: 8px;
+			margin-right: var(--paginator-button-margin);
 		}
 		&-next {
-			margin-left: 8px;
+			margin-left: var(--paginator-button-margin);
 		}
 		
 		&[disabled] {
 			pointer-events: none;
-			background: #2226 !important;
+			--after-transition-background: #2226;
 		}
 		
 		&[disabled] &-arrow {

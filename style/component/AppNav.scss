@@ -18,6 +18,12 @@
 		inset: 0;
 		backdrop-filter: blur(10px);
 		z-index: -1;
+		@include transition(out, backdrop-filter);
+	}
+	
+	&:has(~ .view-vendor)::before {
+		backdrop-filter: none;
+		@include transition(in);
 	}
 
 	// @media (max-width: 600px) {
