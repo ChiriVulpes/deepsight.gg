@@ -84,20 +84,20 @@ export default class Paginator extends Component {
 
 	public filler (perPage: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
 		let page: PaginatorPage | undefined;
-		let index = Infinity;
+		let filled = Infinity;
 		const result: PaginatorFiller = {
 			perPage,
 			increment: incrementPageInitialiser => {
 				return result.add(1, incrementPageInitialiser);
 			},
 			add: (value, incrementPageInitialiser) => {
-				if (index >= perPage)
-					index = 0, page = this.page()
+				if (filled + value >= perPage && !(value >= perPage && !filled))
+					filled = 0, page = this.page()
 						.tweak(pageInitialiser)
 						.tweak(incrementPageInitialiser)
 						.style.set("--paginator-page-size", `${perPage}`);
 
-				index += value;
+				filled += value;
 				return page!;
 			},
 		};

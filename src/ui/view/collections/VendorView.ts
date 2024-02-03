@@ -91,7 +91,7 @@ const vendorViewBase = View.create({
 			initialiser?.(itemComponent);
 		};
 
-		const informationIndex = vendor.categories.findIndex(category => category.identifier === "tooltip.help.name");
+		const informationIndex = vendor.categories.findIndex(category => category.identifier.endsWith(".help.name"));
 		const informationCategory = vendor.categories[informationIndex];
 		const categories = vendor.categories.filter(category => category !== informationCategory);
 
@@ -113,29 +113,32 @@ const vendorViewBase = View.create({
 
 		categoryPaginator.pageWrapper.classes.add(VendorViewClasses.CategoryPaginatorPageWrapper);
 
-		const filler = categoryPaginator.filler(8);
+		const filler = categoryPaginator.filler(16);
 
 		for (const category of categories) {
-			let size = 0;
 			const categorySection = Card.create()
 				.classes.add(VendorViewClasses.Category, `${VendorViewClasses.Category}-${category.identifier.toLowerCase().replace(/[^a-z]+/g, "-")}`)
 				.setDisplayMode(CardClasses.DisplayModeSection);
 
 			categorySection.content.classes.add(VendorViewClasses.CategoryContent);
 
+			let size = 0;
 			if (category.displayProperties.name) {
-				size += 1 / 2;
+				size++;
 				Component.create()
 					.tweak(Display.applyDescription, category.displayProperties.name, { singleLine: true })
 					.appendTo(categorySection.title);
 			}
 
+			let catItemsSize = 0;
 			for (const itemRef of category.items) {
 				await appendItemSlot(categorySection.content, itemRef);
-				size += 1 / 7;
+				catItemsSize += 1 / 7;
 			}
 
-			categorySection.appendTo(filler.add(Math.ceil(size), page => page.classes.add(VendorViewClasses.CategoryPaginatorPage)));
+			size += Math.ceil(catItemsSize) * 2;
+
+			categorySection.appendTo(filler.add(size, page => page.classes.add(VendorViewClasses.CategoryPaginatorPage)));
 		}
 	},
 });
