@@ -85,21 +85,9 @@
 					--paginator-content-width: calc(100vw - 20px - var(--view-padding-x) * 2);
 				}
 				
-				padding: 8px 0 24px;
-				// flex-wrap: wrap;
-				--card-gap: 8px;
-				margin: 0 -8px -16px;
-				width: calc(var(--paginator-content-width) + 16px);
-				
-				// &-2 {
-				// 	--length: 4;
-				// }
-				
 				&-page {
-					width: var(--paginator-content-width);
 					display: flex;
 					gap: 8px;
-					padding: 0 8px;
 					--card-width: calc((100vw - 20px - var(--view-padding-x) * 2 - var(--card-gap) * (var(--paginator-page-size) - 1)) / var(--paginator-page-size));
 					--card-height: calc(var(--card-width) * .75);
 					height: var(--card-height);

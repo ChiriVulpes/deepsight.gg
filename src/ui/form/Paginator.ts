@@ -167,14 +167,18 @@ export default class Paginator extends Component {
 			const offsetLeft = pageElement.offsetLeft - wrapperElement.offsetLeft + paddingleft;
 			const scrollLeft = wrapperElement.scrollLeft;
 
-			const diff = offsetLeft - scrollLeft;
+			const targetScrollLeft = offsetLeft - paddingleft;
+
+			const diff = targetScrollLeft - scrollLeft;
 			if (Math.abs(diff) > 2) {
-				this.pageWrapper.element.scrollLeft = Maths.lerp(offsetLeft - paddingleft, scrollLeft, 0.5 ** (delta * scrollSpeed));
+				const newScrollLeft = Maths.lerp(targetScrollLeft, scrollLeft, 0.5 ** (delta * scrollSpeed));
+				const scrollDiff = newScrollLeft - scrollLeft;
+				this.pageWrapper.element.scrollLeft = scrollDiff > 0 ? Math.ceil(newScrollLeft) : Math.floor(newScrollLeft);
 				requestAnimationFrame(step);
 				return;
 			}
 
-			this.pageWrapper.element.scrollLeft = offsetLeft - paddingleft;
+			this.pageWrapper.element.scrollLeft = targetScrollLeft;
 			this.scrolling = false;
 		};
 

@@ -92,12 +92,20 @@
 			grid-auto-flow: column;
 			overflow-x: auto;
 			width: 100%;
+		
+			padding: 8px 0 24px;
+			margin: 0 -8px -16px;
+			width: calc(var(--paginator-content-width) + 16px);
+			--card-gap: 8px;
 			
 			scrollbar-width: none;
 			&::-webkit-scrollbar {
 				display: none;
 			}
 		}
+		
+		width: var(--paginator-content-width);
+		padding: 0 8px;
 	}
 	
 	&-preview {
@@ -107,6 +115,7 @@
 		justify-content: center;
 		gap: 4px;
 		grid-column: 1/4;
+		z-index: 1;
 		
 		&-page {
 			width: 6px;

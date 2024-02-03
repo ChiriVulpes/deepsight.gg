@@ -69,6 +69,26 @@
 		align-items: center;
 	}
 	
+	&-category {
+		overflow: visible;
+		
+		&-paginator {
+			--paginator-content-width: calc(var(--slot-size) * 7);
+			&-page-wrapper {
+				padding-top: 0;
+			}
+		}
+		
+		&-content {
+			width: calc(var(--slot-size) * 7);
+			margin: 0 calc(0px - var(--card-content-padding, 16px));
+		}
+		
+		&:first-child .card-title {
+			padding-top: 0;
+		}
+	}
+	
 	.vendor-display {
 		&-button {
 			@include view-swipe-animation($has-view-selector: true);

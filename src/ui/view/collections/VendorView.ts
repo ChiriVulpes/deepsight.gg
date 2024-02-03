@@ -40,7 +40,10 @@ export enum VendorViewClasses {
 	Wares = "view-vendor-wares",
 	WaresBackdrop2 = "view-vendor-wares-backdrop-2",
 	CategoryPaginator = "view-vendor-category-paginator",
+	CategoryPaginatorPageWrapper = "view-vendor-category-paginator-page-wrapper",
+	CategoryPaginatorPage = "view-vendor-category-paginator-page",
 	Category = "view-vendor-category",
+	CategoryContent = "view-vendor-category-content",
 }
 
 const vendorViewBase = View.create({
@@ -108,7 +111,9 @@ const vendorViewBase = View.create({
 			.classes.add(VendorViewClasses.CategoryPaginator)
 			.appendTo(wares);
 
-		const filler = categoryPaginator.filler(20);
+		categoryPaginator.pageWrapper.classes.add(VendorViewClasses.CategoryPaginatorPageWrapper);
+
+		const filler = categoryPaginator.filler(8);
 
 		for (const category of categories) {
 			let size = 0;
@@ -116,16 +121,21 @@ const vendorViewBase = View.create({
 				.classes.add(VendorViewClasses.Category, `${VendorViewClasses.Category}-${category.identifier.toLowerCase().replace(/[^a-z]+/g, "-")}`)
 				.setDisplayMode(CardClasses.DisplayModeSection);
 
+			categorySection.content.classes.add(VendorViewClasses.CategoryContent);
+
 			if (category.displayProperties.name) {
-				size += 1;
-				categorySection.title.text.set(category.displayProperties.name);
+				size += 1 / 2;
+				Component.create()
+					.tweak(Display.applyDescription, category.displayProperties.name, { singleLine: true })
+					.appendTo(categorySection.title);
 			}
 
 			for (const itemRef of category.items) {
 				await appendItemSlot(categorySection.content, itemRef);
+				size += 1 / 7;
 			}
 
-			categorySection.appendTo(filler.add(size));
+			categorySection.appendTo(filler.add(Math.ceil(size), page => page.classes.add(VendorViewClasses.CategoryPaginatorPage)));
 		}
 	},
 });
