@@ -17,7 +17,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
 	[VendorHashes.Fynch]: "fynch",
-	[VendorHashes.Xur_LocationsLength1]: "xurtreasurehoard",
+	[VendorHashes.Xur_LocationsLength1]: "xurxurstreasurehoard",
 	[VendorHashes.Xur_LocationsLength3]: {
 		[DestinationHashes.TheLastCity1737926756]: "xurthelastcity",
 		[DestinationHashes.EuropeanDeadZone697502628]: "xureuropeandeadzone",
@@ -39,7 +39,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.RitualTable]: "ritualtable",
 	[VendorHashes.LecternOfDivination]: "lecternofdivination",
 	[VendorHashes.WarTable]: "wartable",
-	[VendorHashes.SonarStation]: "wartable",
+	[VendorHashes.SonarStation]: "sonarstation",
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
