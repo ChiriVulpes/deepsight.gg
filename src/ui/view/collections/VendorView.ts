@@ -2,6 +2,7 @@ import type { DeepsightVendorDefinition, DeepsightVendorItemDefinition } from "@
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Manifest from "model/models/Manifest";
+import type { ItemId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Card, { CardClasses } from "ui/Card";
 import type { AnyComponent } from "ui/Component";
@@ -82,7 +83,7 @@ const vendorViewBase = View.create({
 			if (!itemDef)
 				return;
 
-			const item = await Item.createFake(manifest, { itemComponents: itemRef.itemComponent }, itemDef);
+			const item = await Item.createFake(manifest, { itemComponents: itemRef.itemComponent }, itemDef, undefined, `${itemRef.vendorItemIndex}` as ItemId);
 			const itemComponent = ItemComponent.create([])
 				.appendTo(Slot.create().appendTo(to)) as ItemComponent;
 
