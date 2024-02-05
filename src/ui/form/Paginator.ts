@@ -91,7 +91,7 @@ export default class Paginator extends Component {
 				return result.add(1, incrementPageInitialiser);
 			},
 			add: (value, incrementPageInitialiser) => {
-				if (filled + value >= perPage && !(value >= perPage && !filled))
+				if (filled + value > perPage && !(value >= perPage && !filled))
 					filled = 0, page = this.page()
 						.tweak(pageInitialiser)
 						.tweak(incrementPageInitialiser)
