@@ -40,6 +40,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.LecternOfDivination]: "lecternofdivination",
 	[VendorHashes.WarTable]: "wartable",
 	[VendorHashes.SonarStation]: "sonarstation",
+	[VendorHashes.Starhorse]: "starhorse",
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
