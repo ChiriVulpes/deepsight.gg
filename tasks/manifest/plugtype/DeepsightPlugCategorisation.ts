@@ -32,6 +32,7 @@ namespace DeepsightPlugCategorisation {
 		switch (context.definition.plug?.plugCategoryHash) {
 			case PlugCategoryHashes.Intrinsics:
 			case PlugCategoryHashes.Origins:
+			case PlugCategoryHashes.V300VehiclesModControls:
 				return DeepsightPlugCategory.Intrinsic;
 
 			case PlugCategoryHashes.Shader:
@@ -315,6 +316,8 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeIntrinsic.Frame;
 				case PlugCategoryHashes.Origins:
 					return DeepsightPlugTypeIntrinsic.Origin;
+				case PlugCategoryHashes.V300VehiclesModControls:
+					return DeepsightPlugTypeIntrinsic.Controls;
 			}
 
 			for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {

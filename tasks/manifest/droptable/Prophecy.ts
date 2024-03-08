@@ -22,8 +22,8 @@ export default {
 				description: "Confront the Phalanx Echo, a part of the Nine's answer to your question.",
 			},
 			dropTable: {
-				[InventoryItemHashes.JudgmentHandCannon_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.TheLongWalkSniperRifle_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.ProsecutorAutoRifle_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.RelentlessPulseRifle_IconWatermarkShelvedUndefined]: {},
 				[InventoryItemHashes.CrushingGreavesCodaLegArmorPlug]: {},
 				[InventoryItemHashes.MarkJudgmentCodaTitanMarkPlug]: {},
 				[InventoryItemHashes.FlowingBootsCodaLegArmorPlug]: {},
@@ -63,8 +63,8 @@ export default {
 				description: "Find a way forward.",
 			},
 			dropTable: {
-				[InventoryItemHashes.ASwiftVerdictSidearm_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.TheLastBreathAutoRifle_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.AdjudicatorSubmachineGun_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.ASuddenDeathShotgun4097972038]: {},
 				[InventoryItemHashes.CrushingGuardCodaGauntletsPlug]: {},
 				[InventoryItemHashes.FlowingGripsCodaGauntletsPlug]: {},
 				[InventoryItemHashes.ChannelingWrapsCodaGauntletsPlug]: {},
@@ -101,8 +101,8 @@ export default {
 				description: "Confront the Kell Echo, a part of the Nine's answer to your question.",
 			},
 			dropTable: {
-				[InventoryItemHashes.DarkestBeforePulseRifle_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.ASuddenDeathShotgun_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.JudgmentHandCannon2969415423]: {},
+				[InventoryItemHashes.DarkestBeforePulseRifle435821040]: {},
 				[InventoryItemHashes.CrushingHelmCodaHelmetPlug]: {},
 				[InventoryItemHashes.CrushingPlateCodaChestArmorPlug]: {},
 				[InventoryItemHashes.MarkJudgmentCodaTitanMarkPlug]: {},
