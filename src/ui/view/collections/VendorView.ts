@@ -92,7 +92,10 @@ const vendorViewBase = View.create({
 			initialiser?.(itemComponent);
 		};
 
-		const informationIndex = vendor.categories.findIndex(category => category.identifier.endsWith(".help.name"));
+		const informationIndex = vendor.categories.findIndex(category => false
+			|| category.identifier.endsWith(".help.name")
+			|| category.items.some(item => Display.name(item) === "Event Information")); // TODO this should be fixed in the vendor manifest
+
 		const informationCategory = vendor.categories[informationIndex];
 		const categories = vendor.categories.filter(category => category !== informationCategory);
 
