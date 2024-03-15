@@ -1,4 +1,4 @@
-import { DestinationHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
+import { DestinationHashes, EventCardHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
 import Arrays from "@deepsight.gg/utility/Arrays";
 import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import { ComponentPrivacySetting } from "bungie-api-ts/destiny2";
@@ -10,9 +10,10 @@ import Rotation from "../Rotations";
 import DestinyCharacters from "./DestinyCharacters";
 import DestinyComponents from "./DestinyComponents";
 import DestinyManifest from "./DestinyManifest";
+import DestinyProfile from "./DestinyProfile";
 import DestinyRequest from "./DestinyRequest";
 
-const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes, string>>>> = {
+const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes | EventCardHashes, string>>>> = {
 	[VendorHashes.LordSaladin]: "lordsaladin",
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
@@ -41,9 +42,13 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.WarTable]: "wartable",
 	[VendorHashes.SonarStation]: "sonarstation",
 	[VendorHashes.Starhorse]: "starhorse",
+	[VendorHashes.EvaLevante]: {
+		[EventCardHashes.GuardianGames]: "evalevanteguardiangames",
+	},
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
+	[VendorHashes.EvaLevante]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.LordSaladin]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
 	[VendorHashes.Fynch]: [VendorGroupHashes.Destination, VendorGroupHashes.TheWitchQueen],
@@ -101,6 +106,9 @@ export default Model(async () =>
 			const itemDefs = await DestinyManifest.DestinyInventoryItemDefinition.all();
 			const factionDefs = await DestinyManifest.DestinyFactionDefinition.all();
 
+			const profile = await DestinyProfile.get();
+			const activeEvent = await DestinyManifest.DestinyEventCardDefinition.get(profile?.profile.data?.activeEventCardHash);
+
 			return Object.fromEntries(hashes.map((vendorHash): [number, DeepsightVendorDefinition] => {
 				const vendors = responses.map(response => response.vendors.data![vendorHash]).filter(v => v);
 
@@ -118,8 +126,17 @@ export default Model(async () =>
 						.collect(one, "location", def)!];
 
 				let background = VENDOR_BACKGROUNDS[vendorHash];
-				if (typeof background === "object")
-					background = background[location?.destinationHash as DestinationHashes];
+				if (typeof background === "object") {
+					if (vendorHash === VendorHashes.EvaLevante) {
+						if (!activeEvent)
+							throw new Error("Eva Levante is here, but she has no event!!!! Spooky!");
+
+						background = background[activeEvent.hash as EventCardHashes];
+
+					} else {
+						background = background[location?.destinationHash as DestinationHashes];
+					}
+				}
 
 				const subtitle = factionDefs[def.factionHash]?.displayProperties?.name ?? def.displayProperties.subtitle;
 				return [vendorHash, {

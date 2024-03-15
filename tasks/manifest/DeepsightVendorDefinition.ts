@@ -32,6 +32,7 @@ export default Task("DeepsightVendorDefinition", async () => {
 		[VendorHashes.LecternOfDivination]: vendors[VendorHashes.LecternOfDivination],
 		[VendorHashes.SonarStation]: vendors[VendorHashes.SonarStation],
 		[VendorHashes.RitualTable]: vendors[VendorHashes.RitualTable],
+		[VendorHashes.EvaLevante]: vendors[VendorHashes.EvaLevante],
 	};
 
 	////////////////////////////////////
