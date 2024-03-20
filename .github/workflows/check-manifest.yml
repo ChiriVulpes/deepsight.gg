@@ -55,7 +55,7 @@ jobs:
     secrets: inherit
 
   cleanup:
-    needs: deploy
-    if: always()
+    needs: [check, deploy]
+    if: ${{ needs.check.outputs.updated != 'failure' }}
     uses: ./.github/workflows/cleanup.yml
     secrets: inherit
