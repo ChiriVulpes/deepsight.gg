@@ -46,11 +46,16 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 	DestinyDestinationDefinition: ["bubble*", "activityGraphEntries*"],
 };
 
-const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, Record<string, keyof AllDestinyManifestComponents>>> = {
+type ComponentHashNameGenerator =
+	| keyof AllDestinyManifestComponents
+	| ((definition: any) => string | undefined);
+
+const COMPONENT_HASH_PATHS: Partial<Record<keyof AllDestinyManifestComponents, Record<string, ComponentHashNameGenerator>>> = {
 	DestinyInventoryItemDefinition: {
 		collectibleHash: "DestinyCollectibleDefinition",
 		loreHash: "DestinyLoreDefinition",
 		traitHashes: "DestinyTraitDefinition",
+		"plug.plugCategoryHash": (definition: DestinyInventoryItemDefinition) => definition.plug?.plugCategoryIdentifier,
 	},
 	DestinyActivityDefinition: {
 		destinationHash: "DestinyDestinationDefinition",
@@ -181,7 +186,8 @@ export class EnumHelper {
 				const valueHashComponent = COMPONENT_HASH_PATHS[componentName!]?.[difference.path];
 				return undefined
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					?? (valueHashComponent && EnumHelper.simplifyName((await manifest[valueHashComponent].get(value) as Definition)?.displayProperties?.name))
+					?? (typeof valueHashComponent !== "string" ? undefined : EnumHelper.simplifyName((await manifest[valueHashComponent].get(value) as Definition)?.displayProperties?.name))
+					?? (typeof valueHashComponent !== "function" ? undefined : EnumHelper.simplifyName(valueHashComponent(definition as Definition)))
 					?? this.stringifyValue(!isUnrenderablePath ? value
 						: value ? "present" : undefined);
 			};
