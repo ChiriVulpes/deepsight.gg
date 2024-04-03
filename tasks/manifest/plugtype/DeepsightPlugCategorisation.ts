@@ -478,6 +478,9 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.TraitLockedPlug2106726848:
 				case InventoryItemHashes.TraitLockedPlug3665398231:
 					return DeepsightPlugTypePerk.TraitLocked;
+
+				case InventoryItemHashes.DeconstructTraitPlug_InventoryTierType3:
+					return DeepsightPlugTypePerk.TraitEnhanced;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
