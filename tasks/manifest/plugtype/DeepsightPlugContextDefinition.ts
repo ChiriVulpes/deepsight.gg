@@ -1,4 +1,6 @@
+import { ItemTierTypeHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import { DestinyItemType } from "bungie-api-ts/destiny2";
 import manifest from "../utility/endpoint/DestinyManifest";
 
 export enum DeepsightPlugContext {
@@ -11,6 +13,8 @@ export enum DeepsightPlugContext {
 interface DeepsightPlugContextDefinition {
 	definition: DestinyInventoryItemDefinition;
 	contexts: Partial<Record<DeepsightPlugContext, number[]>>;
+	contextTypes: Partial<Record<DestinyItemType, number[]>>;
+	contextTiers: Partial<Record<ItemTierTypeHashes, number[]>>;
 }
 
 namespace DeepsightPlugContextDefinition {
@@ -28,10 +32,21 @@ namespace DeepsightPlugContextDefinition {
 			const contextDef = plugContexts[hash] ??= {
 				definition,
 				contexts: {},
+				contextTypes: {},
+				contextTiers: {},
 			};
 
-			if (containingItemDefinition && context !== undefined)
+			if (!containingItemDefinition)
+				return;
+
+			if (context !== undefined)
 				(contextDef.contexts[context] ??= []).push(containingItemDefinition.hash);
+
+			(contextDef.contextTypes[containingItemDefinition.itemType] ??= []).push(containingItemDefinition.hash);
+
+			const tierHash = containingItemDefinition.inventory?.tierTypeHash;
+			if (tierHash)
+				(contextDef.contextTiers[tierHash as ItemTierTypeHashes] ??= []).push(containingItemDefinition.hash);
 		};
 
 		for (const [itemHash, itemDef] of Object.entries(DestinyInventoryItemDefinition)) {
@@ -58,6 +73,20 @@ namespace DeepsightPlugContextDefinition {
 		}
 
 		return plugContexts;
+	}
+
+	export function isExoticOnly (context: DeepsightPlugContextDefinition) {
+		return !!context.contextTiers[ItemTierTypeHashes.Exotic]?.length
+			&& !context.contextTiers[ItemTierTypeHashes.Legendary]?.length
+			&& !context.contextTiers[ItemTierTypeHashes.Rare]?.length
+			&& !context.contextTiers[ItemTierTypeHashes.Common]?.length;
+	}
+
+	export function isOnOnlyType (type: DestinyItemType, context: DeepsightPlugContextDefinition) {
+		return !!context.contextTypes[type]?.length
+			&& Object.keys(context.contextTypes)
+				.every(t => +t === DestinyItemType.Dummy || +t === DestinyItemType.None
+					|| ((+t === type) === !!context.contextTypes[+t as DestinyItemType]?.length));
 	}
 }
 

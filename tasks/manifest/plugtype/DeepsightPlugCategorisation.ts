@@ -1,6 +1,6 @@
 import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "@deepsight.gg/enums";
 import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
-import { DestinyClass } from "bungie-api-ts/destiny2";
+import { DestinyClass, DestinyItemType } from "bungie-api-ts/destiny2";
 import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
@@ -47,6 +47,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.DawningShipShader:
 			case PlugCategoryHashes.DawningShipSpawnfx:
 			case PlugCategoryHashes.GenericAllVfx:
+			case PlugCategoryHashes.V420PlugsWeaponsMasterworksToggleVfx:
 				return DeepsightPlugCategory.Cosmetic;
 
 			case PlugCategoryHashes.PlugsGhostsMasterworks:
@@ -229,13 +230,27 @@ namespace DeepsightPlugCategorisation {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.EmptyEnhancementSocketPlug:
 					return DeepsightPlugTypeMasterwork.EnhancementEmpty;
+				case InventoryItemHashes.MasterworkUpgradePlug1176735155:
+					return DeepsightPlugTypeMasterwork.ArmorEmpty;
+				case InventoryItemHashes.ReworkArmorPlug:
+					return DeepsightPlugTypeMasterwork.Legacy;
+				case InventoryItemHashes.ProtocolSocketPlug:
+					return DeepsightPlugTypeMasterwork.AuthorizationEmpty;
+				case InventoryItemHashes.NoEmberImbuedSolsticeEmbersPlug:
+					return DeepsightPlugTypeMasterwork.EventSolsticeEmbersEmpty;
+				case InventoryItemHashes.NoKindlingAddedKindlingPlug:
+					return DeepsightPlugTypeMasterwork.EventSolsticeKindlingEmpty;
+				case InventoryItemHashes.EmptyWeaponLevelBoostSocketPlug:
+					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty;
+				case InventoryItemHashes.MasterworkUpgradePlug236077174:
+					return DeepsightPlugTypeMasterwork.WeaponEmpty;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.EventsSolsticeEmbers:
-				case PlugCategoryHashes.EventsSolsticeEmbersEmpty:
+					return DeepsightPlugTypeMasterwork.EventSolsticeEmbers;
 				case PlugCategoryHashes.EventsSolsticeKindling:
-					return DeepsightPlugTypeMasterwork.Event;
+					return DeepsightPlugTypeMasterwork.EventSolsticeKindling;
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
 					return DeepsightPlugTypeMasterwork.ShapedWeapon;
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
@@ -305,6 +320,40 @@ namespace DeepsightPlugCategorisation {
 			}
 		},
 		[DeepsightPlugCategory.Intrinsic]: context => {
+			switch (context.definition.hash) {
+				case InventoryItemHashes.ArtificeArmorIntrinsicPlug:
+					return DeepsightPlugTypeIntrinsic.ArmorArtifice;
+
+				case InventoryItemHashes.FriendlyCompetitionIntrinsicPlug2596471870:
+				case InventoryItemHashes.FriendlyCompetitionIntrinsicPlug2596471871:
+				case InventoryItemHashes.SpiritOfCompetitionIntrinsicPlug:
+					return DeepsightPlugTypeIntrinsic.Armor; // special case weird guardian games armour perks
+
+				case InventoryItemHashes.Collector1IntrinsicPlug:
+				case InventoryItemHashes.Collector2IntrinsicPlug:
+				case InventoryItemHashes.Collector3IntrinsicPlug:
+				case InventoryItemHashes.Reaper1IntrinsicPlug:
+				case InventoryItemHashes.Reaper2IntrinsicPlug:
+				case InventoryItemHashes.Reaper3IntrinsicPlug:
+				case InventoryItemHashes.Invader1IntrinsicPlug:
+				case InventoryItemHashes.Invader2IntrinsicPlug:
+				case InventoryItemHashes.Invader3IntrinsicPlug:
+				case InventoryItemHashes.Sentry1IntrinsicPlug:
+				case InventoryItemHashes.Sentry2IntrinsicPlug:
+				case InventoryItemHashes.Sentry3IntrinsicPlug:
+				case InventoryItemHashes.DeepStoneCryptArmorIntrinsicPlug:
+				case InventoryItemHashes.GardenOfSalvationArmorIntrinsicPlug:
+				case InventoryItemHashes.LastWishArmorIntrinsicPlug:
+					return DeepsightPlugTypeIntrinsic.ArmorLegacy;
+
+				case InventoryItemHashes.UnrepentantIntrinsicPlug1579862386:
+				case InventoryItemHashes.ExhumationIntrinsicPlug1563633475:
+					return DeepsightPlugTypeIntrinsic.Exotic; // these are old/dummy versions of these perks
+
+				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540:
+					return DeepsightPlugTypeIntrinsic.Frame; // rose's adaptive frame is considered exotic tier
+			}
+
 			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")
 				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
 
@@ -312,12 +361,22 @@ namespace DeepsightPlugCategorisation {
 				return DeepsightPlugTypeIntrinsic.Exotic;
 
 			switch (context.definition.plug?.plugCategoryHash) {
-				case PlugCategoryHashes.Intrinsics:
-					return DeepsightPlugTypeIntrinsic.Frame;
 				case PlugCategoryHashes.Origins:
 					return DeepsightPlugTypeIntrinsic.Origin;
 				case PlugCategoryHashes.V300VehiclesModControls:
 					return DeepsightPlugTypeIntrinsic.Controls;
+				case PlugCategoryHashes.Intrinsics:
+					if (DeepsightPlugContextDefinition.isExoticOnly(context))
+						return DeepsightPlugTypeIntrinsic.Exotic;
+
+					if (DeepsightPlugContextDefinition.isOnOnlyType(DestinyItemType.Armor, context)) {
+						if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Common)
+							return DeepsightPlugTypeIntrinsic.ArmorLegacy; // catches all the old armour stat perks
+
+						return DeepsightPlugTypeIntrinsic.Armor;
+					}
+
+					return DeepsightPlugTypeIntrinsic.Frame;
 			}
 
 			for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
@@ -556,6 +615,14 @@ namespace DeepsightPlugCategorisation {
 						return DeepsightPlugTypeCosmetic.Radiance;
 					case InventoryItemHashes.EmptyMementoSocketPlug:
 						return DeepsightPlugTypeCosmetic.MementoEmpty;
+					case InventoryItemHashes.NoProjectionRestoreDefaultsPlug:
+						return DeepsightPlugTypeCosmetic.GhostProjectionEmpty;
+					case InventoryItemHashes.DefaultEffectPlug:
+						return DeepsightPlugTypeCosmetic.TransmatEffectEmpty;
+					case InventoryItemHashes.RandomModPlug_PlugPlugCategoryHashShipSpawnfx:
+						return DeepsightPlugTypeCosmetic.TransmatEffectRandom;
+					case InventoryItemHashes.DefaultWeaponEffectsPlug:
+						return DeepsightPlugTypeCosmetic.WeaponEffectsDefault;
 				}
 
 				switch (context.definition.displayProperties?.name) {
@@ -585,6 +652,8 @@ namespace DeepsightPlugCategorisation {
 						return DeepsightPlugTypeCosmetic.OrnamentDefault;
 					case PlugCategoryHashes.SocialClansStaves:
 						return DeepsightPlugTypeCosmetic.ClanBannerStaff;
+					case PlugCategoryHashes.V420PlugsWeaponsMasterworksToggleVfx:
+						return DeepsightPlugTypeCosmetic.WeaponEffects;
 				}
 
 				for (const traitHash of context.definition.traitHashes ?? []) {
