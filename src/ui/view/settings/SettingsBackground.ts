@@ -41,11 +41,13 @@ export default class SettingsBackground extends Card<[]> {
 									?.classList.remove(ButtonClasses.Selected);
 								if (Store.items.settingsBackground === wallpaper) {
 									delete Store.items.settingsBackground;
+									Store.items.settingsBackgroundNoUseDefault = true;
 									return;
 								}
 
 								(event.target as HTMLElement).classList.add(ButtonClasses.Selected);
 								Store.items.settingsBackground = wallpaper;
+								Store.items.settingsBackgroundNoUseDefault = true;
 							})
 							.append(Component.create("img")
 								.classes.add(SettingsBackgroundClasses.WallpaperImage)
@@ -94,6 +96,21 @@ export default class SettingsBackground extends Card<[]> {
 		// }
 
 		// void Async.sleep(500).then(renderThumbnails);
+
+		const randomiseCheckbox = Checkbox.create([!Store.items.settingsBackground && !Store.items.settingsBackgroundNoUseDefault])
+			.tweak(checkbox => checkbox.label.text.set("Randomise"))
+			.event.subscribe("update", ({ checked }) => {
+				Store.items.settingsBackgroundNoUseDefault = checked ? undefined : true;
+				if (!Store.items.settingsBackgroundNoUseDefault) {
+					delete Store.items.settingsBackground;
+					document.querySelector(`.${SettingsBackgroundClasses.Wallpaper}.${ButtonClasses.Selected}`)
+						?.classList.remove(ButtonClasses.Selected);
+				}
+			})
+			.appendTo(this.content);
+
+		Store.subscribeBackgroundChange(() =>
+			randomiseCheckbox.checkbox.element.checked = !Store.items.settingsBackground && !Store.items.settingsBackgroundNoUseDefault);
 
 		Checkbox.create([Store.items.settingsBackgroundBlur])
 			.tweak(checkbox => checkbox.label.text.set("Blur Background"))

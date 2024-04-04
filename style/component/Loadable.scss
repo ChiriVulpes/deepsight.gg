@@ -22,7 +22,7 @@
 			perspective: 1000px;
 			> :nth-child(1) {
 				position: absolute;
-				inset: 30%;
+				inset: var(--loadable-spinny-inset, 30%);
 				overflow: hidden;
 				animation: loading-triangle 6s linear infinite;
 				&::before {
@@ -36,7 +36,7 @@
 			}
 			> :nth-child(2) {
 				position: absolute;
-				inset: 30%;
+				inset: var(--loadable-spinny-inset, 30%);
 				animation: loading-circle 6s linear infinite;
 				transform: rotateY(0deg);
 				&::before {

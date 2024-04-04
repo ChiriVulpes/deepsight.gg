@@ -1,3 +1,4 @@
+import WallpaperMoments from "model/models/WallpaperMoments";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Arrays from "utility/Arrays";
@@ -16,12 +17,21 @@ enum BackgroundClasses {
 export default class Background extends Component<HTMLElement, [path: SupplierOr<Arrays.Or<string> | undefined>]> {
 
 	private static main?: Background;
-	public static initialiseMain () {
-		const manager = this.main ??= Background.create([() => Store.items.settingsBackground])
+	public static async initialiseMain () {
+		const moment = (await WallpaperMoments.await())
+			?.slice()
+			?.sort((a, b) => b.hash - a.hash)
+			?.[0];
+		const manager = this.main ??= Background
+			.create([() => Store.items.settingsBackground
+				?? (Store.items.settingsBackgroundNoUseDefault ? undefined
+					: moment?.wallpapers[Math.floor(Math.random() * moment.wallpapers.length)])])
 			.setBlurred(() => Store.items.settingsBackgroundBlur)
-			.appendTo(document.body);
+			.prependTo(document.body);
 		Store.event.subscribe("setSettingsBackground", manager.updateBackground);
 		Store.event.subscribe("deleteSettingsBackground", manager.updateBackground);
+		Store.event.subscribe("setSettingsBackgroundUseDefault", manager.updateBackground);
+		Store.event.subscribe("deleteSettingsBackgroundUseDefault", manager.updateBackground);
 		Store.event.subscribe("setSettingsBackgroundBlur", manager.updateBackgroundBlur);
 		Store.event.subscribe("setSettingsBackgroundFollowMouse", manager.updateBackgroundFollowMouse);
 	}

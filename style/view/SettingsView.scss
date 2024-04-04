@@ -34,10 +34,12 @@
 }
 
 .settings-background-options {
+	position: relative;
 	flex-basis: 100%;
 	min-height: 100px;
 	margin-bottom: 10px;
 	scroll-behavior: smooth;
+	--loadable-spinny-inset: 10%;
 
 	&-wrapper {
 		display: contents;
@@ -46,8 +48,11 @@
 	display: block;
 	display: flex;
 	flex-direction: row;
-	overflow-x: scroll;
-	overflow-y: hidden;
+	
+	&:has(.loadable-loading-hidden) {
+		overflow-x: scroll;
+		overflow-y: hidden;
+	}
 
 	&-wallpaper {
 		&-moment {

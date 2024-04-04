@@ -26,6 +26,7 @@ export interface ILocalStorage extends ILocalStorageBase {
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
 	settingsBackgroundBlur?: true;
+	settingsBackgroundNoUseDefault?: true;
 	settingsBackgroundFollowMouse?: true;
 	settingsBackground?: string;
 	settingsDisplayWishlistedHighlights?: true;
@@ -44,6 +45,13 @@ let storage: ILocalStorage | undefined;
 export default class Store {
 
 	public static readonly event = EventManager.make<IStoreEvents>();
+
+	public static subscribeBackgroundChange (handler: () => any) {
+		Store.event.subscribe("setSettingsBackground", handler);
+		Store.event.subscribe("deleteSettingsBackground", handler);
+		Store.event.subscribe("setSettingsBackgroundNoUseDefault", handler);
+		Store.event.subscribe("deleteSettingsBackgroundNoUseDefault", handler);
+	}
 
 	public static get items () {
 		return storage ??= new Proxy({}, {
@@ -80,20 +88,27 @@ export default class Store {
 
 	public static set (key: string, value: any) {
 		const oldValue = Store.get(key);
+		if (oldValue === (value ?? null))
+			return true;
+
 		if (value === undefined)
 			localStorage.removeItem(key);
 		else
 			localStorage.setItem(key, JSON.stringify(value));
+
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue })
+		Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue });
 		return true;
 	}
 
 	public static delete (key: string) {
 		const oldValue = Store.get(key);
+		if (oldValue === null)
+			return true;
+
 		localStorage.removeItem(key);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue })
+		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue });
 		return true;
 	}
 }
