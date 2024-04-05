@@ -53,6 +53,8 @@ namespace Loadable {
 				model.event.subscribe("loading", this.onLoading);
 
 				model.get();
+				if (model["value"] instanceof Promise)
+					this.onLoading();
 			}
 
 			if (models.every(model => !model.loading))
