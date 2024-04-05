@@ -14,28 +14,28 @@
 
 @keyframes animation-swipe-up-in-pre {
 	from {
-		transform: translateY(30px);
+		translate: 0 30px;
 		opacity: 0;
 	}
 	to {
-		transform: translateY(30px);
+		translate: 0 30px;
 		opacity: 0;
 	}
 }
 
 @keyframes animation-swipe-up-in {
 	from {
-		transform: translateY(30px);
+		translate: 0 30px;
 		opacity: 0;
 	}
 	to {
-		transform: translateY(0);
+		translate: 0;
 		opacity: 1;
 	}
 }
 
 @mixin animation-swipe-down-out($duration: $animation-duration-global, $delay: $animation-delay-global) {
-	transform: translateY(30px);
+	translate: 0 30px;
 	opacity: 0;
 	@if $duration == null {
 		$duration: 0.3s;
@@ -50,22 +50,22 @@
 
 @keyframes animation-swipe-down-out-pre {
 	from {
-		transform: translateY(0);
+		translate: 0 0;
 		opacity: 1;
 	}
 	to {
-		transform: translateY(0);
+		translate: 0 0;
 		opacity: 1;
 	}
 }
 
 @keyframes animation-swipe-down-out {
 	from {
-		transform: translateY(0);
+		translate: 0 0;
 		opacity: 1;
 	}
 	to {
-		transform: translateY(30px);
+		translate: 0 30px;
 		opacity: 0;
 	}
 }

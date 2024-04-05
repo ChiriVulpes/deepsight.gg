@@ -268,7 +268,8 @@
 	}
 
 	&-header,
-	&-footer {
+	&-footer,
+	&-loadable .loadable-loading {
 		@include view-swipe-animation;
 	}
 }

@@ -549,6 +549,7 @@
 			animation: none !important;
 			opacity: 1 !important;
 			transform: none !important;
+			translate: none !important;
 			.bucket-inventory {
 				--slot-size: calc(var(--bucket-inventory-inner-width) / 10);
 				display: grid;
