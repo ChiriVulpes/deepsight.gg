@@ -20,15 +20,15 @@ export default Model.createDynamic("Daily", async _ => DeepsightManifest.await()
 			.sort((a, b) => +(a.moment?.hash || 0) - +(b.moment?.hash || 0));
 	}));
 
-export async function createWallpaperThumbnail (wallpaper: string) {
-	const image = new Image();
-	image.src = wallpaper;
-	await new Promise(resolve => image.onload = resolve);
+// export async function createWallpaperThumbnail (wallpaper: string) {
+// 	const image = new Image();
+// 	image.src = wallpaper;
+// 	await new Promise(resolve => image.onload = resolve);
 
-	const canvas = document.createElement("canvas");
-	canvas.width = 144;
-	canvas.height = 81;
-	const context = canvas.getContext("2d")!;
-	context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
-	return canvas;
-}
+// 	const canvas = document.createElement("canvas");
+// 	canvas.width = 144;
+// 	canvas.height = 81;
+// 	const context = canvas.getContext("2d")!;
+// 	context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+// 	return canvas;
+// }
