@@ -1,4 +1,5 @@
 import type { BungieMembershipType } from "bungie-api-ts/common";
+import type { UserInfoCard } from "bungie-api-ts/user";
 import { EventManager } from "utility/EventManager";
 
 export interface IItemPerkWishlist {
@@ -19,6 +20,7 @@ export interface ILocalStorage extends ILocalStorageBase {
 	bungieAccessTokenRefreshExpireTime?: number;
 	bungieAccessTokenRefreshToken?: string;
 	destinyMembershipType?: BungieMembershipType;
+	destinyMembershipOverride?: UserInfoCard;
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
 	settingsToggleExtra?: true;

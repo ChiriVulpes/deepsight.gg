@@ -15,6 +15,7 @@ export enum ClassPickerClasses {
 	OptionsWrapper9 = "class-picker-button-wrapper-9",
 	OptionsWrapperBorders1 = "class-picker-button-wrapper-borders1",
 	OptionsWrapperBorders2 = "class-picker-button-wrapper-borders2",
+	Disabled = "class-picker--disabled",
 }
 
 export interface IClassPickerOptionDefinition<ID extends string | number = string | number> {
@@ -61,6 +62,15 @@ export default class ClassPicker<ID extends string | number = string | number> e
 		this.optionsWrapperBorders2 = Component.create()
 			.classes.add(ClassPickerClasses.OptionsWrapperBorders2)
 			.appendTo(this.optionsWrapper);
+	}
+
+	public get isDisabled () {
+		return this.classes.has(ClassPickerClasses.Disabled);
+	}
+
+	public setDisabled (disabled: boolean) {
+		this.classes.toggle(disabled, ClassPickerClasses.Disabled);
+		return this;
 	}
 
 	public addOption (option: Omit<IClassPickerOptionDefinition<ID>, "button">) {
@@ -124,6 +134,9 @@ export default class ClassPicker<ID extends string | number = string | number> e
 
 	private settingCurrent?: Promise<any>;
 	public async setCurrent (id: ID, initial = false) {
+		if (this.isDisabled && !initial)
+			return;
+
 		while (this.settingCurrent)
 			await this.settingCurrent;
 

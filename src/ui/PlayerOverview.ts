@@ -8,6 +8,7 @@ import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
 import InfoBlock from "ui/InfoBlock";
 import PlayerOverviewCharacterPanel from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
+import PlayerOverviewIdentity from "ui/inventory/playeroverview/PlayerOverviewIdentity";
 import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -18,9 +19,6 @@ import Bound from "utility/decorator/Bound";
 export enum PlayerOverviewClasses {
 	Main = "player-overview",
 	Container = "player-overview-container",
-	Identity = "player-overview-identity",
-	IdentityUsername = "player-overview-identity-username",
-	IdentityCode = "player-overview-identity-code",
 	Drawer = "player-overview-drawer",
 	ClassSelection = "player-overview-class-selection",
 	CharacterPicker = "player-overview-character-picker",
@@ -31,6 +29,8 @@ export enum PlayerOverviewClasses {
 namespace PlayerOverview {
 
 	export class Component extends BaseComponent<HTMLElement, [UserMembershipData, Inventory]> {
+
+		public identity!: PlayerOverviewIdentity;
 		public drawer!: Drawer;
 		private inventory!: Inventory;
 		public currencyOverview!: InfoBlock;
@@ -38,23 +38,12 @@ namespace PlayerOverview {
 		public characterPicker!: ClassPicker<CharacterId>;
 		private panels!: Record<CharacterId, PlayerOverviewCharacterPanel>;
 
-		public displayName!: string;
-		public code!: string;
 
 		protected override async onMake (memberships: UserMembershipData, inventory: Inventory) {
 			this.classes.add(PlayerOverviewClasses.Main);
 			this.inventory = inventory;
-			this.displayName = memberships.bungieNetUser.cachedBungieGlobalDisplayName;
-			this.code = `${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode ?? "????"}`.padStart(4, "0");
 
-			BaseComponent.create()
-				.classes.add(PlayerOverviewClasses.Identity)
-				.append(BaseComponent.create()
-					.classes.add(PlayerOverviewClasses.IdentityUsername)
-					.text.set(memberships.bungieNetUser.cachedBungieGlobalDisplayName))
-				.append(BaseComponent.create()
-					.classes.add(PlayerOverviewClasses.IdentityCode)
-					.text.set(`#${this.code}`))
+			this.identity = PlayerOverviewIdentity.create([memberships])
 				.event.subscribe("click", () => this.drawer.open("click"))
 				.appendTo(this);
 

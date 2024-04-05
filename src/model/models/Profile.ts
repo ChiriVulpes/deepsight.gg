@@ -60,6 +60,7 @@ const profileResponseComponentMap = makeProfileResponseComponentMap({
 
 type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
+let resetting = 0;
 class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 	public readonly applicableKeys: (keyof DestinyProfileResponse)[];
 
@@ -86,6 +87,17 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 		});
 
 		this.applicableKeys = applicableKeys;
+
+		const reset = async () => {
+			resetting++;
+			await this.reset();
+			resetting--;
+			if (!resetting)
+				location.reload();
+		};
+
+		Store.event.subscribe("setDestinyMembershipOverride", reset);
+		Store.event.subscribe("deleteDestinyMembershipOverride", reset);
 	}
 
 	public async update (response: DestinyProfileResponse) {
@@ -184,7 +196,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 				}
 
 			api.emitProgress(1 / 3, "Fetching profile");
-			const membership = await getCurrentDestinyMembership();
+			const membership = Store.items.destinyMembershipOverride ?? await getCurrentDestinyMembership();
 			if (!membership)
 				throw new Error("Can't load profile without membership");
 

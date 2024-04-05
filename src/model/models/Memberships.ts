@@ -1,3 +1,4 @@
+import type { UserInfoCard } from "bungie-api-ts/user";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Bungie from "utility/endpoint/bungie/Bungie";
@@ -17,17 +18,18 @@ export async function getCurrentDestinyMembership (api?: IModelGenerationApi, am
 		return undefined;
 
 	const memberships = await (api?.subscribeProgressAndWait(Memberships, amount ?? 1) ?? Memberships.await());
-	if (Store.items.destinyMembershipType === undefined) {
-		const firstMembership = memberships.destinyMemberships[0];
-		if (!firstMembership.crossSaveOverride)
-			return firstMembership;
+	if (Store.items.destinyMembershipType === undefined)
+		return getPrimaryDestinyMembership(memberships.destinyMemberships);
 
-		return memberships.destinyMemberships.find(membership => membership.membershipType === firstMembership.crossSaveOverride)
-			?? firstMembership;
-	}
-
-	const selectedMembership = memberships.destinyMemberships.find(membership => membership.membershipType === Store.items.destinyMembershipType)
+	return memberships.destinyMemberships.find(membership => membership.membershipType === Store.items.destinyMembershipType)
 		?? memberships.destinyMemberships[0];
+}
 
-	return selectedMembership;
+export function getPrimaryDestinyMembership<CARD extends UserInfoCard = UserInfoCard> (memberships: CARD[]): CARD {
+	const firstMembership = memberships[0];
+	if (!firstMembership?.crossSaveOverride)
+		return firstMembership;
+
+	return memberships.find(membership => membership.membershipType === firstMembership.crossSaveOverride)
+		?? firstMembership;
 }

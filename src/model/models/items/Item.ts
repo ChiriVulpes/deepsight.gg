@@ -468,7 +468,8 @@ class Item {
 	}
 
 	public canTransfer () {
-		return (!this.bucket.is(InventoryBucketHashes.LostItems) || !this.definition.doesPostmasterPullHaveSideEffects)
+		return !Store.items.destinyMembershipOverride
+			&& (!this.bucket.is(InventoryBucketHashes.LostItems) || !this.definition.doesPostmasterPullHaveSideEffects)
 			&& this.reference.bucketHash !== InventoryBucketHashes.Engrams;
 	}
 
@@ -560,6 +561,9 @@ class Item {
 	private settingLocked?: Promise<void>;
 	public async setLocked (locked = true) {
 		if (this.bucket === Bucket.COLLECTIONS)
+			return false;
+
+		if (Store.items.destinyMembershipOverride)
 			return false;
 
 		await this.settingLocked;
@@ -715,6 +719,9 @@ class Item {
 	}
 
 	private async transfer (...transfers: Transfer[]) {
+		if (Store.items.destinyMembershipOverride)
+			return;
+
 		await this.transferrable();
 		this.event.emit("loadStart");
 		this._transferPromise = this.performTransfer(...transfers);

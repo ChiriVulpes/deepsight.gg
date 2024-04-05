@@ -51,12 +51,32 @@
 		text-align: center;
 
 		&-username,
-		&-code {
+		&-code,
+		&-override {
 			display: inline;
 		}
 
 		&-code {
 			color: color(accent-0);
+		}
+		
+		&-input {
+			background: none;
+			border: none;
+			font: inherit;
+			width: auto;
+			min-width: 0;
+			max-width: fit-content;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			text-align: center;
+			outline: none;
+		}
+		
+		&-override {
+			color: color(warning);
 		}
 	}
 
