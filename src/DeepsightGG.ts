@@ -67,7 +67,8 @@ export default class DeepsightGG {
 			document.documentElement.classList.add("authenticated");
 		}
 
-		await ProfileBatch.await();
+		if (Bungie.authenticated)
+			await ProfileBatch.await();
 
 		const bungieId = URL.bungieID;
 		const destinyMembership = !bungieId ? undefined
