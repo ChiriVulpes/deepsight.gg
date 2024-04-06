@@ -1,4 +1,4 @@
-import Arrays from "@deepsight.gg/utility/Arrays";
+import ArrayPrototypes from "@deepsight.gg/utility/prototype/ArrayPrototypes";
 import ansicolor from "ansicolor";
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
@@ -10,7 +10,7 @@ import Log from "./utility/Log";
 import Objects from "./utility/Objects";
 import Task from "./utility/Task";
 
-Arrays.applyPrototypes();
+ArrayPrototypes();
 
 const MISSING_ENUM_NAMES: Partial<Record<keyof AllDestinyManifestComponents, Record<number, string>>> = {
 	DestinyInventoryBucketDefinition: {
