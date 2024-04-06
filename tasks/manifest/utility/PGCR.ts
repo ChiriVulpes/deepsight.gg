@@ -20,7 +20,10 @@ namespace PGCR {
 	export async function getRecent () {
 		return recentPGCR ??= await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json")
 			.then(response => response.json())
-			.then((versions: DeepsightManifest) => versions.referencePostGameCarnageReportSinceDailyReset);
+			.then((versions: DeepsightManifest) => {
+				Log.info(`Using reference PGCR from deepsight.gg manifest v${versions.deepsight}`);
+				return versions.referencePostGameCarnageReportSinceDailyReset;
+			});
 	}
 
 	const pgcrs: (DestinyPostGameCarnageReportData | undefined)[] = [];
