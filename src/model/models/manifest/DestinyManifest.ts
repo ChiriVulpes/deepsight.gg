@@ -126,7 +126,7 @@ class DestinyManifestItem<COMPONENT_NAME extends DestinyComponentName> extends M
 		let tryAgain = true;
 		for (let i = 0; i < 5 && tryAgain; i++) {
 			tryAgain = false;
-			data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}?corsfix=${i}`)
+			data = await fetch(Env.DEEPSIGHT_ENVIRONMENT === "dev" ? `/testiny/${componentName}.json` : `https://www.bungie.net${manifest.jsonWorldComponentContentPaths.en[componentName]}?corsfix=${i}`)
 				.then(response => response.json())
 				.catch(err => {
 					if ((err as Error).message.includes("Access-Control-Allow-Origin")) {
