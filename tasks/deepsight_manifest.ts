@@ -1,4 +1,4 @@
-import Arrays from "@deepsight.gg/utility/Arrays";
+import ArrayPrototypes from "@deepsight.gg/utility/prototype/ArrayPrototypes";
 import bump_versions from "./bump_versions";
 import copy_manifest from "./copy_manifest";
 import destiny_manifest from "./destiny_manifest";
@@ -13,7 +13,7 @@ import DeepsightWallpaperDefinition from "./manifest/DeepsightWallpaperDefinitio
 import refresh_token from "./refresh_token";
 import Task from "./utility/Task";
 
-Arrays.applyPrototypes();
+ArrayPrototypes();
 
 export default Task("deepsight_manifest", task => task.series(
 	copy_manifest,
