@@ -42,8 +42,13 @@
 
 	&-identity-container {
 		position: relative;
-		margin-right: 15px;
+		margin: 0 10px;
 		transition-delay: $delay * 2;
+		
+		.authenticated & {
+			margin: 0;
+			margin-right: 15px;
+		}
 	}
 
 	@at-root .app-info-container,
@@ -163,6 +168,7 @@
 		white-space: nowrap;
 		
 		:root:not(.authenticated) &-auth-required,
+		:root:not(.authenticated):not(.spying) &-auth-spy,
 		:root.authenticated &-no-auth-required {
 			display: none;
 		}

@@ -1,10 +1,13 @@
 import type Model from "model/Model";
+import Characters from "model/models/Characters";
 import EnumModel from "model/models/enum/EnumModel";
+import Manifest from "model/models/Manifest";
 import Background from "ui/BackgroundManager";
 import { Classes as BaseClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import type Button from "ui/form/Button";
+import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
 
@@ -19,11 +22,12 @@ namespace View {
 		name: string | ((...args: ARGS) => string) | null;
 		initialiseDestinationButton?: (button: Button) => any;
 		/**
-		 * - Set to `"required"` or `undefined` to require auth to view this tab (default)
+		 * - Set to `"required"`
+		 * - Set to `"spy"` or `undefined` to require auth to view this tab (default)
 		 * - Set to `"optional"` to always show this tab
 		 * - Set to `"none"` to require *no* auth
 		 */
-		auth?: "required" | "optional" | "none";
+		auth?: "required" | "spy" | "optional" | "none";
 		noDestinationButton?: true;
 		displayDestinationButton?(): boolean;
 		redirectOnLoad?: true | string;
@@ -90,7 +94,10 @@ namespace View {
 				...definition as DEFINITION,
 				models: this.otherModels,
 				initialise: async (component, ...requirements) => {
+					await Manifest.await();
 					await EnumModel.awaitAll();
+					await SortManager.init();
+					await Characters.awaitReady();
 					for (const initialiser of [...this.initialisers, definition.initialise]) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 						await initialiser?.(component as any, ...requirements);

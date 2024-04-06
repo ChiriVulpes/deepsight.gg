@@ -19,22 +19,32 @@ export interface EnumModelDefinition<ALL> {
 
 class EnumModel<ALL extends EnumModelAll<INDIVIDUAL>, INDIVIDUAL extends EnumModelDefinitionObject> {
 
+	private static generators?: (() => Promise<any>)[] = [];
 	private static promises?: Promise<any>[] = [];
 
 	public static create<DEF extends EnumModelDefinition<any>> (id: string, definition: DEF) {
 		const model = new EnumModel(id);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		const promise = definition.generate().then(all => (model as any).all = all);
 		Object.assign(model, definition);
-		EnumModel.promises?.push(promise);
+		EnumModel.generators!.push(() => {
+			const promise = definition.generate().then(all => (model as any).all = all);
+			EnumModel.promises?.push(promise);
+			return promise;
+		});
 		return model as any as (Omit<DEF, "generate">
 			& (DEF extends EnumModelDefinition<infer ALL> ? EnumModelIndividual<ALL> extends infer INDIVIDUAL extends EnumModelDefinitionObject
 				? EnumModel<Extract<Omit<ALL, "array">, Record<string, INDIVIDUAL>> & { array: INDIVIDUAL[] }, INDIVIDUAL> : never : never));
 	}
 
 	public static async awaitAll () {
+		if (EnumModel.generators) {
+			(EnumModel.promises ??= []).push(...EnumModel.generators.map(generator => generator()));
+			delete EnumModel.generators;
+		}
+
 		if (EnumModel.promises)
 			await Promise.all(EnumModel.promises);
+
 		delete EnumModel.promises;
 	}
 

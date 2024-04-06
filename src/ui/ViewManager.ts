@@ -34,6 +34,7 @@ import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
+import Store from "utility/Store";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
 
@@ -95,7 +96,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return Bungie.authenticated || URL.bungieID ? InventoryWeaponsView : AuthView;
+		return Bungie.authenticated || URL.bungieID || Store.items.destinyMembershipOverride ? InventoryWeaponsView : AuthView;
 	}
 
 	public static hasView () {

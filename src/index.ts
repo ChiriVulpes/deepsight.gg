@@ -1,9 +1,9 @@
 import DeepsightGG from "DeepsightGG";
-import Arrays from "utility/Arrays";
 import applyDOMRectPrototypes from "utility/DOMRect";
-import Strings from "utility/Strings";
+import ArrayPrototypes from "utility/prototype/ArrayPrototypes";
+import StringPrototypes from "utility/prototype/StringPrototypes";
 
 applyDOMRectPrototypes();
-Strings.applyPrototypes();
-Arrays.applyPrototypes();
+StringPrototypes();
+ArrayPrototypes();
 new DeepsightGG();

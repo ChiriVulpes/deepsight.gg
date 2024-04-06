@@ -21,7 +21,7 @@ import BucketComponents from "ui/inventory/bucket/BucketComponents";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";
-import SortManager from "ui/inventory/sort/SortManager";
+import type SortManager from "ui/inventory/sort/SortManager";
 import Arrays from "utility/Arrays";
 import Store from "utility/Store";
 import Bound from "utility/decorator/Bound";
@@ -76,7 +76,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		InventoryView.hasExisted = true;
 		InventoryView.current = this;
 		this.inventory = inventory;
-		inventory.setShouldSkipCharacters(() => !InventoryView.current);
+		inventory.setShouldSkipRefresh(() => !InventoryView.current);
 
 		this.classes.add(InventoryViewClasses.Main);
 		this.super.content.classes.add(InventoryViewClasses.Content);
@@ -90,8 +90,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		this.bucketComponents = {};
 		this.equipped = {};
 		this.itemMap = new Map<Item, ItemComponent>();
-
-		await SortManager.init();
 
 		this.super.definition.layout?.(this);
 

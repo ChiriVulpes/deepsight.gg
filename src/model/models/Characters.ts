@@ -55,16 +55,19 @@ export class Character {
 
 type Characters = Record<CharacterId, Character>;
 
+let charactersReadyPromise: Promise<void> | undefined;
 let characters: Characters = {};
 let charactersSorted: Character[] = [];
-ProfileBatch.event.subscribe("loaded", async ({ value: profile }) => {
-	const manifest = await Manifest.await();
-	characters = await Objects.mapAsync(profile.characters?.data ?? {}, async ([key, character]) =>
-		[key, await Character.get(character, manifest, profile)]);
-	charactersSorted = Object.values(characters)
-		.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
-			new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
-	Characters.event.emit("loaded", { characters, sorted: charactersSorted });
+ProfileBatch.event.subscribe("loaded", ({ value: profile }) => {
+	charactersReadyPromise = (async () => {
+		const manifest = await Manifest.await();
+		characters = await Objects.mapAsync(profile.characters?.data ?? {}, async ([key, character]) =>
+			[key, await Character.get(character, manifest, profile)]);
+		charactersSorted = Object.values(characters)
+			.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
+				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime());
+		Characters.event.emit("loaded", { characters, sorted: charactersSorted });
+	})();
 });
 
 namespace Characters {
@@ -73,6 +76,10 @@ namespace Characters {
 	}
 
 	export const event = new EventManager<{}, ICharactersEvents>({});
+
+	export async function awaitReady () {
+		return await charactersReadyPromise;
+	}
 
 	/**
 	 * @returns Whether deepsight.gg has any characters available

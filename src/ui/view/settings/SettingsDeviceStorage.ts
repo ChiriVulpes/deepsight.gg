@@ -66,7 +66,6 @@ export default class SettingsDeviceStorage extends Card<[]> {
 				.tweak(wrapper => wrapper.button.text.set("Unauthorise"))
 				.tweak(wrapper => wrapper.description.text.set("Forgets your Bungie.net authentication. (Note that the authentication token is not sent anywhere except Bungie.net, and it's stored on your device.)"))
 				.tweak(wrapper => wrapper.button.event.subscribe("click", async () => {
-					await Model.clearCache(true);
 					Bungie.resetAuthentication();
 					location.reload();
 				}))

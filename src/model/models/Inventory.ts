@@ -15,9 +15,11 @@ import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent"
 import LoadingManager from "ui/LoadingManager";
 import Arrays from "utility/Arrays";
 import Bound from "utility/decorator/Bound";
+import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
+import URL from "utility/URL";
 
 interface IInventoryModelEvents {
 	update: Event;
@@ -42,10 +44,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return Inventory.INSTANCE ??= new Inventory();
 	}
 
-	public static async await (api?: IModelGenerationApi) {
+	public static async await (api?: IModelGenerationApi, amount?: number, from?: number) {
 		const inventory = Inventory.get();
 		if (!inventory.loaded)
-			await inventory.await(api);
+			await inventory.await(api, amount, from);
 		return inventory;
 	}
 
@@ -112,27 +114,30 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return Characters.getOrCurrent(id)!;
 	}
 
-	private shouldSkipCharacters?: () => boolean;
-	public setShouldSkipCharacters (shouldSkip: () => boolean) {
-		this.shouldSkipCharacters = shouldSkip;
+	private shouldSkipRefresh?: () => boolean;
+	public setShouldSkipRefresh (shouldSkip: () => boolean) {
+		this.shouldSkipRefresh = shouldSkip;
 		return this;
 	}
 
 	@Bound
-	public async await (progress?: IModelGenerationApi) {
-		if (this.shouldSkipCharacters?.() ?? false)
+	public async await (progress?: IModelGenerationApi, amount = 1, from = 0) {
+		if (this.shouldSkipRefresh?.() ?? false)
 			return this;
 
-		progress?.subscribeProgress(Manifest, 1 / 3);
+		if (!URL.bungieID && !Bungie.authenticated)
+			return this;
+
+		progress?.subscribeProgress(Manifest, (1 / 3) * amount, from);
 		await Manifest.await();
 
-		progress?.emitProgress(2 / 3, "Loading items");
-		progress?.subscribeProgress(Items, 1 / 3, 2 / 3);
+		progress?.emitProgress((2 / 3) * amount + from, "Loading items");
+		progress?.subscribeProgress(Items, (1 / 3) * amount, 2 / 3 + from);
 		const itemsLoadedPromise = Items.await();
 		if (!this.buckets)
 			await itemsLoadedPromise;
 
-		progress?.emitProgress(3 / 3);
+		progress?.emitProgress((3 / 3) * amount + from);
 		this.loaded = true;
 		return this as Required<this>;
 	}

@@ -47,12 +47,10 @@
 		-webkit-user-select: all;
 		height: fit-content;
 		align-self: center;
-		min-width: 130px;
 		text-align: center;
 
 		&-username,
-		&-code,
-		&-override {
+		&-code {
 			display: inline;
 		}
 
@@ -64,19 +62,21 @@
 			background: none;
 			border: none;
 			font: inherit;
-			width: auto;
-			min-width: 0;
-			max-width: fit-content;
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			text-align: center;
 			outline: none;
+			padding: 0;
+			letter-spacing: inherit;
 		}
 		
 		&-override {
-			color: color(warning);
+			// color: color(warning);
+			opacity: .15;
+			font-size: .7em;
+			font-weight: 700;
+			letter-spacing: 1px;
+			text-align: left;
+			// text-transform: uppercase;
+			margin-top: -12px;
+			margin-bottom: -4px;
 		}
 	}
 
@@ -106,7 +106,10 @@
 			top: initial;
 			right: initial;
 			top: calc(8px + var(--nav-height));
-			left: calc(145px + 120px / 2);
+			left: calc(230px + 120px / 2);
+			.authenticated & {
+				left: calc(145px + 120px / 2);
+			}
 			&::after {
 				transform: rotate(225deg);
 				top: 6px;

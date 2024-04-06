@@ -5,7 +5,9 @@ import Database from "utility/Database";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
 import Maths from "utility/maths/Maths";
+import Store from "utility/Store";
 import type { AnyFunction } from "utility/Type";
+import URL from "utility/URL";
 
 export interface IModelEvents<R> {
 	loading: Event;
@@ -33,6 +35,7 @@ export interface IModel<T, R, API = undefined> {
 	 * On initial load, assuming the cached data is not older than the provided elapsed ms, it will be used instead.
 	 */
 	useCacheOnInitial?: number;
+	resetOnDestinyMembershipChange?: true;
 	generate?(api: IModelGenerationApi): Promise<T>;
 	process?(value: T): R;
 	reset?(value?: T): any;
@@ -111,6 +114,7 @@ namespace Model {
 		});
 	}
 
+	let resetting = 0;
 	export class Impl<T, R = T> {
 
 		public readonly event = new EventManager<this, IModelEvents<R>>(this);
@@ -149,6 +153,24 @@ namespace Model {
 
 		public constructor (private readonly name: string, private readonly model: IModel<T, R, any>) {
 			Object.assign(this, model.api);
+
+			if (model.resetOnDestinyMembershipChange) {
+				const reset = async () => {
+					resetting++;
+					await this.reset();
+					resetting--;
+					if (!resetting) {
+						// eslint-disable-next-line no-self-assign
+						URL.path = URL.path;
+						// eslint-disable-next-line no-self-assign
+						location.href = location.href;
+					}
+				};
+
+				Store.event.subscribe("setDestinyMembershipOverride", reset);
+				Store.event.subscribe("deleteDestinyMembershipOverride", reset);
+				Bungie.event.subscribe("resetAuthentication", reset);
+			}
 		}
 
 		public isCacheValid (cacheTime = this.cacheTime, version = this.version, resetTime = this.model.resetTime) {

@@ -50,12 +50,16 @@
 		line-height: 1.05em;
 		font-weight: 100;
 		letter-spacing: .02em;
-		width: 65px !important;
+		width: 40px !important;
 		height: fit-content;
 		align-self: center;
 		margin-right: 30px;
 		.text-logo-sight::before {
 			content: none;
+		}
+		
+		.authenticated & {
+			width: 65px !important;
 		}
 	}
 

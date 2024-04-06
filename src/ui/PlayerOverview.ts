@@ -1,8 +1,10 @@
-import type { UserMembershipData } from "bungie-api-ts/user";
+import Model from "model/Model";
 import Characters from "model/models/Characters";
+import EnumModel from "model/models/enum/EnumModel";
 import Inventory from "model/models/Inventory";
 import type { CharacterId } from "model/models/items/Item";
 import Memberships from "model/models/Memberships";
+import { Classes } from "ui/Classes";
 import BaseComponent from "ui/Component";
 import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
@@ -15,6 +17,8 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Async from "utility/Async";
 import Bound from "utility/decorator/Bound";
+import Bungie from "utility/endpoint/bungie/Bungie";
+import Store from "utility/Store";
 
 export enum PlayerOverviewClasses {
 	Main = "player-overview",
@@ -28,7 +32,7 @@ export enum PlayerOverviewClasses {
 
 namespace PlayerOverview {
 
-	export class Component extends BaseComponent<HTMLElement, [UserMembershipData, Inventory]> {
+	export class Component extends BaseComponent<HTMLElement, [Memberships, Inventory]> {
 
 		public identity!: PlayerOverviewIdentity;
 		public drawer!: Drawer;
@@ -38,10 +42,11 @@ namespace PlayerOverview {
 		public characterPicker!: ClassPicker<CharacterId>;
 		private panels!: Record<CharacterId, PlayerOverviewCharacterPanel>;
 
-
-		protected override async onMake (memberships: UserMembershipData, inventory: Inventory) {
+		protected override async onMake (memberships: Memberships, inventory: Inventory) {
 			this.classes.add(PlayerOverviewClasses.Main);
 			this.inventory = inventory;
+
+			this.classes.toggle(!Store.items.destinyMembershipOverride && !Bungie.authenticated, Classes.Hidden);
 
 			this.identity = PlayerOverviewIdentity.create([memberships])
 				.event.subscribe("click", () => this.drawer.open("click"))
@@ -194,8 +199,14 @@ namespace PlayerOverview {
 
 
 	export function create (): Loadable.Component {
-		return Loadable.create(Memberships, Inventory.await())
-			.onReady((memberships, inventory) => Component.create([memberships, inventory]))
+		const model = Model.createTemporary(async api => {
+			await EnumModel.awaitAll();
+			const memberships = await api.subscribeProgressAndWait(Memberships, 1 / 2);
+			const inventory = await Inventory.await(api, 1 / 2, 1 / 2);
+			return [memberships, inventory] as const;
+		});
+		return Loadable.create(model)
+			.onReady(([memberships, inventory]) => Component.create([memberships, inventory]))
 			.setSimple()
 			.classes.add(PlayerOverviewClasses.Container);
 	}

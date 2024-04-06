@@ -1,7 +1,6 @@
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
-import type Loadable from "ui/Loadable";
 import PlayerOverview from "ui/PlayerOverview";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
@@ -22,6 +21,7 @@ export enum ClassesAppNav {
 	DestinationsClose = "app-nav-destinations-close",
 	Destination = "app-nav-destination",
 	DestinationAuthRequired = "app-nav-destination-auth-required",
+	DestinationAuthSpy = "app-nav-destination-auth-spy",
 	DestinationNoAuthRequired = "app-nav-destination-no-auth-required",
 	DestinationChildActive = "app-nav-destination-child-active",
 	DestinationChildren = "app-nav-destination-children",
@@ -35,7 +35,6 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 	private destinationDropdownWrappers!: Component[];
 	private destinationsWrapper!: Component;
 	private appInfo!: AppInfo;
-	private playerOverview?: Loadable.Component;
 	private viewGrid!: View.Handler[][];
 	private viewPos!: { x: number, y: number };
 
@@ -57,12 +56,9 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			});
 		});
 
-		this.tryInsertPlayerOverview();
-		Bungie.event.subscribe("authenticated", this.tryInsertPlayerOverview);
-		Bungie.event.subscribe("resetAuthentication", () => {
-			this.playerOverview?.remove();
-			delete this.playerOverview;
-		});
+		PlayerOverview.create()
+			.classes.add(ClassesAppNav.IdentityContainer)
+			.insertToAfter(this, this.appInfo);
 
 		this.destinationsWrapper = Component.create()
 			.classes.add(ClassesAppNav.Destinations)
@@ -93,16 +89,22 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			if (typeof name === "function")
 				name = name();
 
+			const authVisibility = destinationViewHandler.definition.auth ?? "spy";
 			const destinationButton = this.destinationButtons[destinationViewHandler.id] = Button.create()
 				.classes.add(ClassesAppNav.Destination, `app-nav-destination-${destinationViewHandler.id}`)
-				.classes.toggle((destinationViewHandler.definition.auth ?? "required") === "required", ClassesAppNav.DestinationAuthRequired)
-				.classes.toggle((destinationViewHandler.definition.auth) === "none", ClassesAppNav.DestinationNoAuthRequired)
+				.classes.toggle(authVisibility === "required", ClassesAppNav.DestinationAuthRequired)
+				.classes.toggle(authVisibility === "spy", ClassesAppNav.DestinationAuthSpy)
+				.classes.toggle(authVisibility === "none", ClassesAppNav.DestinationNoAuthRequired)
 				.text.set(name ?? "Unknown View")
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show());
 
 			if (!destinationViewHandler.parentViewId) {
-				destinationButton.appendTo(this.destinationsWrapper);
+				if (destinationViewHandler.id === "auth")
+					destinationButton.insertToAfter(this, this.appInfo);
+				else
+					destinationButton.appendTo(this.destinationsWrapper);
+
 				const column = this.viewGrid.length;
 				this.viewGrid.push([destinationViewHandler]);
 				viewTree[destinationViewHandler.id] ??= { buttons: [], column };
@@ -170,15 +172,6 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 		const x = this.viewGrid.findIndex(column => column.some(handler => handler.id === view.definition.id));
 		const y = this.viewGrid[x]?.findIndex(handler => handler.id === view.definition.id);
 		this.viewPos = { x, y };
-	}
-
-	@Bound private tryInsertPlayerOverview () {
-		if (!Bungie.authenticated || this.playerOverview)
-			return;
-
-		this.playerOverview = PlayerOverview.create()
-			.classes.add(ClassesAppNav.IdentityContainer)
-			.insertToAfter(this, this.appInfo);
 	}
 
 	private isDestinationVisible (id: string) {

@@ -1,7 +1,6 @@
-import Model from "model/Model";
 import Activities from "model/models/Activities";
 import { getPrimaryDestinyMembership } from "model/models/Memberships";
-import ProfileBatch from "model/models/ProfileBatch";
+import Profile from "model/models/Profile";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -47,10 +46,7 @@ export default class DeepsightGG {
 		await Env.load();
 		void Fonts.check();
 
-		void Background.initialiseMain();
-
-		Bungie.event.subscribe("resetAuthentication", async _ => {
-			await Model.clearCache();
+		Bungie.event.subscribe("resetAuthentication", _ => {
 			AuthView.show();
 			document.documentElement.classList.remove("authenticated");
 		});
@@ -59,7 +55,13 @@ export default class DeepsightGG {
 			document.documentElement.classList.add("authenticated");
 		});
 
-		await Bungie.authenticate("complete");
+		const didAuthenticate = await Bungie.authenticate("complete");
+		if (didAuthenticate && Store.items.destinyMembershipOverride) {
+			delete Store.items.destinyMembershipOverride;
+			await Profile.reset();
+			location.reload();
+			return;
+		}
 
 		if (Bungie.authenticated) {
 			Bungie.event.subscribe("apiDown", () => document.body.classList.add("bungie-api-down"));
@@ -67,8 +69,7 @@ export default class DeepsightGG {
 			document.documentElement.classList.add("authenticated");
 		}
 
-		if (Bungie.authenticated)
-			await ProfileBatch.await();
+		void Background.initialiseMain();
 
 		const bungieId = URL.bungieID;
 		const destinyMembership = !bungieId ? undefined
@@ -76,8 +77,18 @@ export default class DeepsightGG {
 				.then(memberships => getPrimaryDestinyMembership(memberships));
 
 		const membershipOverride = Store.items.destinyMembershipOverride;
-		if (destinyMembership && (membershipOverride?.bungieGlobalDisplayName !== destinyMembership.bungieGlobalDisplayName || membershipOverride.bungieGlobalDisplayNameCode !== destinyMembership.bungieGlobalDisplayNameCode))
+		if (destinyMembership && (membershipOverride?.bungieGlobalDisplayName !== destinyMembership.bungieGlobalDisplayName || membershipOverride.bungieGlobalDisplayNameCode !== destinyMembership.bungieGlobalDisplayNameCode)) {
 			Store.items.destinyMembershipOverride = destinyMembership;
+			await Profile.reset();
+			location.reload();
+			return;
+		}
+
+		document.documentElement.classList.toggle("spying", !!Store.items.destinyMembershipOverride);
+		Store.event.subscribe("setDestinyMembershipOverride", () =>
+			document.documentElement.classList.add("spying"));
+		Store.event.subscribe("deleteDestinyMembershipOverride", () =>
+			document.documentElement.classList.remove("spying"));
 
 		AppNav.create([ViewManager])
 			.appendTo(document.body);

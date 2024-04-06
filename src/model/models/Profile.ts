@@ -61,7 +61,6 @@ const profileResponseComponentMap = makeProfileResponseComponentMap({
 
 type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
-let resetting = 0;
 class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 	public readonly applicableKeys: (keyof DestinyProfileResponse)[];
 
@@ -85,23 +84,10 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 			useCacheOnInitial: Time.days(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
+			resetOnDestinyMembershipChange: true,
 		});
 
 		this.applicableKeys = applicableKeys;
-
-		const reset = async () => {
-			resetting++;
-			await this.reset();
-			resetting--;
-			if (!resetting) {
-				// eslint-disable-next-line no-self-assign
-				URL.path = URL.path;
-				location.reload();
-			}
-		};
-
-		Store.event.subscribe("setDestinyMembershipOverride", reset);
-		Store.event.subscribe("deleteDestinyMembershipOverride", reset);
 	}
 
 	public async update (response: DestinyProfileResponse) {
@@ -245,13 +231,16 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 }
 
 namespace Profile {
-	export function reset () {
+	export async function reset () {
+		const promises = [];
 		for (const component of Object.values(profileResponseComponentMap).flat()) {
 			if (component) {
 				models[component] ??= new ComponentModel(component);
-				void models[component]?.reset();
+				promises.push(models[component]?.reset());
 			}
 		}
+
+		await Promise.all(promises);
 	}
 }
 

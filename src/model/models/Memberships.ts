@@ -1,14 +1,20 @@
-import type { UserInfoCard } from "bungie-api-ts/user";
+import type { UserInfoCard, UserMembershipData } from "bungie-api-ts/user";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import GetMembershipsForCurrentUser from "utility/endpoint/bungie/endpoint/user/GetMembershipsForCurrentUser";
 import Store from "utility/Store";
 
+type Memberships = Omit<UserMembershipData, "bungieNetUser"> & Partial<Pick<UserMembershipData, "bungieNetUser">>;
+
 const Memberships = Model.create("memberships", {
 	cache: "Session",
 	resetTime: "Daily",
-	generate: () => GetMembershipsForCurrentUser.query(),
+	resetOnDestinyMembershipChange: true,
+	generate: async (): Promise<Memberships> => {
+		return Store.items.destinyMembershipOverride || !Bungie.authenticated ? { destinyMemberships: [], bungieNetUser: undefined }
+			: GetMembershipsForCurrentUser.query();
+	},
 });
 
 export default Memberships;

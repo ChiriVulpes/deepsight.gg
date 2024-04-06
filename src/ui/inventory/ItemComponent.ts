@@ -96,7 +96,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	public override readonly event!: ComponentEventManager<this, IItemComponentEvents>;
 
 	public item?: Item;
-	public extra!: Component;
+	public extra?: Component;
 	public loadingSpinny?: Component;
 	public icon?: Component;
 	public iconShaped?: Component;
@@ -389,9 +389,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 	@Bound
 	private async rerenderExtra () {
-		this.extra.removeContents();
+		this.extra?.removeContents();
 
-		if (!this.item)
+		if (!this.item || !this.extra)
 			return;
 
 		const sorts = this.sorter?.deref()?.get()?.slice() ?? [];

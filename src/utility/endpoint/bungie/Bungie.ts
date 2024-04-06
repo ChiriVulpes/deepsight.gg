@@ -61,11 +61,11 @@ export class BungieAPI {
 		return !!(Store.items.bungieAuthCode && Store.items.bungieAccessToken);
 	}
 
-	public async authenticate (type: "start" | "complete"): Promise<void> {
+	public async authenticate (type: "start" | "complete"): Promise<boolean> {
 		if (!Store.items.bungieAuthCode && !URL.params.code) {
 			if (type !== "start") {
 				// the user didn't approve of starting auth yet
-				return;
+				return false;
 			}
 
 			// step 1: get an auth code for this user
@@ -75,7 +75,7 @@ export class BungieAPI {
 				throw new Error("Cannot authenticate with Bungie, no client ID in environment");
 
 			location.href = `https://www.bungie.net/en/oauth/authorize?client_id=${clientId}&response_type=code`; // &state=${state}`;
-			return;
+			return false;
 		}
 
 		if (!Store.items.bungieAuthCode) {
@@ -90,8 +90,10 @@ export class BungieAPI {
 
 		if (!Store.items.bungieAccessToken) {
 			// step 3: get an access token
-			await this.requestToken();
+			return await this.requestToken();
 		}
+
+		return false;
 	}
 
 	public resetAuthentication () {
@@ -122,7 +124,7 @@ export class BungieAPI {
 				throw Object.assign(new Error(result.error_description as string | undefined ?? "Invalid grant"), result);
 			}
 
-			return;
+			return false;
 		}
 
 		Store.items.bungieAccessToken = result.access_token;
@@ -131,6 +133,7 @@ export class BungieAPI {
 		Store.items.bungieAccessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
 		Store.items.bungieAccessTokenRefreshToken = result.refresh_token;
 		this.event.emit("authenticated");
+		return true;
 	}
 }
 
