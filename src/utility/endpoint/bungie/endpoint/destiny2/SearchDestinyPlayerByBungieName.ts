@@ -10,4 +10,5 @@ export default BungieEndpoint
 			displayNameCode,
 		},
 	}))
-	.returning<UserInfoCard[]>();
+	.returning<UserInfoCard[]>()
+	.setOptionalAuth();

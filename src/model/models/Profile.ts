@@ -204,7 +204,9 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 			if (!membership)
 				throw new Error("Can't load profile without membership");
 
-			const newData = await GetProfile.query(membership.membershipType, membership.membershipId, missingComponents);
+			const newData = await GetProfile
+				.setOptionalAuth(!!Store.items.destinyMembershipOverride)
+				.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
 			result.lastModified = new Date(newData._headers.get("Last-Modified") ?? Date.now());
