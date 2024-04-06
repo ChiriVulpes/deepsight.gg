@@ -5,6 +5,7 @@ import Component from "ui/Component";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Store from "utility/Store";
+import URL from "utility/URL";
 import Bound from "utility/decorator/Bound";
 import SearchDestinyPlayerByBungieName from "utility/endpoint/bungie/endpoint/destiny2/SearchDestinyPlayerByBungieName";
 
@@ -37,7 +38,7 @@ export default class PlayerOverviewIdentity extends Component<HTMLElement, [User
 		this.ownDisplayName = memberships.bungieNetUser.cachedBungieGlobalDisplayName;
 		this.ownCode = `${memberships.bungieNetUser.cachedBungieGlobalDisplayNameCode ?? "????"}`.padStart(4, "0");
 
-		const overrideMembership = Store.items.destinyMembershipOverride;
+		const overrideMembership = URL.bungieID ? Store.items.destinyMembershipOverride : undefined;
 		this.displayName = overrideMembership?.bungieGlobalDisplayName ?? this.ownDisplayName;
 		this.code = `${overrideMembership?.bungieGlobalDisplayNameCode ?? this.ownCode}`;
 
@@ -106,8 +107,8 @@ export default class PlayerOverviewIdentity extends Component<HTMLElement, [User
 		this.code = `${destinyMembership.bungieGlobalDisplayNameCode ?? searchCode}`;
 		this.prettyUsername.text.set(this.displayName);
 		this.prettyCode.text.set(`#${this.code}`);
-		Store.items.destinyMembershipOverride = destinyMembership;
 		this.prettyOverride.classes.remove(Classes.Hidden);
+		Store.items.destinyMembershipOverride = destinyMembership;
 	}
 
 	@Bound

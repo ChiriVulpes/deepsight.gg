@@ -1,3 +1,12 @@
+import Define from "utility/Define";
+
+declare global {
+	interface String {
+		indexOfOrUndefined (substring: string, startAt?: number): number | undefined;
+		lastIndexOfOrUndefined (substring: string, startAt?: number): number | undefined;
+	}
+}
+
 namespace Strings {
 	export function includesAt (string: string, substring: string, index: number) {
 		if (index < 0)
@@ -235,6 +244,18 @@ namespace Strings {
 		return text.split(REGEX_NON_WORD_MULTI_PREV)
 			.map(word => word[0].toUpperCase() + word.slice(1))
 			.join("");
+	}
+
+	export function applyPrototypes () {
+		Define(String.prototype, "indexOfOrUndefined", function (substring, startAt) {
+			const index = this.indexOf(substring, startAt);
+			return index === -1 ? undefined : index;
+		});
+
+		Define(String.prototype, "lastIndexOfOrUndefined", function (substring, startAt) {
+			const index = this.lastIndexOf(substring, startAt);
+			return index === -1 ? undefined : index;
+		});
 	}
 }
 

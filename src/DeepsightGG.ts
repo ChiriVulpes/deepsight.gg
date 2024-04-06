@@ -1,13 +1,17 @@
 import Model from "model/Model";
 import Activities from "model/models/Activities";
+import { getPrimaryDestinyMembership } from "model/models/Memberships";
+import ProfileBatch from "model/models/ProfileBatch";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
 import AuthView from "ui/view/AuthView";
 import ViewManager from "ui/ViewManager";
 import Bungie from "utility/endpoint/bungie/Bungie";
+import SearchDestinyPlayerByBungieName from "utility/endpoint/bungie/endpoint/destiny2/SearchDestinyPlayerByBungieName";
 import Env from "utility/Env";
 import Fonts from "utility/Fonts";
+import Store from "utility/Store";
 import URL from "utility/URL";
 
 void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
@@ -40,10 +44,10 @@ export default class DeepsightGG {
 				document.documentElement.classList.remove("persist-tooltips");
 		});
 
-		Background.initialiseMain();
-
 		await Env.load();
 		void Fonts.check();
+
+		void Background.initialiseMain();
 
 		Bungie.event.subscribe("resetAuthentication", async _ => {
 			await Model.clearCache();
@@ -62,6 +66,17 @@ export default class DeepsightGG {
 			Bungie.event.subscribe("querySuccess", () => document.body.classList.remove("bungie-api-down"));
 			document.documentElement.classList.add("authenticated");
 		}
+
+		await ProfileBatch.await();
+
+		const bungieId = URL.bungieID;
+		const destinyMembership = !bungieId ? undefined
+			: await SearchDestinyPlayerByBungieName.query(bungieId.name, bungieId.code)
+				.then(memberships => getPrimaryDestinyMembership(memberships));
+
+		const membershipOverride = Store.items.destinyMembershipOverride;
+		if (destinyMembership && (membershipOverride?.bungieGlobalDisplayName !== destinyMembership.bungieGlobalDisplayName || membershipOverride.bungieGlobalDisplayNameCode !== destinyMembership.bungieGlobalDisplayNameCode))
+			Store.items.destinyMembershipOverride = destinyMembership;
 
 		AppNav.create([ViewManager])
 			.appendTo(document.body);

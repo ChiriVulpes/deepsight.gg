@@ -95,7 +95,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return Bungie.authenticated ? InventoryWeaponsView : AuthView;
+		return Bungie.authenticated || URL.bungieID ? InventoryWeaponsView : AuthView;
 	}
 
 	public static hasView () {
@@ -211,7 +211,10 @@ export default class ViewManager {
 		if (typeof name === "function")
 			name = name(...view._args.slice(1) as []);
 
-		document.title = name ? `${name} // ${APP_NAME}` : APP_NAME;
+		const bungieId = URL.bungieID;
+		const bungieIdSegment = !bungieId ? "" : ` / ${bungieId.name}#${bungieId.code}`;
+
+		document.title = name ? `${name}${bungieIdSegment} // ${APP_NAME}` : APP_NAME;
 	}
 
 	public static registerHashAction (hash: string, action: () => any) {

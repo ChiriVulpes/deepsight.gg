@@ -5,6 +5,7 @@ import { getCurrentDestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Store from "utility/Store";
 import Time from "utility/Time";
+import URL from "utility/URL";
 
 type DestinyComponentName = Exclude<keyof DestinyProfileResponse, "responseMintedTimestamp" | "secondaryComponentsMintedTimestamp">;
 
@@ -92,8 +93,11 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 			resetting++;
 			await this.reset();
 			resetting--;
-			if (!resetting)
+			if (!resetting) {
+				// eslint-disable-next-line no-self-assign
+				URL.path = URL.path;
 				location.reload();
+			}
 		};
 
 		Store.event.subscribe("setDestinyMembershipOverride", reset);
@@ -196,7 +200,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 				}
 
 			api.emitProgress(1 / 3, "Fetching profile");
-			const membership = Store.items.destinyMembershipOverride ?? await getCurrentDestinyMembership();
+			const membership = URL.bungieID ? Store.items.destinyMembershipOverride : await getCurrentDestinyMembership();
 			if (!membership)
 				throw new Error("Can't load profile without membership");
 
