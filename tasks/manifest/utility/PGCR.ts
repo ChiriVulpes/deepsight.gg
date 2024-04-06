@@ -30,6 +30,7 @@ namespace PGCR {
 		if (!from)
 			throw new Error("No reference pgcr");
 
+		Log.info("Searching PGCRs starting at:", from);
 		for (let i = 0; i < 1000; i++) {
 			const pgcrId = from + i;
 			Log.info("Searching PGCRs for:", id, "Current:", i);
@@ -44,8 +45,10 @@ namespace PGCR {
 			if (!pgcr)
 				throw new Error("Either the API is down, or it's Joever");
 
-			if (filter(pgcr))
+			if (filter(pgcr)) {
+				Log.info("Gotcha! Using:", pgcrId);
 				return pgcr;
+			}
 
 			await sleep(100);
 		}
