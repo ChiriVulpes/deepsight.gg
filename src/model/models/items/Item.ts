@@ -3,7 +3,7 @@ import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHash
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, TierType } from "bungie-api-ts/destiny2";
-import { DestinyCollectibleState, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
+import { DestinyCollectibleState, DestinyItemType, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type { BucketId } from "model/models/items/Bucket";
@@ -478,6 +478,11 @@ class Item {
 		return (this.tier?.tierType ?? 0) <= Math.min(tier ?? 0, max ?? 0);
 	}
 
+	public isEngram () {
+		return this.definition.inventory?.bucketTypeHash === InventoryBucketHashes.Engrams
+			|| this.definition.itemType === DestinyItemType.Engram;
+	}
+
 	public getPower (onlyPower: true): number | undefined;
 	public getPower (): number;
 	public getPower (onlyPower = false) {
@@ -492,8 +497,12 @@ class Item {
 			return undefined;
 
 		const primaryStatPower = isValidStat ? this.instance!.primaryStat.value : 0;
+
 		const itemLevelQualityPower = (this.instance?.itemLevel ?? 0) * 10 + (this.instance?.quality ?? 0);
-		return Math.max(primaryStatPower, itemLevelQualityPower);
+		if (this.isEngram())
+			return Math.max(primaryStatPower, itemLevelQualityPower);
+
+		return primaryStatPower;
 	}
 
 	public isSame (item: Item) {

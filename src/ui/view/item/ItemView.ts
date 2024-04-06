@@ -160,7 +160,7 @@ const itemViewBase = View.create({
 				.style.set("--colour", ElementTypes.getColour(elementTypeName)))
 			.append(Component.create()
 				.classes.add(ItemViewClasses.PrimaryInfoPower)
-				.text.set(`${item.getPower() || character?.power || 0}`))
+				.text.set(`${item.getPower() ?? character?.power ?? 0}`))
 			.append(ItemAmmo.create()
 				.classes.add(ItemViewClasses.PrimaryInfoAmmo)
 				.setItem(item))

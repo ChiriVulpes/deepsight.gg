@@ -333,7 +333,7 @@ class ItemTooltip extends Tooltip {
 			.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"));
 
 		this.primaryStatValue
-			.text.set(`${primaryStat || character?.power || "0"}`)
+			.text.set(`${primaryStat ?? character?.power ?? "0"}`)
 			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
 
 		this.primaryStatDamageIcon.classes.toggle(damageType === undefined, Classes.Hidden);
@@ -438,9 +438,9 @@ class ItemTooltip extends Tooltip {
 		const className = cls?.displayProperties.name ?? "Unknown";
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);
-		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
-		this.hintVault.classes.toggle(item.bucket.isVault() || isEngram || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
-		this.hintPullToCharacter.classes.toggle(item.bucket.isCharacter() || !!item.equipped || isEngram || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
+		const inEngramBucket = item.reference.bucketHash === InventoryBucketHashes.Engrams;
+		this.hintVault.classes.toggle(item.bucket.isVault() || inEngramBucket || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
+		this.hintPullToCharacter.classes.toggle(item.bucket.isCharacter() || !!item.equipped || inEngramBucket || item.bucket.isCollections() || item.bucket.is(InventoryBucketHashes.Consumables) || item.bucket.is(InventoryBucketHashes.Modifications), Classes.Hidden);
 		this.hintEquipToCharacter.classes.toggle(!item.bucket.isCharacter() || !!item.equipped, Classes.Hidden);
 		this.hintUnequipFromCharacter.classes.toggle(!item.bucket.isCharacter() || !item.equipped, Classes.Hidden);
 

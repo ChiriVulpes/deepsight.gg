@@ -2,7 +2,6 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
@@ -50,14 +49,14 @@ export default View.create({
 
 		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
-		const isEngram = item.reference.bucketHash === InventoryBucketHashes.Engrams;
+		const inEngramBucket = item.reference.bucketHash === InventoryBucketHashes.Engrams;
 
-		if (!item.bucket.isCharacter() && !item.equipped && !isEngram)
+		if (!item.bucket.isCharacter() && !item.equipped && !inEngramBucket)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Pull to ${className}`)
 				.event.subscribe("click", () => {
-					void item.transferToCharacter(character.characterId as CharacterId);
+					void item.transferToCharacter(character.characterId);
 					view.back();
 				})
 				.appendTo(buttons);
@@ -67,12 +66,12 @@ export default View.create({
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Equip to ${className}`)
 				.event.subscribe("click", () => {
-					void item.equip(character.characterId as CharacterId);
+					void item.equip(character.characterId);
 					view.back();
 				})
 				.appendTo(buttons);
 
-		if (item.bucket.isVault() && !item.equipped && !isEngram)
+		if (item.bucket.isVault() && !item.equipped && !inEngramBucket)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set("Vault")
@@ -82,7 +81,7 @@ export default View.create({
 				})
 				.appendTo(buttons);
 
-		if (!isEngram)
+		if (!inEngramBucket)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set("Details")
