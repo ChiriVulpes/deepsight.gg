@@ -47,7 +47,8 @@ export function timestamp (color: keyof AnsicolorMethods = "darkGray") {
 
 export default class Time {
 	static get lastDailyReset () {
-		return this.nextDailyReset - this.days(1);
+		const time = new Date().setUTCHours(17, 0, 0, 0);
+		return time > Date.now() ? time - Time.days(1) : time;
 	}
 
 	static get lastWeeklyReset () {
@@ -60,8 +61,7 @@ export default class Time {
 	}
 
 	static get nextDailyReset () {
-		const time = new Date().setUTCHours(17, 0, 0, 0);
-		return time < Date.now() ? time + this.days(1) : time;
+		return this.lastDailyReset + this.days(1);
 	}
 
 	static get nextWeeklyReset () {

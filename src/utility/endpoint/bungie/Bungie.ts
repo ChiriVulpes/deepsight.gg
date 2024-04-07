@@ -17,7 +17,8 @@ export interface IBungieApiEvents {
 export class BungieAPI {
 
 	public get lastDailyReset () {
-		return this.nextDailyReset - Time.days(1);
+		const time = new Date().setUTCHours(17, 0, 0, 0);
+		return time > Date.now() ? time - Time.days(1) : time;
 	}
 
 	public get lastWeeklyReset () {
@@ -29,8 +30,7 @@ export class BungieAPI {
 	}
 
 	public get nextDailyReset () {
-		const time = new Date().setUTCHours(17, 0, 0, 0);
-		return time < Date.now() ? time + Time.days(1) : time;
+		return this.lastDailyReset + Time.days(1);
 	}
 
 	public get nextWeeklyReset () {
