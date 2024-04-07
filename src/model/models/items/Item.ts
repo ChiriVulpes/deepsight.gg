@@ -2,8 +2,9 @@ import type { DamageTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums"
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
-import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, TierType } from "bungie-api-ts/destiny2";
+import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyPowerCapDefinition, TierType } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, DestinyItemType, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
+import DeepsightStats from "model/models/DeepsightStats";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type { BucketId } from "model/models/items/Bucket";
@@ -16,6 +17,7 @@ import type { IPerk } from "model/models/items/Perks";
 import Perks from "model/models/items/Perks";
 import type { Plug, PlugType } from "model/models/items/Plugs";
 import Plugs, { Socket } from "model/models/items/Plugs";
+import PowerCap from "model/models/items/PowerCap";
 import type { ISource } from "model/models/items/Source";
 import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
@@ -256,6 +258,7 @@ export interface IItemInit {
 	collectibleState?: DestinyCollectibleState;
 	collections?: Item;
 	sources?: ISource[];
+	powerCap?: DestinyPowerCapDefinition;
 }
 
 export interface IItem extends IItemInit {
@@ -320,6 +323,7 @@ class Item {
 			Collectibles.apply(manifest, profile, init),
 			this.addCollections(manifest, profile, init),
 			Perks.apply(manifest, profile, init),
+			PowerCap.apply(manifest, init),
 		]);
 
 		const item = new Item(init);
@@ -353,6 +357,7 @@ class Item {
 			Moment.apply(manifest, init),
 			Collectibles.apply(manifest, profile, init),
 			source && Source.apply(manifest, profile, init),
+			PowerCap.apply(manifest, init),
 		]);
 
 		const item = new Item(init);
@@ -483,18 +488,19 @@ class Item {
 			|| this.definition.itemType === DestinyItemType.Engram;
 	}
 
-	public getPower (onlyPower: true): number | undefined;
-	public getPower (): number;
 	public getPower (onlyPower = false) {
-		const isValidStat = this.instance?.primaryStat?.statHash === StatHashes.Power
-			|| (!onlyPower
-				&& (false
-					|| this.instance?.primaryStat?.statHash === StatHashes.Attack
-					|| this.instance?.primaryStat?.statHash === StatHashes.Defense
-					|| this.instance?.primaryStat?.statHash === StatHashes.Speed));
+		const statHash = this.instance?.primaryStat?.statHash;
+		const isValidStat = statHash === StatHashes.Power
+			|| statHash === StatHashes.Attack
+			|| statHash === StatHashes.Defense
+			|| (!onlyPower && statHash === StatHashes.Speed);
 
-		if (onlyPower && !isValidStat)
+		if (!isValidStat) {
+			if (this.isWeapon() || this.isArmour())
+				return this.bucket.isCollections() ? DeepsightStats.get()?.powerFloor ?? 0 : 0;
+
 			return undefined;
+		}
 
 		const primaryStatPower = isValidStat ? this.instance!.primaryStat.value : 0;
 
@@ -503,6 +509,12 @@ class Item {
 			return Math.max(primaryStatPower, itemLevelQualityPower);
 
 		return primaryStatPower;
+	}
+
+	public isSunset () {
+		const powerpower = this.getPower(true);
+		const powerCap = powerpower === undefined ? undefined : this.powerCap;
+		return powerpower !== undefined && (powerCap?.powerCap ?? 0) < 900000;
 	}
 
 	public isSame (item: Item) {

@@ -1,5 +1,6 @@
 import type Model from "model/Model";
 import Characters from "model/models/Characters";
+import DeepsightStats from "model/models/DeepsightStats";
 import EnumModel from "model/models/enum/EnumModel";
 import Manifest from "model/models/Manifest";
 import Background from "ui/BackgroundManager";
@@ -94,10 +95,13 @@ namespace View {
 				...definition as DEFINITION,
 				models: this.otherModels,
 				initialise: async (component, ...requirements) => {
-					await Manifest.await();
-					await EnumModel.awaitAll();
-					await SortManager.init();
-					await Characters.awaitReady();
+					await Promise.all([
+						DeepsightStats.await(),
+						Manifest.await(),
+						EnumModel.awaitAll(),
+						SortManager.init(),
+						Characters.awaitReady(),
+					]);
 					for (const initialiser of [...this.initialisers, definition.initialise]) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 						await initialiser?.(component as any, ...requirements);

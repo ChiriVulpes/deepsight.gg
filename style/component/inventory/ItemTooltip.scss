@@ -26,6 +26,13 @@
 			top: 3px;
 			@include mask-icon;
 		}
+		
+		&--sunset {
+			border-right-color: color(sunset);
+			&::before {
+				background: black;
+			}
+		}
 	}
 
 	.tooltip-header {

@@ -205,7 +205,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.classes.toggle(isContainer, ItemClasses.IsContainer);
 		this.parent<Slot>(`.${SlotClasses.Main}`)?.setWide(isContainer);
 
-		const { DestinyItemTierTypeDefinition, DestinyPowerCapDefinition } = await Manifest.await();
+		const { DestinyItemTierTypeDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item?.definition.inventory?.tierTypeHash);
 		this.classes.removeWhere(cls => cls.startsWith("item-tier-"))
 			.classes.add(`item-tier-${(item?.definition.inventory?.tierTypeName ?? tier?.displayProperties?.name ?? "Common")?.toLowerCase()}`);
@@ -240,9 +240,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		let watermark: string | undefined;
-		const powerpower = item?.getPower(true);
-		const powerCap = powerpower === undefined ? undefined : await DestinyPowerCapDefinition.get(item?.definition.quality?.versions[item.definition.quality.currentVersion]?.powerCapHash);
-		if (powerpower !== undefined && (powerCap?.powerCap ?? 0) < 900000)
+		if (item?.isSunset())
 			watermark = item?.definition.iconWatermarkShelved ?? item?.definition.iconWatermark;
 		else
 			watermark = item?.definition.iconWatermark ?? item?.definition.iconWatermarkShelved;
