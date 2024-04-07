@@ -117,6 +117,9 @@ export default class PlayerOverviewIdentity extends Component<HTMLElement, [Memb
 		if (!destinyMembership)
 			return this.cancel();
 
+		if (destinyMembership.bungieGlobalDisplayName === this.ownDisplayName && `${destinyMembership.bungieGlobalDisplayNameCode}` === this.ownCode)
+			return this.cancel();
+
 		this.pretty.classes.remove(Classes.Hidden);
 		this.displayName = destinyMembership.bungieGlobalDisplayName;
 		this.code = `${destinyMembership.bungieGlobalDisplayNameCode ?? searchCode}`;

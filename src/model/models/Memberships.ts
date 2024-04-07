@@ -12,7 +12,7 @@ const Memberships = Model.create("memberships", {
 	resetTime: "Daily",
 	resetOnDestinyMembershipChange: true,
 	generate: async (): Promise<Memberships> => {
-		return Store.items.destinyMembershipOverride || !Bungie.authenticated ? { destinyMemberships: [], bungieNetUser: undefined }
+		return !Bungie.authenticated ? { destinyMemberships: [], bungieNetUser: undefined }
 			: GetMembershipsForCurrentUser.query();
 	},
 });
