@@ -170,6 +170,7 @@ namespace Model {
 				Store.event.subscribe("setDestinyMembershipOverride", reset);
 				Store.event.subscribe("deleteDestinyMembershipOverride", reset);
 				Bungie.event.subscribe("resetAuthentication", reset);
+				Bungie.event.subscribe("authenticated", reset);
 			}
 		}
 
