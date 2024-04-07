@@ -5,6 +5,7 @@ import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type LoadedIcon from "ui/bungie/LoadedIcon";
 import ItemComponent from "ui/inventory/ItemComponent";
+import Env from "utility/Env";
 import type { Mutable } from "utility/Type";
 
 export enum ExoticArmourRewardComponentClasses {
@@ -12,10 +13,10 @@ export enum ExoticArmourRewardComponentClasses {
 }
 
 const paths: Partial<Record<InventoryItemHashes, string>> = {
-	[InventoryItemHashes.IfSoloExoticChestArmorRareDummy]: "./image/png/item/chest.png",
-	[InventoryItemHashes.IfSoloExoticHeadArmorRareDummy]: "./image/png/item/head.png",
-	[InventoryItemHashes.IfSoloExoticLegsArmorRareDummy]: "./image/png/item/legs.png",
-	[InventoryItemHashes.IfSoloExoticArmsArmorRareDummy]: "./image/png/item/arms.png",
+	[InventoryItemHashes.IfSoloExoticChestArmorRareDummy]: "image/png/item/chest.png",
+	[InventoryItemHashes.IfSoloExoticHeadArmorRareDummy]: "image/png/item/head.png",
+	[InventoryItemHashes.IfSoloExoticLegsArmorRareDummy]: "image/png/item/legs.png",
+	[InventoryItemHashes.IfSoloExoticArmsArmorRareDummy]: "image/png/item/arms.png",
 };
 
 export default class ExoticArmourRewardComponent extends ItemComponent {
@@ -34,7 +35,7 @@ export default class ExoticArmourRewardComponent extends ItemComponent {
 	protected override initialiseIcon (icon: LoadedIcon) {
 		const path = paths[this.item?.definition.hash as InventoryItemHashes];
 		if (path) {
-			icon.setPath(path);
+			icon.setPath(Env.path(path));
 		}
 	}
 }

@@ -23,6 +23,7 @@ export default Task("env", _ => {
 		DEEPSIGHT_BUNGIE_API_SECRET: env("DEEPSIGHT_BUNGIE_API_SECRET"),
 		DEEPSIGHT_BUILD_NUMBER: optional("DEEPSIGHT_BUILD_NUMBER"),
 		DEEPSIGHT_BUILD_SHA: optional("DEEPSIGHT_BUILD_SHA"),
+		DEEPSIGHT_PATH: env("DEEPSIGHT_PATH"),
 	};
 
 	return fs.writeFile("docs/env.json", JSON.stringify(environment));
