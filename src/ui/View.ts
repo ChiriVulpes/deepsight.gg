@@ -99,9 +99,9 @@ namespace View {
 						DeepsightStats.await(),
 						Manifest.await(),
 						EnumModel.awaitAll(),
-						SortManager.init(),
 						Characters.awaitReady(),
 					]);
+					await SortManager.init();
 					for (const initialiser of [...this.initialisers, definition.initialise]) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 						await initialiser?.(component as any, ...requirements);
