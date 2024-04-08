@@ -7,7 +7,7 @@ import Time from "utility/Time";
 import URL from "utility/URL";
 
 export interface IBungieApiEvents {
-	authenticated: Event;
+	authenticated: { authType: "new" | "refresh" };
 	resetAuthentication: Event;
 	error: BungieEndpoint.IEvents["error"];
 	apiDown: BungieEndpoint.IEvents["apiDown"];
@@ -90,7 +90,7 @@ export class BungieAPI {
 
 		if (!Store.items.bungieAccessToken) {
 			// step 3: get an access token
-			return await this.requestToken();
+			return await this.requestToken("new");
 		}
 
 		return false;
@@ -112,10 +112,10 @@ export class BungieAPI {
 		if (!force && (Store.items.bungieAccessTokenExpireTime ?? 0) > Date.now())
 			return; // authorisation valid
 
-		await this.requestToken();
+		await this.requestToken("refresh");
 	}
 
-	private async requestToken () {
+	private async requestToken (type: "new" | "refresh") {
 		const result = await RequestOAuthToken.query();
 
 		if ("error" in result) {
@@ -132,7 +132,7 @@ export class BungieAPI {
 		Store.items.bungieAccessTokenMembershipId = result.membership_id;
 		Store.items.bungieAccessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
 		Store.items.bungieAccessTokenRefreshToken = result.refresh_token;
-		this.event.emit("authenticated");
+		this.event.emit("authenticated", { authType: type });
 		return true;
 	}
 }
