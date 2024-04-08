@@ -1,7 +1,7 @@
 import type { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { TierType } from "bungie-api-ts/destiny2";
 import Characters from "model/models/Characters";
-import type { BucketId } from "model/models/items/Bucket";
+import { Bucket, type BucketId } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import Card from "ui/Card";
 import type Component from "ui/Component";
@@ -46,11 +46,13 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 	}
 
 	public get owner () {
-		return Characters.getOrCurrent(this.bucket?.characterId);
+		const [, characterId] = Bucket.parseId(this.bucketId);
+		return Characters.getOrCurrent(characterId);
 	}
 
 	public get character () {
-		return Characters.get(this.bucket?.characterId);
+		const [, characterId] = Bucket.parseId(this.bucketId);
+		return Characters.get(characterId);
 	}
 
 	public get sorter () {
