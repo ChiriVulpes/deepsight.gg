@@ -18,14 +18,26 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 
 	private static main?: Background;
 	public static async initialiseMain () {
-		const moment = (await WallpaperMoments.await())
-			?.slice()
-			?.sort((a, b) => b.hash - a.hash)
-			?.[0];
+		const moments = await WallpaperMoments.await();
+
+		const latestMoment = moments.slice().sort((a, b) => b.hash - a.hash)[0];
+		const currentYear = Math.max(...moments.map(moment => moment.moment.year ?? 0));
+		const currentSeason = moments.findLast(moment => moment.moment.season);
+		const currentExpansion = moments.find(moment => moment.moment.expansion && moment.moment.year === currentYear);
+		const seasonsThisYear = moments.filter(moment => moment.moment.season && moment.moment.year === currentYear);
+		const wallpapers = [
+			...currentSeason?.wallpapers ?? [],
+			...seasonsThisYear.length > 1 ? []
+				: currentExpansion?.wallpapers ?? [],
+		];
+
+		if (!wallpapers.length)
+			wallpapers.push(...latestMoment.wallpapers);
+
 		const manager = this.main ??= Background
 			.create([() => Store.items.settingsBackground
 				?? (Store.items.settingsBackgroundNoUseDefault ? undefined
-					: moment?.wallpapers[Math.floor(Math.random() * moment.wallpapers.length)])])
+					: wallpapers[Math.floor(Math.random() * wallpapers.length)])])
 			.setBlurred(() => Store.items.settingsBackgroundBlur)
 			.prependTo(document.body);
 		Store.event.subscribe("setSettingsBackground", manager.updateBackground);
