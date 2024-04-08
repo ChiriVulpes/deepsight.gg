@@ -62,7 +62,7 @@ namespace Stats {
 				if (random && !random.isConditionallyActive)
 					stats[random.statTypeHash] ??= { statHash: random.statTypeHash, value: random.value };
 
-		const masterworkStats = item.bucket.isCollections() ? [] : Socket.filterByPlugs(sockets, "Masterwork")
+		const masterworkStats = item.bucket.isCollections() ? [] : Socket.filterByPlugs(sockets, "Masterwork", "Intrinsic/FrameEnhanced")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
 		const modStats = item.bucket.isCollections() ? [] : Socket.filterExcludePlugs(sockets, "Intrinsic", "Masterwork")
