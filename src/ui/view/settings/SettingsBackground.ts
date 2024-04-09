@@ -4,6 +4,7 @@ import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Checkbox from "ui/form/Checkbox";
 import Loadable from "ui/Loadable";
+import Env from "utility/Env";
 import Store from "utility/Store";
 
 enum SettingsBackgroundClasses {
@@ -22,6 +23,7 @@ export default class SettingsBackground extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Background");
 
+		const remotepath = "https://deepsight.gg/";
 		let scrollLeft = 0;
 		const momentsWrapper = Loadable.create(WallpaperMoments)
 			.onReady(moments => Component.create()
@@ -52,7 +54,7 @@ export default class SettingsBackground extends Card<[]> {
 							.append(Component.create("img")
 								.classes.add(SettingsBackgroundClasses.WallpaperImage)
 								.attributes.set("loading", "lazy")
-								.attributes.set("src", wallpaper))
+								.attributes.set("src", wallpaper.startsWith(remotepath) ? `${Env.DEEPSIGHT_PATH}${wallpaper.slice(remotepath.length)}` : wallpaper))
 							.tweak(button => button.attributes.set("data-wallpaper", wallpaper))))))))
 			.classes.add(SettingsBackgroundClasses.BackgroundOptions)
 			.setSimple()

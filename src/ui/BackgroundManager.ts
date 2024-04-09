@@ -2,6 +2,7 @@ import WallpaperMoments from "model/models/WallpaperMoments";
 import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import Arrays from "utility/Arrays";
+import Env from "utility/Env";
 import Functions from "utility/Functions";
 import Store from "utility/Store";
 import type { SupplierOr } from "utility/Type";
@@ -97,11 +98,14 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 		if (background.length) {
 			this.classes.add(Classes.Hidden);
 
+			const remotepath = "https://deepsight.gg/";
+
 			let loaded = 0;
 			for (let i = 0; i < background.length; i++) {
+				const path = background[i];
 				Component.create("img")
 					.classes.add(BackgroundClasses.Image, `${BackgroundClasses.Image}-${i}`)
-					.attributes.set("src", background[i])
+					.attributes.set("src", path.startsWith(remotepath) ? `${Env.DEEPSIGHT_PATH}${path.slice(remotepath.length)}` : path)
 					.event.subscribe("load", () => {
 						loaded++;
 						if (loaded >= background.length)

@@ -278,4 +278,15 @@
 		year: 6,
 		seasonHash: 2758726571,
 	},
+	"34": {
+		id: "intothelight",
+		displayProperties: {
+			name: "Into the Light",
+			description: "The Witness's forces swell across Sol in unparalleled numbers. Arm yourself with Shaxx’s armory, and repel waves of the Witness’s forces in the new Onslaught PvE Activity.",
+			icon: { DestinyRecordDefinition: 4168737328 }, // BRAVE Collector
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 2005792304 }, // Parade Helm
+		expansion: true,
+		year: 6,
+	}
 }
