@@ -4,6 +4,7 @@ import type Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
+import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import InfoBlock from "ui/InfoBlock";
 import ClassPicker from "ui/form/ClassPicker";
@@ -11,6 +12,7 @@ import ItemComponent from "ui/inventory/ItemComponent";
 import ItemPowerLevel from "ui/inventory/ItemPowerLevel";
 import ItemSubclassTooltip from "ui/inventory/ItemSubclassTooltip";
 import Slot from "ui/inventory/Slot";
+import LoadoutsComponent from "ui/inventory/playeroverview/LoadoutsComponent";
 import StatsOverview from "ui/inventory/playeroverview/StatsOverview";
 import { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
 import InventoryArmsView from "ui/view/inventory/slot/InventoryArmsView";
@@ -54,6 +56,7 @@ export enum PlayerOverviewCharacterPanelClasses {
 	ArtifactSlot = "player-overview-artifact-slot",
 	Artifact = "player-overview-artifact",
 	StatsOverviewBlock = "player-overview-stats-overview-block",
+	_LoadoutsVisible = "player-overview-drawer-panel--loadouts-visible",
 }
 
 const slotViews = [
@@ -71,7 +74,13 @@ const slotViews = [
 	],
 ];
 
+export interface PlayerOverviewCharacterPanelEvents extends ComponentEvents {
+	toggleLoadouts: { visible: boolean };
+}
+
 export default class PlayerOverviewCharacterPanel extends Component<HTMLElement, []> {
+
+	public override event!: ComponentEventManager<this, PlayerOverviewCharacterPanelEvents>;
 
 	private previousItemInstanceIds?: string[];
 
@@ -79,9 +88,11 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	public powerTotalEquipped!: ItemPowerLevel;
 	public powerTotalHighest!: ItemPowerLevel;
 	public slotComponents!: Record<string | InventoryBucketHashes, SlotComponent>;
+	public loadoutsCheckboxInternal!: Component<HTMLInputElement>;
 	public loadoutsButton!: Component;
 	public artifactSlot!: Component;
 	public artifact!: ItemComponent;
+	public loadouts!: LoadoutsComponent;
 	public statsOverview!: StatsOverview;
 
 	protected override onMake (): void {
@@ -104,7 +115,16 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			})
 			.appendTo(characterSettings);
 
-		this.loadoutsButton = Component.create()
+		const checkboxId = `checkbox-${Math.random().toString().slice(2)}`;
+		this.loadoutsCheckboxInternal = Component.create("input")
+			.attributes.set("type", "checkbox")
+			.attributes.set("id", checkboxId)
+			.classes.add(Classes.Hidden)
+			.event.subscribe("change", _ => this.event.emit("toggleLoadouts", { visible: this.loadoutsCheckboxInternal.element.checked }))
+			.appendTo(characterSettings);
+
+		this.loadoutsButton = Component.create("label")
+			.attributes.set("for", checkboxId)
 			.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButton)
 			.append(Component.create()
 				.classes.add(PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon, PlayerOverviewCharacterPanelClasses.LoadoutsButtonIcon1))
@@ -121,6 +141,9 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 		this.artifact = ItemComponent.create([])
 			.classes.add(PlayerOverviewCharacterPanelClasses.Artifact)
 			.appendTo(this.artifactSlot);
+
+		this.loadouts = LoadoutsComponent.create()
+			.appendTo(wrapper);
 
 		const slotComponent = Component.create()
 			.classes.add(PlayerOverviewCharacterPanelClasses.Slot, PlayerOverviewCharacterPanelClasses.OverviewSlot)
@@ -175,6 +198,8 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	public set (inventory: Inventory, character: Character, buckets: Bucket[]) {
 		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
 		void this.artifact.setItem(seasonalArtifact?.equippedItem);
+
+		this.loadouts.set(inventory, character);
 
 		this.statsOverview.set(character, buckets);
 

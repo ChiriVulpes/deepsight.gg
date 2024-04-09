@@ -1,6 +1,7 @@
-import type { DestinyLoadoutComponent, DestinyLoadoutItemComponent, DestinyLoadoutsComponent, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyLoadoutColorDefinition, DestinyLoadoutComponent, DestinyLoadoutIconDefinition, DestinyLoadoutItemComponent, DestinyLoadoutNameDefinition, DestinyLoadoutsComponent, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import type { ItemId } from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
@@ -18,13 +19,26 @@ export interface ILoadoutItem extends DestinyLoadoutItemComponent {
 export interface Loadout extends Omit<DestinyLoadoutComponent, "items"> { }
 export class Loadout {
 
+	public static async init (loadout: DestinyLoadoutComponent) {
+		const result = new Loadout(loadout);
+		const { DestinyLoadoutColorDefinition, DestinyLoadoutIconDefinition, DestinyLoadoutNameDefinition } = await Manifest.await();
+		result.name = await DestinyLoadoutNameDefinition.get(loadout.nameHash);
+		result.icon = await DestinyLoadoutIconDefinition.get(loadout.iconHash);
+		result.colour = await DestinyLoadoutColorDefinition.get(loadout.colorHash);
+		return result;
+	}
+
+	public colour?: DestinyLoadoutColorDefinition;
+	public icon?: DestinyLoadoutIconDefinition;
+	public name?: DestinyLoadoutNameDefinition;
+
 	public readonly items: ILoadoutItem[] = [];
 	private inventoryRef?: WeakRef<Inventory>;
 	public get inventory () {
 		return this.inventoryRef?.deref();
 	}
 
-	public constructor (loadout: DestinyLoadoutComponent) {
+	private constructor (loadout: DestinyLoadoutComponent) {
 		Object.assign(this, loadout);
 	}
 
@@ -46,9 +60,10 @@ export class Loadout {
 }
 
 namespace Loadouts {
-	export function apply (character: Character, profile: ILoadoutsProfile) {
-		character.loadouts = (profile.characterLoadouts?.data?.[character.characterId]?.loadouts ?? [])
-			.map(loadout => new Loadout(loadout));
+	export async function apply (character: Character, profile: ILoadoutsProfile) {
+		character.loadouts = await (profile.characterLoadouts?.data?.[character.characterId]?.loadouts ?? [])
+			.map(async loadout => await Loadout.init(loadout))
+			.collect(loadouts => Promise.all(loadouts));
 	}
 }
 

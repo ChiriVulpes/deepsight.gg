@@ -46,7 +46,7 @@ export class Character {
 		character.class = await DestinyClassDefinition.get(character.classHash)!;
 		character.emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
 		character.power = (character.light ?? 0) - (profile.profileProgression?.data?.seasonalArtifact.powerBonus ?? 0);
-		Loadouts.apply(character, profile);
+		await Loadouts.apply(character, profile);
 		character.stat = await DestinyStatDefinition.get(CLASSES[character.classType]);
 
 		return character;

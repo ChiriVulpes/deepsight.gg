@@ -98,7 +98,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	public item?: Item;
 	public extra?: Component;
 	public loadingSpinny?: Component;
-	public icon?: Component;
+	public icon?: LoadedIcon;
 	public iconShaped?: Component;
 	public momentWatermark?: Component;
 	public iconLock?: Component;
@@ -184,6 +184,13 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		delete this.settingItem;
 	}
 
+	public getIcon (index: number, pathSupplier?: () => string | undefined) {
+		return this.icon ??= LoadedIcon.create([pathSupplier?.()])
+			.classes.add(ItemClasses.Icon)
+			.tweak(icon => this.initialiseIcon(icon))
+			.indexInto(this, index);
+	}
+
 	protected async renderItem (item?: Item) {
 		this.setTooltip(ItemTooltip, {
 			initialise: tooltip => item && tooltip.setPadding(this.tooltipPadding)
@@ -218,10 +225,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		let index = 0;
 
-		(this.icon ??= LoadedIcon.create([Display.icon(ornament?.definition, false) ?? Display.icon(item?.definition, false)])
-			.classes.add(ItemClasses.Icon)
-			.tweak(icon => this.initialiseIcon(icon))
-			.indexInto(this, index++))
+		this.getIcon(index++, () => Display.icon(ornament?.definition, false) ?? Display.icon(item?.definition, false))
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item?.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
 

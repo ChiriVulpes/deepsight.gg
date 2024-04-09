@@ -9,7 +9,7 @@ import BaseComponent from "ui/Component";
 import ClassPicker from "ui/form/ClassPicker";
 import Drawer from "ui/form/Drawer";
 import InfoBlock from "ui/InfoBlock";
-import PlayerOverviewCharacterPanel from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
+import PlayerOverviewCharacterPanel, { PlayerOverviewCharacterPanelClasses } from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
 import PlayerOverviewIdentity from "ui/inventory/playeroverview/PlayerOverviewIdentity";
 import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
@@ -28,6 +28,7 @@ export enum PlayerOverviewClasses {
 	CharacterPicker = "player-overview-character-picker",
 	CharacterPickerButton = "player-overview-character-picker-button",
 	WIP = "player-overview-wip",
+	_LoadoutsVisible = "player-overview--loadouts-visible",
 }
 
 namespace PlayerOverview {
@@ -40,6 +41,7 @@ namespace PlayerOverview {
 		public currencyOverview!: InfoBlock;
 		public classSelection!: BaseComponent;
 		public characterPicker!: ClassPicker<CharacterId>;
+		public loadoutsButton!: BaseComponent;
 		private panels!: Record<CharacterId, PlayerOverviewCharacterPanel>;
 
 		protected override async onMake (memberships: Memberships, inventory: Inventory) {
@@ -54,6 +56,7 @@ namespace PlayerOverview {
 
 			this.drawer = Drawer.create()
 				.classes.add(PlayerOverviewClasses.Drawer)
+				.event.subscribe("closeDrawer", _ => this.toggleLoadoutsVisible({ visible: false }))
 				.appendTo(this);
 
 			this.currencyOverview = InfoBlock.create()
@@ -135,7 +138,8 @@ namespace PlayerOverview {
 					continue;
 				}
 
-				const panel = this.panels[character.characterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel);
+				const panel = this.panels[character.characterId] ??= this.drawer.createPanel().make(PlayerOverviewCharacterPanel)
+					.event.subscribe("toggleLoadouts", this.toggleLoadoutsVisible);
 				panel.set(this.inventory, character, bucket);
 
 				const className = character.class?.displayProperties.name ?? "Unknown";
@@ -194,6 +198,16 @@ namespace PlayerOverview {
 				this.drawer.open("hash");
 			else
 				this.drawer.close(true);
+		}
+
+		@Bound
+		private toggleLoadoutsVisible ({ visible }: { visible: boolean }) {
+			for (const panel of Object.values(this.panels)) {
+				this.classes.toggle(visible, PlayerOverviewClasses._LoadoutsVisible);
+				panel.classes.toggle(visible, PlayerOverviewCharacterPanelClasses._LoadoutsVisible);
+				panel.loadouts.classes.toggle(!visible, Classes.Hidden);
+				panel.loadoutsCheckboxInternal.element.checked = visible;
+			}
 		}
 	}
 
