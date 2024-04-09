@@ -310,6 +310,8 @@ export default Task("generate_enums", async () => {
 	const traitIds: Record<number, string> = {};
 	const dedupeFailures: string[] = [];
 
+	const INVALID_HASH = 2166136261;
+
 	async function generateEnum (componentName: keyof AllDestinyManifestComponents): Promise<void>;
 	async function generateEnum (componentName: string, componentDefs: Record<number, any>): Promise<void>;
 	async function generateEnum (componentName: string, componentDefs?: Record<number, any>) {
@@ -338,7 +340,11 @@ export default Task("generate_enums", async () => {
 			if (!started) {
 				started = true;
 				stream.write(`export declare const enum ${enumName}Hashes {\n`);
+				stream.write(`\tInvalid = ${INVALID_HASH},\n`);
 			}
+
+			if (definition.hash === INVALID_HASH)
+				throw new Error("The manifest contains a definition keyed by the invalid hash oh god");
 
 			stream.write(`\t${parseInt(name) ? `"${name}"` : name} = ${definition.hash},\n`);
 		}
