@@ -79,4 +79,47 @@
 		font-weight: 600;
 		font-family: $font-numeric;
 	}
+	
+	&--empty {
+		.loadout-image-wrapper {
+			&::before {
+				mix-blend-mode: normal;
+				background: #fff2;
+				border: none;
+				--s: 25%;
+				--m1: 45%;
+				--m2: 55%;
+				--e: 75%;
+				clip-path: polygon(
+					var(--m1) var(--s), var(--m2) var(--s), var(--m2) var(--m1), 
+					var(--e) var(--m1), var(--e) var(--m2), var(--m2) var(--m2),
+					var(--m2) var(--e), var(--m1) var(--e), var(--m1) var(--m2),
+					var(--s) var(--m2), var(--s) var(--m1), var(--m1) var(--m1),
+				);
+			}
+			
+			&::after {
+				border-color: #fff2;
+				border-width: 1px;
+				--s: 25%;
+				--e: 75%;
+				clip-path: polygon(
+					0% 0%, var(--s) 0%, var(--s) var(--s), 0% var(--s), 0% 0%, 
+					0% 100%, 0% var(--e), var(--s) var(--e), var(--s) 100%, 0% 100%,
+					100% 100%, var(--e) 100%, var(--e) var(--e), 100% var(--e), 100% 100%,
+					100% 0%, 100% var(--s), var(--e) var(--s), var(--e) 0%, 100% 0%,
+					100% 100%, 0% 100%, 0% 0%,
+				);
+			}
+		}
+		
+		&::after {
+			@include transition(out, background, border);
+		}
+		
+		&:where(:hover, :active, :focus-visible)::after {
+			@include transition(in);
+			border: 2px solid #fff8;
+		}
+	}
 }

@@ -3,16 +3,6 @@ import { getCurrentDestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
 
-export interface Response {
-	Response: number;
-	ErrorCode: number;
-	ThrottleSeconds: number;
-	ErrorStatus: string;
-	Message: string;
-	MessageData: Record<string, string>;
-	DetailedErrorTrace: string;
-}
-
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/PullFromPostmaster/")
 	.request(async (item: Item, character: `${bigint}`) => {
@@ -32,4 +22,4 @@ export default BungieEndpoint
 			},
 		} as EndpointRequest;
 	})
-	.returning<Response>();
+	.endpoint();

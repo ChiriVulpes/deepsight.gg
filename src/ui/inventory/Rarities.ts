@@ -2,6 +2,7 @@ import { ItemTierTypeHashes } from "@deepsight.gg/enums";
 
 namespace Rarities {
 	export const COLOURS = {
+		[ItemTierTypeHashes.Invalid]: 0,
 		[ItemTierTypeHashes.BasicCurrency]: 0xdddddd,
 		[ItemTierTypeHashes.BasicQuest]: 0xdddddd,
 		[ItemTierTypeHashes.Common]: 0xdddddd,

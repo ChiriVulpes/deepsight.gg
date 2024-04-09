@@ -16,8 +16,11 @@ export default class LoadedIcon extends Component<HTMLImageElement, [path?: stri
 	}
 
 	public setPath (path?: string) {
-		this.classes.add(LoadedIconClasses.Loading);
-		this.attributes.set("src", path);
+		if (this.attributes.get("src") !== path) {
+			this.classes.add(LoadedIconClasses.Loading);
+			this.attributes.set("src", path);
+		}
+
 		return this;
 	}
 }

@@ -8,6 +8,16 @@ import Store from "utility/Store";
 export type BungieEndpointURL = `/${string}/`;
 export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL | ((...args: ARGS) => BungieEndpointURL);
 
+export interface BungieEndpointResponse {
+	Response: number;
+	ErrorCode: number;
+	ThrottleSeconds: number;
+	ErrorStatus: string;
+	Message: string;
+	MessageData: Record<string, string>;
+	DetailedErrorTrace: string;
+}
+
 class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE, RESPONSE, ARGS> implements BungieEndpoint<ARGS, RESPONSE> {
 
 	private allowedErrorStatuses: string[] = [];
@@ -167,6 +177,9 @@ namespace BungieEndpoint {
 		return {
 			request<ARGS2 extends ARGS, REQUEST extends EndpointRequest> (builder: (...args: ARGS2) => REQUEST | Promise<REQUEST>) {
 				return {
+					endpoint (): BungieEndpoint<ARGS2, BungieEndpointResponse> {
+						return new BungieEndpointImpl<ARGS2, BungieEndpointResponse>(url, builder);
+					},
 					returning<RESPONSE> (): BungieEndpoint<ARGS2, RESPONSE> {
 						return new BungieEndpointImpl<ARGS2, RESPONSE>(url, builder);
 					},

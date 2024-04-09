@@ -3,6 +3,7 @@ import Component from "ui/Component";
 import LoadedIcon from "ui/bungie/LoadedIcon";
 import { ButtonClasses } from "ui/form/Button";
 import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
+import LoadoutTooltip from "ui/inventory/playeroverview/LoadoutTooltip";
 
 export enum LoadoutClasses {
 	Main = "loadout",
@@ -11,6 +12,7 @@ export enum LoadoutClasses {
 	ImageIcon = "loadout-image-icon",
 	ImageBackground = "loadout-image-background",
 	Number = "loadout-number",
+	_Empty = "loadout--empty",
 }
 
 export default class LoadoutComponent extends ItemComponent {
@@ -42,17 +44,19 @@ export default class LoadoutComponent extends ItemComponent {
 		this.number = Component.create()
 			.classes.add(LoadoutClasses.Number)
 			.appendTo(this);
+
+		this.setTooltip(LoadoutTooltip, {
+			initialise: tooltip => tooltip.set(this.loadout),
+			differs: tooltip => tooltip.loadout !== this.loadout,
+		});
 	}
 
 	public set (loadout: Loadout) {
 		this.loadout = loadout;
+		this.number.text.set(`${loadout.index + 1}`);
+		this.style.set("--index", `${loadout.index}`);
 		this.background.setPath(this.loadout.colour && `https://www.bungie.net${this.loadout.colour.colorImagePath}`);
 		this.icon.setPath(this.loadout.icon && `https://www.bungie.net${this.loadout.icon.iconImagePath}`);
-	}
-
-	public setIndex (index: number) {
-		this.number.text.set(`${index + 1}`);
-		this.style.set("--index", `${index}`);
-		return this;
+		this.classes.toggle(loadout.isEmpty(), LoadoutClasses._Empty);
 	}
 }

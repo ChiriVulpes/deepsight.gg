@@ -18,7 +18,6 @@ export default class LoadoutsComponent extends Component {
 		this.loadouts = [];
 		for (let i = 0; i < 10; i++)
 			this.loadouts.push(LoadoutComponent.create([])
-				.setIndex(i)
 				.appendTo(this));
 	}
 
