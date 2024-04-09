@@ -13,7 +13,7 @@ import DestinyManifest from "./DestinyManifest";
 import DestinyProfile from "./DestinyProfile";
 import DestinyRequest from "./DestinyRequest";
 
-const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<Exclude<DestinationHashes | EventCardHashes, 2166136261>, string>>>> = {
+const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes | EventCardHashes, string>>>> = {
 	[VendorHashes.LordSaladin]: "lordsaladin",
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
@@ -131,10 +131,10 @@ export default Model(async () =>
 						if (!activeEvent)
 							throw new Error("Eva Levante is here, but she has no event!!!! Spooky!");
 
-						background = background[activeEvent.hash as EventCardHashes];
+						background = background[activeEvent.hash as Exclude<EventCardHashes, EventCardHashes.Invalid>];
 
 					} else {
-						background = background[location?.destinationHash as DestinationHashes];
+						background = background[location?.destinationHash as Exclude<DestinationHashes, DestinationHashes.Invalid>];
 					}
 				}
 
