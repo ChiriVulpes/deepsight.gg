@@ -13,7 +13,7 @@ import DestinyManifest from "./DestinyManifest";
 import DestinyProfile from "./DestinyProfile";
 import DestinyRequest from "./DestinyRequest";
 
-const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes | EventCardHashes, string>>>> = {
+const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<Exclude<DestinationHashes | EventCardHashes, 2166136261>, string>>>> = {
 	[VendorHashes.LordSaladin]: "lordsaladin",
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
