@@ -29,7 +29,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.CommanderZavala_Enabledtrue]: "commanderzavala",
 	[VendorHashes.TheDrifter_Enabledtrue]: "thedrifter",
 	[VendorHashes.Saint14]: "saint14",
-	[VendorHashes.LordShaxx_Enabledtrue]: "lordshaxx",
+	[VendorHashes.LordShaxx_CategoriesLength55]: "lordshaxx",
 	[VendorHashes.DevrimKay]: "devrimkay",
 	[VendorHashes.Failsafe]: "failsafe",
 	[VendorHashes.ErisMorn]: "erismorn",

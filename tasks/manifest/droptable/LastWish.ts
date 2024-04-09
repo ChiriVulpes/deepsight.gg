@@ -133,7 +133,7 @@ export default {
 				description: "Escape the spire and get the Heart Stone to the Techeun.",
 			},
 			dropTable: {
-				[InventoryItemHashes.OneThousandVoicesFusionRifle]: { requiresItems: [InventoryItemHashes.EtherealKeyMaterialDummy] },
+				[InventoryItemHashes.OneThousandVoicesFusionRifle_EquippingBlockUniqueLabelExoticWeapon]: { requiresItems: [InventoryItemHashes.EtherealKeyMaterialDummy] },
 			},
 		},
 		// no idea why there's another directive, can't find this in videos

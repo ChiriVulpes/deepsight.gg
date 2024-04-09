@@ -130,7 +130,7 @@ export default {
 				[InventoryItemHashes.SmiteOfMerainPulseRifle_ItemType3]: {},
 				[InventoryItemHashes.DefianceOfYasminSniperRifle_ItemType3]: {},
 				[InventoryItemHashes.ZaoulisBaneHandCannon_ItemType3]: {},
-				[InventoryItemHashes.TouchOfMaliceScoutRifle]: {},
+				[InventoryItemHashes.TouchOfMaliceScoutRifle_EquippingBlockUniqueLabelExoticWeapon]: {},
 
 				[InventoryItemHashes.WarNumensCrownHelmetPlug]: {},
 				[InventoryItemHashes.WarNumensFistGauntletsPlug]: {},

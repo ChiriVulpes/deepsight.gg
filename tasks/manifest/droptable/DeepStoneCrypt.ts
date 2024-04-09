@@ -56,7 +56,7 @@ export default {
                 description: "Take down the Fallen Exo Atraks-1.",
             },
             dropTable: {
-                [InventoryItemHashes.SuccessionSniperRifle_ItemType3]: {},
+                [InventoryItemHashes.SuccessionSniperRifle2990047042]: {},
                 [InventoryItemHashes.HeritageShotgun_ItemType3]: {},
 
                 // hunter
@@ -127,7 +127,7 @@ export default {
             dropTable: {
                 [InventoryItemHashes.BequestSword_ItemType3]: {},
                 [InventoryItemHashes.CommemorationMachineGun_ItemType3]: {},
-                [InventoryItemHashes.EyesOfTomorrowRocketLauncher]: {},
+                [InventoryItemHashes.EyesOfTomorrowRocketLauncher_EquippingBlockUniqueLabelExoticWeapon]: {},
 
                 // hunter
                 [InventoryItemHashes.LegacysOathMaskHelmetPlug]: {},

@@ -151,7 +151,7 @@ export default {
                 description: "Lay Nezarec to his final rest.",
             },
             dropTable: {
-                [InventoryItemHashes.ConditionalFinalityShotgun]: {},
+                [InventoryItemHashes.ConditionalFinalityShotgun_EquippingBlockUniqueLabelExoticWeapon]: {},
                 [InventoryItemHashes.BriarsContemptLinearFusionRifle_ItemType3]: {},
                 [InventoryItemHashes.MykelsReverenceSidearm_ItemType3]: {},
                 [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},

@@ -20,7 +20,7 @@ export default Task("DeepsightVendorDefinition", async () => {
 		[VendorHashes.CommanderZavala_Enabledtrue]: vendors[VendorHashes.CommanderZavala_Enabledtrue],
 		[VendorHashes.TheDrifter_Enabledtrue]: vendors[VendorHashes.TheDrifter_Enabledtrue],
 		[VendorHashes.Saint14]: vendors[VendorHashes.Saint14],
-		[VendorHashes.LordShaxx_Enabledtrue]: vendors[VendorHashes.LordShaxx_Enabledtrue],
+		[VendorHashes.LordShaxx_CategoriesLength55]: vendors[VendorHashes.LordShaxx_CategoriesLength55],
 		[VendorHashes.DevrimKay]: vendors[VendorHashes.DevrimKay],
 		[VendorHashes.Failsafe]: vendors[VendorHashes.Failsafe],
 		[VendorHashes.ErisMorn]: vendors[VendorHashes.ErisMorn],
