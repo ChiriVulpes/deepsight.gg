@@ -1,16 +1,25 @@
 import fs from "fs-extra";
+import type { DeepsightWallpaperDefinition } from "../../static/manifest/Interfaces";
 import JSON5 from "../utility/JSON5";
 import Task from "../utility/Task";
 
 export default Task("DeepsightWallpaperDefinition", async () => {
-	const DeepsightWallpaperDefinition = await JSON5.readFile<Record<number, string[]>>("static/manifest/DeepsightWallpaperDefinition.json5");
+	const input = await JSON5.readFile<Record<number, string[]>>("static/manifest/DeepsightWallpaperDefinition.json5");
+	const DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition> = {};
 
-	for (const [hash, value] of Object.entries(DeepsightWallpaperDefinition)) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		DeepsightWallpaperDefinition[+hash] = {
-			hash: +hash,
-			wallpapers: value,
-		} as any;
+	for (const [hashStr, value] of Object.entries(input)) {
+		let hash = +hashStr;
+		const isSecondary = !Number.isInteger(hash);
+		if (isSecondary)
+			hash = Math.floor(hash);
+
+		const def = (DeepsightWallpaperDefinition[hash] ??= {
+			hash,
+			wallpapers: [],
+			secondaryWallpapers: [],
+		});
+
+		def[isSecondary ? "secondaryWallpapers" : "wallpapers"].push(...value);
 	}
 
 	await fs.mkdirp("docs/manifest");

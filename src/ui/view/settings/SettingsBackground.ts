@@ -24,7 +24,7 @@ export default class SettingsBackground extends Card<[]> {
 		this.title.text.set("Background");
 
 		const remotepath = "https://deepsight.gg/";
-		let scrollLeft = 0;
+		let scrollLeft: number | undefined;
 		const momentsWrapper = Loadable.create(WallpaperMoments)
 			.onReady(moments => Component.create()
 				.classes.add(SettingsBackgroundClasses.InternalWrapper)
@@ -35,7 +35,7 @@ export default class SettingsBackground extends Card<[]> {
 						.text.set(moment.moment.displayProperties.name))
 					.append(Component.create()
 						.classes.add(SettingsBackgroundClasses.WallpaperMomentWallpapers)
-						.append(...moment.wallpapers.map(wallpaper => Button.create()
+						.append(...[...moment.wallpapers, ...moment.secondaryWallpapers].map(wallpaper => Button.create()
 							.classes.add(SettingsBackgroundClasses.Wallpaper)
 							.classes.toggle(Store.items.settingsBackground === wallpaper, ButtonClasses.Selected)
 							.event.subscribe("click", (event) => {
@@ -58,11 +58,14 @@ export default class SettingsBackground extends Card<[]> {
 							.tweak(button => button.attributes.set("data-wallpaper", wallpaper))))))))
 			.classes.add(SettingsBackgroundClasses.BackgroundOptions)
 			.setSimple()
+			.event.subscribe("mousedown", () => {
+				scrollLeft = undefined;
+			})
 			.event.subscribe("wheel", event => {
 				if (event.shiftKey)
 					return;
 
-				if (Math.sign(event.deltaY) !== Math.sign(scrollLeft - momentsWrapper.element.scrollLeft))
+				if (scrollLeft === undefined || Math.sign(event.deltaY) !== Math.sign(scrollLeft - momentsWrapper.element.scrollLeft))
 					scrollLeft = momentsWrapper.element.scrollLeft;
 
 				scrollLeft += event.deltaY;
