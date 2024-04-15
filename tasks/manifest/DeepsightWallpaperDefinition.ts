@@ -11,7 +11,7 @@ export default Task("DeepsightWallpaperDefinition", async () => {
 		let hash = +hashStr;
 		const isSecondary = !Number.isInteger(hash);
 		if (isSecondary)
-			hash = Math.floor(hash);
+			hash = +hash.toFixed(0);
 
 		const def = (DeepsightWallpaperDefinition[hash] ??= {
 			hash,
@@ -21,6 +21,11 @@ export default Task("DeepsightWallpaperDefinition", async () => {
 
 		def[isSecondary ? "secondaryWallpapers" : "wallpapers"].push(...value);
 	}
+
+	// clear empties
+	for (const [hashStr, value] of Object.entries(DeepsightWallpaperDefinition))
+		if (!value.wallpapers.length && !value.secondaryWallpapers.length)
+			delete DeepsightWallpaperDefinition[+hashStr];
 
 	await fs.mkdirp("docs/manifest");
 	await fs.writeJson("docs/manifest/DeepsightWallpaperDefinition.json", DeepsightWallpaperDefinition, { spaces: "\t" });

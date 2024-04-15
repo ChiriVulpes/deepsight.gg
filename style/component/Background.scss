@@ -11,7 +11,7 @@
 		transform-origin: center center;
 		display: grid;
 		grid-template-areas: "stack";
-		justify-items: center;
+		place-items: center;
 		pointer-events: none;
 		@include view-fade-animation;
 	

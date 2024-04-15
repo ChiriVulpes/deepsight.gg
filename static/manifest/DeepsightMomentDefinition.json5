@@ -288,5 +288,32 @@
 		iconWatermark: { DestinyInventoryItemDefinition: 2005792304 }, // Parade Helm
 		expansion: true,
 		year: 6,
-	}
+	},
+	"-1": {
+		id: "revelry",
+		displayProperties: {
+			name: "The Revelry",
+			description: "The Revelry is a new event available to all Destiny 2 players that celebrates the joy of Spring. The Tower is overflowing with colorful arrangements, and Eva Levante has a new activity for you to enjoy with new rewards to claim.",
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 1914989540 }, // Verdant Crown shader
+		event: true,
+		itemHashes: [
+			53761356, // hunter head
+			3503026437, // hunter arms
+			1165027035, // hunter chest
+			3425898631, // hunter legs
+			4199694578, // hunter cloak
+			1821343040, // titan head
+			3682383633, // titan arms
+			4079552711, // titan chest
+			3089075939, // titan legs
+			500083158, // titan mark
+			1356657785, // warlock head
+			870019568, // warlock arms
+			2967148056, // warlock chest
+			1187078090, // warlock legs
+			1362642485, // warlock bond
+			2130065553, // arbalest
+		],
+	},
 }
