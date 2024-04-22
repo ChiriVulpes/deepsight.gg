@@ -19,7 +19,7 @@ namespace PGCR {
 
 	let manifest: DeepsightManifest | undefined;
 	async function getManifest (): Promise<DeepsightManifest> {
-		return manifest ??= (await fs.readFile("manifest/versions.json", "utf8").catch(() => undefined))
+		return manifest ??= (await fs.readJson("manifest/versions.json").catch(() => undefined))
 			?? (await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json").then(response => response.json()));
 	}
 
