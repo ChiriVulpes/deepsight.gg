@@ -72,8 +72,9 @@ namespace PGCR {
 		return find(`activity mode ${mode}`, pgcr => pgcr.activityDetails.modes.includes(mode) && (!filter || filter(pgcr)));
 	}
 
-	export async function get (id: number) {
-		return fetch(`${ENDPOINT_PGCR}/${id}/`, {
+	const cache: Partial<Record<number, DestinyPostGameCarnageReportData>> = {};
+	export async function get (id: number): Promise<DestinyPostGameCarnageReportData | undefined> {
+		return cache[id] ??= await fetch(`${ENDPOINT_PGCR}/${id}/`, {
 			headers: {
 				"X-API-Key": apiKey!,
 			},
