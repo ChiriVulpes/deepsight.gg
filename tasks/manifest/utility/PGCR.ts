@@ -1,5 +1,6 @@
 import type { ActivityTypeHashes } from "@deepsight.gg/enums";
 import type { DestinyActivityModeType, DestinyPostGameCarnageReportData, ServerResponse } from "bungie-api-ts/destiny2";
+import fs from "fs-extra";
 import type { DeepsightManifest, DeepsightManifestReferencePGCR } from "../../../static/manifest/Interfaces";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
@@ -16,10 +17,15 @@ namespace PGCR {
 
 	const ENDPOINT_PGCR = "https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport";
 
+	let manifest: DeepsightManifest | undefined;
+	async function getManifest (): Promise<DeepsightManifest> {
+		return manifest ??= (await fs.readFile("manifest/versions.json", "utf8").catch(() => undefined))
+			?? (await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json").then(response => response.json()));
+	}
+
 	let recentPGCR: DeepsightManifestReferencePGCR | undefined;
 	export async function getRecent () {
-		return recentPGCR ??= await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json")
-			.then(response => response.json())
+		return recentPGCR ??= await getManifest()
 			.then((versions: DeepsightManifest) => {
 				Log.info(`Using reference PGCR from deepsight.gg manifest v${versions.deepsight}`);
 				return versions.referencePostGameCarnageReportSinceDailyReset;
