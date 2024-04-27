@@ -26,11 +26,9 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 		const currentSeason = moments.findLast(moment => moment.moment.season);
 		const currentExpansion = moments.find(moment => moment.moment.expansion && moment.moment.year === currentYear);
 		const seasonsThisYear = moments.filter(moment => moment.moment.season && moment.moment.year === currentYear);
-		const wallpapers = [
-			...currentSeason?.wallpapers ?? [],
-			...seasonsThisYear.length > 1 ? []
-				: currentExpansion?.wallpapers ?? [],
-		];
+		const wallpapers = latestMoment === currentSeason && seasonsThisYear.length === 1
+			? [...currentExpansion?.wallpapers ?? [], ...currentSeason.wallpapers]
+			: latestMoment.wallpapers;
 
 		if (!wallpapers.length)
 			wallpapers.push(...latestMoment.wallpapers);
