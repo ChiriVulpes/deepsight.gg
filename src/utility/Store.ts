@@ -8,11 +8,15 @@ export interface IItemPerkWishlist {
 }
 
 type WishlistKey = `item${number}PerkWishlists`;
-type ILocalStorageBase = {
+type IItemPerkWishlistStorage = {
 	[key in WishlistKey]?: IItemPerkWishlist[];
 }
 
-export interface ILocalStorage extends ILocalStorageBase {
+interface IProfileStorage {
+	lastModified: string;
+}
+
+export interface ILocalStorage extends IItemPerkWishlistStorage {
 	bungieAuthCode?: string;
 	bungieAccessToken?: string;
 	bungieAccessTokenExpireTime?: number;
@@ -35,7 +39,7 @@ export interface ILocalStorage extends ILocalStorageBase {
 	settingsDisableDisplayNonWishlistedHighlights?: true;
 	settingsTrustTransfersUntil?: number;
 	itemFilter?: string;
-	profileLastModified?: string;
+	profiles?: Record<string, IProfileStorage>;
 }
 
 export type IStoreEvents =

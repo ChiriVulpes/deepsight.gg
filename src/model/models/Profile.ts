@@ -5,7 +5,7 @@ import { getCurrentDestinyMembership } from "model/models/Memberships";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
 import Store from "utility/Store";
 import Time from "utility/Time";
-import URL from "utility/URL";
+import URL, { BungieID } from "utility/URL";
 
 type DestinyComponentName = Exclude<keyof DestinyProfileResponse, "responseMintedTimestamp" | "secondaryComponentsMintedTimestamp">;
 
@@ -64,7 +64,7 @@ type Writable<T> = { -readonly [P in keyof T]: T[P] };
 class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 	public readonly applicableKeys: (keyof DestinyProfileResponse)[];
 
-	public constructor (public readonly type: DestinyComponentType) {
+	public constructor (public readonly type: DestinyComponentType, public readonly bungieId: BungieID) {
 		const applicableKeys: (keyof DestinyProfileResponse)[] = [];
 		for (const [key, applicableComponents] of Object.entries(profileResponseComponentMap)) {
 			if (applicableComponents === undefined)
@@ -78,13 +78,13 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 				applicableKeys.push(key as keyof DestinyProfileResponse);
 		}
 
-		super(`profile#${type} [${applicableKeys.join(",")}]`, {
+		super(`profile ${BungieID.stringify(bungieId)} component ${type} [${applicableKeys.join(",")}]`, {
 			cache: "Session",
 			resetTime: Time.seconds(20),
 			useCacheOnInitial: Time.days(1),
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			generate: undefined as any,
-			resetOnDestinyMembershipChange: true,
+			// resetOnDestinyMembershipChange: true,
 		});
 
 		this.applicableKeys = applicableKeys;
@@ -106,7 +106,7 @@ class ComponentModel extends Model.Impl<DestinyProfileResponse> {
 	}
 }
 
-const models: Partial<Record<DestinyComponentType, ComponentModel | undefined>> = {};
+const models: Record<string, Partial<Record<DestinyComponentType, ComponentModel | undefined>>> = {};
 let lastOperation: Promise<void> | undefined;
 
 function mergeProfile (profileInto: DestinyProfileResponse, profileFrom: DestinyProfileResponse) {
@@ -147,24 +147,34 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 	components.sort();
 
-	for (const component of components)
-		models[component] ??= new ComponentModel(component);
-
 	// const name = `profile [${components.flatMap(component => models[component]!.applicableKeys).join(",")}]`;
 
-	return Model.createDynamic<DestinyProfileResponse & { lastModified: Date }>(Time.seconds(30), async api => {
-		const result = {} as DestinyProfileResponse & { lastModified: Date };
+	interface Response extends DestinyProfileResponse {
+		lastModified: Date;
+		bungieID: BungieID;
+	}
+	return Model.createDynamic<Response>(Time.seconds(30), async api => {
+		const result = {} as Response;
 
 		// only allow one profile query at a time
 		while (lastOperation)
 			await lastOperation;
+
+		const membership = URL.bungieID ? Store.items.destinyMembershipOverride : await getCurrentDestinyMembership();
+		if (!membership)
+			throw new Error("Can't load profile without membership");
+
+		const bungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
+		const userModels = models[BungieID.stringify(bungieID)] ??= {};
+		for (const component of components)
+			userModels[component] ??= new ComponentModel(component, bungieID);
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 		lastOperation = (async () => {
 			api.emitProgress(0, "Fetching profile");
 			const missingComponents: DestinyComponentType[] = [];
 			for (const component of components) {
-				const cached = await models[component]?.resolveCache(initial ? "initial" : undefined);
+				const cached = await userModels[component]?.resolveCache(initial ? "initial" : undefined);
 				if (cached) {
 					mergeProfile(result, cached);
 				} else
@@ -186,28 +196,31 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 				}
 
 			api.emitProgress(1 / 3, "Fetching profile");
-			const membership = URL.bungieID ? Store.items.destinyMembershipOverride : await getCurrentDestinyMembership();
-			if (!membership)
-				throw new Error("Can't load profile without membership");
 
 			const newData = await GetProfile
 				.setOptionalAuth(!!Store.items.destinyMembershipOverride)
 				.query(membership.membershipType, membership.membershipId, missingComponents);
 			mergeProfile(result, newData);
 
+			result.bungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
 			result.lastModified = new Date(newData._headers.get("Last-Modified") ?? Date.now());
-			Store.items.profileLastModified = result.lastModified.toISOString();
+
+			const profiles = Store.items.profiles ?? {};
+			profiles[BungieID.stringify(bungieID)] = {
+				lastModified: result.lastModified.toISOString(),
+			};
+			Store.items.profiles = profiles;
 
 			for (let i = 0; i < components.length; i++) {
 				const component = components[i];
 				api.emitProgress(2 / 3 + 1 / 3 * (i / components.length), "Storing profile");
-				await models[component]!.update(newData);
+				await userModels[component]!.update(newData);
 			}
 		})().catch(async () => {
 			const missingComponents: DestinyComponentType[] = [];
 			let hadComponents = false;
 			for (const component of components) {
-				const cached = await models[component]?.resolveCache(true);
+				const cached = await userModels[component]?.resolveCache(true);
 				if (cached) {
 					hadComponents = true;
 					mergeProfile(result, cached);
@@ -225,7 +238,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 		api.emitProgress(3 / 3);
 
-		result.lastModified ??= new Date(Store.items.profileLastModified ?? Date.now());
+		result.lastModified ??= new Date(Store.items.profiles?.[`${membership.bungieGlobalDisplayName}#${membership.bungieGlobalDisplayNameCode}`]?.lastModified ?? Date.now());
 		return result;
 	});
 }
@@ -235,8 +248,14 @@ namespace Profile {
 		const promises = [];
 		for (const component of Object.values(profileResponseComponentMap).flat()) {
 			if (component) {
-				models[component] ??= new ComponentModel(component);
-				promises.push(models[component]?.reset());
+				for (const bungieId of Object.keys(Store.items.profiles ?? {})) {
+					const id = BungieID.parse(bungieId);
+					if (!id) continue;
+
+					models[bungieId] ??= {};
+					const model = models[bungieId][component] ??= new ComponentModel(component, id);
+					promises.push(model.reset());
+				}
 			}
 		}
 

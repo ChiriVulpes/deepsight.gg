@@ -17,6 +17,27 @@ function updateURL () {
 	history.replaceState(null, "", `${location.origin}${location.pathname}${queryString}${location.hash}`);
 }
 
+export interface BungieID {
+	name: string;
+	code: number;
+}
+
+export namespace BungieID {
+	export type String = `${string}#${number}`;
+	export function stringify (id: BungieID) {
+		return `${id.name}#${id.code}`;
+	}
+
+	export function parse (string: string): BungieID | undefined {
+		const name = string.slice(0, -5);
+		const code = string.slice(-4);
+		if (isNaN(+code))
+			return undefined;
+
+		return { name, code: +code };
+	}
+}
+
 export interface IURLEvents {
 	navigate: Event;
 }
@@ -89,15 +110,10 @@ export default class URL {
 		if (segment[segment.length - 5] !== ".")
 			return undefined;
 
-		const name = segment.slice(0, -5);
-		const code = segment.slice(-4);
-		if (isNaN(+code))
-			return undefined;
-
-		return { name, code };
+		return BungieID.parse(segment as BungieID.String);
 	}
 
-	public static get bungieID () {
+	public static get bungieID (): BungieID | undefined {
 		let path = location.pathname.slice(1);
 		if (!path.endsWith("/"))
 			path += "/";

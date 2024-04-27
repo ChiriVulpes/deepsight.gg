@@ -1,6 +1,5 @@
 import Activities from "model/models/Activities";
 import { getPrimaryDestinyMembership } from "model/models/Memberships";
-import Profile from "model/models/Profile";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -58,7 +57,6 @@ export default class DeepsightGG {
 		const didAuthenticate = await Bungie.authenticate("complete");
 		if (didAuthenticate && Store.items.destinyMembershipOverride) {
 			delete Store.items.destinyMembershipOverride;
-			await Profile.reset();
 			location.reload();
 			return;
 		}
@@ -79,7 +77,6 @@ export default class DeepsightGG {
 		const membershipOverride = Store.items.destinyMembershipOverride;
 		if (destinyMembership && (membershipOverride?.bungieGlobalDisplayName !== destinyMembership.bungieGlobalDisplayName || membershipOverride.bungieGlobalDisplayNameCode !== destinyMembership.bungieGlobalDisplayNameCode)) {
 			Store.items.destinyMembershipOverride = destinyMembership;
-			await Profile.reset();
 			location.reload();
 			return;
 		}
