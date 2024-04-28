@@ -93,7 +93,7 @@ const itemViewBase = View.create({
 			view.setBackground(`https://www.bungie.net${screenshot}`,
 				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : [])
 				.setDarkened(false)
-				.tweak(mgr => mgr.backgrounds[1].classes.add(ItemViewClasses.Foundry));
+				.tweak(mgr => mgr.backgrounds[1]?.classes.add(ItemViewClasses.Foundry));
 
 		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()
