@@ -12,7 +12,10 @@
 	&-foundry {
 		align-self: start;
 		margin-top: calc(var(--nav-height) / var(--background-surface-scale));
-		transform: none !important;
+		
+		@include vertical-or-tablet-or-mobile {
+			transform: none !important;
+		}
 	}
 
 	&-header {
