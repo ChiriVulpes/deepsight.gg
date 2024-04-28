@@ -70,7 +70,7 @@ export default View.create({
 
 						plugs = plugs.sort((a, b) => (a.definition?.displayProperties?.name ?? "").localeCompare(b.definition?.displayProperties?.name ?? ""));
 
-						const helper = plugList.filler(25);
+						const helper = plugList.filler({ desktop: 25, vertical: 15, tablet: 10, mobile: 5 });
 						for (const plug of plugs)
 							if (plug.definition?.displayProperties?.name)
 								ItemPlug.create([plug, undefined, undefined])

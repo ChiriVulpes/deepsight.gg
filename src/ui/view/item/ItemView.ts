@@ -47,6 +47,7 @@ export enum ItemViewClasses {
 	ButtonViewInCollections = "view-item-button-view-in-collections",
 	LockButton = "view-item-lock-button",
 	LockButtonLocked = "view-item-lock-button-locked",
+	Foundry = "view-item-foundry",
 
 	StatsContainer = "view-item-stats-container",
 	Stats = "view-item-stats",
@@ -91,7 +92,8 @@ const itemViewBase = View.create({
 		if (screenshot)
 			view.setBackground(`https://www.bungie.net${screenshot}`,
 				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : [])
-				.setDarkened(false);
+				.setDarkened(false)
+				.tweak(mgr => mgr.backgrounds[1].classes.add(ItemViewClasses.Foundry));
 
 		if (!item.bucket.isCollections()) {
 			const lockButton = Button.create()

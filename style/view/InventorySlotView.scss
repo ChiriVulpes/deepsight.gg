@@ -40,7 +40,7 @@
 
 	&-footer {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: auto 1fr 0 auto;
 		
 		.item-sort,
 		.item-filter,
@@ -68,11 +68,14 @@
 
 		.item-sort {
 			width: var(--bucket-inventory-width);
+			grid-row: 1;
 			flex-shrink: 0;
 		}
 
 		.item-filter {
 			flex-grow: 1;
+			grid-column: 2/4;
+			grid-row: 1;
 			@at-root .view-inventory :where(.item-filter-drawer) {
 				max-height: 30vh;
 			}
@@ -81,10 +84,32 @@
 		}
 
 		.view-inventory-hints {
-			grid-column: 3;
+			display: flex;
+			grid-column: 3/5;
+			grid-row: 1;
 			--icon: url("./image/svg/help.svg");
+			
+			z-index: 101;
+			
+			pointer-events: none;
+			&-button, &-drawer {
+				pointer-events: all;
+			}
 
-			@include vertical-or-tablet-or-mobile {
+			@include vertical-or-tablet {
+				justify-content: right;
+				
+				&-button {
+					width: auto;
+				}
+				
+				.view-footer-button-label,
+				.view-footer-button-text {
+					display: none;
+				}
+			}
+
+			@include mobile {
 				display: none;
 			}
 		}
@@ -115,7 +140,7 @@
 
 		&-content {
 			grid-template-columns: initial;
-			grid-template-rows: auto 1fr auto;
+			grid-template-rows: auto auto 1fr;
 
 			@media (max-height: 1200px) {
 				overflow-y: auto;
@@ -132,13 +157,8 @@
 
 		&-footer {
 			display: grid;
-			grid-template-columns: auto 1fr;
+			grid-template-columns: auto 1fr auto 60px;
 			grid-template-rows: 1fr;
-		}
-
-		&-hints {
-			grid-column: 1/3;
-			grid-row: 1;
 		}
 	}
 
@@ -229,6 +249,11 @@
 			margin-left: calc(-8px + var(--bucket-inventory-padding));
 			margin-right: calc(0px - min(20px, var(--view-padding-x)) + var(--bucket-inventory-padding));
 			padding-bottom: calc(var(--bucket-inventory-padding) + var(--card-gap-y));
+			overflow: visible;
+			
+			@include vertical-or-tablet {
+				padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
+			}
 		}
 
 		&-equipped {
@@ -253,12 +278,16 @@
 				grid-template-columns: repeat(3, 1fr);
 			}
 
+			&:nth-child(1) {
+				grid-row: 2;
+				grid-column: 1;
+			}
 			&:nth-child(2) {
-				grid-row: initial;
+				grid-row: 2;
 				grid-column: 2;
 			}
 			&:nth-child(3) {
-				grid-row: initial;
+				grid-row: 2;
 				grid-column: 3;
 			}
 
@@ -564,13 +593,18 @@
 				grid-template-rows: 1fr;
 				grid-template-columns: repeat(3, 1fr);
 			}
+			
+			&:nth-child(1) {
+				grid-row: 1;
+				grid-column: 1;
+			}
 
 			&:nth-child(2) {
-				grid-row: initial;
+				grid-row: 1;
 				grid-column: 2;
 			}
 			&:nth-child(3) {
-				grid-row: initial;
+				grid-row: 1;
 				grid-column: 3;
 			}
 
@@ -641,6 +675,11 @@
 		
 		&-vault-bucket-merged {
 			grid-row: 1/4;
+			
+			@include vertical-or-tablet {
+				grid-row: 3;
+				grid-column: 1/4;
+			}
 		}
 	}
 }

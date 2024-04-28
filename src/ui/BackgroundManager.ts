@@ -55,10 +55,14 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	private darkened?: SupplierOr<boolean | undefined>;
 	private path!: SupplierOr<Arrays.Or<string> | undefined>;
 
+	public backgrounds!: Component<HTMLImageElement>[];
+
 	protected override onMake (path: SupplierOr<Arrays.Or<string> | undefined>): void {
 		this.path = path;
 		this.classes.add(BackgroundClasses.Surface);
 		this.darkened = true;
+
+		this.backgrounds = [];
 
 		this.updateBackground();
 		this.updateBackgroundBlur();
@@ -92,6 +96,7 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	@Bound private updateBackground () {
 		const background = Arrays.resolve(Functions.resolve(this.path));
 		this.removeContents();
+		this.backgrounds = [];
 
 		if (background.length) {
 			this.classes.add(Classes.Hidden);
@@ -101,7 +106,7 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 			let loaded = 0;
 			for (let i = 0; i < background.length; i++) {
 				const path = background[i];
-				Component.create("img")
+				this.backgrounds.push(Component.create("img")
 					.classes.add(BackgroundClasses.Image, `${BackgroundClasses.Image}-${i}`)
 					.attributes.set("src", path.startsWith(remotepath) ? `${Env.DEEPSIGHT_PATH}${path.slice(remotepath.length)}` : path)
 					.event.subscribe("load", () => {
@@ -109,7 +114,7 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 						if (loaded >= background.length)
 							this.classes.remove(Classes.Hidden);
 					})
-					.appendTo(this);
+					.appendTo(this));
 			}
 		}
 	}

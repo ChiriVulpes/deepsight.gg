@@ -23,7 +23,6 @@ import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import Arrays from "utility/Arrays";
-import Store from "utility/Store";
 import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
 
@@ -139,7 +138,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 				.text.add("\xa0 Player overview"))
 			.append(Component.create("p")
 				.classes.add(InventoryViewClasses.Hint)
-				.classes.toggle(!!Store.items.settingsAlwaysShowExtra, Classes.Hidden)
 				.append(Hint.create([IInput.get("KeyE")]))
 				.text.add("\xa0 More information"))
 			.append(Component.create("p")

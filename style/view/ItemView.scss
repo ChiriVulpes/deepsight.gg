@@ -4,6 +4,16 @@
 	$size: 78px;
 	--slot-size: calc(#{$size} + #{$size * math.div(6, 75)});
 	--view-padding-x: 100px;
+	
+	@include vertical-or-tablet-or-mobile {
+		--view-padding-x: 20px;
+	}
+	
+	&-foundry {
+		align-self: start;
+		margin-top: calc(var(--nav-height) / var(--background-surface-scale));
+		transform: none !important;
+	}
 
 	&-header {
 		grid-column: 1/3;
@@ -801,6 +811,10 @@
 
 	&-perks-mods-traits {
 		height: fit-content;
+		
+		@include vertical-or-tablet {
+			grid-column: 1/3;
+		}
 	}
 
 	&-stats {

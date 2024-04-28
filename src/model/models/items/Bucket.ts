@@ -55,10 +55,7 @@ export class Bucket {
 		this.name = definition.displayProperties?.name ?? "?";
 		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
 		this.capacity = definition.itemCount;
-		if (typeof items === "function")
-			Object.defineProperty(this, "items", { get: () => Object.freeze(items()) });
-		else
-			this.items = items ?? [];
+		this.setItems(items);
 
 		this.hash = definition.hash;
 		this.inventoryHash = subBucketDefinition?.hash;
@@ -72,6 +69,13 @@ export class Bucket {
 
 		if (this.inventoryHash)
 			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
+	}
+
+	public setItems (items?: Item[] | (() => Item[])) {
+		if (typeof items === "function")
+			Object.defineProperty(this, "items", { get: () => Object.freeze(items()), configurable: true });
+		else
+			Object.defineProperty(this, "items", { value: items ?? [], configurable: true });
 	}
 
 	public get equippedItem () {

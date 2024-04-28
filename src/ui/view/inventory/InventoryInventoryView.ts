@@ -73,6 +73,8 @@ export default new View.Factory()
 		id: VIEW_ID_INVENTORY,
 		name: VIEW_NAME_INVENTORY,
 		layout: view => {
+			view.super.content.classes.add(InventoryInventoryViewClasses.Content);
+
 			view.addBuckets([
 				Bucket.id(InventoryBucketHashes.Consumables),
 				Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Consumables),

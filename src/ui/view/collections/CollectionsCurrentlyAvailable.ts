@@ -58,7 +58,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		activityWrapper.buttonNext.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
 		activityWrapper.buttonPrev.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
 
-		const activityFiller = activityWrapper.filler(4, page => page
+		const activityFiller = activityWrapper.filler(window.innerWidth < 1200 ? 3 : 4, page => page
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPage));
 
 		const { DestinyActivityTypeDefinition, DestinyActivityModeDefinition } = manifest;

@@ -1,4 +1,4 @@
-import type { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { DestinyClass, type DestinyInventoryBucketDefinition, type DestinyItemComponent } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Characters from "model/models/Characters";
@@ -164,7 +164,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		if (!bucket)
 			continue;
 
-		// create sub buckets for items with differing 
+		// create sub buckets for items with differing `inventory.bucketTypeHash`es 
 		const subBuckets = {} as Partial<Record<number, Bucket>>;
 		for (const item of bucket.items) {
 			const subInventoryHash = item.definition.inventory?.bucketTypeHash;
@@ -182,6 +182,30 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				buckets[subBucket.id] ??= subBucket;
 			}
 		}
+	}
+
+	////////////////////////////////////
+	// Fix some modifications items being miscategorised
+	const dummyVaultBucketId = Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Dummy_ItemCount5);
+	const miscategorised = buckets[dummyVaultBucketId]?.items ?? [];
+	delete buckets[dummyVaultBucketId];
+
+	if (miscategorised.length) {
+		const modificationsBucketId = Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Modifications);
+		const bucket = buckets[Bucket.id(InventoryBucketHashes.General)]!;
+		const modifications = buckets[modificationsBucketId] ??= new Bucket({
+			definition: bucket.definition,
+			subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(InventoryBucketHashes.Modifications),
+			character: Characters.get(bucket.characterId),
+		});
+
+		modifications.setItems(() => bucket.items.filter(item => true
+			&& item.definition.inventory?.bucketTypeHash
+			&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
+			&& (false
+				|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Modifications
+				|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Dummy_ItemCount5
+				|| false)));
 	}
 
 	Plugs.resetInitialisedPlugTypes();

@@ -2,6 +2,7 @@
 	&-surface {
 		position: fixed;
 		$scale: 0.2;
+		--background-surface-scale: #{$scale};
 		top: calc(50% - 50% / #{$scale});
 		left: calc(50% - 50% / #{$scale});
 		width: calc(100% / #{$scale});

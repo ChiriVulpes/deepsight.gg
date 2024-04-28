@@ -20,7 +20,7 @@ export enum PaginatorClasses {
 }
 
 export interface PaginatorFiller {
-	perPage: number;
+	perPage: number | PaginatorSizeHelper;
 	/**
 	 * Returns the current page that components should be appended to, creating new pages when necessary.
 	 */
@@ -29,6 +29,35 @@ export interface PaginatorFiller {
 	 * Returns the current page that components should be appended to, creating new pages when necessary.
 	 */
 	add (value: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorPage;
+}
+
+export interface PaginatorSizeHelper {
+	desktop?: number;
+	vertical?: number;
+	tablet?: number;
+	mobile?: number;
+}
+
+export namespace PaginatorSizeHelper {
+	export function make (helper: PaginatorSizeHelper) {
+		return helper;
+	}
+
+	export function getPerPage (helper: number | PaginatorSizeHelper) {
+		if (typeof helper === "number")
+			return helper;
+
+		if (window.innerWidth > 1200)
+			return helper.desktop ?? helper.vertical ?? helper.tablet ?? helper.mobile ?? 1;
+
+		if (window.innerWidth >= 1080)
+			return helper.vertical ?? helper.tablet ?? helper.mobile ?? helper.desktop ?? 1;
+
+		if (window.innerWidth > 800)
+			return helper.tablet ?? helper.mobile ?? helper.vertical ?? helper.desktop ?? 1;
+
+		return helper.mobile ?? helper.tablet ?? helper.vertical ?? helper.desktop ?? 1;
+	}
 }
 
 export default class Paginator extends Component {
@@ -82,7 +111,7 @@ export default class Paginator extends Component {
 		});
 	}
 
-	public filler (perPage: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
+	public filler (perPage: number | PaginatorSizeHelper, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
 		let page: PaginatorPage | undefined;
 		let filled = Infinity;
 		const result: PaginatorFiller = {
@@ -91,6 +120,7 @@ export default class Paginator extends Component {
 				return result.add(1, incrementPageInitialiser);
 			},
 			add: (value, incrementPageInitialiser) => {
+				const perPage = PaginatorSizeHelper.getPerPage(result.perPage);
 				if (filled + value > perPage && !(value >= perPage && !filled))
 					filled = 0, page = this.page()
 						.tweak(pageInitialiser)
