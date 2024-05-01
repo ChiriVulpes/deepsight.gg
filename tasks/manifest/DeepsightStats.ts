@@ -6,7 +6,7 @@ import DestinyProfile from "./utility/endpoint/DestinyProfile";
 export default Task("DeepsightStats", async () => {
 	const profile = await DestinyProfile.get();
 
-	const chiriSunsetMountaintopInstanceId = "6917529997064495575";
+	const chiriSunsetMountaintopInstanceId = "6917530005261965302";
 	const powerFloor = profile?.itemComponents?.instances?.data?.[chiriSunsetMountaintopInstanceId]?.primaryStat?.value;
 	if (!powerFloor)
 		throw new Error("Unable to fetch power floor from Chiri's sunset mountaintop instance");
