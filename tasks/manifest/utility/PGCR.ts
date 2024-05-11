@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import type { DeepsightManifest, DeepsightManifestReferencePGCR } from "../../../static/manifest/Interfaces";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
+import Time from "../../utility/Time";
 
 const apiKey = Env.DEEPSIGHT_MANIFEST_API_KEY;
 if (!apiKey)
@@ -54,7 +55,7 @@ namespace PGCR {
 			if (!pgcr)
 				throw new Error("Either the API is down, or it's Joever");
 
-			if (filter(pgcr)) {
+			if (new Date(pgcr.period).getTime() > Time.lastDailyReset && filter(pgcr)) {
 				Log.info("Gotcha! Using:", pgcrId);
 				return pgcr;
 			}
