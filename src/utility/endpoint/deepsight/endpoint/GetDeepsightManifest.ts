@@ -1,9 +1,10 @@
 import type { DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
-import type { DeepsightPlugCategorisation } from "@deepsight.gg/plugs";
+import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
 import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";
+import GetDeepsightSocketCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketCategorisation";
 import GetDeepsightTierTypeDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightTierTypeDefinition";
 import GetDeepsightVendorDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightVendorDefinition";
 import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
@@ -14,6 +15,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition>;
 	DeepsightDropTableDefinition: Record<number, DeepsightDropTableDefinition>;
 	DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation>;
+	DeepsightSocketCategorisation: Record<number, DeepsightSocketCategorisationDefinition>;
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>;
 	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
 	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
@@ -30,6 +32,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightWallpaperDefinition: await GetDeepsightWallpaperDefinition.query(),
 			DeepsightDropTableDefinition: await GetDeepsightDropTableDefinition.query(),
 			DeepsightPlugCategorisation: await GetDeepsightPlugCategorisation.query(),
+			DeepsightSocketCategorisation: await GetDeepsightSocketCategorisation.query(),
 			DeepsightTierTypeDefinition: await GetDeepsightTierTypeDefinition.query(),
 			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
 			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),

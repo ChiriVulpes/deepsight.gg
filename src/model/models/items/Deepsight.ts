@@ -101,7 +101,7 @@ namespace Deepsight {
 	async function findObjective (item: IItemInit, predicate: (objective: Objectives.IObjective) => any): Promise<Objectives.IObjective | undefined> {
 		const sockets = await item.sockets ?? [];
 		for (const objective of sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? [])) {
-			if (predicate(objective))
+			if (objective && predicate(objective))
 				return objective;
 		}
 

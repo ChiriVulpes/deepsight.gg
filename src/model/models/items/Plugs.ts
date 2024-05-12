@@ -75,7 +75,11 @@ export class Socket {
 		Object.assign(socket, init);
 		delete socket.objectives;
 
-		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition } = manifest;
+		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition, DeepsightSocketCategorisation } = manifest;
+		const categorisation = await DeepsightSocketCategorisation.get(item?.definition.hash);
+		socket.type = categorisation?.categorisation[index!]?.fullName ?? "None";
+		if (socket.type === "Cosmetic/Shader")
+			return socket; // skip shader init
 
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
 		if (item?.deepsight?.pattern && index !== undefined) {

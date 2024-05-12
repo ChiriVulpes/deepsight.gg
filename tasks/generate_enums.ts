@@ -1,6 +1,6 @@
 import ArrayPrototypes from "@deepsight.gg/utility/prototype/ArrayPrototypes";
 import ansicolor from "ansicolor";
-import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition, DestinyInventoryItemDefinition, DestinySocketTypeDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import { getDeepsightMomentDefinition } from "./manifest/DeepsightMomentDefinition";
@@ -287,6 +287,12 @@ export class EnumHelper {
 
 			if (itemDef.itemType === DestinyItemType.QuestStep && itemDef.setData?.itemList.length)
 				name += `_Step${itemDef.setData.itemList.findIndex(item => item.itemHash === itemDef.hash)}`;
+		}
+
+		if (!name && this.type === "DestinySocketTypeDefinition") {
+			const socketDef = definition as DestinySocketTypeDefinition;
+			if (socketDef.plugWhitelist.length === 1 && socketDef.plugWhitelist[0].categoryIdentifier)
+				name = EnumHelper.simplifyName(socketDef.plugWhitelist[0].categoryIdentifier);
 		}
 
 		return name;

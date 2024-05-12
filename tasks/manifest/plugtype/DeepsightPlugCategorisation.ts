@@ -1,4 +1,5 @@
 import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "@deepsight.gg/enums";
+import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass, DestinyItemType } from "bungie-api-ts/destiny2";
 import { EnumHelper } from "../../generate_enums";
@@ -13,6 +14,9 @@ namespace DeepsightPlugCategorisation {
 
 	function determinePlugCategory (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.hash) {
+			case InventoryItemHashes.EmptyFramesSocketPlug:
+				return DeepsightPlugCategory.Intrinsic;
+
 			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
 			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug2443995506:
 			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug4114716976:
@@ -33,6 +37,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.Intrinsics:
 			case PlugCategoryHashes.Origins:
 			case PlugCategoryHashes.V300VehiclesModControls:
+			case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
 				return DeepsightPlugCategory.Intrinsic;
 
 			case PlugCategoryHashes.Shader:
@@ -103,9 +108,6 @@ namespace DeepsightPlugCategorisation {
 
 			case PlugCategoryHashes.StatusEffectTooltip:
 				return DeepsightPlugCategory.StatusEffect;
-
-			case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
-				return DeepsightPlugCategory.Unknown;
 
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsMemories:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsExtractors:
@@ -350,8 +352,9 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.ExhumationIntrinsicPlug1563633475:
 					return DeepsightPlugTypeIntrinsic.Exotic; // these are old/dummy versions of these perks
 
-				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540:
-					return DeepsightPlugTypeIntrinsic.Frame; // rose's adaptive frame is considered exotic tier
+				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540: // rose's adaptive frame is considered exotic tier
+				case InventoryItemHashes.EmptyFramesSocketPlug:
+					return DeepsightPlugTypeIntrinsic.Frame;
 			}
 
 			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")
@@ -361,6 +364,8 @@ namespace DeepsightPlugCategorisation {
 				return DeepsightPlugTypeIntrinsic.Exotic;
 
 			switch (context.definition.plug?.plugCategoryHash) {
+				case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
+					return DeepsightPlugTypeIntrinsic.Shaped;
 				case PlugCategoryHashes.Origins:
 					return DeepsightPlugTypeIntrinsic.Origin;
 				case PlugCategoryHashes.V300VehiclesModControls:
@@ -843,7 +848,14 @@ namespace DeepsightPlugCategorisation {
 		},
 	};
 
+	let DeepsightPlugCategorisation: PromiseOr<Record<number, DeepsightPlugCategorisation>> | undefined;
+
 	export async function resolve () {
+		DeepsightPlugCategorisation ??= computeDeepsightPlugCategorisation();
+		return DeepsightPlugCategorisation = await DeepsightPlugCategorisation;
+	}
+
+	async function computeDeepsightPlugCategorisation () {
 		const DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation> = {};
 
 		const plugContexts = await DeepsightPlugContextDefinition.discover();
