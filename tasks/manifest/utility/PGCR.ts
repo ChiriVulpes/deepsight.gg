@@ -60,7 +60,7 @@ namespace PGCR {
 				return pgcr;
 			}
 
-			await sleep(100);
+			// await sleep(100);
 		}
 
 		return undefined;
