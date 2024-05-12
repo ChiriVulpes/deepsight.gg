@@ -4,7 +4,7 @@ import type { DestinyInventoryItemDefinition, DestinyVendorSaleItemComponent } f
 import { DestinyActivityModeType, DestinyComponentType, DestinyVendorItemState, VendorItemStatus } from "bungie-api-ts/destiny2";
 import Time from "../../utility/Time";
 import DestinyManifestReference from "../DestinyManifestReference";
-import ItemEquippableDummies from "../utility/ItemEquippableDummies";
+import ItemPreferred from "../utility/ItemPreferred";
 import DestinyActivities from "../utility/endpoint/DestinyActivities";
 import manifest from "../utility/endpoint/DestinyManifest";
 import DestinyVendor from "../utility/endpoint/DestinyVendor";
@@ -124,10 +124,10 @@ async function getVendorWeapons (vendorHash: VendorHashes) {
 		if (vendorHash !== Saint14FocusedDecoding && !isAdept)
 			continue;
 
-		addItem(await ItemEquippableDummies.findPreferredCopy(definition!));
+		addItem(await ItemPreferred.findPreferredCopy(definition!));
 
 		if (isAdept)
-			addItem(await ItemEquippableDummies.findPreferredCopy(Strings.trimTextMatchingFromEnd(name!, " (Adept)")));
+			addItem(await ItemPreferred.findPreferredCopy(Strings.trimTextMatchingFromEnd(name!, " (Adept)")));
 	}
 
 	return [...result];

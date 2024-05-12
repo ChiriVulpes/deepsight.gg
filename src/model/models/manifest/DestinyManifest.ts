@@ -191,17 +191,21 @@ class DestinyManifestItem<COMPONENT_NAME extends DestinyComponentName> extends M
 						.concat(Object.values<DestinyInventoryComponent>(profile?.characterEquipment?.data ?? Objects.EMPTY))
 						.flatMap(inventory => inventory.items.map(item => item.itemHash))));
 
-				for (const itemSockets of Object.values<DestinyItemSocketsComponent>(profile?.itemComponents?.sockets.data ?? Objects.EMPTY)) {
+				for (const itemSockets of Object.values<DestinyItemSocketsComponent>(profile?.itemComponents?.sockets.data ?? Objects.EMPTY))
 					for (const socket of itemSockets.sockets ?? [])
 						if (socket.plugHash)
 							itemHashes.add(socket.plugHash);
-				}
 
-				for (const itemPlugsByItems of Object.values<DestinyItemReusablePlugsComponent>(profile?.itemComponents?.reusablePlugs.data ?? Objects.EMPTY)) {
+				for (const itemPlugsByItems of Object.values<DestinyItemReusablePlugsComponent>(profile?.itemComponents?.reusablePlugs.data ?? Objects.EMPTY))
 					for (const plugs of Object.values(itemPlugsByItems.plugs))
 						for (const plug of plugs)
 							itemHashes.add(plug.plugItemHash);
-				}
+
+				const { DeepsightCollectionsDefinition } = await DeepsightManifest.await();
+				for (const momentItems of await DeepsightCollectionsDefinition.all())
+					for (const itemList of Object.values(momentItems.buckets))
+						for (const itemHash of itemList)
+							itemHashes.add(itemHash);
 
 				Manifest[componentName].setPreCache([...itemHashes], async (cache, cacheKeyRange) => {
 					////////////////////////////////////

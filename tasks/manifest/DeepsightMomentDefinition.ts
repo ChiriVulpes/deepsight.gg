@@ -1,3 +1,4 @@
+import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import fs from "fs-extra";
 import JSON5 from "../utility/JSON5";
 import Task from "../utility/Task";
@@ -17,7 +18,14 @@ interface DeepsightMomentDefinition {
 	hash?: number;
 }
 
+let DeepsightMomentDefinition: PromiseOr<Record<number, DeepsightMomentDefinition>> | undefined;
+
 export async function getDeepsightMomentDefinition () {
+	DeepsightMomentDefinition ??= computeDeepsightMomentDefinition();
+	return DeepsightMomentDefinition = await DeepsightMomentDefinition;
+}
+
+async function computeDeepsightMomentDefinition () {
 	const DeepsightMomentDefinition = await JSON5.readFile<Record<number, DeepsightMomentDefinition>>("static/manifest/DeepsightMomentDefinition.json5");
 
 	const { DestinySeasonDefinition, DestinyEventCardDefinition } = manifest;
@@ -62,8 +70,9 @@ export async function getDeepsightMomentDefinition () {
 }
 
 export default Task("DeepsightMomentDefinition", async () => {
-	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();
+	DeepsightMomentDefinition = undefined;
+	const manifest = await getDeepsightMomentDefinition();
 
 	await fs.mkdirp("docs/manifest");
-	await fs.writeJson("docs/manifest/DeepsightMomentDefinition.json", DeepsightMomentDefinition, { spaces: "\t" });
+	await fs.writeJson("docs/manifest/DeepsightMomentDefinition.json", manifest, { spaces: "\t" });
 });

@@ -3,6 +3,7 @@ import bump_versions from "./bump_versions";
 import copy_manifest from "./copy_manifest";
 import destiny_manifest from "./destiny_manifest";
 import generate_enums from "./generate_enums";
+import DeepsightCollectionsDefinition from "./manifest/DeepsightCollectionsDefinition";
 import DeepsightDropTableDefinition from "./manifest/DeepsightDropTableDefinition";
 import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
 import DeepsightPlugTypeDefinition from "./manifest/DeepsightPlugCategorisation";
@@ -29,6 +30,7 @@ export default Task("deepsight_manifest", task => task.series(
 		DeepsightVendorDefinition,
 		DeepsightTypes,
 		DeepsightStats,
+		DeepsightCollectionsDefinition,
 	),
 	DeepsightPlugTypeDefinition,
 	bump_versions,

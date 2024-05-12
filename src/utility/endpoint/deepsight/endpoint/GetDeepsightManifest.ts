@@ -1,5 +1,6 @@
-import type { DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation } from "@deepsight.gg/plugs";
+import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";
@@ -15,6 +16,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation>;
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>;
 	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
+	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -30,6 +32,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightPlugCategorisation: await GetDeepsightPlugCategorisation.query(),
 			DeepsightTierTypeDefinition: await GetDeepsightTierTypeDefinition.query(),
 			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
+			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

@@ -12,7 +12,8 @@
 		"paths": {
 			"bungie-api-ts/*": ["./src/node_modules/bungie-api-ts/*"],
 			"@deepsight.gg/utility/*": ["./src/utility/*"],
-			"@deepsight.gg/enums": ["./static/manifest/Enums.d.ts"]
+			"@deepsight.gg/enums": ["./static/manifest/Enums.d.ts"],
+			"@deepsight.gg/interfaces": ["./static/manifest/Interfaces.d.ts"]
 		}
 	}
 }
