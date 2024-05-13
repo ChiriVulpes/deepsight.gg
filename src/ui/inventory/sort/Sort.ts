@@ -21,6 +21,7 @@ enum Sort {
 	Locked,
 	Harmonizable,
 	Exotic,
+	CanShape,
 }
 
 export default Sort;

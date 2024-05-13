@@ -229,8 +229,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
 			.classes.toggle(item?.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
 
-		const hasCraftedCopy = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash);
-		const shaped = item?.shaped || hasCraftedCopy;
+		const canShape = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash);
+		const shaped = item?.shaped || canShape;
 		this.classes.toggle(!!item?.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
 		if (shaped ? !item?.isMasterwork() : item?.canEnhance())
 			(this.iconShaped ??= Component.create()

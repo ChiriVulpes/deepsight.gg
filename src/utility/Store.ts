@@ -118,3 +118,5 @@ export default class Store {
 		return true;
 	}
 }
+
+Object.assign(window, { Store });

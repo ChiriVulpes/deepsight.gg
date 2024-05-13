@@ -2,6 +2,7 @@ import type Item from "model/models/items/Item";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
+import SortCanShape from "ui/inventory/sort/sorts/SortCanShape";
 import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
 import SortExotic from "ui/inventory/sort/sorts/SortExotic";
@@ -42,6 +43,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Locked]: SortLocked,
 	[Sort.Harmonizable]: SortHarmonizable,
 	[Sort.Exotic]: SortExotic,
+	[Sort.CanShape]: SortCanShape,
 };
 
 const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [
@@ -56,10 +58,12 @@ export interface ISortManagerEvents {
 	update: Event;
 }
 
+type ConfiguredSort = Sort | string | { reverse: Sort | string };
+
 export interface ISortManagerConfiguration {
 	id: string;
 	name: string;
-	readonly default: readonly (Sort | string)[];
+	readonly default: readonly ConfiguredSort[];
 	readonly inapplicable: readonly (Sort | string)[];
 }
 
@@ -110,6 +114,7 @@ class SortManager {
 	public readonly event = new EventManager<this, ISortManagerEvents>(this);
 
 	private current!: ISort[];
+	private reversed!: Partial<Record<Sort | string, boolean>>;
 	public constructor (configuration: ISortManagerConfiguration) {
 		this.setConfiguration(configuration);
 	}
@@ -121,22 +126,37 @@ class SortManager {
 		this.inapplicableRegExp = configuration.inapplicable.filter((sort): sort is string => typeof sort === "string")
 			.map(regexString => new RegExp(`^${regexString}$`));
 
-		(this as Mutable<SortManager>).default = this.default.filter(sort => !this.isInapplicable(SortManager.sortMap[sort]));
+		(this as Mutable<SortManager>).default = this.default.filter(sort => !this.isInapplicable(SortManager.sortMap[typeof sort === "object" ? sort.reverse : sort]));
 
 		SortManager.onInit(() => {
 			let sort: readonly (Sort | string)[] = (Store.get(`sort-${this.id}`) as string[] ?? [])
 				.map((sortName): Sort | string => Sort[sortName as keyof typeof Sort] ?? sortName)
 				.filter(sort => SortManager.sortMap[sort]);
 
-			if (!sort.length)
-				sort = this.default;
+			const reversed: Partial<Record<Sort | string, boolean>> = Store.get(`sort-${this.id}-reversed`) ?? {};
+
+			if (!sort.length) {
+				sort = this.default.map(sort => typeof sort === "object" ? sort.reverse : sort);
+				for (const sort of this.default) {
+					if (typeof sort === "object") {
+						reversed[sort.reverse] = true;
+					} else {
+						delete reversed[sort];
+					}
+				}
+			}
 
 			this.current = sort.map(sortType => SortManager.sortMap[sortType]);
+			this.reversed = reversed;
 		});
 	}
 
 	public get () {
 		return this.current;
+	}
+
+	public isReversed (sort: Sort | string | ISort) {
+		return this.reversed[typeof sort === "object" ? this.stringifyId(sort) : sort] ?? false;
 	}
 
 	public getDisabled () {
@@ -152,15 +172,35 @@ class SortManager {
 			|| this.inapplicableRegExp.some(regex => regex.test(`${sort.id}`));
 	}
 
-	public set (sort: ISort[]) {
+	public set (sort: ISort[], emit = true) {
 		this.current.splice(0, Infinity, ...sort);
-		Store.set(`sort-${this.id}`, this.current.map(sort => typeof sort.id === "number" ? Sort[sort.id] : sort.id));
-		this.event.emit("update");
+		Store.set(`sort-${this.id}`, this.current.map(this.stringifyId));
+
+		if (emit)
+			this.event.emit("update");
+	}
+
+	public setReversed (sort: ISort[], emit = true) {
+		Store.set(`sort-${this.id}-reversed`, this.reversed = {
+			...Store.get(`sort-${this.id}-reversed`),
+			...this.current.toObject(current => [this.stringifyId(current), sort.includes(current)]),
+		});
+
+		if (emit)
+			this.event.emit("update");
+	}
+
+	@Bound private stringifyId (sort: ISort) {
+		return typeof sort.id === "number" ? Sort[sort.id] : sort.id;
 	}
 
 	@Bound public sort (itemA: Item, itemB: Item) {
 		for (const sort of this.current) {
-			const result = sort.sort(itemA, itemB);
+			let result = sort.sort(itemA, itemB);
+
+			if (this.reversed[this.stringifyId(sort)])
+				result = -result;
+
 			if (result !== 0)
 				return result;
 		}

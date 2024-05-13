@@ -18,6 +18,7 @@ enum Filter {
 	Perk,
 	Moment,
 	Locked,
+	Artifice,
 	Raw,
 }
 

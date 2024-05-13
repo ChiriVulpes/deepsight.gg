@@ -26,6 +26,9 @@ export enum ItemSortClasses {
 	SortIconMask = "item-sort-drawer-sort-icon-mask",
 	SortOptions = "item-sort-drawer-sort-options",
 	SortsHeading = "item-sort-drawer-sorts-heading",
+	SortReverse = "item-sort-drawer-sort-reverse",
+	Sort_Reversed = "item-sort-drawer-sort--reversed",
+	SortButton = "item-sort-drawer-sort-button",
 }
 
 export interface ItemSortEvents extends ComponentEvents {
@@ -34,6 +37,7 @@ export interface ItemSortEvents extends ComponentEvents {
 
 export interface SortableSortEvents extends ComponentEvents {
 	configure: { sort: ISort };
+	reverse: { sort: ISort };
 }
 
 export class SortableSort extends Component<HTMLElement, [ISort]> {
@@ -43,6 +47,10 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 	public sort!: ISort;
 
 	public title!: Component;
+
+	public get reversed () {
+		return this.classes.has(ItemSortClasses.Sort_Reversed);
+	}
 
 	public get icon () {
 		return Component.create("span")
@@ -69,14 +77,30 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 
 		if (sort.renderSortableOptions)
 			Button.create()
-				.classes.add(ButtonClasses.Icon, ItemSortClasses.SortOptions)
-				.event.subscribe("click", this.onClick)
+				.classes.add(ButtonClasses.Icon, ItemSortClasses.SortButton, ItemSortClasses.SortOptions)
+				.event.subscribe("click", this.onOptions)
 				.appendTo(this);
+
+		Button.create()
+			.classes.add(ButtonClasses.Icon, ItemSortClasses.SortButton, ItemSortClasses.SortReverse)
+			.event.subscribe("click", this.onReverse)
+			.appendTo(this);
+	}
+
+	public setReversed (reversed = true) {
+		this.classes.toggle(reversed, ItemSortClasses.Sort_Reversed);
+		return this;
 	}
 
 	@Bound
-	private onClick () {
+	private onOptions () {
 		this.event.emit("configure", { sort: this.sort });
+	}
+
+	@Bound
+	private onReverse () {
+		this.setReversed(!this.reversed);
+		this.event.emit("reverse", { sort: this.sort });
 	}
 }
 
@@ -148,7 +172,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 		this.sorts = [];
 		for (const sort of sorter.get())
-			this.createSortableSort(sort);
+			this.createSortableSort(sort, sorter.isReversed(sort));
 
 		this.sortsDisabledHeading = Component.create()
 			.classes.add(ItemSortClasses.SortsHeading)
@@ -156,7 +180,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 			.appendTo(this.sortsList);
 
 		for (const sort of sorter.getDisabled())
-			this.createSortableSort(sort);
+			this.createSortableSort(sort, sorter.isReversed(sort));
 
 		new Sortable(this.sortsList.element)
 			.setInputFilter(event => !(event.target as HTMLElement).closest("button"))
@@ -174,9 +198,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		UiEventBus.subscribe("keyup", this.onKeyup);
 	}
 
-	private createSortableSort (sort: ISort) {
+	private createSortableSort (sort: ISort, reversed: boolean) {
 		this.sorts.push(SortableSort.create([sort])
+			.setReversed(reversed)
 			.event.subscribe("configure", this.configureSort)
+			.event.subscribe("reverse", this.reverseSort)
 			.appendTo(this.sortsList));
 	}
 
@@ -185,6 +211,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 		this.configureTitle.text.set(`Configure ${sort.name}`);
 		this.configureWrapper.removeContents().tweak(sort.renderSortableOptions, this.onCommitSort);
 		this.drawer.showPanel(this.configurePanel, true);
+	}
+
+	@Bound
+	private reverseSort ({ sort }: { sort: ISort }) {
+		this.onCommitSort();
 	}
 
 	@Bound
@@ -200,9 +231,11 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 
 	@Bound
 	private onCommitSort () {
-		this.sorter.set([...this.sortsList.children<SortableSort>()]
-			.map(child => child.sort)
-			.slice(0, this.sortsDisabledHeading.index()));
+		const enabledSorts = [...this.sortsList.children<SortableSort>()]
+			.slice(0, this.sortsDisabledHeading.index());
+
+		this.sorter.set(enabledSorts.map(child => child.sort), false);
+		this.sorter.setReversed(enabledSorts.filter(sort => sort.reversed).map(child => child.sort));
 
 		this.updateSortDisplay();
 		this.event.emit("sort");

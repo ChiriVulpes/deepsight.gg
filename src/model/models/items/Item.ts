@@ -456,6 +456,10 @@ class Item {
 		return false;
 	}
 
+	public isArtifice () {
+		return !!this.getSocketedPlug("Intrinsic/ArmorArtifice");
+	}
+
 	public isAdept () {
 		return this.canEnhance() || (!this.bucket.isCollections() && !!this.getSocket("Mod/Weapon")?.getPlug("Mod/WeaponAdept"));
 	}
@@ -471,6 +475,14 @@ class Item {
 
 	public hasPattern () {
 		return !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete);
+	}
+
+	public canShape () {
+		return this.deepsight?.pattern?.progress?.complete && !this.hasShapedCopy() || false;
+	}
+
+	public hasShapedCopy () {
+		return this.inventory.craftedItems.has(this.definition.hash);
 	}
 
 	public canTransfer () {

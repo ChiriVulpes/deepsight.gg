@@ -27,6 +27,7 @@ export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.DamageType,
 	Sort.WeaponType,
 	Sort.Harmonizable,
+	Sort.CanShape,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_INVENTORY = [
@@ -37,6 +38,7 @@ export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.Shaped,
 	Filter.Harmonizable,
 	Filter.Adept,
+	Filter.Artifice,
 ] as const;
 
 export const VIEW_ID_INVENTORY = "inventory";

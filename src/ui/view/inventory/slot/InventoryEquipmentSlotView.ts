@@ -19,6 +19,7 @@ export const SORTS_INAPPLICABLE_EQUIPMENT = [
 	Sort.WeaponType,
 	Sort.Quantity,
 	Sort.Harmonizable,
+	Sort.CanShape,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_EQUIPMENT = [
@@ -29,6 +30,7 @@ export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.WeaponType,
 	Filter.Harmonizable,
 	Filter.Adept,
+	Filter.Artifice,
 ] as const;
 
 export const VIEW_ID_EQUIPMENT = "equipment";

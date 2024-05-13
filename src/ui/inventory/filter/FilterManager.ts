@@ -4,6 +4,7 @@ import Filter from "ui/inventory/filter/Filter";
 import type ItemFilter from "ui/inventory/filter/ItemFilter";
 import FilterAdept from "ui/inventory/filter/filters/FilterAdept";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
+import FilterArtifice from "ui/inventory/filter/filters/FilterArtifice";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterHarmonizable from "ui/inventory/filter/filters/FilterHarmonizable";
 import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
@@ -56,6 +57,7 @@ class FilterManager {
 			[Filter.Harmonizable]: FilterHarmonizable,
 			[Filter.Rarity]: await FilterRarity(),
 			[Filter.Adept]: FilterAdept,
+			[Filter.Artifice]: FilterArtifice,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",
@@ -83,8 +85,17 @@ class FilterManager {
 
 	public getApplicable () {
 		return Object.values(filterMap!)
-			.filter(filter => !this.inapplicable.some(inapplicable => `${filter.id}`.startsWith(`${inapplicable}`)))
+			.filter(filter => !this.inapplicable.some(inapplicable => this.filterMainIdMatch(filter.id, inapplicable)))
 			.sort((a, b) => parseInt(`${a.id}`) - parseInt(`${b.id}`));
+	}
+
+	private filterMainIdMatch (id: Filter | string, inapplicable: Filter | string) {
+		id = `${id}`;
+		inapplicable = `${inapplicable}`;
+		if (inapplicable.includes(":"))
+			return id === inapplicable;
+
+		return parseInt(id) === parseInt(inapplicable);
 	}
 
 	public apply (item: Item) {
