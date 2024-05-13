@@ -42,12 +42,14 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.WarTable]: "wartable",
 	[VendorHashes.SonarStation]: "sonarstation",
 	[VendorHashes.Starhorse]: "starhorse",
+	[VendorHashes.LordShaxx_CategoriesLength50]: "lordshaxxhallofchampions",
 	[VendorHashes.EvaLevante]: {
 		[EventCardHashes.GuardianGames]: "evalevanteguardiangames",
 	},
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
+	[VendorHashes.LordShaxx_CategoriesLength50]: [VendorGroupHashes.LimitedTime],
 	[VendorHashes.EvaLevante]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.LordSaladin]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
