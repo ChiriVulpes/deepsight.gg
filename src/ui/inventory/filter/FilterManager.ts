@@ -10,6 +10,7 @@ import FilterHarmonizable from "ui/inventory/filter/filters/FilterHarmonizable";
 import FilterLocked from "ui/inventory/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/inventory/filter/filters/FilterMasterwork";
 import FilterMoment from "ui/inventory/filter/filters/FilterMoment";
+import FilterPatternComplete from "ui/inventory/filter/filters/FilterPatternComplete";
 import FilterPerk from "ui/inventory/filter/filters/FilterPerk";
 import FilterRarity from "ui/inventory/filter/filters/FilterRarity";
 import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
@@ -58,6 +59,7 @@ class FilterManager {
 			[Filter.Rarity]: await FilterRarity(),
 			[Filter.Adept]: FilterAdept,
 			[Filter.Artifice]: FilterArtifice,
+			[Filter.PatternComplete]: FilterPatternComplete,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",
