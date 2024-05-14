@@ -30,7 +30,11 @@
 		max-width: 600px;
 	}
 	
-	@at-root :where(#{&}-group-title, #{&}-vendor):times(30) {
+	@at-root #{&}-group-title:times(30) {
+		@include view-swipe-animation($delay: 0.05s);
+	}
+	
+	@at-root #{&}-vendor:times(30) {
 		@include view-swipe-animation($delay: 0.05s);
 	}
 }
