@@ -107,7 +107,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		},
 	},
 	[TransferType.TransferToVault]: {
-		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory.getBucket(InventoryBucketHashes.General),
+		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory?.getBucket(InventoryBucketHashes.General),
 		async transfer (item, ifNotCharacter) {
 			if (!this.applicable(item, ifNotCharacter))
 				throw new Error("Not in character bucket");
@@ -122,12 +122,15 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 	},
 	[TransferType.TransferToCharacterFromVault]: {
 		applicable: (item, characterId, swapBucket) => item.bucket.isVault()
-			&& item.inventory.hasBucket(item.definition.inventory?.bucketTypeHash, characterId),
+			&& (item.inventory?.hasBucket(item.definition.inventory?.bucketTypeHash, characterId) ?? false),
 		async transfer (item, characterId, swapBucket) {
 			if (!this.applicable(item, characterId))
 				throw new Error("Not in vault bucket");
 
-			const bucket = item.inventory.getBucket(item.definition.inventory!.bucketTypeHash, characterId)!;
+			const bucket = item.inventory?.getBucket(item.definition.inventory!.bucketTypeHash, characterId);
+			if (!bucket)
+				throw new Error("Not in a bucket");
+
 			if (bucket.items.length >= (bucket.capacity ?? Infinity) && !await bucket.makeSpace(swapBucket))
 				throw new Error("Unable to make space");
 
@@ -142,7 +145,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		applicable: item => item.bucket.isCharacter() && !item.equipped,
 		async transfer (item, characterId, equipItemId) {
 			if (equipItemId) {
-				const equipItem = item.inventory.items?.[equipItemId];
+				const equipItem = item.inventory?.items?.[equipItemId];
 				if (!equipItem)
 					throw new Error(`Could not find item ${equipItemId}`);
 
@@ -160,7 +163,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 				buckets.delete(item.bucket.hash);
 
 				for (const bucketHash of buckets) {
-					const bucket = item.inventory.getBucket(bucketHash, characterId);
+					const bucket = item.inventory?.getBucket(bucketHash, characterId);
 					if (!bucket) continue;
 
 					if (bucket.equippedItem?.isExotic())
@@ -200,7 +203,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		applicable: item => item.bucket.isCharacter() && !!item.equipped,
 		async transfer (item, unequipItemId) {
 			if (unequipItemId) {
-				const unequipItem = item.inventory.items?.[unequipItemId];
+				const unequipItem = item.inventory?.items?.[unequipItemId];
 				if (!unequipItem)
 					throw new Error(`Could not find item ${unequipItemId}`);
 
@@ -333,11 +336,11 @@ class Item {
 		return item;
 	}
 
-	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit) {
-		item.collections = await Item.createFake(manifest, profile, item.definition);
+	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit, inventory?: Inventory) {
+		item.collections = await Item.createFake(manifest, profile, item.definition, undefined, undefined, inventory);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId, inventory?: Inventory) {
 		const init: IItemInit = {
 			id: `hash:${definition.hash}:collections` as ItemId,
 			reference: { itemHash: definition.hash, itemInstanceId: instanceId, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: InventoryBucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
@@ -363,6 +366,9 @@ class Item {
 		const item = new Item(init);
 		if (item.isExotic())
 			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
+
+		if (inventory)
+			item.inventory = inventory;
 
 		return item;
 	}
@@ -390,7 +396,7 @@ class Item {
 	public fallbackItem?: Item;
 
 	public bucket!: Bucket;
-	public inventory!: Inventory;
+	public inventory?: Inventory;
 	protected readonly name: string;
 
 	private constructor (item: IItemInit) {
@@ -482,7 +488,7 @@ class Item {
 	}
 
 	public hasShapedCopy () {
-		return this.inventory.craftedItems.has(this.definition.hash);
+		return this.inventory?.craftedItems.has(this.definition.hash) ?? false;
 	}
 
 	public canTransfer () {
@@ -642,11 +648,11 @@ class Item {
 				this.equipped = item.equipped;
 			}
 
-			const correctBucket = this.inventory.buckets?.[newBucketId];
+			const correctBucket = this.inventory?.buckets?.[newBucketId];
 			if (!correctBucket)
 				console.warn(`Could not find correct bucket ${newBucketId} for ${Display.name(this.definition)}`);
 			else {
-				for (const bucket of Object.values(this.inventory.buckets ?? {})) {
+				for (const bucket of Object.values(this.inventory?.buckets ?? {})) {
 					if (bucket?.deepsight)
 						continue;
 
@@ -784,7 +790,7 @@ class Item {
 					item.bucketHistory ??= [];
 					item.bucketHistory.push(`${oldBucket.id}:${item.equipped ? "equipped" : "unequipped"}`);
 
-					const newBucket = item.inventory.buckets?.[result.bucket];
+					const newBucket = item.inventory?.buckets?.[result.bucket];
 					if (!newBucket)
 						console.warn("Missing bucket", result.bucket, "for item after transfer", item);
 					else

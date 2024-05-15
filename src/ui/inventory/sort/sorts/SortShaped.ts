@@ -9,6 +9,9 @@ export default ISort.create({
 });
 
 function getSortIndex (item: Item) {
+	if (item.bucket.isCollections())
+		return item.hasShapedCopy() ? 1 : 0;
+
 	return Number(!!item.shaped) * 10000000
 		+ (item.shaped?.level?.progress.progress ?? 0) * 10000
 		+ (item.shaped?.progress?.progress.progress ?? 0);

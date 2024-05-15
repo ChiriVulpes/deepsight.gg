@@ -8,6 +8,7 @@ import { Classes as BaseClasses } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import type Button from "ui/form/Button";
+import { ButtonClasses } from "ui/form/Button";
 import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
@@ -159,6 +160,12 @@ namespace View {
 		Subtitle = "view-subtitle",
 		Subview = "view-subview",
 		Background = "view-background",
+	}
+
+	export function registerFooterButton (button: Button) {
+		button.classes.remove(ButtonClasses.Main)
+			.classes.add(Classes.FooterButton)
+			.innerIcon?.classes.add(Classes.FooterButtonIcon);
 	}
 
 	export class ContentComponent<MODELS extends readonly Model<any, any>[] = readonly Model<any, any>[], ARGS extends any[] = [], DEFINITION extends IViewBase<ARGS> = IViewBase<ARGS>> extends Component<HTMLElement, [IView<MODELS, [], ARGS, DEFINITION>]> {

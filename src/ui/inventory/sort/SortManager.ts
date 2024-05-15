@@ -137,11 +137,13 @@ class SortManager {
 
 			if (!sort.length) {
 				sort = this.default.map(sort => typeof sort === "object" ? sort.reverse : sort);
-				for (const sort of this.default) {
-					if (typeof sort === "object") {
-						reversed[sort.reverse] = true;
+				for (const sortType of this.default) {
+					const sort = SortManager.sortMap[typeof sortType === "object" ? sortType.reverse : sortType];
+					const id = this.stringifyId(sort);
+					if (typeof sortType === "object") {
+						reversed[id] = true;
 					} else {
-						delete reversed[sort];
+						delete reversed[id];
 					}
 				}
 			}
@@ -194,7 +196,7 @@ class SortManager {
 		return typeof sort.id === "number" ? Sort[sort.id] : sort.id;
 	}
 
-	@Bound public sort (itemA: Item, itemB: Item) {
+	@Bound public sort (itemA: Item, itemB: Item, requireDifference = true) {
 		for (const sort of this.current) {
 			let result = sort.sort(itemA, itemB);
 
@@ -209,6 +211,9 @@ class SortManager {
 		if (hasInstanceDifference)
 			// sort things with an instance id before things without an instance id
 			return hasInstanceDifference;
+
+		if (!requireDifference)
+			return 0;
 
 		return (itemA.reference.itemInstanceId ?? `${itemA.reference.itemHash}`)?.localeCompare(itemB.reference.itemInstanceId ?? `${itemB.reference.itemHash}`);
 	}

@@ -9,16 +9,28 @@
 	z-index: 9999999;
 	user-select: none;
 	-webkit-user-select: none;
-	background: color(background-2, 0.3);
+	background: color(background-2, 0.5);
 
 	&::before {
 		content: "";
 		display: block;
 		position: absolute;
 		inset: 0;
-		backdrop-filter: blur(10px);
-		z-index: -1;
+		backdrop-filter: blur(10px) brightness(120%);
+		z-index: -10;
 		@include transition(out, backdrop-filter);
+	}
+	
+	&::after {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		background: #7774;
+		z-index: -9;
 	}
 	
 	&:has(~ .view-vendor)::before {
@@ -59,7 +71,7 @@
 	}
 
 	&.hidden {
-		:where(.app-info-container, .app-nav-identity-container, .app-nav-destination) {
+		.app-info-container, .app-nav-identity-container, .app-nav-destination {
 			@include transition(0.4s);
 			transform: translateY(-50px);
 		}
@@ -196,12 +208,21 @@
 				align-self: center;
 				max-height: 50px;
 			}
-
-			&:hover,
-			&:focus-within {
-				@include transition(in);
-				transition-delay: 0s;
-				background: color(background-1, 0.9);
+			
+			@mixin hover($selector) {
+				&:hover,
+				&#{unquote($selector)} {
+					@include transition(in);
+					transition-delay: 0s;
+					background: color(background-1, 0.9);
+				}
+			}
+			
+			@supports not selector(:has(:focus-visible)) {
+				@include hover(":focus-within");
+			}
+			@supports selector(:has(:focus-visible)) {
+				@include hover(":has(:focus-visible)");
 			}
 
 			@mixin hidden($selector) {
@@ -224,7 +245,9 @@
 			}
 
 			@mixin can-hide {
-				@include hidden(":focus-within");
+				@supports not selector(:has(:focus-visible)) {
+					@include hidden(":focus-within");
+				}
 				@supports selector(:has(:focus-visible)) {
 					@include hidden(":has(:focus-visible)");
 				}

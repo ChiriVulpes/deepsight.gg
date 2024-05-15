@@ -108,8 +108,30 @@
 		height: var(--footer-height);
 		display: flex;
 		align-items: center;
-		z-index: 3;
+		z-index: 1001;
 		grid-row: 4;
+		position: relative;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			backdrop-filter: blur(10px) brightness(120%);
+			background: color(background-2, 0.5);
+		}
+		
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			bottom: 100%;
+			left: 0;
+			width: 100%;
+			height: 1px;
+			background: #7774;
+			z-index: -9;
+		}
 
 		&-button {
 			background: none;

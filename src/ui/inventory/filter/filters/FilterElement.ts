@@ -22,8 +22,10 @@ export default IFilter.async(async () => {
 		if (value === "")
 			return null;
 
+		const damageTypeHash = item?.instance?.damageTypeHash ?? item?.definition.defaultDamageTypeHash;
+
 		const resultDamages = damages.filter(element => element.displayProperties.name.toLowerCase().startsWith(value)
-			&& (!item || element.hash === item.instance?.damageTypeHash));
+			&& (!item || element.hash === damageTypeHash));
 
 		if (resultDamages.length === 1)
 			return resultDamages[0];

@@ -39,6 +39,8 @@ export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.Harmonizable,
 	Filter.Adept,
 	Filter.Artifice,
+	Filter.PatternComplete,
+	Filter.Pattern,
 ] as const;
 
 export const VIEW_ID_INVENTORY = "inventory";

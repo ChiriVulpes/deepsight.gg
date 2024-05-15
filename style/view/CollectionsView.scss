@@ -1,12 +1,25 @@
 .view-collections {
 	--view-padding-x: 50px;
+	--bucket-inventory-inner-width: calc(var(--slot-size) * 4 + var(--bucket-inventory-padding));
+	--bucket-inventory-width: calc(
+		var(--bucket-inventory-inner-width) + var(--bucket-inventory-padding) * 2 + var(--card-gap-x) / 2 +
+			var(--view-padding-x)
+	);
+	--slot-size-2: calc(var(--slot-size) + 8px);
+	
 	&-moment {
 		position: relative;
+		content-visibility: auto;
+		padding: 10px;
+		margin: -10px;
+		--slot-size: var(--slot-size-2);
+		
 		&:not(.details-closed) {
 			min-height: calc(var(--slot-size) * 2);
 			> .details-summary {
 				backdrop-filter: blur(5px);
 				z-index: calc(1000 - var(--index, 0));
+				margin-bottom: 8px;
 			}
 		}
 
@@ -19,6 +32,7 @@
 			font-size: 16pt;
 			position: sticky;
 			top: calc(0px - var(--view-padding-top));
+			margin: 0;
 		}
 		
 		& & .details-summary {
@@ -64,6 +78,7 @@
 	&-currently-available {
 		margin-bottom: 24px;
 		user-select: none;
+		content-visibility: visible;
 		
 		.details-summary {
 			pointer-events: none;
@@ -317,5 +332,16 @@
 		.item-fomo {
 			display: none;
 		}
+	}
+	
+	&-filtered-out {
+		display: none;
+	}
+	
+	.slot {
+		--slot-padding: 6px;
+		margin: -3px;
+		content-visibility: auto;
+		contain-intrinsic-size: var(--slot-size) var(--slot-size);
 	}
 }

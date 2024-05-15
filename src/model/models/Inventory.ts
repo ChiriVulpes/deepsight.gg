@@ -188,7 +188,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 		item["_owner"] = this.currentCharacter.characterId;
 
-		if (item.shaped)
+		if (item.shaped && !item.isAdept())
 			this.craftedItems.add(item.definition.hash);
 
 		item.event.subscribe("bucketChange", this.onItemBucketChange);

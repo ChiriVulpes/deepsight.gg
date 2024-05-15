@@ -19,6 +19,7 @@ enum Filter {
 	Moment,
 	Locked,
 	Artifice,
+	Pattern,
 	PatternComplete,
 	Raw,
 }

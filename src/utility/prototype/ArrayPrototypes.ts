@@ -43,7 +43,7 @@ declare global {
 		 * When a sorter function accepts 1 parameter, it is assumed to be a "mapper" function.
 		 * The mapper will be called for each of the two items to compare, and then the produced numbers of each will be compared.
 		 */
-		sort (...sorters: (((a: T, b: T) => number))[]): this;
+		sort (...sorters: (((a: T, b: T) => number) | undefined)[]): this;
 
 		collect<RETURN, ARGS extends any[] = []> (collector: (array: T[], ...args: ARGS) => RETURN, ...args: ARGS): RETURN;
 		collect<RETURN, ARGS extends any[] = []> (collector?: (array: T[], ...args: ARGS) => RETURN, ...args: ARGS): RETURN | undefined;
@@ -94,6 +94,9 @@ export default function applyPrototypes () {
 
 		return originalSort.call(this, (a, b) => {
 			for (const sorter of sorters) {
+				if (!sorter)
+					continue;
+
 				if (sorter.length === 1) {
 					const mapper = sorter as (item: any) => number;
 					const sortValue = mapper(b) - mapper(a);

@@ -16,10 +16,6 @@
 	transform: translateY(0);
 	letter-spacing: 0.02em;
 	font-weight: 300;
-	@include grotesk(title) {
-		padding: 6px 8px;
-		letter-spacing: 0.07em;
-	}
 	
 	display: flex;
 	align-items: center;

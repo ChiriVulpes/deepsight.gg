@@ -19,7 +19,7 @@ $font-sans-serif: "Open Sans";
 $font-title: "DM Sans";
 $font-numeric: var(--font-neue-haas-grotesk, "Open Sans"), "Open Sans";
 
-@mixin grotesk($alternate: "Open Sans") {
+@mixin grotesk($alternate: "Open Sans", $where: true) {
 	@if $alternate == numeric {
 		$alternate: "Open Sans";
 	}
@@ -29,7 +29,14 @@ $font-numeric: var(--font-neue-haas-grotesk, "Open Sans"), "Open Sans";
 	}
 	
 	font-family: var(--font-neue-haas-grotesk, #{$alternate}), $alternate;
-	:where(.has-font-neue-haas-grotesk) & {
-		@content;
+	
+	@if $where {
+		:where(.has-font-neue-haas-grotesk) & {
+			@content;
+		}
+	} @else {
+		.has-font-neue-haas-grotesk & {
+			@content;
+		}
 	}
 }

@@ -81,6 +81,9 @@ export class Socket {
 		if (socket.type === "Cosmetic/Shader")
 			return socket; // skip shader init
 
+		if (item?.bucket.isCollections() && socket.is("Cosmetic/Ornament" as DeepsightPlugFullName))
+			return socket; // skip ornament init in collections
+
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
 		if (item?.deepsight?.pattern && index !== undefined) {
 			const recipeItem = await DestinyInventoryItemDefinition.get(item.definition.inventory?.recipeItemHash);

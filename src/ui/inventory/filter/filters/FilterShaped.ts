@@ -5,7 +5,7 @@ export default IFilter.createBoolean({
 	colour: 0xff8d5c,
 	suggestedValues: ["shaped"],
 	matches: value => "shaped".startsWith(value),
-	apply: (value, item) => value === "" || !!item.shaped,
+	apply: (value, item) => value === "" || (item.bucket.isCollections() ? item.hasShapedCopy() : !!item.shaped),
 	maskIcon: value => value === "" ? undefined
 		: "url(\"./image/svg/shaped.svg\")",
 });

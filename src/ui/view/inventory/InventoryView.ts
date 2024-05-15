@@ -8,13 +8,11 @@ import Item from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";
-import { Hint, IInput } from "ui/Hints";
 import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
-import Button, { ButtonClasses } from "ui/form/Button";
-import Drawer from "ui/form/Drawer";
 import DraggableItem from "ui/inventory/DraggableItemComponent";
+import HintsDrawer from "ui/inventory/HintsDrawer";
 import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import type BucketComponent from "ui/inventory/bucket/BucketComponent";
 import BucketComponents from "ui/inventory/bucket/BucketComponents";
@@ -36,11 +34,6 @@ export enum InventoryViewClasses {
 	ItemMovingOriginal = "view-inventory-item-moving-original",
 	BucketDropTarget = "view-inventory-bucket-drop-target",
 	BucketMovingFrom = "view-inventory-bucket-moving-from",
-	Hints = "view-inventory-hints",
-	HintsButton = "view-inventory-hints-button",
-	HintsDrawer = "view-inventory-hints-drawer",
-	Hint = "view-inventory-hint",
-	HintIcon = "view-inventory-hint-icon",
 	ItemFilteredOut = "view-inventory-item-filtered-out",
 	LayoutColumns = "view-inventory-layout-columns",
 	LayoutRows = "view-inventory-layout-rows",
@@ -65,8 +58,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	public inventory!: Inventory;
 	public bucketComponents!: Partial<Record<BucketId, BucketComponent>>;
 	public itemMap!: Map<Item, ItemComponent>;
-	public hints!: Component;
-	public hintsDrawer!: Drawer;
+	public hints!: HintsDrawer;
 	public equipped!: Partial<Record<BucketId, ItemComponent>>;
 	public sorter!: ItemSort;
 	public filterer!: ItemFilter;
@@ -107,47 +99,11 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		await FilterManager.init();
 		this.initSortAndFilter();
 
-		this.hints = Component.create()
-			.classes.add(InventoryViewClasses.Hints)
-			.event.subscribe("mouseenter", () => this.hintsDrawer.open("mouse"))
-			.event.subscribe("mouseleave", () => this.hintsDrawer.close("mouse"))
+		this.hints = HintsDrawer.create()
+			.tweak(hints => View.registerFooterButton(hints.button))
+			.tweak(hints => hints.buttonLabel.classes.add(View.Classes.FooterButtonLabel))
+			.tweak(hints => hints.buttonText.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
-
-		Button.create()
-			.classes.remove(ButtonClasses.Main)
-			.classes.add(InventoryViewClasses.HintsButton, View.Classes.FooterButton)
-			.addIcon(icon => icon.classes.add(InventoryViewClasses.HintIcon))
-			.tweak(button => button.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
-			.append(Component.create()
-				.classes.add(View.Classes.FooterButtonLabel)
-				.text.set("Help"))
-			.append(Component.create()
-				.classes.add(View.Classes.FooterButtonText)
-				.text.set("Keybinds & more"))
-			.event.subscribe("click", () => this.hintsDrawer.toggle("click"))
-			.appendTo(this.hints);
-
-		this.hintsDrawer = Drawer.create()
-			.classes.add(InventoryViewClasses.HintsDrawer)
-			.appendTo(this.hints);
-
-		this.hintsDrawer.createPanel()
-			.append(Component.create("p")
-				.classes.add(InventoryViewClasses.Hint)
-				.append(Hint.create([IInput.get("KeyF1")]))
-				.text.add("\xa0 Player overview"))
-			.append(Component.create("p")
-				.classes.add(InventoryViewClasses.Hint)
-				.append(Hint.create([IInput.get("KeyE")]))
-				.text.add("\xa0 More information"))
-			.append(Component.create("p")
-				.classes.add(InventoryViewClasses.Hint)
-				.append(Hint.create([IInput.get("KeyS", "Ctrl")]))
-				.text.add("\xa0 Configure sort"))
-			.append(Component.create("p")
-				.classes.add(InventoryViewClasses.Hint)
-				.append(Hint.create([IInput.get("KeyF", "Ctrl")]))
-				.text.add("\xa0 Configure filter"));
 
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 	}
@@ -218,10 +174,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	protected initSortAndFilter () {
 		this.sorter = ItemSort.create([this.super.definition.sort])
 			.event.subscribe("sort", this.sort)
-			.tweak(itemSort => itemSort.button
-				.classes.remove(ButtonClasses.Main)
-				.classes.add(View.Classes.FooterButton)
-				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemSort => View.registerFooterButton(itemSort.button))
 			.tweak(itemSort => itemSort.label.classes.add(View.Classes.FooterButtonLabel))
 			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
@@ -230,10 +183,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			.event.subscribe("filter", this.filter)
 			.event.subscribe("submit", () =>
 				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
-			.tweak(itemFilter => itemFilter.button
-				.classes.remove(ButtonClasses.Main)
-				.classes.add(View.Classes.FooterButton)
-				.innerIcon?.classes.add(View.Classes.FooterButtonIcon))
+			.tweak(itemFilter => View.registerFooterButton(itemFilter.button))
 			.tweak(itemFilter => itemFilter.label.classes.add(View.Classes.FooterButtonLabel))
 			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
@@ -282,8 +232,8 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			return;
 		}
 
-		if (this.hintsDrawer.isOpen() && event.useOverInput("Escape")) {
-			this.hintsDrawer.close(true);
+		if (this.hints.drawer.isOpen() && event.useOverInput("Escape")) {
+			this.hints.drawer.close(true);
 		}
 
 		if (this.filterer.isFiltered() && event.use("Escape")) {

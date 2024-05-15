@@ -31,6 +31,8 @@ export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.Harmonizable,
 	Filter.Adept,
 	Filter.Artifice,
+	Filter.PatternComplete,
+	Filter.Pattern,
 ] as const;
 
 export const VIEW_ID_EQUIPMENT = "equipment";

@@ -42,95 +42,104 @@
 		display: grid;
 		grid-template-columns: auto 1fr 0 auto;
 		
-		.item-sort,
-		.item-filter,
-		.view-inventory-hints {
-			position: relative;
-			height: 100%;
-			&-drawer {
-				max-height: min(
-					70vh,
-					calc(
-						var(--footer-height) + var(--slot-size) * 6 + var(--card-title-height) * 2 +
-							var(--bucket-inventory-padding) * 4 + var(--card-gap-y) * 2 + var(--view-padding-bottom) +
-							var(--slot-size-optimisation)
-					)
-				);
-				padding-bottom: calc(var(--footer-height) + 10px);
-				box-sizing: border-box;
-			}
-
-			&-button,
-			&-drawer {
-				width: 100%;
-			}
+		@include mobile {
+			transform: none !important;
 		}
-
-		.item-sort {
-			width: var(--bucket-inventory-width);
-			grid-row: 1;
-			flex-shrink: 0;
-		}
-
-		.item-filter {
-			flex-grow: 1;
-			grid-column: 2/4;
-			grid-row: 1;
-			@at-root .view-inventory :where(.item-filter-drawer) {
-				max-height: 30vh;
+		
+		@at-root {
+			.item-sort, .item-filter, .hints-drawer-wrapper {
+				position: relative;
+				height: 100%;
 			}
-
-			z-index: 100;
-		}
-
-		.view-inventory-hints {
-			display: flex;
-			grid-column: 3/5;
-			grid-row: 1;
-			--icon: url("./image/svg/help.svg");
 			
-			z-index: 101;
-			
-			pointer-events: none;
-			&-button, &-drawer {
-				pointer-events: all;
+			.item-sort, .item-filter, .hints {
+				&-drawer {
+					max-height: min(
+						70vh,
+						calc(
+							var(--footer-height) + var(--slot-size) * 6 + var(--card-title-height) * 2 +
+								var(--bucket-inventory-padding) * 4 + var(--card-gap-y) * 2 + var(--view-padding-bottom) +
+								var(--slot-size-optimisation)
+						)
+					);
+					padding-bottom: calc(var(--footer-height) + 10px);
+					box-sizing: border-box;
+				}
+	
+				&-button,
+				&-drawer,
+				&-drawer-button {
+					width: 100%;
+				}
 			}
-
-			@include vertical-or-tablet {
-				justify-content: right;
-				
-				&-button {
-					width: auto;
+			
+			.item-sort {
+				width: var(--bucket-inventory-width);
+				grid-row: 1;
+				flex-shrink: 0;
+			}
+	
+			.item-filter {
+				flex-grow: 1;
+				grid-column: 2/4;
+				grid-row: 1;
+				@at-root .view-inventory :where(.item-filter-drawer) {
+					max-height: 30vh;
+				}
+	
+				z-index: 100;
+			}
+	
+			.hints-drawer {
+				&-wrapper {
+					display: flex;
+					grid-column: 3/5;
+					grid-row: 1;
+					--icon: url("./image/svg/help.svg");
+					
+					z-index: 101;
+					
+					pointer-events: none;
 				}
 				
-				.view-footer-button-label,
-				.view-footer-button-text {
+				&, &-button {
+					pointer-events: all;
+				}
+	
+				@include vertical-or-tablet {
+					justify-content: right;
+					
+					&-button {
+						width: auto;
+					}
+					
+					.view-footer-button-label,
+					.view-footer-button-text {
+						display: none;
+					}
+				}
+	
+				@include mobile {
 					display: none;
 				}
 			}
-
-			@include mobile {
-				display: none;
-			}
-		}
-
-		@include mobile {
-			transform: none !important;
-
-			.item-sort,
-			.item-filter {
-				width: 100%;
-
-				&-button {
-					backdrop-filter: blur(10px);
+	
+			@include mobile {	
+				.item-sort,
+				.item-filter {
+					width: 100%;
+	
+					&-button {
+						backdrop-filter: blur(10px);
+					}
 				}
 			}
-		}
-
-		@include vertical-or-tablet-or-mobile {
-			.item-sort,
-			.item-filter {
-				height: var(--footer-height);
+	
+			@include vertical-or-tablet-or-mobile {
+				.item-sort,
+				.item-filter {
+					height: var(--footer-height);
+				}
 			}
 		}
 	}
@@ -185,8 +194,8 @@
 		}
 	}
 
-	&-hint {
-		&s {
+	@at-root .hints-drawer {
+		&-wrapper {
 			width: var(--bucket-inventory-width);
 			flex-shrink: 0;
 
@@ -195,8 +204,10 @@
 			}
 		}
 
-		display: flex;
-		align-items: center;
+		&-hint {
+			display: flex;
+			align-items: center;
+		}
 
 		kbd {
 			font-size: 0.8em;

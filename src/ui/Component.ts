@@ -341,9 +341,10 @@ export default class Component<ELEMENT extends Element = HTMLElement, ARGS exten
 		this.element.remove();
 	}
 
-	public removeContents () {
+	public removeContents (filter?: (node: ChildNode) => any) {
 		while (this.element.lastChild)
-			this.element.lastChild.remove();
+			if (!filter || filter(this.element.lastChild))
+				this.element.lastChild.remove();
 		return this;
 	}
 
