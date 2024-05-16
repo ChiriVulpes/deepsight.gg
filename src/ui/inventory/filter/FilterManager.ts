@@ -87,6 +87,10 @@ class FilterManager {
 		filterMap = initialFilterMap as Record<Filter, IFilter>;
 	}
 
+	public isFiltered () {
+		return this.current.length;
+	}
+
 	public getApplicable () {
 		return Object.values(filterMap!)
 			.filter(filter => !this.inapplicable.some(inapplicable => this.filterMainIdMatch(filter.id, inapplicable)))

@@ -33,13 +33,15 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 		super.onMake(moment, inventory);
 		this.inventory = inventory;
 
+		this.event.subscribe("toggle", () => this.forcedOpen = false);
+
 		this.classes.add(CollectionsMomentClasses.Moment)
 			.toggle(defaultOpen)
 			.tweak(details => details.summary.text.set(moment.displayProperties.name));
 
 		Loadable.create(Model.createTemporary(async () => {
-			if (!defaultOpen)
-				await this.event.waitFor("toggle");
+			// if (!defaultOpen)
+			// 	await this.event.waitFor("toggle");
 
 			const { DeepsightCollectionsDefinition } = await Manifest.await();
 			const collection = await DeepsightCollectionsDefinition.get(moment.hash);
@@ -130,6 +132,7 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 				slot.remove();
 	}
 
+	private forcedOpen = false;
 	public filter () {
 		const components = [this.weaponComponents, ...Object.values(this.armourComponents ??= {})];
 		for (const componentList of components) {
@@ -144,6 +147,15 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 			bucket?.classes.toggle(!bucket?.element.querySelector(`.${SlotClasses.Main}:not(.${CollectionsMomentClasses.FilteredOut})`),
 				CollectionsMomentClasses.FilteredOut);
 
-		this.classes.toggle(buckets.every(bucket => bucket?.classes.has(CollectionsMomentClasses.FilteredOut)), CollectionsMomentClasses.FilteredOut);
+		const hidden = buckets.every(bucket => bucket?.classes.has(CollectionsMomentClasses.FilteredOut));
+		this.classes.toggle(hidden, CollectionsMomentClasses.FilteredOut);
+		if (this.forcedOpen && (hidden || !FILTER_MANAGER_COLLECTIONS.isFiltered())) {
+			this.close();
+			this.forcedOpen = false;
+
+		} else if (FILTER_MANAGER_COLLECTIONS.isFiltered() && !hidden && !this.isOpen()) {
+			this.open();
+			this.forcedOpen = true;
+		}
 	}
 }
