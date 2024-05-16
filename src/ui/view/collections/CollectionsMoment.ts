@@ -4,8 +4,8 @@ import Model from "model/Model";
 import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
-import ProfileBatch from "model/models/ProfileBatch";
-import Item from "model/models/items/Item";
+import { Bucket } from "model/models/items/Bucket";
+import type Item from "model/models/items/Item";
 import Component from "ui/Component";
 import Details from "ui/Details";
 import Loadable from "ui/Loadable";
@@ -41,21 +41,12 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 			if (!defaultOpen)
 				await this.event.waitFor("toggle");
 
-			const manifest = await Manifest.await();
-			const { DeepsightCollectionsDefinition, DestinyInventoryItemDefinition } = manifest;
-
+			const { DeepsightCollectionsDefinition } = await Manifest.await();
 			const collection = await DeepsightCollectionsDefinition.get(moment.hash);
-			const items = [];
-			const profile = await ProfileBatch.await();
-			for (const itemHash of Object.values(collection?.buckets ?? {}).flat()) {
-				const definition = await DestinyInventoryItemDefinition.get(itemHash);
-				if (!definition)
-					continue;
 
-				items.push(await Item.createFake(manifest, profile, definition, undefined, undefined, inventory));
-			}
-
-			return items;
+			return Bucket.COLLECTIONS.items
+				.filter(item => Object.values(collection?.buckets ?? {})
+					.some(hashes => hashes.includes(item.definition.hash)));
 		}))
 			.onReady(items => {
 				console.log(moment.displayProperties.name, items);

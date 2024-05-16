@@ -16,38 +16,37 @@ import Time from "utility/Time";
 export type Buckets<BUCKET = Bucket> = Partial<Record<BucketId, BUCKET>>;
 
 export default Model.createDynamic(Time.seconds(30), async api => {
-	api.subscribeProgress(Manifest, 1 / 4);
+	api.subscribeProgress(Manifest, 2 / 10);
 	const manifest = await Manifest.await();
 
-	api.emitProgress(1 / 4, "Loading manifest cache");
+	api.emitProgress(2 / 10, "Loading manifest cache");
 	// precache some defs for item initialisation
-	const { DeepsightDropTableDefinition, DestinyActivityDefinition } = manifest;
+	const { DeepsightDropTableDefinition, DestinyActivityDefinition, DeepsightCollectionsDefinition, DestinyInventoryItemDefinition, DeepsightMomentDefinition } = manifest;
 	await DeepsightDropTableDefinition.all();
 	await DestinyActivityDefinition.all();
 
-	api.subscribeProgress(ProfileBatch, 1 / 4, 2 / 4);
-	const profile = await ProfileBatch.await();
+	const profile = await api.subscribeProgressAndWait(ProfileBatch, 1 / 10, 3 / 10);
 
-	api.emitProgress(3 / 4, "Loading manifest cache");
+	api.emitProgress(4 / 10, "Loading items");
 
 	const initialisedItems = new Set<string>();
 	const itemsToInit = new Set<string>((profile.profileInventory?.data?.items ?? [])
 		.concat(Object.values(profile.characterInventories?.data ?? {}).flatMap(character => character.items))
 		.map(item => item.itemInstanceId ?? ""));
 	itemsToInit.delete("");
-	const totalItemsToInit = itemsToInit.size;
+	let totalItemsToInit = itemsToInit.size;
 	const occurrences: Record<string, number> = {};
 
 	let lastForcedTimeoutForStyle = Date.now();
 
 	async function resolveItemComponent (reference: DestinyItemComponent, bucket: Bucket) {
-		if (Date.now() - lastForcedTimeoutForStyle > 10) {
-			await Async.sleep(1);
+		if (Date.now() - lastForcedTimeoutForStyle > 40) {
+			await Async.sleep(0);
 			lastForcedTimeoutForStyle = Date.now();
 		}
 
 		if (itemsToInit.size !== totalItemsToInit)
-			api.emitProgress(3 / 4 + 1 / 4 * (1 - itemsToInit.size / totalItemsToInit), `Loading items ${totalItemsToInit - itemsToInit.size} / ${totalItemsToInit}`);
+			api.emitProgress((4 / 10) + (3 / 10) * (1 - itemsToInit.size / totalItemsToInit), `Loading items ${totalItemsToInit - itemsToInit.size} / ${totalItemsToInit}`);
 
 		if (reference.itemInstanceId !== undefined && initialisedItems.has(reference.itemInstanceId))
 			return undefined; // already initialised in another bucket
@@ -193,26 +192,71 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 	if (miscategorised.length) {
 		const modificationsBucketId = Bucket.id(InventoryBucketHashes.General, undefined, InventoryBucketHashes.Modifications);
 		const bucket = buckets[Bucket.id(InventoryBucketHashes.General)]!;
-		const modifications = buckets[modificationsBucketId] ??= new Bucket({
+		buckets[modificationsBucketId] ??= new Bucket({
 			definition: bucket.definition,
 			subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(InventoryBucketHashes.Modifications),
 			character: Characters.get(bucket.characterId),
+			items: () => bucket.items.filter(item => true
+				&& item.definition.inventory?.bucketTypeHash
+				&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
+				&& (false
+					|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Modifications
+					|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Dummy_ItemCount5
+					|| false)),
 		});
+	}
 
-		modifications.setItems(() => bucket.items.filter(item => true
-			&& item.definition.inventory?.bucketTypeHash
-			&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
-			&& (false
-				|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Modifications
-				|| item.definition.inventory.bucketTypeHash === InventoryBucketHashes.Dummy_ItemCount5
-				|| false)));
+	////////////////////////////////////
+	// Add collections bucket
+	buckets["collections//"] = Bucket.COLLECTIONS;
+	api.emitProgress(7 / 10, "Loading collections");
+
+	const collections = await DeepsightCollectionsDefinition.all();
+	const moments = await DeepsightMomentDefinition.all();
+
+	const collectionsBucketHashes = new Set<InventoryBucketHashes>();
+	totalItemsToInit = collections.flatMap(collection => Object.values(collection.buckets)).flat().length;
+	let initItems = 0;
+
+	for (const moment of collections) {
+		for (const [bucketId, itemHashes] of Object.entries(moment.buckets)) {
+			const subBucketHash = +bucketId as InventoryBucketHashes;
+			collectionsBucketHashes.add(subBucketHash);
+
+			const momentName = moments.find(m => m.hash === moment.hash)?.displayProperties.name;
+			for (const hash of itemHashes) {
+				if (Date.now() - lastForcedTimeoutForStyle > 40) {
+					await Async.sleep(0);
+					lastForcedTimeoutForStyle = Date.now();
+				}
+
+				api.emitProgress((7 / 10) + (3 / 10) * (initItems / totalItemsToInit), [
+					`Loading collections ${++initItems} / ${totalItemsToInit}`,
+					...momentName ? [momentName] : [],
+				]);
+
+				const definition = await DestinyInventoryItemDefinition.get(hash);
+				if (!definition)
+					continue;
+
+				Bucket.COLLECTIONS.items.push(await Item.createFake(manifest, profile, definition));
+			}
+		}
+	}
+
+	for (const subBucketHash of collectionsBucketHashes) {
+		buckets[`collections//${subBucketHash}`] ??= new Bucket({
+			definition: Bucket.COLLECTIONS.definition,
+			subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subBucketHash),
+			items: () => Bucket.COLLECTIONS.items.filter(item => item.definition.inventory?.bucketTypeHash === subBucketHash),
+		});
 	}
 
 	Plugs.resetInitialisedPlugTypes();
 
 	Plugs.logInitialisedPlugTypes();
 	ManifestItem.logQueryCounts();
-	api.emitProgress(4 / 4);
+	api.emitProgress(1);
 
 	return buckets;
 });

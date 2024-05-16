@@ -12,8 +12,7 @@ import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import ItemTooltip from "ui/inventory/ItemTooltip";
-import type Slot from "ui/inventory/Slot";
-import { SlotClasses } from "ui/inventory/Slot";
+import Slot, { SlotClasses } from "ui/inventory/Slot";
 import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
@@ -210,7 +209,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		const isContainer = item?.definition.uiItemDisplayStyle === "ui_display_style_set_container";
 		this.classes.toggle(isContainer, ItemClasses.IsContainer);
-		this.parent<Slot>(`.${SlotClasses.Main}`)?.setWide(isContainer);
+		Slot.setWide(this.parent<Slot>(`.${SlotClasses.Main}`), isContainer);
 
 		const { DestinyItemTierTypeDefinition } = await Manifest.await();
 		const tier = await DestinyItemTierTypeDefinition.get(item?.definition.inventory?.tierTypeHash);

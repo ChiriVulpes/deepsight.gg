@@ -9,6 +9,19 @@ export enum SlotClasses {
 }
 
 export default class Slot extends Component {
+
+	public static setEmpty (component?: Component, empty = true) {
+		return component?.classes.toggle(empty, SlotClasses.Empty);
+	}
+
+	public static setSimple (component?: Component, simple = true) {
+		return component?.classes.toggle(simple, SlotClasses.Simple);
+	}
+
+	public static setWide (component?: Component, wide = true) {
+		return component?.classes.toggle(wide, SlotClasses.Wide);
+	}
+
 	protected override onMake (): void {
 		this.classes.add(SlotClasses.Main);
 		Component.create()

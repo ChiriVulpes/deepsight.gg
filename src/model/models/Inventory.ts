@@ -132,7 +132,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		await Manifest.await();
 
 		progress?.emitProgress((2 / 3) * amount + from, "Loading items");
-		progress?.subscribeProgress(Items, (1 / 3) * amount, 2 / 3 + from);
+		progress?.subscribeProgress(Items, (1 / 3) * amount, (2 / 3) * amount + from);
 		const itemsLoadedPromise = Items.await();
 		if (!this.buckets)
 			await itemsLoadedPromise;

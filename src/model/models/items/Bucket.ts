@@ -4,7 +4,7 @@ import type { Character } from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
 
-export type BucketId<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
+export type BucketId<BUCKET extends InventoryBucketHashes | "collections" = InventoryBucketHashes | "collections"> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
 
 export interface BucketDefinition {
 	definition: DestinyInventoryBucketDefinition;
@@ -31,10 +31,10 @@ export class Bucket {
 	public static parseId (id: BucketId) {
 		const [bucketHashString, characterString, inventoryBucketHashString] = id.split(/\//g);
 		return [
-			+bucketHashString,
+			bucketHashString === "collections" ? "collections" : +bucketHashString,
 			characterString || undefined,
 			+inventoryBucketHashString || undefined,
-		] as [InventoryBucketHashes, CharacterId?, InventoryBucketHashes?];
+		] as [InventoryBucketHashes | "collections", CharacterId?, InventoryBucketHashes?];
 	}
 
 	public readonly id: BucketId;
@@ -43,7 +43,7 @@ export class Bucket {
 	public readonly inventoryHash?: InventoryBucketHashes;
 	public readonly name: string;
 	public readonly capacity: number;
-	public readonly deepsight: boolean;
+	public deepsight: boolean;
 	public fallbackRemovalItem?: Item;
 
 	public readonly definition: DestinyInventoryBucketDefinition;
@@ -72,6 +72,7 @@ export class Bucket {
 	}
 
 	public setItems (items?: Item[] | (() => Item[])) {
+		this.deepsight = !!items;
 		if (typeof items === "function")
 			Object.defineProperty(this, "items", { get: () => Object.freeze(items()), configurable: true });
 		else
@@ -87,7 +88,7 @@ export class Bucket {
 	}
 
 	public isCollections () {
-		return this === Bucket.COLLECTIONS;
+		return this.id.startsWith("collections");
 	}
 
 	public isVault () {
