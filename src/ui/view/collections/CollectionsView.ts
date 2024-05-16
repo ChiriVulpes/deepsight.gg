@@ -20,6 +20,8 @@ const CollectionsViewModel = Model.createTemporary(async (api): Promise<[Profile
 	if (!Bungie.authenticated)
 		return [];
 
+	api.emitProgress(0, "Loading collections");
+
 	const profile = ProfileBatch.latest ?? await api.subscribeProgressAndWait(ProfileBatch, 0.5);
 	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 0.5, 0.5);
 	return [profile, inventory];

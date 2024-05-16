@@ -10,26 +10,30 @@ declare module "@deepsight.gg/interfaces" {
 	}
 }
 
-export default Model.createDynamic("Daily", async _ => Manifest.await()
-	.then(async manifest => {
-		const { DeepsightMomentDefinition, DestinyEventCardDefinition } = manifest;
-		const moments = await DeepsightMomentDefinition.all();
-		const profile = await ProfileBatch.await();
+export default Model.createDynamic("Daily", async api => {
+	const { DeepsightMomentDefinition, DestinyEventCardDefinition } = await api.subscribeProgressAndWait(Manifest, 1 / 3);
 
-		const result: DeepsightMomentDefinition[] = [];
-		for (let moment of moments) {
-			if (typeof moment.event === "number") {
-				const eventCard = await DestinyEventCardDefinition.get(moment.event);
-				if (eventCard)
-					moment = { ...moment, eventCard };
-			}
+	const profile = ProfileBatch.latest ?? await api.subscribeProgressAndWait(ProfileBatch, 1 / 3, 1 / 3);
 
-			result.push(moment);
+	api.emitProgress(2 / 3, "Loading moments");
+	const moments = await DeepsightMomentDefinition.all();
+
+	const result: DeepsightMomentDefinition[] = [];
+	for (let moment of moments) {
+		if (typeof moment.event === "number") {
+			const eventCard = await DestinyEventCardDefinition.get(moment.event);
+			if (eventCard)
+				moment = { ...moment, eventCard };
 		}
 
-		result.sort((a, b) => getSortIndex(profile, b) - getSortIndex(profile, a));
-		return result;
-	}));
+		result.push(moment);
+	}
+
+	result.sort((a, b) => getSortIndex(profile, b) - getSortIndex(profile, a));
+
+	api.emitProgress(3 / 3);
+	return result;
+});
 
 function getSortIndex (profile: ProfileBatch, moment: DeepsightMomentDefinition) {
 	if (profile?.profile?.data?.activeEventCardHash !== moment.eventCard?.hash)
