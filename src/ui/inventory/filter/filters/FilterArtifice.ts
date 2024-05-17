@@ -7,5 +7,5 @@ export default IFilter.createBoolean({
 	matches: value => "artifice".startsWith(value),
 	apply: (value, item) => value === "" || !!item.isArtifice(),
 	maskIcon: value => value === "" ? undefined
-		: "url(\"./image/png/item/artifice.png\")",
+		: "url(\"./image/svg/artifice.svg\")",
 });

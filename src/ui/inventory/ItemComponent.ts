@@ -56,6 +56,7 @@ export enum ItemClasses {
 	Fomo = "item-fomo",
 	FomoIcon = "item-fomo-icon",
 	IsContainer = "item--container",
+	Artifice = "item-artifice",
 }
 
 export interface IItemComponentCharacterHandler {
@@ -108,6 +109,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	public wishlist?: Component;
 	public junk?: Component;
 	public fomo?: Component;
+	public artifice?: Component;
+
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
 	private sorter?: WeakRef<SortManager>;
@@ -305,6 +308,16 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		}
 
 		index += 3;
+
+		this.artifice?.classes.add(Classes.Hidden);
+
+		if (item?.isArtifice())
+			(this.artifice ??= Component.create()
+				.classes.add(ItemClasses.Artifice)
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+
+		index++;
 
 		this.masterwork?.classes.add(Classes.Hidden);
 		this.wishlist?.classes.add(Classes.Hidden);

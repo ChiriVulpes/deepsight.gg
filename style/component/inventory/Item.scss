@@ -749,4 +749,15 @@ $z-index-loading: 1000;
 			position: absolute;
 		}
 	}
+	
+	&-artifice {
+		background: url("./image/artifice.png");
+		background-size: cover;
+		@include item-icon(url("./image/svg/artifice.svg")) {
+			bottom: 8%;
+			left: 8%;
+			width: 25%;
+			height: 25%;
+		}
+	}
 }
