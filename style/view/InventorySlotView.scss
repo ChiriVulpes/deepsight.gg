@@ -523,6 +523,7 @@
 		}
 
 		padding-right: 0;
+		--slot-size-2: calc(var(--slot-size) + 6px);
 
 		&-quantity {
 			flex-grow: 1;
@@ -535,6 +536,14 @@
 
 		@include mobile {
 			padding-bottom: 8px;
+		}
+		
+		.slot {
+			--slot-size: var(--slot-size-2);
+			--slot-padding: 6px;
+			margin: -3px;
+			content-visibility: auto;
+			contain-intrinsic-size: var(--slot-size) var(--slot-size);
 		}
 	}
 
