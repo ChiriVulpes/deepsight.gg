@@ -317,10 +317,12 @@ class Item {
 			lastModified: profile.lastModified.getTime(),
 		};
 
-		await Moment.apply(manifest, init); // used for Into the Light plugs
+		await Promise.all([
+			Moment.apply(manifest, init), // used for Into the Light plugs
+			Tier.apply(manifest, init), // used for Into the Light deepsight
+		]);
 
 		await Promise.all([
-			Tier.apply(manifest, init),
 			Plugs.apply(manifest, profile, init),
 			Stats.apply(manifest, profile, init),
 			Deepsight.apply(manifest, profile, init),
@@ -351,11 +353,14 @@ class Item {
 			lastModified: Date.now(),
 		};
 
-		await Moment.apply(manifest, init); // used by Into the Light plugs
+		await Promise.all([
+			Moment.apply(manifest, init), // used for Into the Light plugs
+			Tier.apply(manifest, init), // used for Into the Light deepsight
+		]);
+
 		await Deepsight.apply(manifest, profile, init); // pattern presence is used by plugs
 
 		await Promise.all([
-			Tier.apply(manifest, init),
 			Plugs.apply(manifest, profile, init),
 			Stats.apply(manifest, profile, init),
 			Collectibles.apply(manifest, profile, init),

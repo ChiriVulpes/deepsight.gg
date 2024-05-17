@@ -1,6 +1,6 @@
 import type { DestinyCharacterRecordsComponent, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
-import { MomentHashes } from "deepsight.gg/Enums";
+import { ItemTierTypeHashes, MomentHashes } from "deepsight.gg/Enums";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
@@ -74,7 +74,7 @@ namespace Deepsight {
 		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
 			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
-		if (item.moment?.hash === MomentHashes.IntoTheLight)
+		if (item.moment?.hash === MomentHashes.IntoTheLight && item.tier?.hash !== ItemTierTypeHashes.Exotic)
 			return undefined;
 
 		if (record?.recordTypeName !== "Weapon Pattern")
