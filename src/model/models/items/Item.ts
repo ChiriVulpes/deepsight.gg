@@ -1,5 +1,5 @@
 import type { DamageTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums";
-import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, StatHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, MomentHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyPowerCapDefinition, TierType } from "bungie-api-ts/destiny2";
@@ -317,12 +317,13 @@ class Item {
 			lastModified: profile.lastModified.getTime(),
 		};
 
+		await Moment.apply(manifest, init); // used for Into the Light plugs
+
 		await Promise.all([
 			Tier.apply(manifest, init),
 			Plugs.apply(manifest, profile, init),
 			Stats.apply(manifest, profile, init),
 			Deepsight.apply(manifest, profile, init),
-			Moment.apply(manifest, init),
 			Collectibles.apply(manifest, profile, init),
 			this.addCollections(manifest, profile, init),
 			Perks.apply(manifest, profile, init),
@@ -350,14 +351,13 @@ class Item {
 			lastModified: Date.now(),
 		};
 
-		// deepsight has to finish first because pattern presence is used by plugs
-		await Deepsight.apply(manifest, profile, init);
+		await Moment.apply(manifest, init); // used by Into the Light plugs
+		await Deepsight.apply(manifest, profile, init); // pattern presence is used by plugs
 
 		await Promise.all([
 			Tier.apply(manifest, init),
 			Plugs.apply(manifest, profile, init),
 			Stats.apply(manifest, profile, init),
-			Moment.apply(manifest, init),
 			Collectibles.apply(manifest, profile, init),
 			source && Source.apply(manifest, profile, init),
 			PowerCap.apply(manifest, init),
@@ -558,6 +558,15 @@ class Item {
 	}
 
 	public getOrnament () {
+		if (this.bucket.isCollections() && this.isWeapon() && this.moment?.hash === MomentHashes.IntoTheLight) {
+			const ornament = this.getSocket("Cosmetic/Ornament")
+				?.getPlugs()
+				?.find(ornament => ornament.definition?.displayProperties.name.includes("BRAVE"));
+
+			if (ornament)
+				return ornament;
+		}
+
 		return this.getSocketedPlug(
 			"Cosmetic/OrnamentArmor",
 			"Cosmetic/OrnamentWeapon",
@@ -569,6 +578,9 @@ class Item {
 	 * Some items are only very rarely available, such as adept raid weapons. Do you have the fomo? You should!
 	 */
 	public isFomo () {
+		if (!this.bucket.isCollections())
+			return ItemFomoState.NoMo;
+
 		const hash = this.definition.hash as InventoryItemHashes;
 		for (const source of this.sources ?? []) {
 			if (source.dropTable.dropTable?.[hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[hash])) {
@@ -582,6 +594,9 @@ class Item {
 			if (source.isActiveMasterDrop || source.isActiveDrop)
 				return ItemFomoState.TemporaryAvailability;
 		}
+
+		if (this.getOrnament()?.definition?.displayProperties.name.includes("BRAVE"))
+			return ItemFomoState.TemporaryAvailability;
 
 		return ItemFomoState.NoMo;
 	}

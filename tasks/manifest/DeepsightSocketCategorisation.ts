@@ -1,4 +1,5 @@
 import { ItemCategoryHashes, SocketTypeHashes } from "@deepsight.gg/enums";
+import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import fs from "fs-extra";
 import Task from "../utility/Task";
 import type { DeepsightSocketCategorisationDefinition } from "./IDeepsightPlugCategorisation";
@@ -6,7 +7,21 @@ import { DeepsightPlugCategory, DeepsightPlugTypeMap, type DeepsightPlugFullName
 import DeepsightPlugCategorisation from "./plugtype/DeepsightPlugCategorisation";
 import manifest from "./utility/endpoint/DestinyManifest";
 
+let DeepsightSocketCategorisation: PromiseOr<Record<number, DeepsightSocketCategorisationDefinition>> | undefined;
+
 export default Task("DeepsightSocketCategorisation", async () => {
+	const DeepsightSocketCategorisation = await getDeepsightSocketCategorisation();
+
+	await fs.mkdirp("docs/manifest");
+	await fs.writeJson("docs/manifest/DeepsightSocketCategorisation.json", DeepsightSocketCategorisation, { spaces: "\t" });
+});
+
+export async function getDeepsightSocketCategorisation () {
+	DeepsightSocketCategorisation ??= computeDeepsightSocketCategorisation();
+	return DeepsightSocketCategorisation = await DeepsightSocketCategorisation;
+}
+
+async function computeDeepsightSocketCategorisation () {
 	const { DestinyInventoryItemDefinition, DestinyPlugSetDefinition } = manifest;
 
 	const DeepsightSocketCategorisation: Record<number, DeepsightSocketCategorisationDefinition> = {};
@@ -89,8 +104,8 @@ export default Task("DeepsightSocketCategorisation", async () => {
 			hash: item.hash,
 			categorisation: socketCategorisations as DeepsightSocketCategorisation[],
 		};
+
 	}
 
-	await fs.mkdirp("docs/manifest");
-	await fs.writeJson("docs/manifest/DeepsightSocketCategorisation.json", DeepsightSocketCategorisation, { spaces: "\t" });
-});
+	return DeepsightSocketCategorisation;
+}

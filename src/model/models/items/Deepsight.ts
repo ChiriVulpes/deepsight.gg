@@ -1,5 +1,6 @@
-import type { DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterRecordsComponent, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
+import { MomentHashes } from "deepsight.gg/Enums";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
@@ -24,6 +25,7 @@ namespace Deepsight {
 
 	export interface IDeepsightProfile {
 		profileRecords?: SingleComponentResponse<DestinyProfileRecordsComponent>;
+		characterRecords?: DictionaryComponentResponse<DestinyCharacterRecordsComponent>;
 	}
 
 	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit) {
@@ -72,6 +74,9 @@ namespace Deepsight {
 		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
 			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
+		if (item.moment?.hash === MomentHashes.IntoTheLight)
+			return undefined;
+
 		if (record?.recordTypeName !== "Weapon Pattern")
 			return undefined;
 
@@ -83,7 +88,11 @@ namespace Deepsight {
 
 	function resolvePatternProgress (record: DestinyRecordDefinition, profile: IDeepsightProfile, item: IItemInit) {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const progress = profile.profileRecords?.data?.records[record?.hash];
+		const progress = profile.profileRecords?.data?.records[record?.hash]
+			?? Object.values(profile.characterRecords?.data ?? {}) // bungie bad, sometimes patterns are character scoped
+				.map(records => records.records[record?.hash])
+				.find(record => record);
+
 		if (!progress?.objectives)
 			return undefined;
 

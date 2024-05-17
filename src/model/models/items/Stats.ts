@@ -36,11 +36,11 @@ namespace Stats {
 		itemComponents?: DestinyItemComponentSetOfint64;
 	}
 
-	export async function apply (manifest: Manifest, profile: IStatsProfile, item: IItemInit) {
+	export async function apply (manifest: Manifest, profile: IStatsProfile | undefined, item: IItemInit) {
 		item.stats = await resolve(manifest, profile, item);
 	}
 
-	async function resolve (manifest: Manifest, profile: IStatsProfile, item: IItemInit): Promise<IStats | undefined> {
+	async function resolve (manifest: Manifest, profile: IStatsProfile | undefined, item: IItemInit): Promise<IStats | undefined> {
 		if (!item.definition.stats)
 			return undefined;
 
@@ -56,7 +56,7 @@ namespace Stats {
 		const statRolls = Socket.filterByPlugs(sockets, "Intrinsic")
 			.flatMap(socket => socket.socketedPlug.definition?.investmentStats ?? []);
 
-		const stats = profile.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats ?? item.definition.stats.stats;
+		const stats = profile?.itemComponents?.stats.data?.[item.reference.itemInstanceId!]?.stats ?? item.definition.stats.stats;
 		if (stats)
 			for (const random of statRolls)
 				if (random && !random.isConditionallyActive)

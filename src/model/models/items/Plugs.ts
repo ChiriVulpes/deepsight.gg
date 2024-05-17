@@ -1,5 +1,6 @@
 import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugCategoryName, DeepsightPlugFullName } from "@deepsight.gg/plugs";
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinyPlugSetsComponent, DestinySandboxPerkDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import { MomentHashes } from "deepsight.gg/Enums";
 import Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
@@ -81,7 +82,7 @@ export class Socket {
 		if (socket.type === "Cosmetic/Shader")
 			return socket; // skip shader init
 
-		if (item?.bucket.isCollections() && socket.is("Cosmetic/Ornament" as DeepsightPlugFullName))
+		if (item?.bucket.isCollections() && socket.is("Cosmetic/Ornament") && item.moment?.hash !== MomentHashes.IntoTheLight)
 			return socket; // skip ornament init in collections
 
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
@@ -378,13 +379,13 @@ namespace Plugs {
 		console.debug("Initialised plugs:", Plug.initialisedPlugTypes);
 	}
 
-	export async function apply (manifest: Manifest, profile: IPlugsProfile, item: IItemInit) {
+	export async function apply (manifest: Manifest, profile: IPlugsProfile | undefined, item: IItemInit) {
 		return item.sockets = (async (): Promise<(Socket | undefined)[]> => {
 			const { socketCategories, /*intrinsicSockets,*/ socketEntries } = item.definition.sockets ?? {};
-			const states = profile.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
+			const states = profile?.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
 
-			const plugs = profile.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? {};
-			const objectivesByPlug = profile.itemComponents?.plugObjectives?.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug ?? {};
+			const plugs = profile?.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? {};
+			const objectivesByPlug = profile?.itemComponents?.plugObjectives?.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug ?? {};
 
 			const sockets = await Promise.all((socketEntries ?? [])
 				.map(async (definition, i) => Socket.resolve(manifest, {

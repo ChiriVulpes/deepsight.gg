@@ -16,6 +16,7 @@ interface DeepsightMomentDefinition {
 	event?: true | number;
 	seasonHash?: number;
 	hash?: number;
+	itemHashes?: number[];
 }
 
 let DeepsightMomentDefinition: PromiseOr<Record<number, DeepsightMomentDefinition>> | undefined;

@@ -288,6 +288,10 @@
 		iconWatermark: { DestinyInventoryItemDefinition: 2005792304 }, // Parade Helm
 		expansion: true,
 		year: 6,
+		itemHashes: [
+			1983149589, // new outbreak
+			3824673936, // new whisper
+		],
 	},
 	"-1": {
 		id: "revelry",

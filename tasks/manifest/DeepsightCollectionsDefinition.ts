@@ -1,11 +1,13 @@
-import { type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/enums";
+import { InventoryItemHashes, type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/enums";
 import type { DeepsightCollectionsDefinitionManifest } from "@deepsight.gg/interfaces";
-import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import type { DestinyInventoryItemDefinition, DestinyPlugSetDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import Log from "../utility/Log";
 import Task from "../utility/Task";
 import { getDeepsightMomentDefinition } from "./DeepsightMomentDefinition";
+import { getDeepsightSocketCategorisation } from "./DeepsightSocketCategorisation";
+import type { DeepsightSocketCategorisationDefinition } from "./IDeepsightPlugCategorisation";
 import ItemPreferred from "./utility/ItemPreferred";
 import manifest from "./utility/endpoint/DestinyManifest";
 
@@ -139,14 +141,37 @@ const IGNORED_ITEM_ISSUES = [
 	"Xenos Vale IV",
 ];
 
+const ACCEPTIBLE_DUPLICATES = [
+	InventoryItemHashes.JurassicGreenPulseRifle2603335652,
+	InventoryItemHashes.JurassicGreenPulseRifle3103255595,
+	InventoryItemHashes.ZephyrSword396910433,
+	InventoryItemHashes.ZephyrSword1911078836,
+];
+
+const hasArtificeIntrinsic = (item: DestinyInventoryItemDefinition) =>
+	!!item.sockets?.socketEntries.some(socket => socket.singleInitialItemHash === InventoryItemHashes.ArtificeArmorIntrinsicPlug);
+
+const hasBraveOrnament = (item: DestinyInventoryItemDefinition, socketCategorisation: Record<number, DeepsightSocketCategorisationDefinition>, plugSets: Record<number, DestinyPlugSetDefinition>, invItems: Record<number, DestinyInventoryItemDefinition>) =>
+	!!item.sockets?.socketEntries.some((socket, i) => true
+		&& socketCategorisation[item.hash].categorisation[i].fullName.startsWith("Cosmetic/Ornament")
+		&& plugSets[socket.reusablePlugSetHash!].reusablePlugItems.some(plug => invItems[plug.plugItemHash].displayProperties.name.includes("BRAVE")));
+
 export default Task("DeepsightCollectionsDefinition", async () => {
-	const { DestinyInventoryItemDefinition } = manifest;
+	const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition, DestinyPlugSetDefinition } = manifest;
 	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();
+	const powerCaps = await DestinyPowerCapDefinition.all();
+	const socketCategorisation = await getDeepsightSocketCategorisation();
+	const plugSets = await DestinyPlugSetDefinition.all();
+	const invItems = await DestinyInventoryItemDefinition.all();
 
 	const watermarkPathToMomentHashMap = Object.values(DeepsightMomentDefinition)
 		.flatMap(moment => [[moment.iconWatermark, moment.hash], [moment.iconWatermarkShelved, moment.hash]])
 		.filter(([iconPath]) => iconPath !== undefined)
 		.toObject() as Record<string, MomentHashes>;
+
+	const overriddenItemMoments = Object.values(DeepsightMomentDefinition)
+		.flatMap(moment => (moment.itemHashes ?? []).map(itemHash => [itemHash, moment.hash]))
+		.toObject() as Record<InventoryItemHashes, MomentHashes>;
 
 	const seenMoments: Partial<Record<MomentHashes, Record<string, Set<DestinyInventoryItemDefinition>>>> = {};
 	const issues: Record<string, Set<DestinyInventoryItemDefinition>> = {};
@@ -159,28 +184,41 @@ export default Task("DeepsightCollectionsDefinition", async () => {
 		if (ItemPreferred.isEquippableDummy(itemB))
 			continue;
 
-		const moment = watermarkPathToMomentHashMap[itemB.iconWatermark] ?? watermarkPathToMomentHashMap[itemB.iconWatermarkShelved];
-		if (!moment || !itemB.inventory?.bucketTypeHash)
+		const moment = overriddenItemMoments[itemB.hash as InventoryItemHashes]
+			?? watermarkPathToMomentHashMap[itemB.iconWatermark]
+			?? watermarkPathToMomentHashMap[itemB.iconWatermarkShelved];
+
+		if (moment === undefined || !itemB.inventory?.bucketTypeHash)
 			continue;
 
 		const seenInMoment = seenMoments[moment] ??= {};
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const name = `${itemB.displayProperties.name} ${itemB.equippingBlock?.equipmentSlotTypeHash!} ${itemB.displayProperties.icon}`;
+		const name = [
+			itemB.displayProperties.name,
+			itemB.equippingBlock?.equipmentSlotTypeHash ?? "n/a",
+			itemB.classType,
+			hasArtificeIntrinsic(itemB) ? "artifice" : undefined,
+			hasBraveOrnament(itemB, socketCategorisation, plugSets, invItems) ? "shiny" : undefined,
+		].filter(operand => operand !== undefined).join(" ");
+
 		const existing = seenInMoment[name];
 		if (existing?.size) {
 			const [itemA] = existing;
 
-			const itemAIndex = await ItemPreferred.getPreferredCopySortIndex(itemA);
-			const itemBIndex = await ItemPreferred.getPreferredCopySortIndex(itemB);
+			const sort = ItemPreferred.sortPreferredCopy(itemA, itemB, powerCaps);
 
-			if (itemBIndex < itemAIndex)
+			if (sort < 0)
 				// don't replace itemA copy if itemB copy is worse
 				continue;
 
-			if (itemAIndex === itemBIndex) {
+			if (!sort) {
 				if (IGNORED_ITEM_ISSUES.includes(itemA.displayProperties.name))
 					continue;
+
+				if (ACCEPTIBLE_DUPLICATES.includes(itemA.hash) && ACCEPTIBLE_DUPLICATES.includes(itemB.hash)) {
+					existing.add(itemA);
+					continue;
+				}
 
 				issues[name] ??= new Set();
 				issues[name].add(itemA);
