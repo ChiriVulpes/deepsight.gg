@@ -2,62 +2,25 @@ import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
-import Manifest from "model/models/Manifest";
-import Display from "ui/bungie/DisplayProperties";
-import LoadedIcon from "ui/bungie/LoadedIcon";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import Loadable from "ui/Loadable";
+import Display from "ui/bungie/DisplayProperties";
+import LoadedIcon from "ui/bungie/LoadedIcon";
 import Button from "ui/form/Button";
+import { ItemClasses } from "ui/inventory/IItemComponent";
 import ItemTooltip from "ui/inventory/ItemTooltip";
 import Slot, { SlotClasses } from "ui/inventory/Slot";
 import Sort from "ui/inventory/sort/Sort";
 import type SortManager from "ui/inventory/sort/SortManager";
 import SortQuantity from "ui/inventory/sort/sorts/SortQuantity";
-import Loadable from "ui/Loadable";
 import Async from "utility/Async";
-import Bound from "utility/decorator/Bound";
 import Store from "utility/Store";
-
-export enum ItemClasses {
-	Main = "item",
-	Icon = "item-icon",
-	Classified = "item-classified",
-	Borderless = "item-borderless",
-	UniversalArmourOrnament = "item-universal-armour-ornament",
-	MomentWatermark = "item-moment-watermark",
-	MomentWatermarkCustom = "item-moment-watermark-custom",
-	IsMasterwork = "item-is-masterwork",
-	Masterwork = "item-masterwork",
-	MasterworkSpinny = "item-masterwork-spinny",
-	MasterworkShiftedDueToJunkBorder = "item-masterwork-shifted-due-to-junk-border",
-	Artifact = "item-artifact",
-	Shaped = "item-shaped",
-	CanEnhance = "item-can-enhance",
-	Enhanced = "item-enhanced",
-	Deepsight = "item-deepsight",
-	DeepsightHasPattern = "item-deepsight-has-pattern",
-	DeepsightPattern = "item-deepsight-pattern",
-	DeepsightPatternUnlocked = "item-deepsight-pattern-unlocked",
-	Wishlist = "item-wishlist",
-	WishlistNoMatch = "item-wishlist-no-match",
-	WishlistIcon = "item-wishlist-icon",
-	WishlistNoMatchIcon = "item-wishlist-no-match-icon",
-	Extra = "item-extra",
-	ExtraInfo = "item-extra-info",
-	ExtraEmpty = "item-extra-empty",
-	ExtraNoneAfterQuantityOrPower = "item-extra-none-after-quantity-or-power",
-	Loading = "item-loading",
-	NotAcquired = "item-not-acquired",
-	Locked = "item-locked",
-	Unlocked = "item-unlocked",
-	Fomo = "item-fomo",
-	FomoIcon = "item-fomo-icon",
-	IsContainer = "item--container",
-	Artifice = "item-artifice",
-}
+import Bound from "utility/decorator/Bound";
 
 export interface IItemComponentCharacterHandler {
 	currentCharacter: Character;
@@ -110,6 +73,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	public junk?: Component;
 	public fomo?: Component;
 	public artifice?: Component;
+	public loadouted?: Component;
 
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
@@ -308,6 +272,20 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		}
 
 		index += 3;
+
+		this.loadouted?.classes.add(Classes.Hidden);
+
+		const isLoadouted = !!this.item?.getLoadouts().length;
+		this.classes.toggle(isLoadouted, ItemClasses.IsLoadouted);
+		if (isLoadouted)
+			(this.loadouted ??= Component.create()
+				.classes.add(ItemClasses.LoadoutedBookmark)
+				.append(Component.create()
+					.classes.add(ItemClasses.LoadoutedBookmark1))
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+
+		index++;
 
 		this.artifice?.classes.add(Classes.Hidden);
 

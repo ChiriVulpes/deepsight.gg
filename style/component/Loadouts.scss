@@ -24,6 +24,7 @@
     --size: 64px;
 	width: var(--size);
 	height: var(--size);
+	font-size: var(--size);
 	@include transition(.3s, translate, opacity);
 	transition-delay: calc(var(--index) * 0.01s);
 	
@@ -74,8 +75,8 @@
 		position: absolute;
 		bottom: 0;
 		right: 0;
-		padding: 3px 5.5px;
-		font-size: 12pt;
+		padding: calc(2px + 2%) calc(2px + 5%);
+		font-size: 27%;
 		font-weight: 600;
 		font-family: $font-numeric;
 	}

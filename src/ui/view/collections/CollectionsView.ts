@@ -7,7 +7,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import View from "ui/View";
 import HintsDrawer from "ui/inventory/HintsDrawer";
-import { ItemClasses } from "ui/inventory/ItemComponent";
+import { ItemClasses } from "ui/inventory/IItemComponent";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";

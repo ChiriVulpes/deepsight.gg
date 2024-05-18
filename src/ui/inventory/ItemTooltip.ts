@@ -12,6 +12,7 @@ import type { IKeyEvent, IKeyUpEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Display from "ui/bungie/DisplayProperties";
 import ElementType from "ui/inventory/ElementTypes";
+import LoadoutComponent from "ui/inventory/playeroverview/LoadoutComponent";
 import ItemAmmo from "ui/inventory/tooltip/ItemAmmo";
 import ItemStat from "ui/inventory/tooltip/ItemStat";
 import ItemStatTracker from "ui/inventory/tooltip/ItemStatTracker";
@@ -64,6 +65,8 @@ export enum ItemTooltipClasses {
 	NoteHeading = "item-tooltip-note-heading",
 	Flavour = "item-tooltip-flavour",
 	RandomRollHeading = "item-tooltip-random-roll-heading",
+	Loadouts = "item-tooltip-loadouts",
+	Loadout = "item-tooltip-loadout",
 }
 
 class ItemTooltip extends Tooltip {
@@ -109,6 +112,7 @@ class ItemTooltip extends Tooltip {
 	public randomRollHeading!: Component;
 	public randomMods!: ItemTooltipMods;
 	public source!: ItemTooltipSource;
+	public loadouts!: Component;
 	public hintCollections!: Hint;
 
 	protected override onMake () {
@@ -257,6 +261,10 @@ class ItemTooltip extends Tooltip {
 		this.hintCollections = Hint.create([IInput.get("MouseRight", "Shift")])
 			.tweak(hint => hint.label.text.set("Collections"))
 			.appendTo(this.extra.hints);
+
+		this.loadouts = Component.create()
+			.classes.add(ItemTooltipClasses.Loadouts, ItemTooltipClasses.Note)
+			.appendTo(this.extra.content);
 
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
 		UiEventBus.subscribe("keyup", this.onGlobalKeyup);
@@ -472,6 +480,14 @@ class ItemTooltip extends Tooltip {
 
 		const source = this.source.setItem(item);
 		this.source.classes.toggle(!source, Classes.Hidden);
+
+		const loadouts = this.item.getLoadouts();
+		this.loadouts.classes.toggle(!loadouts.length, Classes.Hidden);
+		if (loadouts.length)
+			this.loadouts.removeContents()
+				.append(...loadouts.map(loadout => LoadoutComponent.create([])
+					.classes.add(ItemTooltipClasses.Loadout)
+					.set(loadout)));
 
 		this.extra.classes.toggle(!flavour && !this.detailedMods.hasContents() && !source, Classes.Hidden);
 	}

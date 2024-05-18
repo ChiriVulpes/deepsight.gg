@@ -710,4 +710,23 @@
 			color: color(foreground-3);
 		}
 	}
+	
+	&-loadout {
+		&s {
+			&::before {
+				content: "";
+				width: 30px;
+				height: 30px;
+				mask-image: url("image/svg/loadouts.svg");
+				mask-size: contain;
+				mask-repeat: no-repeat;
+				-webkit-mask-image: url("image/svg/loadouts.svg");
+				-webkit-mask-size: contain;
+				-webkit-mask-repeat: no-repeat;
+				background: #fff5;
+			}
+		}
+		
+		--size: 30px !important;
+	}
 }

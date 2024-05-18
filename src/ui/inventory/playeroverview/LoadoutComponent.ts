@@ -2,8 +2,8 @@ import type { Loadout } from "model/models/Loadouts";
 import Component from "ui/Component";
 import LoadedIcon from "ui/bungie/LoadedIcon";
 import { ButtonClasses } from "ui/form/Button";
-import ItemComponent, { ItemClasses } from "ui/inventory/ItemComponent";
 import LoadoutTooltip from "ui/inventory/playeroverview/LoadoutTooltip";
+import { ItemClasses } from "../IItemComponent";
 
 export enum LoadoutClasses {
 	Main = "loadout",
@@ -15,12 +15,12 @@ export enum LoadoutClasses {
 	_Empty = "loadout--empty",
 }
 
-export default class LoadoutComponent extends ItemComponent {
+export default class LoadoutComponent extends Component {
 
 	public loadout!: Loadout;
 
 	public imageWrapper!: Component;
-	public override icon!: LoadedIcon;
+	public icon!: LoadedIcon;
 	public background!: LoadedIcon;
 	public number!: Component;
 
@@ -58,5 +58,6 @@ export default class LoadoutComponent extends ItemComponent {
 		this.background.setPath(this.loadout.colour && `https://www.bungie.net${this.loadout.colour.colorImagePath}`);
 		this.icon.setPath(this.loadout.icon && `https://www.bungie.net${this.loadout.icon.iconImagePath}`);
 		this.classes.toggle(loadout.isEmpty(), LoadoutClasses._Empty);
+		return this;
 	}
 }

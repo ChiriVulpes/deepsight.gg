@@ -420,6 +420,10 @@ $z-index-loading: 1000;
 		&-info {
 			width: fit-content;
 			justify-self: flex-end;
+	
+			.item--loadouted &:first-child {
+				margin-right: 8px;
+			}
 
 			&:where(:not(img)) {
 				background: #0007;
@@ -758,6 +762,48 @@ $z-index-loading: 1000;
 			left: 8%;
 			width: 25%;
 			height: 25%;
+		}
+	}
+	
+	&-loadouted-bookmark {
+		display: block;
+		position: absolute;
+		inset: 0;
+		z-index: 801;
+		
+		&, &1 {
+			&::before, &::after {
+				content: "";
+				display: block;
+				position: absolute;
+			}
+		}
+		
+		&1::after {
+			top: -2px;
+			right: 3px;
+			width: 6px;
+			height: calc(2px + 25%);
+			background: #fff;
+			clip-path: polygon(16.66% 100%, 16.66% 2px, 0% 0%, 83.33% 0%, 100% 2px, 100% 100%, 58.33% calc(95% - 2px));
+		}
+		
+		&1::before {
+			top: -2px;
+			right: 4px;
+			height: 2px;
+			width: 6px;
+			background: #aaa;
+			clip-path: polygon(0% 100%, 1px 0%, 100% 0%, 100% 100%);
+		}
+		
+		&::before {
+			background: #0005;
+			right: 2px;
+			top: 0;
+			height: calc(2px + 25%);
+			width: 8px;
+			clip-path: polygon(16.66% 100%, 16.66% 0%, 100% 0%, 100% 100%, 58.33% calc(95% - 2px));
 		}
 	}
 }

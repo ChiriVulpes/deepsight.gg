@@ -4,6 +4,7 @@ import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyPowerCapDefinition, TierType } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, DestinyItemType, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
+import Characters from "model/models/Characters";
 import DeepsightStats from "model/models/DeepsightStats";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
@@ -494,6 +495,13 @@ class Item {
 
 	public hasShapedCopy () {
 		return this.inventory?.craftedItems.has(this.definition.hash) ?? false;
+	}
+
+	public getLoadouts () {
+		return Object.values(Characters.all())
+			.flatMap(character => character.loadouts
+				.filter(loadout => loadout.items
+					.some(item => item.itemInstanceId === this.id)));
 	}
 
 	public canTransfer () {
