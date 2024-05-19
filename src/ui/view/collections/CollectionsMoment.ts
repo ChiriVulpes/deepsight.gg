@@ -130,6 +130,8 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 		for (const bucket of buckets)
 			for (const slot of [...bucket?.element.getElementsByClassName("pending-removal") ?? []])
 				slot.remove();
+
+		this.filter();
 	}
 
 	private forcedOpen = false;
