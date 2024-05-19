@@ -4,7 +4,9 @@ import Sort, { ISort } from "ui/inventory/sort/Sort";
 export default ISort.create({
 	id: Sort.Pattern,
 	name: "Pattern",
-	sort: (a, b) => Number(b.hasPattern()) - Number(a.hasPattern()),
+	sort: (a, b) => 0
+		|| Number(b.hasPattern()) - Number(a.hasPattern())
+		|| (b.deepsight?.pattern?.progress?.progress ?? 0) - (a.deepsight?.pattern?.progress?.progress ?? 0),
 	renderSortable: sortable => sortable.icon,
 	render: item => {
 		if (!item.bucket.isCollections() || !item.hasPattern())
