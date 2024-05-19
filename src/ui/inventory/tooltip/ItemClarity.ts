@@ -13,6 +13,7 @@ export enum ItemClarityClasses {
 	TitleName = "item-plug-tooltip-clarity-title-name",
 	Logo = "item-plug-tooltip-clarity-logo",
 	Description = "item-plug-tooltip-clarity-description",
+	Body = "item-plug-tooltip-clarity-body",
 	Line = "item-plug-tooltip-clarity-line",
 	ListItem = "item-plug-tooltip-clarity-list-item",
 	Spacer = "item-plug-tooltip-clarity-spacer",
@@ -70,6 +71,7 @@ export default class ItemClarity extends Component {
 		title.text.add(" / Community Insights");
 
 		this.description = Component.create()
+			.classes.add(ItemClarityClasses.Body)
 			.appendTo(this);
 	}
 

@@ -78,6 +78,8 @@ class ItemPlugTooltip extends Tooltip {
 		this.clarity = ItemClarity.create()
 			.insertToAfter(this, this.content);
 
+		this.setScrollableComponent(this.clarity.description);
+
 		this.hintShowDefinitions = Hint.create([IInput.get("KeyE")])
 			.classes.add(Classes.ShowIfNotExtraInfo)
 			.tweak(hint => hint.label.text.set("Show Definitions"))

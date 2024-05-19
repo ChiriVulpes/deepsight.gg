@@ -3,6 +3,9 @@
 
 .tooltip {
 	position: relative;
+	max-height: 100vh;
+	display: flex;
+	flex-direction: column;
 	&::before {
 		content: "";
 		display: block;

@@ -41,6 +41,8 @@ export class Tooltip extends Component {
 	public wrapper!: TooltipWrapper;
 	private _hints?: Component;
 	private _extra?: Tooltip;
+	private scrollableComponent?: Component;
+	private scrollTop?: number;
 
 	public get extra (): Tooltip {
 		return this._extra ??= Tooltip.create()
@@ -86,6 +88,11 @@ export class Tooltip extends Component {
 
 	public setPadding (padding: number) {
 		this.style.set("--mouse-offset", `${padding}px`);
+		return this;
+	}
+
+	public setScrollableComponent (component?: Component) {
+		this.scrollableComponent = component;
 		return this;
 	}
 }
@@ -223,6 +230,43 @@ namespace TooltipManager {
 
 		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - window.innerWidth - event.clientX;
 		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - window.innerHeight / 2 - event.clientY;
+	});
+
+	document.body.addEventListener("wheel", event => {
+		const [child] = tooltipSurface.element.children;
+		const childComponent = child.component?.deref();
+		if (!childComponent) {
+			console.warn("Not a valid tooltip", child);
+			child.remove();
+			return;
+		}
+
+		const tooltip = (childComponent as TooltipWrapper).tooltip;
+		const scrollable = tooltip?.["scrollableComponent"]?.element;
+		if (!scrollable)
+			return;
+
+		if (scrollable.scrollHeight < scrollable.clientHeight)
+			return;
+
+		if (event.deltaY > 0 && scrollable.clientHeight + scrollable.scrollTop >= scrollable.scrollHeight)
+			return;
+
+		if (event.deltaY < 0 && scrollable.scrollTop <= 0)
+			return;
+
+		event.preventDefault();
+
+		if (tooltip["scrollTop"] === undefined || Math.sign(event.deltaY) !== Math.sign(tooltip["scrollTop"] - scrollable.scrollTop))
+			tooltip["scrollTop"] = scrollable.scrollTop;
+
+		tooltip["scrollTop"] += event.deltaY;
+		if (tooltip["scrollTop"] + scrollable.clientHeight > scrollable.scrollHeight)
+			tooltip["scrollTop"] = scrollable.scrollHeight - scrollable.clientHeight;
+		if (tooltip["scrollTop"] < 0)
+			tooltip["scrollTop"] = 0;
+
+		scrollable.scrollTop = tooltip["scrollTop"];
 	});
 
 	window.addEventListener("resize", () => {
