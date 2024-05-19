@@ -486,7 +486,8 @@ class Item {
 	}
 
 	public hasPattern () {
-		return !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete);
+		return this.bucket.isCollections() ? !!this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete
+			: !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete);
 	}
 
 	public canShape () {

@@ -89,7 +89,8 @@ namespace ICollectionsView {
 		component.append(...sortItems(items, inventory, sorter)
 			.map(item => {
 				const component = ExoticArmourRewardComponent.is(item) ? ExoticArmourRewardComponent.create([item, inventory])
-					: ItemComponent.create([item, inventory]);
+					: ItemComponent.create([item, inventory])
+						.setSortedBy(sorter);
 				result?.push(component);
 				return Slot.create().append(component);
 			}));
