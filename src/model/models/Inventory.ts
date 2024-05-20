@@ -114,6 +114,11 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return Characters.getOrCurrent(id)!;
 	}
 
+	public getItems (filter?: (item: Item) => any) {
+		const items = Object.values<Item>(this.items ?? Objects.EMPTY).filter(item => !item.bucket.isCollections());
+		return filter ? items.filter(filter) : items;
+	}
+
 	private shouldSkipRefresh?: () => boolean;
 	public setShouldSkipRefresh (shouldSkip: () => boolean) {
 		this.shouldSkipRefresh = shouldSkip;

@@ -3,6 +3,7 @@ import Task from "../utility/Task";
 import DeepsightPlugCategorisation from "./plugtype/DeepsightPlugCategorisation";
 
 export default Task("DeepsightPlugCategorisation", async () => {
+	DeepsightPlugCategorisation.reset();
 	const result = await DeepsightPlugCategorisation.resolve();
 
 	await fs.mkdirp("docs/manifest");

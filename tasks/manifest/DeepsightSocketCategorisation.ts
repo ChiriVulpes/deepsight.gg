@@ -10,10 +10,11 @@ import manifest from "./utility/endpoint/DestinyManifest";
 let DeepsightSocketCategorisation: PromiseOr<Record<number, DeepsightSocketCategorisationDefinition>> | undefined;
 
 export default Task("DeepsightSocketCategorisation", async () => {
-	const DeepsightSocketCategorisation = await getDeepsightSocketCategorisation();
+	DeepsightSocketCategorisation = undefined;
+	const result = await getDeepsightSocketCategorisation();
 
 	await fs.mkdirp("docs/manifest");
-	await fs.writeJson("docs/manifest/DeepsightSocketCategorisation.json", DeepsightSocketCategorisation, { spaces: "\t" });
+	await fs.writeJson("docs/manifest/DeepsightSocketCategorisation.json", result, { spaces: "\t" });
 });
 
 export async function getDeepsightSocketCategorisation () {

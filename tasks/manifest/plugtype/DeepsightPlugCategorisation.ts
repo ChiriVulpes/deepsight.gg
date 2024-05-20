@@ -850,6 +850,10 @@ namespace DeepsightPlugCategorisation {
 
 	let DeepsightPlugCategorisation: PromiseOr<Record<number, DeepsightPlugCategorisation>> | undefined;
 
+	export function reset () {
+		DeepsightPlugCategorisation = undefined;
+	}
+
 	export async function resolve () {
 		DeepsightPlugCategorisation ??= computeDeepsightPlugCategorisation();
 		return DeepsightPlugCategorisation = await DeepsightPlugCategorisation;

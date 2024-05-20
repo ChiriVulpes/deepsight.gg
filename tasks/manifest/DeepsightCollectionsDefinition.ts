@@ -1,5 +1,6 @@
 import { InventoryItemHashes, type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/enums";
 import type { DeepsightCollectionsDefinitionManifest } from "@deepsight.gg/interfaces";
+import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import type { DestinyInventoryItemDefinition, DestinyPlugSetDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
@@ -156,7 +157,21 @@ const hasBraveOrnament = (item: DestinyInventoryItemDefinition, socketCategorisa
 		&& socketCategorisation[item.hash].categorisation[i].fullName.startsWith("Cosmetic/Ornament")
 		&& plugSets[socket.reusablePlugSetHash!].reusablePlugItems.some(plug => invItems[plug.plugItemHash].displayProperties.name.includes("BRAVE")));
 
+let DeepsightCollectionsDefinition: PromiseOr<DeepsightCollectionsDefinitionManifest> | undefined;
 export default Task("DeepsightCollectionsDefinition", async () => {
+	DeepsightCollectionsDefinition = undefined;
+	const result = await getDeepsightCollectionsDefinition();
+
+	await fs.mkdirp("docs/manifest");
+	await fs.writeJson("docs/manifest/DeepsightCollectionsDefinition.json", result, { spaces: "\t" });
+});
+
+export async function getDeepsightCollectionsDefinition () {
+	DeepsightCollectionsDefinition ??= computeDeepsightCollectionsDefinition();
+	return DeepsightCollectionsDefinition = await DeepsightCollectionsDefinition;
+}
+
+async function computeDeepsightCollectionsDefinition () {
 	const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition, DestinyPlugSetDefinition } = manifest;
 	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();
 	const powerCaps = await DestinyPowerCapDefinition.all();
@@ -250,6 +265,5 @@ export default Task("DeepsightCollectionsDefinition", async () => {
 			.join("\n")}`);
 	}
 
-	await fs.mkdirp("docs/manifest");
-	await fs.writeJson("docs/manifest/DeepsightCollectionsDefinition.json", DeepsightCollectionsDefinition, { spaces: "\t" });
-});
+	return DeepsightCollectionsDefinition;
+}

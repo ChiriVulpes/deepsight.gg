@@ -3,6 +3,7 @@ import bump_versions from "./bump_versions";
 import copy_manifest from "./copy_manifest";
 import destiny_manifest from "./destiny_manifest";
 import generate_enums from "./generate_enums";
+import DeepsightAdeptDefinition from "./manifest/DeepsightAdeptDefinition";
 import DeepsightCollectionsDefinition from "./manifest/DeepsightCollectionsDefinition";
 import DeepsightDropTableDefinition from "./manifest/DeepsightDropTableDefinition";
 import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
@@ -24,18 +25,26 @@ export default Task("deepsight_manifest", task => task.series(
 	generate_enums,
 	refresh_token,
 	task.parallel(
-		DeepsightMomentDefinition,
 		DeepsightDropTableDefinition,
 		DeepsightWallpaperDefinition,
 		DeepsightTierTypeDefinition,
 		DeepsightVendorDefinition,
 		DeepsightTypes,
 		DeepsightStats,
-		DeepsightCollectionsDefinition,
-	),
-	task.parallel(
-		DeepsightPlugCategorisation,
-		DeepsightSocketCategorisation,
+
+		task.series(
+			task.parallel(
+				DeepsightMomentDefinition,
+			),
+			task.parallel(
+				DeepsightPlugCategorisation,
+				DeepsightSocketCategorisation,
+			),
+			task.parallel(
+				DeepsightCollectionsDefinition,
+				DeepsightAdeptDefinition,
+			),
+		),
 	),
 	bump_versions,
 ));

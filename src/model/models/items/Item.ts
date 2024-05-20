@@ -263,6 +263,7 @@ export interface IItemInit {
 	collections?: Item;
 	sources?: ISource[];
 	powerCap?: DestinyPowerCapDefinition;
+	baseItem?: DestinyInventoryItemDefinition;
 }
 
 export interface IItem extends IItemInit {
@@ -296,7 +297,7 @@ class Item {
 	}
 
 	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: Bucket, occurrence: number) {
-		const { DestinyInventoryItemDefinition } = manifest;
+		const { DestinyInventoryItemDefinition, DeepsightAdeptDefinition } = manifest;
 
 		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
 		if (!definition || !Object.keys(definition).length) {
@@ -319,6 +320,7 @@ class Item {
 		};
 
 		await Promise.all([
+			Promise.resolve(DestinyInventoryItemDefinition.get((await DeepsightAdeptDefinition.get(definition.hash))?.base)).then(baseItem => Object.assign(init, { baseItem })),
 			Moment.apply(manifest, init), // used for Into the Light plugs
 			Tier.apply(manifest, init), // used for Into the Light deepsight
 		]);
@@ -613,6 +615,10 @@ class Item {
 			return ItemFomoState.TemporaryAvailability;
 
 		return ItemFomoState.NoMo;
+	}
+
+	public getBaseName () {
+		return this.baseItem?.displayProperties.name ?? this.definition.displayProperties.name;
 	}
 
 	public shouldTrustBungie () {

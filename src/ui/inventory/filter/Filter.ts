@@ -21,6 +21,7 @@ enum Filter {
 	Artifice,
 	Pattern,
 	PatternComplete,
+	Duplicate,
 	Raw,
 }
 

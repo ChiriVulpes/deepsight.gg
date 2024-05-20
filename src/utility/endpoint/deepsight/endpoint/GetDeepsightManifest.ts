@@ -1,5 +1,6 @@
-import type { DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
+import GetDeepsightAdeptDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightAdeptDefinition";
 import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
@@ -19,6 +20,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>;
 	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
 	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
+	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -36,6 +38,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightTierTypeDefinition: await GetDeepsightTierTypeDefinition.query(),
 			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
 			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),
+			DeepsightAdeptDefinition: await GetDeepsightAdeptDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {
