@@ -140,7 +140,7 @@ namespace TooltipManager {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if ((window as any).chrome) {
 					await Async.sleep(1);
-					if (tooltip.element.clientHeight % 2 !== window.innerHeight % 2)
+					if (tooltip.element.clientHeight % 2 !== Component.window.height % 2)
 						tooltip.classes.add(TooltipClasses.Forced1pxBigger);
 				}
 			});
@@ -219,17 +219,17 @@ namespace TooltipManager {
 
 	let reversed: boolean | undefined;
 	document.body.addEventListener("mousemove", event => {
-		const switchTooltipAt = (800 / 1920) * window.innerWidth;
+		const switchTooltipAt = (800 / 1920) * Component.window.width;
 		const switchTooltipDirection = reversed && event.clientX < switchTooltipAt
-			|| !reversed && event.clientX > window.innerWidth - switchTooltipAt;
+			|| !reversed && event.clientX > Component.window.width - switchTooltipAt;
 
 		if (switchTooltipDirection && [...tooltipSurface.element.children].some(tooltip => !tooltip.classList.contains(Classes.Hidden))) {
 			tooltipSurface.classes.toggle(TooltipClasses.Reversed);
 			reversed = !reversed;
 		}
 
-		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - window.innerWidth - event.clientX;
-		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - window.innerHeight - window.innerHeight / 2 - event.clientY;
+		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - Component.window.width - event.clientX;
+		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - Component.window.height - Component.window.height / 2 - event.clientY;
 	});
 
 	document.body.addEventListener("wheel", event => {
@@ -270,7 +270,7 @@ namespace TooltipManager {
 	});
 
 	window.addEventListener("resize", () => {
-		tooltipsEnabled = window.innerWidth > 800;
+		tooltipsEnabled = Component.window.width > 800;
 		hideTooltips();
 	});
 }

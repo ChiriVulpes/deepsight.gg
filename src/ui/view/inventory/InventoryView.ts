@@ -262,7 +262,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 					delete this.itemMoving;
 			},
 			moveStart: event => {
-				if (window.innerWidth <= 800)
+				if (Component.window.width <= 800)
 					return event.preventDefault();
 
 				this.getBucket(item)

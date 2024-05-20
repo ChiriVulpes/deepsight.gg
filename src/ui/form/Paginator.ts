@@ -47,13 +47,13 @@ export namespace PaginatorSizeHelper {
 		if (typeof helper === "number")
 			return helper;
 
-		if (window.innerWidth > 1200)
+		if (Component.window.width > 1200)
 			return helper.desktop ?? helper.vertical ?? helper.tablet ?? helper.mobile ?? 1;
 
-		if (window.innerWidth >= 1080)
+		if (Component.window.width >= 1080)
 			return helper.vertical ?? helper.tablet ?? helper.mobile ?? helper.desktop ?? 1;
 
-		if (window.innerWidth > 800)
+		if (Component.window.width > 800)
 			return helper.tablet ?? helper.mobile ?? helper.vertical ?? helper.desktop ?? 1;
 
 		return helper.mobile ?? helper.tablet ?? helper.vertical ?? helper.desktop ?? 1;

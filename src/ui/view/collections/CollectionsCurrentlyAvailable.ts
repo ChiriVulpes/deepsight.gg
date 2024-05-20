@@ -5,6 +5,7 @@ import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
 import type ProfileBatch from "model/models/ProfileBatch";
 import Item from "model/models/items/Item";
+import Component from "ui/Component";
 import Details from "ui/Details";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import Paginator from "ui/form/Paginator";
@@ -58,7 +59,7 @@ export default class CollectionsCurrentlyAvailable extends Details<[manifest: Ma
 		activityWrapper.buttonNext.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
 		activityWrapper.buttonPrev.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPaginatorButton);
 
-		const activityFiller = activityWrapper.filler(window.innerWidth < 1200 ? 3 : 4, page => page
+		const activityFiller = activityWrapper.filler(Component.window.width < 1200 ? 3 : 4, page => page
 			.classes.add(CollectionsCurrentlyAvailableClasses.ActivityWrapperPage));
 
 		const { DestinyActivityTypeDefinition, DestinyActivityModeDefinition } = manifest;

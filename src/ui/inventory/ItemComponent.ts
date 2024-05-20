@@ -419,7 +419,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
-		if (window.innerWidth <= 800)
+		if (Component.window.width <= 800)
 			return viewManager.showItemTooltip(this.item);
 
 		if (this.disableInteractions)
@@ -448,7 +448,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
-		if (window.innerWidth <= 800)
+		if (Component.window.width <= 800)
 			return;
 
 		if (this.disableInteractions)

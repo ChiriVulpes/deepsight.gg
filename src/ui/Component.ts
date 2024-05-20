@@ -1,6 +1,7 @@
 import type TooltipManager from "ui/TooltipManager";
 import type { Tooltip } from "ui/TooltipManager";
 import { EventManager } from "utility/EventManager";
+import Bound from "utility/decorator/Bound";
 import type { IVector2 } from "utility/maths/Vector2";
 
 declare global {
@@ -47,7 +48,34 @@ export interface IComponentEvents extends HTMLElementEventMap {
 	clearTooltip: Event;
 }
 
+class ComponentWindow {
+	public readonly event = new EventManager(this, window);
+
+	private _width = 0;
+	private _height = 0;
+
+	public constructor () {
+		this.recalculateDimensions();
+		window.addEventListener("resize", this.recalculateDimensions);
+	}
+
+	@Bound private recalculateDimensions () {
+		this._width = window.innerWidth;
+		this._height = window.innerHeight;
+	}
+
+	public get width () {
+		return this._width;
+	}
+
+	public get height () {
+		return this._height;
+	}
+}
+
 export default class Component<ELEMENT extends Element = HTMLElement, ARGS extends readonly any[] = []> {
+
+	public static readonly window = new ComponentWindow();
 
 	public static readonly event = EventManager.make<IComponentGlobalEvents>();
 

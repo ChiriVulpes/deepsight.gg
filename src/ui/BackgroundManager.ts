@@ -70,8 +70,8 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 		this.updateBackgroundFollowMouse();
 
 		document.body.addEventListener("mousemove", event => {
-			this.element.scrollLeft = (event.clientX / window.innerWidth) * window.innerWidth * Background.getScrollAmount();
-			this.element.scrollTop = (event.clientY / window.innerHeight) * window.innerHeight * Background.getScrollAmount();
+			this.element.scrollLeft = (event.clientX / Component.window.width) * Component.window.width * Background.getScrollAmount();
+			this.element.scrollTop = (event.clientY / Component.window.height) * Component.window.height * Background.getScrollAmount();
 		});
 	}
 
