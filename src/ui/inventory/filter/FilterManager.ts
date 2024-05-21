@@ -5,6 +5,7 @@ import type ItemFilter from "ui/inventory/filter/ItemFilter";
 import FilterAdept from "ui/inventory/filter/filters/FilterAdept";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import FilterArtifice from "ui/inventory/filter/filters/FilterArtifice";
+import FilterBreakerType from "ui/inventory/filter/filters/FilterBreakerType";
 import FilterDuplicate from "ui/inventory/filter/filters/FilterDuplicate";
 import ElementFilter from "ui/inventory/filter/filters/FilterElement";
 import FilterHarmonizable from "ui/inventory/filter/filters/FilterHarmonizable";
@@ -64,6 +65,7 @@ class FilterManager {
 			[Filter.Pattern]: FilterPattern,
 			[Filter.PatternComplete]: FilterPatternComplete,
 			[Filter.Duplicate]: FilterDuplicate,
+			[Filter.BreakerType]: await FilterBreakerType(),
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

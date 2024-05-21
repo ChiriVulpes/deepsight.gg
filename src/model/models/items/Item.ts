@@ -2,12 +2,13 @@ import type { DamageTypeHashes, InventoryItemHashes } from "@deepsight.gg/enums"
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes, MomentHashes, StatHashes } from "@deepsight.gg/enums";
 import { type DeepsightMomentDefinition, type DeepsightTierTypeDefinition } from "@deepsight.gg/interfaces";
 import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
-import type { DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyPowerCapDefinition, TierType } from "bungie-api-ts/destiny2";
+import type { DestinyBreakerTypeDefinition, DestinyCollectibleDefinition, DestinyInventoryItemDefinition, DestinyItemComponent, DestinyItemInstanceComponent, DestinyPowerCapDefinition, TierType } from "bungie-api-ts/destiny2";
 import { DestinyCollectibleState, DestinyItemType, ItemBindStatus, ItemLocation, ItemState, TransferStatuses } from "bungie-api-ts/destiny2";
 import Characters from "model/models/Characters";
 import DeepsightStats from "model/models/DeepsightStats";
 import type Inventory from "model/models/Inventory";
 import type Manifest from "model/models/Manifest";
+import BreakerType from "model/models/items/BreakerType";
 import type { BucketId } from "model/models/items/Bucket";
 import { Bucket } from "model/models/items/Bucket";
 import Collectibles from "model/models/items/Collectibles";
@@ -264,6 +265,7 @@ export interface IItemInit {
 	sources?: ISource[];
 	powerCap?: DestinyPowerCapDefinition;
 	baseItem?: DestinyInventoryItemDefinition;
+	breakerTypes?: DestinyBreakerTypeDefinition[];
 }
 
 export interface IItem extends IItemInit {
@@ -339,6 +341,8 @@ class Item {
 		if (item.isExotic())
 			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
 
+		await BreakerType.apply(item);
+
 		return item;
 	}
 
@@ -374,6 +378,8 @@ class Item {
 		const item = new Item(init);
 		if (item.isExotic())
 			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
+
+		await BreakerType.apply(item);
 
 		if (inventory)
 			item.inventory = inventory;
