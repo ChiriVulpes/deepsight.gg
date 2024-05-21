@@ -6,7 +6,7 @@ export default ISort.create({
 	name: "Pattern",
 	sort: (a, b) => 0
 		|| Number(b.hasPattern()) - Number(a.hasPattern())
-		|| (b.deepsight?.pattern?.progress?.progress ?? 0) - (a.deepsight?.pattern?.progress?.progress ?? 0),
+		|| (!b.hasPattern() ? 0 : b.deepsight?.pattern?.progress?.progress ?? 0) - (!a.hasPattern() ? 0 : a.deepsight?.pattern?.progress?.progress ?? 0),
 	renderSortable: sortable => sortable.icon,
 	render: item => {
 		if (!item.bucket.isCollections() || !item.hasPattern())
