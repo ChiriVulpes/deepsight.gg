@@ -237,7 +237,10 @@ namespace TooltipManager {
 
 	document.body.addEventListener("wheel", event => {
 		const [child] = tooltipSurface.element.children;
-		const childComponent = child?.component?.deref();
+		if (!child)
+			return;
+
+		const childComponent = child.component?.deref();
 		if (!childComponent) {
 			console.warn("Not a valid tooltip", child);
 			child.remove();
