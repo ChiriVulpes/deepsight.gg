@@ -216,8 +216,8 @@
 			&-icon-inner {
 				grid-column: 1;
 				grid-row: 1/3;
-				width: var(--plug-icon-size);
-				height: var(--plug-icon-size);
+				width: unquote("round(var(--plug-icon-size), 1px)");
+				height: unquote("round(var(--plug-icon-size), 1px)");
 				padding: var(--plug-icon-padding);
 				align-self: center;
 				margin-right: 0.7em;
