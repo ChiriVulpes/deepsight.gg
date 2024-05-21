@@ -1,6 +1,7 @@
 import { Classes } from "ui/Classes";
 import type { AnyComponent } from "ui/Component";
 import Component from "ui/Component";
+import DimensionalCache from "ui/DimensionalCache";
 import Async from "utility/Async";
 
 export enum TooltipClasses {
@@ -106,6 +107,8 @@ namespace TooltipManager {
 	const tooltipSurface = Component.create()
 		.classes.add(TooltipClasses.Surface)
 		.appendTo(document.body);
+
+	const surfaceCache = DimensionalCache.get(tooltipSurface.element);
 
 	let tooltipsEnabled = window.innerWidth > 800;
 
@@ -228,13 +231,13 @@ namespace TooltipManager {
 			reversed = !reversed;
 		}
 
-		tooltipSurface.element.scrollLeft = tooltipSurface.element.scrollWidth - Component.window.width - event.clientX;
-		tooltipSurface.element.scrollTop = tooltipSurface.element.scrollHeight - Component.window.height - Component.window.height / 2 - event.clientY;
+		tooltipSurface.element.scrollLeft = surfaceCache.scrollWidth - Component.window.width - event.clientX;
+		tooltipSurface.element.scrollTop = surfaceCache.scrollHeight - Component.window.height - Component.window.height / 2 - event.clientY;
 	});
 
 	document.body.addEventListener("wheel", event => {
 		const [child] = tooltipSurface.element.children;
-		const childComponent = child.component?.deref();
+		const childComponent = child?.component?.deref();
 		if (!childComponent) {
 			console.warn("Not a valid tooltip", child);
 			child.remove();
@@ -246,10 +249,12 @@ namespace TooltipManager {
 		if (!scrollable)
 			return;
 
-		if (scrollable.scrollHeight < scrollable.clientHeight)
+		const cache = DimensionalCache.get(scrollable);
+
+		if (cache.scrollHeight < cache.height)
 			return;
 
-		if (event.deltaY > 0 && scrollable.clientHeight + scrollable.scrollTop >= scrollable.scrollHeight)
+		if (event.deltaY > 0 && cache.height + scrollable.scrollTop >= cache.scrollHeight)
 			return;
 
 		if (event.deltaY < 0 && scrollable.scrollTop <= 0)
@@ -258,11 +263,11 @@ namespace TooltipManager {
 		event.preventDefault();
 
 		if (tooltip["scrollTop"] === undefined || Math.sign(event.deltaY) !== Math.sign(tooltip["scrollTop"] - scrollable.scrollTop))
-			tooltip["scrollTop"] = scrollable.scrollTop;
+			tooltip["scrollTop"] = cache.scrollTop;
 
 		tooltip["scrollTop"] += event.deltaY;
-		if (tooltip["scrollTop"] + scrollable.clientHeight > scrollable.scrollHeight)
-			tooltip["scrollTop"] = scrollable.scrollHeight - scrollable.clientHeight;
+		if (tooltip["scrollTop"] + cache.height > cache.scrollHeight)
+			tooltip["scrollTop"] = cache.scrollHeight - cache.height;
 		if (tooltip["scrollTop"] < 0)
 			tooltip["scrollTop"] = 0;
 
