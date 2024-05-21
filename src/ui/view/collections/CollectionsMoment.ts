@@ -51,7 +51,6 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 					.some(hashes => hashes.includes(item.definition.hash)));
 		}))
 			.onReady(items => {
-				console.log(moment.displayProperties.name, items);
 				const weapons: Item[] = [];
 				const classItems: Partial<Record<DestinyClass, Item[]>> = {};
 

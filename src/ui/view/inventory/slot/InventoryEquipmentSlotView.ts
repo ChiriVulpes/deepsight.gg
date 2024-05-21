@@ -20,6 +20,7 @@ export const SORTS_INAPPLICABLE_EQUIPMENT = [
 	Sort.Quantity,
 	Sort.Harmonizable,
 	Sort.CanShape,
+	Sort.BreakerType,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_EQUIPMENT = [
@@ -33,6 +34,7 @@ export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.Artifice,
 	Filter.PatternComplete,
 	Filter.Pattern,
+	Filter.BreakerType,
 ] as const;
 
 export const VIEW_ID_EQUIPMENT = "equipment";

@@ -2,6 +2,7 @@ import type Item from "model/models/items/Item";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
+import SortBreakerType from "ui/inventory/sort/sorts/SortBreakerType";
 import SortCanShape from "ui/inventory/sort/sorts/SortCanShape";
 import SortDamageType from "ui/inventory/sort/sorts/SortDamageType";
 import SortEnergy from "ui/inventory/sort/sorts/SortEnergy";
@@ -44,6 +45,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Harmonizable]: SortHarmonizable,
 	[Sort.Exotic]: SortExotic,
 	[Sort.CanShape]: SortCanShape,
+	[Sort.BreakerType]: SortBreakerType,
 };
 
 const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [
