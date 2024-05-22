@@ -25,7 +25,7 @@ export interface BungieID {
 export namespace BungieID {
 	export type String = `${string}#${number}`;
 	export function stringify (id: BungieID) {
-		return `${id.name}#${id.code}`;
+		return `${id.name}#${`${id.code}`.padStart(4, "0")}`;
 	}
 
 	export function parse (string: string): BungieID | undefined {
@@ -72,7 +72,7 @@ export default class URL {
 
 		const bungieId = URL.extractBungieId(path);
 		if (bungieId)
-			path = path.slice(`${bungieId.name}.${bungieId.code}`.length + 1);
+			path = path.slice(`${bungieId.name}.${`${bungieId.code}`.padStart(4, "0")}`.length + 1);
 
 		return !path || path === "/" ? null : path;
 	}
@@ -82,7 +82,7 @@ export default class URL {
 			value = `/${value}`;
 
 		const membershipOverride = Store.items.destinyMembershipOverride;
-		const membershipOverrideSegment = !membershipOverride ? "" : `${encodeURIComponent(membershipOverride.bungieGlobalDisplayName)}.${membershipOverride.bungieGlobalDisplayNameCode}`;
+		const membershipOverrideSegment = !membershipOverride ? "" : `${encodeURIComponent(membershipOverride.bungieGlobalDisplayName)}.${`${membershipOverride.bungieGlobalDisplayNameCode}`.padStart(4, "0")}`;
 		if (value && membershipOverrideSegment)
 			value = `/${membershipOverrideSegment}${value}`;
 

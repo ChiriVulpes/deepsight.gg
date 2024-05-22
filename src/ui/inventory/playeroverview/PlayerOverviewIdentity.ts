@@ -41,7 +41,7 @@ export default class PlayerOverviewIdentity extends Component<HTMLElement, [Memb
 
 		const overrideMembership = URL.bungieID ? Store.items.destinyMembershipOverride : undefined;
 		this.displayName = overrideMembership?.bungieGlobalDisplayName ?? this.ownDisplayName ?? "?";
-		this.code = `${overrideMembership?.bungieGlobalDisplayNameCode ?? this.ownCode ?? "????"}`;
+		this.code = `${overrideMembership?.bungieGlobalDisplayNameCode ?? this.ownCode ?? "????"}`.padStart(4, "0");
 
 		this.pretty = Component.create()
 			.classes.add(PlayerOverviewIdentityClasses.Pretty)
@@ -122,7 +122,7 @@ export default class PlayerOverviewIdentity extends Component<HTMLElement, [Memb
 
 		this.pretty.classes.remove(Classes.Hidden);
 		this.displayName = destinyMembership.bungieGlobalDisplayName;
-		this.code = `${destinyMembership.bungieGlobalDisplayNameCode ?? searchCode}`;
+		this.code = `${destinyMembership.bungieGlobalDisplayNameCode ?? searchCode}`.padStart(4, "0");
 		this.prettyUsername.text.set(this.displayName);
 		this.prettyCode.text.set(`#${this.code}`);
 		this.prettyOverride.classes.remove(Classes.Hidden);

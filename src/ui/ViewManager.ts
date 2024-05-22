@@ -213,7 +213,7 @@ export default class ViewManager {
 			name = name(...view._args.slice(1) as []);
 
 		const bungieId = URL.bungieID;
-		const bungieIdSegment = !bungieId ? "" : ` / ${bungieId.name}#${bungieId.code}`;
+		const bungieIdSegment = !bungieId ? "" : ` / ${bungieId.name}#${`${bungieId.code}`.padStart(4, "0")}`;
 
 		document.title = name ? `${name}${bungieIdSegment} // ${APP_NAME}` : APP_NAME;
 	}

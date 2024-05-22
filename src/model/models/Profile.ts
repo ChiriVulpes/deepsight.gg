@@ -238,7 +238,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 		api.emitProgress(3 / 3);
 
-		result.lastModified ??= new Date(Store.items.profiles?.[`${membership.bungieGlobalDisplayName}#${membership.bungieGlobalDisplayNameCode}`]?.lastModified ?? Date.now());
+		result.lastModified ??= new Date(Store.items.profiles?.[`${membership.bungieGlobalDisplayName}#${`${membership.bungieGlobalDisplayNameCode}`.padStart(4, "0")}`]?.lastModified ?? Date.now());
 		return result;
 	});
 }
