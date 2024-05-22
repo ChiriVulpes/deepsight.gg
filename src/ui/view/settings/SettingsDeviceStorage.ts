@@ -7,6 +7,7 @@ import Card from "ui/Card";
 import Component from "ui/Component";
 import DescribedButton from "ui/form/DescribedButton";
 import Dropdown from "ui/form/Dropdown";
+import Async from "utility/Async";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
 
@@ -28,7 +29,7 @@ export default class SettingsDeviceStorage extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Account & Storage");
 
-		const memberships = !Bungie.authenticated ? undefined : await Memberships.await().catch(() => undefined);
+		const memberships = !Bungie.authenticated ? undefined : await Promise.race([Memberships.await(), Async.sleep(5000)]).catch(() => undefined);
 		// if cross save is disabled and there's more than one membership, show a selection for which destiny membership should be viewed
 		if ((memberships?.destinyMemberships.length ?? 0) > 1) {
 			const membershipsDropdown = Dropdown.create()
