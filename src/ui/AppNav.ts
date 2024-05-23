@@ -99,7 +99,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.tweak(destinationViewHandler.initialiseDestinationButton)
 				.event.subscribe("click", () => destinationViewHandler.show());
 
-			if (!destinationViewHandler.parentViewId) {
+			if (!destinationViewHandler.navGroupViewId) {
 				if (destinationViewHandler.id === "auth")
 					destinationButton.insertToAfter(this, this.appInfo);
 				else
@@ -111,26 +111,26 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				continue;
 			}
 
-			const branch = viewTree[destinationViewHandler.parentViewId];
+			const branch = viewTree[destinationViewHandler.navGroupViewId];
 			branch.buttons.push(destinationButton);
 			this.viewGrid[branch.column].push(destinationViewHandler);
 		}
 
-		for (const [parentViewId, branch] of Object.entries(viewTree)) {
+		for (const [navGroupViewId, branch] of Object.entries(viewTree)) {
 			if (!branch.buttons.length)
 				continue;
 
-			const parentViewDestinationButton = this.destinationButtons[parentViewId];
-			if (!parentViewDestinationButton) {
-				console.warn("Tried to child destination button(s) to a nonexistent parent:", parentViewId);
+			const navGroupViewDestinationButton = this.destinationButtons[navGroupViewId];
+			if (!navGroupViewDestinationButton) {
+				console.warn("Tried to child destination button(s) to a nonexistent parent:", navGroupViewId);
 				continue;
 			}
 
 			this.destinationDropdownWrappers.push(Component.create()
-				.classes.add(ClassesAppNav.DestinationChildren, `app-nav-destination-${parentViewId}-parent`)
+				.classes.add(ClassesAppNav.DestinationChildren, `app-nav-destination-${navGroupViewId}-parent`)
 				.append(...branch.buttons)
-				.insertToAfter(this.destinationsWrapper, parentViewDestinationButton)
-				.prepend(parentViewDestinationButton));
+				.insertToAfter(this.destinationsWrapper, navGroupViewDestinationButton)
+				.prepend(navGroupViewDestinationButton));
 		}
 
 		viewManager.event.subscribe("show", ({ view }) => this.showing(view));
@@ -148,7 +148,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			const destinationViewHandler = viewManager.registry[id];
 			const hidden = destinationViewHandler.displayDestinationButton?.() === false;
 			destinationButton.classes.toggle(hidden, Classes.Hidden);
-			if (!hidden && !destinationViewHandler.parentViewId)
+			if (!hidden && !destinationViewHandler.navGroupViewId)
 				showing++;
 		}
 
@@ -163,7 +163,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 			wrapper.classes.remove(ClassesAppNav.DestinationChildActive);
 
 		this.destinationButtons[view.definition.id]?.classes.add(Classes.Active);
-		if (view.definition.parentViewId)
+		if (view.definition.navGroupViewId)
 			this.destinationButtons[view.definition.id]?.parent()?.classes.add(ClassesAppNav.DestinationChildActive);
 
 		document.documentElement.classList.add(ClassesAppNav.DocumentHasAppNav);

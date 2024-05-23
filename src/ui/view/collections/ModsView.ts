@@ -24,7 +24,7 @@ export default View.create({
 	id: "mods",
 	name: "Mods",
 	auth: "optional",
-	parentViewId: "collections",
+	navGroupViewId: "collections",
 	initialise: async (view, Manifest) => {
 		view.setTitle(title => title.text.set("Mods"));
 		view.setSubtitle("lore", subtitle => subtitle

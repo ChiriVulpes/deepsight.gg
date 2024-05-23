@@ -56,6 +56,6 @@ export const FILTER_MANAGER_EQUIPMENT_DEFINITION: IFilterManagerConfiguration = 
 export default InventorySlotView.clone().configure({
 	sort: new SortManager(SORT_MANAGER_EQUIPMENT_DEFINITION),
 	filter: new FilterManager(FILTER_MANAGER_EQUIPMENT_DEFINITION),
-	parentViewId: VIEW_ID_EQUIPMENT,
+	navGroupViewId: VIEW_ID_EQUIPMENT,
 	mergedVaults: true,
 });

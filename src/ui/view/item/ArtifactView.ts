@@ -34,6 +34,7 @@ const artifactViewBase = View.create({
 	name: (itemOrCharacterId?: Item | string) => (typeof itemOrCharacterId !== "string" ? itemOrCharacterId?.definition.displayProperties.name : undefined) ?? "Artifact Details",
 	hash: (itemOrCharacterId?: Item | string) => typeof itemOrCharacterId === "string" ? `artifact/${itemOrCharacterId}` : itemOrCharacterId?.bucket.characterId ? `artifact/${itemOrCharacterId.bucket.characterId}` : "artifact",
 	noDestinationButton: true,
+	subView: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
 		LoadingManager.end(view.definition.id);
 

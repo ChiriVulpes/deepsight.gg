@@ -33,7 +33,8 @@ namespace View {
 		noDestinationButton?: true;
 		displayDestinationButton?(): boolean;
 		redirectOnLoad?: true | string;
-		parentViewId?: string;
+		navGroupViewId?: string;
+		subView?: true;
 		noHashChange?: true;
 	}
 

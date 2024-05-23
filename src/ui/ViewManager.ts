@@ -230,5 +230,4 @@ window.addEventListener("popstate", event => {
 		ViewManager.showDefaultView();
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-(window as any).viewManager = ViewManager;
+Object.assign(window, { viewManager: ViewManager });

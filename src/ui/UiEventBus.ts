@@ -105,6 +105,10 @@ function emitKeyEvent (e: RawEvent) {
 
 	UiEventBus.emit(eventType, event);
 
+	if (eventType === "keydown" && event.use("Escape") && viewManager.view?.definition.subView) {
+		viewManager.hide();
+	}
+
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault();
 		lastUsed = Date.now();

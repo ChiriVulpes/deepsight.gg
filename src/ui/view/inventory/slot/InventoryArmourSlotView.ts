@@ -56,5 +56,5 @@ export default InventorySlotView.clone().configure({
 	sort: new SortManager(SORT_MANAGER_ARMOUR_DEFINITION),
 	filter: new FilterManager(FILTER_MANAGER_ARMOUR_DEFINITION),
 	separateVaults: true,
-	parentViewId: VIEW_ID_ARMOUR,
+	navGroupViewId: VIEW_ID_ARMOUR,
 });

@@ -15,7 +15,7 @@ export default View.create({
 	id: "vendors",
 	name: "Vendors",
 	auth: "optional",
-	parentViewId: "collections",
+	navGroupViewId: "collections",
 	initialise: async (view, Manifest) => {
 		const vendors = (await Manifest.DeepsightVendorDefinition.all())
 			.sort((a, b) => (a.displayProperties.name ?? "").localeCompare(b.displayProperties.name ?? ""))
