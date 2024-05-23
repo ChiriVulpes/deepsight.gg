@@ -65,6 +65,7 @@ export enum ItemTooltipClasses {
 	NoteHeading = "item-tooltip-note-heading",
 	Flavour = "item-tooltip-flavour",
 	RandomRollHeading = "item-tooltip-random-roll-heading",
+	LoadoutsWrapper = "item-tooltip-loadouts-wrapper",
 	Loadouts = "item-tooltip-loadouts",
 	Loadout = "item-tooltip-loadout",
 }
@@ -112,6 +113,7 @@ class ItemTooltip extends Tooltip {
 	public randomRollHeading!: Component;
 	public randomMods!: ItemTooltipMods;
 	public source!: ItemTooltipSource;
+	public loadoutsWrapper!: Component;
 	public loadouts!: Component;
 	public hintCollections!: Hint;
 
@@ -262,8 +264,10 @@ class ItemTooltip extends Tooltip {
 			.tweak(hint => hint.label.text.set("Collections"))
 			.appendTo(this.extra.hints);
 
-		this.loadouts = Component.create()
-			.classes.add(ItemTooltipClasses.Loadouts, ItemTooltipClasses.Note)
+		this.loadoutsWrapper = Component.create()
+			.classes.add(ItemTooltipClasses.LoadoutsWrapper, ItemTooltipClasses.Note)
+			.append(this.loadouts = Component.create()
+				.classes.add(ItemTooltipClasses.Loadouts))
 			.appendTo(this.extra.content);
 
 		UiEventBus.subscribe("keydown", this.onGlobalKeydown);
@@ -482,7 +486,7 @@ class ItemTooltip extends Tooltip {
 		this.source.classes.toggle(!source, Classes.Hidden);
 
 		const loadouts = this.item.getLoadouts();
-		this.loadouts.classes.toggle(!loadouts.length, Classes.Hidden);
+		this.loadoutsWrapper.classes.toggle(!loadouts.length, Classes.Hidden);
 		if (loadouts.length)
 			this.loadouts.removeContents()
 				.append(...loadouts.map(loadout => LoadoutComponent.create([])

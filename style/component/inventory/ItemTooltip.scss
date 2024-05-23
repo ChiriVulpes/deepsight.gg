@@ -713,18 +713,27 @@
 	
 	&-loadout {
 		&s {
-			&::before {
-				content: "";
-				width: 30px;
-				height: 30px;
-				mask-image: url("image/svg/loadouts.svg");
-				mask-size: contain;
-				mask-repeat: no-repeat;
-				-webkit-mask-image: url("image/svg/loadouts.svg");
-				-webkit-mask-size: contain;
-				-webkit-mask-repeat: no-repeat;
-				background: #fff5;
+			&-wrapper {
+				display: grid;
+				grid-template-columns: auto 1fr;
+				&::before {
+					content: "";
+					width: 30px;
+					height: 30px;
+					mask-image: url("image/svg/loadouts.svg");
+					mask-size: contain;
+					mask-repeat: no-repeat;
+					-webkit-mask-image: url("image/svg/loadouts.svg");
+					-webkit-mask-size: contain;
+					-webkit-mask-repeat: no-repeat;
+					background: #fff5;
+					align-self: start;
+				}
 			}
+			
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5em;
 		}
 		
 		--size: 30px !important;
