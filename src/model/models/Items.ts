@@ -121,7 +121,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 			if (!item)
 				continue;
 
-			bucket.items.push(item);
+			bucket.addItems(item);
 			if (equippedItems.some(equippedItem => equippedItem.itemInstanceId === item.reference.itemInstanceId))
 				item.equipped = true;
 		}
@@ -148,12 +148,14 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					characterBucket ??= new Bucket({
 						definition: bucket.definition,
 						character,
-						items: () => bucket.items.filter(item => true
-							&& (item.definition.classType === DestinyClass.Unknown || item.definition.classType === character.classType)
-							&& item.definition.inventory?.bucketTypeHash
-							&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
+						items: () =>
+							bucket.items.filter(item => true
+								&& (item.definition.classType === DestinyClass.Unknown || item.definition.classType === character.classType)
+								&& item.definition.inventory?.bucketTypeHash
+								&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash),
 					});
 					buckets[characterBucket.id] ??= characterBucket;
+					break;
 				}
 			}
 		}
@@ -172,10 +174,11 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 					definition: bucket.definition,
 					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subInventoryHash),
 					character: Characters.get(bucket.characterId),
-					items: () => bucket.items.filter(item => true
-						&& item.definition.inventory?.bucketTypeHash
-						&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
-						&& item.definition.inventory.bucketTypeHash === subInventoryHash),
+					items: () =>
+						bucket.items.filter(item => true
+							&& item.definition.inventory?.bucketTypeHash
+							&& item.definition.inventory.bucketTypeHash !== bucket.definition.hash
+							&& item.definition.inventory.bucketTypeHash === subInventoryHash),
 				});
 
 				buckets[subBucket.id] ??= subBucket;
@@ -239,7 +242,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 				if (!definition)
 					continue;
 
-				Bucket.COLLECTIONS.items.push(await Item.createFake(manifest, profile, definition));
+				Bucket.COLLECTIONS.addItems(await Item.createFake(manifest, profile, definition));
 			}
 		}
 	}
@@ -248,7 +251,7 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 		buckets[`collections//${subBucketHash}`] ??= new Bucket({
 			definition: Bucket.COLLECTIONS.definition,
 			subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subBucketHash),
-			items: () => Bucket.COLLECTIONS.items.filter(item => item.definition.inventory?.bucketTypeHash === subBucketHash),
+			items: () => Bucket.COLLECTIONS.getItemsInSubBucket(subBucketHash),
 		});
 	}
 

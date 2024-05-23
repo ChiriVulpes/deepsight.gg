@@ -2,6 +2,7 @@ import type { DestinyCharacterRecordsComponent, DestinyObjectiveProgress, Destin
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import { ItemTierTypeHashes, MomentHashes } from "deepsight.gg/Enums";
 import type Manifest from "model/models/Manifest";
+import type Item from "model/models/items/Item";
 import type { IItemInit } from "model/models/items/Item";
 import type Objectives from "model/models/items/Objectives";
 
@@ -28,17 +29,17 @@ namespace Deepsight {
 		characterRecords?: DictionaryComponentResponse<DestinyCharacterRecordsComponent>;
 	}
 
-	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit) {
-		item.shaped = await resolveShaped(item);
+	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: Item | IItemInit) {
+		item.shaped = item.bucket.isCollections() ? undefined : await resolveShaped(item);
 		item.deepsight = await resolve(manifest, profile, item);
 	}
 
 	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
 		const pattern = await resolvePattern(manifest, profile, item);
 		return {
-			resonance: await resolveResonance(item),
+			resonance: !item.bucket.isCollections() && await resolveResonance(item),
 			pattern,
-			activation: !item.shaped && !pattern?.progress?.complete && await resolveActivation(item),
+			activation: !item.bucket.isCollections() && !item.shaped && !pattern?.progress?.complete && await resolveActivation(item),
 		};
 	}
 
@@ -70,18 +71,21 @@ namespace Deepsight {
 		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")
 			return undefined;
 
-		const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
-		const record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
-			: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
+		let record = item.deepsight?.pattern?.record;
+		if (!record) {
+			const collectible = await DestinyCollectibleDefinition.get(item.definition.collectibleHash);
+			record = collectible ? await DestinyRecordDefinition.get("icon", collectible?.displayProperties.icon ?? null)
+				: await DestinyRecordDefinition.get("name", item.definition.displayProperties.name);
 
-		if (item.moment?.hash === MomentHashes.IntoTheLight && item.tier?.hash !== ItemTierTypeHashes.Exotic)
-			return undefined;
+			if (item.moment?.hash === MomentHashes.IntoTheLight && item.tier?.hash !== ItemTierTypeHashes.Exotic)
+				return undefined;
 
-		if (record?.recordTypeName !== "Weapon Pattern")
-			return undefined;
+			if (record?.recordTypeName !== "Weapon Pattern")
+				return undefined;
+		}
 
 		return {
-			record: record,
+			record,
 			progress: resolvePatternProgress(record, profile, item),
 		};
 	}

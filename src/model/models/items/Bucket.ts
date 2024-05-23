@@ -2,7 +2,8 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { type DestinyDisplayPropertiesDefinition, type DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
+import type { CharacterId, ItemId } from "model/models/items/Item";
+import Arrays from "utility/Arrays";
 
 export type BucketId<BUCKET extends InventoryBucketHashes | "collections" = InventoryBucketHashes | "collections"> = `${BUCKET}/${CharacterId | ""}/${bigint | ""}`;
 
@@ -15,14 +16,7 @@ export interface BucketDefinition {
 
 export class Bucket {
 
-	public static COLLECTIONS = new Bucket({
-		definition: {
-			hash: "collections" as any as InventoryBucketHashes,
-			displayProperties: {
-				name: "Collections",
-			} as DestinyDisplayPropertiesDefinition,
-		} as DestinyInventoryBucketDefinition,
-	});
+	public static COLLECTIONS: CollectionsBucket;
 
 	public static id<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> (bucketHash: BUCKET, characterId?: CharacterId, inventoryBucketHash?: InventoryBucketHashes): BucketId<BUCKET> {
 		return `${bucketHash}/${characterId || ""}/${inventoryBucketHash || ""}`;
@@ -49,7 +43,8 @@ export class Bucket {
 	public readonly definition: DestinyInventoryBucketDefinition;
 	public readonly character?: Character;
 	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
-	public readonly items!: Item[];
+	public readonly items!: readonly Item[];
+	protected readonly map: Record<string, number> = {};
 
 	public constructor ({ definition, subBucketDefinition, character, items }: BucketDefinition) {
 		this.name = definition.displayProperties?.name ?? "?";
@@ -71,12 +66,43 @@ export class Bucket {
 			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
 	}
 
+	public getItemById (id: ItemId) {
+		return this.items[this.map[id]];
+	}
+
 	public setItems (items?: Item[] | (() => Item[])) {
 		this.deepsight = !!items;
 		if (typeof items === "function")
-			Object.defineProperty(this, "items", { get: () => Object.freeze(items()), configurable: true });
+			Object.defineProperty(this, "items", { value: items(), configurable: true });
 		else
 			Object.defineProperty(this, "items", { value: items ?? [], configurable: true });
+
+		for (let i = 0; i < this.items.length; i++)
+			this.map[this.items[i].id] = i;
+	}
+
+	public addItems (...items: Item[]) {
+		for (const item of items) {
+			if (this.map[item.id] !== undefined)
+				continue;
+
+			(this.items as Item[]).push(item);
+			this.map[item.id] = this.items.length - 1;
+		}
+	}
+
+	public removeItems (...items: Item[]) {
+		const mutable = this.items as Item[];
+		for (const item of items) {
+			const removeIndex = this.map[item.id];
+			if (removeIndex === undefined)
+				continue;
+
+			const lastItem = mutable.pop();
+			mutable[removeIndex] = lastItem!;
+			delete this.map[item.id];
+			this.map[lastItem!.id] = removeIndex;
+		}
 	}
 
 	public get equippedItem () {
@@ -129,3 +155,67 @@ export class Bucket {
 			|| item.definition.inventory?.bucketTypeHash === this.definition.hash;
 	}
 }
+
+export class CollectionsBucket extends Bucket {
+	private readonly subBuckets: Partial<Record<InventoryBucketHashes, number[]>> = {};
+
+	public getItemsInSubBucket (bucketHash: InventoryBucketHashes) {
+		return this.subBuckets[bucketHash]?.map(index => this.items[index]) ?? [];
+	}
+
+	public override addItems (...items: Item[]) {
+		super.addItems(...items);
+		for (const item of items) {
+			const subBucketHash = item.definition.inventory?.bucketTypeHash as InventoryBucketHashes;
+			if (subBucketHash === undefined)
+				continue;
+
+			const subBucket = this.subBuckets[subBucketHash] ??= [];
+			const index = this.map[item.id];
+			if (!subBucket.includes(index))
+				subBucket.push(index);
+		}
+	}
+
+	public override removeItems (...items: Item[]) {
+		for (const item of items) {
+			const subBucketHash = item.definition.inventory?.bucketTypeHash as InventoryBucketHashes;
+			if (subBucketHash === undefined)
+				continue;
+
+			const subBucket = this.subBuckets[subBucketHash];
+			if (!subBucket)
+				continue;
+
+			const index = this.map[item.id];
+			Arrays.removeSwap(subBucket, index);
+		}
+
+		super.removeItems(...items);
+
+		for (const item of items) {
+			const subBucketHash = item.definition.inventory?.bucketTypeHash as InventoryBucketHashes;
+			if (subBucketHash === undefined)
+				continue;
+
+			const subBucket = this.subBuckets[subBucketHash];
+			if (!subBucket)
+				continue;
+
+			const index = this.map[item.id];
+			if (index === undefined)
+				continue;
+
+			subBucket.push(index);
+		}
+	}
+}
+
+Bucket.COLLECTIONS = new CollectionsBucket({
+	definition: {
+		hash: "collections" as any as InventoryBucketHashes,
+		displayProperties: {
+			name: "Collections",
+		} as DestinyDisplayPropertiesDefinition,
+	} as DestinyInventoryBucketDefinition,
+});

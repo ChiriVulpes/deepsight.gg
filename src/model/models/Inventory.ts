@@ -13,7 +13,6 @@ import ProfileBatch from "model/models/ProfileBatch";
 import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
-import Arrays from "utility/Arrays";
 import Bound from "utility/decorator/Bound";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
@@ -204,8 +203,8 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		const bucket = item.bucket;
 
 		// and on its bucket changing, remove it from its old bucket and put it in its new one
-		Arrays.remove(oldBucket.items, item);
-		bucket.items.push(item);
+		oldBucket.removeItems(item);
+		bucket.addItems(item);
 
 		// if this item is equipped now, make the previously equipped item not equipped
 		if (equipped)

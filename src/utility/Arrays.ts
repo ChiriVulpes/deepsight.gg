@@ -39,6 +39,33 @@ namespace Arrays {
 	}
 
 	/**
+	 * Removes one instance of the given value from the given array.
+	 * @returns `true` if removed, `false` otherwise
+	 */
+	export function removeSwap (array: any[] | undefined, ...values: any[]) {
+		if (!array)
+			return false;
+
+		let removed = false;
+		for (const value of values) {
+			const index = array.indexOf(value);
+			if (index === -1)
+				continue;
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const swap = array.pop();
+			if (!array.length)
+				break;
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			array[index] = swap;
+			removed = true;
+		}
+
+		return removed;
+	}
+
+	/**
 	 * Adds the given value to the given array if not present.
 	 * @returns `true` if added, `false` otherwise
 	 */

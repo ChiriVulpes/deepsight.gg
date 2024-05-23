@@ -351,8 +351,17 @@ class Item {
 	}
 
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId, inventory?: Inventory) {
+		const id = `hash:${definition.hash}:collections` as ItemId;
+
+		const existing = Bucket.COLLECTIONS.getItemById(id);
+		if (existing) {
+			await Deepsight.apply(manifest, profile, existing);
+			Collectibles.update(profile, existing);
+			return existing;
+		}
+
 		const init: IItemInit = {
-			id: `hash:${definition.hash}:collections` as ItemId,
+			id,
 			reference: { itemHash: definition.hash, itemInstanceId: instanceId, quantity: 0, bindStatus: ItemBindStatus.NotBound, location: ItemLocation.Unknown, bucketHash: InventoryBucketHashes.General, transferStatus: TransferStatuses.NotTransferrable, lockable: false, state: ItemState.None, isWrapper: false, tooltipNotificationIndexes: [], metricObjective: { objectiveHash: -1, complete: false, visible: false, completionValue: 0 }, itemValueVisibility: [] },
 			definition,
 			bucket: Bucket.COLLECTIONS,
@@ -698,14 +707,14 @@ class Item {
 						continue;
 
 					if (bucket !== correctBucket)
-						Arrays.remove(bucket?.items, item, this);
+						bucket?.removeItems(item, this);
 
 					if (bucket === correctBucket)
-						Arrays.remove(bucket?.items, item);
+						bucket?.removeItems(item);
 				}
 
 				this.bucket = correctBucket;
-				Arrays.add(correctBucket.items, this);
+				correctBucket.addItems(this);
 			}
 		}
 
