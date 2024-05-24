@@ -4,10 +4,13 @@ import { ClarityManifest } from "model/models/manifest/ClarityManifest";
 import { DeepsightManifest } from "model/models/manifest/DeepsightManifest";
 import DestinyManifest from "model/models/manifest/DestinyManifest";
 import type { ManifestItem } from "model/models/manifest/IManifest";
+import Time from "utility/Time";
 import type { AllClarityDatabaseComponents } from "utility/endpoint/clarity/endpoint/GetClarityDatabase";
 import type { AllDeepsightManifestComponents } from "utility/endpoint/deepsight/endpoint/GetDeepsightManifest";
 
-const Manifest = Model.createTemporary(async api => {
+const Manifest = Model.createDynamic(Time.seconds(30), async api => {
+	api.emitProgress(0, "Loading manifest");
+
 	const destinyManifest = await api.subscribeProgressAndWait(DestinyManifest, 1 / 3);
 	const deepsightManifest = await api.subscribeProgressAndWait(DeepsightManifest, 1 / 3, 1 / 3);
 	const clarityManifest = await api.subscribeProgressAndWait(ClarityManifest, 1 / 3, 2 / 3);

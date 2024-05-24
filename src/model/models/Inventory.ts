@@ -14,11 +14,9 @@ import FocusManager from "ui/FocusManager";
 import type { IItemComponentCharacterHandler } from "ui/inventory/ItemComponent";
 import LoadingManager from "ui/LoadingManager";
 import Bound from "utility/decorator/Bound";
-import Bungie from "utility/endpoint/bungie/Bungie";
 import { EventManager } from "utility/EventManager";
 import Objects from "utility/Objects";
 import Time from "utility/Time";
-import URL from "utility/URL";
 
 interface IInventoryModelEvents {
 	update: Event;
@@ -124,25 +122,60 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		return this;
 	}
 
+	public async await (api?: IModelGenerationApi, amount?: number, from?: number) {
+		if (!this.loaded)
+			await this.refresh(api, amount, from);
+
+		return this;
+	}
+
+	private queued = false;
+	private handled = false;
+	private refreshPromise?: Promise<this>;
 	@Bound
-	public async await (progress?: IModelGenerationApi, amount = 1, from = 0) {
+	public async refresh (api?: IModelGenerationApi, amount?: number, from?: number) {
+		this.queued = true;
+		if (api)
+			this.watchingModelGenerationApis.push({ api, amount, from });
+
+		if (this.handled)
+			return this.refreshPromise?.then(async () => { while (this.refreshPromise) await this.refreshPromise; });
+
+		this.handled = true;
+		while (this.queued) {
+			this.queued = false;
+			while (this.refreshPromise)
+				await this.refreshPromise;
+
+			this.refreshPromise = this.refreshInternal();
+			await this.refreshPromise;
+			delete this.refreshPromise;
+		}
+		this.handled = false;
+	}
+
+	private watchingModelGenerationApis: { api: IModelGenerationApi, amount?: number, from?: number }[] = [];
+	private async refreshInternal () {
 		if (this.shouldSkipRefresh?.() ?? false)
 			return this;
 
-		if (!URL.bungieID && !Bungie.authenticated)
-			return this;
-
-		progress?.subscribeProgress(Manifest, (1 / 3) * amount, from);
+		for (const { api, amount = 1, from = 0 } of this.watchingModelGenerationApis)
+			api.subscribeProgress(Manifest, (1 / 3) * amount, from);
 		await Manifest.await();
 
-		progress?.emitProgress((2 / 3) * amount + from, "Loading items");
-		progress?.subscribeProgress(Items, (1 / 3) * amount, (2 / 3) * amount + from);
+		for (const { api, amount = 1, from = 0 } of this.watchingModelGenerationApis) {
+			api.emitProgress((2 / 3) * amount + from, "Loading items");
+			api.subscribeProgress(Items, (1 / 3) * amount, (2 / 3) * amount + from);
+		}
 		const itemsLoadedPromise = Items.await();
 		if (!this.buckets)
 			await itemsLoadedPromise;
 
-		progress?.emitProgress((3 / 3) * amount + from);
+		for (const { api, amount = 1, from = 0 } of this.watchingModelGenerationApis)
+			api?.emitProgress((3 / 3) * amount + from);
 		this.loaded = true;
+		this.watchingModelGenerationApis = [];
+
 		return this as Required<this>;
 	}
 
@@ -222,9 +255,9 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	@Bound
 	private onPageFocusChange ({ focused }: { focused: boolean }) {
 		if (focused)
-			void this.await();
+			void this.refresh();
 		clearInterval(this.interval);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.interval = window.setInterval(this.await, focused ? Time.seconds(5) : Time.minutes(2));
+		this.interval = window.setInterval(this.refresh, focused ? Time.seconds(5) : Time.minutes(2));
 	}
 }

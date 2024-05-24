@@ -14,12 +14,8 @@ import ItemSort from "ui/inventory/sort/ItemSort";
 import CollectionsCurrentlyAvailable from "ui/view/collections/CollectionsCurrentlyAvailable";
 import CollectionsMoment from "ui/view/collections/CollectionsMoment";
 import { FILTER_MANAGER_COLLECTIONS, SORT_MANAGER_COLLECTIONS, VIEW_ID_COLLECTIONS, VIEW_NAME_COLLECTIONS } from "ui/view/collections/ICollectionsView";
-import Bungie from "utility/endpoint/bungie/Bungie";
 
 const CollectionsViewModel = Model.createTemporary(async (api): Promise<[ProfileBatch?, Inventory?]> => {
-	if (!Bungie.authenticated)
-		return [];
-
 	api.emitProgress(0, "Loading collections");
 
 	const profile = ProfileBatch.latest ?? await api.subscribeProgressAndWait(ProfileBatch, 0.5);

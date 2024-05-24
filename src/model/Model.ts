@@ -342,17 +342,22 @@ namespace Model {
 
 						if (this.model.useCacheOnError) {
 							const cached = await this.resolveCache(true);
-							if (cached)
+							if (cached) {
+								api.emitProgress(1);
 								return resolve(cached);
+							}
 						}
 
 						this.event.emit("errored", { error: error as Error });
 						this.errored = true;
+						api.emitProgress(1);
 						reject(error);
 					});
 
 					void generated.then(async value => {
-						resolve(await this.set(value));
+						const result = await this.set(value);
+						api.emitProgress(1);
+						resolve(result);
 					});
 				});
 

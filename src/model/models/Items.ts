@@ -259,7 +259,6 @@ export default Model.createDynamic(Time.seconds(30), async api => {
 
 	Plugs.logInitialisedPlugTypes();
 	ManifestItem.logQueryCounts();
-	api.emitProgress(1);
 
 	return buckets;
 });

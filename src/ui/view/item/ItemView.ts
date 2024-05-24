@@ -36,7 +36,6 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	if (!itemDef)
 		return;
 
-	api.emitProgress(1);
 	return Item.createFake(manifest, inventory.profile!, itemDef);
 }
 

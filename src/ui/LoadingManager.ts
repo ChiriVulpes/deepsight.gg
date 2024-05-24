@@ -11,7 +11,11 @@ class LoadingManager {
 
 	public readonly event = new EventManager<this, ILoadingManagerEvents>(this);
 
-	public readonly model = Model.createTemporary(async () => !Bungie.authenticated ? undefined : this.event.waitFor("end"));
+	public readonly model = Model.createTemporary(async api => {
+		api.emitProgress(0, "Loading");
+		if (Bungie.authenticated)
+			await this.event.waitFor("end");
+	});
 
 	private loaders = new Set<string>();
 

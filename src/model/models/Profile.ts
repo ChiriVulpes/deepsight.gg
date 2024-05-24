@@ -154,15 +154,19 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		bungieID: BungieID;
 	}
 	return Model.createDynamic<Response>(Time.seconds(30), async api => {
-		const result = {} as Response;
-
 		// only allow one profile query at a time
 		while (lastOperation)
 			await lastOperation;
 
 		const membership = URL.bungieID ? Store.items.destinyMembershipOverride : await getCurrentDestinyMembership();
 		if (!membership)
-			throw new Error("Can't load profile without membership");
+			return {
+				lastModified: new Date(),
+				bungieID: { name: "", code: 0 },
+				responseMintedTimestamp: new Date().toISOString(),
+			} as Response;
+
+		const result = {} as Response;
 
 		const bungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
 		const userModels = models[BungieID.stringify(bungieID)] ??= {};
@@ -235,8 +239,6 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 
 		await lastOperation;
 		lastOperation = undefined;
-
-		api.emitProgress(3 / 3);
 
 		result.lastModified ??= new Date(Store.items.profiles?.[`${membership.bungieGlobalDisplayName}#${`${membership.bungieGlobalDisplayNameCode}`.padStart(4, "0")}`]?.lastModified ?? Date.now());
 		return result;

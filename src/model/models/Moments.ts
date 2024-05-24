@@ -31,7 +31,6 @@ export default Model.createDynamic("Daily", async api => {
 
 	result.sort((a, b) => getSortIndex(profile, b) - getSortIndex(profile, a));
 
-	api.emitProgress(3 / 3);
 	return result;
 });
 
