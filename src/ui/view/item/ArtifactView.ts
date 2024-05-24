@@ -18,7 +18,7 @@ import Strings from "utility/Strings";
 export async function resolveArtifactURL (url: string | undefined, api: IModelGenerationApi) {
 	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 1 / 4, 2 / 4);
 	url = !url ? url : Strings.sliceTo(url, "/");
-	return inventory.getBucket(InventoryBucketHashes.SeasonalArtifact, (url ?? inventory.currentCharacter.characterId) as CharacterId)?.equippedItem;
+	return inventory.getBucket(InventoryBucketHashes.SeasonalArtifact, (url ?? inventory.currentCharacter?.characterId) as CharacterId | undefined)?.equippedItem;
 }
 
 enum ArtifactViewClasses {

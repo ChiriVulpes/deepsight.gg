@@ -402,7 +402,7 @@ class Item {
 		return this.bucket.characterId;
 	}
 
-	private _owner!: CharacterId;
+	private _owner?: CharacterId;
 
 	/**
 	 * The character this item is in the inventory of, or the current character if the item is somewhere else

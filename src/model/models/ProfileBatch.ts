@@ -83,14 +83,6 @@ const ProfileBatch = Model.createDynamic(Time.seconds(30), async api => {
 	const profile = await ProfileQuery.await();
 
 	Object.assign(window, { profile });
-
-	// const membership = await getCurrentDestinyMembership();
-	// const characters = await Promise.all(Object.keys(profile.characters?.data ?? Objects.EMPTY)
-	// 	.map(characterId => GetCharacter.query(membership.membershipType, membership.membershipId, characterId as CharacterId, [
-	// 		...allComponentTypes,
-	// 	])));
-	// console.log(characters);
-
 	return profile;
 }, "Profile");
 

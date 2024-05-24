@@ -70,8 +70,10 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		Characters.event.until(disposed, event => event
 			// don't emit update separately for profile characters, that can be delayed to whenever the next item update is
 			.subscribe("loaded", ({ characters, sorted }) => {
-				for (const item of Object.values(this.items ?? {}))
-					item["_owner"] = sorted[0].characterId;
+				const currentCharacter = sorted[0];
+				if (currentCharacter)
+					for (const item of Object.values(this.items ?? {}))
+						item["_owner"] = currentCharacter.characterId;
 
 				for (const character of sorted)
 					for (const loadout of character.loadouts)
@@ -86,7 +88,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	}
 
 	public get currentCharacter () {
-		return Characters.getCurrent()!;
+		return Characters.getCurrent();
 	}
 
 	public hasBucket (bucketHash?: InventoryBucketHashes, characterId?: CharacterId) {
@@ -223,7 +225,7 @@ export default class Inventory implements IItemComponentCharacterHandler {
 
 		item.inventory = this;
 
-		item["_owner"] = this.currentCharacter.characterId;
+		item["_owner"] = this.currentCharacter?.characterId;
 
 		if (item.shaped && !item.isAdept())
 			this.craftedItems.add(item.definition.hash);

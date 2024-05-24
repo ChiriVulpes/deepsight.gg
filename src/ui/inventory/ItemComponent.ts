@@ -23,7 +23,7 @@ import Store from "utility/Store";
 import Bound from "utility/decorator/Bound";
 
 export interface IItemComponentCharacterHandler {
-	currentCharacter: Character;
+	currentCharacter?: Character;
 	/**
 	 * Return the character associated with a given bucket ID, 
 	 * or, if no character is associated with that bucket ID, return the default character.
@@ -419,6 +419,10 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
+		const currentCharacter = this.inventory?.currentCharacter;
+		if (!currentCharacter)
+			return;
+
 		if (Component.window.width <= 800)
 			return viewManager.showItemTooltip(this.item);
 
@@ -430,9 +434,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
-			await this.item.transferToggleVaulted(this.inventory?.currentCharacter.characterId as CharacterId);
+			await this.item.transferToggleVaulted(currentCharacter.characterId);
 		else {
-			const character = this.item.character ?? this.inventory?.currentCharacter.characterId as CharacterId;
+			const character = this.item.character ?? currentCharacter.characterId;
 			if (!this.item.bucket.isCharacter())
 				await this.item.transferToCharacter(character);
 

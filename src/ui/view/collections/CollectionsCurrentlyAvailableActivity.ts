@@ -2,7 +2,6 @@ import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type { CharacterId } from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
 import { SourceType } from "model/models/items/Source";
 import Card, { CardClasses } from "ui/Card";
@@ -131,7 +130,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 					?? Display.description(source.dropTable.displayProperties)
 					?? Display.description(activity)),
 				{
-					character: inventory?.currentCharacter.characterId as CharacterId | undefined,
+					character: inventory?.currentCharacter?.characterId,
 					singleLine: true,
 				})
 			.appendTo(this.content);
