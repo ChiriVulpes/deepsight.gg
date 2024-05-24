@@ -5,6 +5,7 @@
 
 	&-content {
 		overflow-y: auto;
+		@include scrollbar;
 		padding: 0 150px;
 
 		@include tablet-or-mobile {

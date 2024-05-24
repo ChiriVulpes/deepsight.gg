@@ -31,6 +31,7 @@
 		box-sizing: border-box;
 		padding: var(--padding-y, var(--view-padding-top)) var(--view-padding-x) var(--padding-y, var(--view-padding-bottom));
 		overflow-y: auto;
+		@include scrollbar;
 		align-self: center;
 		grid-row: 3;
 		// z-index: 1;

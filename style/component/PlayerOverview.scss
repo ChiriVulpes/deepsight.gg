@@ -169,6 +169,7 @@
 				grid-template-rows: initial;
 				grid-auto-flow: row;
 				overflow-y: auto;
+				@include scrollbar;
 				height: auto;
 				padding-bottom: 10px;
 			}

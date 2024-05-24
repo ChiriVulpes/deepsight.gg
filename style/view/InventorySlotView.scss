@@ -14,6 +14,7 @@
 
 		@include mobile {
 			overflow-y: auto;
+			@include scrollbar;
 		}
 	}
 
@@ -153,6 +154,7 @@
 
 			@media (max-height: 1200px) {
 				overflow-y: auto;
+				@include scrollbar;
 				display: flex;
 				flex-direction: column;
 				height: auto;

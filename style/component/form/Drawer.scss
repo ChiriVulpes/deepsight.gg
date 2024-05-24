@@ -55,6 +55,7 @@
 		grid-column: 1;
 		z-index: 1;
 		overflow-y: auto;
+		@include scrollbar;
 		overflow-x: hidden;
 		min-height: 0;
 		@include transition(out, opacity, transform);

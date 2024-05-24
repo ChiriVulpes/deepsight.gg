@@ -111,6 +111,7 @@
 
 	@include vertical-or-tablet-or-mobile {
 		overflow-y: auto;
+		@include scrollbar;
 		&-content {
 			overflow-y: initial;
 			grid-template-columns: 1fr;

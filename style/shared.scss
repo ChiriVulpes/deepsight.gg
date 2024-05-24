@@ -208,3 +208,7 @@ h3 + p + p {
 	color: color(keyword);
 	font-weight: bold;
 }
+
+@mixin scrollbar {
+	scrollbar-color: #888 transparent;
+}
