@@ -77,7 +77,11 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 						.appendTo(wrapper);
 				}
 
-				for (const cls of Characters.getSortedClasses()) {
+				const classes = Characters.getSortedClasses()
+					.concat(DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock)
+					.distinct();
+
+				for (const cls of classes) {
 					const items = classItems[cls];
 					if (!items?.length)
 						continue;
