@@ -22,7 +22,8 @@ export default IFilter.async(async () => {
 		suggestedValues: [...new Set(Object.values(inventory.items ?? {})
 			.filter(item => item.definition.itemType === DestinyItemType.Weapon)
 			.map(item => item.definition.itemTypeDisplayName)
-			.filter(Arrays.filterFalsy))],
+			.filter(Arrays.filterFalsy)
+			.sort())],
 		or: true,
 		apply: (value, item) => {
 			item.definition.itemTypeDisplayNameLowerCase ??= (item.definition.itemTypeDisplayName ?? "Unknown").toLowerCase();

@@ -21,6 +21,7 @@ export default IFilter.async(async () => {
 			icon: Display.icon(plug.definition)!,
 		})
 		.filter(Arrays.filterFalsy)
+		.sort((a, b) => a.name.localeCompare(b.name))
 		.map(plug => [plug.name, plug])).values()];
 
 	function getMatchingPerk (filterValue: string) {
