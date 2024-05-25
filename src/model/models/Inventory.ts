@@ -187,9 +187,8 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		this.buckets = buckets;
 		const iterableBuckets = Object.values(this.buckets) as Bucket[];
 		for (const bucket of iterableBuckets)
-			if (!bucket.deepsight)
-				for (const item of [...bucket.items])
-					this.updateItem(bucket, item);
+			for (const item of [...bucket.items])
+				this.updateItem(bucket, item);
 
 		DebugInfo.updateBuckets(buckets);
 
@@ -219,8 +218,13 @@ export default class Inventory implements IItemComponentCharacterHandler {
 	private updateItem (newBucket: Bucket, item: Item) {
 		const items = this.items!;
 
-		const oldItem = items[item.id] as Item | undefined;
 		// use old item if it exists
+		const oldItem = items[item.id] as Item | undefined;
+		if (oldItem && oldItem !== item) {
+			// buckets get replaced each refresh, so we need to replace new item instances with the old ones
+			newBucket.removeItems(item);
+			newBucket.addItems(oldItem);
+		}
 		item = items[item.id] = oldItem?.update(item) ?? item;
 
 		item.inventory = this;
@@ -233,22 +237,28 @@ export default class Inventory implements IItemComponentCharacterHandler {
 		item.event.subscribe("bucketChange", this.onItemBucketChange);
 	}
 
+	public transferItem (item: Item, oldBucket: Bucket, newBucket?: Bucket) {
+		oldBucket.removeItems(item);
+		for (const subBucket of this.getSubBuckets(oldBucket)) {
+			subBucket.removeItems(item);
+		}
+
+		newBucket?.addItems(item);
+		for (const subBucket of this.getSubBuckets(newBucket)) {
+			subBucket.regenerateItems();
+		}
+	}
+
+	private getSubBuckets (bucket?: Bucket) {
+		if (!bucket || !this.buckets)
+			return [];
+
+		return Object.values(this.buckets)
+			.filter((subBucket): subBucket is Bucket => !!subBucket?.isSubBucketOf(bucket));
+	}
+
 	@Bound
 	private onItemBucketChange ({ item, oldBucket, equipped }: IItemEvents["bucketChange"]) {
-		const bucket = item.bucket;
-
-		// and on its bucket changing, remove it from its old bucket and put it in its new one
-		oldBucket.removeItems(item);
-		bucket.addItems(item);
-
-		// if this item is equipped now, make the previously equipped item not equipped
-		if (equipped)
-			for (const potentiallyEquippedItem of bucket.items)
-				if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
-					// only visually unequip items if they're in the same slot
-					if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
-						delete potentiallyEquippedItem.equipped;
-
 		// inform listeners of inventory changes that an item has updated
 		this.event.emit("itemUpdate");
 	}

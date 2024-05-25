@@ -848,6 +848,14 @@ class Item {
 					item.equipped = result.equipped;
 					item.trustTransferUntil = Date.now();
 					pendingEmits.push({ item, oldBucket, equipped: item.equipped });
+					item.inventory?.transferItem(item, oldBucket, newBucket);
+
+					if (item.equipped)
+						for (const potentiallyEquippedItem of newBucket?.items ?? [])
+							if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
+								// only visually unequip items if they're in the same slot
+								if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
+									delete potentiallyEquippedItem.equipped;
 				}
 
 				for (const { item, oldBucket, equipped } of pendingEmits)

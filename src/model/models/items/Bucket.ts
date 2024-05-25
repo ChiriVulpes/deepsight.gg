@@ -44,12 +44,14 @@ export class Bucket {
 	public readonly character?: Character;
 	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
 	public readonly items!: readonly Item[];
-	protected readonly map: Record<string, number> = {};
+	protected map: Record<string, number>;
+	private itemSupplier?: () => Item[];
 
 	public constructor ({ definition, subBucketDefinition, character, items }: BucketDefinition) {
 		this.name = definition.displayProperties?.name ?? "?";
 		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
 		this.capacity = definition.itemCount;
+		this.map = {};
 		this.setItems(items);
 
 		this.hash = definition.hash;
@@ -66,17 +68,36 @@ export class Bucket {
 			this.name += ` / ${subBucketDefinition?.displayProperties?.name ?? "?"}`;
 	}
 
+	public isSubBucketOf (bucket: Bucket) {
+		if (bucket === this)
+			return false;
+
+		const [hash, character] = Bucket.parseId(bucket.id);
+		if (this.hash === hash && this.characterId === character)
+			return true;
+
+		return false;
+	}
+
 	public getItemById (id: ItemId) {
 		return this.items[this.map[id]];
 	}
 
+	public regenerateItems () {
+		if (this.itemSupplier) {
+			this.setItems(this.itemSupplier);
+		}
+	}
+
 	public setItems (items?: Item[] | (() => Item[])) {
+		delete this.itemSupplier;
 		this.deepsight = !!items;
 		if (typeof items === "function")
-			Object.defineProperty(this, "items", { value: items(), configurable: true });
+			Object.defineProperty(this, "items", { value: (this.itemSupplier = items)(), configurable: true });
 		else
 			Object.defineProperty(this, "items", { value: items ?? [], configurable: true });
 
+		this.map = {};
 		for (let i = 0; i < this.items.length; i++)
 			this.map[this.items[i].id] = i;
 	}
@@ -86,8 +107,8 @@ export class Bucket {
 			if (this.map[item.id] !== undefined)
 				continue;
 
+			this.map[item.id] = this.items.length;
 			(this.items as Item[]).push(item);
-			this.map[item.id] = this.items.length - 1;
 		}
 	}
 

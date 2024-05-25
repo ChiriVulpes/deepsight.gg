@@ -1,30 +1,29 @@
 import { InventoryBucketHashes, ItemCategoryHashes, ItemTierTypeHashes } from "@deepsight.gg/enums";
 import type { Buckets } from "model/models/Items";
-import type { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 
 export default class DebugInfo {
 	public static updateBuckets (buckets: Buckets) {
-		const encountered = new Map<Item, Set<Bucket>>();
-		for (const bucket of Object.values(buckets)) {
-			if (bucket?.deepsight)
-				continue;
+		// const encountered = new Map<Item, Set<Bucket>>();
+		// for (const bucket of Object.values(buckets)) {
+		// 	if (bucket?.deepsight)
+		// 		continue;
 
-			for (const item of bucket?.items ?? []) {
-				let buckets = encountered.get(item);
-				if (!buckets) {
-					buckets = new Set();
-					encountered.set(item, buckets);
-				}
+		// 	for (const item of bucket?.items ?? []) {
+		// 		let buckets = encountered.get(item);
+		// 		if (!buckets) {
+		// 			buckets = new Set();
+		// 			encountered.set(item, buckets);
+		// 		}
 
-				buckets.add(bucket!);
-			}
-		}
+		// 		buckets.add(bucket!);
+		// 	}
+		// }
 
-		const encounteredMultiple = Array.from(encountered.entries())
-			.filter(([, buckets]) => buckets.size > 1);
-		if (encounteredMultiple.length)
-			console.warn("Items are in multiple buckets!", encounteredMultiple);
+		// const encounteredMultiple = Array.from(encountered.entries())
+		// 	.filter(([, buckets]) => buckets.size > 1);
+		// if (encounteredMultiple.length)
+		// 	console.warn("Items are in multiple buckets!", encounteredMultiple);
 
 		interface ItemRarities {
 			basics: Item[];

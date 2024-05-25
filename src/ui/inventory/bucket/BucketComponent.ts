@@ -157,7 +157,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 			return false;
 
 		const items = this.bucket.items.slice().sort(sort.sort);
-		const sortHash = items.map(item => `${item.id}:${item.equipped}`).join(",");
+		const sortHash = items.map(item => `${item.id}:${+!!item.equipped}`).join(",");
 		if (this.sortHash === sortHash)
 			return false;
 
