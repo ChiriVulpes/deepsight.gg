@@ -400,7 +400,7 @@ $z-index-loading: 1000;
 			background-size: cover;
 			z-index: -1;
 			inset: 1px;
-			:where(.item-masterwork, .item-deepsight) ~ & {
+			.item-masterwork ~ &, .item-deepsight ~ &, .item-wishlist ~ &, .item-wishlist-no-match ~ & {
 				inset: 2px;
 			}
 		}
@@ -425,12 +425,12 @@ $z-index-loading: 1000;
 				margin-right: 8px;
 			}
 
-			&:where(:not(img)) {
+			&:not(img) {
 				background: #0007;
 				padding: 0 3px;
 			}
 
-			&:where(img) {
+			@at-root img#{&} {
 				min-height: 0;
 				background-color: #0007;
 				box-shadow: 0 0 0 3px #0007;

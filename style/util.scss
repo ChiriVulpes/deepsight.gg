@@ -14,7 +14,7 @@
     @if (length($transition-properties) > 0) {
         transition: all $duration $timing-function;
         transition-property: $transition-properties;
-        :root:not(.focused, :hover) & {
+        :root.inactive & {
             transition: none;
         }
     } @else {
@@ -24,7 +24,7 @@
 }
 
 @mixin blur-disables-animation {
-    :root:not(.focused, :hover) & {
+    :root.inactive & {
         animation: none;
     }
 }
