@@ -142,7 +142,10 @@ export default class ItemPerks extends ItemSockets {
 				this.wishlistNameInput.text.set("WISHLIST");
 				this.wishlistButton.classes.remove(ItemPerksClasses.MarkedAsJunk);
 			})
-			.event.subscribe("mouseleave", () => {
+			.event.subscribe("mouseleave", event => {
+				if (this.wishlistContainer.contains(document.elementFromPoint(event.clientX, event.clientY)))
+					return;
+
 				this.wishlistDrawer.close("mouse");
 				if (!this.editingWishlist) {
 					const displayMarkedAsJunk = this.wishlists?.length === 0;
