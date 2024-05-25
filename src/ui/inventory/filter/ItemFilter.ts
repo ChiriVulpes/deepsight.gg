@@ -37,6 +37,7 @@ export enum ItemFilterClasses {
 	ButtonLabel = "item-filter-button-label",
 	Input = "item-filter-input",
 	Reset = "item-filter-reset",
+	Reset1 = "item-filter-reset1",
 	FilterChip = "item-filter-chip",
 	FilterChipPrefix = "item-filter-chip-prefix",
 	FilterChipValue = "item-filter-chip-value",
@@ -180,7 +181,8 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 		this.resetButton = Button.create()
 			.classes.add(ItemFilterClasses.Reset, Classes.Hidden)
 			.event.subscribe("click", () => this.reset(true))
-			.append(Component.create())
+			.append(Component.create()
+				.classes.add(ItemFilterClasses.Reset1))
 			.appendTo(this.button);
 
 		////////////////////////////////////

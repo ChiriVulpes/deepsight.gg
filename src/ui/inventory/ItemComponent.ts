@@ -8,6 +8,7 @@ import type { CharacterId } from "model/models/items/Item";
 import { Classes } from "ui/Classes";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
+import ExtraInfoManager from "ui/ExtraInfoManager";
 import Loadable from "ui/Loadable";
 import Display from "ui/bungie/DisplayProperties";
 import LoadedIcon from "ui/bungie/LoadedIcon";
@@ -37,23 +38,20 @@ export interface IItemComponentEvents extends ComponentEvents {
 
 export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = [Item?, Inventory?]> extends Button<ARGS> {
 
-	private static readonly showers = new Set<string>();
+	static {
+		ExtraInfoManager.register("item");
+	}
+
 	public static showExtra (id: string) {
-		ItemComponent.showers.add(id);
-		document.documentElement.classList.add("show-item-extra-info");
+		ExtraInfoManager.enable("item", id);
 	}
 
 	public static hideExtra (id: string) {
-		ItemComponent.showers.delete(id);
-		if (!ItemComponent.showers.size)
-			document.documentElement.classList.remove("show-item-extra-info");
+		ExtraInfoManager.disable("item", id);
 	}
 
-	public static toggleExtra (id: string, newState = !ItemComponent.showers.has(id)) {
-		if (newState)
-			ItemComponent.showExtra(id);
-		else
-			ItemComponent.hideExtra(id);
+	public static toggleExtra (id: string, newState?: boolean) {
+		ExtraInfoManager.toggle("item", id, newState);
 	}
 
 	public override readonly event!: ComponentEventManager<this, IItemComponentEvents>;
@@ -407,10 +405,12 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			rendered.classes.add(ItemClasses.ExtraInfo)
 				.appendTo(this.extra);
 			if (++extra === 3)
-				return;
+				break;
 		}
 
-		this.extra.classes.toggle(extra === 0 || (this.item.definition.inventory?.bucketTypeHash === InventoryBucketHashes.Engrams && extra === 1), ItemClasses.ExtraEmpty);
+		const empty = extra === 0 || (this.item.definition.inventory?.bucketTypeHash === InventoryBucketHashes.Engrams && extra === 1);
+		this.extra.classes.toggle(empty, ItemClasses.Extra_Empty);
+		this.extra.classes.toggle(!empty, ItemClasses.Extra_NonEmpty);
 		this.extra.classes.toggle(encounteredQuantityOrPowerState === 1 && extra < 3, ItemClasses.ExtraNoneAfterQuantityOrPower);
 	}
 

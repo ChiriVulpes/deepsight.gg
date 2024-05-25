@@ -374,7 +374,7 @@ $z-index-loading: 1000;
 	}
 
 	&-extra {
-		:root:not(.show-extra-info, .show-item-extra-info) .item:not(:hover, :focus-visible) &:not(.item-extra-empty) {
+		:root.no-item-extra-info .item:not(:hover, :focus-visible) &--non-empty {
 			&::before,
 			.item-extra-info {
 				display: none;
