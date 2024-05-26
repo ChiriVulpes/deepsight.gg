@@ -405,7 +405,7 @@ $z-index-loading: 1000;
 			}
 		}
 
-		&-empty {
+		&--empty {
 			&::before {
 				background: none;
 				position: relative;
