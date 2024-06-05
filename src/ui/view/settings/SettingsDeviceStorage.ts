@@ -21,9 +21,9 @@ export default class SettingsDeviceStorage extends Card<[]> {
 		super.onMake();
 		this.title.text.set("Account & Storage");
 
-		Component.create("h1")
-			.text.set("If you see this Chiri was bad and forgot to readd something she was too lazy to fix")
-			.appendTo(this.content);
+		// Component.create("h1")
+		// 	.text.set("If you see this Chiri was bad and forgot to readd something she was too lazy to fix")
+		// 	.appendTo(this.content);
 		// const memberships = !Bungie.authenticated ? undefined : await Promise.race([Memberships.await(), Async.sleep(5000)]).catch(() => undefined);
 		// // if cross save is disabled and there's more than one membership, show a selection for which destiny membership should be viewed
 		// if ((memberships?.destinyMemberships.length ?? 0) > 1) {
