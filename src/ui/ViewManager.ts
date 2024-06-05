@@ -33,7 +33,7 @@ import ItemTooltipView from "ui/view/itemtooltip/ItemTooltipView";
 import SettingsView from "ui/view/SettingsView";
 import Async from "utility/Async";
 import { EventManager } from "utility/EventManager";
-import Store from "utility/Store";
+import ProfileManager from "utility/ProfileManager";
 import Strings from "utility/Strings";
 import URL from "utility/URL";
 
@@ -95,7 +95,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return Store.getProfile() ? InventoryWeaponsView : AuthView;
+		return ProfileManager.get() ? InventoryWeaponsView : AuthView;
 	}
 
 	public static hasView () {

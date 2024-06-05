@@ -2,6 +2,7 @@ import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import BungieID from "utility/BungieID";
+import ProfileManager from "utility/ProfileManager";
 import type { IProfileStorage } from "utility/Store";
 import Store from "utility/Store";
 import Time from "utility/Time";
@@ -159,7 +160,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		while (lastOperation)
 			await lastOperation;
 
-		const account = Store.getProfile();
+		const account = ProfileManager.get();
 		if (!account || account.data.membershipType === undefined || account.data.membershipId === undefined)
 			return {
 				lastModified: new Date(),

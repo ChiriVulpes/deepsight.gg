@@ -4,6 +4,7 @@ import Manifest from "model/models/Manifest";
 import Component from "ui/Component";
 import Button from "ui/form/Button";
 import type BungieID from "utility/BungieID";
+import ProfileManager from "utility/ProfileManager";
 import type { IProfileStorage } from "utility/Store";
 
 export enum ProfileButtonClasses {
@@ -15,6 +16,7 @@ export enum ProfileButtonClasses {
 	Callsign = "profile-button-callsign",
 	Placeholder = "profile-button-placeholder",
 	_Authenticated = "profile-button--authenticated",
+	_Disabled = "profile-button--disabled",
 }
 
 const placeholderEmblem = 4133455811;
@@ -29,6 +31,12 @@ class ProfileButton extends Button<[bungieId: BungieID, profile: IProfileStorage
 		super.onMake(bungieId, profile);
 		this.classes.add(ProfileButtonClasses.Main);
 		this.classes.toggle(!!profile.accessToken, ProfileButtonClasses._Authenticated);
+
+		if (!profile.membershipType && !profile.membershipId) {
+			const newProfile = await ProfileManager.reinit(bungieId);
+			if (!newProfile)
+				this.classes.add(ProfileButtonClasses._Disabled);
+		}
 
 		Component.create("span")
 			.classes.add(ProfileButtonClasses.BungieId)

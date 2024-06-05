@@ -1,6 +1,6 @@
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
-import Store from "utility/Store";
+import ProfileManager from "utility/ProfileManager";
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Loadouts/ClearLoadout/")
@@ -9,7 +9,7 @@ export default BungieEndpoint
 		body: {
 			loadoutIndex: index,
 			characterId: character,
-			membershipType: Store.getProfile()?.data.membershipType,
+			membershipType: ProfileManager.get()?.data.membershipType,
 		},
 	}) as EndpointRequest)
 	.endpoint();

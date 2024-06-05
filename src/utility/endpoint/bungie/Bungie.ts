@@ -1,12 +1,9 @@
-import { DestinyComponentType } from "bungie-api-ts/destiny2";
-import Memberships from "model/models/Memberships";
 import BungieID from "utility/BungieID";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
-import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
-import GetUserClan from "utility/endpoint/bungie/endpoint/groupv2/GetUserClan";
 import RequestOAuthToken from "utility/endpoint/bungie/endpoint/RequestOAuthToken";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
+import ProfileManager from "utility/ProfileManager";
 import Store from "utility/Store";
 import Time from "utility/Time";
 import URL from "utility/URL";
@@ -63,7 +60,7 @@ export class BungieAPI {
 	}
 
 	public get authenticated () {
-		const profile = Store.getProfile()?.data;
+		const profile = ProfileManager.get()?.data;
 		return !!(profile?.authCode && profile.accessToken);
 	}
 
@@ -139,17 +136,16 @@ export class BungieAPI {
 	}
 
 	private async validateAuthorisation (force = false) {
-		if (!force && (Store.getProfile()?.data?.accessTokenExpireTime ?? 0) > Date.now())
+		if (!force && (ProfileManager.get()?.data?.accessTokenExpireTime ?? 0) > Date.now())
 			return; // authorisation valid
 
 		await this.requestToken("refresh");
 	}
 
 	private async requestToken (type: "new" | "refresh") {
-		let idString = type === "refresh" ? BungieID.stringify(Store.getProfile()?.id) ?? "" : "";
+		const idString = type === "refresh" ? BungieID.stringify(ProfileManager.get()?.id) ?? "" : "";
 
-		const profiles = Store.items.profiles ?? {};
-		const storeProfile = profiles[idString];
+		const storeProfile = ProfileManager.byId(idString);
 		if (!storeProfile)
 			// no profile to request token for
 			return false;
@@ -178,45 +174,19 @@ export class BungieAPI {
 		storeProfile.accessTokenRefreshToken = result.refresh_token;
 		storeProfile.lastModified = new Date().toISOString();
 
+		ProfileManager.update(idString, storeProfile);
+
 		if (type === "refresh") {
-			profiles[idString] = storeProfile;
-			Store.items.profiles = profiles;
 			this.event.emit("authenticated", { authType: type });
 			return true;
 		}
 
-		const membership = await Memberships.getCurrentDestinyMembership(storeProfile);
-		if (!membership) {
-			delete profiles[idString];
-			Store.items.profiles = profiles;
+		const profile = await ProfileManager.reinit(idString);
+
+		Store.items.selectedProfile = profile ? idString : undefined;
+		if (!Store.items.selectedProfile)
 			return false;
-		}
 
-		const bungieId: BungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
-		storeProfile.membershipType = membership.membershipType;
-		storeProfile.membershipId = membership.membershipId;
-
-		const profile = await GetProfile
-			.setOptionalAuth(true)
-			.query(membership.membershipType, membership.membershipId, [DestinyComponentType.Profiles, DestinyComponentType.Characters]);
-
-		const currentCharacter = Object.values(profile.characters.data ?? {})
-			?.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
-				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
-			?.[0];
-
-		const clan = await GetUserClan.query(membership.membershipType, membership.membershipId);
-
-		storeProfile.emblemHash = currentCharacter?.emblemHash;
-		storeProfile.class = currentCharacter?.classType;
-		storeProfile.callsign = clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "";
-		storeProfile.callsignLastModified = new Date().toISOString();
-
-		idString ||= BungieID.stringify(bungieId);
-		delete profiles[idString];
-		profiles[idString] = storeProfile;
-		Store.items.profiles = profiles;
-		Store.items.selectedProfile = idString;
 		location.reload();
 
 		this.event.emit("authenticated", { authType: type });

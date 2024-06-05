@@ -1,6 +1,6 @@
 import type { BungieMembershipType } from "bungie-api-ts/common";
 import type { DestinyClass } from "bungie-api-ts/destiny2";
-import BungieID from "utility/BungieID";
+import type BungieID from "utility/BungieID";
 import { EventManager } from "utility/EventManager";
 
 export interface IItemPerkWishlist {
@@ -133,56 +133,6 @@ export default class Store {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue });
 		return true;
-	}
-
-	public static isAuthenticated () {
-		return !!Store.getProfile()?.data.accessToken;
-	}
-
-	public static getProfile (): IProfile | undefined {
-		const selectedProfileId = Store.items.selectedProfile;
-		if (!selectedProfileId) {
-			const profiles = Object.entries(Store.items.profiles ?? {});
-			const authenticatedProfiles = profiles.filter(([, profile]) => profile.accessToken);
-
-			if (!profiles.length || authenticatedProfiles.length > 1)
-				return undefined;
-
-			const [idString, data] = authenticatedProfiles[0] ?? profiles[0];
-
-			const id = BungieID.parse(idString);
-			if (!id || !data)
-				return undefined;
-
-			return { id, data };
-		}
-
-		const data = Store.items.profiles?.[selectedProfileId];
-		if (!data)
-			return undefined;
-
-		const id = BungieID.parse(selectedProfileId);
-		if (!id)
-			return undefined;
-
-		return { id, data };
-	}
-
-	public static updateProfile (bungieId: BungieID, profile: Partial<IProfileStorage> = {}) {
-		const profiles = Store.items.profiles ?? {};
-		profile = profiles[BungieID.stringify(bungieId)] = {
-			...profiles[BungieID.stringify(bungieId)],
-			...profile,
-			lastModified: new Date().toISOString(),
-		};
-		Store.items.profiles = profiles;
-		return profile as IProfileStorage;
-	}
-
-	public static removeProfile (bungieId: BungieID) {
-		const profiles = Store.items.profiles ?? {};
-		delete profiles[BungieID.stringify(bungieId)];
-		Store.items.profiles = profiles;
 	}
 }
 

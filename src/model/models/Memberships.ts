@@ -1,11 +1,10 @@
 import type { UserInfoCard } from "bungie-api-ts/user";
 import type { IProfileStorage } from "utility/Store";
-import Store from "utility/Store";
 import GetMembershipsForCurrentUser from "utility/endpoint/bungie/endpoint/user/GetMembershipsForCurrentUser";
 
 namespace Memberships {
 
-	export async function getCurrentDestinyMembership (profile: IProfileStorage | undefined = Store.getProfile()?.data) {
+	export async function getCurrentDestinyMembership (profile?: IProfileStorage) {
 		if (!profile?.accessToken)
 			return undefined;
 

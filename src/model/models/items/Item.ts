@@ -28,6 +28,7 @@ import Tier from "model/models/items/Tier";
 import Display from "ui/bungie/DisplayProperties";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
+import ProfileManager from "utility/ProfileManager";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 import type { Mutable, PromiseOr } from "utility/Type";
@@ -522,7 +523,7 @@ class Item {
 	}
 
 	public canTransfer () {
-		return Store.isAuthenticated()
+		return ProfileManager.isAuthenticated()
 			&& (!this.bucket.is(InventoryBucketHashes.LostItems) || !this.definition.doesPostmasterPullHaveSideEffects)
 			&& this.reference.bucketHash !== InventoryBucketHashes.Engrams;
 	}
@@ -649,7 +650,7 @@ class Item {
 		if (this.bucket === Bucket.COLLECTIONS)
 			return false;
 
-		if (!Store.isAuthenticated())
+		if (!ProfileManager.isAuthenticated())
 			return false;
 
 		await this.settingLocked;
@@ -805,7 +806,7 @@ class Item {
 	}
 
 	private async transfer (...transfers: Transfer[]) {
-		if (!Store.isAuthenticated())
+		if (!ProfileManager.isAuthenticated())
 			return;
 
 		await this.transferrable();

@@ -1,5 +1,4 @@
 import Activities from "model/models/Activities";
-import Memberships from "model/models/Memberships";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
@@ -8,9 +7,9 @@ import ViewManager from "ui/ViewManager";
 import BungieID from "utility/BungieID";
 import Bound from "utility/decorator/Bound";
 import Bungie from "utility/endpoint/bungie/Bungie";
-import SearchDestinyPlayerByBungieName from "utility/endpoint/bungie/endpoint/destiny2/SearchDestinyPlayerByBungieName";
 import Env from "utility/Env";
 import Fonts from "utility/Fonts";
+import ProfileManager from "utility/ProfileManager";
 import Store from "utility/Store";
 import URL from "utility/URL";
 
@@ -72,16 +71,12 @@ export default class DeepsightGG {
 				return;
 			}
 
-			const destinyMembership = !bungieId ? undefined
-				: await SearchDestinyPlayerByBungieName.query(bungieId.name, bungieId.code)
-					.then(memberships => Memberships.getPrimaryDestinyMembership(memberships));
+			const path = URL.path;
 
-			Store.updateProfile(bungieId, {
-				membershipType: destinyMembership?.membershipType,
-				membershipId: destinyMembership?.membershipId,
-			});
+			const profile = await ProfileManager.reinit(bungieId);
+			Store.items.selectedProfile = profile ? idString : undefined;
 
-			Store.items.selectedProfile = idString;
+			URL.path = path;
 			location.reload();
 			return;
 		}
@@ -102,9 +97,9 @@ export default class DeepsightGG {
 	}
 
 	@Bound private refreshProfileState () {
-		const profile = Store.getProfile();
+		const profile = ProfileManager.get();
 		if (profile?.id)
-			Store.updateProfile(profile.id);
+			ProfileManager.update(profile.id);
 
 		const authenticated = !!profile?.data.accessToken;
 		const spying = !!profile && !authenticated;

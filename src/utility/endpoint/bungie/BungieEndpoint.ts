@@ -3,8 +3,8 @@ import type { EndpointRequest } from "utility/endpoint/Endpoint";
 import Endpoint from "utility/endpoint/Endpoint";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
+import type ProfileManager from "utility/ProfileManager";
 import type { IProfileStorage } from "utility/Store";
-import Store from "utility/Store";
 
 export type BungieEndpointURL = `/${string}/`;
 export type BungieEndpointURLResolvable<ARGS extends any[]> = BungieEndpointURL | ((...args: ARGS) => BungieEndpointURL);
@@ -152,7 +152,8 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 		if (!this.optionalAuth)
 			await this.validateAuthorisation();
 
-		const profile = this.profileSupplier?.(...args) ?? Store.getProfile()?.data;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		const profile = this.profileSupplier?.(...args) ?? ((window as any).ProfileManager as typeof ProfileManager).get()?.data;
 		if (!profile)
 			return undefined;
 

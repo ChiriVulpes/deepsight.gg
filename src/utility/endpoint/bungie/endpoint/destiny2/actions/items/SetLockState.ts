@@ -1,7 +1,7 @@
 import type Item from "model/models/items/Item";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
-import Store from "utility/Store";
+import ProfileManager from "utility/ProfileManager";
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/SetLockState/")
@@ -15,7 +15,7 @@ export default BungieEndpoint
 				state: locked,
 				itemId: item.reference.itemInstanceId,
 				characterId: item.owner,
-				membershipType: Store.getProfile()?.data.membershipType,
+				membershipType: ProfileManager.get()?.data.membershipType,
 			},
 		} as EndpointRequest;
 	})

@@ -16,7 +16,7 @@ import type { IKeyEvent } from "ui/UiEventBus";
 import UiEventBus from "ui/UiEventBus";
 import Async from "utility/Async";
 import Bound from "utility/decorator/Bound";
-import Store from "utility/Store";
+import ProfileManager from "utility/ProfileManager";
 
 export enum PlayerOverviewClasses {
 	Main = "player-overview",
@@ -179,7 +179,7 @@ export default class PlayerOverview extends BaseComponent {
 
 	@Bound
 	private onMouseEnter () {
-		if (!Store.getProfile())
+		if (!ProfileManager.get())
 			return;
 
 		this.drawer.open("mouseenter");
@@ -203,7 +203,7 @@ export default class PlayerOverview extends BaseComponent {
 			return;
 		}
 
-		if ((event.use("c") || event.use("p") || event.use("o") || event.use("F1")) && Store.getProfile() && this.drawer.toggle("key"))
+		if ((event.use("c") || event.use("p") || event.use("o") || event.use("F1")) && ProfileManager.get() && this.drawer.toggle("key"))
 			this.drawer.element.focus();
 
 		if (this.drawer.isOpen() && event.useOverInput("Escape"))
@@ -222,7 +222,7 @@ export default class PlayerOverview extends BaseComponent {
 	}
 
 	@Bound private showIfHash () {
-		if (!Store.getProfile())
+		if (!ProfileManager.get())
 			return;
 
 		if (location.hash === "#overview")

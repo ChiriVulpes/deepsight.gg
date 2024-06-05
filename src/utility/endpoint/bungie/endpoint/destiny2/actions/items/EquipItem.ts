@@ -1,7 +1,7 @@
 import type Item from "model/models/items/Item";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
-import Store from "utility/Store";
+import ProfileManager from "utility/ProfileManager";
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/EquipItem/")
@@ -11,7 +11,7 @@ export default BungieEndpoint
 			body: {
 				itemId: item.reference.itemInstanceId,
 				characterId: character,
-				membershipType: Store.getProfile()?.data.membershipType,
+				membershipType: ProfileManager.get()?.data.membershipType,
 			},
 		} as EndpointRequest;
 	})

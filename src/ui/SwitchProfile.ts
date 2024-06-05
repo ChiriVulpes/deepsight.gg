@@ -8,6 +8,7 @@ import Button from "ui/form/Button";
 import Paginator from "ui/form/Paginator";
 import TextInput from "ui/form/TextInput";
 import BungieID from "utility/BungieID";
+import ProfileManager from "utility/ProfileManager";
 import type { IProfileStorage } from "utility/Store";
 import Store from "utility/Store";
 import URL from "utility/URL";
@@ -69,35 +70,49 @@ export default class SwitchProfile extends Dialog {
 		Store.event.subscribe(["setProfiles", "deleteProfiles"], this.refresh);
 	}
 
+	private refreshing = false;
+	private queuedRefresh = false;
 	@Bound private refresh () {
-		this.recentPaginator?.remove();
-
-		this.recentPaginator = Paginator.create()
-			.classes.add(SwitchProfileClasses.Paginator)
-			.tweak(paginator => paginator.pageWrapper.classes.add(SwitchProfileClasses.ListWrapper))
-			.appendTo(this.body);
-
-		const filler = this.recentPaginator.filler(18, page => page.classes.add(SwitchProfileClasses.List));
-
-		const profiles = Object.entries(Store.items.profiles ?? {})
-			.sort(([, a], [, b]) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
-
-		for (const [bungieId, profile] of profiles) {
-			const id = BungieID.parse(bungieId);
-			if (!id)
-				continue;
-
-			const button = ProfileButton.create([id, profile])
-				.event.subscribe("click", () => this.switchProfile(id, profile))
-				.event.subscribe("contextmenu", event => {
-					event.preventDefault();
-					Store.removeProfile(id);
-					button.remove();
-				})
-				.appendTo(filler.increment());
+		if (this.refreshing) {
+			this.queuedRefresh = true;
+			return;
 		}
 
-		filler.fillRemainder(page => page.append(ProfileButton.Placeholder.create()));
+		this.refreshing = true;
+
+		do {
+			this.queuedRefresh = false;
+			this.recentPaginator?.remove();
+
+			this.recentPaginator = Paginator.create()
+				.classes.add(SwitchProfileClasses.Paginator)
+				.tweak(paginator => paginator.pageWrapper.classes.add(SwitchProfileClasses.ListWrapper))
+				.appendTo(this.body);
+
+			const filler = this.recentPaginator.filler(18, page => page.classes.add(SwitchProfileClasses.List));
+
+			const profiles = Object.entries(Store.items.profiles ?? {})
+				.sort(([, a], [, b]) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+
+			for (const [bungieId, profile] of profiles) {
+				const id = BungieID.parse(bungieId);
+				if (!id)
+					continue;
+
+				const button = ProfileButton.create([id, profile])
+					.event.subscribe("click", () => this.switchProfile(id, profile))
+					.event.subscribe("contextmenu", event => {
+						event.preventDefault();
+						ProfileManager.remove(id);
+						button.remove();
+					})
+					.appendTo(filler.increment());
+			}
+
+			filler.fillRemainder(page => page.append(ProfileButton.Placeholder.create()));
+		} while (this.queuedRefresh);
+
+		this.refreshing = false;
 	}
 
 	private switchProfile (bungieId: BungieID, profile: IProfileStorage) {
@@ -182,7 +197,7 @@ export default class SwitchProfile extends Dialog {
 
 		const clan = await GetUserClan.query(destinyMembership.membershipType, destinyMembership.membershipId);
 
-		const storeProfile = Store.updateProfile(id, {
+		const storeProfile = ProfileManager.update(id, {
 			membershipType: destinyMembership.membershipType,
 			membershipId: destinyMembership.membershipId,
 			emblemHash: currentCharacter?.emblemHash,
