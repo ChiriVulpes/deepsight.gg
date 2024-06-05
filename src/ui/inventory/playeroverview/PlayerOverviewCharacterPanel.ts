@@ -1,4 +1,4 @@
-import { InventoryBucketHashes } from "@deepsight.gg/enums";
+import { InventoryBucketHashes, TraitHashes } from "@deepsight.gg/enums";
 import type { Character } from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type { Bucket } from "model/models/items/Bucket";
@@ -57,6 +57,7 @@ export enum PlayerOverviewCharacterPanelClasses {
 	Artifact = "player-overview-artifact",
 	StatsOverviewBlock = "player-overview-stats-overview-block",
 	_LoadoutsVisible = "player-overview-drawer-panel--loadouts-visible",
+	SubclassPrismatic = "player-overview-subclass-prismatic",
 }
 
 const slotViews = [
@@ -209,10 +210,12 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 				id: subclass.definition.hash,
 				background: `https://www.bungie.net${subclass.definition.displayProperties.icon}`,
 				item: subclass,
-				initialise: button => button.setTooltip(ItemSubclassTooltip, {
-					initialise: tooltip => tooltip.set(subclass),
-					differs: tooltip => tooltip.item?.id !== subclass.id,
-				}),
+				initialise: button => button
+					.classes.toggle(subclass.definition.traitHashes.includes(TraitHashes.ItemSubclassPrism), PlayerOverviewCharacterPanelClasses.SubclassPrismatic)
+					.setTooltip(ItemSubclassTooltip, {
+						initialise: tooltip => tooltip.set(subclass),
+						differs: tooltip => tooltip.item?.id !== subclass.id,
+					}),
 			});
 			if (subclass.equipped)
 				void this.subclassPicker.setCurrent(subclass.definition.hash, true);

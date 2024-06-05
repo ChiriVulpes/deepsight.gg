@@ -279,32 +279,60 @@
 		}
 	}
 
-	&-subclass-picker {
-		margin: 20px;
-		height: 70px;
-		pointer-events: all;
-		.class-picker-button {
-			background: none;
-
-			&-preview {
-				overflow: hidden;
-				&::before {
-					content: "";
-					display: block;
-					position: absolute;
-					inset: calc((-100% * var(--wipe-animation-size-multiplier) + 100%) / 2);
-					transform: rotate(-45deg);
-					background: var(--background);
-					background-size: calc(100% + 6px);
-					background-repeat: no-repeat;
-					background-position: center;
-					@include transition(out, opacity);
+	&-subclass {
+		&-picker {
+			
+			margin: 20px;
+			height: 70px;
+			pointer-events: all;
+			.class-picker-button {
+				background: none;
+	
+				&-preview {
+					overflow: hidden;
+					&::before {
+						content: "";
+						display: block;
+						position: absolute;
+						inset: calc((-100% * var(--wipe-animation-size-multiplier) + 100%) / 2);
+						transform: rotate(-45deg);
+						background: var(--background);
+						background-size: calc(100% + 6px);
+						background-repeat: no-repeat;
+						background-position: center;
+						@include transition(out, opacity);
+					}
 				}
 			}
+	
+			&:not(:hover, :focus-within) .class-picker-button-wrapper .class-picker-button-preview::before {
+				opacity: 0;
+			}
 		}
-
-		&:not(:hover, :focus-within) .class-picker-button-wrapper .class-picker-button-preview::before {
-			opacity: 0;
+		
+		&-prismatic {
+			transform: none;
+			border-radius: 100%;
+			width: 85px;
+			
+			&::before {
+				border-radius: 100%;
+			}
+			
+			.class-picker-button {
+				&-preview {
+					border-radius: 100%;
+					overflow: hidden;
+					&::before {
+						transform: none;
+						inset: -4px;
+					}
+				}
+			}
+			
+			&::after {
+				border-radius: 100%;
+			}
 		}
 	}
 	
