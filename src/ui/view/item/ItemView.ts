@@ -93,7 +93,7 @@ const itemViewBase = View.create({
 		if (screenshot)
 			view.setBackground(`https://www.bungie.net${screenshot}`,
 				...secondaryIcon ? [`https://www.bungie.net${secondaryIcon}`] : [])
-				.setDarkened(false)
+				.setUnfiltered(true)
 				.tweak(mgr => mgr.backgrounds[1]?.classes.add(ItemViewClasses.Foundry));
 
 		if (!item.bucket.isCollections()) {

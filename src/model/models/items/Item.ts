@@ -626,9 +626,6 @@ class Item {
 				return ItemFomoState.TemporaryAvailability;
 		}
 
-		if (this.getOrnament()?.definition?.displayProperties.name.includes("BRAVE"))
-			return ItemFomoState.TemporaryAvailability;
-
 		return ItemFomoState.NoMo;
 	}
 

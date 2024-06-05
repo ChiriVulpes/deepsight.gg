@@ -2,7 +2,7 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.KingsFallNormal_ModifiersLength8,
+	hash: ActivityHashes.KingsFallStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.KingsFall3047702042 },
 	},
@@ -130,7 +130,7 @@ export default {
 				[InventoryItemHashes.SmiteOfMerainPulseRifle_ItemType3]: {},
 				[InventoryItemHashes.DefianceOfYasminSniperRifle_ItemType3]: {},
 				[InventoryItemHashes.ZaoulisBaneHandCannon_ItemType3]: {},
-				[InventoryItemHashes.TouchOfMaliceScoutRifle_EquippingBlockUniqueLabelExoticWeapon]: {},
+				[InventoryItemHashes.TouchOfMaliceScoutRifle]: {},
 
 				[InventoryItemHashes.WarNumensCrownHelmetPlug]: {},
 				[InventoryItemHashes.WarNumensFistGauntletsPlug]: {},
@@ -144,12 +144,12 @@ export default {
 	master: {
 		activityHash: ActivityHashes.KingsFallMaster_Tiern1,
 		dropTable: {
-			[InventoryItemHashes.QullimsTerminusHarrowedMachineGun]: {},
-			[InventoryItemHashes.DoomOfChelchisHarrowedScoutRifle]: {},
-			[InventoryItemHashes.ZaoulisBaneHarrowedHandCannon]: {},
-			[InventoryItemHashes.MidhasReckoningHarrowedFusionRifle]: {},
-			[InventoryItemHashes.SmiteOfMerainHarrowedPulseRifle]: {},
-			[InventoryItemHashes.DefianceOfYasminHarrowedSniperRifle]: {},
+			[InventoryItemHashes.QullimsTerminusHarrowedMachineGun_ItemType3]: {},
+			[InventoryItemHashes.DoomOfChelchisHarrowedScoutRifle_ItemType3]: {},
+			[InventoryItemHashes.ZaoulisBaneHarrowedHandCannon_ItemType3]: {},
+			[InventoryItemHashes.MidhasReckoningHarrowedFusionRifle_ItemType3]: {},
+			[InventoryItemHashes.SmiteOfMerainHarrowedPulseRifle_ItemType3]: {},
+			[InventoryItemHashes.DefianceOfYasminHarrowedSniperRifle_ItemType3]: {},
 		},
 	},
 	rotations: {

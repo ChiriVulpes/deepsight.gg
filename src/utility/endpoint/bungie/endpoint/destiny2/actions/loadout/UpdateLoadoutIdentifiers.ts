@@ -1,6 +1,6 @@
-import { getCurrentDestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
+import Store from "utility/Store";
 
 export interface LoadoutIdentifiers {
 	colorHash?: number;
@@ -10,17 +10,13 @@ export interface LoadoutIdentifiers {
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Loadouts/SnapshotLoadout/")
-	.request(async (character: `${bigint}`, index: number, identifiers?: LoadoutIdentifiers) => {
-		const membership = await getCurrentDestinyMembership();
-
-		return {
-			method: "POST",
-			body: {
-				loadoutIndex: index,
-				characterId: character,
-				membershipType: membership!.membershipType,
-				...identifiers,
-			},
-		} as EndpointRequest;
-	})
+	.request((character: `${bigint}`, index: number, identifiers?: LoadoutIdentifiers) => ({
+		method: "POST",
+		body: {
+			loadoutIndex: index,
+			characterId: character,
+			membershipType: Store.getProfile()?.data.membershipType,
+			...identifiers,
+		},
+	}) as EndpointRequest)
 	.endpoint();

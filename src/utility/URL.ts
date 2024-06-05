@@ -1,3 +1,4 @@
+import BungieID from "utility/BungieID";
 import { EventManager } from "utility/EventManager";
 import Store from "utility/Store";
 
@@ -15,27 +16,6 @@ function updateURL () {
 	if (queryString)
 		queryString = `?${queryString}`;
 	history.replaceState(null, "", `${location.origin}${location.pathname}${queryString}${location.hash}`);
-}
-
-export interface BungieID {
-	name: string;
-	code: number;
-}
-
-export namespace BungieID {
-	export type String = `${string}#${number}`;
-	export function stringify (id: BungieID) {
-		return `${id.name}#${`${id.code}`.padStart(4, "0")}`;
-	}
-
-	export function parse (string: string): BungieID | undefined {
-		const name = string.slice(0, -5);
-		const code = string.slice(-4);
-		if (isNaN(+code))
-			return undefined;
-
-		return { name, code: +code };
-	}
 }
 
 export interface IURLEvents {
@@ -72,7 +52,7 @@ export default class URL {
 
 		const bungieId = URL.extractBungieId(path);
 		if (bungieId)
-			path = path.slice(`${bungieId.name}.${`${bungieId.code}`.padStart(4, "0")}`.length + 1);
+			path = path.slice(`${encodeURIComponent(bungieId.name)}.${`${bungieId.code}`.padStart(4, "0")}`.length + 1);
 
 		return !path || path === "/" ? null : path;
 	}
@@ -81,8 +61,8 @@ export default class URL {
 		if (value && !value?.startsWith("/"))
 			value = `/${value}`;
 
-		const membershipOverride = Store.items.destinyMembershipOverride;
-		const membershipOverrideSegment = !membershipOverride ? "" : `${encodeURIComponent(membershipOverride.bungieGlobalDisplayName)}.${`${membershipOverride.bungieGlobalDisplayNameCode}`.padStart(4, "0")}`;
+		const membershipOverride = Store.items.selectedProfile;
+		const membershipOverrideSegment = !membershipOverride ? "" : encodeURIComponent(membershipOverride.replace("#", "."));
 		if (value && membershipOverrideSegment)
 			value = `/${membershipOverrideSegment}${value}`;
 
@@ -110,7 +90,7 @@ export default class URL {
 		if (segment[segment.length - 5] !== ".")
 			return undefined;
 
-		return BungieID.parse(segment as BungieID.String);
+		return BungieID.parse(segment as BungieID.String, true);
 	}
 
 	public static get bungieID (): BungieID | undefined {
@@ -125,12 +105,12 @@ export default class URL {
 		if (!bungieId)
 			return undefined;
 
-		const name = decodeURIComponent(bungieId.name);
+		const name = bungieId.name;
 		const code = +bungieId.code;
 
-		const membershipOverride = Store.items.destinyMembershipOverride;
-		if (membershipOverride && (membershipOverride.bungieGlobalDisplayName !== name || membershipOverride.bungieGlobalDisplayNameCode !== code))
-			delete Store.items.destinyMembershipOverride;
+		const membershipOverride = Store.items.selectedProfile;
+		if (membershipOverride && membershipOverride !== BungieID.stringify(bungieId))
+			delete Store.items.selectedProfile;
 
 		return { name, code };
 	}

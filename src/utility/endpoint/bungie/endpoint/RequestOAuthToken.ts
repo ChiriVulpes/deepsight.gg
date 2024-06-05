@@ -1,6 +1,6 @@
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import Env from "utility/Env";
-import Store from "utility/Store";
+import type { IProfileStorage } from "utility/Store";
 
 export interface IBungieRequestOAuthTokenError {
 	error: string;
@@ -18,20 +18,20 @@ export interface IBungieRequestOAuthTokenResult {
 
 export default BungieEndpoint
 	.at("/app/oauth/token/")
-	.request(() => ({
+	.request((profile: IProfileStorage) => ({
 		method: "POST",
 		headers: {
 			Authorization: `Basic ${btoa(`${Env.DEEPSIGHT_BUNGIE_CLIENT_ID}:${Env.DEEPSIGHT_BUNGIE_API_SECRET}`)}`,
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
-		body: Store.items.bungieAccessTokenRefreshToken
+		body: profile.accessTokenRefreshToken
 			? {
 				grant_type: "refresh_token",
-				refresh_token: Store.items.bungieAccessTokenRefreshToken,
+				refresh_token: profile.accessTokenRefreshToken,
 			}
 			: {
 				grant_type: "authorization_code",
-				code: Store.items.bungieAuthCode,
+				code: profile.authCode,
 			},
 	}))
 	.returning<IBungieRequestOAuthTokenError | IBungieRequestOAuthTokenResult>();

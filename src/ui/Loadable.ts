@@ -67,6 +67,11 @@ namespace Loadable {
 			return this;
 		}
 
+		public setLoading (loading: boolean) {
+			this.loading.classes.toggle(!loading, BaseClasses.Hidden, Classes.LoadingHidden);
+			return this;
+		}
+
 		@Bound
 		private onLoading () {
 			for (const model of this.models) {

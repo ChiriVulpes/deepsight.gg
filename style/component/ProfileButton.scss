@@ -1,0 +1,86 @@
+.profile-button {
+	background: color-mix(in lch, color-mix(in lch, var(--colour), #000 10%), #555 10%) !important;
+	font-size: 18px;
+	font-weight: 400;
+	margin: 4px;
+	padding: 0;
+	display: grid;
+	grid-template-columns: auto auto auto 1fr;
+	align-items: center;
+	border: none;
+	
+	&::after {
+		content: "";
+		display: block;
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		z-index: 1;
+		background: #fff3;
+		border: 1px solid #fff;
+		@include transition(out, opacity);
+	}
+	
+	&:hover, &:focus-visible {
+		&::after {
+			opacity: 1;
+			@include transition(in);
+		}
+	}
+	
+	&-emblem {
+		aspect-ratio: 1/1;
+		height: 100%;
+		background-image: var(--icon);
+		background-size: contain;
+	}
+	
+	&-bungie-id {
+		margin: 6px 10px;
+		
+		&-code {
+			opacity: .3;
+		}
+	}
+	
+	&-callsign {
+		margin: 5px 0px 6px;
+		opacity: .6;
+	}
+	
+	&-placeholder {
+		&::before {
+			content: "a";
+			margin: 6px 10px;
+			font-size: 18px;
+			opacity: 0;
+		}
+		
+		display: flex;
+		align-items: center;
+		margin: 4px;
+		border: 1px solid #ffffff08;
+		position: relative;
+		
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: -1px;
+			border: 1px solid #fff3;
+			--s: 10px;
+			--e: calc(100% - 10px);
+			clip-path: polygon(
+				0% 0%, var(--s) 0%, var(--s) var(--s), 0% var(--s), 0% 0%, 
+				0% 100%, 0% var(--e), var(--s) var(--e), var(--s) 100%, 0% 100%,
+				100% 100%, var(--e) 100%, var(--e) var(--e), 100% var(--e), 100% 100%,
+				100% 0%, 100% var(--s), var(--e) var(--s), var(--e) 0%, 100% 0%,
+				100% 100%, 0% 100%, 0% 0%,
+			);
+		}
+	}
+	
+	&--authenticated {
+		box-shadow: inset -4px 0 #fff, inset 0 -2px #fff3;
+	}
+}

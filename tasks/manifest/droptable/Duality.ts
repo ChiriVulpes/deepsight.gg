@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.DualityNormal,
+	hash: ActivityHashes.DualityStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.Duality3097916612 },
 	},
@@ -132,6 +132,6 @@ export default {
 		},
 	],
 	master: {
-		activityHash: ActivityHashes.DualityMaster_ModifiersLength16,
+		activityHash: ActivityHashes.DualityMaster_ModifiersLength17,
 	},
 } satisfies DeepsightDropTableDefinition;

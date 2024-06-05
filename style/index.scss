@@ -19,6 +19,7 @@
 @import "component/form/Dropdown";
 @import "component/form/Sortable";
 @import "component/form/RangeInput";
+@import "component/form/TextInput";
 @import "component/form/Drawer";
 @import "component/form/Paginator";
 @import "component/form/ClassPicker";
@@ -36,6 +37,7 @@
 @import "component/TextLogo";
 @import "component/Documentation";
 @import "component/Tooltip";
+@import "component/Dialog";
 // tooltips
 @import "component/inventory/ItemTooltip";
 @import "component/inventory/ItemPlugTooltip";
@@ -50,6 +52,8 @@
 @import "component/inventory/ItemFilter";
 // other
 @import "component/PlayerOverview";
+@import "component/SwitchProfile";
+@import "component/ProfileButton";
 @import "component/StatsOverview";
 @import "component/Loadouts";
 @import "component/Vendor";

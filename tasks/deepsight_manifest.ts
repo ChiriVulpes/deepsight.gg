@@ -6,6 +6,7 @@ import generate_enums from "./generate_enums";
 import DeepsightAdeptDefinition from "./manifest/DeepsightAdeptDefinition";
 import DeepsightCollectionsDefinition from "./manifest/DeepsightCollectionsDefinition";
 import DeepsightDropTableDefinition from "./manifest/DeepsightDropTableDefinition";
+import DeepsightEmblemDefinition from "./manifest/DeepsightEmblemDefinition";
 import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
 import DeepsightPlugCategorisation from "./manifest/DeepsightPlugCategorisation";
 import DeepsightSocketCategorisation from "./manifest/DeepsightSocketCategorisation";
@@ -31,6 +32,7 @@ export default Task("deepsight_manifest", task => task.series(
 		DeepsightVendorDefinition,
 		DeepsightTypes,
 		DeepsightStats,
+		DeepsightEmblemDefinition,
 
 		task.series(
 			task.parallel(

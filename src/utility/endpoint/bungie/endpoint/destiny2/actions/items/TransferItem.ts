@@ -1,16 +1,14 @@
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
-import { getCurrentDestinyMembership } from "model/models/Memberships";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
 import type { EndpointRequest } from "utility/endpoint/Endpoint";
+import Store from "utility/Store";
 
 export default BungieEndpoint
 	.at("/Destiny2/Actions/Items/TransferItem/")
-	.request(async (item: Item, character: CharacterId, destination: "vault" | CharacterId = character) => {
+	.request((item: Item, character: CharacterId, destination: "vault" | CharacterId = character) => {
 		if (!item.reference.itemInstanceId)
 			throw new Error("Item has no instance ID");
-
-		const membership = await getCurrentDestinyMembership();
 
 		return {
 			method: "POST",
@@ -20,7 +18,7 @@ export default BungieEndpoint
 				transferToVault: destination === "vault",
 				itemId: item.reference.itemInstanceId,
 				characterId: destination === "vault" ? character : destination,
-				membershipType: membership!.membershipType,
+				membershipType: Store.getProfile()?.data.membershipType,
 			},
 		} as EndpointRequest;
 	})

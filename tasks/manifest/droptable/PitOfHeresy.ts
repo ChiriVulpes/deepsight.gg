@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.PitOfHeresyNormal_PlaceHash677774031,
+	hash: ActivityHashes.PitOfHeresyStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.AMysteriousDisturbance },
 	},

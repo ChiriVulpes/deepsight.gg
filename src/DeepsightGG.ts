@@ -1,10 +1,12 @@
 import Activities from "model/models/Activities";
-import { getPrimaryDestinyMembership } from "model/models/Memberships";
+import Memberships from "model/models/Memberships";
 import AppNav from "ui/AppNav";
 import Background from "ui/BackgroundManager";
 import UiEventBus from "ui/UiEventBus";
 import AuthView from "ui/view/AuthView";
 import ViewManager from "ui/ViewManager";
+import BungieID from "utility/BungieID";
+import Bound from "utility/decorator/Bound";
 import Bungie from "utility/endpoint/bungie/Bungie";
 import SearchDestinyPlayerByBungieName from "utility/endpoint/bungie/endpoint/destiny2/SearchDestinyPlayerByBungieName";
 import Env from "utility/Env";
@@ -45,47 +47,47 @@ export default class DeepsightGG {
 		await Env.load();
 		void Fonts.check();
 
-		Bungie.event.subscribe("resetAuthentication", _ => {
-			AuthView.show();
-			document.documentElement.classList.remove("authenticated");
-		});
+		Bungie.event.subscribe(["resetAuthentication", "authenticated"], this.refreshProfileState);
 
-		Bungie.event.subscribe("authenticated", _ => {
-			document.documentElement.classList.add("authenticated");
-		});
-
-		const didAuthenticate = await Bungie.authenticate("complete");
-		if (didAuthenticate && Store.items.destinyMembershipOverride) {
-			delete Store.items.destinyMembershipOverride;
+		const didAuthenticate = Store.items.profiles?.[""] && await Bungie.authenticate("complete");
+		if (didAuthenticate) {
 			location.reload();
 			return;
 		}
 
+		Bungie.event.subscribe("apiDown", () => document.body.classList.add("bungie-api-down"));
+		Bungie.event.subscribe("querySuccess", () => document.body.classList.remove("bungie-api-down"));
 		if (Bungie.authenticated) {
-			Bungie.event.subscribe("apiDown", () => document.body.classList.add("bungie-api-down"));
-			Bungie.event.subscribe("querySuccess", () => document.body.classList.remove("bungie-api-down"));
 			document.documentElement.classList.add("authenticated");
 		}
 
 		void Background.initialiseMain();
 
 		const bungieId = URL.bungieID;
-		const destinyMembership = !bungieId ? undefined
-			: await SearchDestinyPlayerByBungieName.query(bungieId.name, bungieId.code)
-				.then(memberships => getPrimaryDestinyMembership(memberships));
+		const idString = bungieId && BungieID.stringify(bungieId);
+		if (idString && idString !== Store.items.selectedProfile) {
+			if (Store.items.profiles?.[idString]) {
+				Store.items.selectedProfile = idString;
+				location.reload();
+				return;
+			}
 
-		const membershipOverride = Store.items.destinyMembershipOverride;
-		if (destinyMembership && (membershipOverride?.bungieGlobalDisplayName !== destinyMembership.bungieGlobalDisplayName || membershipOverride.bungieGlobalDisplayNameCode !== destinyMembership.bungieGlobalDisplayNameCode)) {
-			Store.items.destinyMembershipOverride = destinyMembership;
+			const destinyMembership = !bungieId ? undefined
+				: await SearchDestinyPlayerByBungieName.query(bungieId.name, bungieId.code)
+					.then(memberships => Memberships.getPrimaryDestinyMembership(memberships));
+
+			Store.updateProfile(bungieId, {
+				membershipType: destinyMembership?.membershipType,
+				membershipId: destinyMembership?.membershipId,
+			});
+
+			Store.items.selectedProfile = idString;
 			location.reload();
 			return;
 		}
 
-		document.documentElement.classList.toggle("spying", !!Store.items.destinyMembershipOverride);
-		Store.event.subscribe("setDestinyMembershipOverride", () =>
-			document.documentElement.classList.add("spying"));
-		Store.event.subscribe("deleteDestinyMembershipOverride", () =>
-			document.documentElement.classList.remove("spying"));
+		this.refreshProfileState();
+		Store.event.subscribe(["setSelectedProfile", "deleteSelectedProfile"], this.refreshProfileState);
 
 		AppNav.create([ViewManager])
 			.appendTo(document.body);
@@ -97,5 +99,16 @@ export default class DeepsightGG {
 		}
 
 		ViewManager.showByHash(URL.path ?? URL.hash);
+	}
+
+	@Bound private refreshProfileState () {
+		const profile = Store.getProfile();
+		if (profile?.id)
+			Store.updateProfile(profile.id);
+
+		const authenticated = !!profile?.data.accessToken;
+		const spying = !!profile && !authenticated;
+		document.documentElement.classList.toggle("spying", spying);
+		document.documentElement.classList.toggle("authenticated", authenticated);
 	}
 }

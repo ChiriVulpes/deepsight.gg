@@ -38,6 +38,11 @@ namespace ItemPreferred {
 		InventoryItemHashes.CompassRoseShotgun233896077, // has less links to other things in the manifest
 		InventoryItemHashes.TaraxipposScoutRifle3007479950, // displays weirdly in the screenshot
 		InventoryItemHashes.TheTitleSubmachineGun294129361, // older
+		InventoryItemHashes.BondOfTheGreatHuntWarlockBond2280287728, // has less links to other things in the manifest, displays weirdly in the screenshot
+		InventoryItemHashes.GauntletsOfTheGreatHuntGauntlets576683388, // has less links to other things in the manifest
+		InventoryItemHashes.GripsOfTheGreatHuntGauntlets1127835600, // has less links to other things in the manifest
+		InventoryItemHashes.MarkOfTheGreatHuntTitanMark16387641, // has less links to other things in the manifest
+		InventoryItemHashes.RobesOfTheGreatHuntChestArmor776723133, // has less links to other things in the manifest
 	];
 
 	const hasDeepsightSocket = (item: DestinyInventoryItemDefinition) =>

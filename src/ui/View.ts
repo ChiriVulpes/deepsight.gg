@@ -24,8 +24,8 @@ namespace View {
 		name: string | ((...args: ARGS) => string) | null;
 		initialiseDestinationButton?: (button: Button) => any;
 		/**
-		 * - Set to `"required"`
-		 * - Set to `"spy"` or `undefined` to require auth to view this tab (default)
+		 * - Set to `"required"` to require auth to view this tab
+		 * - Set to `"spy"` or `undefined` to require a profile to view this tab (default)
 		 * - Set to `"optional"` to always show this tab
 		 * - Set to `"none"` to require *no* auth
 		 */

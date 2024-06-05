@@ -1,6 +1,8 @@
 .hint {
 	display: flex;
 	gap: 2px;
+	font-weight: 400;
+	letter-spacing: .05em;
 
 	&-input {
 		$size: 1.2em;
@@ -105,11 +107,12 @@
 			height: fit-content;
 			font-style: normal;
 			border: 1px solid currentColor;
-			background: color(background-3);
+			background: color(background-5);
 			border-radius: 0.4em;
 			font-family: inherit;
 			margin-right: 0.4em;
 			height: 1.25em;
+			align-self: center;
 			
 			.hint-input-modifier + & {
 				margin-left: .3em;
@@ -123,5 +126,11 @@
 				position: relative;
 			}
 		}
+	}
+	
+	&-button {
+		margin: -6px 0;
+		background: none !important;
+		border: none;
 	}
 }

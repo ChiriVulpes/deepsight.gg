@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.WarlordsRuinNormal,
+	hash: ActivityHashes.WarlordsRuinStandard,
 	displayProperties: {
 		icon: "./image/png/activity/warlords.png",
 	},

@@ -100,10 +100,7 @@ export default class AppNav extends Component<HTMLElement, [typeof ViewManager]>
 				.event.subscribe("click", () => destinationViewHandler.show());
 
 			if (!destinationViewHandler.navGroupViewId) {
-				if (destinationViewHandler.id === "auth")
-					destinationButton.insertToAfter(this, this.appInfo);
-				else
-					destinationButton.appendTo(this.destinationsWrapper);
+				destinationButton.appendTo(this.destinationsWrapper);
 
 				const column = this.viewGrid.length;
 				this.viewGrid.push([destinationViewHandler]);

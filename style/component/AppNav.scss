@@ -57,10 +57,10 @@
 		margin: 0 10px;
 		transition-delay: $delay * 2;
 		
-		.authenticated & {
-			margin: 0;
-			margin-right: 15px;
-		}
+		// .authenticated & {
+		// 	margin: 0;
+		// 	margin-right: 15px;
+		// }
 	}
 
 	@at-root .app-info-container,

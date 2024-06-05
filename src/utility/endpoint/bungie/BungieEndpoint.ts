@@ -3,6 +3,7 @@ import type { EndpointRequest } from "utility/endpoint/Endpoint";
 import Endpoint from "utility/endpoint/Endpoint";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
+import type { IProfileStorage } from "utility/Store";
 import Store from "utility/Store";
 
 export type BungieEndpointURL = `/${string}/`;
@@ -23,6 +24,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	private allowedErrorStatuses: string[] = [];
 	private subdomain = "www";
 	private optionalAuth?: true;
+	private profileSupplier?: (...args: ARGS) => IProfileStorage;
 
 	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
 		super(path, builder);
@@ -43,6 +45,11 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 			this.optionalAuth = optionalAuth;
 		else
 			delete this.optionalAuth;
+		return this;
+	}
+
+	public setProfile (supplier?: (...args: ARGS) => IProfileStorage) {
+		this.profileSupplier = supplier;
 		return this;
 	}
 
@@ -133,18 +140,23 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 		};
 	}
 
-	protected override async getHeaders (headers?: Record<string, string | undefined>) {
+	protected override async getHeaders (headers?: Record<string, string | undefined>, ...args: ARGS) {
 		return {
-			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(),
+			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(...args),
 			"X-API-Key": Env.DEEPSIGHT_BUNGIE_API_KEY,
 			...headers,
 		};
 	}
 
-	private async getAuthorisation () {
+	private async getAuthorisation (...args: ARGS) {
 		if (!this.optionalAuth)
 			await this.validateAuthorisation();
-		return Store.items.bungieAccessToken ? `Bearer ${Store.items.bungieAccessToken}` : undefined;
+
+		const profile = this.profileSupplier?.(...args) ?? Store.getProfile()?.data;
+		if (!profile)
+			return undefined;
+
+		return profile.accessToken ? `Bearer ${profile.accessToken}` : undefined;
 	}
 
 	private async validateAuthorisation (force?: true) {
@@ -159,6 +171,7 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	allowErrorStatus (status: string): this;
 	setSubdomain (subdomain: string): this;
 	setOptionalAuth (optionalAuth?: boolean): this;
+	setProfile (supplier?: (...args: ARGS) => IProfileStorage): this;
 }
 
 namespace BungieEndpoint {

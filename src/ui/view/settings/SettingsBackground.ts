@@ -3,6 +3,7 @@ import Card from "ui/Card";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
 import Checkbox from "ui/form/Checkbox";
+import RangeInput from "ui/form/RangeInput";
 import Loadable from "ui/Loadable";
 import Env from "utility/Env";
 import Store from "utility/Store";
@@ -16,6 +17,7 @@ enum SettingsBackgroundClasses {
 	WallpaperMomentWallpapers = "settings-background-options-wallpaper-moment-list",
 	WallpaperMomentLabel = "settings-background-options-wallpaper-moment-label",
 	WallpaperImage = "settings-background-options-wallpaper-image",
+	OptionsRow = "settings-background-options-row",
 }
 
 export default class SettingsBackground extends Card<[]> {
@@ -117,16 +119,47 @@ export default class SettingsBackground extends Card<[]> {
 		Store.subscribeBackgroundChange(() =>
 			randomiseCheckbox.checkbox.element.checked = !Store.items.settingsBackground && !Store.items.settingsBackgroundNoUseDefault);
 
-		Checkbox.create([Store.items.settingsBackgroundBlur])
-			.tweak(checkbox => checkbox.label.text.set("Blur Background"))
-			.event.subscribe("update", ({ checked }) =>
-				Store.items.settingsBackgroundBlur = checked ? true : undefined)
-			.appendTo(this.content);
-
 		Checkbox.create([Store.items.settingsBackgroundFollowMouse])
 			.tweak(checkbox => checkbox.label.text.set("Follow Mouse"))
 			.event.subscribe("update", ({ checked }) =>
 				Store.items.settingsBackgroundFollowMouse = checked ? true : undefined)
 			.appendTo(this.content);
+
+		const blurWrapper = Component.create()
+			.classes.add(SettingsBackgroundClasses.OptionsRow)
+			.text.add("Blur")
+			.appendTo(this.content);
+
+		const blurInput = RangeInput.create([{ min: 0, max: 3, step: 0.01, default: 0.5 }])
+			.event.subscribe("input", () => {
+				Store.items.settingsBackgroundBlur = blurInput.value;
+			})
+			.appendTo(blurWrapper);
+
+		blurInput.value = Store.items.settingsBackgroundBlur === true ? 0.5 : Store.items.settingsBackgroundBlur ?? 0;
+
+		const darknessWrapper = Component.create()
+			.classes.add(SettingsBackgroundClasses.OptionsRow)
+			.text.add("Darkness")
+			.appendTo(this.content);
+
+		const darknessInput = RangeInput.create([{ min: 0, max: 1, step: 0.01, default: 0.5 }])
+			.event.subscribe("input", () => {
+				Store.items.settingsBackgroundDarkness = darknessInput.value;
+			})
+			.appendTo(darknessWrapper);
+
+		darknessInput.value = Store.items.settingsBackgroundDarkness ?? 0.5;
+
+		const prismaticWrapper = Component.create()
+			.classes.add(SettingsBackgroundClasses.OptionsRow)
+			.text.add("Prismatic")
+			.appendTo(this.content);
+
+		const input: RangeInput = RangeInput.create([{ min: 0, max: 1, step: 0.01, default: 0.5 }])
+			.event.subscribe("input", () => Store.items.settingsBackgroundRainbowVibrancy = input.value)
+			.appendTo(prismaticWrapper);
+
+		input.value = Store.items.settingsBackgroundRainbowVibrancy ?? 0.5;
 	}
 }

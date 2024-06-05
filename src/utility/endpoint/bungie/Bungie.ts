@@ -1,4 +1,9 @@
+import { DestinyComponentType } from "bungie-api-ts/destiny2";
+import Memberships from "model/models/Memberships";
+import BungieID from "utility/BungieID";
 import BungieEndpoint from "utility/endpoint/bungie/BungieEndpoint";
+import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
+import GetUserClan from "utility/endpoint/bungie/endpoint/groupv2/GetUserClan";
 import RequestOAuthToken from "utility/endpoint/bungie/endpoint/RequestOAuthToken";
 import Env from "utility/Env";
 import { EventManager } from "utility/EventManager";
@@ -58,11 +63,22 @@ export class BungieAPI {
 	}
 
 	public get authenticated () {
-		return !!(Store.items.bungieAuthCode && Store.items.bungieAccessToken);
+		const profile = Store.getProfile()?.data;
+		return !!(profile?.authCode && profile.accessToken);
 	}
 
 	public async authenticate (type: "start" | "complete"): Promise<boolean> {
-		if (!Store.items.bungieAuthCode && !URL.params.code) {
+		let profile = Store.items.profiles?.[""];
+		if (!profile)
+			type = "start";
+
+		if (type === "start") {
+			const profiles = Store.items.profiles ?? {};
+			profile = profiles[""] = { lastModified: new Date().toISOString() };
+			Store.items.profiles = profiles;
+		}
+
+		if (!profile!.authCode && !URL.params.code) {
 			if (type !== "start") {
 				// the user didn't approve of starting auth yet
 				return false;
@@ -78,17 +94,23 @@ export class BungieAPI {
 			return false;
 		}
 
-		if (!Store.items.bungieAuthCode) {
+		if (!profile!.authCode) {
 			// step 2: receive auth code from bungie oauth
 
 			// received auth code
-			Store.items.bungieAuthCode = URL.params.code!;
+			const profiles = Store.items.profiles ?? {};
+			profile = profiles[""] = {
+				...profiles[""],
+				authCode: URL.params.code!,
+				lastModified: new Date().toISOString(),
+			};
+			Store.items.profiles = profiles;
 		}
 
 		delete URL.params.code;
 		// delete URL.params.state;
 
-		if (!Store.items.bungieAccessToken) {
+		if (!profile!.accessToken) {
 			// step 3: get an access token
 			return await this.requestToken("new");
 		}
@@ -99,24 +121,44 @@ export class BungieAPI {
 	public resetAuthentication () {
 		delete URL.params.code;
 		delete URL.params.state;
-		delete Store.items.bungieAuthCode;
-		delete Store.items.bungieAccessToken;
-		delete Store.items.bungieAccessTokenExpireTime;
-		delete Store.items.bungieAccessTokenMembershipId;
-		delete Store.items.bungieAccessTokenRefreshExpireTime;
-		delete Store.items.bungieAccessTokenRefreshToken;
+
+		const profiles = Store.items.profiles ?? {};
+		const profile = profiles[""];
+		if (profile) {
+			delete profile.authCode;
+			delete profile.accessToken;
+			delete profile.accessTokenExpireTime;
+			delete profile.accessTokenMembershipId;
+			delete profile.accessTokenRefreshExpireTime;
+			delete profile.accessTokenRefreshToken;
+			profile.lastModified = new Date().toISOString();
+			Store.items.profiles = profiles;
+		}
+
 		this.event.emit("resetAuthentication");
 	}
 
 	private async validateAuthorisation (force = false) {
-		if (!force && (Store.items.bungieAccessTokenExpireTime ?? 0) > Date.now())
+		if (!force && (Store.getProfile()?.data?.accessTokenExpireTime ?? 0) > Date.now())
 			return; // authorisation valid
 
 		await this.requestToken("refresh");
 	}
 
 	private async requestToken (type: "new" | "refresh") {
-		const result = await RequestOAuthToken.query();
+		const profiles = Store.items.profiles ?? {};
+		const storeProfile = profiles[""];
+		if (!storeProfile)
+			// no profile to request token for
+			return false;
+
+		if (type === "refresh" && !storeProfile.accessTokenRefreshToken)
+			return false;
+
+		if (type === "new" && !storeProfile.authCode)
+			return false;
+
+		const result = await RequestOAuthToken.query(storeProfile);
 
 		if ("error" in result) {
 			if (result.error === "invalid_grant") {
@@ -127,11 +169,47 @@ export class BungieAPI {
 			return false;
 		}
 
-		Store.items.bungieAccessToken = result.access_token;
-		Store.items.bungieAccessTokenExpireTime = Date.now() + result.expires_in * 1000;
-		Store.items.bungieAccessTokenMembershipId = result.membership_id;
-		Store.items.bungieAccessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
-		Store.items.bungieAccessTokenRefreshToken = result.refresh_token;
+		storeProfile.accessToken = result.access_token;
+		storeProfile.accessTokenExpireTime = Date.now() + result.expires_in * 1000;
+		storeProfile.accessTokenMembershipId = result.membership_id;
+		storeProfile.accessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
+		storeProfile.accessTokenRefreshToken = result.refresh_token;
+		storeProfile.lastModified = new Date().toISOString();
+
+		const membership = await Memberships.getCurrentDestinyMembership(storeProfile);
+		if (!membership) {
+			delete profiles[""];
+			Store.items.profiles = profiles;
+			return false;
+		}
+
+		const bungieId: BungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
+		storeProfile.membershipType = membership.membershipType;
+		storeProfile.membershipId = membership.membershipId;
+
+		const profile = await GetProfile
+			.setOptionalAuth(true)
+			.query(membership.membershipType, membership.membershipId, [DestinyComponentType.Profiles, DestinyComponentType.Characters]);
+
+		const currentCharacter = Object.values(profile.characters.data ?? {})
+			?.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
+				new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
+			?.[0];
+
+		const clan = await GetUserClan.query(membership.membershipType, membership.membershipId);
+
+		storeProfile.emblemHash = currentCharacter?.emblemHash;
+		storeProfile.class = currentCharacter?.classType;
+		storeProfile.callsign = clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "";
+		storeProfile.callsignLastModified = new Date().toISOString();
+
+		const idString = BungieID.stringify(bungieId);
+		delete profiles[""];
+		profiles[idString] = storeProfile;
+		Store.items.profiles = profiles;
+		Store.items.selectedProfile = idString;
+		location.reload();
+
 		this.event.emit("authenticated", { authType: type });
 		return true;
 	}

@@ -34,12 +34,12 @@ export default async function <T> (path: string) {
 		})
 		.then(response => {
 			if (!response.Response)
-				throw new Error(`${response.ErrorCode} ${response.Message}`);
+				throw new Error(response.Message);
 
 			return response.Response;
 		})
-		.catch(err => {
-			Log.error(err);
+		.catch((err: Error) => {
+			Log.error(err.message.includes("disabled for maintenance") ? err.message : err);
 			return undefined;
 		});
 }

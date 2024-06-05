@@ -35,47 +35,49 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		if (!exoticRotatorChallenge || !activity.definition)
 			continue;
 
-		if (activity.definition?.selectionScreenDisplayProperties?.name === "Normal")
+		if (activity.definition?.selectionScreenDisplayProperties?.name === "Standard")
 			normalExoticMission = activity;
 		else
 			legendExoticMission = activity;
 	}
 
 	if (!normalExoticMission || !legendExoticMission)
-		throw new Error("Failed to get the current exotic mission :(");
+		Log.warn("Failed to get the current exotic mission :(");
 
-	const exoticWeapon = await Promise.all(normalExoticMission.definition!.rewards
-		.flatMap(reward => reward.rewardItems)
-		.map(item => manifest.DestinyInventoryItemDefinition.get(item.itemHash)))
-		.then(rewardItems => rewardItems.find(item => item?.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)));
+	else {
+		const exoticWeapon = await Promise.all(normalExoticMission.definition!.rewards
+			.flatMap(reward => reward.rewardItems)
+			.map(item => manifest.DestinyInventoryItemDefinition.get(item.itemHash)))
+			.then(rewardItems => rewardItems.find(item => item?.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)));
 
-	if (!exoticWeapon)
-		throw new Error("Failed to get the exotic weapon from the current exotic mission :(");
+		if (!exoticWeapon)
+			throw new Error("Failed to get the exotic weapon from the current exotic mission :(");
 
-	Log.info("Exotic Mission:", normalExoticMission.definition!.displayProperties.name, normalExoticMission.activity.activityHash);
-	DeepsightDropTableDefinition.exoticMission = {
-		hash: normalExoticMission.activity.activityHash,
-		displayProperties: {
-			name: normalExoticMission.definition!.originalDisplayProperties.name,
-			description: normalExoticMission.definition!.originalDisplayProperties.description,
-			icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
-		},
-		dropTable: {
-			[exoticWeapon.hash]: {},
-		},
-		master: {
-			activityHash: legendExoticMission.activity.activityHash,
+		Log.info("Exotic Mission:", normalExoticMission.definition!.displayProperties.name, normalExoticMission.activity.activityHash);
+		DeepsightDropTableDefinition.exoticMission = {
+			hash: normalExoticMission.activity.activityHash,
+			displayProperties: {
+				name: normalExoticMission.definition!.originalDisplayProperties.name,
+				description: normalExoticMission.definition!.originalDisplayProperties.description,
+				icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
+			},
+			dropTable: {
+				[exoticWeapon.hash]: {},
+			},
+			master: {
+				activityHash: legendExoticMission.activity.activityHash,
+				availability: "rotator",
+			},
 			availability: "rotator",
-		},
-		availability: "rotator",
-		endTime: Time.iso(Time.nextWeeklyReset),
-		type: "exotic-mission",
-		typeDisplayProperties: await DestinyManifestReference.resolveAll({
-			name: { DestinyPresentationNodeDefinition: PresentationNodeHashes.ExoticMission_ObjectiveHash3349214720 },
-			description: { DestinyActivityTypeDefinition: ActivityTypeHashes.Dungeon },
-			icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
-		}),
-	};
+			endTime: Time.iso(Time.nextWeeklyReset),
+			type: "exotic-mission",
+			typeDisplayProperties: await DestinyManifestReference.resolveAll({
+				name: { DestinyPresentationNodeDefinition: PresentationNodeHashes.ExoticMission_ObjectiveHash3349214720 },
+				description: { DestinyActivityTypeDefinition: ActivityTypeHashes.Dungeon },
+				icon: { DestinyMilestoneDefinition: MilestoneHashes.WeeklyExoticRotatorChallenge_Activities1ActivityHash2919809209 },
+			}),
+		};
+	}
 
 
 	////////////////////////////////////

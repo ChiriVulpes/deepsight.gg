@@ -1,5 +1,5 @@
 import Component from "ui/Component";
-
+import ButtonBase from "ui/form/Button";
 
 enum InputMouse {
 	MouseLeft,
@@ -38,6 +38,7 @@ enum HintClasses {
 	HintInputModifier = "hint-input-modifier",
 	HintInputKey = "hint-input-key",
 	HintInputKeyName = "hint-input-key-name",
+	HintButton = "hint-button",
 }
 
 export class Hint extends Component<HTMLElement, [(IInput)?]> {
@@ -54,6 +55,18 @@ export class Hint extends Component<HTMLElement, [(IInput)?]> {
 		this.label = Component.create("span")
 			.classes.add(HintClasses.HintLabel)
 			.appendTo(this);
+	}
+}
+
+export namespace Hint {
+	export class Button extends Hint {
+		protected static override defaultType = "button";
+
+		protected override onMake (input?: IInput | undefined): void {
+			super.onMake(input);
+			ButtonBase.prototype["onMake"].call(this);
+			this.classes.add(HintClasses.HintButton);
+		}
 	}
 }
 

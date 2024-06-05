@@ -17,6 +17,9 @@ export enum PaginatorClasses {
 	Preview = "paginator-preview",
 	PreviewPage = "paginator-preview-page",
 	PreviewPageCurrent = "paginator-preview-page-current",
+	_DisplayMode = "paginator--display-mode-",
+	_DisplayModeSides = "paginator--display-mode-sides",
+	_DisplayModeTop = "paginator--display-mode-top",
 }
 
 export interface PaginatorFiller {
@@ -29,6 +32,10 @@ export interface PaginatorFiller {
 	 * Returns the current page that components should be appended to, creating new pages when necessary.
 	 */
 	add (value: number, pageInitialiser?: (page: PaginatorPage) => any): PaginatorPage;
+	/**
+	 * Accepts a function that will append one additional item. If a number is returned, that number of items is appended instead.
+	 */
+	fillRemainder (appender: (page: PaginatorPage) => any): void;
 }
 
 export interface PaginatorSizeHelper {
@@ -111,6 +118,12 @@ export default class Paginator extends Component {
 		});
 	}
 
+	public setDisplayMode (mode: "sides" | "top") {
+		this.classes.remove(PaginatorClasses._DisplayModeSides, PaginatorClasses._DisplayModeTop);
+		this.classes.add(`${PaginatorClasses._DisplayMode}${mode}`);
+		return this;
+	}
+
 	public filler (perPage: number | PaginatorSizeHelper, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
 		let page: PaginatorPage | undefined;
 		let filled = Infinity;
@@ -129,6 +142,15 @@ export default class Paginator extends Component {
 
 				filled += value;
 				return page!;
+			},
+			fillRemainder (appender) {
+				const perPage = PaginatorSizeHelper.getPerPage(result.perPage);
+				while (filled < perPage && filled !== 0) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+					const count = appender(result.increment());
+					if (typeof count === "number")
+						filled += count - 1;
+				}
 			},
 		};
 		return result;

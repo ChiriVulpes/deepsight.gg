@@ -2,9 +2,9 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-    hash: ActivityHashes.RootOfNightmaresNormal,
+    hash: ActivityHashes.RootOfNightmaresStandard,
     displayProperties: {
-        icon: { DestinyRecordDefinition: RecordHashes.RootOfNightmares4270724598 },
+        icon: { DestinyRecordDefinition: RecordHashes.RootOfNightmares_RewardItemsLength1 },
     },
     encounters: [
         {
@@ -151,7 +151,7 @@ export default {
                 description: "Lay Nezarec to his final rest.",
             },
             dropTable: {
-                [InventoryItemHashes.ConditionalFinalityShotgun_EquippingBlockUniqueLabelExoticWeapon]: {},
+                [InventoryItemHashes.ConditionalFinalityShotgun]: {},
                 [InventoryItemHashes.BriarsContemptLinearFusionRifle_ItemType3]: {},
                 [InventoryItemHashes.MykelsReverenceSidearm_ItemType3]: {},
                 [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},

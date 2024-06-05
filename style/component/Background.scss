@@ -22,7 +22,7 @@
 		}
 	
 		&-blur {
-			filter: blur(calc(3px / #{$scale}));
+			filter: blur(calc((3px * var(--blur)) / #{$scale}));
 		}
 
 		&::after {
@@ -36,7 +36,18 @@
 		}
 		
 		&--darkened::after {
-			background: color(background-2, 0.5);
+			background: color(background-2, var(--darkness, 0.5));
+		}
+		
+		&--prismatic::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background: linear-gradient(105deg, #785bbd 10%, #30417e 30%, #4bbff2 50%, #228a22 70%, #bc742e 90%);
+			mix-blend-mode: color;
+			opacity: var(--prismatic-vibrancy, 0.5);
 		}
 	}
 

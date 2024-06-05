@@ -42,13 +42,40 @@
 	}
 
 	&-identity {
-		font-weight: 600;
 		user-select: all;
 		-webkit-user-select: all;
 		height: fit-content;
 		align-self: center;
 		text-align: center;
 		z-index: 1;
+		
+		&-pretty {
+			font-weight: 600;
+			border-color: transparent;
+			background: none;
+			display: grid;
+			grid-template-areas: "stack";
+			@include transition(in, opacity);
+			
+			&:hover, &:focus-visible {
+				background: #fff3;
+				border-color: white;
+			}
+			
+			&:active {
+				background: #0001;
+				transition: none;
+			}
+			
+			&-id {
+				grid-area: stack;
+			}
+			
+			.player-overview-identity:hover &-id, .player-overview-identity:focus-visible &-id,
+			.player-overview-identity:hover &-override, .player-overview-identity:focus-visible &-override {
+				opacity: 0;
+			}
+		}
 
 		&-username,
 		&-code {
@@ -59,25 +86,56 @@
 			color: color(accent-0);
 		}
 		
-		&-input {
-			background: none;
-			border: none;
-			font: inherit;
-			outline: none;
-			padding: 0;
-			letter-spacing: inherit;
-		}
+		// &-input {
+		// 	background: none;
+		// 	border: none;
+		// 	font: inherit;
+		// 	outline: none;
+		// 	padding: 0;
+		// 	letter-spacing: inherit;
+		// }
 		
 		&-override {
-			// color: color(warning);
+			grid-area: stack;
 			opacity: .15;
 			font-size: .7em;
 			font-weight: 700;
 			letter-spacing: 1px;
-			text-align: left;
-			// text-transform: uppercase;
-			margin-top: -12px;
-			margin-bottom: -4px;
+			margin-top: -28px;
+			justify-self: start;
+			@include transition(in, opacity);
+			
+			.player-overview-identity:hover &, .player-overview-identity:focus-visible & {
+				opacity: 0;
+			}
+		}
+		
+		&-switch {
+			grid-area: stack;
+			@include transition(in, opacity);
+			
+			&.hidden {
+				display: inline;
+				opacity: 0;
+			}
+			
+			.player-overview-identity:hover &, .player-overview-identity:focus-visible & {
+				opacity: 1;
+			}
+		}
+		
+		&-none {
+			color: var(--foreground-3);
+			font-size: inherit;
+			letter-spacing: 0.04em;
+			font-weight: 600;
+		    text-transform: uppercase;
+			@include transition(out, color);
+			
+			.player-overview-identity-pretty:hover &, .player-overview-identity-pretty:focus-within & {
+				color: var(--foreground-0);
+				@include transition(in);
+			}
 		}
 	}
 
@@ -107,9 +165,9 @@
 			right: initial;
 			top: calc(8px + var(--nav-height));
 			left: calc(230px + 120px / 2);
-			.authenticated & {
-				left: calc(145px + 120px / 2);
-			}
+			// .authenticated & {
+			// 	left: calc(145px + 120px / 2);
+			// }
 			&::after {
 				transform: rotate(225deg);
 				top: 6px;

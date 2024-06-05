@@ -105,7 +105,7 @@ function emitKeyEvent (e: RawEvent) {
 
 	UiEventBus.emit(eventType, event);
 
-	if (eventType === "keydown" && event.use("Escape") && viewManager.view?.definition.subView) {
+	if (eventType === "keydown" && viewManager.view?.definition.subView && event.use("Escape")) {
 		viewManager.hide();
 	}
 

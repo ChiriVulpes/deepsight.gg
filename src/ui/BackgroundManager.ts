@@ -12,6 +12,7 @@ enum BackgroundClasses {
 	Surface = "background-surface",
 	Blur = "background-surface-blur",
 	Darkened = "background-surface--darkened",
+	Prismatic = "background-surface--prismatic",
 	Image = "background-image",
 }
 
@@ -37,22 +38,23 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 			.create([() => Store.items.settingsBackground
 				?? (Store.items.settingsBackgroundNoUseDefault ? undefined
 					: wallpapers[Math.floor(Math.random() * wallpapers.length)])])
-			.setBlurred(() => Store.items.settingsBackgroundBlur)
+			.setBlurred(() => Store.items.settingsBackgroundBlur === true ? 1 : Store.items.settingsBackgroundBlur)
 			.prependTo(document.body);
-		Store.event.subscribe("setSettingsBackground", manager.updateBackground);
-		Store.event.subscribe("deleteSettingsBackground", manager.updateBackground);
-		Store.event.subscribe("setSettingsBackgroundUseDefault", manager.updateBackground);
-		Store.event.subscribe("deleteSettingsBackgroundUseDefault", manager.updateBackground);
+
+		Store.event.subscribe(["setSettingsBackground", "deleteSettingsBackground", "setSettingsBackgroundUseDefault", "deleteSettingsBackgroundUseDefault"], manager.updateBackground);
 		Store.event.subscribe("setSettingsBackgroundBlur", manager.updateBackgroundBlur);
 		Store.event.subscribe("setSettingsBackgroundFollowMouse", manager.updateBackgroundFollowMouse);
+		Store.event.subscribe(["setSettingsBackgroundRainbow", "deleteSettingsBackgroundRainbow"], manager.updateBackgroundPrismatic);
+		Store.event.subscribe(["setSettingsBackgroundRainbowVibrancy", "deleteSettingsBackgroundRainbowVibrancy"], manager.updateBackgroundPrismatic);
+		Store.event.subscribe(["setSettingsBackgroundDarkness", "deleteSettingsBackgroundDarkness"], manager.updateBackgroundDarkness);
 	}
 
 	private static getScrollAmount () {
 		return Store.items.settingsBackgroundFollowMouse ? 0.05 : 0;
 	}
 
-	private blurred?: SupplierOr<boolean | undefined>;
-	private darkened?: SupplierOr<boolean | undefined>;
+	private blurred?: SupplierOr<number | undefined>;
+	private unfiltered?: SupplierOr<boolean | undefined>;
 	private path!: SupplierOr<Arrays.Or<string> | undefined>;
 
 	public backgrounds!: Component<HTMLImageElement>[];
@@ -60,13 +62,14 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	protected override onMake (path: SupplierOr<Arrays.Or<string> | undefined>): void {
 		this.path = path;
 		this.classes.add(BackgroundClasses.Surface);
-		this.darkened = true;
+		this.unfiltered = false;
 
 		this.backgrounds = [];
 
 		this.updateBackground();
 		this.updateBackgroundBlur();
-		this.updateBackgroundDarkened();
+		this.updateBackgroundDarkness();
+		this.updateBackgroundPrismatic();
 		this.updateBackgroundFollowMouse();
 
 		document.body.addEventListener("mousemove", event => {
@@ -81,15 +84,16 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 		return this;
 	}
 
-	public setBlurred (blurred: SupplierOr<boolean | undefined>) {
+	public setBlurred (blurred: SupplierOr<number | undefined>) {
 		this.blurred = blurred;
 		this.updateBackgroundBlur();
 		return this;
 	}
 
-	public setDarkened (darkened: SupplierOr<boolean | undefined>) {
-		this.darkened = darkened;
-		this.updateBackgroundDarkened();
+	public setUnfiltered (unfiltered: SupplierOr<boolean | undefined>) {
+		this.unfiltered = unfiltered;
+		this.updateBackgroundDarkness();
+		this.updateBackgroundPrismatic();
 		return this;
 	}
 
@@ -120,11 +124,18 @@ export default class Background extends Component<HTMLElement, [path: SupplierOr
 	}
 
 	@Bound private updateBackgroundBlur () {
-		this.classes.toggle(!!Functions.resolve(this.blurred), BackgroundClasses.Blur);
+		this.classes.toggle(!!Functions.resolve(this.blurred), BackgroundClasses.Blur)
+			.style.set("--blur", `${Store.items.settingsBackgroundBlur ?? 1}`);
 	}
 
-	@Bound private updateBackgroundDarkened () {
-		this.classes.toggle(!!Functions.resolve(this.darkened), BackgroundClasses.Darkened);
+	@Bound private updateBackgroundDarkness () {
+		this.classes.toggle(!Functions.resolve(this.unfiltered), BackgroundClasses.Darkened)
+			.style.set("--darkness", `${Store.items.settingsBackgroundDarkness ?? 0.5}`);
+	}
+
+	@Bound private updateBackgroundPrismatic () {
+		this.classes.toggle(!Functions.resolve(this.unfiltered), BackgroundClasses.Prismatic)
+			.style.set("--prismatic-vibrancy", `${Store.items.settingsBackgroundRainbowVibrancy ?? 0.5}`);
 	}
 
 	@Bound private updateBackgroundFollowMouse () {

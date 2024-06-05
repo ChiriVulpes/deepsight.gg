@@ -3,7 +3,7 @@ import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinitio
 
 export default {
 	hash: ActivityHashes.LastWishNormal,
-	rotationActivityHash: ActivityHashes.LastWishLevel552122313384,
+	rotationActivityHash: ActivityHashes.LastWishStandard,
 	displayProperties: {
 		icon: { DestinyMilestoneDefinition: MilestoneHashes.LastWish },
 	},
@@ -133,7 +133,7 @@ export default {
 				description: "Escape the spire and get the Heart Stone to the Techeun.",
 			},
 			dropTable: {
-				[InventoryItemHashes.OneThousandVoicesFusionRifle_EquippingBlockUniqueLabelExoticWeapon]: { requiresItems: [InventoryItemHashes.EtherealKeyMaterialDummy] },
+				[InventoryItemHashes.OneThousandVoicesFusionRifle]: { requiresItems: [InventoryItemHashes.EtherealKeyMaterialDummy] },
 			},
 		},
 		// no idea why there's another directive, can't find this in videos

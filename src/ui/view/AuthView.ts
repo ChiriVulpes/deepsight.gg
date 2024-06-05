@@ -26,6 +26,7 @@ export default View.create({
 	hash: null,
 	name: "Authenticate",
 	auth: "none",
+	noDestinationButton: true,
 	initialise: view => {
 		if (Bungie.authenticated && Env.DEEPSIGHT_ENVIRONMENT !== "dev")
 			return Async.sleep(1).then(() => viewManager.showDefaultView());

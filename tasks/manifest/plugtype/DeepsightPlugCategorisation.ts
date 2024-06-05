@@ -728,7 +728,7 @@ namespace DeepsightPlugCategorisation {
 			case "Deep Stone Crypt Raid Mod":
 				return ActivityHashes.DeepStoneCrypt_RewardsLength0;
 			case "Root of Nightmares Armor Mod":
-				return ActivityHashes.RootOfNightmaresNormal;
+				return ActivityHashes.RootOfNightmaresStandard;
 			case "Crota's End Mod":
 				return ActivityHashes.CrotasEndNormal;
 			case "Last Wish Raid Mod":
@@ -738,9 +738,9 @@ namespace DeepsightPlugCategorisation {
 			case "Vault of Glass Armor Mod":
 				return ActivityHashes.VaultOfGlass;
 			case "Vow of the Disciple Raid Mod":
-				return ActivityHashes.VowOfTheDiscipleNormal;
+				return ActivityHashes.VowOfTheDiscipleStandard;
 			case "King's Fall Mod":
-				return ActivityHashes.KingsFallNormal_ModifiersLength8;
+				return ActivityHashes.KingsFallStandard;
 		}
 	}
 

@@ -96,7 +96,7 @@ export default class ViewManager {
 	public static view?: View.WrapperComponent;
 
 	public static getDefaultView () {
-		return Bungie.authenticated || URL.bungieID || Store.items.destinyMembershipOverride ? InventoryWeaponsView : AuthView;
+		return Bungie.authenticated || URL.bungieID || Store.items.selectedProfile ? InventoryWeaponsView : AuthView;
 	}
 
 	public static hasView () {

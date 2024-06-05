@@ -2,7 +2,7 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.VowOfTheDiscipleNormal,
+	hash: ActivityHashes.VowOfTheDiscipleStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.VowOfTheDisciple2168422218 },
 	},
@@ -116,7 +116,7 @@ export default {
 				[InventoryItemHashes.InsidiousPulseRifle_ItemType3]: {},
 				[InventoryItemHashes.LubraesRuinGlaive_ItemType3]: {},
 				[InventoryItemHashes.ForbearanceGrenadeLauncher613334176]: {},
-				[InventoryItemHashes.CollectiveObligationPulseRifle_EquippingBlockUniqueLabelExoticWeapon]: {},
+				[InventoryItemHashes.CollectiveObligationPulseRifle]: {},
 				[InventoryItemHashes.ResonantFuryHelmHelmetPlug]: {},
 				[InventoryItemHashes.ResonantFuryGauntletsGauntletsPlug]: {},
 				[InventoryItemHashes.ResonantFuryMarkTitanMarkPlug]: {},
@@ -130,14 +130,14 @@ export default {
 		},
 	],
 	master: {
-		activityHash: ActivityHashes.VowOfTheDiscipleMaster_ModifiersLength21,
+		activityHash: ActivityHashes.VowOfTheDiscipleMaster_ModifiersLength22,
 		dropTable: {
-			[InventoryItemHashes.SubmissionAdeptSubmachineGun]: {},
-			[InventoryItemHashes.DeliveranceAdeptFusionRifle]: {},
-			[InventoryItemHashes.CataclysmicAdeptLinearFusionRifle]: {},
-			[InventoryItemHashes.InsidiousAdeptPulseRifle]: {},
-			[InventoryItemHashes.LubraesRuinAdeptGlaive]: {},
-			[InventoryItemHashes.ForbearanceAdeptGrenadeLauncher]: {},
+			[InventoryItemHashes.SubmissionAdeptSubmachineGun_ItemType3]: {},
+			[InventoryItemHashes.DeliveranceAdeptFusionRifle_ItemType3]: {},
+			[InventoryItemHashes.CataclysmicAdeptLinearFusionRifle_ItemType3]: {},
+			[InventoryItemHashes.InsidiousAdeptPulseRifle_ItemType3]: {},
+			[InventoryItemHashes.LubraesRuinAdeptGlaive_ItemType3]: {},
+			[InventoryItemHashes.ForbearanceAdeptGrenadeLauncher_ItemType3]: {},
 		},
 	},
 	rotations: {

@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.GhostsOfTheDeepNormal,
+	hash: ActivityHashes.GhostsOfTheDeepStandard,
 	displayProperties: {
 		icon: "./image/png/activity/gotd.png",
 	},

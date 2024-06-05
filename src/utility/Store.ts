@@ -1,5 +1,6 @@
 import type { BungieMembershipType } from "bungie-api-ts/common";
-import type { UserInfoCard } from "bungie-api-ts/user";
+import type { DestinyClass } from "bungie-api-ts/destiny2";
+import BungieID from "utility/BungieID";
 import { EventManager } from "utility/EventManager";
 
 export interface IItemPerkWishlist {
@@ -12,34 +13,50 @@ type IItemPerkWishlistStorage = {
 	[key in WishlistKey]?: IItemPerkWishlist[];
 }
 
-interface IProfileStorage {
+export interface IProfileStorage {
 	lastModified: string;
+
+	// display
+	emblemHash?: number;
+	class?: DestinyClass;
+	callsign?: string;
+	callsignLastModified?: string;
+
+	// auth
+	authCode?: string;
+	accessToken?: string;
+	accessTokenExpireTime?: number;
+	accessTokenMembershipId?: string;
+	accessTokenRefreshExpireTime?: number;
+	accessTokenRefreshToken?: string;
+	membershipType?: BungieMembershipType;
+	membershipId?: string;
+}
+
+export interface IProfile {
+	id: BungieID;
+	data: IProfileStorage;
 }
 
 export interface ILocalStorage extends IItemPerkWishlistStorage {
-	bungieAuthCode?: string;
-	bungieAccessToken?: string;
-	bungieAccessTokenExpireTime?: number;
-	bungieAccessTokenMembershipId?: string;
-	bungieAccessTokenRefreshExpireTime?: number;
-	bungieAccessTokenRefreshToken?: string;
-	destinyMembershipType?: BungieMembershipType;
-	destinyMembershipOverride?: UserInfoCard;
 	databases?: IDBDatabaseInfo[];
 	settingsAlwaysShowExtra?: true;
 	settingsToggleExtra?: true;
 	settingsDisplayLocksOnItems?: true;
 	settingsClearItemFilterOnSwitchingViews?: true;
 	settingsDisableReturnOnFailure?: true;
-	settingsBackgroundBlur?: true;
+	settingsBackgroundBlur?: true | number;
 	settingsBackgroundNoUseDefault?: true;
 	settingsBackgroundFollowMouse?: true;
 	settingsBackground?: string;
+	settingsBackgroundRainbowVibrancy?: number;
+	settingsBackgroundDarkness?: number;
 	settingsDisplayWishlistedHighlights?: true;
 	settingsDisableDisplayNonWishlistedHighlights?: true;
 	settingsTrustTransfersUntil?: number;
 	itemFilter?: string;
 	profiles?: Record<string, IProfileStorage>;
+	selectedProfile?: string;
 }
 
 export type IStoreEvents =
@@ -116,6 +133,52 @@ export default class Store {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue });
 		return true;
+	}
+
+	public static getProfile (): IProfile | undefined {
+		const selectedProfileId = Store.items.selectedProfile;
+		if (!selectedProfileId) {
+			const profiles = Object.entries(Store.items.profiles ?? {});
+			const authenticatedProfiles = profiles.filter(([, profile]) => profile.accessToken);
+
+			if (!profiles.length || authenticatedProfiles.length > 1)
+				return undefined;
+
+			const [idString, data] = authenticatedProfiles[0] ?? profiles[0];
+
+			const id = BungieID.parse(idString);
+			if (!id || !data)
+				return undefined;
+
+			return { id, data };
+		}
+
+		const data = Store.items.profiles?.[selectedProfileId];
+		if (!data)
+			return undefined;
+
+		const id = BungieID.parse(selectedProfileId);
+		if (!id)
+			return undefined;
+
+		return { id, data };
+	}
+
+	public static updateProfile (bungieId: BungieID, profile: Partial<IProfileStorage> = {}) {
+		const profiles = Store.items.profiles ?? {};
+		profile = profiles[BungieID.stringify(bungieId)] = {
+			...profiles[BungieID.stringify(bungieId)],
+			...profile,
+			lastModified: new Date().toISOString(),
+		};
+		Store.items.profiles = profiles;
+		return profile as IProfileStorage;
+	}
+
+	public static removeProfile (bungieId: BungieID) {
+		const profiles = Store.items.profiles ?? {};
+		delete profiles[BungieID.stringify(bungieId)];
+		Store.items.profiles = profiles;
 	}
 }
 

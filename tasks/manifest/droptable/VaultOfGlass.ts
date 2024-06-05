@@ -2,7 +2,7 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.VaultOfGlassNormal,
+	hash: ActivityHashes.VaultOfGlassStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.VaultOfGlass3114569402 },
 	},
@@ -147,7 +147,7 @@ export default {
 		},
 	],
 	master: {
-		activityHash: ActivityHashes.VaultOfGlassMaster_ModifiersLength22,
+		activityHash: ActivityHashes.VaultOfGlassMaster_ModifiersLength23,
 		dropTable: {
 			[InventoryItemHashes.FoundVerdictTimelostShotgun]: { purchaseOnly: true },
 		},

@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.SpireOfTheWatcherNormal,
+	hash: ActivityHashes.SpireOfTheWatcherStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.SpireOfTheWatcher2302993504 },
 	},
@@ -122,6 +122,6 @@ export default {
 		},
 	],
 	master: {
-		activityHash: ActivityHashes.SpireOfTheWatcherMaster_ModifiersLength16,
+		activityHash: ActivityHashes.SpireOfTheWatcherMaster_ModifiersLength17,
 	},
 } satisfies DeepsightDropTableDefinition;

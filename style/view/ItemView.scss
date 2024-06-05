@@ -463,17 +463,9 @@
 					
 					&-artifact {
 						background: linear-gradient(to bottom, #1b7679, #105d61);
-						border-radius: .4em;
+						border-radius: var(--plug-icon-padding);
 						border: none;
-						box-shadow: inset 0 1px #69f4fb;
-						&::before {
-							box-shadow: inset 0 0 0 5px #ffffff24;
-							border-radius: .4em;
-						}
-						
-						&::after {
-							border-radius: .6em;
-						}
+						box-shadow: inset 0 1px #69f4fb, inset 0 0 0 var(--plug-icon-padding) #ffffff24;
 					}
 					
 					&-statuseffect {

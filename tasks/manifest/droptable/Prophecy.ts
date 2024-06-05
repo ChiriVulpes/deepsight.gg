@@ -2,8 +2,8 @@ import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.Prophecy_ChallengesLength0,
-	rotationActivityHash: ActivityHashes.Prophecy_ChallengesLength1,
+	hash: ActivityHashes.Prophecy_ModifiersLength0,
+	rotationActivityHash: ActivityHashes.Prophecy_ModifiersLength8,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.ProphecyComplete872886548 },
 	},
@@ -23,7 +23,7 @@ export default {
 			},
 			dropTable: {
 				[InventoryItemHashes.ProsecutorAutoRifle_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.RelentlessPulseRifle_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.RelentlessPulseRifle_TooltipNotificationsLength3]: {},
 				[InventoryItemHashes.CrushingGreavesCodaLegArmorPlug]: {},
 				[InventoryItemHashes.MarkJudgmentCodaTitanMarkPlug]: {},
 				[InventoryItemHashes.FlowingBootsCodaLegArmorPlug]: {},
@@ -63,7 +63,7 @@ export default {
 				description: "Find a way forward.",
 			},
 			dropTable: {
-				[InventoryItemHashes.AdjudicatorSubmachineGun_IconWatermarkShelvedUndefined]: {},
+				[InventoryItemHashes.AdjudicatorSubmachineGun_TooltipNotificationsLength3]: {},
 				[InventoryItemHashes.ASuddenDeathShotgun4097972038]: {},
 				[InventoryItemHashes.CrushingGuardCodaGauntletsPlug]: {},
 				[InventoryItemHashes.FlowingGripsCodaGauntletsPlug]: {},

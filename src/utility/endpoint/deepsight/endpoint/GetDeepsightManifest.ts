@@ -1,8 +1,9 @@
-import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
 import GetDeepsightAdeptDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightAdeptDefinition";
 import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
+import GetDeepsightEmblemDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightEmblemDefinition";
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";
 import GetDeepsightSocketCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketCategorisation";
@@ -21,6 +22,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
 	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
 	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>;
+	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -39,6 +41,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
 			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),
 			DeepsightAdeptDefinition: await GetDeepsightAdeptDefinition.query(),
+			DeepsightEmblemDefinition: await GetDeepsightEmblemDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

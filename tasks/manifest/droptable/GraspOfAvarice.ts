@@ -2,7 +2,7 @@ import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.GraspOfAvariceNormal,
+	hash: ActivityHashes.GraspOfAvariceStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.FatefulSpin },
 	},
@@ -135,6 +135,6 @@ export default {
 		},
 	],
 	master: {
-		activityHash: ActivityHashes.GraspOfAvariceMaster_ModifiersLength15,
+		activityHash: ActivityHashes.GraspOfAvariceMaster_ModifiersLength16,
 	},
 } satisfies DeepsightDropTableDefinition;

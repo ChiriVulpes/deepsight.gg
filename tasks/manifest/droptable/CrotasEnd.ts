@@ -1,4 +1,4 @@
-import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
+import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
@@ -149,13 +149,14 @@ export default {
             [InventoryItemHashes.SwordbreakerAdeptShotgun_ItemType3]: {},
         },
     },
-    rotations: {
-        anchor: "2023-10-17T17:00:00Z",
-        challenges: [
-            ActivityModifierHashes.ConservationOfEnergy,
-            ActivityModifierHashes.PrecariousBalance,
-            ActivityModifierHashes.EqualVessels,
-            ActivityModifierHashes.AllForOne,
-        ],
-    },
+    // bungie broke the crota's end challenges
+    // rotations: {
+    //     anchor: "2023-10-17T17:00:00Z",
+    //     challenges: [
+    //         ActivityModifierHashes.ConservationOfEnergy,
+    //         ActivityModifierHashes.PrecariousBalance,
+    //         ActivityModifierHashes.EqualVessels,
+    //         ActivityModifierHashes.AllForOne,
+    //     ],
+    // },
 } satisfies DeepsightDropTableDefinition;

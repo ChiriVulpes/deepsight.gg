@@ -16,10 +16,9 @@ import DestinyRequest from "./DestinyRequest";
 const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<DestinationHashes | EventCardHashes, string>>>> = {
 	[VendorHashes.LordSaladin]: "lordsaladin",
 	[VendorHashes.Nimbus]: "nimbus",
-	[VendorHashes.SpiritOfRiven_Enabledtrue]: "spiritofriven",
 	[VendorHashes.Fynch]: "fynch",
-	[VendorHashes.Xur_LocationsLength1]: "xurxurstreasurehoard",
-	[VendorHashes.Xur_LocationsLength3]: {
+	[VendorHashes.Xur_CategoriesLength21]: "xurxurstreasurehoard",
+	[VendorHashes.Xur_CategoriesLength27]: {
 		[DestinationHashes.TheLastCity1737926756]: "xurthelastcity",
 		[DestinationHashes.EuropeanDeadZone697502628]: "xureuropeandeadzone",
 		[DestinationHashes.ArcadianValley3607432451]: "xurarcadianvalley",
@@ -29,7 +28,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.CommanderZavala_Enabledtrue]: "commanderzavala",
 	[VendorHashes.TheDrifter_Enabledtrue]: "thedrifter",
 	[VendorHashes.Saint14]: "saint14",
-	[VendorHashes.LordShaxx_CategoriesLength55]: "lordshaxx",
+	[VendorHashes.LordShaxx_Enabledtrue]: "lordshaxx",
 	[VendorHashes.DevrimKay]: "devrimkay",
 	[VendorHashes.Failsafe]: "failsafe",
 	[VendorHashes.ErisMorn]: "erismorn",
@@ -37,35 +36,26 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.ShawHan]: "shawhan",
 	[VendorHashes.PetraVenj]: `petravenj${Rotation.resolve({ anchor: "2024-01-16T17:00:00Z" }, ["thestrand", "divalianmists", "rheasilvia"])}`,
 	[VendorHashes.VariksTheLoyal]: "varikstheloyal",
-	[VendorHashes.RitualTable]: "ritualtable",
-	[VendorHashes.LecternOfDivination]: "lecternofdivination",
-	[VendorHashes.WarTable]: "wartable",
-	[VendorHashes.SonarStation]: "sonarstation",
 	[VendorHashes.Starhorse]: "starhorse",
-	[VendorHashes.LordShaxx_CategoriesLength50]: "lordshaxxhallofchampions",
 	[VendorHashes.EvaLevante]: {
 		[EventCardHashes.GuardianGames]: "evalevanteguardiangames",
 	},
 };
 
 const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>> = {
-	[VendorHashes.LordShaxx_CategoriesLength50]: [VendorGroupHashes.LimitedTime],
+	[VendorHashes.LordShaxx_Enabledtrue]: [VendorGroupHashes.LimitedTime],
 	[VendorHashes.EvaLevante]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.LordSaladin]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
 	[VendorHashes.Fynch]: [VendorGroupHashes.Destination, VendorGroupHashes.TheWitchQueen],
-	[VendorHashes.Xur_LocationsLength1]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
+	[VendorHashes.Xur_CategoriesLength21]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
 };
 
 const VENDOR_MOMENTS: Partial<Record<VendorHashes, MomentHashes>> = {
 	[VendorHashes.Nimbus]: MomentHashes.Lightfall,
-	[VendorHashes.SpiritOfRiven_Enabledtrue]: MomentHashes.SeasonOfTheWish,
-	[VendorHashes.LecternOfDivination]: MomentHashes.SeasonOfTheWitch,
-	[VendorHashes.RitualTable]: MomentHashes.SeasonOfTheWitch,
-	[VendorHashes.SonarStation]: MomentHashes.SeasonOfTheDeep,
 	[VendorHashes.WarTable]: MomentHashes.SeasonOfDefiance,
 	[VendorHashes.Fynch]: MomentHashes.TheWitchQueen,
-	[VendorHashes.Xur_LocationsLength1]: MomentHashes.Bungie30thAnniversary,
+	[VendorHashes.Xur_CategoriesLength21]: MomentHashes.Bungie30thAnniversary,
 	[VendorHashes.DevrimKay]: MomentHashes.TheRedWar,
 	[VendorHashes.Failsafe]: MomentHashes.TheRedWar,
 	[VendorHashes.ErisMorn]: MomentHashes.Shadowkeep,

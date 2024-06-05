@@ -1,11 +1,12 @@
 import type { DestinyProfileResponse } from "bungie-api-ts/destiny2";
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
-import { getCurrentDestinyMembership } from "model/models/Memberships";
-import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
+import BungieID from "utility/BungieID";
+import type { IProfileStorage } from "utility/Store";
 import Store from "utility/Store";
 import Time from "utility/Time";
-import URL, { BungieID } from "utility/URL";
+import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
+import GetUserClan from "utility/endpoint/bungie/endpoint/groupv2/GetUserClan";
 
 type DestinyComponentName = Exclude<keyof DestinyProfileResponse, "responseMintedTimestamp" | "secondaryComponentsMintedTimestamp">;
 
@@ -158,20 +159,21 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		while (lastOperation)
 			await lastOperation;
 
-		const membership = URL.bungieID ? Store.items.destinyMembershipOverride : await getCurrentDestinyMembership();
-		if (!membership)
+		const account = Store.getProfile();
+		if (!account || account.data.membershipType === undefined || account.data.membershipId === undefined)
 			return {
 				lastModified: new Date(),
 				bungieID: { name: "", code: 0 },
 				responseMintedTimestamp: new Date().toISOString(),
 			} as Response;
 
+		const idString = BungieID.stringify(account.id);
+
 		const result = {} as Response;
 
-		const bungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
-		const userModels = models[BungieID.stringify(bungieID)] ??= {};
+		const userModels = models[idString] ??= {};
 		for (const component of components)
-			userModels[component] ??= new ComponentModel(component, bungieID);
+			userModels[component] ??= new ComponentModel(component, account.id);
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
 		lastOperation = (async () => {
@@ -202,17 +204,32 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 			api.emitProgress(1 / 3, "Fetching profile");
 
 			const newData = await GetProfile
-				.setOptionalAuth(!!Store.items.destinyMembershipOverride)
-				.query(membership.membershipType, membership.membershipId, missingComponents);
+				.setOptionalAuth(!!account.data.accessToken)
+				.query(account.data.membershipType!, account.data.membershipId!, missingComponents);
 			mergeProfile(result, newData);
 
-			result.bungieID = { name: membership.bungieGlobalDisplayName, code: membership.bungieGlobalDisplayNameCode ?? 0 };
+			result.bungieID = account.id;
 			result.lastModified = new Date(newData._headers.get("Last-Modified") ?? Date.now());
 
 			const profiles = Store.items.profiles ?? {};
-			profiles[BungieID.stringify(bungieID)] = {
+			const currentCharacter = Object.values(result.characters.data ?? {})
+				?.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
+					new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
+				?.[0];
+
+			const profile: IProfileStorage = profiles[idString] = {
+				...account.data, // merge with previous profile data
 				lastModified: result.lastModified.toISOString(),
+				emblemHash: currentCharacter?.emblemHash,
+				class: currentCharacter?.classType,
 			};
+
+			if (profile.callsign === undefined || !profile.callsignLastModified || Date.now() - new Date(profile.callsignLastModified).getTime() > Time.hours(1)) {
+				const clan = await GetUserClan.query(account.data.membershipType!, account.data.membershipId!);
+				profile.callsign = clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "";
+				profile.callsignLastModified = new Date().toISOString();
+			}
+
 			Store.items.profiles = profiles;
 
 			for (let i = 0; i < components.length; i++) {
@@ -240,7 +257,7 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 		await lastOperation;
 		lastOperation = undefined;
 
-		result.lastModified ??= new Date(Store.items.profiles?.[`${membership.bungieGlobalDisplayName}#${`${membership.bungieGlobalDisplayNameCode}`.padStart(4, "0")}`]?.lastModified ?? Date.now());
+		result.lastModified ??= new Date(Store.items.profiles?.[idString]?.lastModified ?? Date.now());
 		return result;
 	});
 }

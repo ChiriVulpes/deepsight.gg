@@ -1,11 +1,8 @@
 import { StatHashes } from "@deepsight.gg/enums";
 import { DestinyClass, type DestinyCharacterComponent, type DestinyClassDefinition, type DestinyInventoryItemDefinition, type DestinyProfileProgressionComponent, type DestinyStatDefinition, type SingleComponentResponse } from "bungie-api-ts/destiny2";
-import type { GroupUserInfoCard } from "bungie-api-ts/groupv2";
-import type { IModelGenerationApi } from "model/Model";
 import type { ILoadoutsProfile, Loadout } from "model/models/Loadouts";
 import Loadouts from "model/models/Loadouts";
 import Manifest from "model/models/Manifest";
-import { getCurrentDestinyMembership } from "model/models/Memberships";
 import ProfileBatch from "model/models/ProfileBatch";
 import type { CharacterId } from "model/models/items/Item";
 import { EventManager } from "utility/EventManager";
@@ -134,20 +131,3 @@ namespace Characters {
 }
 
 export default Characters;
-
-export interface CharacterInfoCard extends GroupUserInfoCard {
-	characterId?: CharacterId;
-}
-
-export async function getCurrentMembershipAndCharacter (api?: IModelGenerationApi, amount?: number, from?: number): Promise<CharacterInfoCard | undefined> {
-	const progress = (amount ?? 1) * (1 / 2);
-	const membership = await getCurrentDestinyMembership(api, progress, from);
-	if (!membership)
-		return undefined;
-
-	const profile = await (api?.subscribeProgressAndWait(ProfileBatch, progress, (from ?? 0) + progress) ?? ProfileBatch.await());
-	return {
-		...membership,
-		characterId: !profile.characters?.data ? undefined : Object.keys(profile.characters?.data ?? Objects.EMPTY)[0] as CharacterId,
-	};
-}

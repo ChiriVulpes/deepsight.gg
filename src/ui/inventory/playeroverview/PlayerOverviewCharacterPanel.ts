@@ -139,7 +139,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			.appendTo(characterSettings);
 
 		this.artifact = ItemComponent.create([])
-			.classes.add(PlayerOverviewCharacterPanelClasses.Artifact)
+			.classes.add(PlayerOverviewCharacterPanelClasses.Artifact, Classes.Hidden)
 			.appendTo(this.artifactSlot);
 
 		this.loadouts = LoadoutsComponent.create()
@@ -198,6 +198,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 	public set (inventory: Inventory, character: Character, buckets: Bucket[]) {
 		const seasonalArtifact = buckets.find(bucket => bucket.is(InventoryBucketHashes.SeasonalArtifact));
 		void this.artifact.setItem(seasonalArtifact?.equippedItem);
+		this.artifact.classes.toggle(!seasonalArtifact?.equippedItem, Classes.Hidden);
 
 		this.loadouts.set(inventory, character);
 

@@ -127,7 +127,7 @@ export default {
             dropTable: {
                 [InventoryItemHashes.BequestSword_ItemType3]: {},
                 [InventoryItemHashes.CommemorationMachineGun_ItemType3]: {},
-                [InventoryItemHashes.EyesOfTomorrowRocketLauncher_EquippingBlockUniqueLabelExoticWeapon]: {},
+                [InventoryItemHashes.EyesOfTomorrowRocketLauncher]: {},
 
                 // hunter
                 [InventoryItemHashes.LegacysOathMaskHelmetPlug]: {},

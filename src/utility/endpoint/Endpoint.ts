@@ -5,7 +5,7 @@ export interface EndpointRequest extends Omit<RequestInit, "headers" | "body"> {
 }
 
 export default class Endpoint<T, R = T, ARGS extends any[] = []> {
-	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) { }
+	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => undefined | EndpointRequest | Promise<undefined | EndpointRequest>) { }
 
 	public async query (...args: ARGS): Promise<R & { _headers: Headers }> {
 		const path = this.resolvePath(...args);
@@ -78,7 +78,7 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 		return fetch(`${path}${search}`, {
 			...request,
 			body,
-			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
+			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers, ...args)).filter(([key, value]) => typeof value === "string") as [string, string][]),
 		});
 	}
 
@@ -91,7 +91,7 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/require-await
-	protected async getHeaders (headers?: Record<string, string | undefined>): Promise<Record<string, string | undefined>> {
+	protected async getHeaders (headers?: Record<string, string | undefined>, ...args: ARGS): Promise<Record<string, string | undefined>> {
 		return { ...headers };
 	}
 }

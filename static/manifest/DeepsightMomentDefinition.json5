@@ -293,6 +293,24 @@
 			3824673936, // new whisper
 		],
 	},
+	"35": {
+		id: "finalshape",
+		displayProperties: {
+			name: "The Final Shape",
+			description: "The Final Shape looms—a nightmarish calcification of reality into the Witness's twisted design. Embark on a perilous journey into the heart of the Traveler, rally the Vanguard, and end the War of Light and Darkness.",
+			icon: { DestinyTraitDefinition: 2878306895 }, // The Final Shape
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 1033072181 }, // The Call
+		expansion: true,
+		year: 7,
+	},
+	"36": {
+		id: "echoes",
+		iconWatermark: { DestinyInventoryItemDefinition: 427899681 }, // Red Death Reformed
+		season: 24,
+		year: 7,
+		seasonHash: 2758726572,
+	},
 	"-1": {
 		id: "revelry",
 		displayProperties: {

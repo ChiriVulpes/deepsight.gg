@@ -73,7 +73,7 @@ const vendorViewBase = View.create({
 		console.log(Display.name(vendor), vendor);
 
 		if (vendor.background)
-			view.setBackground(`../.${vendor.background}`).setDarkened(false);
+			view.setBackground(`../.${vendor.background}`).setUnfiltered(true);
 
 		VendorDisplay.Button.create([vendor])
 			.event.subscribe("click", () => viewManager.showVendors())

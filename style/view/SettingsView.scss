@@ -1,4 +1,9 @@
 .view-settings {
+	&-content {
+		display: flex;
+		flex-direction: column;
+	}
+	
 	&-cards {
 		display: flex;
 		flex-direction: column;
@@ -52,6 +57,14 @@
 	&:has(.loadable-loading-hidden) {
 		overflow-x: scroll;
 		overflow-y: hidden;
+	}
+	
+	&-row {
+		display: grid;
+		grid-template-columns: 100px 1fr;
+		gap: 4px;
+		flex-basis: 100%;
+		margin-top: 8px;
 	}
 
 	&-wallpaper {
