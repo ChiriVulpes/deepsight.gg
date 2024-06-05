@@ -31,7 +31,6 @@ import { EventManager } from "utility/EventManager";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
 import type { Mutable, PromiseOr } from "utility/Type";
-import URL from "utility/URL";
 import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/EquipItem";
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
 import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
@@ -523,7 +522,7 @@ class Item {
 	}
 
 	public canTransfer () {
-		return !URL.bungieID
+		return Store.isAuthenticated()
 			&& (!this.bucket.is(InventoryBucketHashes.LostItems) || !this.definition.doesPostmasterPullHaveSideEffects)
 			&& this.reference.bucketHash !== InventoryBucketHashes.Engrams;
 	}
@@ -650,7 +649,7 @@ class Item {
 		if (this.bucket === Bucket.COLLECTIONS)
 			return false;
 
-		if (URL.bungieID)
+		if (!Store.isAuthenticated())
 			return false;
 
 		await this.settingLocked;
@@ -806,7 +805,7 @@ class Item {
 	}
 
 	private async transfer (...transfers: Transfer[]) {
-		if (URL.bungieID)
+		if (!Store.isAuthenticated())
 			return;
 
 		await this.transferrable();

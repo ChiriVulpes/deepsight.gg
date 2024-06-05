@@ -23,7 +23,7 @@ import InventoryHelmetView from "ui/view/inventory/slot/InventoryHelmetView";
 import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";
 import InventoryLegsView from "ui/view/inventory/slot/InventoryLegsView";
 import InventoryPowerView from "ui/view/inventory/slot/InventoryPowerView";
-import URL from "utility/URL";
+import Store from "utility/Store";
 import Maths from "utility/maths/Maths";
 
 export enum PlayerOverviewCharacterPanelClasses {
@@ -108,7 +108,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 
 		this.subclassPicker = (ClassPicker.create([]) as ClassPicker<number>)
 			.classes.add(PlayerOverviewCharacterPanelClasses.SubclassPicker)
-			.setDisabled(!!URL.bungieID)
+			.setDisabled(!Store.isAuthenticated())
 			.event.subscribe("selectClass", event => {
 				if (event.item?.character)
 					event.setPromise(event.item.equip(event.item.character));

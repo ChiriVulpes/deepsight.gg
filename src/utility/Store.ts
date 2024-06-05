@@ -135,6 +135,10 @@ export default class Store {
 		return true;
 	}
 
+	public static isAuthenticated () {
+		return !!Store.getProfile()?.data.accessToken;
+	}
+
 	public static getProfile (): IProfile | undefined {
 		const selectedProfileId = Store.items.selectedProfile;
 		if (!selectedProfileId) {
