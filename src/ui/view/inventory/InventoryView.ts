@@ -253,9 +253,10 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			return ItemComponent.create([item, this.inventory]);
 
 		return DraggableItem.create([item, this.inventory, {
-			createItemPlaceholder: item => {
+			createItemPlaceholder: (item, wrapper) => {
 				this.itemMoving?.remove();
-				this.itemMoving = item.appendTo(this);
+				this.itemMoving = item;
+				(wrapper ?? item).appendTo(this);
 			},
 			disposeItemPlaceholder: item => {
 				if (this.itemMoving === item)

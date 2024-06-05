@@ -1,14 +1,17 @@
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
+import Component from "ui/Component";
 import type { IDraggableEvents } from "ui/form/Draggable";
 import Draggable from "ui/form/Draggable";
 import ItemComponent from "ui/inventory/ItemComponent";
+import ItemTooltip from "ui/inventory/ItemTooltip";
 import type { IVector2 } from "utility/maths/Vector2";
 
 export enum DraggableItemClasses {
 	Moving = "item-moving",
 	Placeholder = "item-moving-placeholder",
+	PlaceholderWrapper = "item-moving-placeholder-wrapper",
 }
 
 export interface IInteractableItemEvents extends ComponentEvents<typeof ItemComponent>, IDraggableEvents {
@@ -16,8 +19,8 @@ export interface IInteractableItemEvents extends ComponentEvents<typeof ItemComp
 }
 
 export interface IDraggableItemHandler {
-	createItemPlaceholder (placeholder: ItemComponent): any;
-	disposeItemPlaceholder (placeholder: ItemComponent): any;
+	createItemPlaceholder (placeholder: ItemComponent, wrapper?: Component): any;
+	disposeItemPlaceholder (placeholder: ItemComponent, wrapper?: Component): any;
 	moveStart (event: Event & { mouse: IVector2 }): any;
 	move (event: Event & { mouse: IVector2 }): any;
 	moveEnd (event: Event & { mouse: IVector2 }): any;
@@ -31,6 +34,7 @@ export default class DraggableItem extends ItemComponent<[Item, Inventory, IDrag
 		await super.onMake(item, inventory, handler);
 		new Draggable(this.element);
 
+		let movingPlaceholderWrapper: Component | undefined;
 		let movingPlaceholder: ItemComponent | undefined;
 		this.event.subscribe("moveStart", event => {
 			handler.moveStart(event);
@@ -38,14 +42,25 @@ export default class DraggableItem extends ItemComponent<[Item, Inventory, IDrag
 				return;
 
 			this.classes.add(DraggableItemClasses.Moving);
+
+			movingPlaceholderWrapper = Component.create("span")
+				.classes.add(DraggableItemClasses.PlaceholderWrapper)
+				.setTooltip(ItemTooltip, {
+					initialise: tooltip => item && tooltip.setPadding(20)
+						.setItem(item, this.inventory),
+					differs: tooltip => tooltip.item?.reference.itemInstanceId !== item?.reference.itemInstanceId,
+				});
+
 			movingPlaceholder = ItemComponent.create([item, inventory])
 				.classes.add(DraggableItemClasses.Placeholder)
-				.setTooltipPadding(20);
-			handler.createItemPlaceholder(movingPlaceholder);
+				.clearTooltip()
+				.appendTo(movingPlaceholderWrapper);
+
+			handler.createItemPlaceholder(movingPlaceholder, movingPlaceholderWrapper);
 		});
 
 		this.event.subscribe("move", event => {
-			movingPlaceholder?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
+			movingPlaceholderWrapper?.style.set("--transform", `translate(${event.mouse.x}px, ${event.mouse.y}px)`);
 			handler.move(event);
 		});
 
@@ -53,9 +68,10 @@ export default class DraggableItem extends ItemComponent<[Item, Inventory, IDrag
 			if (movingPlaceholder) {
 				movingPlaceholder.event.emit("mouseout", new MouseEvent("mouseout"));
 				movingPlaceholder.remove();
-				handler.disposeItemPlaceholder(movingPlaceholder);
+				handler.disposeItemPlaceholder(movingPlaceholder, movingPlaceholderWrapper);
 			}
 
+			movingPlaceholderWrapper?.remove();
 			this.classes.remove(DraggableItemClasses.Moving);
 			handler.moveEnd(event);
 		});

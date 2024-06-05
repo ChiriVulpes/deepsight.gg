@@ -156,6 +156,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	}
 
 	protected async renderItem (item?: Item) {
+		// note — this tooltip def is also in DraggableItemComponent
 		this.setTooltip(ItemTooltip, {
 			initialise: tooltip => item && tooltip.setPadding(this.tooltipPadding)
 				.setItem(item, this.inventory),

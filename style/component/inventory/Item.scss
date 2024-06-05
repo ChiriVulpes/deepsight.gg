@@ -677,13 +677,22 @@ $z-index-loading: 1000;
 		}
 
 		&-placeholder {
-			position: absolute;
-			top: 0;
-			left: 0;
-			z-index: 1;
+			&-wrapper {
+				--wrapper-padding: 1000px;
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 999;
+				width: calc(var(--slot-size) * 0.8 - var(--slot-padding) * 2 + var(--wrapper-padding) * 2);
+				height: calc(var(--slot-size) * 0.8 - var(--slot-padding) * 2 + var(--wrapper-padding) * 2);
+				padding: var(--wrapper-padding);
+				box-sizing: border-box;
+				transform: var(--transform) translate(-50%, -50%);
+			}
+			
 			width: calc(var(--slot-size) * 0.8 - var(--slot-padding) * 2);
 			height: calc(var(--slot-size) * 0.8 - var(--slot-padding) * 2);
-			transform: var(--transform) translate(-50%, -50%);
 			transition-property: background, border, color;
 		}
 	}
