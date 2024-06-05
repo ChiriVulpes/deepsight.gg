@@ -146,8 +146,10 @@ export class BungieAPI {
 	}
 
 	private async requestToken (type: "new" | "refresh") {
+		let idString = type === "refresh" ? BungieID.stringify(Store.getProfile()?.id) ?? "" : "";
+
 		const profiles = Store.items.profiles ?? {};
-		const storeProfile = profiles[""];
+		const storeProfile = profiles[idString];
 		if (!storeProfile)
 			// no profile to request token for
 			return false;
@@ -176,9 +178,16 @@ export class BungieAPI {
 		storeProfile.accessTokenRefreshToken = result.refresh_token;
 		storeProfile.lastModified = new Date().toISOString();
 
+		if (type === "refresh") {
+			profiles[idString] = storeProfile;
+			Store.items.profiles = profiles;
+			this.event.emit("authenticated", { authType: type });
+			return true;
+		}
+
 		const membership = await Memberships.getCurrentDestinyMembership(storeProfile);
 		if (!membership) {
-			delete profiles[""];
+			delete profiles[idString];
 			Store.items.profiles = profiles;
 			return false;
 		}
@@ -203,8 +212,8 @@ export class BungieAPI {
 		storeProfile.callsign = clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "";
 		storeProfile.callsignLastModified = new Date().toISOString();
 
-		const idString = BungieID.stringify(bungieId);
-		delete profiles[""];
+		idString ||= BungieID.stringify(bungieId);
+		delete profiles[idString];
 		profiles[idString] = storeProfile;
 		Store.items.profiles = profiles;
 		Store.items.selectedProfile = idString;

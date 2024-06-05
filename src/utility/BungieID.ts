@@ -5,8 +5,10 @@ interface BungieID {
 
 namespace BungieID {
 	export type String = `${string}#${number}`;
-	export function stringify (id: BungieID) {
-		return `${id.name}#${`${id.code}`.padStart(4, "0")}`;
+	export function stringify (id: BungieID): string;
+	export function stringify (id?: BungieID): string | undefined
+	export function stringify (id?: BungieID) {
+		return !id ? undefined : `${id.name}#${`${id.code}`.padStart(4, "0")}`;
 	}
 
 	export function parse (string: string, encoded = false): BungieID | undefined {
