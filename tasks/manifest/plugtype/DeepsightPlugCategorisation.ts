@@ -6,7 +6,7 @@ import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
 import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
-import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
+import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeDestination, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";
 import DeepsightPlugContextDefinition from "./DeepsightPlugContextDefinition";
 
@@ -15,6 +15,10 @@ namespace DeepsightPlugCategorisation {
 	function determinePlugCategory (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.hash) {
 			case InventoryItemHashes.EmptyFramesSocketPlug:
+			case InventoryItemHashes.WaveSwordFrameIntrinsicPlug289811733:
+			case InventoryItemHashes.CasterFrameIntrinsicPlug_TooltipStyleUndefined:
+			case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
+			case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
 				return DeepsightPlugCategory.Intrinsic;
 
 			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
@@ -34,6 +38,13 @@ namespace DeepsightPlugCategorisation {
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
+			case PlugCategoryHashes.SchismBoonsDestinationModsEfficiency:
+			case PlugCategoryHashes.SchismBoonsDestinationModsPlaystyle:
+				return DeepsightPlugCategory.Destination;
+
+			case PlugCategoryHashes.SchismBoonsDestinationModsInfo:
+				return DeepsightPlugCategory.Information;
+
 			case PlugCategoryHashes.Intrinsics:
 			case PlugCategoryHashes.Origins:
 			case PlugCategoryHashes.V300VehiclesModControls:
@@ -204,6 +215,8 @@ namespace DeepsightPlugCategorisation {
 			case "melee":
 			case "grenades":
 			case "movement":
+			case "prism_grenade":
+			case "transcendence":
 				return DeepsightPlugCategory.Subclass;
 		}
 
@@ -310,6 +323,14 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeVendor.HolidayOven;
 			}
 		},
+		[DeepsightPlugCategory.Destination]: context => {
+			switch (context.definition.plug?.plugCategoryHash) {
+				case PlugCategoryHashes.SchismBoonsDestinationModsEfficiency:
+					return DeepsightPlugTypeDestination.TravelersBlessingsEfficiency;
+				case PlugCategoryHashes.SchismBoonsDestinationModsPlaystyle:
+					return DeepsightPlugTypeDestination.TravelersBlessingsPlaystyle;
+			}
+		},
 		[DeepsightPlugCategory.Extractable]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.EmptyDeepsightSocketPlug:
@@ -354,6 +375,10 @@ namespace DeepsightPlugCategorisation {
 
 				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540: // rose's adaptive frame is considered exotic tier
 				case InventoryItemHashes.EmptyFramesSocketPlug:
+				case InventoryItemHashes.WaveSwordFrameIntrinsicPlug289811733:
+				case InventoryItemHashes.CasterFrameIntrinsicPlug_TooltipStyleUndefined:
+				case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
+				case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
 					return DeepsightPlugTypeIntrinsic.Frame;
 			}
 
@@ -421,6 +446,10 @@ namespace DeepsightPlugCategorisation {
 						return DeepsightPlugTypeSubclass.Grenade;
 					case "movement":
 						return DeepsightPlugTypeSubclass.Movement;
+					case "prism_grenade":
+						return DeepsightPlugTypeSubclass.PrismaticGrenade;
+					case "transcendence":
+						return DeepsightPlugTypeSubclass.Transcendence;
 				}
 			})();
 
