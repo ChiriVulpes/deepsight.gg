@@ -104,7 +104,7 @@
 		grid-template-rows: auto 1fr auto;
 		column-gap: 40px;
 		align-self: flex-start;
-		padding-bottom: 40px;
+		padding-bottom: 32px;
 		align-content: flex-start;
 		z-index: 1;
 	}
@@ -245,6 +245,8 @@
 					background-repeat: no-repeat;
 					background-position: center;
 					background-color: initial;
+					filter: var(--plug-icon-filter, none);
+					@include transition(out, filter);
 				}
 			}
 
@@ -254,6 +256,10 @@
 				&::after {
 					inset: -3px;
 					box-shadow: 0 0 0 2px color(button-border-hover);
+					@include transition(in);
+				}
+				
+				&::before {
 					@include transition(in);
 				}
 			}
@@ -399,48 +405,33 @@
 				--plug-background: #{color(perk, 0.85)};
 			}
 
-			:where(.view-item-socket-intrinsic) & {
-				--plug-background: transparent;
-				.button-icon-inner {
-					padding: 0;
-					// border: none;
-					border-radius: 5px;
-					width: calc(4.6em - 14px);
-					height: calc(4.6em - 14px);
-					margin: 4px 16px 4px 6px;
-					border: none;
+			&-type {
+				&-intrinsic {
+					--plug-background: transparent;
+					.button-icon-inner {
+						&1 {
+							position: relative;
+							margin-left: -14px;
+							margin-top: -10px;
 
-					&::before {
-						inset: -12px;
-						background-size: 4.6em 4.6em;
-					}
-
-					&::after {
-						border-radius: 7px;
-					}
-
-					> :first-child {
-						position: relative;
-						margin-left: -14px;
-						margin-top: -10px;
-
-						&::after {
-							border-top-color: #ffed9f;
-							border-top-width: 50px;
-							-webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
-							mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+							&::after {
+								border-top-color: #ffed9f;
+								border-top-width: 50px;
+								-webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+								mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+							}
 						}
-					}
 
-					> :last-child {
-						display: none;
+						&2 {
+							display: none;
+						}
 					}
 				}
 			}
 			
 			&-icon-inner {
 				&-type {
-					&-perk, &-artifact {
+					&-perk, &-intrinsic, &-artifact {
 						--plug-icon-size: 3.8em;
 						--plug-icon-padding: 5px;
 					}
@@ -490,6 +481,34 @@
 							transform: translate(-50%, -50%) rotate(-45deg);
 						}
 					}
+					
+					&-intrinsic {
+						border: none;
+						// padding: 5px;
+						// border-radius: 5px;
+						// width: calc(4.6em - 14px);
+						// height: calc(4.6em - 14px);
+						
+						&-frame {
+							--plug-icon-padding: 0;
+							margin: 4px 16px 4px 6px;
+						}
+
+						&::before {
+							inset: -12px;
+							background-size: 4.6em 4.6em;
+						}
+
+						&::after {
+							border-radius: 7px;
+						}
+						
+						&-exotic, &-origin {
+							&::after {
+								border-radius: 100%;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -537,6 +556,10 @@
 				margin: 0;
 			
 				--plug-background: #{color(perk, 0.85)};
+				
+				&.view-item-socket-plug-type-intrinsic {
+					--plug-background: transparent;
+				}
 
 				&-name,
 				&-description {
@@ -562,6 +585,25 @@
 
 				&-selected {
 					--plug-background: #{color(perk-wishlisted, 0.85)};
+					
+					&.view-item-socket-plug-type-intrinsic {
+						&-frame {
+							--plug-icon-filter: sepia() saturate(10) hue-rotate(74deg) brightness(0.65);
+							
+							.button-icon-inner2 {
+								display: block;
+								z-index: -1;
+								background: white;
+								position: absolute;
+								inset: 1px;
+								border-radius: 5px;
+							}
+						}
+						
+						&-exotic {
+							--plug-icon-filter: hue-rotate(82deg);
+						}
+					}
 				}
 
 				&-enhanced,
@@ -807,6 +849,8 @@
 
 	&-perks-mods-traits {
 		height: fit-content;
+		min-height: 0;
+		display: grid;
 		
 		@include vertical-or-tablet {
 			grid-column: 1/3;

@@ -111,7 +111,13 @@
 			align-content: flex-start;
 			overflow: auto;
 			max-height: 100%;
-			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px);
+			padding: var(--card-content-padding, 8px) var(--card-content-padding, 16px) 0;
+			&::after {
+				content: "";
+				display: block;
+				width: 10px;
+				height: var(--card-content-padding, 8px);
+			}
 		}
 	
 		@include mobile {

@@ -62,7 +62,16 @@ export default class ItemPerks extends ItemSockets {
 
 	protected override initialise () {
 		this.classes.add(ItemPerksClasses.Main);
-		this.sockets = this.addSocketsByType("Perk");
+
+		this.sockets = [];
+
+		const randomIntrinsics = this.item.getCollectionsRandomIntrinsics();
+		if (randomIntrinsics?.exotics)
+			this.sockets.push(...this.addSocketsByType("Intrinsic/Exotic"));
+		if (randomIntrinsics?.frames)
+			this.sockets.push(...this.addSocketsByType("Intrinsic/Frame"));
+
+		this.sockets.push(...this.addSocketsByType("Perk"));
 
 		this.wishlists = Store.items[`item${this.item.definition.hash}PerkWishlists`];
 

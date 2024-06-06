@@ -4,6 +4,8 @@ export enum ButtonClasses {
 	Main = "button",
 	Icon = "button-icon",
 	InnerIcon = "button-icon-inner",
+	InnerIcon1 = "button-icon-inner1",
+	InnerIcon2 = "button-icon-inner2",
 	Attention = "button-attention",
 	LaserFocus = "button-laser-focus",
 	Selected = "button-selected",
@@ -45,8 +47,8 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 		this.innerIcon?.remove();
 		return this.prepend(this.innerIcon = Component.create()
 			.classes.add(ButtonClasses.InnerIcon)
-			.append(Component.create())
-			.append(Component.create())
+			.append(Component.create().classes.add(ButtonClasses.InnerIcon1))
+			.append(Component.create().classes.add(ButtonClasses.InnerIcon2))
 			.tweak(tweaker));
 	}
 

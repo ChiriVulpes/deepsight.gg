@@ -137,7 +137,7 @@ const itemViewBase = View.create({
 			.append(ItemPerks.create([item, inventory])
 				.event.subscribe("showCollections", () => ItemView.showCollections(item)))
 			// .append(ItemMods.create([item]))
-			.append(ItemIntrinsics.create([item, inventory]))
+			.append(item.getCollectionsRandomIntrinsics() ? undefined : ItemIntrinsics.create([item, inventory]))
 			.appendTo(view.content);
 
 		const statsContainer = Component.create()

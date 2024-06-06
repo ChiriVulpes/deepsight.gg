@@ -19,6 +19,7 @@ namespace DeepsightPlugCategorisation {
 			case InventoryItemHashes.CasterFrameIntrinsicPlug_TooltipStyleUndefined:
 			case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
 			case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
+			case InventoryItemHashes.AggressiveFrameTraitPlug:
 				return DeepsightPlugCategory.Intrinsic;
 
 			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
@@ -379,6 +380,7 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.CasterFrameIntrinsicPlug_TooltipStyleUndefined:
 				case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
 				case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
+				case InventoryItemHashes.AggressiveFrameTraitPlug:
 					return DeepsightPlugTypeIntrinsic.Frame;
 			}
 

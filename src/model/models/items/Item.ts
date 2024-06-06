@@ -537,6 +537,20 @@ class Item {
 			|| this.definition.itemType === DestinyItemType.Engram;
 	}
 
+	public getCollectionsRandomIntrinsics () {
+		if (!this.bucket.isCollections())
+			return undefined;
+
+		const randomIntrinsics = {
+			frames: this.getSocket("Intrinsic/Frame")?.plugs.distinct(plug => plug.definition?.displayProperties.name),
+			exotics: this.getSocket("Intrinsic/Exotic")?.plugs,
+		};
+		if ((randomIntrinsics.exotics?.length ?? 0) < 2 && (randomIntrinsics.frames?.length ?? 0) < 2)
+			return undefined;
+
+		return randomIntrinsics;
+	}
+
 	public getPower (onlyPower = false) {
 		const statHash = this.instance?.primaryStat?.statHash;
 		const isValidStat = statHash === StatHashes.Power

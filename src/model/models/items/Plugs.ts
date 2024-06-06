@@ -94,11 +94,13 @@ export class Socket {
 			}
 		}
 
-		const plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
+		let plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
 			.then(plugSet => plugSet?.reusablePlugItems ?? []);
 
 		if (!socket.state)
 			plugs.concat(socket.definition.reusablePlugItems);
+
+		plugs = plugs.distinct(plug => plug.plugItemHash);
 
 		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
 

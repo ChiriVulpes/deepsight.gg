@@ -45,15 +45,22 @@ namespace PGCR {
 			const pgcrId = from + i;
 			Log.info("Searching PGCRs for:", id, "Current:", i);
 			let pgcr: DestinyPostGameCarnageReportData | undefined;
-			for (let attempt = 0; attempt < 100; attempt++) {
+			for (let attempt = 0; attempt < 3; attempt++) {
 				pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(() => undefined);
 				if (pgcr) break;
 				await sleep(1000 * attempt);
 				Log.info("Query failed, attempt", attempt + 1);
 			}
 
-			if (!pgcr)
-				throw new Error("Either the API is down, or it's Joever");
+			if (!pgcr) {
+				const error = new Error("Either the API is down, or it's Joever");
+				if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
+					Log.error(error.message);
+					return undefined;
+				}
+
+				throw error;
+			}
 
 			if (new Date(pgcr.period).getTime() > Time.lastDailyReset && filter(pgcr)) {
 				Log.info("Gotcha! Using:", pgcrId);
