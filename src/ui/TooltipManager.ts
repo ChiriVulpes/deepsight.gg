@@ -8,6 +8,7 @@ export enum TooltipClasses {
 	Storage = "tooltip-storage",
 	Surface = "tooltip-surface",
 	Reversed = "tooltip-reversed",
+	_ScrollableEnabled = "tooltip--scrollable-enabled",
 
 	Main = "tooltip",
 	Wrapper = "tooltip-wrapper",
@@ -20,6 +21,8 @@ export enum TooltipClasses {
 	Footer = "tooltip-footer",
 	Hints = "tooltip-hints",
 	Forced1pxBigger = "tooltip-forced-1px-bigger",
+	Scrollable = "tooltip-scrollable",
+	Scrollable_Enabled = "tooltip-scrollable--enabled",
 }
 
 export class TooltipWrapper extends Component<HTMLElement, [Tooltip]> {
@@ -140,12 +143,24 @@ namespace TooltipManager {
 		tooltip.classes.remove(TooltipClasses.Forced1pxBigger);
 		void Promise.resolve(initialiser(tooltip))
 			.then(async () => {
+				await Async.sleep(1);
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if ((window as any).chrome) {
-					await Async.sleep(1);
 					if (tooltip.element.clientHeight % 2 !== Component.window.height % 2)
 						tooltip.classes.add(TooltipClasses.Forced1pxBigger);
 				}
+
+				const scrollable = tooltip?.["scrollableComponent"]?.element;
+				if (!scrollable)
+					return;
+
+				scrollable.classList.add(TooltipClasses.Scrollable);
+				scrollable.classList.toggle(TooltipClasses.Scrollable_Enabled, scrollable.scrollHeight > scrollable.clientHeight);
+				tooltip.classes.toggle(scrollable.scrollHeight > scrollable.clientHeight, TooltipClasses._ScrollableEnabled);
+
+				await Async.sleep(1);
+				const cache = DimensionalCache.get(scrollable);
+				cache.reset();
 			});
 
 		tooltip.wrapper
@@ -266,7 +281,7 @@ namespace TooltipManager {
 		event.preventDefault();
 
 		if (tooltip["scrollTop"] === undefined || Math.sign(event.deltaY) !== Math.sign(tooltip["scrollTop"] - scrollable.scrollTop))
-			tooltip["scrollTop"] = cache.scrollTop;
+			tooltip["scrollTop"] = scrollable.scrollTop;
 
 		tooltip["scrollTop"] += event.deltaY;
 		if (tooltip["scrollTop"] + cache.height > cache.scrollHeight)
