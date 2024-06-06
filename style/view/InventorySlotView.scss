@@ -487,6 +487,8 @@
 			display: block;
 			position: absolute;
 			inset: 0;
+			width: auto; 
+			height: auto;
 			z-index: 3;
 			background: linear-gradient(-45deg, transparent 42%, #fff5 50%, transparent 58%);
 			background-size: 1500% 1500%;
