@@ -13,7 +13,7 @@ export default ISort.create({
 		if (!total)
 			return undefined;
 
-		return Component.create()
+		return Component.create("span")
 			.classes.add("item-sort-stat-total")
 			.append(Component.create("span")
 				.classes.add("item-sort-stat-total-icon"))

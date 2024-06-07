@@ -1,5 +1,6 @@
 .loadable {
 	&-loading {
+		display: block;
 		color: color(foreground-3);
 		position: absolute;
 		top: 50%;
@@ -51,6 +52,7 @@
 		}
 
 		&-info {
+			display: block;
 			position: absolute;
 			left: 50%;
 			transform: translateX(-50%);
@@ -61,12 +63,14 @@
 		}
 
 		&-message {
+			display: block;
 			width: fit-content;
 			margin: auto;
 			text-align: center;
 		}
 
 		&-bar {
+			display: block;
 			position: relative;
 			width: calc(100% - 100px);
 			height: 1em;

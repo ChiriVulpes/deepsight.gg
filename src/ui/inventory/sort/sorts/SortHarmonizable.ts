@@ -11,7 +11,7 @@ export default ISort.create({
 		if (!item.deepsight?.activation)
 			return undefined;
 
-		return Component.create()
+		return Component.create("span")
 			.classes.add("item-sort-harmonizable")
 			.append(Component.create("span")
 				.classes.add("item-sort-harmonizable-icon"))

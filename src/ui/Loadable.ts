@@ -37,17 +37,17 @@ namespace Loadable {
 			this.initialiser = initialiser;
 
 			this.classes.add(Classes.Main);
-			this.loading = BaseComponent.create()
+			this.loading = BaseComponent.create("span")
 				.classes.add(Classes.Loading)
-				.append(BaseComponent.create()
+				.append(BaseComponent.create("span")
 					.classes.add(Classes.LoadingSpinny)
-					.append(BaseComponent.create())
-					.append(BaseComponent.create()))
-				.append(BaseComponent.create()
+					.append(BaseComponent.create("span").classes.add(Classes.LoadingSpinny1))
+					.append(BaseComponent.create("span").classes.add(Classes.LoadingSpinny2)))
+				.append(BaseComponent.create("span")
 					.classes.add(Classes.LoadingInfo)
-					.append(this.loadingBar = BaseComponent.create()
+					.append(this.loadingBar = BaseComponent.create("span")
 						.classes.add(Classes.LoadingBar))
-					.append(this.loadingMessage = BaseComponent.create()
+					.append(this.loadingMessage = BaseComponent.create("span")
 						.classes.add(Classes.LoadingMessage)))
 				.appendTo(this);
 

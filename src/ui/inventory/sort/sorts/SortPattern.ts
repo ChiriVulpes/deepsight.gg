@@ -12,7 +12,7 @@ export default ISort.create({
 		if (!item.bucket.isCollections() || !item.hasPattern())
 			return undefined;
 
-		return Component.create()
+		return Component.create("span")
 			.classes.add("item-sort-harmonizable")
 			.append(Component.create("span")
 				.classes.add("item-sort-harmonizable-icon"))

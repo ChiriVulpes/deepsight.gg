@@ -10,6 +10,7 @@ export enum SortableClasses {
 	Item = "sortable-item",
 	Slot = "sortable-slot",
 	Moving = "sortable-moving",
+	Child = "sortable-item-child",
 }
 
 export interface ISortableEvents {
@@ -23,16 +24,16 @@ export default class Sortable {
 	private readonly draggables = new WeakMap<HTMLElement, Draggable>();
 
 	public constructor (public readonly host: HTMLElement) {
-		for (const child of host.children as Iterable<HTMLElement>) {
-			child.classList.add(SortableClasses.Item);
-			child.setAttribute("tabindex", "0");
-			this.draggables.set(child, new Draggable(child)
+		for (const item of host.children as Iterable<HTMLElement>) {
+			item.classList.add(SortableClasses.Item);
+			item.setAttribute("tabindex", "0");
+			this.draggables.set(item, new Draggable(item)
 				.setStickyDistance(this.sortStickyDistance)
 				.setInputFilter(this.sortInputFilter));
 
-			child.addEventListener("moveStart", this.onItemMoveStart);
-			child.addEventListener("move", this.onItemMove);
-			child.addEventListener("moveEnd", this.onItemMoveEnd);
+			item.addEventListener("moveStart", this.onItemMoveStart);
+			item.addEventListener("move", this.onItemMove);
+			item.addEventListener("moveEnd", this.onItemMoveEnd);
 		}
 
 		UiEventBus.subscribe("keydown", this.onKeydown);

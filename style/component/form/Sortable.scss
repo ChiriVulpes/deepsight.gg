@@ -22,12 +22,6 @@
 	width: 100%;
 	box-sizing: border-box;
 	cursor: grab;
-	* {
-		pointer-events: none;
-	}
-	button {
-		pointer-events: all;
-	}
 	user-select: none;
 	-webkit-user-select: none;
 	outline: none;

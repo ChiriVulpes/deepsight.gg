@@ -48,7 +48,7 @@ class StatDistributionDisplay extends Component<HTMLElement, [Item]> {
 		this.item = item;
 		this.classes.add(StatDistributionDisplayClasses.Main);
 
-		this.value = Component.create()
+		this.value = Component.create("span")
 			.classes.add(StatDistributionDisplayClasses.Value)
 			.appendTo(this);
 

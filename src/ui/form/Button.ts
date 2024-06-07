@@ -45,10 +45,10 @@ export default class Button<ARGS extends any[] = []> extends Component<HTMLButto
 	public innerIcon?: Component;
 	public addIcon (tweaker?: (component: Component) => any) {
 		this.innerIcon?.remove();
-		return this.prepend(this.innerIcon = Component.create()
+		return this.prepend(this.innerIcon = Component.create("span")
 			.classes.add(ButtonClasses.InnerIcon)
-			.append(Component.create().classes.add(ButtonClasses.InnerIcon1))
-			.append(Component.create().classes.add(ButtonClasses.InnerIcon2))
+			.append(Component.create("span").classes.add(ButtonClasses.InnerIcon1))
+			.append(Component.create("span").classes.add(ButtonClasses.InnerIcon2))
 			.tweak(tweaker));
 	}
 

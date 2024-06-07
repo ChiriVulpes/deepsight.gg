@@ -18,7 +18,7 @@ export default ISort.create({
 		baseIcon.remove();
 	},
 	render: (item, breakerTypes = item.breakerTypes) => !breakerTypes?.length ? undefined
-		: Component.create()
+		: Component.create("span")
 			.classes.add("item-sort-breaker-type-wrapper")
 			.append(...breakerTypes
 				.sort(type => -type.enumValue)

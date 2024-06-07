@@ -12,7 +12,7 @@ export default ISort.create({
 	renderSortable: sortable => sortable.maskIcon
 		.tweak(EnumIcon.applyIconVar, WeaponTypes, ItemCategoryHashes.HandCannon),
 	render: item => !item.isWeapon() ? undefined
-		: Component.create()
+		: Component.create("span")
 			.classes.add("item-weapon-type-icon")
 			.tweak(component => EnumIcon.applyIcon(WeaponTypes, item.definition.itemCategoryHashes, iconPath =>
 				component.style.set("--icon", `url("${iconPath}")`))),

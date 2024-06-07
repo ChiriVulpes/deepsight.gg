@@ -10,7 +10,7 @@ export default ISort.create({
 		if (!item.instance?.energy?.energyCapacity)
 			return undefined;
 
-		return Component.create()
+		return Component.create("span")
 			.classes.add("item-energy")
 			.append(Component.create("span")
 				.classes.add("item-energy-icon"))
