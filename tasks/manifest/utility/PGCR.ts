@@ -41,33 +41,22 @@ namespace PGCR {
 			throw new Error("No reference pgcr");
 
 		Log.info("Searching PGCRs starting at:", from);
-		for (let i = 0; i < 1000; i++) {
+		const maxSearches = Env.DEEPSIGHT_ENVIRONMENT === "dev" ? 200 : 1000;
+		const maxAttempts = Env.DEEPSIGHT_ENVIRONMENT === "dev" ? 5 : 20;
+		const parallelSize = 5;
+		for (let i = 0; i < maxSearches; i += parallelSize) {
 			const pgcrId = from + i;
 			Log.info("Searching PGCRs for:", id, "Current:", i);
-			let pgcr: DestinyPostGameCarnageReportData | undefined;
-			for (let attempt = 0; attempt < 3; attempt++) {
-				pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(() => undefined);
-				if (pgcr) break;
-				await sleep(1000 * attempt);
-				Log.info("Query failed, attempt", attempt + 1);
-			}
 
-			if (!pgcr) {
-				const error = new Error("Either the API is down, or it's Joever");
-				if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
-					Log.error(error.message);
-					return undefined;
-				}
+			const pgcr = await getMulti(pgcrId, parallelSize, maxAttempts, id,
+				pgcr => new Date(pgcr.period).getTime() > Time.lastDailyReset && filter(pgcr));
+			if (pgcr === undefined)
+				return undefined; // only happens in dev
 
-				throw error;
-			}
-
-			if (new Date(pgcr.period).getTime() > Time.lastDailyReset && filter(pgcr)) {
+			if (pgcr) {
 				Log.info("Gotcha! Using:", pgcrId);
 				return pgcr;
 			}
-
-			// await sleep(100);
 		}
 
 		return undefined;
@@ -89,6 +78,48 @@ namespace PGCR {
 		})
 			.then(response => response.json())
 			.then((response: ServerResponse<DestinyPostGameCarnageReportData | undefined>) => response.Response);
+	}
+
+	async function getMulti (pgcrId: number, amount: number, maxAttempts: number, message: string, filter: (pgcr: DestinyPostGameCarnageReportData) => any) {
+		let cancelled = false;
+		return new Promise<DestinyPostGameCarnageReportData | null | undefined>((resolve, reject) => {
+			const promises = [];
+			for (let i = 0; i < amount; i++) {
+				promises.push(getRetry(pgcrId, maxAttempts, message).then(pgcr => {
+					if (cancelled)
+						return;
+
+					if (pgcr && filter(pgcr)) {
+						cancelled = true;
+						resolve(pgcr);
+					}
+				}).catch(reject));
+			}
+
+			void Promise.all(promises).then(() => resolve(null));
+		});
+	}
+
+	async function getRetry (pgcrId: number, maxAttempts: number, message: string, state = { cancelled: false }) {
+		let pgcr: DestinyPostGameCarnageReportData | undefined;
+		for (let attempt = 0; attempt < maxAttempts; attempt++) {
+			pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(() => undefined);
+			if (pgcr || state.cancelled) break;
+			await sleep(1000 * attempt);
+			Log.info(message, `query attempt ${attempt + 1} failed`);
+		}
+
+		if (!pgcr && !state.cancelled) {
+			const error = new Error("Either the API is down, or it's Joever");
+			if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
+				Log.error(error.message);
+				return undefined;
+			}
+
+			throw error;
+		}
+
+		return pgcr;
 	}
 }
 
