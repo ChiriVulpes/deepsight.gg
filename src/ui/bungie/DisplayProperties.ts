@@ -36,15 +36,15 @@ namespace Display {
 		};
 	}
 
-	export function icon (url?: string, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: PartialDisplayPropertiesOrD, wrapped?: boolean): string | undefined;
-	export function icon (displayProperties?: PartialDisplayPropertiesOrD | string, wrapped = true) {
+	export function icon (url?: string, wrapped?: boolean, allowMissing?: boolean): string | undefined;
+	export function icon (displayProperties?: PartialDisplayPropertiesOrD, wrapped?: boolean, allowMissing?: boolean): string | undefined;
+	export function icon (displayProperties?: PartialDisplayPropertiesOrD | string, wrapped = true, allowMissing = false) {
 		let url = displayProperties === undefined ? undefined : typeof displayProperties === "string" ? displayProperties
 			: getIconURL("displayProperties" in displayProperties ? displayProperties.displayProperties : displayProperties);
 		if (!url)
 			return undefined;
 
-		if (url === DESTINY_MANIFEST_MISSING_ICON_PATH)
+		if (url === DESTINY_MANIFEST_MISSING_ICON_PATH && !allowMissing)
 			return undefined;
 
 		if (!url.startsWith("https://") && !url.startsWith("./"))

@@ -2,7 +2,6 @@
 export enum ItemClasses {
 	Main = "item",
 	Icon = "item-icon",
-	Classified = "item-classified",
 	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",
 	MomentWatermark = "item-moment-watermark",
@@ -34,9 +33,11 @@ export enum ItemClasses {
 	Unlocked = "item-unlocked",
 	Fomo = "item-fomo",
 	FomoIcon = "item-fomo-icon",
-	IsContainer = "item--container",
+	_Container = "item--container",
 	Artifice = "item-artifice",
-	IsLoadouted = "item--loadouted",
+	_Loadouted = "item--loadouted",
 	LoadoutedBookmark = "item-loadouted-bookmark",
-	LoadoutedBookmark1 = "item-loadouted-bookmark1"
+	LoadoutedBookmark1 = "item-loadouted-bookmark1",
+	Classified = "item-classified",
+	_Classified = "item--classified",
 }

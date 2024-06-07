@@ -3,9 +3,7 @@
 .class-picker {
 	margin: 30px;
 	position: relative;
-	// this is some kind of circle thing that i think i can do with css math nowadays given i have the angle
-	// but you see, in addition to that, also i'm dumb. so instead here have a multiplier
-	--wipe-animation-size-multiplier: 1.4285714285714286;
+	--wipe-animation-size-multiplier: #{$radius-multiplier};
 	&-button {
 		transform: rotate(45deg);
 		padding: 0;

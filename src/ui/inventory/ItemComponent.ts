@@ -72,6 +72,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 	public fomo?: Component;
 	public artifice?: Component;
 	public loadouted?: Component;
+	public classified?: Component;
 
 	public tooltipPadding!: number;
 	public inventory?: Inventory;
@@ -174,7 +175,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.classes.toggle(borderless, ItemClasses.Borderless);
 
 		const isContainer = item?.definition.uiItemDisplayStyle === "ui_display_style_set_container";
-		this.classes.toggle(isContainer, ItemClasses.IsContainer);
+		this.classes.toggle(isContainer, ItemClasses._Container);
 		Slot.setWide(this.parent<Slot>(`.${SlotClasses.Main}`), isContainer);
 
 		const { DestinyItemTierTypeDefinition } = await Manifest.await();
@@ -191,8 +192,19 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		let index = 0;
 
 		this.getIcon(index++, () => Display.icon(ornament?.definition, false) ?? Display.icon(item?.definition, false))
-			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament)
-			.classes.toggle(item?.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png", ItemClasses.Classified);
+			.classes.toggle(hasUniversalOrnament, ItemClasses.UniversalArmourOrnament);
+
+		const classified = item?.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png";
+		this.classes.toggle(classified, ItemClasses._Classified);
+		if (classified)
+			(this.classified ??= Component.create("span")
+				.classes.add(ItemClasses.Classified)
+				.indexInto(this, index))
+				.classes.remove(Classes.Hidden);
+		else
+			this.classified?.classes.add(Classes.Hidden);
+
+		index++;
 
 		const canShape = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash);
 		const shaped = item?.shaped || canShape;
@@ -275,7 +287,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.loadouted?.classes.add(Classes.Hidden);
 
 		const isLoadouted = !!this.item?.getLoadouts().length;
-		this.classes.toggle(isLoadouted, ItemClasses.IsLoadouted);
+		this.classes.toggle(isLoadouted, ItemClasses._Loadouted);
 		if (isLoadouted)
 			(this.loadouted ??= Component.create()
 				.classes.add(ItemClasses.LoadoutedBookmark)

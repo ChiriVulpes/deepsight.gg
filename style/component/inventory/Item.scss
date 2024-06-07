@@ -39,10 +39,6 @@ $z-index-loading: 1000;
 		height: 100%;
 	}
 
-	&-classified {
-		background-color: color(background-7);
-	}
-
 	&-borderless {
 		&::after {
 			content: none;
@@ -71,6 +67,41 @@ $z-index-loading: 1000;
 			&:where(:hover, :active, :focus-visible) {
 				--border-color: #{color(tier-#{$tier}-active)};
 			}
+		}
+	}
+
+	&--classified {
+		--background-color: #{color(background-6, .8)};
+		--border-color: #{color(background-9)};
+	}
+	
+	&-classified {
+		display: block;
+		position: absolute;
+		inset: 0;
+		color: var(--border-color);
+		overflow: hidden;
+		
+		&::before {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: calc(50% - 50% / #{$radius-multiplier});
+			transform: rotate(45deg);
+			border: 1px solid;
+			box-shadow: 0 0 10px currentColor, inset 0 0 5px color(background-4);
+		}
+		
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			left: 25%;
+			right: 25%;
+			top: 22%;
+			bottom: 28%;
+			@include mask-icon(lock);
+			opacity: .7;
 		}
 	}
 
