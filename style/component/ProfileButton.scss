@@ -1,6 +1,9 @@
 .profile-button {
+	container-name: profile-button;
+	container-type: normal;
 	background: color-mix(in lch, color-mix(in lch, var(--colour), #000 10%), #555 10%) !important;
 	font-size: 18px;
+	line-height: 1.5em;
 	font-weight: 400;
 	margin: 4px;
 	padding: 0;
@@ -8,6 +11,9 @@
 	grid-template-columns: auto auto auto 1fr;
 	align-items: center;
 	border: none;
+	--margin-y: 6px;
+	--height: calc(1.5em + var(--margin-y) * 2);
+	height: var(--height);
 	
 	&::after {
 		content: "";
@@ -29,8 +35,8 @@
 	}
 	
 	&-emblem {
-		aspect-ratio: 1/1;
-		height: 100%;
+		width: var(--height);
+		height: var(--height);
 		background-image: var(--icon);
 		background-size: contain;
 	}
