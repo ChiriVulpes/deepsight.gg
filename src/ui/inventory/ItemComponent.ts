@@ -54,6 +54,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		ExtraInfoManager.toggle("item", id, newState);
 	}
 
+	protected static override defaultType = "span";
+
 	public override readonly event!: ComponentEventManager<this, IItemComponentEvents>;
 
 	public item?: Item;
@@ -166,7 +168,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		this.classes.toggle(!!item?.isMasterwork(), ItemClasses.IsMasterwork);
 
-		this.extra ??= Component.create()
+		this.extra ??= Component.create("span")
 			.classes.add(ItemClasses.Extra);
 
 		const borderless = item?.definition.itemType === DestinyItemType.Engram
@@ -210,10 +212,10 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		const shaped = item?.shaped || canShape;
 		this.classes.toggle(!!item?.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
 		if (shaped ? !item?.isMasterwork() : item?.canEnhance())
-			(this.iconShaped ??= Component.create()
+			(this.iconShaped ??= Component.create("span")
 				.classes.toggle(!!shaped, ItemClasses.Shaped)
 				.classes.toggle(!!item?.canEnhance(), ItemClasses.CanEnhance)
-				.append(Component.create())
+				.append(Component.create("span"))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
 		else
@@ -228,7 +230,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 			watermark = item?.definition.iconWatermark ?? item?.definition.iconWatermarkShelved;
 
 		if (watermark || item?.moment?.displayProperties.icon)
-			(this.momentWatermark ??= Component.create()
+			(this.momentWatermark ??= Component.create("span")
 				.classes.add(ItemClasses.MomentWatermark)
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
@@ -241,7 +243,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		if ((item?.isLocked() || item?.isChangingLockState()))
-			(this.iconLock ??= Component.create()
+			(this.iconLock ??= Component.create("span")
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
 				.classes.toggle(item.isChangingLockState(), ItemClasses.Unlocked)
@@ -262,19 +264,19 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		if (!shaped) {
 			if (item?.hasDeepsight())
-				(this.deepsight ??= Component.create()
+				(this.deepsight ??= Component.create("span")
 					.classes.add(ItemClasses.Deepsight)
 					.indexInto(this, index))
 					.classes.remove(Classes.Hidden);
 
 			if (item?.deepsight?.pattern) {
-				(this.deepsightHasPattern ??= Component.create()
+				(this.deepsightHasPattern ??= Component.create("span")
 					.classes.add(ItemClasses.DeepsightHasPattern)
 					.indexInto(this, index + 1))
 					.classes.remove(Classes.Hidden);
 
 				if (!displayJunkBorder)
-					(this.deepsightPattern ??= Component.create()
+					(this.deepsightPattern ??= Component.create("span")
 						.classes.add(ItemClasses.DeepsightPattern)
 						.indexInto(this, index + 2))
 						.classes.remove(Classes.Hidden)
@@ -289,9 +291,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		const isLoadouted = !!this.item?.getLoadouts().length;
 		this.classes.toggle(isLoadouted, ItemClasses._Loadouted);
 		if (isLoadouted)
-			(this.loadouted ??= Component.create()
+			(this.loadouted ??= Component.create("span")
 				.classes.add(ItemClasses.LoadoutedBookmark)
-				.append(Component.create()
+				.append(Component.create("span")
 					.classes.add(ItemClasses.LoadoutedBookmark1))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -301,7 +303,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		this.artifice?.classes.add(Classes.Hidden);
 
 		if (item?.isArtifice())
-			(this.artifice ??= Component.create()
+			(this.artifice ??= Component.create("span")
 				.classes.add(ItemClasses.Artifice)
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -313,9 +315,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		const isArtifact = !!item?.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts);
 		if (item?.isMasterwork())
-			(this.masterwork ??= Component.create()
+			(this.masterwork ??= Component.create("span")
 				.classes.add(ItemClasses.Masterwork)
-				.append(Component.create()
+				.append(Component.create("span")
 					.classes.add(ItemClasses.MasterworkSpinny))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
@@ -323,9 +325,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 				.classes.toggle(displayJunkBorder, ItemClasses.MasterworkShiftedDueToJunkBorder);
 
 		else if (displayWishlistedBorder)
-			(this.wishlist ??= Component.create()
+			(this.wishlist ??= Component.create("span")
 				.classes.add(ItemClasses.Wishlist)
-				.append(Component.create()
+				.append(Component.create("span")
 					.classes.add(ItemClasses.WishlistIcon))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -333,9 +335,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		if (displayJunkBorder)
-			(this.junk ??= Component.create()
+			(this.junk ??= Component.create("span")
 				.classes.add(ItemClasses.WishlistNoMatch)
-				.append(Component.create()
+				.append(Component.create("span")
 					.classes.add(ItemClasses.WishlistNoMatchIcon))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -345,9 +347,9 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		index++;
 
 		if (item?.isFomo() && !item.deepsight?.pattern?.progress?.complete)
-			(this.fomo ??= Component.create()
+			(this.fomo ??= Component.create("span")
 				.classes.add(ItemClasses.Fomo)
-				.append(Component.create()
+				.append(Component.create("span")
 					.classes.add(ItemClasses.FomoIcon))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -361,10 +363,10 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		(this.loadingSpinny ??= Component.create()
+		(this.loadingSpinny ??= Component.create("span")
 			.classes.add(Loadable.Classes.LoadingSpinny, ItemClasses.Loading)
-			.append(Component.create())
-			.append(Component.create())
+			.append(Component.create("span").classes.add(Loadable.Classes.LoadingSpinny1))
+			.append(Component.create("span").classes.add(Loadable.Classes.LoadingSpinny2))
 			.indexInto(this, index))
 			.classes.toggle(!item?.transferring, Classes.Hidden);
 	}

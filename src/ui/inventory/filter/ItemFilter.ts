@@ -64,6 +64,8 @@ export interface IItemFilterEvents extends ComponentEvents<typeof Component> {
 
 export class FilterChipButton extends Button<[filter: IFilter, value: string, icon?: string | EnumModelIconPath | EnumModel<any, DisplayPropertied>, isHint?: true]> {
 
+	protected static override defaultType = "span";
+
 	public prefix!: string;
 	public value!: string;
 	public searchableValue!: string;

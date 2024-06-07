@@ -20,7 +20,7 @@
 			position: absolute;
 			inset: 0;
 			perspective: 1000px;
-			> :nth-child(1) {
+			&1 {
 				position: absolute;
 				inset: var(--loadable-spinny-inset, 30%);
 				overflow: hidden;
@@ -34,7 +34,7 @@
 					transform: translateY(100%) scaleY(200%) rotate(45deg);
 				}
 			}
-			> :nth-child(2) {
+			&2 {
 				position: absolute;
 				inset: var(--loadable-spinny-inset, 30%);
 				animation: loading-circle 6s linear infinite;

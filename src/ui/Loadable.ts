@@ -11,6 +11,8 @@ namespace Loadable {
 		Main = "loadable",
 		Loading = "loadable-loading",
 		LoadingSpinny = "loadable-loading-spinny",
+		LoadingSpinny1 = "loadable-loading-spinny1",
+		LoadingSpinny2 = "loadable-loading-spinny2",
 		LoadingInfo = "loadable-loading-info",
 		LoadingBar = "loadable-loading-bar",
 		LoadingMessage = "loadable-loading-message",
