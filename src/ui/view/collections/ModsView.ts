@@ -24,6 +24,7 @@ export default View.create({
 	id: "mods",
 	name: "Mods",
 	auth: "optional",
+	noProfileInURL: true,
 	navGroupViewId: "collections",
 	initialise: async (view, Manifest) => {
 		view.setTitle(title => title.text.set("Mods"));

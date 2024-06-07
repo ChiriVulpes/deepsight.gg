@@ -55,6 +55,7 @@ const vendorViewBase = View.create({
 	hash: (vendor: DeepsightVendorDefinition | string) => typeof vendor === "string" ? `vendor/${vendor}` : `vendor/${getId(vendor)}`,
 	name: (vendor: DeepsightVendorDefinition | string) => typeof vendor === "string" ? "Vendor Details" : Display.name(vendor, "Vendor Details"),
 	noDestinationButton: true,
+	auth: "optional",
 	initialise: async (view, manifest, vendorResult) => {
 		LoadingManager.end(view.definition.id);
 

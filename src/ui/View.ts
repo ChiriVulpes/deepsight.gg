@@ -12,6 +12,7 @@ import { ButtonClasses } from "ui/form/Button";
 import SortManager from "ui/inventory/sort/SortManager";
 import Loadable from "ui/Loadable";
 import { EventManager } from "utility/EventManager";
+import Functions from "utility/Functions";
 
 namespace View {
 
@@ -36,6 +37,7 @@ namespace View {
 		navGroupViewId?: string;
 		subView?: true;
 		noHashChange?: true;
+		noProfileInURL?: true | ((...args: ARGS) => boolean);
 	}
 
 	export type PartialProvided<FROM extends {}, PROVIDED extends {}> =
@@ -237,6 +239,10 @@ namespace View {
 				hash = hash?.(...this._args.slice(1) as ARGS);
 
 			return hash ?? this.definition.id;
+		}
+
+		public get noProfileInURL (): boolean {
+			return Functions.resolve(this.definition.noProfileInURL, ...this._args.slice(1) as ARGS) ?? false;
 		}
 
 		public definition!: IView<MODELS, [], ARGS, DEFINITION>;

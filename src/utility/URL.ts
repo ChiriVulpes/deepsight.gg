@@ -61,7 +61,7 @@ export default class URL {
 		if (value && !value?.startsWith("/"))
 			value = `/${value}`;
 
-		const membershipOverride = Store.items.selectedProfile;
+		const membershipOverride = viewManager.view?.noProfileInURL ? undefined : Store.items.selectedProfile;
 		const membershipOverrideSegment = !membershipOverride ? "" : encodeURIComponent(membershipOverride.replace("#", "."));
 		if (value && membershipOverrideSegment)
 			value = `/${membershipOverrideSegment}${value}`;

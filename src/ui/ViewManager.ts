@@ -165,6 +165,10 @@ export default class ViewManager {
 		this.event.emit("show", { view });
 	}
 
+	public static get requiredAuth () {
+		return !ViewManager.view ? "none" : ViewManager.view.definition.auth ?? "spy";
+	}
+
 	private static updateHash (view: View.WrapperComponent) {
 		if (view.definition.noHashChange)
 			return;

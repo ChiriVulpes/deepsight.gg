@@ -66,6 +66,7 @@ const itemViewBase = View.create({
 	hash: (item: Item | string) => typeof item === "string" ? `item/${item}` : `item/${item.bucket.isCollections() ? "collections" : "inventory"}/${item.bucket.isCollections() ? item.definition.hash : item.id}`,
 	name: (item: Item | string) => typeof item === "string" ? "Item Details" : item.definition.displayProperties.name,
 	noDestinationButton: true,
+	noProfileInURL: (item: Item | string) => typeof item === "string" ? item.startsWith("collections") : item.bucket.isCollections(),
 	subView: true,
 	initialise: async (view, manifest, inventory, itemResult) => {
 		LoadingManager.end(view.definition.id);

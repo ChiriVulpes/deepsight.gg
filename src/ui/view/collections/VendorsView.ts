@@ -15,6 +15,7 @@ export default View.create({
 	id: "vendors",
 	name: "Vendors",
 	auth: "optional",
+	noProfileInURL: true,
 	navGroupViewId: "collections",
 	initialise: async (view, Manifest) => {
 		const vendors = (await Manifest.DeepsightVendorDefinition.all())
