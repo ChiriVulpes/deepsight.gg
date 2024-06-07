@@ -64,7 +64,7 @@ export default class DeepsightGG {
 
 		const bungieId = URL.bungieID;
 		const idString = bungieId && BungieID.stringify(bungieId);
-		if (idString && idString !== Store.items.selectedProfile) {
+		if (idString && (idString !== Store.items.selectedProfile || !ProfileManager.byId(idString))) {
 			if (Store.items.profiles?.[idString]) {
 				Store.items.selectedProfile = idString;
 				location.reload();
@@ -77,8 +77,18 @@ export default class DeepsightGG {
 			Store.items.selectedProfile = profile ? idString : undefined;
 
 			URL.path = path;
+
 			location.reload();
 			return;
+		}
+
+		if (!bungieId) {
+			const profile = ProfileManager.get();
+			if (profile) {
+				const path = URL.path;
+				Store.items.selectedProfile = BungieID.stringify(profile.id);
+				URL.path = path;
+			}
 		}
 
 		this.refreshProfileState();
@@ -94,6 +104,14 @@ export default class DeepsightGG {
 		}
 
 		ViewManager.showByHash(URL.path ?? URL.hash);
+
+		const viewRequiredAuth = !ViewManager.view ? undefined : (ViewManager.view?.definition.auth ?? "spy");
+		const needsAuthView = false
+			|| (viewRequiredAuth === "required" && !ProfileManager.isAuthenticated())
+			|| (viewRequiredAuth === "spy" && !ProfileManager.get())
+			|| false;
+		if (needsAuthView)
+			AuthView.show();
 	}
 
 	@Bound private refreshProfileState () {

@@ -27,7 +27,7 @@ namespace ProfileManager {
 			const profiles = Object.entries(Store.items.profiles ?? {});
 			const authenticatedProfiles = profiles.filter(([, profile]) => profile.accessToken);
 
-			if (!profiles.length || authenticatedProfiles.length > 1)
+			if (!profiles.length || authenticatedProfiles.length > 1 || (!authenticatedProfiles.length && profiles.length > 1))
 				return undefined;
 
 			const [idString, data] = authenticatedProfiles[0] ?? profiles[0];

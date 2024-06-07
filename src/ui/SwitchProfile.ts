@@ -105,6 +105,20 @@ export default class SwitchProfile extends Dialog {
 						event.preventDefault();
 						ProfileManager.remove(id);
 						button.remove();
+
+						if (Store.items.selectedProfile === BungieID.stringify(id)) {
+							const newProfile = ProfileManager.get();
+
+							const url = URL.path;
+
+							if (!newProfile)
+								delete Store.items.selectedProfile;
+							else
+								Store.items.selectedProfile = BungieID.stringify(newProfile.id);
+
+							URL.path = url;
+							location.reload();
+						}
 					})
 					.appendTo(filler.increment());
 			}
