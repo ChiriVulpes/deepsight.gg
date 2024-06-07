@@ -27,7 +27,7 @@ export default class ItemTooltipPerks extends Component {
 	public setItem (item: Item) {
 		this.removeContents();
 
-		for (const index of item.reference.tooltipNotificationIndexes) {
+		for (const index of item.reference.tooltipNotificationIndexes ?? []) {
 			const notification = item.definition.tooltipNotifications[index];
 			if (!notification)
 				continue;
