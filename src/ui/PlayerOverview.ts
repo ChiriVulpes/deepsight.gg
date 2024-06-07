@@ -57,6 +57,9 @@ export default class PlayerOverview extends BaseComponent {
 	protected override async onMake () {
 		this.classes.add(PlayerOverviewClasses.Main);
 
+		this.dialog = SwitchProfile.create()
+			.appendTo(document.body);
+
 		this.identity = PlayerOverviewIdentity.create()
 			.event.subscribe("click", () => {
 				this.dialog.open();
@@ -119,9 +122,6 @@ export default class PlayerOverview extends BaseComponent {
 			if (currentCharacterId)
 				void this.characterPicker.setCurrent(currentCharacterId, true);
 		});
-
-		this.dialog = SwitchProfile.create()
-			.appendTo(document.body);
 
 		this.inventory = await Inventory.await();
 		this.inventory.event.subscribe("update", this.update);
