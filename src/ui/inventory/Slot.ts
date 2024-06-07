@@ -22,9 +22,11 @@ export default class Slot extends Component {
 		return component?.classes.toggle(wide, SlotClasses.Wide);
 	}
 
+	protected static override defaultType = "span";
+
 	protected override onMake (): void {
 		this.classes.add(SlotClasses.Main);
-		Component.create()
+		Component.create("span")
 			.classes.add(SlotClasses.EmptyBorders2)
 			.appendTo(this);
 	}
