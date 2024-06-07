@@ -115,7 +115,7 @@
 			&::after {
 				content: "";
 				display: block;
-				width: 10px;
+				width: 100%;
 				height: var(--card-content-padding, 8px);
 			}
 		}
