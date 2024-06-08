@@ -1,3 +1,5 @@
+import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type { ComponentEventManager, ComponentEvents } from "ui/Component";
 import Component from "ui/Component";
 import Button, { ButtonClasses } from "ui/form/Button";
@@ -104,11 +106,11 @@ export class SortableSort extends Component<HTMLElement, [ISort]> {
 	}
 }
 
-export default class ItemSort extends Component<HTMLElement, [SortManager]> {
+export default class ItemSort<T extends Item | Plug = Item> extends Component<HTMLElement, [SortManager<T>]> {
 
 	public override readonly event!: ComponentEventManager<this, ItemSortEvents>;
 
-	public sorter!: SortManager;
+	public sorter!: SortManager<T>;
 	public button!: Button;
 	public label!: Component;
 	public sortText!: Component;
@@ -121,7 +123,7 @@ export default class ItemSort extends Component<HTMLElement, [SortManager]> {
 	public configureTitle!: Component;
 	public configureWrapper!: Component;
 
-	protected override onMake (sorter: SortManager): void {
+	protected override onMake (sorter: SortManager<T>): void {
 		this.sorter = sorter;
 		this.classes.add(ItemSortClasses.Main);
 

@@ -1,8 +1,9 @@
 import { DestinyBreakerType } from "bungie-api-ts/destiny2";
 import BreakerTypes from "model/models/enum/BreakerTypes";
+import type Item from "model/models/items/Item";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
 
-export default IFilter.async(async () => {
+export default IFilter.async<Item>(async () => {
 	return Promise.resolve({
 		id: Filter.BreakerType,
 		prefix: "stun:",

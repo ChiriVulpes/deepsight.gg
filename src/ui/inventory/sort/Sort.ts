@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type Component from "ui/Component";
 import type { AnyComponent } from "ui/Component";
 import type { SortableSort } from "ui/inventory/sort/ItemSort";
@@ -27,19 +28,20 @@ enum Sort {
 
 export default Sort;
 
-export interface ISort {
+export interface ISort<T extends Item | Plug = Item | Plug> {
+	type?: T extends Item ? "item" | undefined : "plug";
 	id: Sort | string;
 	className?: string;
 	name: string;
 	shortName?: string;
-	sort (itemA: Item, itemB: Item): number;
-	render?(item: Item): AnyComponent | Promise<AnyComponent | undefined> | undefined;
+	sort (itemA: T, itemB: T): number;
+	render?(item: T): AnyComponent | Promise<AnyComponent | undefined> | undefined;
 	renderSortable?(sortable: SortableSort): any;
 	renderSortableOptions?(wrapper: Component, update: () => void): any;
 }
 
 export namespace ISort {
-	export function create (sort: ISort) {
+	export function create<T extends Item | Plug = Item> (sort: ISort<T>) {
 		return sort;
 	}
 }

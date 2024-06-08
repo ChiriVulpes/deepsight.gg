@@ -1,9 +1,15 @@
 .view-mods {
 	--view-padding-x: 50px;
+	--bucket-inventory-inner-width: calc(var(--slot-size) * 4 + var(--bucket-inventory-padding));
+	--bucket-inventory-width: calc(
+		var(--bucket-inventory-inner-width) + var(--bucket-inventory-padding) * 2 + var(--card-gap-x) / 2 +
+			var(--view-padding-x)
+	);
+	--slot-size-2: calc(var(--slot-size) + 8px);
 	
 	&-type-wrapper {
 		--types-wrapper-margin-x: 16px;
-		margin-left: var(--types-wrapper-margin-x);
+		margin-left: calc(-50px + var(--types-wrapper-margin-x));
 		margin-top: 10px;
 	}
 	

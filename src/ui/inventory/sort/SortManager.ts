@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
@@ -69,8 +70,8 @@ export interface ISortManagerConfiguration {
 	readonly inapplicable: readonly (Sort | string)[];
 }
 
-interface SortManager extends Omit<ISortManagerConfiguration, "inapplicable"> { }
-class SortManager {
+interface SortManager<T extends Item | Plug = Item> extends Omit<ISortManagerConfiguration, "inapplicable"> { }
+class SortManager<T extends Item | Plug = Item> {
 
 	private inapplicableIds: Sort[] = [];
 	private inapplicableRegExp: RegExp[] = [];
@@ -128,7 +129,7 @@ class SortManager {
 		this.inapplicableRegExp = configuration.inapplicable.filter((sort): sort is string => typeof sort === "string")
 			.map(regexString => new RegExp(`^${regexString}$`));
 
-		(this as Mutable<SortManager>).default = this.default.filter(sort => !this.isInapplicable(SortManager.sortMap[typeof sort === "object" ? sort.reverse : sort]));
+		(this as Mutable<SortManager<T>>).default = this.default.filter(sort => !this.isInapplicable(SortManager.sortMap[typeof sort === "object" ? sort.reverse : sort]));
 
 		SortManager.onInit(() => {
 			let sort: readonly (Sort | string)[] = (Store.get(`sort-${this.id}`) as string[] ?? [])
@@ -157,6 +158,12 @@ class SortManager {
 
 	public get () {
 		return this.current;
+	}
+
+	public getStateHash () {
+		return this.current
+			.map(sort => `${sort.id}:${this.isReversed(sort)}`)
+			.join(",");
 	}
 
 	public isReversed (sort: Sort | string | ISort) {
@@ -198,9 +205,10 @@ class SortManager {
 		return typeof sort.id === "number" ? Sort[sort.id] : sort.id;
 	}
 
-	@Bound public sort (itemA: Item, itemB: Item, requireDifference = true) {
+	@Bound public sort (itemA: T, itemB: T, requireDifference = true) {
 		for (const sort of this.current) {
-			let result = sort.sort(itemA, itemB);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			let result = sort.sort(itemA as any, itemB as any);
 
 			if (this.reversed[this.stringifyId(sort)])
 				result = -result;
@@ -209,15 +217,21 @@ class SortManager {
 				return result;
 		}
 
-		const hasInstanceDifference = Number(!!itemB.reference.itemInstanceId) - Number(!!itemA.reference.itemInstanceId);
-		if (hasInstanceDifference)
-			// sort things with an instance id before things without an instance id
-			return hasInstanceDifference;
+		if ("id" in itemA && "id" in itemB) {
+			const hasInstanceDifference = Number(!!itemB.reference.itemInstanceId) - Number(!!itemA.reference.itemInstanceId);
+			if (hasInstanceDifference)
+				// sort things with an instance id before things without an instance id
+				return hasInstanceDifference;
+		}
 
 		if (!requireDifference)
 			return 0;
 
-		return (itemA.reference.itemInstanceId ?? `${itemA.reference.itemHash}`)?.localeCompare(itemB.reference.itemInstanceId ?? `${itemB.reference.itemHash}`);
+		const partialItemA = itemA as Partial<Item> & Partial<Plug>;
+		const partialItemB = itemB as Partial<Item> & Partial<Plug>;
+		const compareA = partialItemA.reference?.itemInstanceId ?? `${partialItemA.reference?.itemHash ?? partialItemA.baseItem?.hash ?? 0}`;
+		const compareB = partialItemB.reference?.itemInstanceId ?? `${partialItemB.reference?.itemHash ?? partialItemB.baseItem?.hash ?? 0}`;
+		return compareA.localeCompare(compareB);
 	}
 }
 

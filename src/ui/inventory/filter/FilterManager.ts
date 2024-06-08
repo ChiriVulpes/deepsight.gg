@@ -1,4 +1,5 @@
 import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import type ItemFilter from "ui/inventory/filter/ItemFilter";
@@ -20,6 +21,7 @@ import FilterShaped from "ui/inventory/filter/filters/FilterShaped";
 import FilterWeaponType from "ui/inventory/filter/filters/FilterWeaponType";
 import Arrays from "utility/Arrays";
 import Strings from "utility/Strings";
+import Bound from "utility/decorator/Bound";
 
 let filterMap: Record<Filter, IFilter> | undefined;
 
@@ -34,12 +36,12 @@ export interface IConfiguredFilter {
 	value: string;
 }
 
-interface FilterManager extends IFilterManagerConfiguration { }
-class FilterManager {
+interface FilterManager<T extends Item | Plug = Item> extends IFilterManagerConfiguration { }
+class FilterManager<T extends Item | Plug = Item> {
 
 	private readonly current: IConfiguredFilter[] = [];
 
-	public uiComponent?: ItemFilter;
+	public uiComponent?: ItemFilter<T>;
 
 	public constructor (configuration: IFilterManagerConfiguration) {
 		Object.assign(this, configuration);
@@ -101,6 +103,12 @@ class FilterManager {
 			.sort((a, b) => parseInt(`${a.id}`) - parseInt(`${b.id}`));
 	}
 
+	public getStateHash () {
+		return this.current
+			.map(filter => `${filter.filter}:${filter.value}`)
+			.join(",");
+	}
+
 	private filterMainIdMatch (id: Filter | string, inapplicable: Filter | string) {
 		id = `${id}`;
 		inapplicable = `${inapplicable}`;
@@ -110,7 +118,7 @@ class FilterManager {
 		return parseInt(id) === parseInt(inapplicable);
 	}
 
-	public apply (item: Item) {
+	@Bound public apply (item: T) {
 		const orFilters = Array.from(new Set(this.current.map(filter => filter.filter)))
 			.filter(filterId => filterMap![filterId].or)
 			.map(filterId => this.current.filter(filter => filter.filter === filterId));

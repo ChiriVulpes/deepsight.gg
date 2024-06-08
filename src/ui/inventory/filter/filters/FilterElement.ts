@@ -1,4 +1,6 @@
+import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import Manifest from "model/models/Manifest";
 import Display from "ui/bungie/DisplayProperties";
 import ElementTypes from "ui/inventory/ElementTypes";
@@ -9,7 +11,7 @@ const ENERGY_TYPE_ANY = 1198124803;
 const ENERGY_TYPE_GHOST = 3340383460;
 const ENERGY_TYPE_SUBCLASS = 3440230265;
 
-export default IFilter.async(async () => {
+export default IFilter.async<Item | Plug>(async () => {
 	const { DestinyDamageTypeDefinition, DestinyEnergyTypeDefinition } = await Manifest.await();
 	const damages = (await DestinyDamageTypeDefinition.all())
 		.filter(type => type.hash !== DAMAGE_TYPE_RAID)
@@ -18,7 +20,14 @@ export default IFilter.async(async () => {
 		.filter(type => type.hash !== ENERGY_TYPE_ANY && type.hash !== ENERGY_TYPE_GHOST && type.hash !== ENERGY_TYPE_SUBCLASS)
 		.sort((a, b) => a.enumValue - b.enumValue);
 
-	function definition (value: string, item?: Item) {
+	function definition (value: string, itemOrPlug?: Item | Plug) {
+		if (!itemOrPlug || "id" in itemOrPlug)
+			return itemDefinition(value, itemOrPlug);
+
+		return plugDefinition(value, itemOrPlug);
+	}
+
+	function itemDefinition (value: string, item?: Item) {
 		if (value === "")
 			return null;
 
@@ -41,6 +50,24 @@ export default IFilter.async(async () => {
 			return null;
 
 		return undefined;
+	}
+
+	function plugDefinition (value: string, plug: Plug) {
+		if (plug.categorisation?.category === DeepsightPlugCategory.Subclass) {
+			const damageType = plug.categorisation.damageType;
+			if (!damageType)
+				return null;
+
+			const resultDamages = damages.filter(element => element.displayProperties.name.toLowerCase().startsWith(value)
+				&& (element.hash === damageType));
+
+			if (resultDamages.length === 1)
+				return resultDamages[0];
+			if (resultDamages.length > 1)
+				return null;
+
+			return undefined;
+		}
 	}
 
 	return {

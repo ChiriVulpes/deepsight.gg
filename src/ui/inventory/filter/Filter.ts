@@ -1,5 +1,6 @@
 import type EnumModel from "model/models/enum/EnumModel";
 import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import type { EnumModelIconPath } from "ui/bungie/EnumIcon";
 import type { FilterChipButton } from "ui/inventory/filter/ItemFilter";
@@ -33,7 +34,7 @@ export type IFilterSuggestedValue = {
 	icon: string;
 };
 
-export interface IFilter {
+export interface IFilter<T extends Item | Plug = Item | Plug> {
 	id: Filter;
 	internalName?: string;
 	prefix: string;
@@ -41,7 +42,7 @@ export interface IFilter {
 	suggestedValueHint?: string;
 	or?: true;
 	matches?(filterValue: string): boolean;
-	apply (filterValue: string, item: Item): boolean;
+	apply (filterValue: string, item: T): boolean;
 	tweakChip?(chip: FilterChipButton, filterValue: string): any;
 	colour: `#${string}` | number | ((value: string) => `#${string}` | number);
 	maskIcon?: SupplierOr<string | EnumModelIconPath | EnumModel<any, DisplayPropertied> | undefined, [filterValue: string]>;
@@ -51,10 +52,10 @@ export interface IFilter {
 export type IFilterGenerator = IFilter | (() => Promise<IFilter>);
 
 export namespace IFilter {
-	export function create (filter: IFilter) {
+	export function create<T extends Item | Plug = Item> (filter: IFilter<T>) {
 		return filter;
 	}
-	export function createBoolean (filter: Omit<IFilter, "prefix">): IFilter[] {
+	export function createBoolean<T extends Item | Plug = Item> (filter: Omit<IFilter<T>, "prefix">): IFilter<T>[] {
 		return ["is:", "not:"].map(prefix => ({
 			...filter,
 			prefix,
@@ -62,7 +63,7 @@ export namespace IFilter {
 				: (filterValue, item) => filter.apply(filterValue, item),
 		}));
 	}
-	export function async (filterGenerator: () => Promise<IFilter>) {
+	export function async<T extends Item | Plug = Item> (filterGenerator: () => Promise<IFilter<T>>) {
 		return filterGenerator;
 	}
 

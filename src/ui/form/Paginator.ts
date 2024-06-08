@@ -125,6 +125,17 @@ export default class Paginator extends Component {
 	}
 
 	public filler (perPage: number | PaginatorSizeHelper, pageInitialiser?: (page: PaginatorPage) => any): PaginatorFiller {
+		if (this.pages.length)
+			// store old pages in a way that will get yeeted by GC
+			Component.create()
+				.append(...this.pages);
+
+		for (const previewPage of this.previewPages)
+			previewPage.remove();
+
+		this.pages.length = 0;
+		this.previewPages.length = 0;
+
 		let page: PaginatorPage | undefined;
 		let filled = Infinity;
 		const result: PaginatorFiller = {

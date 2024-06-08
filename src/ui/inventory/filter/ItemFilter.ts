@@ -1,4 +1,6 @@
 import type EnumModel from "model/models/enum/EnumModel";
+import type Item from "model/models/items/Item";
+import type { Plug } from "model/models/items/Plugs";
 import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
 import type { EnumModelIconPath } from "ui/bungie/EnumIcon";
 import EnumIcon from "ui/bungie/EnumIcon";
@@ -128,15 +130,15 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 	}
 }
 
-export default class ItemFilter extends Component<HTMLElement, [FilterManager]> {
+export default class ItemFilter<T extends Item | Plug = Item> extends Component<HTMLElement, [FilterManager<T>]> {
 
-	public static getFor (filterer: FilterManager) {
+	public static getFor<T extends Item | Plug> (filterer: FilterManager<T>) {
 		return filterer.uiComponent ??= ItemFilter.create([filterer]);
 	}
 
 	public override readonly event!: ComponentEventManager<this, IItemFilterEvents>;
 
-	public filterer!: FilterManager;
+	public filterer!: FilterManager<T>;
 	public button!: Button;
 	public label!: Component;
 	public input!: Component;
@@ -145,7 +147,7 @@ export default class ItemFilter extends Component<HTMLElement, [FilterManager]> 
 	public mainPanel!: Component;
 	public suggestedChips!: FilterChipButton[];
 
-	protected override onMake (filterer: FilterManager): void {
+	protected override onMake (filterer: FilterManager<T>): void {
 		this.filterer = filterer;
 		this.classes.add(ItemFilterClasses.Main);
 
