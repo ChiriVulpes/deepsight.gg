@@ -1,5 +1,4 @@
-import type { ActivityHashes } from "@deepsight.gg/enums";
-import { ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "@deepsight.gg/enums";
+import { ActivityHashes, ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "@deepsight.gg/enums";
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
@@ -169,7 +168,11 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			cache.trials = trialsPGCR?.activityDetails.referenceId;
 		}
 
-		const lostSectorPGCR = await PGCR.findByMode(DestinyActivityModeType.LostSector);
+		const lostSectorPGCR = await PGCR.findByMode(DestinyActivityModeType.LostSector, pgcr => true
+			&& pgcr.activityDetails.referenceId !== ActivityHashes.TheMessagePartI
+			&& pgcr.activityDetails.referenceId !== ActivityHashes.TheMessagePartIi
+			&& pgcr.activityDetails.referenceId !== ActivityHashes.TheMessagePartIii
+			&& true);
 		cache.lostSector = lostSectorPGCR?.activityDetails.referenceId;
 
 		cache.asOf = Time.lastDailyReset;
