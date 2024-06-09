@@ -65,11 +65,11 @@ const registry = Object.fromEntries([
 	ErrorView,
 	ItemTooltipView,
 	AboutView,
+	EmblemsView,
 	ModsView,
 	ArtifactView,
 	VendorsView,
 	VendorView,
-	EmblemsView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));
