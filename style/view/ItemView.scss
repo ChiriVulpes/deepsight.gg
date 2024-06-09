@@ -318,7 +318,7 @@
 						z-index: 1;
 					}
 
-					> :first-child {
+					&1 {
 						position: absolute;
 						z-index: 1;
 						inset: 0;
@@ -350,7 +350,7 @@
 						}
 					}
 
-					> :last-child {
+					&2 {
 						position: absolute;
 						inset: 0;
 						background: radial-gradient(circle at bottom, #ffe262dd, transparent 70%);
