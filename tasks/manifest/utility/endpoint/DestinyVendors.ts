@@ -1,4 +1,5 @@
-import { DestinationHashes, EventCardHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
+import type { DestinationHashes } from "@deepsight.gg/enums";
+import { EventCardHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
 import Arrays from "@deepsight.gg/utility/Arrays";
 import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import { ComponentPrivacySetting } from "bungie-api-ts/destiny2";
@@ -17,12 +18,8 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.LordSaladin]: "lordsaladin",
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.Fynch]: "fynch",
-	[VendorHashes.Xur_CategoriesLength21]: "xurxurstreasurehoard",
-	[VendorHashes.Xur_CategoriesLength27]: {
-		[DestinationHashes.TheLastCity1737926756]: "xurthelastcity",
-		[DestinationHashes.EuropeanDeadZone697502628]: "xureuropeandeadzone",
-		[DestinationHashes.ArcadianValley3607432451]: "xurarcadianvalley",
-	},
+	[VendorHashes.Xur_CategoriesLength27]: "xurxurstreasurehoard",
+	[VendorHashes.Xur_CategoriesLength21]: "xurtower",
 	[VendorHashes.Ada1_Enabledtrue]: "ada1",
 	[VendorHashes.Banshee44_Enabledtrue]: "banshee44",
 	[VendorHashes.CommanderZavala_Enabledtrue]: "commanderzavala",
@@ -48,7 +45,8 @@ const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>>
 	[VendorHashes.LordSaladin]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
 	[VendorHashes.Fynch]: [VendorGroupHashes.Destination, VendorGroupHashes.TheWitchQueen],
-	[VendorHashes.Xur_CategoriesLength21]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
+	[VendorHashes.Xur_CategoriesLength27]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
+	[VendorHashes.Xur_CategoriesLength21]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 };
 
 const VENDOR_MOMENTS: Partial<Record<VendorHashes, MomentHashes>> = {

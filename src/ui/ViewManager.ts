@@ -134,7 +134,7 @@ export default class ViewManager {
 
 		const args: any[] = [];
 		if (view !== registry[hash])
-			args.push(Strings.sliceAfter(hash, "/"));
+			args.push(Strings.trimTextMatchingFromEnd(Strings.sliceAfter(hash, "/"), "/"));
 
 		view.show(...args as []);
 	}
