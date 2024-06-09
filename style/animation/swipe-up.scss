@@ -6,9 +6,9 @@
 		$delay: 0s;
 	}
 	--swipe-up-in-animation-delay: #{$delay};
-	--swipe-up-in-animation-end-delay: #{$delay + $duration};
+	--swipe-up-in-animation-end-delay: calc(#{$delay} + #{$duration});
 	animation:
-		animation-swipe-up-in-pre ($delay + 0.01s) linear,
+		animation-swipe-up-in-pre calc(#{$delay} + 0.01s) linear,
 		animation-swipe-up-in $duration cubic-bezier(0, 0, 0.4, 1) $delay;
 }
 
@@ -44,7 +44,7 @@
 		$delay: 0s;
 	}
 	animation:
-		animation-swipe-down-out-pre ($delay + 0.01s) linear,
+		animation-swipe-down-out-pre calc(#{$delay} + 0.01s) linear,
 		animation-swipe-down-out $duration cubic-bezier(0, 0, 0.4, 1) $delay;
 }
 

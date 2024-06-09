@@ -27,18 +27,20 @@ $animation-delay-global: null;
 	}
 
 	$animation-duration-global: $duration !global;
-	$i: 0;
+	$i: if(type-of($delay) != "number", 1, 0);
 	@each $selector in $selectors {
 		@at-root #{$selector} {
-			$animation-delay-global: $delay * $i !global;
+			$animation-delay-global: calc(#{$delay} * #{$i}) !global;
 			@if $selector != sleep {
-				// @debug #{$selector};
 				--animate-multi-index: #{$i};
 				@content;
 			}
 			$animation-delay-global: null !global;
 		}
-		$i: $i + 1;
+
+		@if type-of($delay) == "number" {
+			$i: $i + 1;
+		}
 	}
 	$animation-duration-global: null !global;
 }

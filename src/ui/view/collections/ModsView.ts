@@ -15,15 +15,12 @@ import ModsCategory, { ModsList } from "ui/view/collections/ModsCategory";
 import Async from "utility/Async";
 
 const ModsViewModel = Model.createTemporary(async api => {
-	api.emitProgress(0 / 3, "Loading manifest");
-	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 3);
+	api.emitProgress(0 / 2, "Loading manifest");
+	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 2);
 	const { DeepsightPlugCategorisation } = manifest;
 
-	api.emitProgress(1 / 3, "Initialising filters");
-	await FilterManager.init();
-
-	const from = 2 / 3;
-	const amount = 1 / 3;
+	const from = 1 / 2;
+	const amount = 1 / 2;
 	api.emitProgress(from, "Loading mods");
 
 	const categorisations = await DeepsightPlugCategorisation.all();
@@ -105,7 +102,7 @@ interface ModsDataType {
 }
 
 export default View.create({
-	models: [ModsViewModel] as const,
+	models: [ModsViewModel, FilterManager.initModel] as const,
 	id: VIEW_ID_MODS,
 	name: VIEW_NAME_MODS,
 	auth: "optional",

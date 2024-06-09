@@ -1,6 +1,9 @@
 import Model from "model/Model";
 import type { IEmblem } from "model/models/Emblems";
 import Emblems from "model/models/Emblems";
+import Manifest from "model/models/Manifest";
+import ProfileBatch from "model/models/ProfileBatch";
+import Item from "model/models/items/Item";
 import Component from "ui/Component";
 import ProfileButton from "ui/ProfileButton";
 import type { IKeyEvent } from "ui/UiEventBus";
@@ -9,9 +12,11 @@ import View from "ui/View";
 import Paginator from "ui/form/Paginator";
 import HintsDrawer from "ui/inventory/HintsDrawer";
 import { ItemClasses } from "ui/inventory/IItemComponent";
+import ItemTooltip from "ui/inventory/ItemTooltip";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";
+import { VIEW_ID_COLLECTIONS } from "ui/view/collections/ICollectionsView";
 import { FILTER_MANAGER_EMBLEMS, SORT_MANAGER_EMBLEMS, VIEW_ID_EMBLEMS, VIEW_NAME_EMBLEMS } from "ui/view/collections/IEmblemsView";
 import Async from "utility/Async";
 import type BungieID from "utility/BungieID";
@@ -21,18 +26,44 @@ export enum EmblemsViewClasses {
 	Paginator = "view-emblems-paginator",
 	ListWrapper = "view-emblems-list-wrapper",
 	List = "view-emblems-list",
+	Emblem = "view-emblems-emblem",
+	Emblem_NotAcquired = "view-emblems-emblem--not-acquired",
 }
 
+const EmblemItems = Model.createTemporary(async api => {
+	const profile = await api.subscribeProgressAndWait(ProfileBatch, 1 / 4);
+	const manifest = await api.subscribeProgressAndWait(Manifest, 1 / 4, 1 / 4);
+	const emblems = await api.subscribeProgressAndWait(Emblems, 1 / 4, 2 / 4);
+
+	const start = 3 / 4;
+
+	const result: IEmblem[] = [];
+	let lastUpdate = 0;
+	for (const emblem of emblems) {
+		result.push({
+			...emblem,
+			item: await Item.createFake(manifest, profile, emblem.definition),
+		});
+
+		if (Date.now() - lastUpdate > 100) {
+			lastUpdate = Date.now();
+			api.emitProgress(start + (1 / 4) * (result.length / emblems.length), "Loading emblems");
+		}
+	}
+
+	return result as Required<IEmblem>[];
+});
+
 export default View.create({
-	models: [Emblems, Model.createTemporary(FilterManager.init, "Initialising filters")] as const,
+	models: [EmblemItems, FilterManager.initModel] as const,
 	id: VIEW_ID_EMBLEMS,
 	name: VIEW_NAME_EMBLEMS,
 	auth: "optional",
-	navGroupViewId: "collections",
+	navGroupViewId: VIEW_ID_COLLECTIONS,
 	initialise: (view, emblems) => {
-		view.setTitle(title => title.text.set("Emblems"));
+		view.setTitle(title => title.text.set(VIEW_NAME_EMBLEMS));
 		view.setSubtitle("lore", subtitle => subtitle
-			.text.set("Symbols of prestige or aesthetic, collected and worn by the guardians..."));
+			.text.set("Symbols of aesthetics, collection, or prestige..."));
 
 		const map = new Map<IEmblem, ProfileButton>();
 		for (const emblem of emblems) {
@@ -41,7 +72,13 @@ export default View.create({
 				lastModified: new Date().toISOString(),
 				emblemHash: emblem.definition.hash,
 			};
-			map.set(emblem, ProfileButton.create([fakeBungieId, fakeProfile]));
+			map.set(emblem, ProfileButton.create([fakeBungieId, fakeProfile])
+				.classes.add(EmblemsViewClasses.Emblem)
+				.classes.toggle(emblem.item.isNotAcquired(), EmblemsViewClasses.Emblem_NotAcquired)
+				.setTooltip(ItemTooltip, {
+					initialise: tooltip => emblem.definition && tooltip.setPadding(20).setItem(emblem.item),
+					differs: tooltip => tooltip.item?.reference.itemInstanceId !== emblem.item?.reference.itemInstanceId,
+				}));
 		}
 
 		const emblemList = Paginator.create()
@@ -61,7 +98,7 @@ export default View.create({
 				await sortAndFilterPromise;
 
 			sortAndFilterQueued = false;
-			sortAndFilterPromise = Async.sleep(500).then(() => {
+			sortAndFilterPromise = Async.sleep(500).then(async () => {
 				sortAndFilterPromise = undefined;
 
 				const columns = Math.floor(Component.window.width / 350);
@@ -74,7 +111,11 @@ export default View.create({
 
 				view.style.set("--columns", `${columns}`);
 				view.style.set("--rows", `${rows}`);
-				const filler = emblemList.filler(columns * rows, page => page.classes.add(EmblemsViewClasses.List));
+				let index = 0;
+				const filler = emblemList.filler(columns * rows, page => {
+					index = 0;
+					page.classes.add(EmblemsViewClasses.List);
+				});
 
 				const subset = emblems
 					.filter(FILTER_MANAGER_EMBLEMS.apply)
@@ -84,9 +125,15 @@ export default View.create({
 					);
 
 				for (const emblem of subset)
-					map.get(emblem)?.appendTo(filler.increment());
+					map.get(emblem)
+						?.style.set("--profile-index", `${index++}`)
+						?.appendTo(filler.increment());
 
 				filler.fillRemainder(page => page.append(ProfileButton.Placeholder.create()));
+
+				emblemList.pageWrapper.element.scrollLeft = 0;
+				await Async.sleep(10);
+				emblemList.pageWrapper.element.scrollLeft = 0;
 			});
 		};
 

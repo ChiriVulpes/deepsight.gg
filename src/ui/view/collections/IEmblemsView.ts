@@ -43,6 +43,7 @@ export const FILTERS_INAPPLICABLE_EMBLEMS = [
 	Filter.BreakerType,
 	Filter.Element,
 	Filter.Adept,
+	Filter.Masterwork,
 ] as const;
 
 export const VIEW_ID_EMBLEMS = "emblems";

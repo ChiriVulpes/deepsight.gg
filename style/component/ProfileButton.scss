@@ -20,16 +20,16 @@
 		display: block;
 		position: absolute;
 		inset: 0;
-		opacity: 0;
-		z-index: 1;
-		background: #fff3;
-		border: 1px solid #fff;
-		@include transition(out, opacity);
+		z-index: 2;
+		background: transparent;
+		border: 1px solid transparent;
+		@include transition(out, background, border-color);
 	}
 	
 	&:hover, &:focus-visible {
 		&::after {
-			opacity: 1;
+			background: color(foreground-0, .2);
+			border-color: color(foreground-0);
 			@include transition(in);
 		}
 	}

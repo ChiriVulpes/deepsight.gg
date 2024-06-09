@@ -5,9 +5,9 @@
 	@if $delay == null {
 		$delay: 0s;
 	}
-	--fade-in-animation-end-delay: #{$delay + $duration};
+	--fade-in-animation-end-delay: calc(#{$delay} + #{$duration});
 	animation:
-		animation-fade-in-pre ($delay + 0.01s) linear,
+		animation-fade-in-pre calc(#{$delay} + 0.01s) linear,
 		animation-fade-in $duration cubic-bezier(0, 0, 0.4, 1) $delay;
 }
 
@@ -38,7 +38,7 @@
 		$delay: 0s;
 	}
 	animation:
-		animation-fade-out-pre ($delay + 0.01s) linear,
+		animation-fade-out-pre calc(#{$delay} + 0.01s) linear,
 		animation-fade-out $duration cubic-bezier(0, 0, 0.4, 1) $delay;
 }
 

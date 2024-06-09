@@ -1,3 +1,4 @@
+import Model from "model/Model";
 import type { IEmblem } from "model/models/Emblems";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
@@ -46,6 +47,13 @@ class FilterManager<T extends Item | Plug | IEmblem = Item> {
 
 	public constructor (configuration: IFilterManagerConfiguration) {
 		Object.assign(this, configuration);
+	}
+
+	public static get initModel () {
+		return Model.createTemporary(async api => {
+			api.emitProgress(0, "Initialising filters");
+			await FilterManager.init();
+		});
 	}
 
 	public static async init () {

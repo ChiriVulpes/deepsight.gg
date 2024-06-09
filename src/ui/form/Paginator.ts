@@ -135,6 +135,9 @@ export default class Paginator extends Component {
 
 		this.pages.length = 0;
 		this.previewPages.length = 0;
+		this.pageIndex = 0;
+		this.pageWrapper.element.scrollLeft = 0;
+		this.scrolling = false;
 
 		let page: PaginatorPage | undefined;
 		let filled = Infinity;
@@ -219,6 +222,9 @@ export default class Paginator extends Component {
 		const tickRate = 1000 / 30;
 		const scrollSpeed = 1 / 3;
 		const step = () => {
+			if (!this.scrolling)
+				return;
+
 			const now = Date.now();
 			const delta = (now - lastStep) / tickRate;
 			lastStep = now;
