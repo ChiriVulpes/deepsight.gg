@@ -76,8 +76,12 @@ function one<T> (array: T[], id: string, def: { displayProperties: DestinyDispla
 	const compare = hash ? hash(array[0]) : array[0];
 	for (let i = 1; i < array.length; i++) {
 		const d = diff(compare, hash ? hash(array[i]) : array[i]);
-		if (d)
+		if (d) {
+			if (id === "costs" && def.displayProperties.name === "Raid Banner")
+				break;
+
 			throw new Error(`More than one ${id} for ${def.displayProperties.name} served by vendors response:\n${array.map(h => `- ${String(h)}`).join("\n")}\nDiff: ${JSON.stringify(d, null, "\t")}`);
+		}
 	}
 
 	return array[0];
