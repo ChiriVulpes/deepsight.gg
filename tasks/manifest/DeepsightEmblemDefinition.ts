@@ -1,11 +1,33 @@
 import type { DeepsightEmblemDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
-import thief from "color-thief-node";
+import convert from "color-convert";
 import fs from "fs-extra";
+import jimp from "jimp";
 import Log from "../utility/Log";
 import Task from "../utility/Task";
 import manifest from "./utility/endpoint/DestinyManifest";
+
+async function getMedianColour (url: string) {
+	const image = await jimp.read(url);
+	const width = image.getWidth();
+	const height = image.getHeight();
+	const colours: number[] = [];
+	const usedPadding = 0.2;
+	for (let x = 0; x < width; x = x > width * usedPadding && x < width * (1 - usedPadding) ? Math.floor(x + width * (1 - usedPadding * 2)) : x + 1) {
+		for (let y = 0; y < height; y = y > height * usedPadding && y < height * (1 - usedPadding) ? Math.floor(y + height * (1 - usedPadding * 2)) : y + 1) {
+			const colour = jimp.intToRGBA(image.getPixelColour(x, y));
+			const [h, s, l] = convert.rgb.hsl(colour.r, colour.g, colour.b);
+			colours.push(l * 1e6 + h * 1e3 + s);
+		}
+	}
+
+	colours.sort((a, b) => a - b);
+	const median = colours[Math.floor(colours.length / 2)];
+
+	const hslToRgb = convert.hsl.rgb as any as (h: number, s: number, l: number) => [number, number, number];
+	return hslToRgb(Math.floor((median % 1e6) / 1e3), median % 1e3, Math.floor(median / 1e6));
+}
 
 export default Task("DeepsightEmblemDefinition", async () => {
 	const { DestinyInventoryItemDefinition } = manifest;
@@ -40,7 +62,8 @@ export default Task("DeepsightEmblemDefinition", async () => {
 		let red = -1, green = -1, blue = -1;
 		while (true) {
 			const url = `https://www.bungie.net${emblemIconURL}`;
-			[red, green, blue] = await thief.getColorFromURL(url)
+
+			[red, green, blue] = await getMedianColour(url)
 				.catch(() => [-1, -1, -1]);
 
 			if (red === -1) {

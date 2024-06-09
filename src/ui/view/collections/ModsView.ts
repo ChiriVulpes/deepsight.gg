@@ -10,7 +10,7 @@ import { ItemClasses } from "ui/inventory/IItemComponent";
 import FilterManager from "ui/inventory/filter/FilterManager";
 import ItemFilter from "ui/inventory/filter/ItemFilter";
 import ItemSort from "ui/inventory/sort/ItemSort";
-import { FILTER_MANAGER_MODS, SORT_MANAGER_MODS } from "ui/view/collections/IModsView";
+import { FILTER_MANAGER_MODS, SORT_MANAGER_MODS, VIEW_ID_MODS, VIEW_NAME_MODS } from "ui/view/collections/IModsView";
 import ModsCategory, { ModsList } from "ui/view/collections/ModsCategory";
 import Async from "utility/Async";
 
@@ -106,8 +106,8 @@ interface ModsDataType {
 
 export default View.create({
 	models: [ModsViewModel] as const,
-	id: "mods",
-	name: "Mods",
+	id: VIEW_ID_MODS,
+	name: VIEW_NAME_MODS,
 	auth: "optional",
 	noProfileInURL: true,
 	navGroupViewId: "collections",

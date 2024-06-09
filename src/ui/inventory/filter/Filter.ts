@@ -1,3 +1,4 @@
+import type { IEmblem } from "model/models/Emblems";
 import type EnumModel from "model/models/enum/EnumModel";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
@@ -34,7 +35,7 @@ export type IFilterSuggestedValue = {
 	icon: string;
 };
 
-export interface IFilter<T extends Item | Plug = Item | Plug> {
+export interface IFilter<T extends Item | Plug | IEmblem = Item | Plug | IEmblem> {
 	id: Filter;
 	internalName?: string;
 	prefix: string;
@@ -52,10 +53,10 @@ export interface IFilter<T extends Item | Plug = Item | Plug> {
 export type IFilterGenerator = IFilter | (() => Promise<IFilter>);
 
 export namespace IFilter {
-	export function create<T extends Item | Plug = Item> (filter: IFilter<T>) {
+	export function create<T extends Item | Plug | IEmblem = Item> (filter: IFilter<T>) {
 		return filter;
 	}
-	export function createBoolean<T extends Item | Plug = Item> (filter: Omit<IFilter<T>, "prefix">): IFilter<T>[] {
+	export function createBoolean<T extends Item | Plug | IEmblem = Item> (filter: Omit<IFilter<T>, "prefix">): IFilter<T>[] {
 		return ["is:", "not:"].map(prefix => ({
 			...filter,
 			prefix,
@@ -63,7 +64,7 @@ export namespace IFilter {
 				: (filterValue, item) => filter.apply(filterValue, item),
 		}));
 	}
-	export function async<T extends Item | Plug = Item> (filterGenerator: () => Promise<IFilter<T>>) {
+	export function async<T extends Item | Plug | IEmblem = Item> (filterGenerator: () => Promise<IFilter<T>>) {
 		return filterGenerator;
 	}
 

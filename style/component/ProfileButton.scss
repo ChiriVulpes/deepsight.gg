@@ -1,7 +1,7 @@
 .profile-button {
 	container-name: profile-button;
 	container-type: normal;
-	background: color-mix(in lch, color-mix(in lch, var(--colour), #000 10%), #555 10%) !important;
+	background: color-mix(in lch, color-mix(in lch, var(--colour), #000 30%), #555 5%) !important;
 	font-size: 18px;
 	line-height: 1.5em;
 	font-weight: 400;
@@ -43,6 +43,9 @@
 	
 	&-bungie-id {
 		margin: 6px 10px;
+		overflow: hidden;
+		text-wrap: nowrap;
+		text-overflow: ellipsis;
 		
 		&-code {
 			opacity: .3;

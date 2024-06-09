@@ -1,3 +1,4 @@
+import type { IEmblem } from "model/models/Emblems";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
 import type { IFilter } from "ui/inventory/filter/Filter";
@@ -36,8 +37,8 @@ export interface IConfiguredFilter {
 	value: string;
 }
 
-interface FilterManager<T extends Item | Plug = Item> extends IFilterManagerConfiguration { }
-class FilterManager<T extends Item | Plug = Item> {
+interface FilterManager<T extends Item | Plug | IEmblem = Item> extends IFilterManagerConfiguration { }
+class FilterManager<T extends Item | Plug | IEmblem = Item> {
 
 	private readonly current: IConfiguredFilter[] = [];
 
@@ -72,8 +73,8 @@ class FilterManager<T extends Item | Plug = Item> {
 				id: Filter.Raw,
 				prefix: "",
 				colour: undefined as any as 0,
-				apply: (value: string, item: Item) =>
-					new RegExp(`(?<=^| )${value}`).test(item.definition.displayProperties.name.toLowerCase()),
+				apply: (value: string, item: Item | Plug | IEmblem) =>
+					new RegExp(`(?<=^| )${value}`).test(item.definition?.displayProperties.name.toLowerCase() ?? ""),
 			},
 		};
 

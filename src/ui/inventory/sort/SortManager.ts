@@ -1,3 +1,4 @@
+import type { IEmblem } from "model/models/Emblems";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
 import type { ISort } from "ui/inventory/sort/Sort";
@@ -70,8 +71,8 @@ export interface ISortManagerConfiguration {
 	readonly inapplicable: readonly (Sort | string)[];
 }
 
-interface SortManager<T extends Item | Plug = Item> extends Omit<ISortManagerConfiguration, "inapplicable"> { }
-class SortManager<T extends Item | Plug = Item> {
+interface SortManager<T extends Item | Plug | IEmblem = Item> extends Omit<ISortManagerConfiguration, "inapplicable"> { }
+class SortManager<T extends Item | Plug | IEmblem = Item> {
 
 	private inapplicableIds: Sort[] = [];
 	private inapplicableRegExp: RegExp[] = [];

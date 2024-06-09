@@ -1,0 +1,21 @@
+.view-emblems {
+	--columns: 5;
+	--rows: 10;
+	
+	&-paginator {
+		container-type: inline-size;
+		width: calc(100% + (var(--paginator-button-margin) + var(--paginator-button-width)) * 2);
+	}
+	
+	&-list {
+		&-wrapper {
+			padding: 10px 0;
+			--paginator-content-width: calc(100cqw - (var(--paginator-button-margin) + var(--paginator-button-width)) * 2);
+		}
+		
+		display: grid;
+		grid-template-columns: repeat(var(--columns), 1fr);
+		grid-template-rows: repeat(var(--rows), auto);
+		grid-auto-flow: column;
+	}
+}

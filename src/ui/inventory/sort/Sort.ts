@@ -1,3 +1,4 @@
+import type { IEmblem } from "model/models/Emblems";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
 import type Component from "ui/Component";
@@ -28,8 +29,8 @@ enum Sort {
 
 export default Sort;
 
-export interface ISort<T extends Item | Plug = Item | Plug> {
-	type?: T extends Item ? "item" | undefined : "plug";
+export interface ISort<T extends Item | Plug | IEmblem = Item | Plug | IEmblem> {
+	type?: T extends Item ? "item" | undefined : T extends Plug ? "plug" : "emblem";
 	id: Sort | string;
 	className?: string;
 	name: string;
@@ -41,7 +42,7 @@ export interface ISort<T extends Item | Plug = Item | Plug> {
 }
 
 export namespace ISort {
-	export function create<T extends Item | Plug = Item> (sort: ISort<T>) {
+	export function create<T extends Item | Plug | IEmblem = Item> (sort: ISort<T>) {
 		return sort;
 	}
 }

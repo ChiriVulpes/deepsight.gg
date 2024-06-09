@@ -1,3 +1,4 @@
+import type { IEmblem } from "model/models/Emblems";
 import type EnumModel from "model/models/enum/EnumModel";
 import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
@@ -130,9 +131,9 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 	}
 }
 
-export default class ItemFilter<T extends Item | Plug = Item> extends Component<HTMLElement, [FilterManager<T>]> {
+export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends Component<HTMLElement, [FilterManager<T>]> {
 
-	public static getFor<T extends Item | Plug> (filterer: FilterManager<T>) {
+	public static getFor<T extends Item | Plug | IEmblem> (filterer: FilterManager<T>) {
 		return filterer.uiComponent ??= ItemFilter.create([filterer]);
 	}
 

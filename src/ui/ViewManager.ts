@@ -8,6 +8,7 @@ import View from "ui/View";
 import AboutView from "ui/view/AboutView";
 import AuthView from "ui/view/AuthView";
 import CollectionsView from "ui/view/collections/CollectionsView";
+import EmblemsView from "ui/view/collections/EmblemsView";
 import ModsView from "ui/view/collections/ModsView";
 import VendorsView from "ui/view/collections/VendorsView";
 import VendorView from "ui/view/collections/VendorView";
@@ -68,6 +69,7 @@ const registry = Object.fromEntries([
 	ArtifactView,
 	VendorsView,
 	VendorView,
+	EmblemsView,
 ].map((view) => [view.id, view as View.Handler<readonly Model<any, any>[]>] as const));
 
 View.event.subscribe("show", ({ view }) => ViewManager.show(view));

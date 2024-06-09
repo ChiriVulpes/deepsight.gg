@@ -26,15 +26,15 @@ const classEmblems: Record<number, number> = {
 	[DestinyClass.Warlock]: InventoryItemHashes.WarlocksFlightEmblem,
 };
 
-class ProfileButton extends Button<[bungieId: BungieID, profile: IProfileStorage]> {
-	protected override async onMake (bungieId: BungieID, profile: IProfileStorage) {
+class ProfileButton extends Button<[bungieId: BungieID, profile?: IProfileStorage]> {
+	protected override async onMake (bungieId: BungieID, profile?: IProfileStorage) {
 		super.onMake(bungieId, profile);
 		this.classes.add(ProfileButtonClasses.Main);
-		this.classes.toggle(!!profile.accessToken, ProfileButtonClasses._Authenticated);
+		this.classes.toggle(!!profile?.accessToken, ProfileButtonClasses._Authenticated);
 
-		if (!profile.membershipType && !profile.membershipId) {
-			const newProfile = await ProfileManager.reinit(bungieId);
-			if (!newProfile)
+		if (profile && !profile.membershipType && !profile.membershipId && bungieId.code !== -1) {
+			profile = await ProfileManager.reinit(bungieId);
+			if (!profile)
 				this.classes.add(ProfileButtonClasses._Disabled);
 		}
 
@@ -43,19 +43,20 @@ class ProfileButton extends Button<[bungieId: BungieID, profile: IProfileStorage
 			.append(Component.create("span")
 				.classes.add(ProfileButtonClasses.BungieIdName)
 				.text.set(bungieId.name))
-			.append(Component.create("span")
+			.append(bungieId.code === -1 ? undefined : Component.create("span")
 				.classes.add(ProfileButtonClasses.BungieIdCode)
 				.text.set(`#${(bungieId.code).toString().padStart(4, "0")}`))
 			.appendTo(this);
 
-		if (profile.callsign)
+		if (profile?.callsign)
 			Component.create("span")
 				.classes.add(ProfileButtonClasses.Callsign)
 				.text.set(`[${profile.callsign}]`)
 				.appendTo(this);
 
-		const emblemHash = profile.emblemHash
-			?? classEmblems[profile.class!]
+		const emblemHash = profile?.emblemHash
+			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+			?? classEmblems[profile?.class!]
 			?? placeholderEmblem;
 
 		const { DeepsightEmblemDefinition } = await Manifest.await();
