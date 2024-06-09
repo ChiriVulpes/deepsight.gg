@@ -208,33 +208,34 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			description: lostSectorDef.originalDisplayProperties.description,
 			icon: { DestinyActivityModeDefinition: ActivityModeHashes.LostSector },
 		}),
+		dropTable: {
+			[InventoryItemHashes.ExoticEngramEngram903043774]: {},
+			[InventoryItemHashes.EnhancementPrismMaterialDummy4257549984]: {},
+			[InventoryItemHashes.EnhancementCoreMaterialDummy]: {},
+		},
 		rotations: {
 			anchor: Time.iso(1701190800000),
 			interval: "daily",
 			drops: [
 				{
-					[InventoryItemHashes.IfSoloExoticChestArmorRareDummy]: {},
 					[InventoryItemHashes.NoxPerennialVFusionRifle]: {},
 					[InventoryItemHashes.OldSterlingAutoRifle]: {},
 					[InventoryItemHashes.MarsilionCGrenadeLauncher]: {},
 					[InventoryItemHashes.SenunaSi6Sidearm]: {},
 				},
 				{
-					[InventoryItemHashes.IfSoloExoticHeadArmorRareDummy]: {},
 					[InventoryItemHashes.PsiHermeticVPulseRifle]: {},
 					[InventoryItemHashes.Glissando47ScoutRifle]: {},
 					[InventoryItemHashes.IrukandjiSniperRifle]: {},
 					[InventoryItemHashes.NasreddinSword_InventoryTierType5]: {},
 				},
 				{
-					[InventoryItemHashes.IfSoloExoticLegsArmorRareDummy]: {},
 					[InventoryItemHashes.HeliocentricQscSidearm]: {},
 					[InventoryItemHashes.LastForaySniperRifle]: {},
 					[InventoryItemHashes.HandInHandShotgun_InventoryTierType5]: {},
 					[InventoryItemHashes.BattleScarPulseRifle_IconWatermarkShelvedUndefined]: {},
 				},
 				{
-					[InventoryItemHashes.IfSoloExoticArmsArmorRareDummy]: {},
 					[InventoryItemHashes.GeodeticHsmSword]: {},
 					[InventoryItemHashes.CombinedActionHandCannon]: {},
 					[InventoryItemHashes.HarshLanguageGrenadeLauncher_InventoryTierType5]: {},
