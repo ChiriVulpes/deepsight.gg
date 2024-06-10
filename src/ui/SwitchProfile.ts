@@ -227,6 +227,8 @@ export default class SwitchProfile extends Dialog {
 
 		this.searchResultLoading.setLoading(false);
 		this.searchBox.inputText = "";
+
+		this.queued = false;
 	}
 }
 
