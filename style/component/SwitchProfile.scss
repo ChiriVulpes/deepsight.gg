@@ -26,6 +26,10 @@
 	
 	&-search {
 		&-row {
+			font-size: 18px;
+			line-height: 1.5em;
+			--margin-y: 6px;
+			height: calc(1.5em + var(--margin-y) * 2);
 			display: grid;
 			grid-template-columns: auto 1fr 1fr;
 			gap: 16px;
@@ -40,6 +44,10 @@
     				transform: translateY(-50%) scale(2);
 				}
 			}
+		}
+		
+		&-auth-button, &-search-box {
+			height: 100%;
 		}
 		
 		&-result {

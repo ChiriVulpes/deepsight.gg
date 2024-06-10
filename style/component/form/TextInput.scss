@@ -61,6 +61,7 @@
 		grid-template-rows: 1fr;
 		background: none;
 		border: none;
+		align-self: center;
 		
 		&.hidden {
 			display: grid;
