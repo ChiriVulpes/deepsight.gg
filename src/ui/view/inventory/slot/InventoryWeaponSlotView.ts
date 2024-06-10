@@ -20,10 +20,12 @@ export const SORTS_INAPPLICABLE_WEAPONS = [
 	Sort.StatDistribution,
 	Sort.Quantity,
 	Sort.CanShape,
+	Sort.Acquired,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_WEAPONS = [
 	Filter.Artifice,
+	Filter.Acquired,
 ] as const;
 
 export const VIEW_ID_WEAPONS = "weapons";

@@ -5,6 +5,7 @@ import type { Plug } from "model/models/items/Plugs";
 import type { IFilter } from "ui/inventory/filter/Filter";
 import Filter from "ui/inventory/filter/Filter";
 import type ItemFilter from "ui/inventory/filter/ItemFilter";
+import FilterAcquired from "ui/inventory/filter/filters/FilterAcquired";
 import FilterAdept from "ui/inventory/filter/filters/FilterAdept";
 import FilterAmmo from "ui/inventory/filter/filters/FilterAmmo";
 import FilterArtifice from "ui/inventory/filter/filters/FilterArtifice";
@@ -77,6 +78,7 @@ class FilterManager<T extends Item | Plug | IEmblem = Item> {
 			[Filter.PatternComplete]: FilterPatternComplete,
 			[Filter.Duplicate]: FilterDuplicate,
 			[Filter.BreakerType]: await FilterBreakerType(),
+			[Filter.Acquired]: FilterAcquired,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

@@ -3,6 +3,7 @@ import type Item from "model/models/items/Item";
 import type { Plug } from "model/models/items/Plugs";
 import type { ISort } from "ui/inventory/sort/Sort";
 import Sort from "ui/inventory/sort/Sort";
+import SortAcquired from "ui/inventory/sort/sorts/SortAcquired";
 import SortAmmoType from "ui/inventory/sort/sorts/SortAmmoType";
 import SortBreakerType from "ui/inventory/sort/sorts/SortBreakerType";
 import SortCanShape from "ui/inventory/sort/sorts/SortCanShape";
@@ -48,6 +49,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.Exotic]: SortExotic,
 	[Sort.CanShape]: SortCanShape,
 	[Sort.BreakerType]: SortBreakerType,
+	[Sort.Acquired]: SortAcquired,
 };
 
 const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [

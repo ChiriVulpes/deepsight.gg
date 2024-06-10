@@ -25,6 +25,7 @@ export const SORTS_INAPPLICABLE_MODS = [
 	Sort.Exotic,
 	Sort.CanShape,
 	Sort.BreakerType,
+	Sort.Acquired,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_MODS = [
@@ -41,6 +42,7 @@ export const FILTERS_INAPPLICABLE_MODS = [
 	Filter.PatternComplete,
 	Filter.Duplicate,
 	Filter.BreakerType,
+	Filter.Acquired,
 ] as const;
 
 export const VIEW_ID_MODS = "mods";

@@ -25,6 +25,9 @@ export const SORTS_INAPPLICABLE_EMBLEMS = [
 	Sort.Exotic,
 	Sort.CanShape,
 	Sort.BreakerType,
+	Sort.Energy,
+	Sort.Masterwork,
+	Sort.DamageType,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_EMBLEMS = [

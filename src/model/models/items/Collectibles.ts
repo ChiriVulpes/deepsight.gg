@@ -1,4 +1,5 @@
-import type { DestinyCollectiblesComponent, DestinyProfileCollectiblesComponent, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyCollectibleComponent } from "bungie-api-ts/destiny2";
+import { DestinyCollectibleState, type DestinyCollectiblesComponent, type DestinyProfileCollectiblesComponent, type DictionaryComponentResponse, type SingleComponentResponse } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 
@@ -15,9 +16,17 @@ namespace Collectibles {
 	}
 
 	export function update (profile: ICollectiblesProfile | undefined, item: IItemInit) {
-		const collectible = profile?.profileCollectibles?.data?.collectibles[item.definition.collectibleHash!]
-			?? Object.values(profile?.characterCollectibles?.data ?? {})[0]?.collectibles[item.definition.collectibleHash!];
-		item.collectibleState = collectible?.state;
+		item.collectibleState = get(profile, item.definition.collectibleHash)?.state;
+	}
+
+	export function isAcquired (profile?: ICollectiblesProfile, collectibleHash?: number) {
+		const state = get(profile, collectibleHash)?.state ?? DestinyCollectibleState.None;
+		return !(state & DestinyCollectibleState.NotAcquired);
+	}
+
+	export function get (profile?: ICollectiblesProfile, collectibleHash?: number): DestinyCollectibleComponent | undefined {
+		return profile?.profileCollectibles?.data?.collectibles[collectibleHash!]
+			?? Object.values(profile?.characterCollectibles?.data ?? {})[0]?.collectibles[collectibleHash!];
 	}
 }
 

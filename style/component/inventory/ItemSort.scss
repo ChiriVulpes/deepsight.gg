@@ -251,6 +251,28 @@
 				width: 1.4em;
 				height: 1.4em;
 			}
+			
+			&-acquired-icon {
+				display: grid;
+				place-items: center;
+				&::before, &::after {
+					content: "";
+					display: block;
+					position: absolute;
+					width: 3px;
+					background: currentColor;
+				}
+				
+				&::before {
+					height: 7px;
+					transform: rotate(-45deg) translate(-4px, -1px);
+				}
+				
+				&::after {
+					height: 15px;
+					transform: rotate(45deg) translate(2px, -2px);
+				}
+			}
 		}
 	}
 }

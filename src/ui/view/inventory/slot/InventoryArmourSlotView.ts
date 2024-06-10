@@ -23,6 +23,7 @@ export const SORTS_INAPPLICABLE_ARMOUR = [
 	Sort.DamageType,
 	Sort.Harmonizable,
 	Sort.CanShape,
+	Sort.Acquired,
 ] as const;
 export const FILTERS_INAPPLICABLE_ARMOUR = [
 	Filter.Ammo,
@@ -34,6 +35,7 @@ export const FILTERS_INAPPLICABLE_ARMOUR = [
 	Filter.Adept,
 	Filter.PatternComplete,
 	Filter.Pattern,
+	Filter.Acquired,
 ] as const;
 
 export const VIEW_ID_ARMOUR = "armour";

@@ -25,6 +25,7 @@ enum Filter {
 	PatternComplete,
 	Duplicate,
 	BreakerType,
+	Acquired,
 	Raw,
 }
 

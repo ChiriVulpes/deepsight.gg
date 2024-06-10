@@ -25,6 +25,7 @@ enum Sort {
 	Exotic,
 	CanShape,
 	BreakerType,
+	Acquired,
 }
 
 export default Sort;

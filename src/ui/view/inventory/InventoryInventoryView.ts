@@ -29,6 +29,7 @@ export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.Harmonizable,
 	Sort.CanShape,
 	Sort.BreakerType,
+	Sort.Acquired,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_INVENTORY = [
@@ -43,6 +44,7 @@ export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.PatternComplete,
 	Filter.Pattern,
 	Filter.BreakerType,
+	Filter.Acquired,
 ] as const;
 
 export const VIEW_ID_INVENTORY = "inventory";

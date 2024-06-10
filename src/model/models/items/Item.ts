@@ -463,7 +463,9 @@ class Item {
 	}
 
 	public isNotAcquired () {
-		return this.bucket === Bucket.COLLECTIONS && !!(this.collectibleState & DestinyCollectibleState.NotAcquired);
+		return this.bucket === Bucket.COLLECTIONS
+			&& !!(this.collectibleState & DestinyCollectibleState.NotAcquired)
+			&& !this.deepsight?.pattern?.progress?.progress;
 	}
 
 	public isMasterwork () {
