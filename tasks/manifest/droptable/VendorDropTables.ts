@@ -10,8 +10,8 @@ import manifest from "../utility/endpoint/DestinyManifest";
 import DestinyVendor from "../utility/endpoint/DestinyVendor";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
-const ZavalaFocusedDecoding = VendorHashes.FocusedDecoding2232145065;
-const Saint14FocusedDecoding = VendorHashes.FocusedDecoding502095006;
+const ZavalaFocusedDecoding = VendorHashes.FocusedDecoding_VendorIdentifierVanguardEngramFocusing;
+const Saint14FocusedDecoding = VendorHashes.FocusedDecoding_VendorIdentifierTrialsEngramFocusing;
 
 export default async function () {
 	return {
