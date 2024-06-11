@@ -10,6 +10,7 @@ import DeepsightEmblemDefinition from "./manifest/DeepsightEmblemDefinition";
 import DeepsightMomentDefinition from "./manifest/DeepsightMomentDefinition";
 import DeepsightPlugCategorisation from "./manifest/DeepsightPlugCategorisation";
 import DeepsightSocketCategorisation from "./manifest/DeepsightSocketCategorisation";
+import DeepsightSocketExtendedDefinition from "./manifest/DeepsightSocketExtendedDefinition";
 import DeepsightStats from "./manifest/DeepsightStats";
 import DeepsightTierTypeDefinition from "./manifest/DeepsightTierTypeDefinition";
 import DeepsightTypes from "./manifest/DeepsightTypes";
@@ -33,6 +34,7 @@ export default Task("deepsight_manifest", task => task.series(
 		DeepsightTypes,
 		DeepsightStats,
 		DeepsightEmblemDefinition,
+		DeepsightSocketExtendedDefinition,
 
 		task.series(
 			task.parallel(

@@ -56,8 +56,11 @@ export default class ItemPerks extends ItemSockets {
 	private backupEditingWishlist?: IItemPerkWishlist;
 
 	protected getTitle () {
-		return (this.item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Sparrows) ? "Vehicle" : "Weapon")
-			+ " Perks";
+		const cats = this.item.definition.itemCategoryHashes;
+		const catName = cats?.includes(ItemCategoryHashes.Sparrows) ? "Vehicle"
+			: cats?.includes(ItemCategoryHashes.Armor) ? "Armour"
+				: "Weapon";
+		return `${catName} Perks`;
 	}
 
 	protected override initialise () {

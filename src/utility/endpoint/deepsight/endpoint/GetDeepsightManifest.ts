@@ -1,5 +1,6 @@
-import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightSocketExtendedDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
+import Endpoint from "utility/endpoint/Endpoint";
 import GetDeepsightAdeptDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightAdeptDefinition";
 import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
@@ -7,10 +8,10 @@ import GetDeepsightEmblemDefinition from "utility/endpoint/deepsight/endpoint/Ge
 import GetDeepsightMomentDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightMomentDefinition";
 import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightPlugCategorisation";
 import GetDeepsightSocketCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketCategorisation";
+import GetDeepsightSocketExtendedDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketExtendedDefinition";
 import GetDeepsightTierTypeDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightTierTypeDefinition";
 import GetDeepsightVendorDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightVendorDefinition";
 import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
-import Endpoint from "utility/endpoint/Endpoint";
 
 export interface AllDeepsightManifestComponents {
 	DeepsightMomentDefinition: Record<number, DeepsightMomentDefinition>;
@@ -23,6 +24,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
 	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>;
 	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>;
+	DeepsightSocketExtendedDefinition: Record<number, DeepsightSocketExtendedDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -42,6 +44,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),
 			DeepsightAdeptDefinition: await GetDeepsightAdeptDefinition.query(),
 			DeepsightEmblemDefinition: await GetDeepsightEmblemDefinition.query(),
+			DeepsightSocketExtendedDefinition: await GetDeepsightSocketExtendedDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

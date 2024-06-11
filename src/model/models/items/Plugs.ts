@@ -71,22 +71,22 @@ export class Socket {
 		return sockets.filter((socket): socket is Socket => socket?.isNot(...anyOfTypes) ?? false);
 	}
 
-	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item?: IItemInit, index?: number) {
+	public static async resolve (manifest: Manifest, init: Socket.ISocketInit, item: IItemInit, index: number) {
 		const socket = new Socket();
 		Object.assign(socket, init);
 		delete socket.objectives;
 
-		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition, DeepsightSocketCategorisation } = manifest;
+		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition, DeepsightSocketCategorisation, DeepsightSocketExtendedDefinition } = manifest;
 		const categorisation = await DeepsightSocketCategorisation.get(item?.definition.hash);
-		socket.type = categorisation?.categorisation[index!]?.fullName ?? "None";
+		socket.type = categorisation?.categorisation[index]?.fullName ?? "None";
 		if (socket.type === "Cosmetic/Shader")
 			return socket; // skip shader init
 
-		if (item?.bucket.isCollections() && socket.is("Cosmetic/Ornament") && item.moment?.hash !== MomentHashes.IntoTheLight)
+		if (item.bucket.isCollections() && socket.is("Cosmetic/Ornament") && item.moment?.hash !== MomentHashes.IntoTheLight)
 			return socket; // skip ornament init in collections
 
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
-		if (item?.deepsight?.pattern && index !== undefined) {
+		if (item.deepsight?.pattern && index !== undefined) {
 			const recipeItem = await DestinyInventoryItemDefinition.get(item.definition.inventory?.recipeItemHash);
 			const recipeSocket = recipeItem?.sockets?.socketEntries[index];
 			if (recipeSocket) {
@@ -94,8 +94,9 @@ export class Socket {
 			}
 		}
 
-		let plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs : await Promise.resolve(DestinyPlugSetDefinition.get(plugSetHash))
-			.then(plugSet => plugSet?.reusablePlugItems ?? []);
+		let plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs
+			: plugSetHash ? (await DestinyPlugSetDefinition.get(plugSetHash))?.reusablePlugItems ?? []
+				: (await DeepsightSocketExtendedDefinition.get(item.definition.hash))?.sockets[index]?.reusablePlugItems ?? [];
 
 		if (!socket.state)
 			plugs.concat(socket.definition.reusablePlugItems);
