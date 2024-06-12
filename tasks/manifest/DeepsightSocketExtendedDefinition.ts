@@ -9,7 +9,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 			hash: InventoryItemHashes.RelativismHunterCloak,
 			sockets: {
 				[10]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheAssassinIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfInmostLightIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheOphidianIntrinsicPlug },
@@ -21,7 +21,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 					],
 				},
 				[11]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheStarEaterIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfSynthocepsIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfVerityIntrinsicPlug },
@@ -38,7 +38,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 			hash: InventoryItemHashes.StoicismTitanMark,
 			sockets: {
 				[10]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheAssassinIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfInmostLightIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheOphidianIntrinsicPlug },
@@ -50,7 +50,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 					],
 				},
 				[11]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheStarEaterIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfSynthocepsIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfVerityIntrinsicPlug },
@@ -67,7 +67,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 			hash: InventoryItemHashes.SolipsismWarlockBond,
 			sockets: {
 				[10]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheAssassinIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfInmostLightIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheOphidianIntrinsicPlug },
@@ -79,7 +79,7 @@ export default Task("DeepsightSocketExtendedDefinition", async () => {
 					],
 				},
 				[11]: {
-					reusablePlugItems: [
+					rewardPlugItems: [
 						{ plugItemHash: InventoryItemHashes.SpiritOfTheStarEaterIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfSynthocepsIntrinsicPlug },
 						{ plugItemHash: InventoryItemHashes.SpiritOfVerityIntrinsicPlug },

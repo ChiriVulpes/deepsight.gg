@@ -96,7 +96,7 @@ export class Socket {
 
 		let plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs
 			: plugSetHash ? (await DestinyPlugSetDefinition.get(plugSetHash))?.reusablePlugItems ?? []
-				: (await DeepsightSocketExtendedDefinition.get(item.definition.hash))?.sockets[index]?.reusablePlugItems ?? [];
+				: (await DeepsightSocketExtendedDefinition.get(item.definition.hash))?.sockets[index]?.rewardPlugItems ?? [];
 
 		if (!socket.state)
 			plugs.concat(socket.definition.reusablePlugItems);
