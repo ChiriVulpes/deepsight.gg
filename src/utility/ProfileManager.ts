@@ -98,7 +98,11 @@ namespace ProfileManager {
 		else {
 			const id = BungieID.parse(bungieId);
 			membership = id && await SearchDestinyPlayerByBungieName.query(id.name, id.code)
-				.then(memberships => Memberships.getPrimaryDestinyMembership(memberships));
+				.then(memberships => Memberships.getPrimaryDestinyMembership(memberships))
+				.catch(err => {
+					console.warn(err);
+					return undefined;
+				});
 		}
 
 		if (!membership) {
