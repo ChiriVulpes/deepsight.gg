@@ -12,6 +12,7 @@ import LastWish from "./LastWish";
 import PitOfHeresy from "./PitOfHeresy";
 import Prophecy from "./Prophecy";
 import RootOfNightmares from "./RootOfNightmares";
+import SalvationsEdge from "./SalvationsEdge";
 import SpireOfTheWatcher from "./SpireOfTheWatcher";
 import TheShatteredThrone from "./TheShatteredThrone";
 import VaultOfGlass from "./VaultOfGlass";
@@ -42,6 +43,7 @@ export default {
 	[PitOfHeresy.hash]: PitOfHeresy,
 	[TheShatteredThrone.hash]: TheShatteredThrone,
 
+	[SalvationsEdge.hash]: SalvationsEdge,
 	[CrotasEnd.hash]: CrotasEnd,
 	[RootOfNightmares.hash]: RootOfNightmares,
 	[KingsFall.hash]: KingsFall,
