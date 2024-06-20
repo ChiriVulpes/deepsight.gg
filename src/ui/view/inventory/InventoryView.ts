@@ -58,7 +58,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 	public inventory!: Inventory;
 	public bucketComponents!: Partial<Record<BucketId, BucketComponent>>;
-	public itemMap!: Map<Item, ItemComponent>;
 	public hints!: HintsDrawer;
 	public equipped!: Partial<Record<BucketId, ItemComponent>>;
 	public sorter!: ItemSort;
@@ -68,7 +67,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		InventoryView.hasExisted = true;
 		InventoryView.current = this;
 		this.inventory = inventory;
-		inventory.setShouldSkipRefresh(() => !InventoryView.current);
 
 		this.classes.add(InventoryViewClasses.Main);
 		this.super.content.classes.add(InventoryViewClasses.Content);
@@ -81,7 +79,6 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 
 		this.bucketComponents = {};
 		this.equipped = {};
-		this.itemMap = new Map<Item, ItemComponent>();
 
 		this.super.definition.layout?.(this);
 
@@ -112,7 +109,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	@Bound public addBuckets (bucketIds: Arrays.Or<BucketId>, initialiser?: (bucketComponent: BucketComponent) => any) {
 		for (const bucketId of Arrays.resolve(bucketIds))
 			this.bucketComponents[bucketId] = BucketComponents.create(bucketId, this)
-				.setSortedBy(this.super.definition.sort)
+				.setSortedAndFilteredBy(this.super.definition.sort, this.super.definition.filter)
 				.tweak(initialiser)
 				.appendTo(this.super.content);
 		return this;
@@ -121,7 +118,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	@Bound public addBucketsTo (component: AnyComponent, bucketIds: Arrays.Or<BucketId>, initialiser?: (bucketComponent: BucketComponent) => any) {
 		for (const bucketId of Arrays.resolve(bucketIds))
 			this.bucketComponents[bucketId] = BucketComponents.create(bucketId, this)
-				.setSortedBy(this.super.definition.sort)
+				.setSortedAndFilteredBy(this.super.definition.sort, this.super.definition.filter)
 				.tweak(initialiser)
 				.appendTo(component);
 		return this;
@@ -156,32 +153,18 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 		return character && this.bucketComponents[Bucket.id(InventoryBucketHashes.LostItems, character)];
 	}
 
-	public getItemComponent (item?: Item) {
-		if (!item)
-			return undefined;
-
-		let itemComponent = this.itemMap.get(item);
-		if (itemComponent)
-			return itemComponent;
-
-		itemComponent = this.createItemComponent(item);
-		this.itemMap.set(item, itemComponent);
-
-		return itemComponent;
-	}
-
 	protected preUpdateInit () { }
 
 	protected initSortAndFilter () {
 		this.sorter = ItemSort.create([this.super.definition.sort])
-			.event.subscribe("sort", this.sort)
+			.event.subscribe("sort", this.update)
 			.tweak(itemSort => View.registerFooterButton(itemSort.button))
 			.tweak(itemSort => itemSort.label.classes.add(View.Classes.FooterButtonLabel))
 			.tweak(itemSort => itemSort.sortText.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
 
 		this.filterer = ItemFilter.getFor(this.super.definition.filter)
-			.event.subscribe("filter", this.filter)
+			.event.subscribe("filter", this.update)
 			.event.subscribe("submit", () =>
 				document.querySelector<HTMLButtonElement>(`.${ItemClasses.Main}:not([tabindex="-1"])`)?.focus())
 			.tweak(itemFilter => View.registerFooterButton(itemFilter.button))
@@ -189,40 +172,13 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 			.tweak(itemFilter => itemFilter.input.classes.add(View.Classes.FooterButtonText))
 			.appendTo(this.super.footer);
 
-		this.filter();
+		this.update();
 	}
 
 	@Bound
 	private update () {
-		this.updateItems();
-		this.sort();
-		this.filter();
-	}
-
-	private updateItems () {
-		const bucketEntries = Object.entries(this.inventory.buckets ?? {}) as [BucketId, Bucket][];
-		for (const [item, component] of this.itemMap) {
-			if (!bucketEntries.some(([, bucket]) => bucket.items.includes(item))) {
-				// this item doesn't exist anymore
-				component.remove();
-				this.itemMap.delete(item);
-			}
-		}
-	}
-
-	@Bound
-	private sort () {
 		for (const bucket of Object.values(this.bucketComponents)) {
 			bucket?.update();
-		}
-	}
-
-	@Bound
-	private filter () {
-		for (const [item, component] of this.itemMap) {
-			const filteredOut = !this.super.definition.filter.apply(item);
-			component.classes.toggle(filteredOut, InventoryViewClasses.ItemFilteredOut)
-				.attributes.toggle(filteredOut, "tabindex", "-1");
 		}
 	}
 
@@ -247,8 +203,7 @@ export default class InventoryView extends Component.makeable<HTMLElement, Inven
 	}
 
 	private itemMoving?: ItemComponent;
-	protected createItemComponent (item: Item) {
-		item.event.subscribe("bucketChange", this.update);
+	public createItemComponent (item: Item) {
 		if (!item.canTransfer())
 			return ItemComponent.create([item, this.inventory]);
 

@@ -7,7 +7,8 @@ import { DestinyCollectibleState, DestinyItemType, ItemBindStatus, ItemLocation,
 import Characters from "model/models/Characters";
 import DeepsightStats from "model/models/DeepsightStats";
 import type Inventory from "model/models/Inventory";
-import type Manifest from "model/models/Manifest";
+import Manifest from "model/models/Manifest";
+import ProfileBatch from "model/models/ProfileBatch";
 import BreakerType from "model/models/items/BreakerType";
 import type { BucketId } from "model/models/items/Bucket";
 import { Bucket } from "model/models/items/Bucket";
@@ -25,7 +26,8 @@ import Source from "model/models/items/Source";
 import type { IStats } from "model/models/items/Stats";
 import Stats from "model/models/items/Stats";
 import Tier from "model/models/items/Tier";
-import Display from "ui/bungie/DisplayProperties";
+import StateItemTransfer from "model/models/state/StateItemTransfer";
+import StateLock from "model/models/state/StateLock";
 import Arrays from "utility/Arrays";
 import { EventManager } from "utility/EventManager";
 import ProfileManager from "utility/ProfileManager";
@@ -36,6 +38,8 @@ import EquipItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/E
 import PullFromPostmaster from "utility/endpoint/bungie/endpoint/destiny2/actions/items/PullFromPostmaster";
 import SetLockState from "utility/endpoint/bungie/endpoint/destiny2/actions/items/SetLockState";
 import TransferItem from "utility/endpoint/bungie/endpoint/destiny2/actions/items/TransferItem";
+
+declare const inventory: Inventory;
 
 export type CharacterId = `${bigint}`;
 
@@ -109,12 +113,12 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		},
 	},
 	[TransferType.TransferToVault]: {
-		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!item.inventory?.getBucket(InventoryBucketHashes.General),
+		applicable: (item, ifNotCharacter) => !!item.character && item.bucket.characterId !== ifNotCharacter && !!inventory?.getBucket(InventoryBucketHashes.General),
 		async transfer (item, ifNotCharacter) {
 			if (!this.applicable(item, ifNotCharacter))
 				throw new Error("Not in character bucket");
 
-			const characterId = item.character!;
+			const characterId = item.character?.characterId as CharacterId;
 			await TransferItem.query(item, characterId, "vault");
 			return {
 				bucket: Bucket.id(InventoryBucketHashes.General),
@@ -124,12 +128,12 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 	},
 	[TransferType.TransferToCharacterFromVault]: {
 		applicable: (item, characterId, swapBucket) => item.bucket.isVault()
-			&& (item.inventory?.hasBucket(item.definition.inventory?.bucketTypeHash, characterId) ?? false),
+			&& (inventory?.hasBucket(item.definition.inventory?.bucketTypeHash, characterId) ?? false),
 		async transfer (item, characterId, swapBucket) {
 			if (!this.applicable(item, characterId))
 				throw new Error("Not in vault bucket");
 
-			const bucket = item.inventory?.getBucket(item.definition.inventory!.bucketTypeHash, characterId);
+			const bucket = inventory?.getBucket(item.definition.inventory!.bucketTypeHash, characterId);
 			if (!bucket)
 				throw new Error("Not in a bucket");
 
@@ -147,7 +151,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		applicable: item => item.bucket.isCharacter() && !item.equipped,
 		async transfer (item, characterId, equipItemId) {
 			if (equipItemId) {
-				const equipItem = item.inventory?.items?.[equipItemId];
+				const equipItem = inventory?.getItem(equipItemId);
 				if (!equipItem)
 					throw new Error(`Could not find item ${equipItemId}`);
 
@@ -165,7 +169,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 				buckets.delete(item.bucket.hash);
 
 				for (const bucketHash of buckets) {
-					const bucket = item.inventory?.getBucket(bucketHash, characterId);
+					const bucket = inventory?.getBucket(bucketHash, characterId);
 					if (!bucket) continue;
 
 					if (bucket.equippedItem?.isExotic())
@@ -205,7 +209,7 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 		applicable: item => item.bucket.isCharacter() && !!item.equipped,
 		async transfer (item, unequipItemId) {
 			if (unequipItemId) {
-				const unequipItem = item.inventory?.items?.[unequipItemId];
+				const unequipItem = inventory?.getItem(unequipItemId);
 				if (!unequipItem)
 					throw new Error(`Could not find item ${unequipItemId}`);
 
@@ -222,7 +226,8 @@ const TRANSFERS: { [TYPE in TransferType]: ITransferDefinition<TYPE> } = {
 			await item.unequip();
 			return {
 				bucket: item.bucket.id,
-				undo: [TransferType.Equip, item.character!, unequipItemId],
+				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+				undo: [TransferType.Equip, item.character?.characterId!, unequipItemId],
 				sideEffects: [
 					!fallbackItem ? undefined : {
 						item: fallbackItem,
@@ -277,7 +282,6 @@ export interface IItemEvents {
 	update: { item: Item };
 	loadStart: Event;
 	loadEnd: Event;
-	bucketChange: { item: Item; oldBucket: Bucket; equipped?: true };
 }
 
 namespace Item {
@@ -298,10 +302,10 @@ class Item {
 		return reference.itemInstanceId as `${bigint}` ?? `hash:${reference.itemHash}:${reference.bucketHash}:${occurrence}`;
 	}
 
-	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: Bucket, occurrence: number) {
+	public static async resolve (manifest: Manifest, profile: Item.IItemProfile, reference: DestinyItemComponent, bucket: Bucket, occurrence: number, definition?: DestinyInventoryItemDefinition) {
 		const { DestinyInventoryItemDefinition, DeepsightAdeptDefinition } = manifest;
 
-		const definition = await DestinyInventoryItemDefinition.get(reference.itemHash);
+		definition ??= await DestinyInventoryItemDefinition.get(reference.itemHash);
 		if (!definition || !Object.keys(definition).length) {
 			console.warn("No item definition for ", reference.itemHash);
 			return undefined;
@@ -346,11 +350,11 @@ class Item {
 		return item;
 	}
 
-	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit, inventory?: Inventory) {
-		item.collections = await Item.createFake(manifest, profile, item.definition, undefined, undefined, inventory);
+	private static async addCollections (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, item: IItemInit) {
+		item.collections = await Item.createFake(manifest, profile, item.definition);
 	}
 
-	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId, inventory?: Inventory) {
+	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId) {
 		const id = `hash:${definition.hash}:collections` as ItemId;
 
 		const existing = Bucket.COLLECTIONS.getItemById(id);
@@ -390,25 +394,20 @@ class Item {
 
 		await BreakerType.apply(item);
 
-		if (inventory)
-			item.inventory = inventory;
-
 		return item;
 	}
 
 	public readonly event = new EventManager<this, IItemEvents>(this);
 
 	public get character () {
-		return this.bucket.characterId;
+		return this.bucket.character;
 	}
-
-	private _owner?: CharacterId;
 
 	/**
 	 * The character this item is in the inventory of, or the current character if the item is somewhere else
 	 */
 	public get owner () {
-		return this.character ?? this._owner;
+		return this.character ?? Characters.getCurrent();
 	}
 
 	public get objectives () {
@@ -419,15 +418,16 @@ class Item {
 	public fallbackItem?: Item;
 
 	public bucket!: Bucket;
-	public inventory?: Inventory;
+	public bucketIds!: BucketId[];
 	protected readonly name: string;
+	private occurrence = 0;
 
 	private constructor (item: IItemInit) {
 		this.name = item.definition.displayProperties?.name;
 		Object.assign(this, item);
 		this.undoTransfers = [];
-		this.trustTransferUntil = 0;
 		this.collectibleState ??= DestinyCollectibleState.None;
+		this.bucketIds = [];
 	}
 
 	public isWeapon () {
@@ -514,7 +514,7 @@ class Item {
 	}
 
 	public hasShapedCopy () {
-		return this.inventory?.craftedItems.has(this.definition.hash) ?? false;
+		return inventory?.isCrafted(this.definition.hash) ?? false;
 	}
 
 	public getLoadouts () {
@@ -649,10 +649,6 @@ class Item {
 		return this.baseItem?.displayProperties.name ?? this.definition.displayProperties.name;
 	}
 
-	public shouldTrustBungie () {
-		return this.trustTransferUntil < this.lastModified;
-	}
-
 	public isLocked () {
 		return !!(this.reference.state & ItemState.Locked);
 	}
@@ -675,70 +671,47 @@ class Item {
 			this.settingLocked = (async () => {
 				let err: Error | undefined;
 				await SetLockState.query(this, locked).catch((e: Error) => err = e);
-				locked = !err ? locked : !locked;
-				const mutableRef = this.reference as Mutable<DestinyItemComponent>;
+				if (err)
+					return;
+
+				StateLock.add({
+					type: "item/lock",
+					time: Date.now(),
+					item: this.id,
+					locked,
+				});
+
+				const mutable = (this.reference as Mutable<DestinyItemComponent>);
 				if (locked)
-					mutableRef.state |= ItemState.Locked;
+					mutable.state |= ItemState.Locked;
 				else
-					mutableRef.state &= ~ItemState.Locked;
+					mutable.state &= ~ItemState.Locked;
 			})();
 
-			this.update(this);
+			await this.refresh();
 			await this.settingLocked;
 			delete this.settingLocked;
-			this.update(this);
+			await this.refresh();
 		}
 
 		return locked;
 	}
 
-	public update (item: Item) {
-		if (item !== this) {
-			this.lastModified = item.lastModified;
-			this.id = item.id;
-			this.reference = item.reference;
-			this.instance = item.instance;
-			this.sockets = item.sockets;
-			this.moment = item.moment;
-			this.deepsight = item.deepsight;
-			this.shaped = item.shaped;
-			this.stats = item.stats;
-
-			let newBucketId = this.bucket.id;
-			if (this.shouldTrustBungie() || !this.bucketHistory?.includes(`${item.bucket.id}:${item.equipped ? "equipped" : "unequipped"}`)) {
-				delete this.bucketHistory;
-				newBucketId = item.bucket.id;
-				this.equipped = item.equipped;
-			}
-
-			const correctBucket = this.inventory?.buckets?.[newBucketId];
-			if (!correctBucket)
-				console.warn(`Could not find correct bucket ${newBucketId} for ${Display.name(this.definition)}`);
-			else {
-				for (const bucket of Object.values(this.inventory?.buckets ?? {})) {
-					if (bucket?.deepsight)
-						continue;
-
-					if (bucket !== correctBucket)
-						bucket?.removeItems(item, this);
-
-					if (bucket === correctBucket)
-						bucket?.removeItems(item);
-				}
-
-				this.bucket = correctBucket;
-				correctBucket.addItems(this);
-			}
-		}
-
+	public async refresh (manifest?: Manifest, profile = ProfileBatch.latest, itemRef = this.reference, occurrence = this.occurrence) {
+		manifest ??= await Manifest.await();
+		this.lastModified = profile?.lastModified.getTime() ?? 0;
+		this.reference = itemRef;
+		this.occurrence = occurrence;
+		this.instance = profile?.itemComponents?.instances.data?.[itemRef.itemInstanceId!];
+		await Plugs.refresh(manifest, profile, this);
+		// moment should be ok
+		await Deepsight.apply(manifest, profile ?? {}, this); // includes shaped
+		await Stats.apply(manifest, profile, this);
 		this.event.emit("update", { item: this });
-		return this;
 	}
 
 	private _transferPromise?: Promise<void>;
 	private readonly undoTransfers: Transfer[];
-	private bucketHistory?: `${BucketId}:${"equipped" | "unequipped"}`[];
-	private trustTransferUntil: number;
 
 	public get transferring () {
 		return !!this._transferPromise;
@@ -810,7 +783,7 @@ class Item {
 			// TODO notify
 		} else {
 			this.event.emit("loadStart");
-			this._transferPromise = this.fallbackItem.equip(this.character);
+			this._transferPromise = this.fallbackItem.equip(this.character.characterId);
 			await this._transferPromise;
 			delete this._transferPromise;
 			this.event.emit("loadEnd");
@@ -845,34 +818,33 @@ class Item {
 				continue;
 
 			try {
+
 				const result = await definition.transfer(this, ...args);
-				const sideEffects = [{ item: this, result }, ...result.sideEffects ?? []];
+				const sideEffects = [{ item: this, result }, ...result.sideEffects ?? []]; // includes main effect
+
 				const pendingEmits: { item: Item, oldBucket: Bucket, equipped: true | undefined }[] = [];
 				for (const { item, result } of sideEffects) {
-					const oldBucket = item.bucket;
-					item.bucketHistory ??= [];
-					item.bucketHistory.push(`${oldBucket.id}:${item.equipped ? "equipped" : "unequipped"}`);
+					const fromBucket = item.bucket;
+					const fromEquipped = !!item.equipped;
 
-					const newBucket = item.inventory?.buckets?.[result.bucket];
-					if (!newBucket)
+					const toBucket = inventory?.getBucket(result.bucket);
+					if (!toBucket)
 						console.warn("Missing bucket", result.bucket, "for item after transfer", item);
-					else
-						item.bucket = newBucket;
-					item.equipped = result.equipped;
-					item.trustTransferUntil = Date.now();
-					pendingEmits.push({ item, oldBucket, equipped: item.equipped });
-					item.inventory?.transferItem(item, oldBucket, newBucket);
 
-					if (item.equipped)
-						for (const potentiallyEquippedItem of newBucket?.items ?? [])
-							if (potentiallyEquippedItem.equipped && potentiallyEquippedItem !== item)
-								// only visually unequip items if they're in the same slot
-								if (potentiallyEquippedItem.definition.equippingBlock?.equipmentSlotTypeHash === item.definition.equippingBlock?.equipmentSlotTypeHash)
-									delete potentiallyEquippedItem.equipped;
+					pendingEmits.push({ item, oldBucket: fromBucket, equipped: result.equipped });
+					if (toBucket) {
+						console.log("Transferred", item.name, "from", fromBucket.name, fromEquipped ? "equipped" : "unequipped", "to", toBucket.name, result.equipped ? "equipped" : "unequipped");
+						StateItemTransfer.add({
+							type: "item/transfer",
+							time: Date.now(),
+							item: item.id,
+							fromBucket: fromBucket.id,
+							fromEquipped,
+							toBucket: toBucket.id,
+							toEquipped: !!result.equipped,
+						});
+					}
 				}
-
-				for (const { item, oldBucket, equipped } of pendingEmits)
-					item.event.emit("bucketChange", { item, oldBucket, equipped });
 
 				if (result.undo)
 					this.undoTransfers.push(result.undo);
@@ -884,6 +856,8 @@ class Item {
 				if (!Store.items.settingsDisableReturnOnFailure)
 					await this.performTransfer(...this.undoTransfers.reverse());
 			}
+
+			await inventory.refreshing;
 		}
 	}
 

@@ -1,6 +1,7 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { type DestinyDisplayPropertiesDefinition, type DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
+import Characters from "model/models/Characters";
 import type Item from "model/models/items/Item";
 import type { CharacterId, ItemId } from "model/models/items/Item";
 import Arrays from "utility/Arrays";
@@ -11,7 +12,7 @@ export interface BucketDefinition {
 	definition: DestinyInventoryBucketDefinition;
 	subBucketDefinition?: DestinyInventoryBucketDefinition;
 	character?: Character;
-	items?(): Item[];
+	items?: Item[];
 }
 
 export class Bucket {
@@ -20,6 +21,11 @@ export class Bucket {
 
 	public static id<BUCKET extends InventoryBucketHashes = InventoryBucketHashes> (bucketHash: BUCKET, characterId?: CharacterId, inventoryBucketHash?: InventoryBucketHashes): BucketId<BUCKET> {
 		return `${bucketHash}/${characterId || ""}/${inventoryBucketHash || ""}`;
+	}
+
+	public static rootId (id: BucketId) {
+		const [bucket, character] = Bucket.parseId(id);
+		return Bucket.id(bucket as InventoryBucketHashes, character);
 	}
 
 	public static parseId (id: BucketId) {
@@ -31,35 +37,45 @@ export class Bucket {
 		] as [InventoryBucketHashes | "collections", CharacterId?, InventoryBucketHashes?];
 	}
 
+	public static create (definition: Partial<BucketDefinition>) {
+		if (!definition.definition)
+			return undefined;
+
+		return new Bucket(definition as BucketDefinition);
+	}
+
 	public readonly id: BucketId;
 	public readonly hash: InventoryBucketHashes;
 	public readonly characterId?: CharacterId;
 	public readonly inventoryHash?: InventoryBucketHashes;
 	public readonly name: string;
 	public readonly capacity: number;
-	public deepsight: boolean;
 	public fallbackRemovalItem?: Item;
 
 	public readonly definition: DestinyInventoryBucketDefinition;
-	public readonly character?: Character;
 	public readonly subBucketDefinition?: DestinyInventoryBucketDefinition;
 	public readonly items!: readonly Item[];
 	protected map: Record<string, number>;
-	private itemSupplier?: () => Item[];
+
+	public get character () {
+		return Characters.get(this.characterId);
+	}
 
 	public constructor ({ definition, subBucketDefinition, character, items }: BucketDefinition) {
 		this.name = definition.displayProperties?.name ?? "?";
 		this.id = Bucket.id(definition.hash as InventoryBucketHashes, character?.characterId as CharacterId, subBucketDefinition?.hash);
 		this.capacity = definition.itemCount;
+
+		this.items = [];
 		this.map = {};
-		this.setItems(items);
+		if (items)
+			this.addItems(...items);
 
 		this.hash = definition.hash;
 		this.inventoryHash = subBucketDefinition?.hash;
 		this.characterId = character?.characterId;
 		this.definition = definition;
 		this.subBucketDefinition = subBucketDefinition;
-		this.deepsight = !!items;
 
 		if (character)
 			this.name += ` / ${character.class.displayProperties.name}`;
@@ -83,25 +99,6 @@ export class Bucket {
 		return this.items[this.map[id]];
 	}
 
-	public regenerateItems () {
-		if (this.itemSupplier) {
-			this.setItems(this.itemSupplier);
-		}
-	}
-
-	public setItems (items?: Item[] | (() => Item[])) {
-		delete this.itemSupplier;
-		this.deepsight = !!items;
-		if (typeof items === "function")
-			Object.defineProperty(this, "items", { value: (this.itemSupplier = items)(), configurable: true });
-		else
-			Object.defineProperty(this, "items", { value: items ?? [], configurable: true });
-
-		this.map = {};
-		for (let i = 0; i < this.items.length; i++)
-			this.map[this.items[i].id] = i;
-	}
-
 	public addItems (...items: Item[]) {
 		for (const item of items) {
 			if (this.map[item.id] !== undefined)
@@ -119,10 +116,13 @@ export class Bucket {
 			if (removeIndex === undefined)
 				continue;
 
-			const lastItem = mutable.pop();
-			mutable[removeIndex] = lastItem!;
 			delete this.map[item.id];
-			this.map[lastItem!.id] = removeIndex;
+
+			const lastItem = mutable.pop();
+			if (removeIndex !== mutable.length) {
+				mutable[removeIndex] = lastItem!;
+				this.map[lastItem!.id] = removeIndex;
+			}
 		}
 	}
 

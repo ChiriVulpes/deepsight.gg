@@ -75,7 +75,7 @@ namespace ICollectionsView {
 			!sorter ? undefined : (a, b) => sorter.sort(a, b, false),
 			item => item.definition.inventory?.tierType ?? TierType.Unknown,
 			item => item.isWeapon() ? 1 : 0,
-			item => item.deepsight?.pattern ? inventory?.craftedItems.has(item.definition.hash) ? 0 : item.deepsight.pattern.progress?.complete ? 1 : 3 : 2,
+			item => item.deepsight?.pattern ? inventory?.isCrafted(item.definition.hash) ? 0 : item.deepsight.pattern.progress?.complete ? 1 : 3 : 2,
 			item => item.isAdept() ? 1 : 0,
 			item => item.definition.classType ?? DestinyClass.Unknown,
 			(a, b) => (a.collectible?.sourceHash ?? -1) - (b.collectible?.sourceHash ?? -1),

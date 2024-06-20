@@ -112,7 +112,7 @@ export default class PlayerOverviewCharacterPanel extends Component<HTMLElement,
 			.setDisabled(!ProfileManager.isAuthenticated())
 			.event.subscribe("selectClass", event => {
 				if (event.item?.character)
-					event.setPromise(event.item.equip(event.item.character));
+					event.setPromise(event.item.equip(event.item.character.characterId));
 			})
 			.appendTo(characterSettings);
 

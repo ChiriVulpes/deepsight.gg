@@ -40,4 +40,5 @@ export enum ItemClasses {
 	LoadoutedBookmark1 = "item-loadouted-bookmark1",
 	Classified = "item-classified",
 	_Classified = "item--classified",
+	_FilteredOut = "item--filtered-out",
 }

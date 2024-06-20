@@ -1,6 +1,7 @@
 import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
+import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -208,7 +209,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		const canShape = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.craftedItems.has(item.definition.hash);
+		const canShape = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.isCrafted(item.definition.hash);
 		const shaped = item?.shaped || canShape;
 		this.classes.toggle(!!item?.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
 		if (shaped ? !item?.isMasterwork() : item?.canEnhance())
@@ -434,8 +435,12 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
-		const currentCharacter = this.inventory?.currentCharacter;
+		const currentCharacter = Characters.getCurrent()?.characterId;
 		if (!currentCharacter)
+			return;
+
+		const character = this.item.character?.characterId;
+		if (!character)
 			return;
 
 		if (Component.window.width <= 800)
@@ -449,9 +454,8 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
-			await this.item.transferToggleVaulted(currentCharacter.characterId);
+			await this.item.transferToggleVaulted(currentCharacter);
 		else {
-			const character = this.item.character ?? currentCharacter.characterId;
 			if (!this.item.bucket.isCharacter())
 				await this.item.transferToCharacter(character);
 

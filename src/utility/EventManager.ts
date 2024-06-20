@@ -6,6 +6,9 @@ export interface IEventSubscriptionManager<EVENTS = {}, TARGET extends EventTarg
 	subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => any): this;
 }
 
+export type Events<HOST extends { event: EventManager<any, any, any> }> = HOST extends { event: EventManager<any, infer EVENTS, any> } ? EVENTS : never;
+export type EventParameter<HOST extends { event: EventManager<any, any, any> }, EVENT extends keyof Events<HOST>> = Event & Events<HOST>[EVENT];
+
 export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
 
 	public static readonly global = EventManager.make<GlobalEventHandlersEventMap>();

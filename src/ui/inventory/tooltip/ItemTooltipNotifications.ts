@@ -44,7 +44,7 @@ export default class ItemTooltipPerks extends Component {
 					.classes.add(ItemTooltipNotificationsClasses.NotificationIcon))
 				.append(Component.create()
 					.classes.add(ItemTooltipNotificationsClasses.NotificationDescription)
-					.tweak(Display.applyDescription, notification.displayString, item.character))
+					.tweak(Display.applyDescription, notification.displayString, item.character?.characterId))
 				.appendTo(this);
 		}
 	}

@@ -46,7 +46,7 @@ namespace Stats {
 
 		const { DestinyStatGroupDefinition, DestinyStatDefinition } = manifest;
 
-		const statGroupDefinition = await DestinyStatGroupDefinition.get(item.definition.stats?.statGroupHash);
+		const statGroupDefinition = item.stats?.definition ?? await DestinyStatGroupDefinition.get(item.definition.stats?.statGroupHash);
 		if (!statGroupDefinition)
 			return undefined;
 
@@ -75,7 +75,7 @@ namespace Stats {
 
 		for (const [hashString, { value }] of Object.entries(stats ?? {})) {
 			const hash = +hashString;
-			const statDefinition = await DestinyStatDefinition.get(hash);
+			const statDefinition = item.stats?.values[hash]?.definition ?? await DestinyStatDefinition.get(hash);
 			if (!statDefinition) {
 				console.warn("Unknown stat", hash, "value", value);
 				continue;

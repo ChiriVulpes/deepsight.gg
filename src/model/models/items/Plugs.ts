@@ -1,7 +1,9 @@
 import type { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugCategoryName, DeepsightPlugFullName } from "@deepsight.gg/plugs";
 import type { DestinyInventoryItemDefinition, DestinyItemComponentSetOfint64, DestinyItemPerkEntryDefinition, DestinyItemPlugBase, DestinyItemSocketCategoryDefinition, DestinyItemSocketEntryDefinition, DestinyItemSocketEntryPlugItemDefinition, DestinyItemSocketEntryPlugItemRandomizedDefinition, DestinyItemSocketState, DestinyObjectiveProgress, DestinyPlugSetsComponent, DestinySandboxPerkDefinition, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { PlugSetHashes } from "deepsight.gg/Enums";
 import { MomentHashes } from "deepsight.gg/Enums";
 import Manifest from "model/models/Manifest";
+import type Item from "model/models/items/Item";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
 import type { PromiseOr } from "utility/Type";
@@ -75,8 +77,10 @@ export class Socket {
 		const socket = new Socket();
 		Object.assign(socket, init);
 		delete socket.objectives;
+		socket.item = item;
+		socket.index = index;
 
-		const { DestinyPlugSetDefinition, DestinyInventoryItemDefinition, DeepsightSocketCategorisation, DeepsightSocketExtendedDefinition } = manifest;
+		const { DestinyInventoryItemDefinition, DeepsightSocketCategorisation } = manifest;
 		const categorisation = await DeepsightSocketCategorisation.get(item?.definition.hash);
 		socket.type = categorisation?.categorisation[index]?.fullName ?? "None";
 		if (socket.type === "Cosmetic/Shader")
@@ -94,79 +98,8 @@ export class Socket {
 			}
 		}
 
-		let plugs: (PlugRaw /*| Plug*/)[] = socket.state ? init.plugs
-			: plugSetHash ? (await DestinyPlugSetDefinition.get(plugSetHash))?.reusablePlugItems ?? []
-				: (await DeepsightSocketExtendedDefinition.get(item.definition.hash))?.sockets[index]?.rewardPlugItems ?? [];
-
-		if (!socket.state)
-			plugs.concat(socket.definition.reusablePlugItems);
-
-		plugs = plugs.distinct(plug => plug.plugItemHash);
-
-		const currentPlugHash = init.state?.plugHash ?? socket.definition.singleInitialItemHash;
-
-		// plugs[0] = await Plug.resolve(manifest, plugs[0] as PlugRaw);
-		// if (plugs[0].type & PlugType.Shader) {
-		// 	socket.socketedPlug = plugs[0];
-
-		// } else {
-		socket.plugs = [];
-		// let lastPause = Date.now();
-		for (const plug of plugs) {
-			socket.plugs.push(/*plug instanceof Plug ? plug :*/ await Plug.resolve(manifest, plug, item));
-			// if (Date.now() - lastPause > 30) {
-			// 	await Async.sleep(1);
-			// 	lastPause = Date.now();
-			// }
-		}
-
-		let socketedPlug = socket.plugs.find(plug => plug.plugItemHash === currentPlugHash);
-		if (!socketedPlug && currentPlugHash) {
-			socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, init.state?.isEnabled ?? true, item);
-			if (socketedPlug && socket.state)
-				socket.plugs.push(socketedPlug);
-		}
-
-		socket.socketedPlug = socketedPlug;
-		// }
-
-		if (socket.socketedPlug)
-			socket.socketedPlug.socketed = true;
-
-		for (const plug of [...socket.plugs, socket.socketedPlug]) {
-			if (!plug)
-				continue;
-
-			plug.objectives = await Objectives.resolve(manifest, init.objectives![plug.plugItemHash] ?? [], plug, item);
-			socket.types.add(plug.type);
-		}
-
-		if (socket.types.size <= 1) {
-			const [type] = socket.types;
-			socket.type = type ?? PlugType.None;
-		} else {
-			const smallestFirst = Array.from(socket.types)
-				.sort((a, b) => a.length - b.length);
-
-			const smallest = smallestFirst[0];
-			if (smallestFirst.every(type => type.startsWith(smallest)))
-				socket.type = smallest;
-
-			if (socket.type === PlugType.None) {
-				// we still don't have a type, so now we grab the smallest type and see how much we can shorten it to make all match
-				let type = smallestFirst[0];
-				while (type.length) {
-					type = type.slice(0, -1) as PlugType;
-					if (!type.includes("/"))
-						break;
-
-					if (smallestFirst.every(t => t.startsWith(type))) {
-						socket.type = type;
-						break;
-					}
-				}
-			}
-		}
+		socket.plugSetHash = plugSetHash;
+		await socket.refresh(manifest, init);
 
 		return socket;
 	}
@@ -176,8 +109,108 @@ export class Socket {
 	private plugPool?: PromiseOr<Plug[]>;
 	public type: PlugType = PlugType.None;
 	public types = new Set<PlugType>();
+	private plugSetHash?: PlugSetHashes;
+	private item?: IItemInit;
+	private index = 0;
+	private plugsListHash?: string;
 
 	private constructor () { }
+
+	public async refresh (manifest: Manifest, refresh: Socket.ISocketRefresh) {
+		this.category = refresh.category;
+		this.state = refresh.state;
+
+		const { DestinyPlugSetDefinition, DeepsightSocketExtendedDefinition } = manifest;
+
+		let plugs: (PlugRaw /*| Plug*/)[] = this.state ? refresh.plugs
+			: this.plugSetHash ? (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems ?? []
+				: (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems ?? [];
+
+		if (!this.state)
+			plugs.concat(this.definition.reusablePlugItems);
+
+		plugs = plugs.distinct(plug => plug.plugItemHash);
+
+		const currentPlugHash = this.state?.plugHash ?? this.definition.singleInitialItemHash;
+
+		// plugs[0] = await Plug.resolve(manifest, plugs[0] as PlugRaw);
+		// if (plugs[0].type & PlugType.Shader) {
+		// 	socket.socketedPlug = plugs[0];
+
+		// } else {
+		let plugListChanged = false;
+
+		const plugsListHash = plugs.map(plug => plug.plugItemHash).join(",");
+		if (this.plugsListHash !== plugsListHash) {
+			this.plugsListHash = plugsListHash;
+			const newPlugsList = [];
+			// let lastPause = Date.now();
+			for (const plug of plugs) {
+				newPlugsList.push(/*plug instanceof Plug ? plug :*/ await Plug.resolve(manifest, plug, this.item));
+				// if (Date.now() - lastPause > 30) {
+				// 	await Async.sleep(1);
+				// 	lastPause = Date.now();
+				// }
+			}
+
+			plugListChanged = true;
+			this.plugs = newPlugsList;
+		}
+
+		if (this.socketedPlug?.plugItemHash !== currentPlugHash) {
+			let socketedPlug = this.plugs.find(plug => plug.plugItemHash === currentPlugHash);
+			if (!socketedPlug && currentPlugHash) {
+				socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, this.state?.isEnabled ?? true, this.item);
+				plugListChanged = true;
+				if (socketedPlug && this.state)
+					this.plugs.push(socketedPlug);
+			}
+
+			this.socketedPlug = socketedPlug;
+
+			if (this.socketedPlug)
+				this.socketedPlug.socketed = true;
+		}
+		// }
+
+
+		for (const plug of [...this.plugs, this.socketedPlug]) {
+			if (!plug)
+				continue;
+
+			plug.objectives = await Objectives.resolve(manifest, refresh.objectives![plug.plugItemHash] ?? [], plug, this.item);
+			this.types.add(plug.type);
+		}
+
+		if (plugListChanged) {
+			if (this.types.size <= 1) {
+				const [type] = this.types;
+				this.type = type ?? PlugType.None;
+			} else {
+				const smallestFirst = Array.from(this.types)
+					.sort((a, b) => a.length - b.length);
+
+				const smallest = smallestFirst[0];
+				if (smallestFirst.every(type => type.startsWith(smallest)))
+					this.type = smallest;
+
+				if (this.type === PlugType.None) {
+					// we still don't have a type, so now we grab the smallest type and see how much we can shorten it to make all match
+					let type = smallestFirst[0];
+					while (type.length) {
+						type = type.slice(0, -1) as PlugType;
+						if (!type.includes("/"))
+							break;
+
+						if (smallestFirst.every(t => t.startsWith(type))) {
+							this.type = type;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	public getPool (...anyOfTypes: PlugType.Query[]): PromiseOr<Plug[]>;
 	public getPool<ALREADY_RESOLVED extends true> (...anyOfTypes: PlugType.Query[]): Plug[];
@@ -219,12 +252,15 @@ export namespace Socket {
 		socketedPlug: Plug;
 	}
 
-	export interface ISocketInit {
-		definition: DestinyItemSocketEntryDefinition;
+	export interface ISocketRefresh {
 		state?: DestinyItemSocketState;
 		category?: DestinyItemSocketCategoryDefinition;
 		plugs: DestinyItemPlugBase[];
 		objectives?: Record<number, DestinyObjectiveProgress[]>;
+	}
+
+	export interface ISocketInit extends ISocketRefresh {
+		definition: DestinyItemSocketEntryDefinition;
 	}
 }
 
@@ -382,27 +418,61 @@ namespace Plugs {
 		console.debug("Initialised plugs:", Plug.initialisedPlugTypes);
 	}
 
+	interface SocketData {
+		states: DestinyItemSocketState[];
+		entries?: DestinyItemSocketEntryDefinition[];
+		categories?: DestinyItemSocketCategoryDefinition[];
+		plugs: Record<number, DestinyItemPlugBase[]>;
+		objectives: Record<number, DestinyObjectiveProgress[]>;
+	}
+
+	function getSocketData (profile: IPlugsProfile | undefined, item: IItemInit): SocketData {
+		const { socketCategories, socketEntries } = item.definition.sockets ?? {};
+		const states = profile?.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
+
+		const plugs = profile?.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? {};
+		const objectivesByPlug = profile?.itemComponents?.plugObjectives?.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug ?? {};
+
+		return {
+			states,
+			entries: socketEntries,
+			categories: socketCategories,
+			plugs,
+			objectives: objectivesByPlug,
+		};
+	}
+
 	export async function apply (manifest: Manifest, profile: IPlugsProfile | undefined, item: IItemInit) {
+		const { states, entries, categories, plugs, objectives } = getSocketData(profile, item);
+
 		return item.sockets = (async (): Promise<(Socket | undefined)[]> => {
-			const { socketCategories, /*intrinsicSockets,*/ socketEntries } = item.definition.sockets ?? {};
-			const states = profile?.itemComponents?.sockets.data?.[item.reference.itemInstanceId!]?.sockets ?? [];
 
-			const plugs = profile?.itemComponents?.reusablePlugs.data?.[item.reference.itemInstanceId!]?.plugs ?? {};
-			const objectivesByPlug = profile?.itemComponents?.plugObjectives?.data?.[item.reference.itemInstanceId!]?.objectivesPerPlug ?? {};
-
-			const sockets = await Promise.all((socketEntries ?? [])
+			const sockets = await Promise.all((entries ?? [])
 				.map(async (definition, i) => Socket.resolve(manifest, {
 					definition,
 					state: states[i],
-					category: socketCategories?.find(category => category.socketIndexes.includes(i)),
+					category: categories?.find(category => category.socketIndexes.includes(i)),
 					plugs: plugs[i] ?? [],
-					objectives: objectivesByPlug,
+					objectives,
 				}, item, i)));
 
 			item.sockets = sockets;
-
 			return item.sockets;
 		})();
+	}
+
+	export async function refresh (manifest: Manifest, profile: IPlugsProfile | undefined, item: Item) {
+		const { states, categories, plugs, objectives } = getSocketData(profile, item);
+
+		for (let i = 0; i < item.sockets.length; i++) {
+			const socket = item.sockets[i];
+			await socket?.refresh(manifest, {
+				state: states[i],
+				category: categories?.find(category => category.socketIndexes.includes(i)),
+				plugs: plugs[i] ?? [],
+				objectives,
+			});
+		}
 	}
 }
 

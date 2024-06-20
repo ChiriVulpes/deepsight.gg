@@ -57,8 +57,10 @@ namespace Arrays {
 			if (!array.length)
 				break;
 
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			array[index] = swap;
+			if (index !== array.length)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				array[index] = swap;
+
 			removed = true;
 		}
 

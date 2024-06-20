@@ -124,7 +124,7 @@ class ItemPlugTooltip extends Tooltip {
 
 		const keywords: PromiseOr<DestinyTraitDefinition[]>[] = [];
 		const description: Display.DescriptionOptions = {
-			character: item?.owner,
+			character: item?.owner?.characterId,
 		};
 
 		this.subtitle.text.set(plug.is("=Masterwork/ExoticCatalyst") ? "Catalyst" : plug.definition?.itemTypeDisplayName ?? "Unknown");

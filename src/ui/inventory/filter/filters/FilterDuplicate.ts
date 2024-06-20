@@ -1,4 +1,7 @@
+import type Inventory from "model/models/Inventory";
 import Filter, { IFilter } from "ui/inventory/filter/Filter";
+
+declare const inventory: Inventory;
 
 export default IFilter.createBoolean({
 	id: Filter.Duplicate,
@@ -6,5 +9,5 @@ export default IFilter.createBoolean({
 	suggestedValues: ["duplicate"],
 	matches: value => "dupe".startsWith(value) || "duplicate".startsWith(value),
 	apply: (value, item) => value === ""
-		|| !!item.inventory?.getItems(i => i.id !== item.id && i.getBaseName() === item.getBaseName()).length,
+		|| !!inventory?.getItems(i => i.id !== item.id && i.getBaseName() === item.getBaseName()).length,
 });

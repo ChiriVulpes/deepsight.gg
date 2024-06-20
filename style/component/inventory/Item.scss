@@ -855,4 +855,18 @@ $z-index-loading: 1000;
 			margin-right: 0.15em;
 		}
 	}
+	
+	&--filtered-out:not(:focus-visible):not(:hover):not(:active) {
+		filter: grayscale(0.5);
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			inset: 0px;
+			z-index: 1000;
+			border: none;
+			box-shadow: none;
+			background: color(background-1, 0.8);
+		}
+	}
 }

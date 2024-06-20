@@ -34,7 +34,7 @@ export default class ItemTooltipPerks extends Component {
 					.style.set("--icon", Display.icon(perk.definition)))
 				.append(Component.create()
 					.classes.add(ItemTooltipPerksClasses.PerkDescription)
-					.tweak(Display.applyDescription, Display.description(perk.definition), item.character))
+					.tweak(Display.applyDescription, Display.description(perk.definition), item.character?.characterId))
 				.appendTo(this);
 		}
 	}

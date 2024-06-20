@@ -8,6 +8,7 @@ import { Classes } from "ui/Classes";
 import Component from "ui/Component";
 import type Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
+import type FilterManager from "ui/inventory/filter/FilterManager";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 import { InventorySlotViewHandler } from "ui/view/inventory/slot/IInventorySlotView";
@@ -42,9 +43,9 @@ export default class PostmasterBucket extends BucketComponent {
 			.appendTo(this.title);
 	}
 
-	public override setSortedBy (sort: SortManager) {
-		this.engrams.setSortedBy(sort);
-		return super.setSortedBy(sort);
+	public override setSortedAndFilteredBy (sort?: SortManager, filter?: FilterManager) {
+		this.engrams.setSortedAndFilteredBy(sort, filter);
+		return super.setSortedAndFilteredBy(sort, filter);
 	}
 
 	public override update () {

@@ -1,9 +1,11 @@
 import type { BucketId } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import type Component from "ui/Component";
+import type ItemComponent from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
 import BucketComponent from "ui/inventory/bucket/BucketComponent";
 import type InventoryView from "ui/view/inventory/InventoryView";
+import Arrays from "utility/Arrays";
 
 export enum CharacterBucketClasses {
 	Main = "view-inventory-character-bucket",
@@ -15,6 +17,7 @@ export enum CharacterBucketClasses {
 export default class CharacterBucket extends BucketComponent {
 
 	public equippedSlot!: Component;
+	public equippedItem?: ItemComponent;
 
 	protected override onMake (view: InventoryView, bucketId: BucketId): void {
 		super.onMake(view, bucketId);
@@ -48,10 +51,22 @@ export default class CharacterBucket extends BucketComponent {
 	}
 
 	public override render (requiredSlots = 9): void {
+		const equippedItemComponent = this.getItemComponent(this.bucket?.equippedItem);
+
 		super.render(requiredSlots);
-		this.view?.getItemComponent(this.bucket?.equippedItem)
-			?.setSortedBy(this.sorter)
-			?.appendTo(this.equippedSlot);
+
+		equippedItemComponent?.appendTo(this.equippedSlot);
+		if (equippedItemComponent && !this.itemComponents.includes(equippedItemComponent))
+			this.itemComponents.push(equippedItemComponent);
+
+		if (equippedItemComponent !== this.equippedItem) {
+			if (this.equippedSlot.contains(this.equippedItem?.element)) {
+				this.equippedItem?.remove();
+				Arrays.removeSwap(this.itemComponents, this.equippedItem);
+			}
+
+			this.equippedItem = equippedItemComponent;
+		}
 	}
 
 	public override shouldDisplayItem (item: Item): boolean {

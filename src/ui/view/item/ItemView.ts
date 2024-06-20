@@ -2,6 +2,7 @@ import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
+import ProfileBatch from "model/models/ProfileBatch";
 import type { ItemId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import Component from "ui/Component";
@@ -30,13 +31,13 @@ export async function resolveItemURL (url: string, api: IModelGenerationApi) {
 	const { DestinyInventoryItemDefinition } = manifest;
 
 	if (bucketId !== "collections")
-		return inventory.items?.[itemId];
+		return inventory.getItem(itemId);
 
 	const itemDef = await DestinyInventoryItemDefinition.get(itemId);
 	if (!itemDef)
 		return;
 
-	return Item.createFake(manifest, inventory.profile!, itemDef);
+	return Item.createFake(manifest, ProfileBatch.latest ?? {}, itemDef);
 }
 
 export enum ItemViewClasses {
@@ -151,7 +152,7 @@ const itemViewBase = View.create({
 		const damageType = await DestinyDamageTypeDefinition.get(item.instance?.damageTypeHash ?? item.definition.defaultDamageTypeHash);
 		const energyType = await DestinyEnergyTypeDefinition.get(energy?.energyTypeHash);
 
-		const character = inventory?.getCharacter(item.character);
+		const owner = item.owner;
 		const elementTypeName = (damageType?.displayProperties.name ?? energyType?.displayProperties.name ?? "Unknown").toLowerCase();
 		Component.create()
 			.classes.add(ItemViewClasses.PrimaryInfo)
@@ -164,7 +165,7 @@ const itemViewBase = View.create({
 				.style.set("--colour", ElementTypes.getColour(elementTypeName)))
 			.append(Component.create()
 				.classes.add(ItemViewClasses.PrimaryInfoPower)
-				.text.set(`${item.getPower() ?? character?.power ?? 0}`))
+				.text.set(`${item.getPower() ?? owner?.power ?? 0}`))
 			.append(ItemAmmo.create()
 				.classes.add(ItemViewClasses.PrimaryInfoAmmo)
 				.setItem(item))

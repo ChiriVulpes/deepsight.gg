@@ -306,8 +306,6 @@ class ItemTooltip extends Tooltip {
 		(window as any).$i = (window as any).item = item;
 		console.log(Display.name(item.definition), item);
 
-		const character = inventory?.getCharacter(item.character);
-
 		const { DestinyItemTierTypeDefinition, DestinyDamageTypeDefinition, DestinyClassDefinition } = await Manifest.await();
 
 		let tierHash = item.definition.inventory?.tierTypeHash;
@@ -347,7 +345,7 @@ class ItemTooltip extends Tooltip {
 			.classes.removeWhere(cls => cls.startsWith("item-tooltip-energy-type-"));
 
 		this.primaryStatValue
-			.text.set(`${primaryStat ?? character?.power ?? "0"}`)
+			.text.set(`${primaryStat ?? item.owner?.power ?? "0"}`)
 			.classes.toggle(damageType !== undefined, ItemTooltipClasses.PrimaryStatDamage);
 
 		this.primaryStatDamageIcon.classes.toggle(damageType === undefined, Classes.Hidden);
@@ -404,7 +402,7 @@ class ItemTooltip extends Tooltip {
 		if (showPattern) {
 			const complete = !!item.deepsight?.pattern?.progress?.complete;
 			this.deepsightPatternLabel
-				.text.set(inventory?.craftedItems.has(item.definition.hash) ? "You have already shaped this weapon."
+				.text.set(inventory?.isCrafted(item.definition.hash) ? "You have already shaped this weapon."
 					: complete ? "This weapon's pattern is unlocked."
 						: item.bucket.isCollections() ? "This weapon can be shaped."
 							: item.deepsight?.resonance ? "This [b]Pattern[/b] can be extracted."
@@ -442,13 +440,14 @@ class ItemTooltip extends Tooltip {
 
 		this.note.classes.add(Classes.Hidden);
 
-		const shaped = item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !inventory?.craftedItems.has(item.definition.hash);
+		const shaped = item.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !inventory?.isCrafted(item.definition.hash);
 		if (item.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress) {
 			this.note.classes.remove(Classes.Hidden);
 			this.note.text.set("This item has has not been acquired.");
 		}
 
-		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
+		const owner = item.owner;
+		const cls = !owner ? undefined : await DestinyClassDefinition.get(owner.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
 		this.hintPullToCharacter.label.text.set(`Pull to ${className}`);
 		this.hintEquipToCharacter.label.text.set(`Equip to ${className}`);

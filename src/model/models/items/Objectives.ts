@@ -21,7 +21,8 @@ namespace Objectives {
 			hash: objective.objectiveHash,
 			progress: objective,
 			plug,
-			definition: await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
+			definition: plug?.objectives?.find(e => e.hash === objective.objectiveHash)?.definition
+				?? await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
 		})));
 	}
 }

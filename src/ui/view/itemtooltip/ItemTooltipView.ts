@@ -32,7 +32,7 @@ export default View.create({
 		const item = view._args[1] = itemModel ?? view._args[1]! as Item;
 
 		console.log(item.definition.displayProperties.name, item);
-		const character = inventory.getCharacter(item.character);
+		const owner = item.owner;
 
 		const itemTooltip = ItemTooltip.createRaw()
 			.classes.add(ItemTooltipViewClasses.Tooltip);
@@ -47,26 +47,26 @@ export default View.create({
 			.classes.add(ItemTooltipViewClasses.Buttons)
 			.appendTo(view.content);
 
-		const cls = !character ? undefined : await DestinyClassDefinition.get(character.classHash);
+		const cls = !owner ? undefined : await DestinyClassDefinition.get(owner.classHash);
 		const className = cls?.displayProperties.name ?? "Unknown";
 		const inEngramBucket = item.reference.bucketHash === InventoryBucketHashes.Engrams;
 
-		if (!item.bucket.isCharacter() && !item.equipped && !inEngramBucket)
+		if (owner && !item.bucket.isCharacter() && !item.equipped && !inEngramBucket)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Pull to ${className}`)
 				.event.subscribe("click", () => {
-					void item.transferToCharacter(character.characterId);
+					void item.transferToCharacter(owner.characterId);
 					view.back();
 				})
 				.appendTo(buttons);
 
-		if (item.bucket.isCharacter() && !item.equipped)
+		if (owner && item.bucket.isCharacter() && !item.equipped)
 			Button.create()
 				.classes.add(ItemTooltipViewClasses.Button)
 				.text.set(`Equip to ${className}`)
 				.event.subscribe("click", () => {
-					void item.equip(character.characterId);
+					void item.equip(owner.characterId);
 					view.back();
 				})
 				.appendTo(buttons);

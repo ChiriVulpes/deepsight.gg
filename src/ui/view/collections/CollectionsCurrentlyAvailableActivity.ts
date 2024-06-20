@@ -1,5 +1,6 @@
 import type { DeepsightDropTableDefinition } from "@deepsight.gg/interfaces";
 import type { DestinyActivityDefinition } from "bungie-api-ts/destiny2";
+import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
@@ -130,7 +131,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 					?? Display.description(source.dropTable.displayProperties)
 					?? Display.description(activity)),
 				{
-					character: inventory?.currentCharacter?.characterId,
+					character: Characters.getCurrent()?.characterId,
 					singleLine: true,
 				})
 			.appendTo(this.content);

@@ -29,12 +29,12 @@ namespace Deepsight {
 		characterRecords?: DictionaryComponentResponse<DestinyCharacterRecordsComponent>;
 	}
 
-	export async function apply (manifest: Manifest, profile: IDeepsightProfile, item: Item | IItemInit) {
+	export async function apply (manifest: Manifest, profile: IDeepsightProfile | undefined, item: Item | IItemInit) {
 		item.shaped = item.bucket.isCollections() ? undefined : await resolveShaped(item);
 		item.deepsight = await resolve(manifest, profile, item);
 	}
 
-	async function resolve (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsight> {
+	async function resolve (manifest: Manifest, profile: IDeepsightProfile | undefined, item: IItemInit): Promise<IDeepsight> {
 		const pattern = await resolvePattern(manifest, profile, item);
 		return {
 			resonance: !item.bucket.isCollections() && await resolveResonance(item),
@@ -65,7 +65,7 @@ namespace Deepsight {
 		return sockets?.some(socket => socket?.socketedPlug?.is("Extractable/DeepsightActivation"));
 	}
 
-	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile, item: IItemInit): Promise<IDeepsightPattern | undefined> {
+	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile | undefined, item: IItemInit): Promise<IDeepsightPattern | undefined> {
 		const { DestinyCollectibleDefinition, DestinyRecordDefinition } = manifest;
 
 		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")
@@ -90,10 +90,10 @@ namespace Deepsight {
 		};
 	}
 
-	function resolvePatternProgress (record: DestinyRecordDefinition, profile: IDeepsightProfile, item: IItemInit) {
+	function resolvePatternProgress (record: DestinyRecordDefinition, profile: IDeepsightProfile | undefined, item: IItemInit) {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const progress = profile.profileRecords?.data?.records[record?.hash]
-			?? Object.values(profile.characterRecords?.data ?? {}) // bungie bad, sometimes patterns are character scoped
+		const progress = profile?.profileRecords?.data?.records[record?.hash]
+			?? Object.values(profile?.characterRecords?.data ?? {}) // bungie bad, sometimes patterns are character scoped
 				.map(records => records.records[record?.hash])
 				.find(record => record);
 

@@ -11,7 +11,7 @@ import URL from "utility/URL";
 
 export interface IModelEvents<R> {
 	loading: Event;
-	loaded: { value: R };
+	loaded: { value: R, fresh: boolean };
 	errored: { error: Error };
 	loadUpdate: { progress: number, messages: string[] };
 	invalidCache: Event;
@@ -211,7 +211,7 @@ namespace Model {
 				this._latest = this.value = (this.model.process?.(cached.value) ?? cached.value ?? null) as R;
 				this.cacheTime = cached.cacheTime;
 				this.version = cached.version;
-				this.event.emit("loaded", { value: this.value ?? undefined as any as R });
+				this.event.emit("loaded", { value: this.value ?? undefined as any as R, fresh: false });
 				return this.value ?? undefined as any as R;
 			}
 
@@ -387,14 +387,17 @@ namespace Model {
 				void Model.cacheDB.set("models", this.name, cached);
 			}
 
-			this.event.emit("loaded", { value: filtered });
+			this.event.emit("loaded", { value: filtered, fresh: true });
 			if (this.name)
 				console.debug(`${!this.model.cache || this.model.cache === "Memory" ? "Loaded" : "Cached"} data for '${this.name}'`);
 
 			return filtered;
 		}
 
-		public async await () {
+		public async await (api?: IModelGenerationApi, amount = 1, from = 0) {
+			if (api)
+				return api.subscribeProgressAndWait(this, amount, from);
+
 			return this.get() ?? (await Promise.resolve(this.value)) ?? undefined as any as R | Promise<R>;
 		}
 	}

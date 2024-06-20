@@ -97,7 +97,7 @@ export default class ItemTooltipSource extends Component {
 						?? Display.description(source.dropTable.displayProperties)
 						?? Display.description(activity)),
 					{
-						character: item.owner,
+						character: item.owner?.characterId,
 						singleLine: true,
 					})
 				.appendTo(activityComponent);

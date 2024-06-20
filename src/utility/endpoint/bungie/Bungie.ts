@@ -145,7 +145,7 @@ export class BungieAPI {
 	private async requestToken (type: "new" | "refresh") {
 		const idString = type === "refresh" ? BungieID.stringify(ProfileManager.get()?.id) ?? "" : "";
 
-		const storeProfile = ProfileManager.byId(idString);
+		let storeProfile = ProfileManager.byId(idString);
 		if (!storeProfile)
 			// no profile to request token for
 			return false;
@@ -167,14 +167,15 @@ export class BungieAPI {
 			return false;
 		}
 
-		storeProfile.accessToken = result.access_token;
-		storeProfile.accessTokenExpireTime = Date.now() + result.expires_in * 1000;
-		storeProfile.accessTokenMembershipId = result.membership_id;
-		storeProfile.accessTokenRefreshExpireTime = Date.now() + result.refresh_expires_in * 1000;
-		storeProfile.accessTokenRefreshToken = result.refresh_token;
-		storeProfile.lastModified = new Date().toISOString();
 
-		ProfileManager.update(idString, storeProfile);
+		storeProfile = ProfileManager.update(idString, {
+			accessToken: result.access_token,
+			accessTokenExpireTime: Date.now() + result.expires_in * 1000,
+			accessTokenMembershipId: result.membership_id,
+			accessTokenRefreshExpireTime: Date.now() + result.refresh_expires_in * 1000,
+			accessTokenRefreshToken: result.refresh_token,
+			lastModified: new Date().toISOString(),
+		});
 
 		if (type === "refresh") {
 			this.event.emit("authenticated", { authType: type });

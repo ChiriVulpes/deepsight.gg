@@ -3,7 +3,6 @@ import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import BungieID from "utility/BungieID";
 import ProfileManager from "utility/ProfileManager";
-import type { IProfileStorage } from "utility/Store";
 import Store from "utility/Store";
 import Time from "utility/Time";
 import GetProfile from "utility/endpoint/bungie/endpoint/destiny2/GetProfile";
@@ -212,26 +211,24 @@ function Profile<COMPONENTS extends DestinyComponentType[]> (...components: COMP
 			result.bungieID = account.id;
 			result.lastModified = new Date(newData._headers.get("Last-Modified") ?? Date.now());
 
-			const profiles = Store.items.profiles ?? {};
 			const currentCharacter = Object.values(result.characters.data ?? {})
 				?.sort(({ dateLastPlayed: dateLastPlayedA }, { dateLastPlayed: dateLastPlayedB }) =>
 					new Date(dateLastPlayedB).getTime() - new Date(dateLastPlayedA).getTime())
 				?.[0];
 
-			const profile: IProfileStorage = profiles[idString] = {
-				...account.data, // merge with previous profile data
+			let profile = ProfileManager.update(account.id, {
 				lastModified: result.lastModified.toISOString(),
 				emblemHash: currentCharacter?.emblemHash,
 				class: currentCharacter?.classType,
-			};
+			});
 
 			if (profile.callsign === undefined || !profile.callsignLastModified || Date.now() - new Date(profile.callsignLastModified).getTime() > Time.hours(1)) {
 				const clan = await GetUserClan.query(account.data.membershipType!, account.data.membershipId!);
-				profile.callsign = clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "";
-				profile.callsignLastModified = new Date().toISOString();
+				profile = ProfileManager.update(account.id, {
+					callsign: clan?.results?.[0]?.group?.clanInfo?.clanCallsign ?? "",
+					callsignLastModified: new Date().toISOString(),
+				});
 			}
-
-			Store.items.profiles = profiles;
 
 			for (let i = 0; i < components.length; i++) {
 				const component = components[i];

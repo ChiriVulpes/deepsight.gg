@@ -57,7 +57,7 @@ export class Loadout {
 	@Bound
 	private onInventoryUpdate () {
 		for (const component of this.items) {
-			component.item = this.inventory?.items?.[component.itemInstanceId as ItemId];
+			component.item = this.inventory?.getItem(component.itemInstanceId as ItemId);
 		}
 
 		// console.log("Updated loadout", this);

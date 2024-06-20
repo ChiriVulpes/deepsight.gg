@@ -12,7 +12,7 @@ interface IFilterPerkSuggestedValue extends IFilterSuggestedValue {
 
 export default IFilter.async(async () => {
 	const inventory = await Inventory.await();
-	const perks = [...new Map(Object.values(inventory.items ?? {})
+	const perks = inventory.getItems()
 		.flatMap(item => item.getSockets("Perk", "Intrinsic"))
 		.flatMap(socket => socket.plugs)
 		.map((plug): IFilterPerkSuggestedValue | undefined => !Display.name(plug.definition) ? undefined : {
@@ -22,7 +22,9 @@ export default IFilter.async(async () => {
 		})
 		.filter(Arrays.filterFalsy)
 		.sort((a, b) => a.name.localeCompare(b.name))
-		.map(plug => [plug.name, plug])).values()];
+		.toMap(plug => [plug.name, plug] as const)
+		.values()
+		.toArray();
 
 	function getMatchingPerk (filterValue: string) {
 		filterValue = filterValue.toLowerCase();

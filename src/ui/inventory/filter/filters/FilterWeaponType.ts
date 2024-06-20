@@ -19,11 +19,12 @@ export default IFilter.async(async () => {
 		prefix: "type:",
 		colour: 0x333333,
 		suggestedValueHint: "weapon type name",
-		suggestedValues: [...new Set(Object.values(inventory.items ?? {})
+		suggestedValues: inventory.getItems()
 			.filter(item => item.definition.itemType === DestinyItemType.Weapon)
 			.map(item => item.definition.itemTypeDisplayName)
 			.filter(Arrays.filterFalsy)
-			.sort())],
+			.sort()
+			.distinct(),
 		or: true,
 		apply: (value, item) => {
 			item.definition.itemTypeDisplayNameLowerCase ??= (item.definition.itemTypeDisplayName ?? "Unknown").toLowerCase();

@@ -1,6 +1,8 @@
 import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Profile from "model/models/Profile";
+import IStateModification from "model/models/state/IStateModification";
+import LoadingManager from "ui/LoadingManager";
 import Time from "utility/Time";
 
 const allComponentTypes = [
@@ -85,6 +87,13 @@ const ProfileBatch = Model.createDynamic(Time.seconds(30), async api => {
 	Object.assign(window, { profile });
 	return profile;
 }, "Profile");
+
+
+ProfileBatch.event.subscribe("loading", () => LoadingManager.start("profile"));
+ProfileBatch.event.subscribe("loaded", () => {
+	IStateModification.apply(ProfileBatch.latest!);
+	LoadingManager.end("profile");
+});
 
 type ProfileBatch = Model.Resolve<typeof ProfileBatch>;
 

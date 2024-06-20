@@ -551,20 +551,6 @@
 		}
 	}
 
-	&-item-filtered-out:not(:focus-visible):not(:hover):not(:active) {
-		filter: grayscale(0.5);
-		&::after {
-			content: "";
-			display: block;
-			position: absolute;
-			inset: 0px;
-			z-index: 1000;
-			border: none;
-			box-shadow: none;
-			background: color(background-1, 0.8);
-		}
-	}
-
 	&-postmaster-bucket {
 		--slot-size: calc((var(--bucket-inventory-inner-width) - var(--card-content-padding, 8px) * 2) / 7);
 		&s {

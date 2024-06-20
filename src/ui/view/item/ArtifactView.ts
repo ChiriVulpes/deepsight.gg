@@ -1,6 +1,7 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
+import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { CharacterId } from "model/models/items/Item";
@@ -18,7 +19,7 @@ import Strings from "utility/Strings";
 export async function resolveArtifactURL (url: string | undefined, api: IModelGenerationApi) {
 	const inventory = await api.subscribeProgressAndWait(Inventory.createModel(), 1 / 4, 2 / 4);
 	url = !url ? url : Strings.sliceTo(url, "/");
-	return inventory.getBucket(InventoryBucketHashes.SeasonalArtifact, (url ?? inventory.currentCharacter?.characterId) as CharacterId | undefined)?.equippedItem;
+	return inventory.getBucket(InventoryBucketHashes.SeasonalArtifact, (url ?? Characters.getCurrent()?.characterId) as CharacterId | undefined)?.equippedItem;
 }
 
 enum ArtifactViewClasses {

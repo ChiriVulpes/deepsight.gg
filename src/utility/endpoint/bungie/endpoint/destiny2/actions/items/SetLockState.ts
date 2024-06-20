@@ -14,7 +14,7 @@ export default BungieEndpoint
 			body: {
 				state: locked,
 				itemId: item.reference.itemInstanceId,
-				characterId: item.owner,
+				characterId: item.owner?.characterId,
 				membershipType: ProfileManager.get()?.data.membershipType,
 			},
 		} as EndpointRequest;

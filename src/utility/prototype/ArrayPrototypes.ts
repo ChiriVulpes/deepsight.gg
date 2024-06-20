@@ -1,6 +1,9 @@
 import Define from "../Define";
 
 declare global {
+
+	type ArrayToEntryMapper<T, KEY, VALUE> = (value: T) => readonly [KEY, VALUE, ...any[]];
+
 	interface Array<T> {
 		/**
 		 * Returns the value of the last element in the array where predicate is true, and undefined
@@ -52,8 +55,12 @@ declare global {
 		splat<RETURN, ARGS extends any[] = []> (collector?: (...args: [...T[], ...ARGS]) => RETURN, ...args: ARGS): RETURN | undefined;
 
 		toObject (): T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never;
-		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper: MAPPER): Record<KEY, VALUE>;
-		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper?: MAPPER): Record<KEY, VALUE> | (T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never);
+		toObject<MAPPER extends ArrayToEntryMapper<T, string | number, unknown>> (mapper: MAPPER): MAPPER extends ArrayToEntryMapper<T, infer KEY extends string | number, infer VALUE> ? Record<KEY, VALUE> : never;
+		toObject<MAPPER extends ArrayToEntryMapper<T, string | number, unknown>> (mapper?: MAPPER): (MAPPER extends ArrayToEntryMapper<T, infer KEY extends string | number, infer VALUE> ? Record<KEY, VALUE> : never) | (T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never);
+
+		toMap (): T extends readonly [infer KEY, infer VALUE, ...any[]] ? Map<KEY, VALUE> : never;
+		toMap<MAPPER extends ArrayToEntryMapper<T, KEY, VALUE>, KEY, VALUE> (mapper: MAPPER): MAPPER extends ArrayToEntryMapper<T, infer KEY, infer VALUE> ? Map<KEY, VALUE> : never;
+		toMap<MAPPER extends ArrayToEntryMapper<T, KEY, VALUE>, KEY, VALUE> (mapper?: MAPPER): (MAPPER extends ArrayToEntryMapper<T, infer KEY, infer VALUE> ? Map<KEY, VALUE> : never) | (T extends readonly [infer KEY, infer VALUE, ...any[]] ? Map<KEY, VALUE> : never);
 
 		distinct (): this;
 		distinct (mapper: (value: T) => any): this;
@@ -123,6 +130,10 @@ export default function applyPrototypes () {
 
 	Define(Array.prototype, "toObject", function (mapper) {
 		return Object.fromEntries(mapper ? this.map(mapper) : this);
+	});
+
+	Define(Array.prototype, "toMap", function (mapper) {
+		return new Map(mapper ? this.map(mapper) : this);
 	});
 
 	Define(Array.prototype, "distinct", function <T> (this: T[], mapper?: (value: T) => any) {

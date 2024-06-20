@@ -96,7 +96,7 @@ export default class ItemPerks extends ItemSockets {
 			return;
 		}
 
-		if (this.inventory.craftedItems.has(this.item.definition.hash)) {
+		if (this.inventory.isCrafted(this.item.definition.hash)) {
 			delete Store.items[`item${this.item.definition.hash}PerkWishlists`];
 			return;
 		}

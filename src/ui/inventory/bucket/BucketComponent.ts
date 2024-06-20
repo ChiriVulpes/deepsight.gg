@@ -5,8 +5,10 @@ import { Bucket, type BucketId } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
 import Card from "ui/Card";
 import type Component from "ui/Component";
+import { ItemClasses } from "ui/inventory/IItemComponent";
 import type ItemComponent from "ui/inventory/ItemComponent";
 import Slot from "ui/inventory/Slot";
+import type FilterManager from "ui/inventory/filter/FilterManager";
 import type SortManager from "ui/inventory/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
@@ -31,6 +33,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	private _view?: WeakRef<InventoryView>;
 	private _sort?: WeakRef<SortManager>;
+	private _filter?: WeakRef<FilterManager>;
 
 	public get view () {
 		return this._view?.deref();
@@ -42,7 +45,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 	}
 
 	public get bucket () {
-		return this.view?.inventory.buckets?.[this.bucketId];
+		return this.view?.inventory.getBucket(this.bucketId);
 	}
 
 	public get owner () {
@@ -57,6 +60,10 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	public get sorter () {
 		return this._sort?.deref();
+	}
+
+	public get filterer () {
+		return this._filter?.deref();
 	}
 
 	public items!: Item[];
@@ -92,8 +99,9 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		this.dropTargets.push({ component, equipped: equipped ?? false });
 	}
 
-	public setSortedBy (sort: SortManager) {
-		this._sort = new WeakRef(sort);
+	public setSortedAndFilteredBy (sort?: SortManager, filter?: FilterManager) {
+		this._sort = sort && new WeakRef(sort);
+		this._filter = filter && new WeakRef(filter);
 		this.update();
 		return this;
 	}
@@ -102,6 +110,12 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 		const updated = this.sort();
 		if (updated) {
 			this.render();
+		}
+
+		for (const item of this.itemComponents) {
+			const filteredOut = !!item.item && !!this.filterer && !this.filterer.apply(item.item);
+			item.classes.toggle(filteredOut, ItemClasses._FilteredOut)
+				.attributes.toggle(filteredOut, "tabindex", "-1");
 		}
 
 		return updated;
@@ -113,14 +127,14 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	public render (requiredSlots = 0) {
 		const oldSlots = this.slots.splice(0, Infinity);
-		this.itemComponents.splice(0, Infinity);
+		const newItemComponents: ItemComponent[] = [];
 
 		let displayedItems = 0;
 		for (const item of this.items) {
 			if (item && !this.shouldDisplayItem(item))
 				continue;
 
-			const itemComponent = this.view?.getItemComponent(item)?.setSortedBy(this.getSorter(item));
+			const itemComponent = this.getItemComponent(item);
 			if (!itemComponent)
 				continue;
 
@@ -129,7 +143,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 				.append(itemComponent)
 				.appendTo(this.content);
 
-			this.itemComponents.push(itemComponent);
+			newItemComponents.push(itemComponent);
 			this.slots.push(slot);
 		}
 
@@ -140,6 +154,8 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 		for (const slot of oldSlots)
 			slot.remove();
+
+		this.itemComponents = newItemComponents;
 	}
 
 	public createEmptySlot () {
@@ -148,6 +164,23 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 	protected getSorter (item: Item) {
 		return this.sorter;
+	}
+
+	protected getItemComponent (item?: Item) {
+		if (!item)
+			return undefined;
+
+		let component = this.itemComponents.find(c => c.item?.id === item.id);
+		if (!component) {
+			component = this.view?.createItemComponent(item)
+				?.setSortedBy(this.getSorter(item));
+
+			if (component)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				this.itemComponents.push(component);
+		}
+
+		return component;
 	}
 
 	private sortHash?: string;

@@ -31,6 +31,14 @@ export interface IProfileStorage {
 	accessTokenRefreshToken?: string;
 	membershipType?: BungieMembershipType;
 	membershipId?: string;
+
+	// inventory
+	stateModifications?: IStateModification[];
+}
+
+export interface IStateModification {
+	type: string;
+	time: number;
 }
 
 export interface IProfile {
