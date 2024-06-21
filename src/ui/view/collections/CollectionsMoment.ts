@@ -102,6 +102,11 @@ export default class CollectionsMoment extends Details<[moment: DeepsightMomentD
 			})
 			.setSimple()
 			.appendTo(this);
+
+		inventory?.event.subscribe("update", () => {
+			this.sort();
+			this.filter();
+		});
 	}
 
 	public sort () {

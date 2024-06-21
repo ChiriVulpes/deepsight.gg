@@ -106,10 +106,11 @@ export default class Inventory {
 		await ProfileBatch.await(api, amount, from);
 	}
 
+	private hadInitialLoad = false;
 	private refreshPromise?: Promise<void>;
 	private refreshWatchers: { api: IModelGenerationApi, amount: number, from: number }[] = [];
 	private async await (api?: IModelGenerationApi, amount = 1, from = 0) {
-		if (!this.refreshPromise)
+		if (!this.refreshPromise || this.hadInitialLoad)
 			return;
 
 		if (api)
@@ -143,11 +144,11 @@ export default class Inventory {
 
 		for (const { api, from, amount } of this.refreshWatchers)
 			api.emitProgress(from + amount * (1 / 4) + amount * (1 / 4) * (3 / 5), "Loading moments");
-		await DeepsightMomentDefinition.all();
+		const moments = await DeepsightMomentDefinition.all();
 
 		for (const { api, from, amount } of this.refreshWatchers)
 			api.emitProgress(from + amount * (1 / 4) + amount * (1 / 4) * (4 / 5), "Loading collections");
-		await DeepsightCollectionsDefinition.all();
+		const collections = await DeepsightCollectionsDefinition.all();
 
 
 		let lastForcedTimeoutForStyle = Date.now();
@@ -291,9 +292,6 @@ export default class Inventory {
 		for (const { api, from, amount } of this.refreshWatchers)
 			api.emitProgress(from + amount * (3 / 4), "Loading collections");
 
-		const collections = await DeepsightCollectionsDefinition.all();
-		const moments = await DeepsightMomentDefinition.all();
-
 		const collectionsBucketHashes = new Set<InventoryBucketHashes>();
 		const totalItemsToInit = collections.flatMap(moment => Object.values(moment.buckets)).flat().length;
 		let initItems = 0;
@@ -318,11 +316,17 @@ export default class Inventory {
 							...momentName ? [momentName] : [],
 						]);
 
-					const definition = await DestinyInventoryItemDefinition.get(hash);
-					if (!definition)
-						continue;
+					let item = Bucket.COLLECTIONS.items.find(item => item.definition.hash === hash);
+					if (!item) {
+						const definition = await DestinyInventoryItemDefinition.get(hash);
+						if (!definition)
+							continue;
 
-					Bucket.COLLECTIONS.addItems(await Item.createFake(manifest, profile, definition));
+						item = await Item.createFake(manifest, profile, definition);
+						Bucket.COLLECTIONS.addItems(item);
+					}
+
+					await item.refresh(manifest, profile);
 				}
 			}
 		}
@@ -337,9 +341,19 @@ export default class Inventory {
 
 		this.event.emit("update");
 		delete this.refreshPromise;
+		this.hadInitialLoad = true;
 	}
 
-	@Bound private onProfileUpdate () {
+	private refreshQueued = false;
+	@Bound private async onProfileUpdate () {
+		if (this.refreshQueued)
+			return;
+
+		this.refreshQueued = true;
+		while (this.refreshPromise)
+			await this.refreshPromise;
+
+		this.refreshQueued = false;
 		this.refreshPromise = this.refresh();
 	}
 
