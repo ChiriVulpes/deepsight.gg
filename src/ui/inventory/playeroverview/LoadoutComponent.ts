@@ -13,11 +13,12 @@ export enum LoadoutClasses {
 	ImageBackground = "loadout-image-background",
 	Number = "loadout-number",
 	_Empty = "loadout--empty",
+	_Unknown = "loadout--unknown",
 }
 
 export default class LoadoutComponent extends Component {
 
-	public loadout!: Loadout;
+	public loadout?: Loadout;
 
 	public imageWrapper!: Component;
 	public icon!: LoadedIcon;
@@ -51,13 +52,14 @@ export default class LoadoutComponent extends Component {
 		});
 	}
 
-	public set (loadout: Loadout) {
+	public set (index: number, loadout?: Loadout) {
 		this.loadout = loadout;
-		this.number.text.set(`${loadout.index + 1}`);
-		this.style.set("--index", `${loadout.index}`);
-		this.background.setPath(this.loadout.colour && `https://www.bungie.net${this.loadout.colour.colorImagePath}`);
-		this.icon.setPath(this.loadout.icon && `https://www.bungie.net${this.loadout.icon.iconImagePath}`);
-		this.classes.toggle(loadout.isEmpty(), LoadoutClasses._Empty);
+		this.number.text.set(`${index + 1}`);
+		this.style.set("--index", `${index}`);
+		this.background.setPath(this.loadout?.colour && `https://www.bungie.net${this.loadout.colour.colorImagePath}`);
+		this.icon.setPath(this.loadout?.icon && `https://www.bungie.net${this.loadout.icon.iconImagePath}`);
+		this.classes.toggle(loadout?.isEmpty() ?? false, LoadoutClasses._Empty);
+		this.classes.toggle(!loadout, LoadoutClasses._Unknown);
 		return this;
 	}
 }

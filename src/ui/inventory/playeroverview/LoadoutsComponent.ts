@@ -24,7 +24,7 @@ export default class LoadoutsComponent extends Component {
 	public set (inventory: Inventory, character: Character) {
 		for (let i = 0; i < 10; i++) {
 			const loadout = character.loadouts[i];
-			this.loadouts[i].set(loadout);
+			this.loadouts[i].set(i, loadout);
 		}
 	}
 }

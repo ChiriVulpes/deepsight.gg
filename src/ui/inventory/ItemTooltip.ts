@@ -488,9 +488,9 @@ class ItemTooltip extends Tooltip {
 		this.loadoutsWrapper.classes.toggle(!loadouts.length, Classes.Hidden);
 		if (loadouts.length)
 			this.loadouts.removeContents()
-				.append(...loadouts.map(loadout => LoadoutComponent.create([])
+				.append(...loadouts.map((loadout, i) => LoadoutComponent.create([])
 					.classes.add(ItemTooltipClasses.Loadout)
-					.set(loadout)));
+					.set(i, loadout)));
 
 		this.extra.classes.toggle(!flavour && !this.detailedMods.hasContents() && !source, Classes.Hidden);
 	}

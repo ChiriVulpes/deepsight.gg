@@ -81,7 +81,7 @@
 		font-family: $font-numeric;
 	}
 	
-	&--empty {
+	&--empty, &--unknown {
 		.loadout-image-wrapper {
 			&::before {
 				mix-blend-mode: normal;
@@ -121,6 +121,16 @@
 		&:where(:hover, :active, :focus-visible)::after {
 			@include transition(in);
 			border: 2px solid #fff8;
+		}
+	}
+	
+	&--unknown {
+		.loadout-image-wrapper {
+			&::before {
+				clip-path: none;
+				mask-image: url("./image/svg/help.svg");
+				margin: 20%;
+			}
 		}
 	}
 }

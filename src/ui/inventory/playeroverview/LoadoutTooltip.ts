@@ -16,12 +16,12 @@ class LoadoutTooltip extends Tooltip {
 		this.content.append(Component.create().text.set("This feature is a work-in-progress. Stay tuned!"));
 	}
 
-	public set (loadout: Loadout) {
+	public set (loadout?: Loadout) {
 		Object.assign(window, { loadout });
-		console.log(loadout.isEmpty() ? "Empty" : loadout.name?.name ?? "Unknown", loadout);
+		console.log(loadout?.isEmpty() ? "Empty" : loadout?.name?.name ?? "Unknown", loadout);
 
 		this.loadout = loadout;
-		this.title.text.set(loadout.name?.name ?? "Save New Loadout");
+		this.title.text.set(!loadout ? "Unknown Loadout" : loadout.name?.name ?? "Save New Loadout");
 	}
 }
 
