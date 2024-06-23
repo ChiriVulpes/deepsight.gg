@@ -1,9 +1,9 @@
-import Filter from "ui/inventory/filter/Filter";
-import type { IFilterManagerConfiguration } from "ui/inventory/filter/FilterManager";
-import FilterManager from "ui/inventory/filter/FilterManager";
-import Sort from "ui/inventory/sort/Sort";
-import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
-import SortManager from "ui/inventory/sort/SortManager";
+import Filter from "ui/destiny/filter/Filter";
+import type { IFilterManagerConfiguration } from "ui/destiny/filter/FilterManager";
+import FilterManager from "ui/destiny/filter/FilterManager";
+import Sort from "ui/destiny/sort/Sort";
+import type { ISortManagerConfiguration } from "ui/destiny/sort/SortManager";
+import SortManager from "ui/destiny/sort/SortManager";
 import InventorySlotView from "ui/view/inventory/slot/InventorySlotView";
 
 export const SORTS_DEFAULT_EQUIPMENT = [Sort.Rarity, Sort.Masterwork, Sort.Name] as const;

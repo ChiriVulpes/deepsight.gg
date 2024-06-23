@@ -3,8 +3,8 @@ import type { DestinyItemComponent } from "bungie-api-ts/destiny2";
 import { ItemState } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type LoadedIcon from "ui/bungie/LoadedIcon";
-import ItemComponent from "ui/inventory/ItemComponent";
+import type LoadedIcon from "ui/component/LoadedIcon";
+import ItemComponent from "ui/destiny/component/ItemComponent";
 import Env from "utility/Env";
 import type { Mutable } from "utility/Type";
 

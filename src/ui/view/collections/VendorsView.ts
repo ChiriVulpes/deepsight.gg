@@ -1,7 +1,7 @@
 import { VendorGroupHashes } from "deepsight.gg/Enums";
 import Manifest from "model/models/Manifest";
-import Component from "ui/Component";
-import View from "ui/View";
+import Component from "ui/component/Component";
+import View from "ui/view/View";
 import VendorView from "ui/view/collections/VendorView";
 import VendorDisplay from "ui/view/collections/vendor/VendorDisplay";
 

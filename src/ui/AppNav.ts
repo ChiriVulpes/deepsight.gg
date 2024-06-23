@@ -1,16 +1,16 @@
-import { Classes } from "ui/Classes";
-import Component from "ui/Component";
-import Button from "ui/form/Button";
 import PlayerOverview from "ui/PlayerOverview";
-import type { IKeyEvent } from "ui/UiEventBus";
-import UiEventBus from "ui/UiEventBus";
-import type View from "ui/View";
+import Button from "ui/component/Button";
+import Component from "ui/component/Component";
+import { Classes } from "ui/utility/Classes";
+import type { IKeyEvent } from "ui/utility/UiEventBus";
+import UiEventBus from "ui/utility/UiEventBus";
+import type ViewManager from "ui/utility/ViewManager";
+import type View from "ui/view/View";
 import AppInfo from "ui/view/appnav/AppInfo";
-import type ViewManager from "ui/ViewManager";
-import Bound from "utility/decorator/Bound";
-import Bungie from "utility/endpoint/bungie/Bungie";
 import Store from "utility/Store";
 import URL from "utility/URL";
+import Bound from "utility/decorator/Bound";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum ClassesAppNav {
 	Main = "app-nav",

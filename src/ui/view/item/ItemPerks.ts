@@ -1,18 +1,18 @@
 import { ItemCategoryHashes } from "@deepsight.gg/enums";
-import { CardClasses } from "ui/Card";
-import { Classes } from "ui/Classes";
-import type { ComponentEventManager, ComponentEvents } from "ui/Component";
-import Component from "ui/Component";
-import Button, { ButtonClasses } from "ui/form/Button";
-import Checkbox from "ui/form/Checkbox";
-import Drawer from "ui/form/Drawer";
-import type { IKeyEvent } from "ui/UiEventBus";
-import UiEventBus from "ui/UiEventBus";
+import Button, { ButtonClasses } from "ui/component/Button";
+import { CardClasses } from "ui/component/Card";
+import type { ComponentEventManager, ComponentEvents } from "ui/component/Component";
+import Component from "ui/component/Component";
+import Drawer from "ui/component/Drawer";
+import Checkbox from "ui/component/form/Checkbox";
+import { Classes } from "ui/utility/Classes";
+import type { IKeyEvent } from "ui/utility/UiEventBus";
+import UiEventBus from "ui/utility/UiEventBus";
 import type { ItemSocket } from "ui/view/item/ItemSockets";
 import ItemSockets, { ItemSocketsClasses } from "ui/view/item/ItemSockets";
-import Bound from "utility/decorator/Bound";
 import type { IItemPerkWishlist } from "utility/Store";
 import Store from "utility/Store";
+import Bound from "utility/decorator/Bound";
 
 export enum ItemPerksClasses {
 	Main = "view-item-perks",

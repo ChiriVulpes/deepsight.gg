@@ -1,10 +1,10 @@
 import WallpaperMoments from "model/models/WallpaperMoments";
-import Card from "ui/Card";
-import Component from "ui/Component";
-import Button, { ButtonClasses } from "ui/form/Button";
-import Checkbox from "ui/form/Checkbox";
-import RangeInput from "ui/form/RangeInput";
-import Loadable from "ui/Loadable";
+import Button, { ButtonClasses } from "ui/component/Button";
+import Card from "ui/component/Card";
+import Component from "ui/component/Component";
+import Loadable from "ui/component/Loadable";
+import Checkbox from "ui/component/form/Checkbox";
+import RangeInput from "ui/component/form/RangeInput";
 import Env from "utility/Env";
 import Store from "utility/Store";
 

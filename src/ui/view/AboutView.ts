@@ -1,5 +1,5 @@
-import Component from "ui/Component";
-import View from "ui/View";
+import Component from "ui/component/Component";
+import View from "ui/view/View";
 import DocumentationPage from "ui/view/documentation/DocumentationPage";
 
 export enum AboutViewClasses {

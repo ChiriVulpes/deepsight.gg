@@ -10,7 +10,7 @@ import { Bucket } from "model/models/items/Bucket";
 import type { CharacterId, ItemId } from "model/models/items/Item";
 import Item from "model/models/items/Item";
 import IStateModification from "model/models/state/IStateModification";
-import FocusManager from "ui/FocusManager";
+import FocusManager from "ui/utility/FocusManager";
 import Async from "utility/Async";
 import type { EventParameter } from "utility/EventManager";
 import { EventManager } from "utility/EventManager";

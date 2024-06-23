@@ -1,5 +1,5 @@
-import Component from "ui/Component";
-import List from "ui/List";
+import Component from "ui/component/Component";
+import List from "ui/component/List";
 
 export enum DocumentationCardClasses {
 	Main = "documentation-card",

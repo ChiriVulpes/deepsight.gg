@@ -1,4 +1,4 @@
-import Component from "ui/Component";
+import Component from "ui/component/Component";
 import Env from "utility/Env";
 
 enum TextLogoClasses {

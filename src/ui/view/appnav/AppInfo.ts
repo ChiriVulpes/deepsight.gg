@@ -1,10 +1,10 @@
-import { Classes } from "ui/Classes";
-import Component from "ui/Component";
-import Button from "ui/form/Button";
-import Drawer from "ui/form/Drawer";
-import Loadable from "ui/Loadable";
-import LoadingManager from "ui/LoadingManager";
 import TextLogo from "ui/TextLogo";
+import Button from "ui/component/Button";
+import Component from "ui/component/Component";
+import Drawer from "ui/component/Drawer";
+import Loadable from "ui/component/Loadable";
+import { Classes } from "ui/utility/Classes";
+import LoadingManager from "ui/utility/LoadingManager";
 import AboutView from "ui/view/AboutView";
 import Env from "utility/Env";
 

@@ -3,13 +3,13 @@ import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { Perk, Plug, PlugType, Socket } from "model/models/items/Plugs";
-import Display from "ui/bungie/DisplayProperties";
-import Card, { CardClasses } from "ui/Card";
-import { Classes } from "ui/Classes";
-import type { ComponentEventManager, ComponentEvents } from "ui/Component";
-import Component from "ui/Component";
-import Button from "ui/form/Button";
-import ItemPlugTooltip from "ui/inventory/ItemPlugTooltip";
+import Button from "ui/component/Button";
+import Card, { CardClasses } from "ui/component/Card";
+import type { ComponentEventManager, ComponentEvents } from "ui/component/Component";
+import Component from "ui/component/Component";
+import ItemPlugTooltip from "ui/destiny/tooltip/ItemPlugTooltip";
+import { Classes } from "ui/utility/Classes";
+import Display from "ui/utility/DisplayProperties";
 
 export enum ItemSocketsClasses {
 	Main = "view-item-sockets",

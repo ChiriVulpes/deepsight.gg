@@ -1,17 +1,17 @@
 import Activities from "model/models/Activities";
 import AppNav from "ui/AppNav";
-import Background from "ui/BackgroundManager";
-import UiEventBus from "ui/UiEventBus";
+import Background from "ui/component/BackgroundManager";
+import UiEventBus from "ui/utility/UiEventBus";
+import ViewManager from "ui/utility/ViewManager";
 import AuthView from "ui/view/AuthView";
-import ViewManager from "ui/ViewManager";
 import BungieID from "utility/BungieID";
-import Bound from "utility/decorator/Bound";
-import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
 import Fonts from "utility/Fonts";
 import ProfileManager from "utility/ProfileManager";
 import Store from "utility/Store";
 import URL from "utility/URL";
+import Bound from "utility/decorator/Bound";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
 

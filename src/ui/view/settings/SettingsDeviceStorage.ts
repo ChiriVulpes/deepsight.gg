@@ -1,7 +1,7 @@
 import Model from "model/Model";
-import Card from "ui/Card";
-import Component from "ui/Component";
-import DescribedButton from "ui/form/DescribedButton";
+import Card from "ui/component/Card";
+import Component from "ui/component/Component";
+import DescribedButton from "ui/component/DescribedButton";
 
 // const membershipNames: Record<BungieMembershipType, string> = {
 // 	[BungieMembershipType.None]: "None",

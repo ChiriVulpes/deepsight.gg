@@ -1,6 +1,6 @@
 import type { DeepsightVendorDefinition } from "@deepsight.gg/interfaces";
-import Component from "ui/Component";
-import BaseButton from "ui/form/Button";
+import BaseButton from "ui/component/Button";
+import Component from "ui/component/Component";
 
 export enum VendorDisplayClasses {
 	Main = "vendor-display",

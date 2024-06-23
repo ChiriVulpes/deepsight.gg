@@ -1,22 +1,22 @@
 import Characters from "model/models/Characters";
-import EnumModel from "model/models/enum/EnumModel";
 import Inventory from "model/models/Inventory";
+import EnumModel from "model/models/enum/EnumModel";
 import type { CharacterId } from "model/models/items/Item";
-import { Classes } from "ui/Classes";
-import BaseComponent from "ui/Component";
-import type Dialog from "ui/Dialog";
-import ClassPicker from "ui/form/ClassPicker";
-import Drawer from "ui/form/Drawer";
-import InfoBlock from "ui/InfoBlock";
-import PlayerOverviewCharacterPanel, { PlayerOverviewCharacterPanelClasses } from "ui/inventory/playeroverview/PlayerOverviewCharacterPanel";
-import PlayerOverviewIdentity from "ui/inventory/playeroverview/PlayerOverviewIdentity";
-import SortManager from "ui/inventory/sort/SortManager";
-import SwitchProfile from "ui/SwitchProfile";
-import type { IKeyEvent } from "ui/UiEventBus";
-import UiEventBus from "ui/UiEventBus";
+import BaseComponent from "ui/component/Component";
+import type Dialog from "ui/component/Dialog";
+import Drawer from "ui/component/Drawer";
+import InfoBlock from "ui/component/InfoBlock";
+import SwitchProfile from "ui/destiny/SwitchProfile";
+import ClassPicker from "ui/destiny/component/ClassPicker";
+import PlayerOverviewCharacterPanel, { PlayerOverviewCharacterPanelClasses } from "ui/destiny/playeroverview/PlayerOverviewCharacterPanel";
+import PlayerOverviewIdentity from "ui/destiny/playeroverview/PlayerOverviewIdentity";
+import SortManager from "ui/destiny/sort/SortManager";
+import { Classes } from "ui/utility/Classes";
+import type { IKeyEvent } from "ui/utility/UiEventBus";
+import UiEventBus from "ui/utility/UiEventBus";
 import Async from "utility/Async";
-import Bound from "utility/decorator/Bound";
 import ProfileManager from "utility/ProfileManager";
+import Bound from "utility/decorator/Bound";
 
 export enum PlayerOverviewClasses {
 	Main = "player-overview",

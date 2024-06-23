@@ -1,5 +1,5 @@
-import Button from "ui/form/Button";
-import View from "ui/View";
+import Button from "ui/component/Button";
+import View from "ui/view/View";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
 enum ErrorViewClasses {

@@ -1,5 +1,5 @@
-import FilterManager from "ui/inventory/filter/FilterManager";
-import SortManager from "ui/inventory/sort/SortManager";
+import FilterManager from "ui/destiny/filter/FilterManager";
+import SortManager from "ui/destiny/sort/SortManager";
 import InventoryEquipmentView from "ui/view/inventory/equipment/InventorySlotColumnsView";
 import InventoryEnergyView from "ui/view/inventory/slot/InventoryEnergyView";
 import InventoryKineticView from "ui/view/inventory/slot/InventoryKineticView";

@@ -1,13 +1,13 @@
-import { Classes } from "ui/Classes";
-import Component from "ui/Component";
-import Button from "ui/form/Button";
-import Label from "ui/Label";
 import TextLogo from "ui/TextLogo";
-import View from "ui/View";
+import Button from "ui/component/Button";
+import Component from "ui/component/Component";
+import Label from "ui/component/Label";
+import { Classes } from "ui/utility/Classes";
 import AboutView from "ui/view/AboutView";
+import View from "ui/view/View";
 import Async from "utility/Async";
-import Bungie from "utility/endpoint/bungie/Bungie";
 import Env from "utility/Env";
+import Bungie from "utility/endpoint/bungie/Bungie";
 
 export enum AuthViewClasses {
 	Logo = "view-auth-logo",

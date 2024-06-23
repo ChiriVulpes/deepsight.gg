@@ -1,5 +1,5 @@
-import Card from "ui/Card";
-import Checkbox from "ui/form/Checkbox";
+import Card from "ui/component/Card";
+import Checkbox from "ui/component/form/Checkbox";
 import Store from "utility/Store";
 
 export default class SettingsItemMovement extends Card<[]> {

@@ -1,8 +1,8 @@
 import type { Plug } from "model/models/items/Plugs";
-import { Classes } from "ui/Classes";
-import Component from "ui/Component";
-import Details from "ui/Details";
-import Paginator from "ui/form/Paginator";
+import Component from "ui/component/Component";
+import Details from "ui/component/Details";
+import Paginator from "ui/component/Paginator";
+import { Classes } from "ui/utility/Classes";
 import { CollectionsMomentClasses } from "ui/view/collections/CollectionsMoment";
 import { FILTER_MANAGER_MODS, ModsViewClasses, SORT_MANAGER_MODS } from "ui/view/collections/IModsView";
 import { ItemPlug } from "ui/view/item/ItemSockets";

@@ -1,6 +1,6 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
-import Filter from "ui/inventory/filter/Filter";
-import FilterManager from "ui/inventory/filter/FilterManager";
+import Filter from "ui/destiny/filter/Filter";
+import FilterManager from "ui/destiny/filter/FilterManager";
 import InventoryWeaponSlotView, { FILTERS_INAPPLICABLE_WEAPONS } from "ui/view/inventory/slot/InventoryWeaponSlotView";
 
 export default InventoryWeaponSlotView.create({

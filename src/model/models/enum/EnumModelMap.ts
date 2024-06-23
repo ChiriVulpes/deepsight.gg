@@ -4,7 +4,7 @@ import BreakerTypes from "model/models/enum/BreakerTypes";
 import ClassTypes from "model/models/enum/ClassTypes";
 import DamageTypes from "model/models/enum/DamageTypes";
 import type EnumModel from "model/models/enum/EnumModel";
-import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
+import type { DisplayPropertied } from "ui/utility/DisplayProperties";
 
 const EnumModelMap = {
 	kinetic: [DamageTypes, DamageType.Kinetic] as const,

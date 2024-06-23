@@ -1,5 +1,5 @@
-import FilterManager from "ui/inventory/filter/FilterManager";
-import SortManager from "ui/inventory/sort/SortManager";
+import FilterManager from "ui/destiny/filter/FilterManager";
+import SortManager from "ui/destiny/sort/SortManager";
 import InventoryEquipmentView from "ui/view/inventory/equipment/InventorySlotColumnsView";
 import { FILTER_MANAGER_EQUIPMENT_DEFINITION, SORT_MANAGER_EQUIPMENT_DEFINITION, VIEW_ID_EQUIPMENT, VIEW_NAME_EQUIPMENT } from "ui/view/inventory/slot/InventoryEquipmentSlotView";
 import InventoryGhostView from "ui/view/inventory/slot/InventoryGhostView";

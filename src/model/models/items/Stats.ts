@@ -5,8 +5,8 @@ import { DestinyItemSubType } from "bungie-api-ts/destiny2";
 import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import { Socket } from "model/models/items/Plugs";
-import type { StatOrder } from "ui/inventory/Stat";
-import { STAT_DISPLAY_ORDER, Stat } from "ui/inventory/Stat";
+import type { StatOrder } from "ui/destiny/utility/Stat";
+import { STAT_DISPLAY_ORDER, Stat } from "ui/destiny/utility/Stat";
 import Maths from "utility/maths/Maths";
 
 export interface IStat {

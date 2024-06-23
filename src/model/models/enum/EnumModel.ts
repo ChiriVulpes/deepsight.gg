@@ -1,4 +1,4 @@
-import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
+import type { DisplayPropertied } from "ui/utility/DisplayProperties";
 import type Arrays from "utility/Arrays";
 
 export interface EnumModelDefinitionObject extends DisplayPropertied {

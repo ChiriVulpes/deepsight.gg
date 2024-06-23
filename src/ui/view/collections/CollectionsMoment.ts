@@ -6,11 +6,11 @@ import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import { Bucket } from "model/models/items/Bucket";
 import type Item from "model/models/items/Item";
-import Component from "ui/Component";
-import Details from "ui/Details";
-import Loadable from "ui/Loadable";
-import type ItemComponent from "ui/inventory/ItemComponent";
-import Slot, { SlotClasses } from "ui/inventory/Slot";
+import Component from "ui/component/Component";
+import Details from "ui/component/Details";
+import Loadable from "ui/component/Loadable";
+import type ItemComponent from "ui/destiny/component/ItemComponent";
+import Slot, { SlotClasses } from "ui/destiny/component/Slot";
 import ICollectionsView, { FILTER_MANAGER_COLLECTIONS, SORT_MANAGER_COLLECTIONS } from "ui/view/collections/ICollectionsView";
 
 export enum CollectionsMomentClasses {

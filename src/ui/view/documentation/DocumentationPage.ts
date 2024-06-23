@@ -1,4 +1,4 @@
-import Component from "ui/Component";
+import Component from "ui/component/Component";
 import DocumentationSection from "ui/view/documentation/DocumentationSection";
 
 export enum DocumentationPageClasses {

@@ -1,13 +1,13 @@
 import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import Model from "model/Model";
 import Inventory from "model/models/Inventory";
-import type Item from "model/models/items/Item";
 import Manifest from "model/models/Manifest";
-import Component from "ui/Component";
-import Button from "ui/form/Button";
-import ItemTooltip from "ui/inventory/ItemTooltip";
-import LoadingManager from "ui/LoadingManager";
-import View from "ui/View";
+import type Item from "model/models/items/Item";
+import Button from "ui/component/Button";
+import Component from "ui/component/Component";
+import ItemTooltip from "ui/destiny/tooltip/ItemTooltip";
+import LoadingManager from "ui/utility/LoadingManager";
+import View from "ui/view/View";
 import ItemView, { resolveItemURL } from "ui/view/item/ItemView";
 
 export enum ItemTooltipViewClasses {

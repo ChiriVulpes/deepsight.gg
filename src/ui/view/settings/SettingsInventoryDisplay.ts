@@ -1,6 +1,6 @@
-import Card from "ui/Card";
-import Component from "ui/Component";
-import Checkbox from "ui/form/Checkbox";
+import Card from "ui/component/Card";
+import Component from "ui/component/Component";
+import Checkbox from "ui/component/form/Checkbox";
 import Store from "utility/Store";
 
 export default class SettingsInformationDisplay extends Card<[]> {

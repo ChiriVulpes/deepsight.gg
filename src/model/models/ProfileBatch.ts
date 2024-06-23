@@ -2,7 +2,7 @@ import { DestinyComponentType } from "bungie-api-ts/destiny2";
 import Model from "model/Model";
 import Profile from "model/models/Profile";
 import IStateModification from "model/models/state/IStateModification";
-import LoadingManager from "ui/LoadingManager";
+import LoadingManager from "ui/utility/LoadingManager";
 import Time from "utility/Time";
 
 const allComponentTypes = [

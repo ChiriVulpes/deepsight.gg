@@ -5,11 +5,11 @@ import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
 import { SourceType } from "model/models/items/Source";
-import Card, { CardClasses } from "ui/Card";
-import Component from "ui/Component";
-import Timestamp from "ui/Timestamp";
-import type { DisplayPropertied } from "ui/bungie/DisplayProperties";
-import Display from "ui/bungie/DisplayProperties";
+import Card, { CardClasses } from "ui/component/Card";
+import Component from "ui/component/Component";
+import Timestamp from "ui/component/Timestamp";
+import type { DisplayPropertied } from "ui/utility/DisplayProperties";
+import Display from "ui/utility/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 
 const moreInfoLinks: Partial<Record<DeepsightDropTableDefinition["type"], string | undefined>> = {

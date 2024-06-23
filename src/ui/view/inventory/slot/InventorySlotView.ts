@@ -3,8 +3,8 @@ import type Model from "model/Model";
 import Characters from "model/models/Characters";
 import Inventory from "model/models/Inventory";
 import { Bucket } from "model/models/items/Bucket";
-import Component from "ui/Component";
-import View from "ui/View";
+import Component from "ui/component/Component";
+import View from "ui/view/View";
 import InventoryView from "ui/view/inventory/InventoryView";
 import type { IInventorySlotViewDefinition } from "ui/view/inventory/slot/IInventorySlotView";
 

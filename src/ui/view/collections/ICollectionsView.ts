@@ -2,16 +2,16 @@ import { InventoryBucketHashes } from "@deepsight.gg/enums";
 import { DestinyClass, TierType } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import type Item from "model/models/items/Item";
-import type Component from "ui/Component";
-import Display from "ui/bungie/DisplayProperties";
-import ItemComponent from "ui/inventory/ItemComponent";
-import Slot from "ui/inventory/Slot";
-import Filter from "ui/inventory/filter/Filter";
-import type { IFilterManagerConfiguration } from "ui/inventory/filter/FilterManager";
-import FilterManager from "ui/inventory/filter/FilterManager";
-import Sort from "ui/inventory/sort/Sort";
-import type { ISortManagerConfiguration } from "ui/inventory/sort/SortManager";
-import SortManager from "ui/inventory/sort/SortManager";
+import type Component from "ui/component/Component";
+import ItemComponent from "ui/destiny/component/ItemComponent";
+import Slot from "ui/destiny/component/Slot";
+import Filter from "ui/destiny/filter/Filter";
+import type { IFilterManagerConfiguration } from "ui/destiny/filter/FilterManager";
+import FilterManager from "ui/destiny/filter/FilterManager";
+import Sort from "ui/destiny/sort/Sort";
+import type { ISortManagerConfiguration } from "ui/destiny/sort/SortManager";
+import SortManager from "ui/destiny/sort/SortManager";
+import Display from "ui/utility/DisplayProperties";
 import ExoticArmourRewardComponent from "ui/view/collections/ExoticArmourRewardComponent";
 
 
