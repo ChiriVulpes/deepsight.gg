@@ -1,4 +1,4 @@
-import type { DestinyItemComponent } from "bungie-api-ts/destiny2";
+import { DestinyClass, type DestinyItemComponent } from "bungie-api-ts/destiny2";
 import type { InventoryBucketHashes, InventoryItemHashes } from "deepsight.gg/Enums";
 import type { IModelGenerationApi } from "model/Model";
 import Model from "model/Model";
@@ -160,6 +160,10 @@ export default class Inventory {
 			+ (profile.profileInventory?.data?.items.length ?? 0)
 			+ (Object.values(profile.characterInventories?.data ?? {}).flatMap(character => character.items).length);
 
+		const classTypes = Characters.getSortedClasses()
+			.concat(DestinyClass.Titan, DestinyClass.Hunter, DestinyClass.Warlock)
+			.distinct();
+
 		this.craftedItems.clear();
 
 		const encountered = new Set<string>();
@@ -216,6 +220,31 @@ export default class Inventory {
 				const subBucketId = item.definition.inventory?.bucketTypeHash ? Bucket.id(itemRef.bucketHash, characterId, subBucketHash) as BucketId : undefined;
 				if (subBucketId)
 					bucketIds.push(subBucketId);
+			}
+
+			if (!characterId) {
+				for (const classType of classTypes) {
+					if (item.definition.classType === undefined || item.definition.classType === DestinyClass.Unknown)
+						continue;
+
+					const itemClassType = item.definition.classType as DestinyClass;
+					if (itemClassType !== undefined && itemClassType !== DestinyClass.Unknown && itemClassType !== classType)
+						// don't add this item to a bucket of this class type, its restricted to another class type
+						continue;
+
+					const characters = Characters.byClassType(classType);
+					for (const character of characters) {
+						const characterId = character.characterId;
+						bucketIds.push(Bucket.id(itemRef.bucketHash, characterId) as BucketId);
+
+						const subBucketHash = item.definition.inventory?.bucketTypeHash;
+						if (subBucketHash !== itemRef.bucketHash) {
+							const subBucketId = item.definition.inventory?.bucketTypeHash ? Bucket.id(itemRef.bucketHash, characterId, subBucketHash) as BucketId : undefined;
+							if (subBucketId)
+								bucketIds.push(subBucketId);
+						}
+					}
+				}
 			}
 
 			const oldBucketIds = item.bucketIds;

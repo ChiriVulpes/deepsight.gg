@@ -93,17 +93,25 @@ namespace Characters {
 	}
 
 	/**
-	 * @returns The Character class of a given character ID, if available
+	 * @returns The Character of a given character ID, if available
 	 */
 	export function get (id?: CharacterId): Character | undefined {
 		return characters[id!];
 	}
 
 	/**
-	 * @returns Character classes sorted most recently active first
+	 * @returns Characters sorted most recently active first
 	 */
 	export function getSorted () {
 		return charactersSorted;
+	}
+
+	/**
+	 * @returns Characters of the given DestinyClass, sorted most recently active first
+	 */
+	export function byClassType (classType: DestinyClass) {
+		return charactersSorted
+			.filter(character => character.classType === classType);
 	}
 
 	/**
