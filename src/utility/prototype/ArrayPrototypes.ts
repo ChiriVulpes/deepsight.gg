@@ -1,8 +1,8 @@
 import Define from "../Define";
 
-declare global {
+type ArrayToEntryMapper<T, KEY, VALUE> = (value: T) => readonly [KEY, VALUE, ...any[]];
 
-	type ArrayToEntryMapper<T, KEY, VALUE> = (value: T) => readonly [KEY, VALUE, ...any[]];
+declare global {
 
 	interface Array<T> {
 		/**
