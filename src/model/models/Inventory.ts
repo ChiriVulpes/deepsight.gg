@@ -29,8 +29,11 @@ export default class Inventory {
 
 	public static createModel () {
 		return Model.createTemporary(async api => {
-			await Inventory.INSTANCE.queueProfileRefresh(api, 1 / 2);
-			await Inventory.INSTANCE.await(api, 1 / 2, 1 / 2);
+			const profilePromise = Inventory.INSTANCE.queueProfileRefresh(api, 1 / 2);
+			if (!ProfileBatch.latest)
+				await profilePromise;
+			if (!Inventory.INSTANCE.hadInitialLoad)
+				await Inventory.INSTANCE.await(api, 1 / 2, 1 / 2);
 			return Inventory.INSTANCE;
 		});
 	}
