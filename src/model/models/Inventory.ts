@@ -348,7 +348,8 @@ export default class Inventory {
 							...momentName ? [momentName] : [],
 						]);
 
-					let item = Bucket.COLLECTIONS.items.find(item => item.definition.hash === hash);
+					const id = `hash:${hash}:collections` as ItemId;
+					let item = this.items[id];
 					if (!item) {
 						const definition = await DestinyInventoryItemDefinition.get(hash);
 						if (!definition)
@@ -356,6 +357,7 @@ export default class Inventory {
 
 						item = await Item.createFake(manifest, profile, definition);
 						Bucket.COLLECTIONS.addItems(item);
+						this.items[id] = item;
 					}
 
 					await item.refresh(manifest, profile);
