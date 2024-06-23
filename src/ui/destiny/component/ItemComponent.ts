@@ -1,7 +1,6 @@
 import { InventoryBucketHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import type { Character } from "model/models/Characters";
-import Characters from "model/models/Characters";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -435,11 +434,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		if (!this.item)
 			return;
 
-		const currentCharacter = Characters.getCurrent()?.characterId;
-		if (!currentCharacter)
-			return;
-
-		const character = this.item.character?.characterId;
+		const character = this.item.owner?.characterId;
 		if (!character)
 			return;
 
@@ -454,7 +449,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		if (event.shiftKey)
 			// update this item component's bucket so future clicks transfer to the right place
-			await this.item.transferToggleVaulted(currentCharacter);
+			await this.item.transferToggleVaulted(character);
 		else {
 			if (!this.item.bucket.isCharacter())
 				await this.item.transferToCharacter(character);
