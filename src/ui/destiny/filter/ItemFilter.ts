@@ -216,6 +216,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 
 			if (filter.suggestedValueHint)
 				this.suggestedChips.push(FilterChipButton.create([filter, filter.suggestedValueHint, undefined, true])
+					.event.subscribe("mousedown", () => this.ignoreNextSelectionChange = true)
 					.event.subscribe("click", () => this.toggleChip(filter))
 					.tweak(filter.tweakChip, filter.suggestedValueHint)
 					.appendTo(suggestedFilters));
@@ -223,6 +224,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 			for (const value of filter.suggestedValues ?? [])
 				this.suggestedChips.push(FilterChipButton.create([filter, typeof value === "string" ? value : value.name, typeof value === "string" ? undefined : value.icon])
 					.tweak(filter.tweakChip, typeof value === "string" ? value : value.name)
+					.event.subscribe("mousedown", () => this.ignoreNextSelectionChange = true)
 					.event.subscribe("click", () => this.toggleChip(filter, typeof value === "string" ? value : value.name))
 					.appendTo(suggestedFilters));
 		}
@@ -253,7 +255,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 
 		await Async.sleep(0); // next tick
 		this.input.element.focus();
-		const selection = window.getSelection();
+		const selection = document.getSelection();
 		if (!this.input.element.contains(selection?.focusNode ?? null) || !this.input.element.contains(selection?.anchorNode ?? null))
 			selection?.selectAllChildren(this.input.element);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -276,6 +278,8 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 		this.closeDrawer();
 	}
 
+	private lastSelectionRange?: Range;
+	private ignoreNextSelectionChange?: true;
 	@Bound
 	private onSelectionChange () {
 		if (!document.contains(this.element)) {
@@ -283,7 +287,18 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 			return;
 		}
 
-		const selection = window.getSelection();
+		if (this.ignoreNextSelectionChange) {
+			delete this.ignoreNextSelectionChange;
+			return;
+		}
+
+		const selection = document.getSelection();
+		if (!selection?.anchorNode || !selection.focusNode)
+			this.lastSelectionRange = undefined;
+		else {
+			this.lastSelectionRange = selection.getRangeAt(0).cloneRange();
+		}
+
 		if (selection?.isCollapsed && this.input.contains(selection.anchorNode) && this.input.contains(selection.focusNode))
 			this.filterChips();
 	}
@@ -349,7 +364,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 		if (!data)
 			return;
 
-		const selection = window.getSelection();
+		const selection = document.getSelection();
 		for (let i = 0; i < (selection?.rangeCount ?? 0); i++) {
 			const range = selection?.getRangeAt(i);
 			if (!range)
@@ -462,7 +477,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 		const ranges = this.getRanges();
 		const tokens = this.getTokens();
 
-		const selection = window.getSelection()!;
+		const selection = document.getSelection()!;
 		selection.removeAllRanges();
 		this.input.removeContents();
 		this.filterer.reset();
@@ -585,9 +600,9 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 	}
 
 	private getEditingChip () {
-		const selection = window.getSelection()!;
-		const currentInputChip = !selection.isCollapsed ? undefined
-			: (selection.anchorNode?.nodeType === Node.TEXT_NODE ? selection.anchorNode.parentElement : selection.anchorNode as Element)
+		const selection = this.lastSelectionRange ?? document.getSelection()?.getRangeAt(0);
+		const currentInputChip = !selection?.collapsed ? undefined
+			: (selection.startContainer?.nodeType === Node.TEXT_NODE ? selection.startContainer.parentElement : selection.startContainer as Element)
 				?.closest(`.${ItemFilterClasses.FilterChip}`);
 
 		const prefix = currentInputChip?.classList.contains(ItemFilterClasses.FilterChipPrefix) ? currentInputChip : currentInputChip?.previousElementSibling;
@@ -674,7 +689,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 
 	private getRanges () {
 		let i = 0;
-		const selection = window.getSelection()!;
+		const selection = document.getSelection()!;
 		const rangePositions: [start: number, end: number][] = [];
 		for (const node of this.input.element.childNodes) {
 			let length = 0;
@@ -705,7 +720,7 @@ export default class ItemFilter<T extends Item | Plug | IEmblem = Item> extends 
 	}
 
 	private setCursorAtEnd (node?: Node | null) {
-		const selection = window.getSelection();
+		const selection = document.getSelection();
 		selection?.removeAllRanges();
 		const range = new Range();
 		range.selectNodeContents(node ?? this.input.element);
