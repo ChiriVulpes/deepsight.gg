@@ -17,13 +17,19 @@ namespace Objectives {
 	}
 
 	export async function resolve (manifest: Manifest, objectives: DestinyObjectiveProgress[], plug?: Plug, item?: IItemInit): Promise<IObjective[]> {
-		return Promise.all(objectives.map(async objective => ({
-			hash: objective.objectiveHash,
-			progress: objective,
-			plug,
-			definition: plug?.objectives?.find(e => e.hash === objective.objectiveHash)?.definition
-				?? await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
-		})));
+		const result: IObjective[] = [];
+
+		for (const objective of objectives) {
+			result.push({
+				hash: objective.objectiveHash,
+				progress: objective,
+				plug,
+				definition: plug?.objectives?.find(e => e.hash === objective.objectiveHash)?.definition
+					?? await manifest.DestinyObjectiveDefinition.get(objective.objectiveHash)!,
+			});
+		}
+
+		return result;
 	}
 }
 

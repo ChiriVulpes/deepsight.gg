@@ -122,36 +122,28 @@ export class Socket {
 
 		const { DestinyPlugSetDefinition, DeepsightSocketExtendedDefinition } = manifest;
 
-		let plugs: (PlugRaw /*| Plug*/)[] = this.state ? refresh.plugs
-			: this.plugSetHash ? (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems ?? []
-				: (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems ?? [];
+		let plugs: PlugRaw[] = undefined
+			?? (this.state ? refresh.plugs : undefined)
+			?? this.plugs.slice()
+			?? (!this.plugSetHash ? undefined : (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems)
+			?? (this.plugSetHash ? undefined : (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems)
+			?? [];
 
-		if (!this.state)
+		if (!this.state && !this.plugs)
 			plugs.concat(this.definition.reusablePlugItems);
 
 		plugs = plugs.distinct(plug => plug.plugItemHash);
 
 		const currentPlugHash = this.state?.plugHash ?? this.definition.singleInitialItemHash;
 
-		// plugs[0] = await Plug.resolve(manifest, plugs[0] as PlugRaw);
-		// if (plugs[0].type & PlugType.Shader) {
-		// 	socket.socketedPlug = plugs[0];
-
-		// } else {
 		let plugListChanged = false;
 
 		const plugsListHash = plugs.map(plug => plug.plugItemHash).join(",");
 		if (this.plugsListHash !== plugsListHash) {
 			this.plugsListHash = plugsListHash;
 			const newPlugsList = [];
-			// let lastPause = Date.now();
-			for (const plug of plugs) {
-				newPlugsList.push(/*plug instanceof Plug ? plug :*/ await Plug.resolve(manifest, plug, this.item));
-				// if (Date.now() - lastPause > 30) {
-				// 	await Async.sleep(1);
-				// 	lastPause = Date.now();
-				// }
-			}
+			for (const plug of plugs)
+				newPlugsList.push(await Plug.resolve(manifest, plug, this.item));
 
 			plugListChanged = true;
 			this.plugs = newPlugsList;
@@ -171,15 +163,18 @@ export class Socket {
 			if (this.socketedPlug)
 				this.socketedPlug.socketed = true;
 		}
-		// }
 
+		for (const plug of this.plugs) {
+			await plug.refresh(manifest, refresh, this.item);
 
-		for (const plug of [...this.plugs, this.socketedPlug]) {
-			if (!plug)
-				continue;
+			if (plugListChanged)
+				this.types.add(plug.type);
+		}
 
-			plug.objectives = await Objectives.resolve(manifest, refresh.objectives![plug.plugItemHash] ?? [], plug, this.item);
-			this.types.add(plug.type);
+		if (this.socketedPlug) {
+			await this.socketedPlug.refresh(manifest, refresh, this.item);
+			if (plugListChanged)
+				this.types.add(this.socketedPlug.type);
 		}
 
 		if (plugListChanged) {
@@ -387,6 +382,10 @@ export class Plug {
 
 	public isNot (...anyOfTypes: PlugType.Query[]) {
 		return !PlugType.check(this.type, ...anyOfTypes);
+	}
+
+	public async refresh (manifest: Manifest, refresh: Socket.ISocketRefresh, item?: IItemInit) {
+		this.objectives = await Objectives.resolve(manifest, refresh.objectives![this.plugItemHash] ?? [], this, item);
 	}
 }
 

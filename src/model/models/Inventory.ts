@@ -309,14 +309,6 @@ export default class Inventory {
 			for (const itemRef of characterData.items)
 				await refreshItem(itemRef, characterId as CharacterId, true);
 
-		for (const [itemId, item] of Object.entries(this.items))
-			if (item && !encountered.has(itemId)) {
-				for (const bucketId of item.bucketIds)
-					this.buckets[bucketId]?.removeItems(item);
-
-				delete this.items[itemId];
-			}
-
 
 		////////////////////////////////////
 		// Add collections bucket
@@ -324,29 +316,30 @@ export default class Inventory {
 		for (const { api, from, amount } of this.refreshWatchers)
 			api.emitProgress(from + amount * (3 / 4), "Loading collections");
 
-		const collectionsBucketHashes = new Set<InventoryBucketHashes>();
-		const totalItemsToInit = collections.flatMap(moment => Object.values(moment.buckets)).flat().length;
+		const collectionsBucketHashes = this.hadInitialLoad ? undefined : new Set<InventoryBucketHashes>();
+		const totalItemsToInit = this.hadInitialLoad ? 0 : collections.flatMap(moment => Object.values(moment.buckets)).flat().length;
 		let initItems = 0;
 
 		for (const moment of collections) {
 			for (const [bucketId, itemHashes] of Object.entries(moment.buckets)) {
-				const subBucketHash = +bucketId as InventoryBucketHashes;
-				collectionsBucketHashes.add(subBucketHash);
+				collectionsBucketHashes?.add(+bucketId as InventoryBucketHashes);
 
-				const momentName = moments.find(m => m.hash === moment.hash)?.displayProperties.name;
+				const momentName = this.hadInitialLoad ? undefined : moments.find(m => m.hash === moment.hash)?.displayProperties.name;
 				for (const hash of itemHashes) {
 					if (Date.now() - lastForcedTimeoutForStyle > 40) {
 						await Async.sleep(0);
 						lastForcedTimeoutForStyle = Date.now();
 					}
 
-					initItems++;
+					if (!this.hadInitialLoad) {
+						initItems++;
 
-					for (const { api, from, amount } of this.refreshWatchers)
-						api.emitProgress(from + amount * (3 / 4) + (1 / 4) * (initItems / totalItemsToInit), [
-							`Loading collections ${initItems} / ${totalItemsToInit}`,
-							...momentName ? [momentName] : [],
-						]);
+						for (const { api, from, amount } of this.refreshWatchers)
+							api.emitProgress(from + amount * (3 / 4) + (1 / 4) * (initItems / totalItemsToInit), [
+								`Loading collections ${initItems} / ${totalItemsToInit}`,
+								...momentName ? [momentName] : [],
+							]);
+					}
 
 					const id = `hash:${hash}:collections` as ItemId;
 					let item = this.items[id];
@@ -358,6 +351,7 @@ export default class Inventory {
 						item = await Item.createFake(manifest, profile, definition);
 						Bucket.COLLECTIONS.addItems(item);
 						this.items[id] = item;
+						encountered.add(id);
 					}
 
 					await item.refresh(manifest, profile);
@@ -365,13 +359,21 @@ export default class Inventory {
 			}
 		}
 
-		for (const subBucketHash of collectionsBucketHashes) {
-			this.buckets[`collections//${subBucketHash}`] ??= new Bucket({
-				definition: Bucket.COLLECTIONS.definition,
-				subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subBucketHash),
-				items: Bucket.COLLECTIONS.getItemsInSubBucket(subBucketHash),
-			});
-		}
+		if (collectionsBucketHashes)
+			for (const subBucketHash of collectionsBucketHashes)
+				this.buckets[`collections//${subBucketHash}`] ??= new Bucket({
+					definition: Bucket.COLLECTIONS.definition,
+					subBucketDefinition: await manifest.DestinyInventoryBucketDefinition.get(subBucketHash),
+					items: Bucket.COLLECTIONS.getItemsInSubBucket(subBucketHash),
+				});
+
+		for (const [itemId, item] of Object.entries(this.items))
+			if (item && !encountered.has(itemId)) {
+				for (const bucketId of item.bucketIds)
+					this.buckets[bucketId]?.removeItems(item);
+
+				delete this.items[itemId];
+			}
 
 		this.event.emit("update");
 		delete this.refreshPromise;
