@@ -33,7 +33,6 @@ export const SORTS_INAPPLICABLE_COLLECTIONS = [
 	Sort.Energy,
 ] as const;
 export const FILTERS_INAPPLICABLE_COLLECTIONS = [
-	Filter.Harmonizable,
 	Filter.Locked,
 	Filter.Masterwork,
 ] as const;

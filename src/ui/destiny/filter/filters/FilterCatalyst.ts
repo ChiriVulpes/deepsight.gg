@@ -7,7 +7,7 @@ export default IFilter.create({
 	id: Filter.Catalyst,
 	prefix: "catalyst:",
 	colour: 0xCEAE33,
-	suggestedValues: ["incomplete", "unacquired", "complete", "none"],
+	suggestedValues: ["incomplete", "unacquired", "complete"],
 	apply: (value, item) => value === ""
 		|| ("none".startsWith(value) && !item.catalyst)
 		|| ("unacquired".startsWith(value) && !!((item.catalyst?.state.state ?? defaultState) & DestinyRecordState.Obscured))

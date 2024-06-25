@@ -13,12 +13,10 @@ import FilterBreakerType from "ui/destiny/filter/filters/FilterBreakerType";
 import FilterCatalyst from "ui/destiny/filter/filters/FilterCatalyst";
 import FilterDuplicate from "ui/destiny/filter/filters/FilterDuplicate";
 import ElementFilter from "ui/destiny/filter/filters/FilterElement";
-import FilterHarmonizable from "ui/destiny/filter/filters/FilterHarmonizable";
 import FilterLocked from "ui/destiny/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/destiny/filter/filters/FilterMasterwork";
 import FilterMoment from "ui/destiny/filter/filters/FilterMoment";
 import FilterPattern from "ui/destiny/filter/filters/FilterPattern";
-import FilterPatternComplete from "ui/destiny/filter/filters/FilterPatternComplete";
 import FilterPerk from "ui/destiny/filter/filters/FilterPerk";
 import FilterRarity from "ui/destiny/filter/filters/FilterRarity";
 import FilterShaped from "ui/destiny/filter/filters/FilterShaped";
@@ -71,12 +69,10 @@ class FilterManager<T extends Item | Plug | IEmblem = Item> {
 			[Filter.Shaped]: FilterShaped,
 			[Filter.Masterwork]: FilterMasterwork,
 			[Filter.Locked]: FilterLocked,
-			[Filter.Harmonizable]: FilterHarmonizable,
 			[Filter.Rarity]: await FilterRarity(),
 			[Filter.Adept]: FilterAdept,
 			[Filter.Artifice]: FilterArtifice,
 			[Filter.Pattern]: FilterPattern,
-			[Filter.PatternComplete]: FilterPatternComplete,
 			[Filter.Duplicate]: FilterDuplicate,
 			[Filter.BreakerType]: await FilterBreakerType(),
 			[Filter.Acquired]: FilterAcquired,
