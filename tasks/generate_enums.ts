@@ -77,18 +77,46 @@ const UNRENDERABLE_PATHS: Partial<Record<keyof AllDestinyManifestComponents, str
 	DestinyActivityDefinition: ["pgcrImage"],
 };
 
-const COMPONENT_NAME_GENERATORS: { [KEY in keyof AllDestinyManifestComponents]?: (definition: AllDestinyManifestComponents[KEY][number], get: (component: keyof AllDestinyManifestComponents, hash?: number) => Promise<string | undefined>) => Promise<string | undefined> | string | undefined } = {
+interface IComponentNameGeneratorApi {
+	getName (component: keyof AllDestinyManifestComponents, hash?: number): Promise<string | undefined>;
+	get<COMPONENT extends keyof AllDestinyManifestComponents> (component: COMPONENT, hash?: number): Promise<AllDestinyManifestComponents[COMPONENT] | undefined>;
+	all<COMPONENT extends keyof AllDestinyManifestComponents> (component: COMPONENT): Promise<AllDestinyManifestComponents[COMPONENT]>;
+}
+
+const COMPONENT_NAME_GENERATORS: { [KEY in keyof AllDestinyManifestComponents]?: (definition: AllDestinyManifestComponents[KEY][number], api: IComponentNameGeneratorApi) => Promise<string | undefined> | string | undefined } = {
 	DestinyVendorGroupDefinition: def => def.categoryName,
 	DestinyLoadoutNameDefinition: def => def.name,
-	DestinyLocationDefinition: async (def, get) => Promise
+	DestinyLocationDefinition: async (def, api) => Promise
 		.all(([] as (Promise<string | undefined> | string | undefined)[])
-			.concat(get("DestinyVendorDefinition", def.vendorHash))
+			.concat(api.getName("DestinyVendorDefinition", def.vendorHash))
 			.concat((def.locationReleases ?? []).flatMap(location => ([location.displayProperties.name] as (Promise<string | undefined> | string | undefined)[])
-				.concat(get("DestinyDestinationDefinition", location.destinationHash))
-				.concat(get("DestinyActivityDefinition", location.activityHash)))))
+				.concat(api.getName("DestinyDestinationDefinition", location.destinationHash))
+				.concat(api.getName("DestinyActivityDefinition", location.activityHash)))))
 		.then(locations => locations.filter(Boolean).distinct().join("$") || undefined),
 	DestinyMedalTierDefinition: def => def.tierName,
 	DestinyPowerCapDefinition: def => `${def.powerCap}`,
+	DestinyActivityGraphDefinition: async (def, api) => {
+		const DestinyActivityGraphDefinition = await api.all("DestinyActivityGraphDefinition");
+		const activityGraphs = Object.values(DestinyActivityGraphDefinition);
+		const occurrencesInOtherGraphs: { name: string; index: number }[] = [];
+		for (const graph of activityGraphs) {
+			for (const lgraph of graph.linkedGraphs) {
+				for (let i = 0; i < lgraph.linkedGraphs.length; i++) {
+					if (lgraph.linkedGraphs[i].activityGraphHash === def.hash) {
+						occurrencesInOtherGraphs.push({ name: lgraph.name, index: i });
+					}
+				}
+			}
+		}
+
+		if (occurrencesInOtherGraphs.length === 1)
+			return occurrencesInOtherGraphs[0].name;
+
+		if (occurrencesInOtherGraphs.length > 1 && occurrencesInOtherGraphs.every(o => o.name === occurrencesInOtherGraphs[0].name && o.index === occurrencesInOtherGraphs[0].index))
+			return `${occurrencesInOtherGraphs[0].name}${occurrencesInOtherGraphs[0].index}`;
+
+		return undefined;
+	},
 };
 
 interface Definition {
@@ -259,10 +287,24 @@ export class EnumHelper {
 		const name = OVERRIDDEN_ENUM_NAMES[type]?.[definition.hash!]
 			?? definition.displayProperties?.name
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			?? await COMPONENT_NAME_GENERATORS[type]?.(definition as any, async (c, h) => (await EnumHelper.getEnumableName(c, h)) ?? "")
+			?? await COMPONENT_NAME_GENERATORS[type]?.(definition as any, EnumHelper.getComponentNameGeneratorApi())
 			?? MISSING_ENUM_NAMES[type]?.[definition.hash!];
 
 		return name;
+	}
+
+	private static getComponentNameGeneratorApi (): IComponentNameGeneratorApi {
+		return {
+			async getName (c, h) {
+				return (await EnumHelper.getEnumableName(c, h)) ?? "";
+			},
+			async get (c, h) {
+				return await manifest[c].get(h) as any;
+			},
+			async all (c) {
+				return await manifest[c].all() as any;
+			},
+		};
 	}
 
 	private async resolve (definition?: Definition | string) {

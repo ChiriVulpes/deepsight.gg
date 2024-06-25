@@ -171,6 +171,21 @@ export async function getDeepsightCollectionsDefinition () {
 	return DeepsightCollectionsDefinition = await DeepsightCollectionsDefinition;
 }
 
+export async function getCollectionsCopies (...items: (InventoryItemHashes | DestinyInventoryItemDefinition)[]) {
+	const { DestinyInventoryItemDefinition } = manifest;
+	const collections = await Object.values(await getDeepsightCollectionsDefinition())
+		.flatMap(moment => Object.values(moment.buckets))
+		.flat()
+		.map(itemHash => DestinyInventoryItemDefinition.get(itemHash))
+		.collect(itemPromises => Promise.all(itemPromises));
+
+	const unCollectionsItems = await items.map(itemOrItemHash => typeof itemOrItemHash !== "number" ? itemOrItemHash : DestinyInventoryItemDefinition.get(itemOrItemHash))
+		.collect(itemPromises => Promise.all(itemPromises)) as DestinyInventoryItemDefinition[];
+
+	return collections.filter((c): c is DestinyInventoryItemDefinition => !!c
+		&& unCollectionsItems.some(item => item.displayProperties.name === c.displayProperties.name));
+}
+
 async function computeDeepsightCollectionsDefinition () {
 	const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition, DestinyPlugSetDefinition } = manifest;
 	const DeepsightMomentDefinition = await getDeepsightMomentDefinition();

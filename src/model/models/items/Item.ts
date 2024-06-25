@@ -49,6 +49,7 @@ export enum ItemFomoState {
 	NoMo,
 	TemporaryAvailability,
 	TemporaryRepeatability,
+	New,
 }
 
 const WEAPON_BUCKET_HASHES = new Set([InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons]);
@@ -639,7 +640,9 @@ class Item {
 		const hash = this.definition.hash as InventoryItemHashes;
 		for (const source of this.sources ?? []) {
 			if (source.dropTable.dropTable?.[hash] || source.dropTable.encounters?.some(encounter => encounter.dropTable?.[hash])) {
-				if (source.dropTable.availability)
+				if (source.dropTable.availability === "new")
+					return ItemFomoState.New;
+				else if (source.dropTable.availability)
 					return ItemFomoState.TemporaryRepeatability;
 
 				// always available in specific encounters

@@ -3,7 +3,7 @@ import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinitio
 
 export default {
 	hash: ActivityHashes.Prophecy_ModifiersLength0,
-	rotationActivityHash: ActivityHashes.Prophecy_ModifiersLength8,
+	rotationActivityHash: ActivityHashes.Prophecy_ModifiersLength3,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.ProphecyComplete872886548 },
 	},

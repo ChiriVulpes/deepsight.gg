@@ -1,4 +1,4 @@
-import { ActivityHashes, ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, ItemCategoryHashes, MilestoneHashes, PresentationNodeHashes } from "@deepsight.gg/enums";
+import { ActivityGraphHashes, ActivityHashes, ActivityModeHashes, ActivityTypeHashes, InventoryItemHashes, MilestoneHashes, PresentationNodeHashes } from "@deepsight.gg/enums";
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import { DestinyActivityModeType } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
@@ -6,6 +6,7 @@ import type { DeepsightDisplayPropertiesDefinition, DeepsightDropTableRotationsD
 import Log from "../utility/Log";
 import Task from "../utility/Task";
 import Time from "../utility/Time";
+import { getCollectionsCopies } from "./DeepsightCollectionsDefinition";
 import DestinyManifestReference from "./DestinyManifestReference";
 import DeepsightDropTableDefinition from "./droptable/DeepsightDropTableDefinition";
 import VendorDropTables from "./droptable/VendorDropTables";
@@ -16,7 +17,7 @@ import DestinyActivities from "./utility/endpoint/DestinyActivities";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
 export default Task("DeepsightDropTableDefinition", async () => {
-	const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyObjectiveDefinition } = manifest;
+	const { DestinyActivityDefinition, DestinyRecordDefinition, DestinyObjectiveDefinition, DestinyActivityGraphDefinition } = manifest;
 	const activities = await DestinyActivities.get();
 
 
@@ -40,14 +41,58 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			legendExoticMission = activity;
 	}
 
-	if (!normalExoticMission || !legendExoticMission)
-		Log.warn("Failed to get the current exotic mission :(");
+	if (!normalExoticMission || !legendExoticMission) {
+		const legendsGraph = await DestinyActivityGraphDefinition.get(ActivityGraphHashes.Legends);
+		const exoticMissionsNodeHash = 329299745;
+		const exoticMissionsNode = legendsGraph?.nodes.find(node => node.nodeId === exoticMissionsNodeHash);
+		const exoticMissions = activities.filter(activity => exoticMissionsNode?.activities.some(exoticMission => exoticMission.activityHash === activity.activity.activityHash));
 
-	else {
-		const exoticWeapon = await Promise.all(normalExoticMission.definition!.rewards
+		for (const activity of exoticMissions) {
+			if (activity.definition?.selectionScreenDisplayProperties?.name === "Standard")
+				normalExoticMission = activity;
+			else if (activity.definition?.selectionScreenDisplayProperties?.name === "Normal")
+				normalExoticMission = activity;
+			else if (activity.definition?.selectionScreenDisplayProperties?.name === "Legend")
+				legendExoticMission = activity;
+			else if (activity.definition?.selectionScreenDisplayProperties?.name === "Expert")
+				legendExoticMission = activity;
+		}
+
+		if (!normalExoticMission || !legendExoticMission)
+			for (const activity of exoticMissions) {
+				if (activity.definition?.displayProperties?.name.includes("Normal"))
+					normalExoticMission = activity;
+				else if (activity.definition?.displayProperties?.name.includes("Standard"))
+					normalExoticMission = activity;
+				else if (activity.definition?.displayProperties?.name.includes("Legend"))
+					legendExoticMission = activity;
+				else if (activity.definition?.displayProperties?.name.includes("Expert"))
+					legendExoticMission = activity;
+			}
+
+		if (!normalExoticMission && legendExoticMission)
+			for (const activity of exoticMissions) {
+				const isLegend = activity.definition?.displayProperties?.name.includes("Legend")
+					|| activity.definition?.displayProperties?.name.includes("Expert")
+					|| activity.definition?.selectionScreenDisplayProperties?.name.includes("Legend")
+					|| activity.definition?.selectionScreenDisplayProperties?.name.includes("Expert");
+				if (!isLegend)
+					normalExoticMission = activity;
+			}
+
+		if (!normalExoticMission || !legendExoticMission)
+			throw new Error("Failed to get the current exotic mission :(");
+	}
+
+	if (normalExoticMission && legendExoticMission) {
+		let [exoticWeapon] = await getCollectionsCopies(...normalExoticMission.definition!.rewards
 			.flatMap(reward => reward.rewardItems)
-			.map(item => manifest.DestinyInventoryItemDefinition.get(item.itemHash)))
-			.then(rewardItems => rewardItems.find(item => item?.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon)));
+			.map(item => item.itemHash));
+
+		if (normalExoticMission.definition?.displayProperties.name.includes("Starcrossed"))
+			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.WishKeeperCombatBow_ItemType3);
+		else if (normalExoticMission.definition?.displayProperties.name.includes("AVALON"))
+			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.VexcaliburGlaive_ItemType3);
 
 		if (!exoticWeapon)
 			throw new Error("Failed to get the exotic weapon from the current exotic mission :(");
@@ -130,8 +175,8 @@ export default Task("DeepsightDropTableDefinition", async () => {
 
 		const masterActivityAvailable = definition.master && !!activities.filter(activity => activity.activity.activityHash === definition.master?.activityHash).length;
 		if (masterActivityAvailable) {
-			definition.availability ??= "repeatable";
-			definition.master!.availability ??= "repeatable";
+			definition.availability ??= activity?.activityTypeHash === ActivityTypeHashes.Raid ? "new" : "repeatable";
+			definition.master!.availability ??= activity?.activityTypeHash === ActivityTypeHashes.Raid ? "new" : "repeatable";
 		}
 
 		if (activity?.activityTypeHash === ActivityTypeHashes.Raid) {

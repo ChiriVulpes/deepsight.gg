@@ -32,7 +32,7 @@ const activityOrder = Object.keys({
 	"exotic-mission": true,
 } satisfies Record<DeepsightDropTableDefinition["type"], true>);
 
-const availabilityOrder = ["rotator", "repeatable", undefined];
+const availabilityOrder = ["rotator", "new", "repeatable", undefined];
 
 export default class CollectionsCurrentlyAvailable extends Details<[manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory]> {
 	protected override async onMake (manifest: Manifest, profile?: ProfileBatch, inventory?: Inventory) {

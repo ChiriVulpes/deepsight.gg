@@ -11,6 +11,7 @@ export enum SourceType {
 	Playlist,
 	Rotator,
 	Repeatable,
+	New,
 }
 
 export interface ISource {
@@ -78,6 +79,7 @@ namespace Source {
 		const type = undefined
 			?? (table.availability === "rotator" ? SourceType.Rotator : undefined)
 			?? (table.availability === "repeatable" ? SourceType.Repeatable : undefined)
+			?? (table.availability === "new" ? SourceType.New : undefined)
 			?? SourceType.Playlist;
 
 		const hash = item.definition.hash as InventoryItemHashes;

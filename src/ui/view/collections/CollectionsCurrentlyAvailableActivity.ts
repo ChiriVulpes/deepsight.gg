@@ -87,7 +87,8 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 
 		const note = source.type === SourceType.Rotator ? "Rotator"
 			: source.type === SourceType.Repeatable ? "Repeatable"
-				: undefined;
+				: source.type === SourceType.New ? "Recent"
+					: undefined;
 
 		let expiryWrapper: Component | undefined;
 		Component.create()
