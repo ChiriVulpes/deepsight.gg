@@ -26,6 +26,7 @@ enum Filter {
 	Duplicate,
 	BreakerType,
 	Acquired,
+	Catalyst,
 	Raw,
 }
 

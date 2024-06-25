@@ -12,6 +12,8 @@ import ProfileBatch from "model/models/ProfileBatch";
 import BreakerType from "model/models/items/BreakerType";
 import type { BucketId } from "model/models/items/Bucket";
 import { Bucket } from "model/models/items/Bucket";
+import type { ICatalyst } from "model/models/items/Catalyst";
+import Catalyst from "model/models/items/Catalyst";
 import Collectibles from "model/models/items/Collectibles";
 import type { IDeepsight, IWeaponShaped } from "model/models/items/Deepsight";
 import Deepsight from "model/models/items/Deepsight";
@@ -271,6 +273,7 @@ export interface IItemInit {
 	powerCap?: DestinyPowerCapDefinition;
 	baseItem?: DestinyInventoryItemDefinition;
 	breakerTypes?: DestinyBreakerTypeDefinition[];
+	catalyst?: ICatalyst;
 }
 
 export interface IItem extends IItemInit {
@@ -339,6 +342,7 @@ class Item {
 			this.addCollections(manifest, profile, init),
 			Perks.apply(manifest, profile, init),
 			PowerCap.apply(manifest, init),
+			Catalyst.apply(manifest, profile, init),
 		]);
 
 		const item = new Item(init);
@@ -386,6 +390,7 @@ class Item {
 			Collectibles.apply(manifest, profile, init),
 			source && Source.apply(manifest, profile, init),
 			PowerCap.apply(manifest, init),
+			Catalyst.apply(manifest, profile, init),
 		]);
 
 		const item = new Item(init);
@@ -478,6 +483,9 @@ class Item {
 		if (this.isExotic()) {
 			const catalyst = this.getSocket("Masterwork/ExoticCatalyst");
 			if (catalyst?.state && (!catalyst?.state?.isVisible || !catalyst?.getPool<true>("!Masterwork/ExoticCatalystEmpty")?.length))
+				return true;
+
+			if (this.isWeapon() && (!this.catalyst || this.catalyst?.complete) && this.bucket.isCollections() && !this.isNotAcquired())
 				return true;
 		}
 

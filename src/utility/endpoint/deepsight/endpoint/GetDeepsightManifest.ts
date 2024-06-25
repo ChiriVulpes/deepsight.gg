@@ -1,7 +1,8 @@
-import type { DeepsightAdeptDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightSocketExtendedDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightAdeptDefinition, DeepsightCatalystDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightSocketExtendedDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
 import Endpoint from "utility/endpoint/Endpoint";
 import GetDeepsightAdeptDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightAdeptDefinition";
+import GetDeepsightCatalystDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCatalystDefinition";
 import GetDeepsightCollectionsDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightCollectionsDefinition";
 import GetDeepsightDropTableDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightDropTableDefinition";
 import GetDeepsightEmblemDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightEmblemDefinition";
@@ -25,6 +26,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>;
 	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>;
 	DeepsightSocketExtendedDefinition: Record<number, DeepsightSocketExtendedDefinition>;
+	DeepsightCatalystDefinition: Record<number, DeepsightCatalystDefinition>;
 }
 
 export default (new class extends Endpoint<AllDeepsightManifestComponents> {
@@ -45,6 +47,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightAdeptDefinition: await GetDeepsightAdeptDefinition.query(),
 			DeepsightEmblemDefinition: await GetDeepsightEmblemDefinition.query(),
 			DeepsightSocketExtendedDefinition: await GetDeepsightSocketExtendedDefinition.query(),
+			DeepsightCatalystDefinition: await GetDeepsightCatalystDefinition.query(),
 		} as AllDeepsightManifestComponents as AllDeepsightManifestComponents & { _headers: Headers };
 
 		Object.defineProperty(result, "_headers", {

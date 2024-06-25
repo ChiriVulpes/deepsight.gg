@@ -1,5 +1,5 @@
 import { InventoryBucketHashes, ItemCategoryHashes, StatHashes } from "@deepsight.gg/enums";
-import { DestinyItemType } from "bungie-api-ts/destiny2";
+import { DestinyItemType, DestinyRecordState } from "bungie-api-ts/destiny2";
 import type Inventory from "model/models/Inventory";
 import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
@@ -47,6 +47,7 @@ export enum ItemTooltipClasses {
 	WeaponLevelLabel = "item-tooltip-weapon-level-label",
 	WeaponLevelProgress = "item-tooltip-weapon-level-progress",
 	WeaponLevelEnhanced = "item-tooltip-weapon-level-enhanced",
+	Catalyst = "item-tooltip-catalyst",
 	Description = "item-tooltip-description",
 	Stats = "item-tooltip-stats",
 	Deepsight = "item-tooltip-deepsight",
@@ -369,13 +370,21 @@ class ItemTooltip extends Tooltip {
 		if (energy !== undefined)
 			this.energyValue.text.set(`${energy.energyCapacity}`);
 
-		this.weaponLevel.classes.toggle(!item.shaped, Classes.Hidden);
+		this.weaponLevel.classes.toggle(!item.shaped && (!item.catalyst || item.isMasterwork()), Classes.Hidden)
+			.classes.toggle(!item.shaped && !!item.catalyst, ItemTooltipClasses.Catalyst);
 		if (item.shaped) {
 			const progressObjective = item.shaped.progress?.progress;
 			const progress = (progressObjective?.progress ?? 0) / (progressObjective?.completionValue ?? 1);
 			this.weaponLevel.style.set("--progress", `${progress}`);
 			this.weaponLevelLabel.text.set(`Weapon Lv. ${item.shaped.level?.progress.progress ?? 0}`);
 			this.weaponLevelProgress.text.set(`${Math.floor(progress * 100)}%`);
+		} else if (item.catalyst && (!item.catalyst.complete || !item.isMasterwork())) {
+			const progress = (item.catalyst.progress ?? 0) / (item.catalyst.completionValue ?? 1);
+			this.weaponLevel.style.set("--progress", `${progress}`);
+			const obscured = item.catalyst.state.state & DestinyRecordState.Obscured;
+			const needsInsertion = item.catalyst.complete && !item.isMasterwork();
+			this.weaponLevelLabel.text.set(needsInsertion ? "Insert the Catalyst" : obscured ? "Catalyst Not Acquired" : item.catalyst.progressDescription);
+			this.weaponLevelProgress.text.set(obscured || needsInsertion ? "" : `${Math.floor(progress * 100)}%`);
 		}
 
 		const description = Display.description(item.definition);

@@ -10,6 +10,7 @@ import FilterAdept from "ui/destiny/filter/filters/FilterAdept";
 import FilterAmmo from "ui/destiny/filter/filters/FilterAmmo";
 import FilterArtifice from "ui/destiny/filter/filters/FilterArtifice";
 import FilterBreakerType from "ui/destiny/filter/filters/FilterBreakerType";
+import FilterCatalyst from "ui/destiny/filter/filters/FilterCatalyst";
 import FilterDuplicate from "ui/destiny/filter/filters/FilterDuplicate";
 import ElementFilter from "ui/destiny/filter/filters/FilterElement";
 import FilterHarmonizable from "ui/destiny/filter/filters/FilterHarmonizable";
@@ -79,6 +80,7 @@ class FilterManager<T extends Item | Plug | IEmblem = Item> {
 			[Filter.Duplicate]: FilterDuplicate,
 			[Filter.BreakerType]: await FilterBreakerType(),
 			[Filter.Acquired]: FilterAcquired,
+			[Filter.Catalyst]: FilterCatalyst,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

@@ -4,6 +4,7 @@ import copy_manifest from "./copy_manifest";
 import destiny_manifest from "./destiny_manifest";
 import generate_enums from "./generate_enums";
 import DeepsightAdeptDefinition from "./manifest/DeepsightAdeptDefinition";
+import DeepsightCatalystDefinition from "./manifest/DeepsightCatalystDefinition";
 import DeepsightCollectionsDefinition from "./manifest/DeepsightCollectionsDefinition";
 import DeepsightDropTableDefinition from "./manifest/DeepsightDropTableDefinition";
 import DeepsightEmblemDefinition from "./manifest/DeepsightEmblemDefinition";
@@ -47,6 +48,7 @@ export default Task("deepsight_manifest", task => task.series(
 			task.parallel(
 				DeepsightCollectionsDefinition,
 				DeepsightAdeptDefinition,
+				DeepsightCatalystDefinition,
 			),
 		),
 	),

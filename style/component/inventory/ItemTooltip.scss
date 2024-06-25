@@ -283,6 +283,10 @@
 		--progress-bar-background: #d35137;
 		text-shadow: 1px 2px 0.05em #0008;
 	}
+	
+	&-catalyst {
+		--progress-bar-background: #{color(tier-exotic-background, 0.85)};
+	}
 
 	&-mod {
 		&s {
