@@ -124,7 +124,7 @@ export class Socket {
 
 		let plugs: PlugRaw[] = undefined
 			?? (this.state ? refresh.plugs : undefined)
-			?? this.plugs.slice()
+			?? this.plugs?.slice()
 			?? (!this.plugSetHash ? undefined : (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems)
 			?? (this.plugSetHash ? undefined : (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems)
 			?? [];
@@ -250,7 +250,7 @@ export namespace Socket {
 	export interface ISocketRefresh {
 		state?: DestinyItemSocketState;
 		category?: DestinyItemSocketCategoryDefinition;
-		plugs: DestinyItemPlugBase[];
+		plugs?: DestinyItemPlugBase[];
 		objectives?: Record<number, DestinyObjectiveProgress[]>;
 	}
 
@@ -451,7 +451,7 @@ namespace Plugs {
 					definition,
 					state: states[i],
 					category: categories?.find(category => category.socketIndexes.includes(i)),
-					plugs: plugs[i] ?? [],
+					plugs: plugs[i],
 					objectives,
 				}, item, i)));
 
@@ -468,7 +468,7 @@ namespace Plugs {
 			await socket?.refresh(manifest, {
 				state: states[i],
 				category: categories?.find(category => category.socketIndexes.includes(i)),
-				plugs: plugs[i] ?? [],
+				plugs: plugs[i],
 				objectives,
 			});
 		}
