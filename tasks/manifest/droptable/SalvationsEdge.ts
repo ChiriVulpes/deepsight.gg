@@ -1,4 +1,4 @@
-import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
+import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
@@ -169,6 +169,16 @@ export default {
 			},
 		},
 	],
+	rotations: {
+		anchor: "2024-06-25T17:00:00Z",
+		challenges: [
+			ActivityModifierHashes.ScenicRouteChallenge,
+			ActivityModifierHashes.AtCapacityChallenge,
+			ActivityModifierHashes.BalancedDietChallenge,
+			ActivityModifierHashes.VariedGeometryChallenge,
+			ActivityModifierHashes.CoordinatedEffortsChallenge,
+		],
+	},
 	master: {
 		activityHash: ActivityHashes.SalvationsEdgeMaster,
 		dropTable: {
