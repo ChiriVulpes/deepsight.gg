@@ -124,7 +124,7 @@ export class Socket {
 		const { DestinyPlugSetDefinition, DeepsightSocketExtendedDefinition } = manifest;
 
 		let plugs: PlugRaw[] = undefined
-			?? (this.state ? refresh.plugs : undefined)
+			?? (this.state ? refresh.plugs ?? [] : undefined)
 			?? this.plugs?.slice()
 			?? (!this.plugSetHash ? undefined : (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems)
 			?? (this.plugSetHash ? undefined : (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems)
