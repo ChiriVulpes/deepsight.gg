@@ -342,6 +342,8 @@
 
 			&-definition {
 				display: flex;
+				flex-wrap: wrap;
+				row-gap: var(--mod-padding);
 			}
 
 			&-enhanced {

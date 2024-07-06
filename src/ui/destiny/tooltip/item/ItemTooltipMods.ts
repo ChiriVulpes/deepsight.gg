@@ -133,6 +133,7 @@ export default class ItemTooltipMods extends Component {
 				.style.set("--socket-index", `${i++}`)
 				.appendTo(this);
 
+			const mightDisplayMoreThan13PlugsDueToEnhanced = plugs.length > 13 && this.isShaped() && plugs.some(plug => plug.is("Perk/TraitEnhanced") && !(!item.shaped && !plug.craftingRequirements?.unlockRequirements.length));
 			for (const plug of plugs.slice().sort((a, b) => Number(b.socketed && !isCollections) - Number(a.socketed && !isCollections))) {
 				if (!socket.state && plug.is("Intrinsic/FrameEnhanced"))
 					// skip enhanced intrinsics (duplicates) if this is an item definition (ie no actual socket state)
@@ -142,6 +143,9 @@ export default class ItemTooltipMods extends Component {
 					continue;
 
 				const isEnhanced = plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced");
+				if (mightDisplayMoreThan13PlugsDueToEnhanced && !isEnhanced)
+					continue;
+
 				if (!item.shaped && isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
 					continue;
 
