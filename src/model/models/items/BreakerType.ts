@@ -31,7 +31,7 @@ namespace BreakerType {
 			: (await Promise.all(traitSockets.map(socket => socket.getPool()))).flat();
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		return plugs.flatMap(plug => breakerPerks[plug.definition?.hash!])
+		return plugs.flatMap(plug => breakerPerks[plug?.definition?.hash!] ?? [])
 			.concat(item.definition.breakerType, breakerItems[item.definition.hash] ?? [])
 			.distinct()
 			.filter(type => type !== DestinyBreakerType.None);

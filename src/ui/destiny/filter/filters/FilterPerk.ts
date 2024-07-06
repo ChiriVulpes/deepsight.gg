@@ -15,10 +15,10 @@ export default IFilter.async(async () => {
 	const perks = inventory.getItems()
 		.flatMap(item => item.getSockets("Perk", "Intrinsic"))
 		.flatMap(socket => socket.plugs)
-		.map((plug): IFilterPerkSuggestedValue | undefined => !Display.name(plug.definition) ? undefined : {
-			plug,
-			name: Display.name(plug.definition)!,
-			icon: Display.icon(plug.definition)!,
+		.map((plug): IFilterPerkSuggestedValue | undefined => !Display.name(plug?.definition) ? undefined : {
+			plug: plug!,
+			name: Display.name(plug!.definition)!,
+			icon: Display.icon(plug!.definition)!,
 		})
 		.filter(Arrays.filterFalsy)
 		.sort((a, b) => a.name.localeCompare(b.name))
@@ -49,7 +49,7 @@ export default IFilter.async(async () => {
 		suggestedValueHint: "perk name",
 		suggestedValues: perks,
 		apply: (value, item) => {
-			return item.sockets.some(socket => socket?.plugs.some(plug => {
+			return item.sockets.some(socket => socket?.plugs?.some(plug => {
 				if (!plug.definition)
 					return false;
 

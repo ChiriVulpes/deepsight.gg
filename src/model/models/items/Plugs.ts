@@ -6,6 +6,7 @@ import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import type { IItemInit } from "model/models/items/Item";
 import Objectives from "model/models/items/Objectives";
+import Arrays from "utility/Arrays";
 import type { PromiseOr } from "utility/Type";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
@@ -105,7 +106,7 @@ export class Socket {
 	}
 
 	public socketedPlug?: Plug;
-	public plugs!: Plug[];
+	public plugs?: Plug[];
 	private plugPool?: PromiseOr<Plug[]>;
 	public type: PlugType = PlugType.None;
 	public types = new Set<PlugType>();
@@ -150,12 +151,12 @@ export class Socket {
 		}
 
 		if (this.socketedPlug?.plugItemHash !== currentPlugHash) {
-			let socketedPlug = this.plugs.find(plug => plug.plugItemHash === currentPlugHash);
+			let socketedPlug = this.plugs!.find(plug => plug.plugItemHash === currentPlugHash);
 			if (!socketedPlug && currentPlugHash) {
 				socketedPlug = await Plug.resolveFromHash(manifest, currentPlugHash, this.state?.isEnabled ?? true, this.item);
 				plugListChanged = true;
 				if (socketedPlug && this.state)
-					this.plugs.push(socketedPlug);
+					this.plugs!.push(socketedPlug);
 			}
 
 			this.socketedPlug = socketedPlug;
@@ -164,7 +165,7 @@ export class Socket {
 				this.socketedPlug.socketed = true;
 		}
 
-		for (const plug of this.plugs) {
+		for (const plug of this.plugs!) {
 			await plug.refresh(manifest, refresh, this.item);
 
 			if (plugListChanged)
@@ -233,7 +234,8 @@ export class Socket {
 	}
 
 	public getPlugs (...anyOfTypes: PlugType.Query[]) {
-		return anyOfTypes.length === 0 ? this.plugs : this.plugs.filter(plug => plug.is(...anyOfTypes));
+		return (anyOfTypes.length === 0 ? this.plugs : this.plugs?.filter(plug => plug.is(...anyOfTypes)))
+			?? Arrays.EMPTY;
 	}
 
 	public getPlug (...anyOfTypes: PlugType.Query[]): Plug | undefined {

@@ -417,7 +417,7 @@ class Item {
 	}
 
 	public get objectives () {
-		return this.sockets.flatMap(socket => socket?.plugs.flatMap(plug => plug.objectives) ?? []);
+		return this.sockets.flatMap(socket => socket?.plugs?.flatMap(plug => plug.objectives) ?? []);
 	}
 
 	public collectibleState!: number;
@@ -465,7 +465,7 @@ class Item {
 	}
 
 	public hasRandomRolls () {
-		return this.getSockets("Perk").some(socket => socket.plugs.length > 1);
+		return this.getSockets("Perk").some(socket => (socket.plugs?.length ?? 0) > 1);
 	}
 
 	public isNotAcquired () {
@@ -553,7 +553,7 @@ class Item {
 			return undefined;
 
 		const randomIntrinsics = {
-			frames: this.getSocket("Intrinsic/Frame")?.plugs.distinct(plug => plug.definition?.displayProperties.name),
+			frames: this.getSocket("Intrinsic/Frame")?.plugs?.distinct(plug => plug.definition?.displayProperties.name),
 			exotics: this.getSocket("Intrinsic/Exotic")?.plugs,
 		};
 		if ((randomIntrinsics.exotics?.length ?? 0) < 2 && (randomIntrinsics.frames?.length ?? 0) < 2)
@@ -919,7 +919,7 @@ class Item {
 			const pool = await socket?.getPool();
 			if (pool?.some(plug => wishlist.plugs.includes(plug.plugItemHash))) {
 				// the full pool for this socket contains a wishlisted plug
-				if (!socket?.plugs.some(plug => wishlist.plugs.includes(plug.plugItemHash))) {
+				if (!socket?.plugs?.some(plug => wishlist.plugs.includes(plug.plugItemHash))) {
 					// but the available plugs on this socket don't
 					return false;
 				}

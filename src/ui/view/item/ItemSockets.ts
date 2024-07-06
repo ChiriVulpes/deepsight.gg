@@ -75,7 +75,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 			if (socket.state?.isVisible !== false) {
 				let socketComponent: ItemSocket | undefined;
 
-				for (const plug of socket.plugs) {
+				for (const plug of socket.plugs ?? []) {
 					if (!socket.state && plug.is("Intrinsic/FrameEnhanced"))
 						continue;
 
@@ -109,7 +109,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
-				for (const plug of socket.plugs) {
+				for (const plug of socket.plugs ?? []) {
 					if (!socket.state && plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced"))
 						continue;
 
