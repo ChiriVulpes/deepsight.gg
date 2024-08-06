@@ -2,7 +2,7 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.SalvationsEdge_Tiern1,
+	hash: ActivityHashes.SalvationsEdgeStandard,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.SalvationsEdge2487240675 },
 	},

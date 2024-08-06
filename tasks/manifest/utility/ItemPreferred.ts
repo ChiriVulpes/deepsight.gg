@@ -36,6 +36,7 @@ namespace ItemPreferred {
 	const IGNORED_ITEMS = [
 		InventoryItemHashes.BraytechWerewolfAutoRifle_QualityVersionsLength2, // older
 		InventoryItemHashes.CompassRoseShotgun233896077, // has less links to other things in the manifest
+		InventoryItemHashes.CompassRoseShotgun2591111628, // older
 		InventoryItemHashes.TaraxipposScoutRifle3007479950, // displays weirdly in the screenshot
 		InventoryItemHashes.TheTitleSubmachineGun294129361, // older
 		InventoryItemHashes.BondOfTheGreatHuntWarlockBond2280287728, // has less links to other things in the manifest, displays weirdly in the screenshot
@@ -43,7 +44,13 @@ namespace ItemPreferred {
 		InventoryItemHashes.GripsOfTheGreatHuntGauntlets1127835600, // has less links to other things in the manifest
 		InventoryItemHashes.MarkOfTheGreatHuntTitanMark16387641, // has less links to other things in the manifest
 		InventoryItemHashes.RobesOfTheGreatHuntChestArmor776723133, // has less links to other things in the manifest
+		InventoryItemHashes.CrowningDuologueRocketLauncher_SecondaryIconUndefined, // older
+		InventoryItemHashes.SomethingNewHandCannon1856262127, // older
 	];
+
+	export function isIgnored (item: InventoryItemHashes) {
+		return IGNORED_ITEMS.includes(item);
+	}
 
 	const hasDeepsightSocket = (item: DestinyInventoryItemDefinition) =>
 		!!item.sockets?.socketEntries.some(socket => socket.singleInitialItemHash === InventoryItemHashes.EmptyDeepsightSocketPlug);
@@ -55,7 +62,7 @@ namespace ItemPreferred {
 		const powerCapB = powerCaps[itemB.quality?.versions[itemB.quality.currentVersion]?.powerCapHash!];
 
 		return 0
-			|| +IGNORED_ITEMS.includes(itemB.hash) - +IGNORED_ITEMS.includes(itemA.hash)
+			|| +IGNORED_ITEMS.includes(itemA.hash) - +IGNORED_ITEMS.includes(itemB.hash)
 			|| +!!itemB.collectibleHash - +!!itemA.collectibleHash
 			|| +!itemB.plug - +!itemA.plug
 			|| +((powerCapB?.powerCap ?? 0) > 900_000) - +((powerCapA?.powerCap ?? 0) > 900_000)

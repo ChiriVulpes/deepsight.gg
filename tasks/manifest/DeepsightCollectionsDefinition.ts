@@ -214,6 +214,9 @@ async function computeDeepsightCollectionsDefinition () {
 		if (ItemPreferred.isEquippableDummy(itemB))
 			continue;
 
+		if (ItemPreferred.isIgnored(itemB.hash))
+			continue;
+
 		const moment = overriddenItemMoments[itemB.hash as InventoryItemHashes]
 			?? watermarkPathToMomentHashMap[itemB.iconWatermark]
 			?? watermarkPathToMomentHashMap[itemB.iconWatermarkShelved];

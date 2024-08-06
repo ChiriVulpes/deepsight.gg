@@ -68,9 +68,6 @@ namespace DeepsightPlugCategorisation {
 				return DeepsightPlugCategory.Cosmetic;
 
 			case PlugCategoryHashes.PlugsGhostsMasterworks:
-			case PlugCategoryHashes.EventsSolsticeEmbers:
-			case PlugCategoryHashes.EventsSolsticeEmbersEmpty:
-			case PlugCategoryHashes.EventsSolsticeKindling:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
 			case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
 			case PlugCategoryHashes.EventsDawningOvenMasterworked:
@@ -252,10 +249,6 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeMasterwork.Legacy;
 				case InventoryItemHashes.ProtocolSocketPlug:
 					return DeepsightPlugTypeMasterwork.AuthorizationEmpty;
-				case InventoryItemHashes.NoEmberImbuedSolsticeEmbersPlug:
-					return DeepsightPlugTypeMasterwork.EventSolsticeEmbersEmpty;
-				case InventoryItemHashes.NoKindlingAddedKindlingPlug:
-					return DeepsightPlugTypeMasterwork.EventSolsticeKindlingEmpty;
 				case InventoryItemHashes.EmptyWeaponLevelBoostSocketPlug:
 					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty;
 				case InventoryItemHashes.MasterworkUpgradePlug236077174:
@@ -263,10 +256,6 @@ namespace DeepsightPlugCategorisation {
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
-				case PlugCategoryHashes.EventsSolsticeEmbers:
-					return DeepsightPlugTypeMasterwork.EventSolsticeEmbers;
-				case PlugCategoryHashes.EventsSolsticeKindling:
-					return DeepsightPlugTypeMasterwork.EventSolsticeKindling;
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
 					return DeepsightPlugTypeMasterwork.ShapedWeapon;
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
