@@ -6,7 +6,7 @@ import { EnumHelper } from "../../generate_enums";
 import Env from "../../utility/Env";
 import Log from "../../utility/Log";
 import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
-import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeDestination, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
+import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeDestination, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeTonic, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
 import manifest from "../utility/endpoint/DestinyManifest";
 import DeepsightPlugContextDefinition from "./DeepsightPlugContextDefinition";
 
@@ -36,6 +36,9 @@ namespace DeepsightPlugCategorisation {
 
 			case InventoryItemHashes.EmptyMementoSocketPlug:
 				return DeepsightPlugCategory.Cosmetic;
+
+			case InventoryItemHashes.AlethonymCatalystPlug:
+				return DeepsightPlugCategory.Masterwork;
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
@@ -127,6 +130,13 @@ namespace DeepsightPlugCategorisation {
 
 			case PlugCategoryHashes.DummyInfuse:
 				return DeepsightPlugCategory.Infusion;
+
+			case PlugCategoryHashes.Season25PotionsFormula:
+			case PlugCategoryHashes.Season25PotionsCombat:
+			case PlugCategoryHashes.Season25PotionsLoot:
+			case PlugCategoryHashes.Season25PotionsReagents:
+			case PlugCategoryHashes.Season25PotionsPlaceholder:
+				return DeepsightPlugCategory.Tonic;
 		}
 
 		for (const traitHash of context.definition.traitHashes ?? []) {
@@ -201,7 +211,7 @@ namespace DeepsightPlugCategorisation {
 		if (plugCategoryIdentifier?.endsWith(".masterworks.trackers"))
 			return DeepsightPlugCategory.Cosmetic;
 
-		if (plugCategoryIdentifier?.includes(".masterworks."))
+		if (plugCategoryIdentifier?.includes(".masterworks.") || plugCategoryIdentifier?.endsWith(".masterwork"))
 			return DeepsightPlugCategory.Masterwork;
 
 		const lastPlugCategoryIdentifierSegment = plugCategoryIdentifier?.slice(plugCategoryIdentifier.lastIndexOf(".") + 1);
@@ -253,6 +263,8 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty;
 				case InventoryItemHashes.MasterworkUpgradePlug236077174:
 					return DeepsightPlugTypeMasterwork.WeaponEmpty;
+				case InventoryItemHashes.AlethonymCatalystPlug: // missing exotic catalyst trait
+					return DeepsightPlugTypeMasterwork.ExoticCatalyst;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -723,6 +735,21 @@ namespace DeepsightPlugCategorisation {
 			}
 
 			return plugType;
+		},
+
+		[DeepsightPlugCategory.Tonic]: context => {
+			switch (context.definition.plug?.plugCategoryHash) {
+				case PlugCategoryHashes.Season25PotionsCombat:
+					return DeepsightPlugTypeTonic.Combat;
+				case PlugCategoryHashes.Season25PotionsFormula:
+					return DeepsightPlugTypeTonic.Formula;
+				case PlugCategoryHashes.Season25PotionsLoot:
+					return DeepsightPlugTypeTonic.Loot;
+				case PlugCategoryHashes.Season25PotionsReagents:
+					return DeepsightPlugTypeTonic.Reagent;
+				case PlugCategoryHashes.Season25PotionsPlaceholder:
+					return DeepsightPlugTypeTonic.Placeholder;
+			}
 		},
 	};
 
