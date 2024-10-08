@@ -35,6 +35,7 @@ namespace ItemPreferred {
 
 	const IGNORED_ITEMS = [
 		InventoryItemHashes.BraytechWerewolfAutoRifle528834068, // older
+		InventoryItemHashes.BraytechWerewolfAutoRifle2869466318, // older
 		InventoryItemHashes.CompassRoseShotgun233896077, // has less links to other things in the manifest
 		InventoryItemHashes.CompassRoseShotgun2591111628, // older
 		InventoryItemHashes.TaraxipposScoutRifle3007479950, // displays weirdly in the screenshot
@@ -46,6 +47,9 @@ namespace ItemPreferred {
 		InventoryItemHashes.RobesOfTheGreatHuntChestArmor776723133, // has less links to other things in the manifest
 		InventoryItemHashes.CrowningDuologueRocketLauncher_SecondaryIconUndefined, // older
 		InventoryItemHashes.SomethingNewHandCannon1856262127, // older
+		InventoryItemHashes.JurassicGreenPulseRifle2261046232, // older
+		InventoryItemHashes.JurassicGreenPulseRifle2603335652, // older
+		InventoryItemHashes.MechabreSniperRifle1280894514, // older
 	];
 
 	export function isIgnored (item: InventoryItemHashes) {
