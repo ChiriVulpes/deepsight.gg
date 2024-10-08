@@ -23,9 +23,9 @@ export default {
                 description: "Uncover the illuminated path in the darkness.",
             },
             dropTable: {
-                [InventoryItemHashes.SongOfIrYutMachineGun_ItemType3]: {},
-                [InventoryItemHashes.FangOfIrYutScoutRifle_ItemType3]: {},
-                [InventoryItemHashes.AbyssDefiantAutoRifle_ItemType3]: {},
+                [InventoryItemHashes.SongOfIrYutMachineGun]: {},
+                [InventoryItemHashes.FangOfIrYutScoutRifle]: {},
+                [InventoryItemHashes.AbyssDefiantAutoRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.UnyieldingCasqueHelmetPlug]: {},
@@ -52,9 +52,9 @@ export default {
                 description: "Find a way across the chasm.",
             },
             dropTable: {
-                [InventoryItemHashes.SwordbreakerShotgun_ItemType3]: {},
-                [InventoryItemHashes.FangOfIrYutScoutRifle_ItemType3]: {},
-                [InventoryItemHashes.OversoulEdictPulseRifle_ItemType3]: {},
+                [InventoryItemHashes.SwordbreakerShotgun]: {},
+                [InventoryItemHashes.FangOfIrYutScoutRifle]: {},
+                [InventoryItemHashes.OversoulEdictPulseRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.DoggedGageGauntletsPlug]: {},
@@ -88,9 +88,9 @@ export default {
                 description: "Defeat the Hive Wizard guarding the summoning crystal.",
             },
             dropTable: {
-                [InventoryItemHashes.WordOfCrotaHandCannon_ItemType3]: {},
-                [InventoryItemHashes.SongOfIrYutMachineGun_ItemType3]: {},
-                [InventoryItemHashes.OversoulEdictPulseRifle_ItemType3]: {},
+                [InventoryItemHashes.WordOfCrotaHandCannon]: {},
+                [InventoryItemHashes.SongOfIrYutMachineGun]: {},
+                [InventoryItemHashes.OversoulEdictPulseRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.RelentlessHarnessChestArmorPlug]: {},
@@ -117,9 +117,9 @@ export default {
             },
             dropTable: {
                 [InventoryItemHashes.NecrochasmAutoRifle]: { requiresQuest: InventoryItemHashes.BottomlessPitQuestStep_Step2 },
-                [InventoryItemHashes.WordOfCrotaHandCannon_ItemType3]: {},
-                [InventoryItemHashes.AbyssDefiantAutoRifle_ItemType3]: {},
-                [InventoryItemHashes.SwordbreakerShotgun_ItemType3]: {},
+                [InventoryItemHashes.WordOfCrotaHandCannon]: {},
+                [InventoryItemHashes.AbyssDefiantAutoRifle]: {},
+                [InventoryItemHashes.SwordbreakerShotgun]: {},
 
                 // hunter
                 [InventoryItemHashes.UnyieldingCasqueHelmetPlug]: {},
@@ -141,12 +141,12 @@ export default {
     master: {
         activityHash: ActivityHashes.CrotasEndMaster,
         dropTable: {
-            [InventoryItemHashes.SongOfIrYutAdeptMachineGun_ItemType3]: {},
-            [InventoryItemHashes.OversoulEdictAdeptPulseRifle_ItemType3]: {},
-            [InventoryItemHashes.WordOfCrotaAdeptHandCannon_ItemType3]: {},
-            [InventoryItemHashes.AbyssDefiantAdeptAutoRifle_ItemType3]: {},
-            [InventoryItemHashes.FangOfIrYutAdeptScoutRifle_ItemType3]: {},
-            [InventoryItemHashes.SwordbreakerAdeptShotgun_ItemType3]: {},
+            [InventoryItemHashes.SongOfIrYutAdeptMachineGun]: {},
+            [InventoryItemHashes.OversoulEdictAdeptPulseRifle]: {},
+            [InventoryItemHashes.WordOfCrotaAdeptHandCannon]: {},
+            [InventoryItemHashes.AbyssDefiantAdeptAutoRifle]: {},
+            [InventoryItemHashes.FangOfIrYutAdeptScoutRifle]: {},
+            [InventoryItemHashes.SwordbreakerAdeptShotgun]: {},
         },
     },
     // bungie broke the crota's end challenges

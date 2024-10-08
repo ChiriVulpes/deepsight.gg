@@ -34,7 +34,7 @@ namespace ItemPreferred {
 	}
 
 	const IGNORED_ITEMS = [
-		InventoryItemHashes.BraytechWerewolfAutoRifle_QualityVersionsLength2, // older
+		InventoryItemHashes.BraytechWerewolfAutoRifle528834068, // older
 		InventoryItemHashes.CompassRoseShotgun233896077, // has less links to other things in the manifest
 		InventoryItemHashes.CompassRoseShotgun2591111628, // older
 		InventoryItemHashes.TaraxipposScoutRifle3007479950, // displays weirdly in the screenshot

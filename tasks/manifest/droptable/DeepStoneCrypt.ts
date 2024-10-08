@@ -22,7 +22,7 @@ export default {
                 description: "Destroy the Crypt's power system to disable security.",
             },
             dropTable: {
-                [InventoryItemHashes.TrusteeScoutRifle_ItemType3]: {},
+                [InventoryItemHashes.TrusteeScoutRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.LegacysOathGripsGauntletsPlug]: {},
@@ -57,7 +57,7 @@ export default {
             },
             dropTable: {
                 [InventoryItemHashes.SuccessionSniperRifle2990047042]: {},
-                [InventoryItemHashes.HeritageShotgun_ItemType3]: {},
+                [InventoryItemHashes.HeritageShotgun]: {},
 
                 // hunter
                 [InventoryItemHashes.LegacysOathGripsGauntletsPlug]: {},
@@ -91,7 +91,7 @@ export default {
                 description: "Disarm the Nuclear Descent Protocol.",
             },
             dropTable: {
-                [InventoryItemHashes.PosterityHandCannon_ItemType3]: {},
+                [InventoryItemHashes.PosterityHandCannon]: {},
 
                 // hunter
                 [InventoryItemHashes.LegacysOathGripsGauntletsPlug]: {},
@@ -125,8 +125,8 @@ export default {
                 description: "Defeat Taniks for good.",
             },
             dropTable: {
-                [InventoryItemHashes.BequestSword_ItemType3]: {},
-                [InventoryItemHashes.CommemorationMachineGun_ItemType3]: {},
+                [InventoryItemHashes.BequestSword]: {},
+                [InventoryItemHashes.CommemorationMachineGun]: {},
                 [InventoryItemHashes.EyesOfTomorrowRocketLauncher]: {},
 
                 // hunter

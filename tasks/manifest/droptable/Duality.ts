@@ -34,7 +34,7 @@ export default {
 			},
 			dropTable: {
 				[InventoryItemHashes.LingeringDreadGrenadeLauncher]: {},
-				[InventoryItemHashes.TheEpicureanFusionRifle2263839058]: {},
+				[InventoryItemHashes.TheEpicureanFusionRifle_TooltipNotificationsLength3]: {},
 				[InventoryItemHashes.DeepExplorerHelmetHelmetPlug]: {},
 				[InventoryItemHashes.DeepExplorerGreavesLegArmorPlug]: {},
 				[InventoryItemHashes.DeepExplorerMaskHelmetPlug]: {},
@@ -110,7 +110,7 @@ export default {
 			},
 			dropTable: {
 				[InventoryItemHashes.LingeringDreadGrenadeLauncher]: {},
-				[InventoryItemHashes.TheEpicureanFusionRifle2263839058]: {},
+				[InventoryItemHashes.TheEpicureanFusionRifle_TooltipNotificationsLength3]: {},
 				[InventoryItemHashes.DeepExplorerHelmetHelmetPlug]: {},
 				[InventoryItemHashes.DeepExplorerGreavesLegArmorPlug]: {},
 				[InventoryItemHashes.DeepExplorerMaskHelmetPlug]: {},
@@ -126,7 +126,7 @@ export default {
 				[InventoryItemHashes.DeepExplorerVestmentsChestArmorPlug]: {},
 				[InventoryItemHashes.DeepExplorerBondWarlockBondPlug]: {},
 				[InventoryItemHashes.NewPurposePulseRifle]: {},
-				[InventoryItemHashes.FixedOddsMachineGun2194955522]: {},
+				[InventoryItemHashes.FixedOddsMachineGun_IconWatermarkShelvedUndefined]: {},
 				[InventoryItemHashes.HeartshadowSword]: {},
 			},
 		},

@@ -327,6 +327,9 @@ export class EnumHelper {
 			if (itemDef.plug)
 				name += "Plug";
 
+			if (itemDef.itemType === DestinyItemType.Pattern)
+				name += "Pattern";
+
 			if (itemDef.itemType === DestinyItemType.QuestStep && itemDef.setData?.itemList.length)
 				name += `_Step${itemDef.setData.itemList.findIndex(item => item.itemHash === itemDef.hash)}`;
 		}

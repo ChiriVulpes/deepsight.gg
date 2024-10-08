@@ -22,8 +22,8 @@ export default {
 				description: "Evade the Consecrated Mind and continue tracking the Unknown Artifact's signal.",
 			},
 			dropTable: {
-				[InventoryItemHashes.ZealotsRewardFusionRifle]: {},
-				[InventoryItemHashes.AccruedRedemptionCombatBow]: {},
+				[InventoryItemHashes.ZealotsRewardFusionRifle_QualityVersionsLength1]: {},
+				[InventoryItemHashes.AccruedRedemptionCombatBow_QualityVersionsLength1]: {},
 				[InventoryItemHashes.GreavesOfAscendancyLegArmorPlug]: {},
 				[InventoryItemHashes.StridesOfAscendancyLegArmorPlug]: {},
 				[InventoryItemHashes.BootsOfAscendancyLegArmorPlug]: {},
@@ -45,8 +45,8 @@ export default {
 				description: "Find a way to draw the Consecrated Mind out of hiding.",
 			},
 			dropTable: {
-				[InventoryItemHashes.ProphetOfDoomShotgun]: {},
-				[InventoryItemHashes.RecklessOracleAutoRifle]: {},
+				[InventoryItemHashes.ProphetOfDoomShotgun_QualityVersionsLength1]: {},
+				[InventoryItemHashes.RecklessOracleAutoRifle_QualityVersionsLength1]: {},
 				[InventoryItemHashes.GauntletsOfExaltationGauntletsPlug]: {},
 				[InventoryItemHashes.GripsOfExaltationGauntletsPlug]: {},
 				[InventoryItemHashes.GlovesOfExaltationGauntletsPlug]: {},
@@ -68,8 +68,8 @@ export default {
 				description: "Defeat the Consecrated Mind to continue tracking the Unknown Artifact's signal.",
 			},
 			dropTable: {
-				[InventoryItemHashes.AncientGospelHandCannon]: {},
-				[InventoryItemHashes.SacredProvenancePulseRifle]: {},
+				[InventoryItemHashes.AncientGospelHandCannon_QualityVersionsLength1]: {},
+				[InventoryItemHashes.SacredProvenancePulseRifle_QualityVersionsLength1]: {},
 				[InventoryItemHashes.PlateOfTranscendenceChestArmorPlug]: {},
 				[InventoryItemHashes.VestOfTranscendenceChestArmorPlug]: {},
 				[InventoryItemHashes.RobesOfTranscendenceChestArmorPlug]: {},
@@ -92,7 +92,7 @@ export default {
 			},
 			dropTable: {
 				[InventoryItemHashes.DivinityTraceRifle]: { requiresQuest: InventoryItemHashes.DivineFragmentationQuestStep_Step3 },
-				[InventoryItemHashes.OmniscientEyeSniperRifle]: {},
+				[InventoryItemHashes.OmniscientEyeSniperRifle_QualityVersionsLength1]: {},
 				[InventoryItemHashes.HelmOfRighteousnessHelmetPlug]: {},
 				[InventoryItemHashes.TemptationsMarkTitanMarkPlug]: {},
 				[InventoryItemHashes.CowlOfRighteousnessHelmetPlug]: {},

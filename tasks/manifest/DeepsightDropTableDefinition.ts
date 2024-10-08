@@ -90,9 +90,9 @@ export default Task("DeepsightDropTableDefinition", async () => {
 			.map(item => item.itemHash));
 
 		if (normalExoticMission.definition?.displayProperties.name.includes("Starcrossed"))
-			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.WishKeeperCombatBow_ItemType3);
+			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.WishKeeperCombatBow);
 		else if (normalExoticMission.definition?.displayProperties.name.includes("AVALON"))
-			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.VexcaliburGlaive_ItemType3);
+			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.VexcaliburGlaive);
 
 		if (!exoticWeapon)
 			throw new Error("Failed to get the exotic weapon from the current exotic mission :(");

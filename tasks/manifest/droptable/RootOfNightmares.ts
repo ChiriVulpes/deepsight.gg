@@ -23,9 +23,9 @@ export default {
                 description: "Fight for control and stay alive.",
             },
             dropTable: {
-                [InventoryItemHashes.BriarsContemptLinearFusionRifle_ItemType3]: {},
-                [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},
-                [InventoryItemHashes.NessasOblationShotgun_ItemType3]: {},
+                [InventoryItemHashes.BriarsContemptLinearFusionRifle]: {},
+                [InventoryItemHashes.KoraxissDistressGrenadeLauncher]: {},
+                [InventoryItemHashes.NessasOblationShotgun]: {},
 
                 // hunter
                 [InventoryItemHashes.MaskOfTrepidationHelmetPlug]: {},
@@ -68,10 +68,10 @@ export default {
             },
             dropTable: {
 
-                [InventoryItemHashes.MykelsReverenceSidearm_ItemType3]: {},
-                [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},
-                [InventoryItemHashes.NessasOblationShotgun_ItemType3]: {},
-                [InventoryItemHashes.AcasiasDejectionTraceRifle_ItemType3]: {},
+                [InventoryItemHashes.MykelsReverenceSidearm]: {},
+                [InventoryItemHashes.KoraxissDistressGrenadeLauncher]: {},
+                [InventoryItemHashes.NessasOblationShotgun]: {},
+                [InventoryItemHashes.AcasiasDejectionTraceRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.GripsOfTrepidationGauntletsPlug]: {},
@@ -106,10 +106,10 @@ export default {
             },
             dropTable: {
 
-                [InventoryItemHashes.MykelsReverenceSidearm_ItemType3]: {},
-                [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},
-                [InventoryItemHashes.RufussFuryAutoRifle_ItemType3]: {},
-                [InventoryItemHashes.AcasiasDejectionTraceRifle_ItemType3]: {},
+                [InventoryItemHashes.MykelsReverenceSidearm]: {},
+                [InventoryItemHashes.KoraxissDistressGrenadeLauncher]: {},
+                [InventoryItemHashes.RufussFuryAutoRifle]: {},
+                [InventoryItemHashes.AcasiasDejectionTraceRifle]: {},
 
                 // hunter
                 [InventoryItemHashes.VestOfTrepidationChestArmorPlug]: {},
@@ -152,12 +152,12 @@ export default {
             },
             dropTable: {
                 [InventoryItemHashes.ConditionalFinalityShotgun]: {},
-                [InventoryItemHashes.BriarsContemptLinearFusionRifle_ItemType3]: {},
-                [InventoryItemHashes.MykelsReverenceSidearm_ItemType3]: {},
-                [InventoryItemHashes.KoraxissDistressGrenadeLauncher_ItemType3]: {},
-                [InventoryItemHashes.RufussFuryAutoRifle_ItemType3]: {},
-                [InventoryItemHashes.AcasiasDejectionTraceRifle_ItemType3]: {},
-                [InventoryItemHashes.NessasOblationShotgun_ItemType3]: {},
+                [InventoryItemHashes.BriarsContemptLinearFusionRifle]: {},
+                [InventoryItemHashes.MykelsReverenceSidearm]: {},
+                [InventoryItemHashes.KoraxissDistressGrenadeLauncher]: {},
+                [InventoryItemHashes.RufussFuryAutoRifle]: {},
+                [InventoryItemHashes.AcasiasDejectionTraceRifle]: {},
+                [InventoryItemHashes.NessasOblationShotgun]: {},
 
                 // hunter
                 [InventoryItemHashes.MaskOfTrepidationHelmetPlug]: {},
@@ -179,12 +179,12 @@ export default {
     master: {
         activityHash: ActivityHashes.RootOfNightmaresMaster,
         dropTable: {
-            [InventoryItemHashes.MykelsReverenceAdeptSidearm_ItemType3]: {},
-            [InventoryItemHashes.AcasiasDejectionAdeptTraceRifle_ItemType3]: {},
-            [InventoryItemHashes.RufussFuryAdeptAutoRifle_ItemType3]: {},
-            [InventoryItemHashes.KoraxissDistressAdeptGrenadeLauncher_ItemType3]: {},
-            [InventoryItemHashes.BriarsContemptAdeptLinearFusionRifle_ItemType3]: {},
-            [InventoryItemHashes.NessasOblationAdeptShotgun_ItemType3]: {},
+            [InventoryItemHashes.MykelsReverenceAdeptSidearm]: {},
+            [InventoryItemHashes.AcasiasDejectionAdeptTraceRifle]: {},
+            [InventoryItemHashes.RufussFuryAdeptAutoRifle]: {},
+            [InventoryItemHashes.KoraxissDistressAdeptGrenadeLauncher]: {},
+            [InventoryItemHashes.BriarsContemptAdeptLinearFusionRifle]: {},
+            [InventoryItemHashes.NessasOblationAdeptShotgun]: {},
         },
     },
     rotations: {

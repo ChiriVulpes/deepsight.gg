@@ -2,7 +2,7 @@ import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHash
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
-	hash: ActivityHashes.SalvationsEdgeStandard,
+	hash: ActivityHashes.SalvationsEdgeStandard_ModifiersLength14,
 	displayProperties: {
 		icon: { DestinyRecordDefinition: RecordHashes.SalvationsEdge2487240675 },
 	},
@@ -22,9 +22,9 @@ export default {
 				description: "Operate the inscrutable machinery to enter the monolith's core.",
 			},
 			dropTable: {
-				[InventoryItemHashes.NullifyPulseRifle_ItemType3]: {},
-				[InventoryItemHashes.NonDenouementCombatBow_ItemType3]: {},
-				[InventoryItemHashes.ImminenceSubmachineGun_ItemType3]: {},
+				[InventoryItemHashes.NullifyPulseRifle]: {},
+				[InventoryItemHashes.NonDenouementCombatBow]: {},
+				[InventoryItemHashes.ImminenceSubmachineGun]: {},
 
 				// hunter
 				[InventoryItemHashes.PromisedReignGripsGauntletsPlug]: {},
@@ -55,10 +55,10 @@ export default {
 				description: "Remove the Herald of Finality from your path.",
 			},
 			dropTable: {
-				[InventoryItemHashes.SummumBonumSword_ItemType3]: {},
-				[InventoryItemHashes.NonDenouementCombatBow_ItemType3]: {},
-				[InventoryItemHashes.ForthcomingDevianceGlaive_ItemType3]: {},
-				[InventoryItemHashes.ImminenceSubmachineGun_ItemType3]: {},
+				[InventoryItemHashes.SummumBonumSword]: {},
+				[InventoryItemHashes.NonDenouementCombatBow]: {},
+				[InventoryItemHashes.ForthcomingDevianceGlaive]: {},
+				[InventoryItemHashes.ImminenceSubmachineGun]: {},
 
 				// hunter
 				[InventoryItemHashes.PromisedReignMaskHelmetPlug]: {},
@@ -89,9 +89,9 @@ export default {
 				description: "Gain access to the Witness.",
 			},
 			dropTable: {
-				[InventoryItemHashes.NullifyPulseRifle_ItemType3]: {},
-				[InventoryItemHashes.CriticalAnomalySniperRifle_ItemType3]: {},
-				[InventoryItemHashes.ForthcomingDevianceGlaive_ItemType3]: {},
+				[InventoryItemHashes.NullifyPulseRifle]: {},
+				[InventoryItemHashes.CriticalAnomalySniperRifle]: {},
+				[InventoryItemHashes.ForthcomingDevianceGlaive]: {},
 
 				// hunter
 				[InventoryItemHashes.PromisedReignGripsGauntletsPlug]: {},
@@ -119,9 +119,9 @@ export default {
 				description: "Find a path to ascension.",
 			},
 			dropTable: {
-				[InventoryItemHashes.SummumBonumSword_ItemType3]: {},
-				[InventoryItemHashes.NonDenouementCombatBow_ItemType3]: {},
-				[InventoryItemHashes.ImminenceSubmachineGun_ItemType3]: {},
+				[InventoryItemHashes.SummumBonumSword]: {},
+				[InventoryItemHashes.NonDenouementCombatBow]: {},
+				[InventoryItemHashes.ImminenceSubmachineGun]: {},
 
 				// hunter
 				[InventoryItemHashes.PromisedReignStridesLegArmorPlug]: {},
@@ -150,9 +150,9 @@ export default {
 			},
 			dropTable: {
 				[InventoryItemHashes.EuphonyLinearFusionRifle]: {},
-				[InventoryItemHashes.SummumBonumSword_ItemType3]: {},
-				[InventoryItemHashes.NullifyPulseRifle_ItemType3]: {},
-				[InventoryItemHashes.CriticalAnomalySniperRifle_ItemType3]: {},
+				[InventoryItemHashes.SummumBonumSword]: {},
+				[InventoryItemHashes.NullifyPulseRifle]: {},
+				[InventoryItemHashes.CriticalAnomalySniperRifle]: {},
 
 				// hunter
 				[InventoryItemHashes.PromisedReignMaskHelmetPlug]: {},
@@ -182,12 +182,12 @@ export default {
 	master: {
 		activityHash: ActivityHashes.SalvationsEdgeMaster,
 		dropTable: {
-			[InventoryItemHashes.ImminenceAdeptSubmachineGun_ItemType3]: {},
-			[InventoryItemHashes.ForthcomingDevianceAdeptGlaive_ItemType3]: {},
-			[InventoryItemHashes.NonDenouementAdeptCombatBow_ItemType3]: {},
-			[InventoryItemHashes.NullifyAdeptPulseRifle_ItemType3]: {},
-			[InventoryItemHashes.CriticalAnomalyAdeptSniperRifle_ItemType3]: {},
-			[InventoryItemHashes.SummumBonumAdeptSword_ItemType3]: {},
+			[InventoryItemHashes.ImminenceAdeptSubmachineGun]: {},
+			[InventoryItemHashes.ForthcomingDevianceAdeptGlaive]: {},
+			[InventoryItemHashes.NonDenouementAdeptCombatBow]: {},
+			[InventoryItemHashes.NullifyAdeptPulseRifle]: {},
+			[InventoryItemHashes.CriticalAnomalyAdeptSniperRifle]: {},
+			[InventoryItemHashes.SummumBonumAdeptSword]: {},
 		},
 	},
 } satisfies DeepsightDropTableDefinition;
