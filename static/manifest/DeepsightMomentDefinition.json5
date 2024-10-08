@@ -311,6 +311,13 @@
 		year: 7,
 		seasonHash: 2758726572,
 	},
+	"37": {
+		id: "revenant",
+		iconWatermark: { DestinyInventoryItemDefinition: 1111334348 }, // Ice Breaker
+		season: 25,
+		year: 7,
+		seasonHash: 2758726573,
+	},
 	"-1": {
 		id: "revelry",
 		displayProperties: {
