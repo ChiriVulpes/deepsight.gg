@@ -80,12 +80,15 @@ namespace PGCR {
 			},
 		})
 			.then(async response => {
-				return [response, await response.json() as ServerResponse<DestinyPostGameCarnageReportData | undefined>] as const;
+				return [response, await response.json().catch(() => undefined) as ServerResponse<DestinyPostGameCarnageReportData | undefined> | undefined] as const;
 			})
 			.then(([response, json]) => {
-				if (!response.ok) {
+				if (!response.ok || !json) {
 					if (json)
 						throw Object.assign(new Error(json.Message), json, { code: response.status });
+
+					if (response.ok)
+						throw new Error("Unexpected non-JSON response with 200 status code");
 
 					throw Object.assign(new Error(response.statusText), { code: response.status });
 				}
