@@ -76,7 +76,12 @@ namespace PGCR {
 				"X-API-Key": apiKey!,
 			},
 		})
-			.then(response => response.json())
+			.then(response => {
+				if (!response.ok)
+					throw Object.assign(new Error(response.statusText), { code: response.status });
+
+				return response.json();
+			})
 			.then((response: ServerResponse<DestinyPostGameCarnageReportData | undefined>) => response.Response);
 	}
 
