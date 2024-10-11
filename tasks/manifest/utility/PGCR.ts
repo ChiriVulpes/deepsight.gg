@@ -71,21 +71,27 @@ namespace PGCR {
 
 	const cache: Partial<Record<number, DestinyPostGameCarnageReportData>> = {};
 	export async function get (id: number): Promise<DestinyPostGameCarnageReportData | undefined> {
-		return cache[id] ??= await fetch(`${ENDPOINT_PGCR}/${id}/`, {
+		if (cache[id])
+			return cache[id];
+
+		return cache[id] = await fetch(`${ENDPOINT_PGCR}/${id}/`, {
 			headers: {
 				"X-API-Key": apiKey!,
 			},
 		})
 			.then(async response => {
+				return [response, await response.json() as ServerResponse<DestinyPostGameCarnageReportData | undefined>] as const;
+			})
+			.then(([response, json]) => {
 				if (!response.ok) {
-					const text = await response.text().catch(() => "");
-					console.error(text);
+					if (json)
+						throw Object.assign(new Error(json.Message), json, { code: response.status });
+
 					throw Object.assign(new Error(response.statusText), { code: response.status });
 				}
 
-				return response.json();
-			})
-			.then((response: ServerResponse<DestinyPostGameCarnageReportData | undefined>) => response.Response);
+				return json.Response;
+			});
 	}
 
 	async function getMulti (pgcrId: number, amount: number, maxAttempts: number, message: string, filter: (pgcr: DestinyPostGameCarnageReportData) => any) {
@@ -114,6 +120,9 @@ namespace PGCR {
 			let err: Error | undefined;
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(e => (err = e, undefined));
+			if (err?.message.includes("lack the privileges"))
+				return null;
+
 			if (pgcr || state.cancelled) break;
 			await sleep(1000 * attempt);
 			Log.info(message, `query attempt ${attempt + 1} failed: ${err?.message || "Unknown Error"}`);
