@@ -103,10 +103,12 @@ namespace PGCR {
 	async function getRetry (pgcrId: number, maxAttempts: number, message: string, state = { cancelled: false }) {
 		let pgcr: DestinyPostGameCarnageReportData | undefined;
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
-			pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(() => undefined);
+			let err: Error | undefined;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			pgcr = pgcrs[pgcrId] ??= await get(pgcrId).catch(e => (err = e, undefined));
 			if (pgcr || state.cancelled) break;
 			await sleep(1000 * attempt);
-			Log.info(message, `query attempt ${attempt + 1} failed`);
+			Log.info(message, `query attempt ${attempt + 1} failed: ${err?.message || "Unknown Error"}`);
 		}
 
 		if (!pgcr && !state.cancelled) {
