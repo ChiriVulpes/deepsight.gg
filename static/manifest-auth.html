@@ -1,0 +1,21 @@
+<script>
+(async () => {
+	const env = await fetch("./env.json").then(response => response.json())
+	const code = new URLSearchParams(location.search).get("code")
+	const result = await fetch("https://www.bungie.net/app/oauth/token/", {
+		method: "POST",
+		headers: {
+			Authorization: `Basic ${btoa(`${env.DEEPSIGHT_MANIFEST_CLIENT_ID}:${env.DEEPSIGHT_MANIFEST_CLIENT_SECRET}`)}`,
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		body: {
+			grant_type: "authorization_code",
+			code,
+		},
+	}).then(response => response.json())
+	
+	const pre = document.createElement("pre")
+	pre.textContent = JSON.stringify(result, null, "    ")
+	document.body.appendChild(pre)
+})()
+</script>

@@ -31,6 +31,7 @@ export default Task("static", async (task, file?: string) => {
 		await task.run(DeepsightTypes);
 		// manifests are handled in a separate task in the build
 		await fs.rm("docs/manifest", { recursive: true });
+		await fs.rm("docs/manifest-auth.html");
 		return;
 	}
 

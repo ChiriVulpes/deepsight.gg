@@ -39,7 +39,15 @@ export default async function <T> (path: string) {
 			return response.Response;
 		})
 		.catch((err: Error) => {
-			Log.error(err.message.includes("disabled for maintenance") ? err.message : err);
+			if (err.message.includes("invalid credentials")) {
+				Log.error(err.message);
+				Log.error(`1. Get auth code: https://www.bungie.net/en/oauth/authorize?client_id=${Env.DEEPSIGHT_MANIFEST_CLIENT_ID}&response_type=code`);
+				Log.error("2. Authenticate: https://localhost:8094/manifest-auth.html?code=AUTH_CODE_FROM_STEP_1");
+				Log.error("3. Replace secrets DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN and DEEPSIGHT_MANIFEST_USER_REFRESH_TOKEN: https://github.com/ChiriVulpes/deepsight.gg/settings/secrets/actions");
+			} else {
+				Log.error(err.message.includes("disabled for maintenance") ? err.message : err);
+			}
+
 			return undefined;
 		});
 }
