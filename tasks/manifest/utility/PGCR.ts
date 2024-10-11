@@ -76,9 +76,12 @@ namespace PGCR {
 				"X-API-Key": apiKey!,
 			},
 		})
-			.then(response => {
-				if (!response.ok)
+			.then(async response => {
+				if (!response.ok) {
+					const text = await response.text().catch(() => "");
+					console.error(text);
 					throw Object.assign(new Error(response.statusText), { code: response.status });
+				}
 
 				return response.json();
 			})
