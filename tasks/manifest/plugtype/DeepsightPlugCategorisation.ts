@@ -36,9 +36,6 @@ namespace DeepsightPlugCategorisation {
 
 			case InventoryItemHashes.EmptyMementoSocketPlug:
 				return DeepsightPlugCategory.Cosmetic;
-
-			case InventoryItemHashes.AlethonymCatalystPlug:
-				return DeepsightPlugCategory.Masterwork;
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
@@ -263,8 +260,6 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty;
 				case InventoryItemHashes.MasterworkUpgradePlug236077174:
 					return DeepsightPlugTypeMasterwork.WeaponEmpty;
-				case InventoryItemHashes.AlethonymCatalystPlug: // missing exotic catalyst trait
-					return DeepsightPlugTypeMasterwork.ExoticCatalyst;
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -312,6 +307,9 @@ namespace DeepsightPlugCategorisation {
 
 			if (context.definition.displayProperties?.name.endsWith(" Catalyst") && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
 				return DeepsightPlugTypeMasterwork.ExoticCatalystAvailable;
+
+			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic && plugCategoryIdentifier?.endsWith(".masterwork"))
+				return DeepsightPlugTypeMasterwork.ExoticCatalyst;
 		},
 		[DeepsightPlugCategory.Vendor]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
