@@ -19,7 +19,7 @@ const VENDOR_BACKGROUNDS: Partial<Record<VendorHashes, string | Partial<Record<D
 	[VendorHashes.Nimbus]: "nimbus",
 	[VendorHashes.Fynch]: "fynch",
 	[VendorHashes.Xur_CategoriesLength27]: "xurxurstreasurehoard",
-	[VendorHashes.Xur_CategoriesLength22]: "xurtower",
+	[VendorHashes.Xur_CategoriesLength23]: "xurtower",
 	[VendorHashes.Ada1_Enabledtrue]: "ada1",
 	[VendorHashes.Banshee44_Enabledtrue]: "banshee44",
 	[VendorHashes.CommanderZavala_Enabledtrue]: "commanderzavala",
@@ -46,14 +46,14 @@ const VENDOR_GROUP_OVERRIDES: Partial<Record<VendorHashes, VendorGroupHashes[]>>
 	[VendorHashes.Nimbus]: [VendorGroupHashes.Destination, VendorGroupHashes.Lightfall],
 	[VendorHashes.Fynch]: [VendorGroupHashes.Destination, VendorGroupHashes.TheWitchQueen],
 	[VendorHashes.Xur_CategoriesLength27]: [VendorGroupHashes.Destination, VendorGroupHashes["30thAnniversary"]],
-	[VendorHashes.Xur_CategoriesLength22]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
+	[VendorHashes.Xur_CategoriesLength23]: [VendorGroupHashes.Tower, VendorGroupHashes.LimitedTime],
 };
 
 const VENDOR_MOMENTS: Partial<Record<VendorHashes, MomentHashes>> = {
 	[VendorHashes.Nimbus]: MomentHashes.Lightfall,
 	[VendorHashes.WarTable]: MomentHashes.SeasonOfDefiance,
 	[VendorHashes.Fynch]: MomentHashes.TheWitchQueen,
-	[VendorHashes.Xur_CategoriesLength22]: MomentHashes.Bungie30thAnniversary,
+	[VendorHashes.Xur_CategoriesLength23]: MomentHashes.Bungie30thAnniversary,
 	[VendorHashes.DevrimKay]: MomentHashes.TheRedWar,
 	[VendorHashes.Failsafe]: MomentHashes.TheRedWar,
 	[VendorHashes.ErisMorn]: MomentHashes.Shadowkeep,

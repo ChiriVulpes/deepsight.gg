@@ -11,7 +11,7 @@ export default Task("DeepsightVendorDefinition", async () => {
 		[VendorHashes.Nimbus]: vendors[VendorHashes.Nimbus],
 		[VendorHashes.Fynch]: vendors[VendorHashes.Fynch],
 		[VendorHashes.Starhorse]: vendors[VendorHashes.Starhorse],
-		[VendorHashes.Xur_CategoriesLength22]: vendors[VendorHashes.Xur_CategoriesLength22],
+		[VendorHashes.Xur_CategoriesLength23]: vendors[VendorHashes.Xur_CategoriesLength23],
 		[VendorHashes.Xur_CategoriesLength27]: vendors[VendorHashes.Xur_CategoriesLength27],
 		[VendorHashes.Ada1_Enabledtrue]: vendors[VendorHashes.Ada1_Enabledtrue],
 		[VendorHashes.Banshee44_Enabledtrue]: vendors[VendorHashes.Banshee44_Enabledtrue],
