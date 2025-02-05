@@ -1,7 +1,7 @@
 import type { DestinationHashes } from "@deepsight.gg/enums";
 import { EventCardHashes, MomentHashes, VendorGroupHashes, VendorHashes } from "@deepsight.gg/enums";
 import Arrays from "@deepsight.gg/utility/Arrays";
-import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyVendorsResponse, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfuint32, DestinyVendorsResponse, DictionaryComponentResponse } from "bungie-api-ts/destiny2";
 import { ComponentPrivacySetting } from "bungie-api-ts/destiny2";
 import { diff } from "json-diff";
 import type { DeepsightDisplayPropertiesDefinition, DeepsightVendorDefinition, DeepsightVendorItemDefinition } from "../../../../static/manifest/Interfaces";
@@ -186,7 +186,7 @@ export default Model(async () =>
 												"plugStates",
 												"objectives",
 												"perks",
-											] as (keyof DestinyItemComponentSetOfint32)[])
+											] as (keyof DestinyItemComponentSetOfuint32)[])
 												.map(component => [component, {
 													data: {
 														[itemIndex]: itemComponents.map(itemComponents => itemComponents[component]?.data?.[itemIndex])

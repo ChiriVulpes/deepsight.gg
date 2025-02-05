@@ -15,10 +15,6 @@ const elapsed = IManifest.elapsed;
 const CacheComponentKey = IManifest.CacheComponentKey;
 
 declare module "bungie-api-ts/destiny2" {
-	interface DestinyRecordDefinition {
-		recordTypeName?: string;
-	}
-
 	interface AllDestinyManifestComponents {
 		DestinyInventoryItemLiteDefinition: {
 			[key: number]: DestinyInventoryItemDefinition;

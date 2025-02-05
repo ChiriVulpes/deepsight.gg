@@ -1,6 +1,8 @@
 import { InventoryItemHashes, type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/enums";
 import type { DeepsightCollectionsDefinitionManifest } from "@deepsight.gg/interfaces";
+import Arrays from "@deepsight.gg/utility/Arrays";
 import type { PromiseOr } from "@deepsight.gg/utility/Type";
+import ansi from "ansicolor";
 import type { DestinyInventoryItemDefinition, DestinyPlugSetDefinition } from "bungie-api-ts/destiny2";
 import { DestinyClass } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
@@ -140,13 +142,23 @@ const IGNORED_ITEM_ISSUES = [
 	"Wing Theorem",
 	"Xenos Vale Bond",
 	"Xenos Vale IV",
+	// TODO remove these after the class type manifest issue is fixed
+	"Arms of Optimacy",
+	"Chest Armor",
+	"Gauntlets",
+	"Helmet",
+	"Kairos Function Boots",
+	"Leg Armor",
+	"Legs of Optimacy",
+	"Mindbreaker Boots",
+	"Refugee Boots",
+	"Refugee Gloves",
+	"Refugee Helm",
+	"Refugee Vest",
+	"Viperidax Helmet",
 ];
 
-const ACCEPTIBLE_DUPLICATES = [
-	InventoryItemHashes.JurassicGreenPulseRifle2603335652,
-	InventoryItemHashes.JurassicGreenPulseRifle3103255595,
-	InventoryItemHashes.ZephyrSword396910433,
-	InventoryItemHashes.ZephyrSword1911078836,
+const ACCEPTIBLE_DUPLICATES: InventoryItemHashes[] = [
 ];
 
 const hasArtificeIntrinsic = (item: DestinyInventoryItemDefinition) =>
@@ -267,6 +279,7 @@ async function computeDeepsightCollectionsDefinition () {
 			buckets: {},
 		};
 		const bucket = buckets[itemB.inventory.bucketTypeHash as InventoryBucketHashes] ??= [];
+		Arrays.removeSwap(bucket, ...[...existing ?? []].map(i => i.hash));
 		bucket.push(itemB.hash);
 	}
 
@@ -277,7 +290,9 @@ async function computeDeepsightCollectionsDefinition () {
 			.map(issueItems => {
 				const item = issueItems[0];
 				const className = item.classType === DestinyClass.Hunter ? "Hunter" : item.classType === DestinyClass.Titan ? "Titan" : item.classType === DestinyClass.Warlock ? "Warlock" : "";
-				return ` - ${item.displayProperties.name} (${className ? `${className} ` : ""}${item.itemTypeDisplayName}): ${issueItems.map(item => item.hash).join(" ")}`;
+				return ` - ${item.displayProperties.name} (${className ? `${className} ` : ""}${item.itemTypeDisplayName}):\n${issueItems
+					.map(item => ansi.darkGray(`   - https://data.destinysets.com/i/InventoryItem:${item.hash}`))
+					.join("\n")}`;
 			})
 			.sort()
 			.join("\n")}`);

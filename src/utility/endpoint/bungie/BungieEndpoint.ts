@@ -24,6 +24,7 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 	private allowedErrorStatuses: string[] = [];
 	private subdomain = "www";
 	private optionalAuth?: true;
+	private skipAuthHeaders?: true;
 	private profileSupplier?: (...args: ARGS) => IProfileStorage;
 
 	public constructor (path: BungieEndpointURLResolvable<ARGS>, builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) {
@@ -45,6 +46,14 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 			this.optionalAuth = optionalAuth;
 		else
 			delete this.optionalAuth;
+		return this;
+	}
+
+	public setSkipAuthHeaders (skipAuthHeaders = true) {
+		if (skipAuthHeaders)
+			this.skipAuthHeaders = skipAuthHeaders;
+		else
+			delete this.skipAuthHeaders;
 		return this;
 	}
 
@@ -142,7 +151,9 @@ class BungieEndpointImpl<ARGS extends any[], RESPONSE> extends Endpoint<RESPONSE
 
 	protected override async getHeaders (headers?: Record<string, string | undefined>, ...args: ARGS) {
 		return {
-			"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(...args),
+			...this.skipAuthHeaders ? undefined : {
+				"Authorization": headers?.Authorization ? undefined : await this.getAuthorisation(...args),
+			},
 			"X-API-Key": Env.DEEPSIGHT_BUNGIE_API_KEY,
 			...headers,
 		};
@@ -172,6 +183,7 @@ interface BungieEndpoint<ARGS extends any[], RESPONSE> {
 	allowErrorStatus (status: string): this;
 	setSubdomain (subdomain: string): this;
 	setOptionalAuth (optionalAuth?: boolean): this;
+	setSkipAuthHeaders (skipAuthHeaders?: boolean): this;
 	setProfile (supplier?: (...args: ARGS) => IProfileStorage): this;
 }
 

@@ -300,7 +300,7 @@
 			description: "The Final Shape looms—a nightmarish calcification of reality into the Witness's twisted design. Embark on a perilous journey into the heart of the Traveler, rally the Vanguard, and end the War of Light and Darkness.",
 			icon: { DestinyTraitDefinition: 2878306895 }, // The Final Shape
 		},
-		iconWatermark: { DestinyInventoryItemDefinition: 1033072181 }, // The Call
+		iconWatermark: { DestinyInventoryItemDefinition: 1681583613 }, // Ergo Sum
 		expansion: true,
 		year: 7,
 	},
@@ -317,6 +317,13 @@
 		season: 25,
 		year: 7,
 		seasonHash: 2758726573,
+	},
+	"38": {
+		id: "heresy",
+		iconWatermark: { DestinyInventoryItemDefinition: 3725585710 }, // Lodestar
+		season: 26,
+		year: 7,
+		seasonHash: 2758726574,
 	},
 	"-1": {
 		id: "revelry",

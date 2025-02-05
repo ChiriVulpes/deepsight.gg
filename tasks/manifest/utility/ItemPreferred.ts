@@ -50,6 +50,8 @@ namespace ItemPreferred {
 		InventoryItemHashes.JurassicGreenPulseRifle2261046232, // older
 		InventoryItemHashes.JurassicGreenPulseRifle2603335652, // older
 		InventoryItemHashes.MechabreSniperRifle1280894514, // older
+		InventoryItemHashes.ZephyrSword396910433, // older
+		InventoryItemHashes.AvalancheMachineGun495940989, // older
 	];
 
 	export function isIgnored (item: InventoryItemHashes) {
