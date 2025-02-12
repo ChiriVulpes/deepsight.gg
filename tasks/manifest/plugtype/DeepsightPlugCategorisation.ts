@@ -806,27 +806,27 @@ namespace DeepsightPlugCategorisation {
 	}
 
 	const subclasses: Record<string, InventoryItemHashes[]> = {
-		"hunter.void": [InventoryItemHashes.NightstalkerHunterSubclass_Equippabletrue],
-		"hunter.solar": [InventoryItemHashes.GunslingerHunterSubclass_Equippabletrue],
-		"hunter.arc": [InventoryItemHashes.ArcstriderHunterSubclass_Equippabletrue],
+		"hunter.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1],
+		"hunter.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1],
+		"hunter.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1],
 		"hunter.stasis": [InventoryItemHashes.RevenantHunterSubclass],
 		"hunter.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass],
 
-		"titan.void": [InventoryItemHashes.SentinelTitanSubclass_Equippabletrue],
-		"titan.solar": [InventoryItemHashes.SunbreakerTitanSubclass_Equippabletrue],
-		"titan.arc": [InventoryItemHashes.StrikerTitanSubclass_Equippabletrue],
+		"titan.void": [InventoryItemHashes.SentinelTitanSubclass_ClassType0],
+		"titan.solar": [InventoryItemHashes.SunbreakerTitanSubclass_ClassType0],
+		"titan.arc": [InventoryItemHashes.StrikerTitanSubclass_ClassType0],
 		"titan.stasis": [InventoryItemHashes.BehemothTitanSubclass],
 		"titan.strand": [InventoryItemHashes.BerserkerTitanSubclass],
 
-		"warlock.void": [InventoryItemHashes.VoidwalkerWarlockSubclass_Equippabletrue],
-		"warlock.solar": [InventoryItemHashes.DawnbladeWarlockSubclass_Equippabletrue],
-		"warlock.arc": [InventoryItemHashes.StormcallerWarlockSubclass_Equippabletrue],
+		"warlock.void": [InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		"warlock.solar": [InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		"warlock.arc": [InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
 		"warlock.stasis": [InventoryItemHashes.ShadebinderWarlockSubclass],
 		"warlock.strand": [InventoryItemHashes.BroodweaverWarlockSubclass],
 
-		"shared.void": [InventoryItemHashes.NightstalkerHunterSubclass_Equippabletrue, InventoryItemHashes.SentinelTitanSubclass_Equippabletrue, InventoryItemHashes.VoidwalkerWarlockSubclass_Equippabletrue],
-		"shared.solar": [InventoryItemHashes.GunslingerHunterSubclass_Equippabletrue, InventoryItemHashes.SunbreakerTitanSubclass_Equippabletrue, InventoryItemHashes.DawnbladeWarlockSubclass_Equippabletrue],
-		"shared.arc": [InventoryItemHashes.ArcstriderHunterSubclass_Equippabletrue, InventoryItemHashes.StrikerTitanSubclass_Equippabletrue, InventoryItemHashes.StormcallerWarlockSubclass_Equippabletrue],
+		"shared.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1, InventoryItemHashes.SentinelTitanSubclass_ClassType0, InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		"shared.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1, InventoryItemHashes.SunbreakerTitanSubclass_ClassType0, InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		"shared.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1, InventoryItemHashes.StrikerTitanSubclass_ClassType0, InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
 		"shared.stasis": [InventoryItemHashes.RevenantHunterSubclass, InventoryItemHashes.BehemothTitanSubclass, InventoryItemHashes.ShadebinderWarlockSubclass],
 		"shared.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
 	};
