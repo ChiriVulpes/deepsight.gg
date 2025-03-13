@@ -140,6 +140,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.RewardScrollsRitual:
 			case PlugCategoryHashes.ArtifactBoostsColumn01:
 			case PlugCategoryHashes.ArtifactBoostsColumn02:
+			case PlugCategoryHashes.ArtifactBoostsColumn03:
 				return DeepsightPlugCategory.Seasonal;
 		}
 
@@ -762,6 +763,7 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeSeasonal.ScrollRitual;
 				case PlugCategoryHashes.ArtifactBoostsColumn01:
 				case PlugCategoryHashes.ArtifactBoostsColumn02:
+				case PlugCategoryHashes.ArtifactBoostsColumn03:
 					return DeepsightPlugTypeSeasonal.ArtifactBoost;
 			}
 		},

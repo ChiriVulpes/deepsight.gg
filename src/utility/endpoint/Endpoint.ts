@@ -75,11 +75,12 @@ export default class Endpoint<T, R = T, ARGS extends any[] = []> {
 				search += request.search;
 		}
 
-		return fetch(`${path}${search}`, {
+		const params = [`${path}${search}`, {
 			...request,
 			body,
 			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers, ...args)).filter(([key, value]) => typeof value === "string") as [string, string][]),
-		});
+		} satisfies RequestInit] as const;
+		return fetch(...params);
 	}
 
 	protected resolvePath (...args: ARGS) {

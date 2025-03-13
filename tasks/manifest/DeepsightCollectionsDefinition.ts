@@ -291,7 +291,7 @@ async function computeDeepsightCollectionsDefinition () {
 				const item = issueItems[0];
 				const className = item.classType === DestinyClass.Hunter ? "Hunter" : item.classType === DestinyClass.Titan ? "Titan" : item.classType === DestinyClass.Warlock ? "Warlock" : "";
 				return ` - ${item.displayProperties.name} (${className ? `${className} ` : ""}${item.itemTypeDisplayName}):\n${issueItems
-					.map(item => ansi.darkGray(`   - https://data.destinysets.com/i/InventoryItem:${item.hash}`))
+					.map(item => ansi.darkGray(`   - https://data.destinysets.com/i/InventoryItem:${item.hash} https://light.gg/db/items/${item.hash}`))
 					.join("\n")}`;
 			})
 			.sort()

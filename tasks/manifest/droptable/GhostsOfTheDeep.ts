@@ -7,8 +7,8 @@ export default {
 		icon: "./image/png/activity/gotd.png",
 	},
 	dropTable: {
-		[InventoryItemHashes.NoSurvivorsSubmachineGun]: {},
-		[InventoryItemHashes.ColdComfortRocketLauncher]: {},
+		[InventoryItemHashes.NoSurvivorsSubmachineGun3262192268]: {},
+		[InventoryItemHashes.ColdComfortRocketLauncher839786290]: {},
 		[InventoryItemHashes.GauntletsOfTheTakenKingGauntletsPlug]: {},
 		[InventoryItemHashes.GraspsOfTheTakenKingGauntletsPlug]: {},
 		[InventoryItemHashes.GlovesOfTheTakenKingGauntletsPlug]: {},
@@ -28,7 +28,7 @@ export default {
 				description: "Unravel the Lucent Hive ritual.",
 			},
 			dropTable: {
-				[InventoryItemHashes.NewPacificEpitaphGrenadeLauncher]: {},
+				[InventoryItemHashes.NewPacificEpitaphGrenadeLauncher1125217994]: {},
 				[InventoryItemHashes.HelmOfTheTakenKingHelmetPlug]: {},
 				[InventoryItemHashes.GreavesOfTheTakenKingLegArmorPlug]: {},
 				[InventoryItemHashes.MaskOfTheTakenKingHelmetPlug]: {},
@@ -82,7 +82,7 @@ export default {
 				description: "Defeat Ecthar, the Shield of Savathûn.",
 			},
 			dropTable: {
-				[InventoryItemHashes.GreasyLuckGlaive]: {},
+				[InventoryItemHashes.GreasyLuckGlaive1757202961]: {},
 				[InventoryItemHashes.PlateOfTheTakenKingChestArmorPlug]: {},
 				[InventoryItemHashes.MarkOfTheTakenKingTitanMarkPlug]: {},
 				[InventoryItemHashes.VestOfTheTakenKingChestArmorPlug]: {},
@@ -113,8 +113,8 @@ export default {
 				description: "Defeat the lightforged necromancer, Šimmumah ur-Nokru.",
 			},
 			dropTable: {
-				[InventoryItemHashes.NewPacificEpitaphGrenadeLauncher]: {},
-				[InventoryItemHashes.GreasyLuckGlaive]: {},
+				[InventoryItemHashes.NewPacificEpitaphGrenadeLauncher1125217994]: {},
+				[InventoryItemHashes.GreasyLuckGlaive1757202961]: {},
 				[InventoryItemHashes.TheNavigatorTraceRifle]: {},
 				[InventoryItemHashes.HelmOfTheTakenKingHelmetPlug]: {},
 				[InventoryItemHashes.GreavesOfTheTakenKingLegArmorPlug]: {},

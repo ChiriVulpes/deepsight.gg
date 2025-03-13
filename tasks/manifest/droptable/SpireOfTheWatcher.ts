@@ -7,7 +7,7 @@ export default {
 		icon: { DestinyRecordDefinition: RecordHashes.SpireOfTheWatcher2302993504 },
 	},
 	dropTable: {
-		[InventoryItemHashes.TerminusHorizonMachineGun]: {},
+		[InventoryItemHashes.TerminusHorizonMachineGun487205709]: {},
 		[InventoryItemHashes.TmCogburnCustomGauntletsGauntletsPlug]: {},
 		[InventoryItemHashes.TmEarpCustomGripsGauntletsPlug]: {},
 		[InventoryItemHashes.TmMossCustomGlovesGauntletsPlug]: {},
@@ -43,7 +43,7 @@ export default {
 				description: "Open a route via the grav lift to the Spire peak, where the Pillory signal is being sourced.",
 			},
 			dropTable: {
-				[InventoryItemHashes.LongArmScoutRifle]: {},
+				[InventoryItemHashes.LongArmScoutRifle8293111]: {},
 				[InventoryItemHashes.SeventhSeraphCarbineAutoRifle_IconWatermarkShelvedUndefined]: {},
 				[InventoryItemHashes.TmCogburnCustomCoverHelmetPlug]: {},
 				[InventoryItemHashes.TmCogburnCustomLegguardsLegArmorPlug]: {},
@@ -100,11 +100,11 @@ export default {
 				description: "Destroy Persys, Primordial Ruin and prevent the complex's reactor core meltdown from causing irreparable damage.",
 			},
 			dropTable: {
-				[InventoryItemHashes.LongArmScoutRifle]: {},
+				[InventoryItemHashes.LongArmScoutRifle8293111]: {},
 				[InventoryItemHashes.SeventhSeraphCarbineAutoRifle_IconWatermarkShelvedUndefined]: {},
 				[InventoryItemHashes.SeventhSeraphOfficerRevolverHandCannon_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.LiminalVigilSidearm]: {},
-				[InventoryItemHashes.WilderflightGrenadeLauncher]: {},
+				[InventoryItemHashes.LiminalVigilSidearm3138208275]: {},
+				[InventoryItemHashes.WilderflightGrenadeLauncher2306182339]: {},
 				[InventoryItemHashes.HierarchyOfNeedsCombatBow]: {},
 				[InventoryItemHashes.TmCogburnCustomCoverHelmetPlug]: {},
 				[InventoryItemHashes.TmCogburnCustomPlateChestArmorPlug]: {},

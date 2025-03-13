@@ -52,6 +52,59 @@ namespace ItemPreferred {
 		InventoryItemHashes.MechabreSniperRifle1280894514, // older
 		InventoryItemHashes.ZephyrSword396910433, // older
 		InventoryItemHashes.AvalancheMachineGun495940989, // older
+		InventoryItemHashes.HullabalooGrenadeLauncher657927352, // older
+		InventoryItemHashes.TaraxipposScoutRifle1389546626, // older
+		InventoryItemHashes.TheTitleSubmachineGun655712834, // older
+
+		// broken rite of the nine weapons
+		InventoryItemHashes.ASuddenDeathShotgun1962751375,
+		InventoryItemHashes.ASuddenDeathShotgun2557589026,
+		InventoryItemHashes.ASuddenDeathShotgun2946572750,
+		InventoryItemHashes.ASuddenDeathShotgun3535064067,
+		InventoryItemHashes.ColdComfortRocketLauncher291447487,
+		InventoryItemHashes.ColdComfortRocketLauncher1817605554,
+		InventoryItemHashes.ColdComfortRocketLauncher2126543269,
+		InventoryItemHashes.ColdComfortRocketLauncher2760833884,
+		InventoryItemHashes.GreasyLuckGlaive1050582210,
+		InventoryItemHashes.GreasyLuckGlaive1685406703,
+		InventoryItemHashes.GreasyLuckGlaive2934305134,
+		InventoryItemHashes.GreasyLuckGlaive3210739171,
+		InventoryItemHashes.JudgmentHandCannon1635931988,
+		InventoryItemHashes.JudgmentHandCannon2907694858,
+		InventoryItemHashes.JudgmentHandCannon2909639533,
+		InventoryItemHashes.JudgmentHandCannon3164166855,
+		InventoryItemHashes.LiminalVigilSidearm1460079227,
+		InventoryItemHashes.LiminalVigilSidearm1905934655,
+		InventoryItemHashes.LiminalVigilSidearm2575844666,
+		InventoryItemHashes.LiminalVigilSidearm3421639790,
+		InventoryItemHashes.LongArmScoutRifle14929251,
+		InventoryItemHashes.LongArmScoutRifle3692140710,
+		InventoryItemHashes.LongArmScoutRifle4239378215,
+		InventoryItemHashes.LongArmScoutRifle4249949938,
+		InventoryItemHashes.NewPacificEpitaphGrenadeLauncher233402416,
+		InventoryItemHashes.NewPacificEpitaphGrenadeLauncher492673102,
+		InventoryItemHashes.NewPacificEpitaphGrenadeLauncher2059741649,
+		InventoryItemHashes.NewPacificEpitaphGrenadeLauncher3185151619,
+		InventoryItemHashes.NoSurvivorsSubmachineGun189194532,
+		InventoryItemHashes.NoSurvivorsSubmachineGun1157220231,
+		InventoryItemHashes.NoSurvivorsSubmachineGun4193602194,
+		InventoryItemHashes.NoSurvivorsSubmachineGun4228149269,
+		InventoryItemHashes.ProsecutorAutoRifle280985435,
+		InventoryItemHashes.ProsecutorAutoRifle599883935,
+		InventoryItemHashes.ProsecutorAutoRifle3146195546,
+		InventoryItemHashes.ProsecutorAutoRifle3912734222,
+		InventoryItemHashes.RelentlessPulseRifle94414241,
+		InventoryItemHashes.RelentlessPulseRifle684264976,
+		InventoryItemHashes.RelentlessPulseRifle3340037896,
+		InventoryItemHashes.RelentlessPulseRifle4193661297,
+		InventoryItemHashes.TerminusHorizonMachineGun2210806903,
+		InventoryItemHashes.TerminusHorizonMachineGun2730671571,
+		InventoryItemHashes.TerminusHorizonMachineGun3984556130,
+		InventoryItemHashes.TerminusHorizonMachineGun4267192886,
+		InventoryItemHashes.WilderflightGrenadeLauncher559523765,
+		InventoryItemHashes.WilderflightGrenadeLauncher1206729100,
+		InventoryItemHashes.WilderflightGrenadeLauncher2477408004,
+		InventoryItemHashes.WilderflightGrenadeLauncher2982006965,
 	];
 
 	export function isIgnored (item: InventoryItemHashes) {

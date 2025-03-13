@@ -22,8 +22,8 @@ export default {
 				description: "Confront the Phalanx Echo, a part of the Nine's answer to your question.",
 			},
 			dropTable: {
-				[InventoryItemHashes.ProsecutorAutoRifle_IconWatermarkShelvedUndefined]: {},
-				[InventoryItemHashes.RelentlessPulseRifle_TooltipNotificationsLength3]: {},
+				[InventoryItemHashes.ProsecutorAutoRifle3483591058]: {},
+				[InventoryItemHashes.RelentlessPulseRifle435821041]: {},
 				[InventoryItemHashes.CrushingGreavesCodaLegArmorPlug]: {},
 				[InventoryItemHashes.MarkJudgmentCodaTitanMarkPlug]: {},
 				[InventoryItemHashes.FlowingBootsCodaLegArmorPlug]: {},
