@@ -20,6 +20,8 @@ enum Filter {
 	Adept,
 	Shaped,
 	Pattern,
+	Enhancement,
+	Unlevelled,
 	Catalyst,
 	Moment,
 	Duplicate,

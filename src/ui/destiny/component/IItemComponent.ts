@@ -13,6 +13,7 @@ export enum ItemClasses {
 	Artifact = "item-artifact",
 	Shaped = "item-shaped",
 	CanEnhance = "item-can-enhance",
+	Adept = "item-adept",
 	Enhanced = "item-enhanced",
 	Deepsight = "item-deepsight",
 	DeepsightHasPattern = "item-deepsight-has-pattern",

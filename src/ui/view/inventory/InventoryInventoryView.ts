@@ -36,6 +36,8 @@ export const FILTERS_INAPPLICABLE_INVENTORY = [
 	Filter.Ammo,
 	Filter.WeaponType,
 	Filter.Element,
+	Filter.Enhancement,
+	Filter.Unlevelled,
 	Filter.Perk,
 	Filter.Shaped,
 	Filter.Adept,

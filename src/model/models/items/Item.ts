@@ -330,7 +330,9 @@ class Item {
 		};
 
 		await Promise.all([
-			Promise.resolve(DestinyInventoryItemDefinition.get((await DeepsightAdeptDefinition.get(definition.hash))?.base)).then(baseItem => Object.assign(init, { baseItem })),
+			Promise.resolve(DeepsightAdeptDefinition.get(definition.hash))
+				.then(adept => DestinyInventoryItemDefinition.get(adept?.base))
+				.then(baseItem => Object.assign(init, { baseItem })),
 			Moment.apply(manifest, init), // used for Into the Light plugs
 			Tier.apply(manifest, init), // used for Into the Light deepsight
 		]);
@@ -360,6 +362,8 @@ class Item {
 	}
 
 	public static async createFake (manifest: Manifest, profile: Plugs.IPlugsProfile & Deepsight.IDeepsightProfile & Collectibles.ICollectiblesProfile & Source.ISourceProfile, definition: DestinyInventoryItemDefinition, source = true, instanceId?: ItemId) {
+		const { DestinyInventoryItemDefinition, DeepsightAdeptDefinition } = manifest;
+
 		const id = `hash:${definition.hash}:collections` as ItemId;
 
 		const existing = Bucket.COLLECTIONS.getItemById(id);
@@ -379,6 +383,9 @@ class Item {
 		};
 
 		await Promise.all([
+			Promise.resolve(DeepsightAdeptDefinition.get(definition.hash))
+				.then(adept => DestinyInventoryItemDefinition.get(adept?.base))
+				.then(baseItem => Object.assign(init, { baseItem })),
 			Moment.apply(manifest, init), // used for Into the Light plugs
 			Tier.apply(manifest, init), // used for Into the Light deepsight
 		]);
@@ -501,7 +508,7 @@ class Item {
 	}
 
 	public isAdept () {
-		return this.canEnhance() || (!this.bucket.isCollections() && !!this.getSocket("Mod/Weapon")?.getPlug("Mod/WeaponAdept"));
+		return !!this.baseItem;
 	}
 
 	public canEnhance () {
@@ -509,12 +516,13 @@ class Item {
 	}
 
 	public hasDeepsight () {
-		const hasIncompletePattern = this.deepsight?.pattern && !(this.deepsight.pattern.progress?.complete ?? false);
+		const hasIncompletePattern = this.deepsight?.pattern?.record && !(this.deepsight.pattern.progress?.complete ?? false);
 		return !this.deepsight?.resonance ? false : hasIncompletePattern;
 	}
 
 	public hasPattern () {
-		return this.bucket.isCollections() ? !!this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete
+		return this.bucket.isCollections()
+			? !!this.deepsight?.pattern?.record && !this.deepsight.pattern.progress?.complete
 			: !!(this.deepsight?.resonance && this.deepsight?.pattern && !this.deepsight.pattern.progress?.complete);
 	}
 

@@ -31,6 +31,8 @@ export const FILTERS_INAPPLICABLE_ARMOUR = [
 	Filter.Perk,
 	Filter.Shaped,
 	Filter.Element,
+	Filter.Enhancement,
+	Filter.Unlevelled,
 	Filter.Adept,
 	Filter.Catalyst,
 	Filter.Pattern,

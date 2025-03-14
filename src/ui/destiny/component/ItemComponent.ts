@@ -208,13 +208,24 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
+		const wishlisted = !item?.instance || item.shaped ? undefined : await item.isWishlisted();
+		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
+		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
+
 		const canShape = item?.bucket.isCollections() && item.deepsight?.pattern?.progress?.complete && !this.inventory?.isCrafted(item.definition.hash);
 		const shaped = item?.shaped || canShape;
 		this.classes.toggle(!!item?.isNotAcquired() && !shaped && !item.deepsight?.pattern?.progress?.progress, ItemClasses.NotAcquired);
-		if (shaped ? !item?.isMasterwork() : item?.canEnhance())
+		const shouldShowShapedOrEnhancedOrAdeptIcon = shaped
+			? !item?.isMasterwork()
+			: item?.bucket.isCollections()
+				? item?.isAdept()
+				: item?.canEnhance() && !displayJunkBorder
+			;
+		if (shouldShowShapedOrEnhancedOrAdeptIcon)
 			(this.iconShaped ??= Component.create("span")
 				.classes.toggle(!!shaped, ItemClasses.Shaped)
 				.classes.toggle(!!item?.canEnhance(), ItemClasses.CanEnhance)
+				.classes.toggle(!!item?.isAdept(), ItemClasses.Adept)
 				.append(Component.create("span"))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);
@@ -254,10 +265,6 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
-		const wishlisted = !item?.instance || item.shaped ? undefined : await item.isWishlisted();
-		const displayWishlistedBorder = wishlisted && Store.items.settingsDisplayWishlistedHighlights;
-		const displayJunkBorder = wishlisted === false && !Store.items.settingsDisableDisplayNonWishlistedHighlights;
-
 		this.deepsight?.classes.add(Classes.Hidden);
 		this.deepsightHasPattern?.classes.add(Classes.Hidden);
 		this.deepsightPattern?.classes.add(Classes.Hidden);
@@ -269,7 +276,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 					.indexInto(this, index))
 					.classes.remove(Classes.Hidden);
 
-			if (item?.deepsight?.pattern) {
+			if (item?.deepsight?.pattern?.record) {
 				(this.deepsightHasPattern ??= Component.create("span")
 					.classes.add(ItemClasses.DeepsightHasPattern)
 					.indexInto(this, index + 1))
@@ -327,7 +334,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		else if (displayWishlistedBorder)
 			(this.wishlist ??= Component.create("span")
 				.classes.add(ItemClasses.Wishlist)
-				.append(Component.create("span")
+				.append(item?.canEnhance() ? undefined : Component.create("span")
 					.classes.add(ItemClasses.WishlistIcon))
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden);

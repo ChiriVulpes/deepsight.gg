@@ -35,6 +35,7 @@ export const SORTS_INAPPLICABLE_COLLECTIONS = [
 export const FILTERS_INAPPLICABLE_COLLECTIONS = [
 	Filter.Locked,
 	Filter.Masterwork,
+	Filter.Unlevelled,
 ] as const;
 
 export const VIEW_ID_COLLECTIONS = "collections";

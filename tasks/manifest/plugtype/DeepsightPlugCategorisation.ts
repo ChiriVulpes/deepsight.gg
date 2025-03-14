@@ -394,6 +394,9 @@ namespace DeepsightPlugCategorisation {
 			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")
 				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
 
+			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Legendary && context.definition.itemTypeDisplayName === "Intrinsic" && context.definition.investmentStats.some(stat => stat.value === 10 && !stat.isConditionallyActive))
+				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
+
 			if (context.definition.itemTypeAndTierDisplayName === "Exotic Intrinsic")
 				return DeepsightPlugTypeIntrinsic.Exotic;
 

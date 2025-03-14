@@ -22,6 +22,8 @@ import type { IKeyEvent, IKeyUpEvent } from "ui/utility/UiEventBus";
 import UiEventBus from "ui/utility/UiEventBus";
 import Bound from "utility/decorator/Bound";
 
+const _ = undefined;
+
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
 	Tier_ = "item-tooltip-tier-",
@@ -405,7 +407,7 @@ class ItemTooltip extends Tooltip {
 
 		this.notifications.setItem(item);
 
-		const showPattern = item.deepsight?.pattern && !item.shaped;
+		const showPattern = item.deepsight?.pattern?.record && !item.shaped;
 		this.deepsight.classes.toggle(!showPattern, Classes.Hidden);
 
 		if (showPattern) {
@@ -441,10 +443,15 @@ class ItemTooltip extends Tooltip {
 			.text.set(fomoState === ItemFomoState.TemporaryAvailability ? "This item is currently available."
 				: "This item's activity is currently repeatable.");
 
-		const enhancementSocket = item.getSocket("Masterwork/Enhancement");
+		const enhancementSocket = true
+			&& item.getSocket("Masterwork/Enhancement")
+			&& (!item.shaped || item.deepsight?.pattern?.recipe);
 		this.enhance.classes.toggle(!enhancementSocket, Classes.Hidden);
-		this.enhanceText.text.set(item.shaped ? "This weapon can be modified at the [b]Relic[/b]."
-			: "This weapon can be [b]Enhanced[/b].");
+		this.enhanceText.text.set(_
+			|| (item.shaped && item.deepsight?.pattern?.recipe && "This weapon can be modified at the [b]Relic[/b].")
+			|| (!item.shaped && "This weapon can be [b]Enhanced[/b].")
+			|| undefined
+		);
 		this.weaponLevel.classes.toggle(!!enhancementSocket, ItemTooltipClasses.WeaponLevelEnhanced);
 
 		this.note.classes.add(Classes.Hidden);

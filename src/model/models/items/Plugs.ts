@@ -81,7 +81,7 @@ export class Socket {
 		socket.item = item;
 		socket.index = index;
 
-		const { DestinyInventoryItemDefinition, DeepsightSocketCategorisation } = manifest;
+		const { DeepsightSocketCategorisation } = manifest;
 		const categorisation = await DeepsightSocketCategorisation.get(item?.definition.hash);
 		socket.type = categorisation?.categorisation[index]?.fullName ?? "None";
 		if (socket.type === "Cosmetic/Shader")
@@ -91,9 +91,9 @@ export class Socket {
 			return socket; // skip ornament init in collections
 
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
-		if (item.deepsight?.pattern && index !== undefined) {
-			const recipeItem = await DestinyInventoryItemDefinition.get(item.definition.inventory?.recipeItemHash);
-			const recipeSocket = recipeItem?.sockets?.socketEntries[index];
+		const recipeItem = item.deepsight?.pattern?.recipe;
+		if (recipeItem && index !== undefined) {
+			const recipeSocket = recipeItem.sockets?.socketEntries[index];
 			if (recipeSocket) {
 				plugSetHash = recipeSocket.randomizedPlugSetHash ?? recipeSocket.reusablePlugSetHash;
 			}

@@ -8,6 +8,8 @@ const EXCLUDED_NOTIFICATIONS_SUBSTRINGS = [
 	"Deepsight activation is not available for this weapon instance.",
 	"This weapon's Pattern can be extracted.",
 	"This weapon can be enhanced.",
+	"This weapon can be enhanced further.",
+	"This weapon is fully enhanced.",
 	"This weapon can be modified at the Relic.",
 	"This weapon is fully enhanced and can be modified at the Relic on Mars.",
 	"This weapon can be enhanced further and modified at the Relic on Mars.",

@@ -1,4 +1,4 @@
-import type { DestinyCharacterRecordsComponent, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
+import type { DestinyCharacterRecordsComponent, DestinyInventoryItemDefinition, DestinyObjectiveProgress, DestinyProfileRecordsComponent, DestinyRecordDefinition, DictionaryComponentResponse, SingleComponentResponse } from "bungie-api-ts/destiny2";
 import { DestinyObjectiveUiStyle, ItemState } from "bungie-api-ts/destiny2";
 import { ItemTierTypeHashes, MomentHashes } from "deepsight.gg/Enums";
 import type Manifest from "model/models/Manifest";
@@ -12,7 +12,8 @@ export interface IWeaponShaped {
 }
 
 export interface IDeepsightPattern {
-	record: DestinyRecordDefinition;
+	recipe?: DestinyInventoryItemDefinition;
+	record?: DestinyRecordDefinition;
 	progress?: DestinyObjectiveProgress;
 }
 
@@ -66,6 +67,21 @@ namespace Deepsight {
 	}
 
 	async function resolvePattern (manifest: Manifest, profile: IDeepsightProfile | undefined, item: IItemInit): Promise<IDeepsightPattern | undefined> {
+		const { DestinyInventoryItemDefinition } = manifest;
+		const recipe = await DestinyInventoryItemDefinition.get(item.definition.inventory?.recipeItemHash);
+
+		const result: IDeepsightPattern = {
+			recipe,
+			...await resolvePatternRecord(manifest, profile, item),
+		};
+
+		if (!result.record && !result.recipe)
+			return undefined;
+
+		return result;
+	}
+
+	async function resolvePatternRecord (manifest: Manifest, profile: IDeepsightProfile | undefined, item: IItemInit): Promise<IDeepsightPattern | undefined> {
 		const { DestinyCollectibleDefinition, DestinyRecordDefinition } = manifest;
 
 		if (item.definition.displayProperties.icon === "/img/misc/missing_icon_d2.png")

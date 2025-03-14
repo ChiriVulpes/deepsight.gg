@@ -294,7 +294,8 @@ $z-index-loading: 1000;
 			}
 			
 			.item-deepsight-pattern ~ .item-fomo &,
-			.item-can-enhance ~ .item-fomo & {
+			.item-can-enhance ~ .item-fomo &,
+			.item-adept ~ .item-fomo & {
 				display: none;
 			}
 		}
@@ -324,6 +325,16 @@ $z-index-loading: 1000;
 		z-index: $z-index-shaped;
 		> * {
 			@include item-icon(url("./image/svg/enhanced.svg"), color(foreground)) {
+				width: 22%;
+				height: 22%;
+			}
+		}
+	}
+
+	&-adept {
+		z-index: $z-index-shaped;
+		> * {
+			@include item-icon(url("./image/svg/adept.svg"), color(foreground)) {
 				width: 22%;
 				height: 22%;
 			}
