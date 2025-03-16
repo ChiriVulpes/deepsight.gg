@@ -1,4 +1,5 @@
 import chokidar from "chokidar";
+import inspect from "./inspect";
 import sass from "./sass";
 import _static from "./static";
 import { tsWatch } from "./ts";
@@ -17,5 +18,8 @@ export default Task("watch", async task => {
 			&& (await Hash.fileChanged(path))
 			&& task.debounce(_static, path));
 
-	await task.run(tsWatch);
+	await Promise.all([
+		task.run(inspect),
+		task.run(tsWatch),
+	]);
 });

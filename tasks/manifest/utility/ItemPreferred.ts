@@ -120,6 +120,9 @@ namespace ItemPreferred {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const powerCapB = powerCaps[itemB.quality?.versions[itemB.quality.currentVersion]?.powerCapHash!];
 
+		if (itemA.displayProperties.name.includes("Corrective Measure"))
+			console.log(`Comparing https://data.destinysets.com/i/InventoryItem:${itemA.hash} https://data.destinysets.com/i/InventoryItem:${itemB.hash}`);
+
 		return 0
 			|| +IGNORED_ITEMS.includes(itemA.hash) - +IGNORED_ITEMS.includes(itemB.hash)
 			|| +!!itemB.collectibleHash - +!!itemA.collectibleHash

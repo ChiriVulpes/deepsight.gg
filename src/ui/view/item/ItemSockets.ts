@@ -82,6 +82,9 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 					if (plug.is("Perk/TraitLocked"))
 						continue;
 
+					if (plug.is("Perk/EmptyCraftingSocket", "Intrinsic/EmptyCraftingSocket"))
+						continue;
+
 					if (!plug.definition?.displayProperties.name)
 						continue;
 
@@ -114,6 +117,9 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 						continue;
 
 					if (socket.is("Masterwork/ExoticCatalyst") && !this.item.isMasterwork())
+						continue;
+
+					if (plug.is("Perk/EmptyCraftingSocket", "Intrinsic/EmptyCraftingSocket"))
 						continue;
 
 					for (const perk of plug.perks) {

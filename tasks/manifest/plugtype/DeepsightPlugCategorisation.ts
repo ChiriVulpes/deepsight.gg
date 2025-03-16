@@ -382,13 +382,17 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypeIntrinsic.Exotic; // these are old/dummy versions of these perks
 
 				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540: // rose's adaptive frame is considered exotic tier
-				case InventoryItemHashes.EmptyFramesSocketPlug:
 				case InventoryItemHashes.WaveSwordFrameIntrinsicPlug289811733:
 				case InventoryItemHashes.CasterFrameIntrinsicPlug_TooltipStyleUndefined:
 				case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
 				case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
 				case InventoryItemHashes.AggressiveFrameTraitPlug:
 					return DeepsightPlugTypeIntrinsic.Frame;
+			}
+
+			switch (context.definition.plug?.plugCategoryHash) {
+				case PlugCategoryHashes.CraftingRecipesEmptySocket:
+					return DeepsightPlugTypeIntrinsic.EmptyCraftingSocket;
 			}
 
 			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")

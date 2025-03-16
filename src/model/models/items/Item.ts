@@ -561,7 +561,9 @@ class Item {
 			return undefined;
 
 		const randomIntrinsics = {
-			frames: this.getSocket("Intrinsic/Frame")?.plugs?.distinct(plug => plug.definition?.displayProperties.name),
+			frames: this.getSocket("Intrinsic/Frame")?.plugs
+				?.filter(plug => plug.isNot("Intrinsic/EmptyCraftingSocket"))
+				.distinct(plug => plug.definition?.displayProperties.name),
 			exotics: this.getSocket("Intrinsic/Exotic")?.plugs,
 		};
 		if ((randomIntrinsics.exotics?.length ?? 0) < 2 && (randomIntrinsics.frames?.length ?? 0) < 2)

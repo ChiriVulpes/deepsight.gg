@@ -32,6 +32,7 @@ export enum DeepsightPlugTypeIntrinsic {
 	ArmorArtifice,
 	ArmorLegacy,
 	Shaped,
+	EmptyCraftingSocket,
 }
 
 export enum DeepsightPlugTypePerk {

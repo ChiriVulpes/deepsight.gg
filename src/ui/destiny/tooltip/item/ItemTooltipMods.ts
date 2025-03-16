@@ -120,7 +120,8 @@ export default class ItemTooltipMods extends Component {
 			if (!socket || socket.state?.isVisible === false)
 				continue;
 
-			const plugs = socket.plugs ?? [];
+			const plugs = (socket.plugs ?? [])
+				.filter(plug => plug.isNot("Perk/EmptyCraftingSocket", "Intrinsic/EmptyCraftingSocket"));
 
 			const willDisplayMoreThanOnePlug = isCollections && plugs.length > 1;
 			if (willDisplayMoreThanOnePlug && (this.isDetailed() || !plugs.some(plug => Display.icon(plug.definition))))
@@ -173,7 +174,8 @@ export default class ItemTooltipMods extends Component {
 					traitIndex++;
 				}
 
-				if (plug?.socketed && (socket.state || (socket.plugs?.length === 1 || socket.is("Intrinsic", "!Intrinsic/Exotic", "!Intrinsic/Frame")))) {
+				const displayPlugs = plugs.filter(plug => plug.isNot("Intrinsic/FrameEnhanced"));
+				if (plug?.socketed && (socket.state || (displayPlugs?.length <= 1 || socket.is("Intrinsic", "!Intrinsic/Exotic", "!Intrinsic/Frame")))) {
 					plugComponent.classes.add(ItemTooltipModsClasses.ModHasName);
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModName)
@@ -187,7 +189,7 @@ export default class ItemTooltipMods extends Component {
 							.text.set(description)
 							.appendTo(plugComponent.classes.add(ItemTooltipModsClasses.ModHasDescription));
 
-				} else if (item.deepsight?.pattern && isCollections && this.isShaped()) {
+				} else if (isCollections && item.deepsight?.pattern?.recipe && !item.isAdept() && this.isShaped()) {
 					Component.create()
 						.classes.add(ItemTooltipModsClasses.ModRequiredLevel)
 						.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`)

@@ -92,7 +92,9 @@ export class Socket {
 
 		let plugSetHash = socket.definition.randomizedPlugSetHash ?? socket.definition.reusablePlugSetHash;
 		const recipeItem = item.deepsight?.pattern?.recipe;
-		if (recipeItem && index !== undefined) {
+		const isAdept = item.baseItem;
+		if (recipeItem && index !== undefined && !isAdept) {
+			// skip recipes for adepts, that's just for reshaping the first two perks
 			const recipeSocket = recipeItem.sockets?.socketEntries[index];
 			if (recipeSocket) {
 				plugSetHash = recipeSocket.randomizedPlugSetHash ?? recipeSocket.reusablePlugSetHash;
@@ -215,11 +217,19 @@ export class Socket {
 			return anyOfTypes.length === 0 ? this.plugPool : this.plugPool.filter(plug => plug.is(...anyOfTypes));
 
 		return (async () => {
-			const plugPool = this.plugPool = await (this.plugPool ??= Manifest.await()
-				.then((manifest) => Promise.resolve(manifest.DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
-					.then(plugSet => plugSet?.reusablePlugItems ?? [])
-					.then((plugs: PlugRaw[]) => plugs.concat(this.definition.reusablePlugItems))
-					.then(plugs => Promise.all(plugs.map(plug => Plug.resolve(manifest, plug))))));
+			const plugPool = this.plugPool = await (this.plugPool ??= (async () => {
+				const manifest = await Manifest.await();
+				const { DestinyPlugSetDefinition, DeepsightSocketExtendedDefinition } = manifest;
+				const plugSetHash = this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash;
+
+				const plugs = !plugSetHash
+					? (await DeepsightSocketExtendedDefinition.get(this.item?.definition.hash))?.sockets[this.index]?.rewardPlugItems
+					: await Promise.resolve(DestinyPlugSetDefinition.get(this.definition.randomizedPlugSetHash ?? this.definition.reusablePlugSetHash))
+						.then(plugSet => plugSet?.reusablePlugItems ?? [])
+						.then((plugs: PlugRaw[]) => plugs.concat(this.definition.reusablePlugItems));
+
+				return !plugs ? [] : Promise.all(plugs.map(plug => Plug.resolve(manifest, plug)));
+			})());
 
 			return anyOfTypes.length === 0 ? plugPool : plugPool.filter(plug => plug.is(...anyOfTypes));
 		})();
