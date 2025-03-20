@@ -3,8 +3,11 @@ import type { DeepsightBreakerSourceDefinition } from "@deepsight.gg/interfaces"
 import fs from "fs-extra";
 import Task from "../utility/Task";
 import { BreakerSource } from "./IDeepsightBreakerTypeDefinition";
+import manifest from "./utility/endpoint/DestinyManifest";
 
 export default Task("DeepsightBreakerTypeDefinition", async () => {
+	const { DestinyInventoryItemDefinition } = manifest;
+
 	function source (trait?: TraitHashes, ...breakerTypes: BreakerTypeHashes[]): Omit<DeepsightBreakerSourceDefinition, "hash"> {
 		return { trait, breakerTypes };
 	}
@@ -96,6 +99,21 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		[InventoryItemHashes.SpiritOfTheGyrfalconIntrinsicPlug]: [BreakerSource.VolatileRounds],
 		[InventoryItemHashes.SpiritOfHoarfrostIntrinsicPlug]: [BreakerSource.StasisCrystal],
 	};
+
+	const allItems = await DestinyInventoryItemDefinition.all();
+	for (const [hashString, definition] of Object.entries(allItems)) {
+		const breakerSource = {
+			[BreakerTypeHashes.ShieldPiercing]: BreakerSource.IntrinsicShieldPierce,
+			[BreakerTypeHashes.Disruption]: BreakerSource.IntrinsicDisruption,
+			[BreakerTypeHashes.Stagger]: BreakerSource.IntrinsicStagger,
+		}[definition.breakerTypeHash!];
+		if (!breakerSource)
+			continue;
+
+		const hash = +hashString as InventoryItemHashes;
+		DeepsightBreakerTypeDefinition[hash] ??= [];
+		DeepsightBreakerTypeDefinition[hash].push(breakerSource);
+	}
 
 
 	await fs.mkdirp("docs/manifest");
