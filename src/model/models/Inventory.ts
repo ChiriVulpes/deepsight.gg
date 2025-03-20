@@ -289,7 +289,7 @@ export default class Inventory {
 
 			await item.refresh(manifest, profile, itemRef, occurrence);
 
-			if (item.shaped && !item.isAdept())
+			if (item.shaped && item.deepsight?.pattern?.recipe && !item.isAdept())
 				this.craftedItems.add(item.definition.hash);
 
 			return item;

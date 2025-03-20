@@ -1,5 +1,6 @@
 import type { DestinyColor, DestinyDisplayCategoryDefinition, DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfint32, DestinyItemQuantity, DestinyVendorItemDefinition, DestinyVendorLocationDefinition, TierType } from "bungie-api-ts/destiny2";
-import type { ActivityHashes, ActivityModifierHashes, CollectibleHashes, EventCardHashes, InventoryBucketHashes, InventoryItemHashes, ItemTierTypeHashes, MomentHashes, ObjectiveHashes, RecordHashes, SeasonHashes, VendorGroupHashes, VendorHashes } from "./Enums";
+import type { BreakerSource } from "./DeepsightBreakerTypeDefinition";
+import type { ActivityHashes, ActivityModifierHashes, BreakerTypeHashes, CollectibleHashes, EventCardHashes, InventoryBucketHashes, InventoryItemHashes, ItemTierTypeHashes, MomentHashes, ObjectiveHashes, RecordHashes, SeasonHashes, VendorGroupHashes, VendorHashes } from "./Enums";
 
 export declare type ISOString = `${bigint}-${"0" | ""}${bigint}-${"0" | ""}${bigint}T${"0" | ""}${bigint}:${"0" | ""}${bigint}:${"0" | ""}${bigint}Z`;
 
@@ -387,4 +388,16 @@ export declare interface DeepsightCatalystDefinition {
 	record: RecordHashes;
 	primaryObjectiveHashes: ObjectiveHashes[];
 	progressDescription: string;
+}
+
+export interface DeepsightBreakerSourceDefinition {
+	hash: BreakerSource
+	trait?: TraitHashes
+	breakerTypes: BreakerTypeHashes[]
+}
+
+export interface DeepsightBreakerTypeDefinition {
+	hash: InventoryItemHashes
+	sources: BreakerSource[]
+	types: BreakerTypeHashes[]
 }

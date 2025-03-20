@@ -3,6 +3,7 @@ import Task from "../utility/Task";
 
 export default Task("DeepsightTypes", async () => {
 	await emit("DeepsightPlugCategorisation");
+	await emit("DeepsightBreakerTypeDefinition");
 });
 
 async function emit (path: string) {

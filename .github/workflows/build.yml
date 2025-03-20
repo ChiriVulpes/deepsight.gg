@@ -17,9 +17,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: |
-          npm ci --force --no-audit --no-fund
-          npm install deepsight.gg@latest --save --no-audit --no-fund --prefer-online
+        run:  npm ci --force
         
       - name: Calculate Run Number
         env:

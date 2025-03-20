@@ -245,13 +245,14 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 			.classes.add(`${ItemSocketsClasses.PlugIconInnerType}-${plug.categorisation?.categoryName.toLowerCase()}`)
 			.classes.add(`${ItemSocketsClasses.PlugIconInnerType}-${plug.type.replaceAll("/", "-").toLowerCase()}`);
 
-		if (item?.deepsight?.pattern && !item.instance && plug.is("Perk"))
+		if (item?.deepsight?.pattern?.recipe && !item.instance && !item.isAdept() && plug.is("Perk"))
 			// Component.create()
 			// 	.classes.add(ItemSocketsClasses.PlugRequiredLevelWrapper)
-			// .append(
+			// 	.append(
 			Component.create()
 				.classes.add(ItemSocketsClasses.PlugRequiredLevel)
-				.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`)//)
+				.text.set(`${plug.craftingRequirements?.requiredLevel ?? 1}`)
+				//)
 				.appendTo(this);
 
 		this.setTooltip(ItemPlugTooltip, {

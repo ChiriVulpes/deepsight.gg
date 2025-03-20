@@ -352,7 +352,7 @@ class Item {
 		if (item.isExotic())
 			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
 
-		await BreakerType.apply(item);
+		await BreakerType.apply(manifest, item);
 
 		return item;
 	}
@@ -405,7 +405,7 @@ class Item {
 		if (item.isExotic())
 			await item.getSocket("Masterwork/ExoticCatalyst")?.getPool();
 
-		await BreakerType.apply(item);
+		await BreakerType.apply(manifest, item);
 
 		return item;
 	}
