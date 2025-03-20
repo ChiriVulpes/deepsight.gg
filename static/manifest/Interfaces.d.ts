@@ -393,6 +393,7 @@ export declare interface DeepsightCatalystDefinition {
 export interface DeepsightBreakerSourceDefinition {
 	hash: BreakerSource
 	trait?: TraitHashes
+	appliesTraits?: TraitHashes[]
 	breakerTypes: BreakerTypeHashes[]
 }
 

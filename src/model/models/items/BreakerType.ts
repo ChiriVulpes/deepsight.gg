@@ -24,7 +24,7 @@ namespace BreakerType {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		return plugs
 			.flatMap((plug): (BreakerTypeHashes | undefined)[] => breakerTypes[plug?.definition?.hash as InventoryItemHashes]?.types ?? [])
-			.concat(item.definition.breakerTypeHash, breakerTypes[item.definition.hash as InventoryItemHashes]?.types)
+			.concat(breakerTypes[item.definition.hash as InventoryItemHashes]?.types)
 			.distinct()
 			.filter(type => type !== undefined);
 	}

@@ -8,32 +8,32 @@ import manifest from "./utility/endpoint/DestinyManifest";
 export default Task("DeepsightBreakerTypeDefinition", async () => {
 	const { DestinyInventoryItemDefinition } = manifest;
 
-	function source (trait?: TraitHashes, ...breakerTypes: BreakerTypeHashes[]): Omit<DeepsightBreakerSourceDefinition, "hash"> {
-		return { trait, breakerTypes };
+	function source (breakerTypes: BreakerTypeHashes[], trait?: TraitHashes, appliesTraits?: TraitHashes[]): Omit<DeepsightBreakerSourceDefinition, "hash"> {
+		return { trait, appliesTraits, breakerTypes };
 	}
 
 	const DeepsightBreakerSourceDefinition: Record<BreakerSource, Omit<DeepsightBreakerSourceDefinition, "hash">> = {
-		[BreakerSource.None]: source(undefined),
-		[BreakerSource.IntrinsicShieldPierce]: source(undefined, BreakerTypeHashes.ShieldPiercing),
-		[BreakerSource.IntrinsicDisruption]: source(undefined, BreakerTypeHashes.Disruption),
-		[BreakerSource.IntrinsicStagger]: source(undefined, BreakerTypeHashes.Stagger),
+		[BreakerSource.None]: source([]),
+		[BreakerSource.IntrinsicShieldPierce]: source([BreakerTypeHashes.ShieldPiercing]),
+		[BreakerSource.IntrinsicDisruption]: source([BreakerTypeHashes.Disruption]),
+		[BreakerSource.IntrinsicStagger]: source([BreakerTypeHashes.Stagger]),
 
-		[BreakerSource.Blind]: source(TraitHashes.KeywordsDebuffsArcBlind, BreakerTypeHashes.Stagger),
-		[BreakerSource.Jolt]: source(TraitHashes.KeywordsDebuffsArcJolt, BreakerTypeHashes.Disruption),
+		[BreakerSource.Blind]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsArcBlind),
+		[BreakerSource.Jolt]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsDebuffsArcJolt),
 
-		[BreakerSource.Scorch]: source(TraitHashes.KeywordsDebuffsSolarScorch, BreakerTypeHashes.Stagger),
-		[BreakerSource.Ignition]: source(TraitHashes.KeywordsDebuffsSolarDetonation, BreakerTypeHashes.Stagger),
-		[BreakerSource.Radiant]: source(TraitHashes.KeywordsBuffsSolarEmpower, BreakerTypeHashes.ShieldPiercing),
+		[BreakerSource.Scorch]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsSolarScorch, [TraitHashes.KeywordsDebuffsSolarDetonation]),
+		[BreakerSource.Ignition]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsSolarDetonation),
+		[BreakerSource.Radiant]: source([BreakerTypeHashes.ShieldPiercing], TraitHashes.KeywordsBuffsSolarEmpower),
 
-		[BreakerSource.VolatileRounds]: source(undefined, BreakerTypeHashes.ShieldPiercing),
-		[BreakerSource.Suppress]: source(TraitHashes.KeywordsDebuffsVoidSuppression, BreakerTypeHashes.Disruption),
+		[BreakerSource.VolatileRounds]: source([BreakerTypeHashes.ShieldPiercing], undefined, [TraitHashes.KeywordsDebuffsVoidVolatile]),
+		[BreakerSource.Suppress]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsDebuffsVoidSuppression),
 
-		[BreakerSource.Slow]: source(TraitHashes.KeywordsDebuffsStasisSlow, BreakerTypeHashes.Disruption, BreakerTypeHashes.Stagger),
-		[BreakerSource.Freeze]: source(TraitHashes.KeywordsDebuffsStasisFreeze, BreakerTypeHashes.Stagger),
-		[BreakerSource.StasisCrystal]: source(TraitHashes.KeywordsBuffsStasisCrystal, BreakerTypeHashes.Disruption, BreakerTypeHashes.Stagger),
+		[BreakerSource.Slow]: source([BreakerTypeHashes.Disruption, BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsStasisSlow, [TraitHashes.KeywordsDebuffsStasisFreeze]),
+		[BreakerSource.Freeze]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsStasisFreeze),
+		[BreakerSource.StasisCrystal]: source([BreakerTypeHashes.Disruption, BreakerTypeHashes.Stagger], TraitHashes.KeywordsBuffsStasisCrystal, [TraitHashes.KeywordsDebuffsStasisSlow, TraitHashes.KeywordsDebuffsStasisFreeze]),
 
-		[BreakerSource.Suspend]: source(TraitHashes.KeywordsDebuffsStrandSuspend, BreakerTypeHashes.Stagger),
-		[BreakerSource.UnravelingRounds]: source(undefined, BreakerTypeHashes.ShieldPiercing),
+		[BreakerSource.Suspend]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsStrandSuspend),
+		[BreakerSource.UnravelingRounds]: source([BreakerTypeHashes.ShieldPiercing], undefined, [TraitHashes.KeywordsDebuffsStrandInfest]),
 	};
 
 	const DeepsightBreakerTypeDefinition: Record<number, BreakerSource[]> = {
@@ -69,7 +69,7 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		// titan armour
 		[InventoryItemHashes.SecondChanceGauntlets]: [BreakerSource.IntrinsicShieldPierce],
 		[InventoryItemHashes.PointContactCannonBraceGauntlets]: [BreakerSource.IntrinsicDisruption],
-		[InventoryItemHashes.HoarfrostZChestArmor]: [BreakerSource.StasisCrystal],
+		[InventoryItemHashes.HoarfrostZChestArmor]: [BreakerSource.Freeze],
 
 		// hunter armour
 		[InventoryItemHashes.AthryssEmbraceGauntlets]: [BreakerSource.IntrinsicStagger],
@@ -97,7 +97,7 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		// exotic class items
 		[InventoryItemHashes.SpiritOfContactIntrinsicPlug]: [BreakerSource.IntrinsicDisruption],
 		[InventoryItemHashes.SpiritOfTheGyrfalconIntrinsicPlug]: [BreakerSource.VolatileRounds],
-		[InventoryItemHashes.SpiritOfHoarfrostIntrinsicPlug]: [BreakerSource.StasisCrystal],
+		[InventoryItemHashes.SpiritOfHoarfrostIntrinsicPlug]: [BreakerSource.Freeze],
 	};
 
 	const allItems = await DestinyInventoryItemDefinition.all();
