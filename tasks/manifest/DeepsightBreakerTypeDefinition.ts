@@ -1,8 +1,8 @@
 import { BreakerTypeHashes, InventoryItemHashes, TraitHashes } from "@deepsight.gg/enums";
 import type { DeepsightBreakerSourceDefinition } from "@deepsight.gg/interfaces";
 import fs from "fs-extra";
-import { BreakerSource } from "../../static/manifest/DeepsightBreakerTypeDefinition";
 import Task from "../utility/Task";
+import { BreakerSource } from "./IDeepsightBreakerTypeDefinition";
 
 export default Task("DeepsightBreakerTypeDefinition", async () => {
 	function source (trait?: TraitHashes, ...breakerTypes: BreakerTypeHashes[]): Omit<DeepsightBreakerSourceDefinition, "hash"> {
