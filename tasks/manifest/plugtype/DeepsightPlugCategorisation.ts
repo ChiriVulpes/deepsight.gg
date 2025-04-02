@@ -141,6 +141,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.ArtifactBoostsColumn01:
 			case PlugCategoryHashes.ArtifactBoostsColumn02:
 			case PlugCategoryHashes.ArtifactBoostsColumn03:
+			case PlugCategoryHashes.ArtifactBoostsColumn04:
 				return DeepsightPlugCategory.Seasonal;
 		}
 
@@ -771,6 +772,7 @@ namespace DeepsightPlugCategorisation {
 				case PlugCategoryHashes.ArtifactBoostsColumn01:
 				case PlugCategoryHashes.ArtifactBoostsColumn02:
 				case PlugCategoryHashes.ArtifactBoostsColumn03:
+				case PlugCategoryHashes.ArtifactBoostsColumn04:
 					return DeepsightPlugTypeSeasonal.ArtifactBoost;
 			}
 		},
