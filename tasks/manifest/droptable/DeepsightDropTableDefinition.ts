@@ -14,11 +14,12 @@ import Prophecy from "./Prophecy";
 import RootOfNightmares from "./RootOfNightmares";
 import SalvationsEdge from "./SalvationsEdge";
 import SpireOfTheWatcher from "./SpireOfTheWatcher";
+import SunderedDoctrine from "./SunderedDoctrine";
 import TheShatteredThrone from "./TheShatteredThrone";
 import VaultOfGlass from "./VaultOfGlass";
+import VespersHost from "./VespersHost";
 import VowOfTheDisciple from "./VowOfTheDisciple";
 import WarlordsRuin from "./WarlordsRuin";
-import VespersHost from "./VespersHost";
 
 export interface DeepsightDropTableDefinition extends Omit<DeepsightDropTableDefinitionBase, "displayProperties" | "rotations" | "type" | "typeDisplayProperties" | "hash"> {
 	hash: ActivityHashes;
@@ -35,6 +36,7 @@ export interface DeepsightDropTableRotationsDefinition extends Omit<DeepsightDro
 }
 
 export default {
+	[SunderedDoctrine.hash]: SunderedDoctrine,
 	[VespersHost.hash]: VespersHost,
 	[WarlordsRuin.hash]: WarlordsRuin,
 	[GhostsOfTheDeep.hash]: GhostsOfTheDeep,

@@ -1,26 +1,33 @@
-import { ActivityHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
+import { ActivityHashes, InventoryItemHashes } from "@deepsight.gg/enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {
 	hash: ActivityHashes.VespersHostNormal,
 	displayProperties: {
-		icon: { DestinyRecordDefinition: RecordHashes.Duality3097916612 },
+		icon: "./image/png/activity/vespershost.png",
 	},
 	dropTable: {
 		[InventoryItemHashes.VsGraviticArrestFusionRifle]: {},
+
+		[InventoryItemHashes.SpacewalkBootsLegArmorPlug1025368892]: {},
+		[InventoryItemHashes.SpacewalkBootsLegArmorPlug3901727798]: {},
+		[InventoryItemHashes.SpacewalkGreavesLegArmorPlug3113666223]: {},
+		[InventoryItemHashes.SpacewalkGreavesLegArmorPlug4132376063]: {},
+		[InventoryItemHashes.SpacewalkStridesLegArmorPlug1105725465]: {},
+		[InventoryItemHashes.SpacewalkStridesLegArmorPlug239405325]: {},
 	},
 	encounters: [
 		{
 			traversal: true,
 			displayProperties: {
-				name: "Embarkation",
+				directive: "Embarkation",
 				description: "Search for a way into Vesper Station.",
 			},
 		},
 		{
 			displayProperties: {
-				name: "Vesper Station",
-				directive: "Activation",
+				name: "Activation",
+				directive: "Reactivate Vesper Station",
 				description: "Reactivate station power to open the path ahead.",
 			},
 			dropTable: {
@@ -40,13 +47,6 @@ export default {
 				[InventoryItemHashes.SpacewalkGlovesGauntletsPlug3255995532]: {},
 				[InventoryItemHashes.SpacewalkGraspsGauntletsPlug1364804507]: {},
 				[InventoryItemHashes.SpacewalkGraspsGauntletsPlug3592158071]: {},
-
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug1025368892]: {},
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug3901727798]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug3113666223]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug4132376063]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug1105725465]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug239405325]: {},
 			},
 		},
 		{
@@ -58,8 +58,8 @@ export default {
 		},
 		{
 			displayProperties: {
-				name: "Raneiks Unified",
-				directive: "Dismemberment",
+				name: "Dismemberment",
+				directive: "Defeat Raneiks Unified",
 				description: "Find a way to defeat the Unified Servitor.",
 			},
 			dropTable: {
@@ -80,18 +80,8 @@ export default {
 				[InventoryItemHashes.SpacewalkGraspsGauntletsPlug1364804507]: {},
 				[InventoryItemHashes.SpacewalkGraspsGauntletsPlug3592158071]: {},
 
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug1025368892]: {},
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug3901727798]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug3113666223]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug4132376063]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug1105725465]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug239405325]: {},
-
-				[InventoryItemHashes.SpacewalkMarkTitanMarkPlug2155757770]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
 				[InventoryItemHashes.SpacewalkMarkTitanMarkPlug514586330]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
-				[InventoryItemHashes.SpacewalkBondWarlockBondPlug1265540521]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
 				[InventoryItemHashes.SpacewalkBondWarlockBondPlug213803727]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
-				[InventoryItemHashes.SpacewalkCloakHunterCloakPlug2147583688]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
 				[InventoryItemHashes.SpacewalkCloakHunterCloakPlug3219219484]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
 			},
 		},
@@ -104,8 +94,8 @@ export default {
 		},
 		{
 			displayProperties: {
-				name: "The Corrupted Puppeteer",
-				directive: "Shutdown",
+				name: "Shutdown",
+				directive: "Defeat The Corrupted Puppeteer",
 				description: "Take down the Corrupted Puppeteer and stop it from channeling power to the Anomaly.",
 			},
 			dropTable: {
@@ -127,12 +117,10 @@ export default {
 				[InventoryItemHashes.SpacewalkVestChestArmorPlug2436714433]: {},
 				[InventoryItemHashes.SpacewalkVestChestArmorPlug3067211509]: {},
 
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug1025368892]: {},
-				[InventoryItemHashes.SpacewalkBootsLegArmorPlug3901727798]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug3113666223]: {},
-				[InventoryItemHashes.SpacewalkGreavesLegArmorPlug4132376063]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug1105725465]: {},
-				[InventoryItemHashes.SpacewalkStridesLegArmorPlug239405325]: {},
+				// bond only drops class items from dungeon completion on master it seems?
+				[InventoryItemHashes.SpacewalkBondWarlockBondPlug1265540521]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
+				[InventoryItemHashes.SpacewalkMarkTitanMarkPlug2155757770]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
+				[InventoryItemHashes.SpacewalkCloakHunterCloakPlug2147583688]: { requiresQuest: InventoryItemHashes.RogueNetworkQuestStep_Step9 },
 			},
 		},
 	],
