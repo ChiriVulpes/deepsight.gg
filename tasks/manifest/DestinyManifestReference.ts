@@ -1,5 +1,6 @@
 import type { AllDestinyManifestComponents, DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
 import type { BungieIconPath, DeepsightDisplayPropertiesDefinition, DeepsightIconPath } from "../../static/manifest/Interfaces";
+import Log from "../utility/Log";
 import type { DestinyManifestComponentValue } from "./utility/endpoint/DestinyManifest";
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from "./utility/endpoint/DestinyManifest";
 
@@ -9,7 +10,13 @@ interface HasDisplayPropertiesOrIconWatermark {
 	iconWatermarkShelved?: string;
 }
 
-type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number };
+interface ManifestReferenceWhich {
+	hash: number;
+	iconSequence: number;
+	frame: number;
+}
+
+type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number | ManifestReferenceWhich };
 namespace DestinyManifestReference {
 	export interface DisplayPropertiesDefinition {
 		name?: string | DestinyManifestReference;
@@ -21,13 +28,24 @@ namespace DestinyManifestReference {
 		if (typeof ref === "string")
 			return ref;
 
-		for (const [key, hash] of Object.entries(ref ?? {})) {
+		for (const [key, which] of Object.entries(ref ?? {})) {
+			const hash = typeof which === "number" ? which : which.hash;
 			const componentName = key as keyof AllDestinyManifestComponents;
-			const definition = await manifest[componentName].get(hash);
+			const definition = await manifest[componentName].get(hash) as DestinyManifestComponentValue | undefined;
 			if (!definition)
 				continue;
 
-			const result = resolveSource(definition as DestinyManifestComponentValue, type);
+			if (typeof which === "object" && "displayProperties" in definition) {
+				const icon = definition.displayProperties.iconSequences[which.iconSequence]?.frames[which.frame];
+				if (!icon) {
+					Log.error(`Unable to resolve icon from manifest reference: ${definition.displayProperties.name} (${componentName}), icon sequence ${which.iconSequence}, frame ${which.frame}`);
+					return undefined;
+				}
+
+				return icon;
+			}
+
+			const result = resolveSource(definition, type);
 			if (result)
 				return result;
 		}

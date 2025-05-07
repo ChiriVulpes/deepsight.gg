@@ -325,6 +325,23 @@
 		year: 7,
 		seasonHash: 2758726574,
 	},
+	"39": {
+		id: "riteofthenine",
+		displayProperties: {
+			name: "Rite of the Nine",
+			description: "The Emmisary brings you a message from The Nine. They put forth a challenge to the Lightbearers — We ask: make known your value, so divided gods may wield you in time.",
+			icon: { 
+				DestinyPresentationNodeDefinition: {
+					hash: 2530001514, // Rite of the Nine
+					iconSequence: 1,
+					frame: 0,
+				},
+			}, 
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 2730671571 }, // Terminus Horizon
+		year: 7,
+		expansion: true,
+	},
 	"-1": {
 		id: "revelry",
 		displayProperties: {

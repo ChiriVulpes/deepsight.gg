@@ -256,7 +256,7 @@ export default Task("DeepsightDropTableDefinition", async () => {
 		dropTable: {
 			[InventoryItemHashes.ExoticEngramEngram903043774]: {},
 			[InventoryItemHashes.EnhancementPrismMaterialDummy4257549984]: {},
-			[InventoryItemHashes.EnhancementCoreMaterialDummy]: {},
+			[InventoryItemHashes.EnhancementCoreMaterialDummy_ItemType0]: {},
 		},
 		rotations: {
 			anchor: Time.iso(1701190800000),

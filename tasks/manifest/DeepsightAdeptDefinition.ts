@@ -4,6 +4,14 @@ import { getDeepsightCollectionsDefinition } from "./DeepsightCollectionsDefinit
 import ItemPreferred from "./utility/ItemPreferred";
 import manifest from "./utility/endpoint/DestinyManifest";
 
+const NAME_OVERRIDES: Record<string, string> = {
+	"Judgement": "Judgment",
+};
+
+function name (name: string) {
+	return NAME_OVERRIDES[name] ?? name;
+}
+
 export default Task("DeepsightAdeptDefinition", async () => {
 	const { DestinyInventoryItemDefinition } = manifest;
 	const invItems = await DestinyInventoryItemDefinition.all();
@@ -27,7 +35,7 @@ export default Task("DeepsightAdeptDefinition", async () => {
 
 		const normalHash = collections
 			?.find((itemHash, _1, _2, item = invItems[itemHash]) => true
-				&& item.displayProperties.name === adeptName
+				&& name(item.displayProperties.name) === name(adeptName)
 				&& !ItemPreferred.isEquippableDummy(item));
 
 		if (!normalHash)

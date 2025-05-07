@@ -142,20 +142,6 @@ const IGNORED_ITEM_ISSUES = [
 	"Wing Theorem",
 	"Xenos Vale Bond",
 	"Xenos Vale IV",
-	// TODO remove these after the class type manifest issue is fixed
-	"Arms of Optimacy",
-	"Chest Armor",
-	"Gauntlets",
-	"Helmet",
-	"Kairos Function Boots",
-	"Leg Armor",
-	"Legs of Optimacy",
-	"Mindbreaker Boots",
-	"Refugee Boots",
-	"Refugee Gloves",
-	"Refugee Helm",
-	"Refugee Vest",
-	"Viperidax Helmet",
 ];
 
 const ACCEPTIBLE_DUPLICATES: InventoryItemHashes[] = [
