@@ -5,6 +5,7 @@ import Log from "../../../utility/Log";
 export default async function <T> (path: string) {
 	return fetch(path.startsWith("https://") ? path : `https://www.bungie.net/Platform/${path}`, {
 		headers: {
+			"User-Agent": "deepsight.gg:build/0.0.0",
 			"X-API-Key": Env.DEEPSIGHT_MANIFEST_API_KEY!,
 			Authorization: `Bearer ${Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN}`,
 		},

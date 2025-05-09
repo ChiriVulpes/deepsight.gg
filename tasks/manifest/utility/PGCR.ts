@@ -21,7 +21,12 @@ namespace PGCR {
 	let manifest: DeepsightManifest | undefined;
 	async function getManifest (): Promise<DeepsightManifest> {
 		return manifest ??= (await fs.readJson("manifest/versions.json").catch(() => undefined))
-			?? (await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json").then(response => response.json()));
+			?? (await fetch("https://raw.githubusercontent.com/ChiriVulpes/deepsight.gg/manifest/versions.json", {
+				headers: {
+					"User-Agent": "deepsight.gg:build/0.0.0",
+				},
+			})
+				.then(response => response.json()));
 	}
 
 	let recentPGCR: DeepsightManifestReferencePGCR | undefined;
@@ -76,6 +81,7 @@ namespace PGCR {
 
 		return cache[id] = await fetch(`${ENDPOINT_PGCR}/${id}/`, {
 			headers: {
+				"User-Agent": "deepsight.gg:build/0.0.0",
 				"X-API-Key": apiKey!,
 			},
 		})

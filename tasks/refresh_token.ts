@@ -45,6 +45,7 @@ if (!apiKey || !membershipId || !Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN || !En
 export default Task("refresh_token", async () => {
 	const isValid = await fetch(`https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=105`, {
 		headers: {
+			"User-Agent": "deepsight.gg:build/0.0.0",
 			"X-API-Key": apiKey,
 			Authorization: `Bearer ${Env.DEEPSIGHT_MANIFEST_USER_ACCESS_TOKEN}`,
 		},
@@ -63,6 +64,7 @@ export default Task("refresh_token", async () => {
 	const result = await fetch("https://www.bungie.net/Platform/app/oauth/token/", {
 		method: "POST",
 		headers: {
+			"User-Agent": "deepsight.gg:build/0.0.0",
 			"X-API-Key": apiKey,
 			Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
 			"Content-Type": "application/x-www-form-urlencoded",
