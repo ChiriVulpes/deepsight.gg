@@ -67,7 +67,8 @@ export default Task("destiny_manifest", async () => {
 
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
 		let writeStream!: fs.WriteStream;
-		while (true) {
+		let isValid = false;
+		for (let attempt = 0; attempt < 5; attempt++) {
 			Log.info(`Downloading manifest ${key}...`);
 			const downloaded = await new Promise<boolean>(resolve => https
 				.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
@@ -96,8 +97,12 @@ export default Task("destiny_manifest", async () => {
 				continue;
 			}
 
+			isValid = true;
 			break;
 		}
+
+		if (!isValid)
+			throw new Error(`Failed to download manifest ${key} after 5 attempts.`);
 
 		if (writeStream) {
 			writeStream.close();
