@@ -2,6 +2,7 @@ import ansi from "ansicolor";
 import * as fs from "fs-extra";
 import * as https from "https";
 import Env from "./utility/Env";
+import FileHeader from "./utility/FileHeader";
 import Log from "./utility/Log";
 import Task from "./utility/Task";
 
@@ -65,15 +66,38 @@ export default Task("destiny_manifest", async () => {
 	await fs.mkdir("static/testiny").catch(() => { });
 
 	for (const key of Object.keys(manifest.jsonWorldComponentContentPaths.en).sort((a, b) => a.localeCompare(b))) {
-		let writeStream: fs.WriteStream | undefined;
-		do {
+		let writeStream!: fs.WriteStream;
+		while (true) {
 			Log.info(`Downloading manifest ${key}...`);
-		} while (!await new Promise<boolean>(resolve => https
-			.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
-				.pipe(writeStream = fs.createWriteStream(`static/testiny/${key}.json`))
-				.on("finish", () => resolve(true))
-				.on("error", () => resolve(false)))
-			.on("error", () => resolve(false))));
+			const downloaded = await new Promise<boolean>(resolve => https
+				.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
+					.pipe(writeStream = fs.createWriteStream(`static/testiny/${key}.json`))
+					.on("finish", () => resolve(true))
+					.on("error", () => resolve(false)))
+				.on("error", () => resolve(false)));
+
+			if (!downloaded) {
+				Log.warn(`Failed to download manifest ${key}. Retrying...`);
+				if (writeStream) {
+					writeStream.close();
+					if (!writeStream.writableFinished)
+						await new Promise(resolve => writeStream?.on("finish", resolve));
+				}
+				continue;
+			}
+
+			if (await FileHeader.startsWith(`static/testiny/${key}.json`, "<!DOCTYPE")) {
+				Log.warn(`Manifest ${key} is not valid JSON. Retrying...`);
+				if (writeStream) {
+					writeStream.close();
+					if (!writeStream.writableFinished)
+						await new Promise(resolve => writeStream?.on("finish", resolve));
+				}
+				continue;
+			}
+
+			break;
+		}
 
 		if (writeStream) {
 			writeStream.close();
