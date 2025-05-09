@@ -71,7 +71,11 @@ export default Task("destiny_manifest", async () => {
 		for (let attempt = 0; attempt < 5; attempt++) {
 			Log.info(`Downloading manifest ${key}...`);
 			const downloaded = await new Promise<boolean>(resolve => https
-				.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, response => response
+				.get(`https://www.bungie.net/${manifest!.jsonWorldComponentContentPaths.en[key]}`, {
+					headers: {
+						"User-Agent": "deepsight.gg:build/0.0.0",
+					},
+				}, response => response
 					.pipe(writeStream = fs.createWriteStream(`static/testiny/${key}.json`))
 					.on("finish", () => resolve(true))
 					.on("error", () => resolve(false)))
