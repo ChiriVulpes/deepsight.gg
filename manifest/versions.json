@@ -1,0 +1,29 @@
+{
+	"DeepsightDropTableDefinition": 580,
+	"DeepsightMomentDefinition": 8,
+	"DeepsightPlugCategorisation": 37,
+	"DeepsightWallpaperDefinition": 11,
+	"Enums": 54,
+	"Destiny2/Manifest": "234033.25.05.16.0943-2-bnet.59885",
+	"Interfaces": 21,
+	"deepsight": 1225,
+	"DeepsightTierTypeDefinition": 1,
+	"lastDailyReset": "2025-05-31T17:00:00Z",
+	"lastWeeklyReset": "2025-05-27T17:00:00Z",
+	"lastTrialsReset": "2025-05-30T17:00:00Z",
+	"referencePostGameCarnageReportSinceDailyReset": {
+		"instanceId": "16184239490",
+		"period": "2025-05-31T17:35:46Z"
+	},
+	"updated": "2025-05-31T17:52:01Z",
+	"DeepsightVendorDefinition": 585,
+	"DeepsightStats": 0,
+	"DeepsightCollectionsDefinition": 11,
+	"DeepsightSocketCategorisation": 26,
+	"DeepsightAdeptDefinition": 4,
+	"DeepsightEmblemDefinition": 437,
+	"DeepsightSocketExtendedDefinition": 1,
+	"DeepsightCatalystDefinition": 4,
+	"DeepsightBreakerSourceDefinition": 1,
+	"DeepsightBreakerTypeDefinition": 2
+}
