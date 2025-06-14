@@ -16,6 +16,7 @@ export const SORTS_INAPPLICABLE_EMBLEMS = [
 	Sort.Rarity,
 	Sort.StatTotal,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.Moment,
 	Sort.AmmoType,
 	Sort.WeaponType,

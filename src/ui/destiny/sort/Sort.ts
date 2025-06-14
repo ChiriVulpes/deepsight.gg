@@ -26,6 +26,7 @@ enum Sort {
 	CanShape,
 	BreakerType,
 	Acquired,
+	StatLegacyDistribution,
 }
 
 export default Sort;

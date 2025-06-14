@@ -10,6 +10,7 @@ export const SORTS_DEFAULT_ARMOUR = [
 	Sort.Exotic,
 	Sort.Rarity,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.Masterwork,
 	Sort.Power,
 	Sort.Energy,

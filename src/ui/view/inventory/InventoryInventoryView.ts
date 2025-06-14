@@ -23,6 +23,7 @@ export const SORTS_INAPPLICABLE_INVENTORY = [
 	Sort.Masterwork,
 	Sort.StatTotal,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.AmmoType,
 	Sort.DamageType,
 	Sort.WeaponType,

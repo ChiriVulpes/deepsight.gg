@@ -18,6 +18,7 @@ export const SORTS_INAPPLICABLE_WEAPONS = [
 	Sort.Energy,
 	Sort.StatTotal,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.Quantity,
 	Sort.CanShape,
 	Sort.Acquired,

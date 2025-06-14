@@ -14,6 +14,7 @@ export const SORTS_INAPPLICABLE_EQUIPMENT = [
 	Sort.Shaped,
 	Sort.StatTotal,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.AmmoType,
 	Sort.DamageType,
 	Sort.WeaponType,

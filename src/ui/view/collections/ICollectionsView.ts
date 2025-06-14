@@ -29,6 +29,7 @@ export const SORTS_INAPPLICABLE_COLLECTIONS = [
 	Sort.Power,
 	Sort.StatTotal,
 	Sort.StatDistribution,
+	Sort.StatLegacyDistribution,
 	Sort.Masterwork,
 	Sort.Energy,
 ] as const;
