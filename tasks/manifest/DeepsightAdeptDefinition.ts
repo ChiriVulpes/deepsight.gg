@@ -33,10 +33,13 @@ export default Task("DeepsightAdeptDefinition", async () => {
 		if (!adeptName)
 			continue;
 
+		const adeptWatermark = item.iconWatermark;
 		const normalHash = collections
 			?.find((itemHash, _1, _2, item = invItems[itemHash]) => true
 				&& name(item.displayProperties.name) === name(adeptName)
-				&& !ItemPreferred.isEquippableDummy(item));
+				&& !ItemPreferred.isEquippableDummy(item)
+				&& item.iconWatermark === adeptWatermark
+			);
 
 		if (!normalHash)
 			continue;
