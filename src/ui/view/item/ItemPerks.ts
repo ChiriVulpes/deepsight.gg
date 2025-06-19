@@ -76,7 +76,7 @@ export default class ItemPerks extends ItemSockets {
 
 		this.sockets.push(...this.addSocketsByType("Perk"));
 
-		this.wishlists = Store.items[`item${this.item.definition.hash}PerkWishlists`];
+		this.wishlists = Store.items[`item${this.item.baseItem?.hash ?? this.item.definition.hash}PerkWishlists`];
 
 		if (this.item.instance) {
 			Button.create()
@@ -96,10 +96,10 @@ export default class ItemPerks extends ItemSockets {
 			return;
 		}
 
-		if (this.inventory.isCrafted(this.item.definition.hash)) {
-			delete Store.items[`item${this.item.definition.hash}PerkWishlists`];
-			return;
-		}
+		// if (this.inventory.isCrafted(this.item.definition.hash)) {
+		// 	delete Store.items[`item${this.item.definition.hash}PerkWishlists`];
+		// 	return;
+		// }
 
 		this.saveWishlists({ preserveMarkedAsJunk: true });
 
@@ -349,7 +349,7 @@ export default class ItemPerks extends ItemSockets {
 
 	private saveWishlists (options?: { preserveEmptyWishlists?: boolean, preserveMarkedAsJunk?: boolean }) {
 		this.cleanupWishlists(options);
-		Store.items[`item${this.item.definition.hash}PerkWishlists`] = this.wishlists;
+		Store.items[`item${this.item.baseItem?.hash ?? this.item.definition.hash}PerkWishlists`] = this.wishlists;
 	}
 
 	@Bound
