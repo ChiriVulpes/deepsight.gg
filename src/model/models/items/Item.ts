@@ -886,7 +886,7 @@ class Item {
 	 * @returns undefined if there are no wishlists for this item, true if a wishlist matches, false otherwise
 	 */
 	public async isWishlisted () {
-		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`];
+		const wishlists = Store.items[`item${this.baseItem?.hash ?? this.definition.hash}PerkWishlists`];
 		if (wishlists?.length === 0)
 			// the user doesn't want any roll of this item
 			return false;
@@ -895,7 +895,7 @@ class Item {
 			// the user hasn't configured wishlists for this item
 			return undefined;
 
-		for (const wishlist of Store.items[`item${this.definition.hash}PerkWishlists`] ?? [])
+		for (const wishlist of Store.items[`item${this.baseItem?.hash ?? this.definition.hash}PerkWishlists`] ?? [])
 			if (await this.checkMatchesWishlist(wishlist))
 				// all sockets match this wishlist!
 				return true;
@@ -909,7 +909,7 @@ class Item {
 	 * and an array with matching wishlists otherwise
 	 */
 	public async getMatchingWishlists () {
-		const wishlists = Store.items[`item${this.definition.hash}PerkWishlists`];
+		const wishlists = Store.items[`item${this.baseItem?.hash ?? this.definition.hash}PerkWishlists`];
 		if (!wishlists)
 			return undefined;
 
