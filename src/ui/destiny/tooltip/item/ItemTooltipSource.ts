@@ -1,10 +1,12 @@
-import type { InventoryItemHashes } from "@deepsight.gg/enums";
-import { ActivityModeHashes } from "@deepsight.gg/enums";
-import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import { ActivityModeHashes, InventoryItemHashes, ItemCategoryHashes } from "@deepsight.gg/enums";
+import type { DeepsightDropTableDropDefinition } from "@deepsight.gg/interfaces";
+import { DestinyClass, TierType, type DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
+import Manifest from "model/models/Manifest";
 import type Item from "model/models/items/Item";
 import type { ISource } from "model/models/items/Source";
 import Component from "ui/component/Component";
 import Display from "ui/utility/DisplayProperties";
+import Bound from "utility/decorator/Bound";
 
 export enum ItemTooltipSourceClasses {
 	Main = "item-tooltip-source",
@@ -17,6 +19,8 @@ export enum ItemTooltipSourceClasses {
 	ActivityPhase = "item-tooltip-source-activity-phase",
 	ActivityPhaseIndex = "item-tooltip-source-activity-phase-index",
 	ActivityPhaseName = "item-tooltip-source-activity-phase-name",
+	ActivityPhaseChance = "item-tooltip-source-activity-phase-chance",
+	ActivityPhaseChance_Wishlisted = "item-tooltip-source-activity-phase-chance--wishlisted",
 	ActivityPhaseDescription = "item-tooltip-source-activity-phase-description",
 	ActivityChallenge = "item-tooltip-source-activity-challenge",
 	ActivityChallengePhaseIndex = "item-tooltip-source-activity-challenge-phase-index",
@@ -51,8 +55,16 @@ export default class ItemTooltipSource extends Component {
 		if (!item.bucket.isCollections())
 			return false;
 
-		if (!item.sources?.length)
-			return false;
+		if (!item.sources?.length) {
+			if (!item.hasWishlist())
+				return false;
+
+			Component.create()
+				// .classes.add(ItemTooltipSourceClasses.Activity)
+				.tweak(this.renderDropChance, item)
+				.appendTo(this.activityWrapper);
+			return true;
+		}
 
 		const hashes = new Set<number>();
 		for (const source of item.sources) {
@@ -112,10 +124,10 @@ export default class ItemTooltipSource extends Component {
 			if (source.requiresItems?.length)
 				this.renderRequiredItems(phasesWrapper, item, source, source.requiresItems);
 
-			if (!source.isActiveMasterDrop)
+			if (!source.isActiveMasterDrop && source.dropTable.encounters?.length)
 				this.renderPhases(phasesWrapper, item, source);
 
-			else if (source.activeChallenge && item.isFomo())
+			else if (source.activeChallenges.length && item.isFomo())
 				this.renderChallenge(phasesWrapper, item, source);
 
 			else if (source.purchaseOnly)
@@ -129,6 +141,12 @@ export default class ItemTooltipSource extends Component {
 						.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
 						.text.set("This item is available in the end-of-activity cache."))
 					.appendTo(phasesWrapper);
+
+			else
+				Component.create()
+					.style.set("display", "contents")
+					.tweak(this.renderDropChance, item)
+					.appendTo(activityComponent);
 		}
 
 		return true;
@@ -159,29 +177,33 @@ export default class ItemTooltipSource extends Component {
 	}
 
 	private renderChallenge (wrapper: Component, item: Item, source: ISource) {
-		const challenge = source.activeChallenge!;
-		const challengeHashes = source.dropTable.rotations?.challenges;
-		const challengeIndex = challengeHashes?.indexOf(challenge.hash) ?? -1;
-		const encounters = source.dropTable.encounters?.filter(encounter => !encounter.traversal);
-		const phase = challengeHashes?.length === encounters?.length ? encounters?.[challengeIndex] : undefined;
+		for (const challenge of source.activeChallenges) {
+			const challengeHashes = source.dropTable.rotations?.challenges;
+			const challengeIndex = challengeHashes?.indexOf(challenge.hash) ?? -1;
+			const encounters = source.dropTable.encounters?.filter(encounter => !encounter.traversal);
+			const phase = challengeHashes?.length === encounters?.length ? encounters?.[challengeIndex] : undefined;
 
-		const challengeComponent = Component.create()
-			.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
-			.style.set("--icon", Display.icon(challenge))
-			.appendTo(wrapper);
+			const challengeComponent = Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityChallenge)
+				.style.set("--icon", Display.icon(challenge))
+				.appendTo(wrapper);
 
-		Component.create()
-			.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
-			.text.set(Display.name(challenge))
-			.appendTo(challengeComponent);
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
+				.append(Component.create("span")
+					.text.set(Display.name(challenge))
+				)
+				.tweak(this.renderDropChance, item, source.dropTable.master?.dropTable ?? {})
+				.appendTo(challengeComponent);
 
-		Component.create()
-			.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
-			.append(challengeIndex < 0 ? undefined : Component.create()
-				.classes.add(ItemTooltipSourceClasses.ActivityChallengePhaseIndex)
-				.text.set(`${challengeIndex + 1}`))
-			.text.set(Display.name(phase))
-			.appendTo(challengeComponent);
+			Component.create()
+				.classes.add(ItemTooltipSourceClasses.ActivityPhaseDescription)
+				.append(challengeIndex < 0 ? undefined : Component.create()
+					.classes.add(ItemTooltipSourceClasses.ActivityChallengePhaseIndex)
+					.text.set(`${challengeIndex + 1}`))
+				.text.set(Display.name(phase))
+				.appendTo(challengeComponent);
+		}
 	}
 
 	private renderPhases (wrapper: Component, item: Item, source: ISource) {
@@ -211,7 +233,10 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityPhaseName)
-				.text.set(Display.name(encounter))
+				.append(Component.create("span")
+					.text.set(Display.name(encounter))
+				)
+				.tweak(this.renderDropChance, item, dropTable)
 				.appendTo(phaseComponent);
 
 			Component.create()
@@ -219,5 +244,47 @@ export default class ItemTooltipSource extends Component {
 				.text.set(Display.description(encounter) || `Clear ${Display.name(encounter)}`)
 				.appendTo(phaseComponent);
 		}
+	}
+
+	@Bound
+	private renderDropChance (wrapper: Component, item: Item, dropTable?: Partial<Record<InventoryItemHashes, DeepsightDropTableDropDefinition>>) {
+		if (!dropTable && !item.hasWishlist())
+			return;
+
+		const drop = !dropTable ? {} : dropTable?.[item.definition.hash as InventoryItemHashes];
+		if (!drop)
+			return;
+
+		if (item.isExotic())
+			return;
+
+		if (drop.requiresQuest || drop.requiresItems)
+			return;
+
+		Component.create("span")
+			.classes.add(ItemTooltipSourceClasses.ActivityPhaseChance)
+			.tweak(async span => {
+				const { DestinyInventoryItemDefinition } = await Manifest.await();
+				const items = !dropTable ? [item.definition] : await Promise.all(Object.keys(dropTable)
+					.map(hash => DestinyInventoryItemDefinition.get(hash))
+				);
+
+				const totalDrops = items
+					.filter(item => true
+						// && !/\([\w -]+\)\s*$/.test(item?.displayProperties.name ?? "")
+						&& item?.classType !== DestinyClass.Hunter
+						&& item?.classType !== DestinyClass.Titan
+						&& !item?.sockets?.socketEntries.some(socket => socket.singleInitialItemHash === InventoryItemHashes.ArtificeArmorIntrinsicPlug)
+						&& item?.inventory?.tierType !== TierType.Exotic
+						&& !item?.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies)
+						&& !item?.itemCategoryHashes?.includes(ItemCategoryHashes.Materials)
+					)
+					.length;
+
+				const wishlistChance = item.getWishlistChance();
+				span.classes.toggle(wishlistChance !== 1, ItemTooltipSourceClasses.ActivityPhaseChance_Wishlisted);
+				span.text.set(`${((1 / totalDrops) * wishlistChance * 100).toFixed(1)}% \xa0- \xa01 in ${Math.round(totalDrops / wishlistChance)}`);
+			})
+			.appendTo(wrapper);
 	}
 }

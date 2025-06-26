@@ -18,7 +18,7 @@ export interface ISource {
 	dropTable: DeepsightDropTableDefinition;
 	activityDefinition: DestinyActivityDefinition;
 	masterActivityDefinition?: DestinyActivityDefinition;
-	activeChallenge?: DestinyActivityModifierDefinition;
+	activeChallenges: DestinyActivityModifierDefinition[];
 	isActiveDrop: boolean;
 	isActiveMasterDrop: boolean;
 	type: SourceType;
@@ -95,17 +95,21 @@ namespace Source {
 
 		const isMaster = !!table.master?.dropTable?.[hash] || isMasterRotationDrop;
 
-		const isRotatingChallengeRelevant = table.availability === "rotator" ? false
-			: isMaster
-				? isMasterRotationDrop || !table.rotations?.masterDrops
-				: isRotationDrop || !table.rotations?.drops;
+		const isRotatingChallengeRelevant = isMaster
+			? isMasterRotationDrop || !table.rotations?.masterDrops
+			: isRotationDrop || !table.rotations?.drops;
+		const activeChallenges = (!table.rotations?.challenges || !isRotatingChallengeRelevant ? []
+			: (table.availability === "rotator"
+				? await Promise.all(table.rotations.challenges.map(hash => DestinyActivityModifierDefinition.get(hash)))
+				: [await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations.challenges, intervals))]
+			)
+		).filter((challenge): challenge is DestinyActivityModifierDefinition => challenge !== undefined);
 
 		return {
 			dropTable: table,
 			activityDefinition: activityDefinition!,
 			masterActivityDefinition,
-			activeChallenge: !isRotatingChallengeRelevant ? undefined
-				: await DestinyActivityModifierDefinition.get(resolveRotation(table.rotations?.challenges, intervals)),
+			activeChallenges,
 			isActiveDrop: (!!table.rotations?.drops && isRotationDrop)
 				|| (!!table.availability && !!activityDefinition?.activityModeHashes?.includes(ActivityModeHashes.Strikes)),
 			isActiveMasterDrop: !!table.master?.availability && isMaster,

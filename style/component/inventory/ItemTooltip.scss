@@ -622,6 +622,30 @@
 				
 				&-name {
 					margin-bottom: .1em;
+					display: flex;
+					align-items: center;
+				}
+				
+				&-chance {
+					font-size: 0.8em;
+					opacity: .6;
+					font-weight: bold;
+					margin-left: 1em;
+					grid-column: 2;
+					&--wishlisted {
+						opacity: 1;
+						color: color(wishlist-tooltip-border);
+						&::before {
+							content: "";
+							@include mask-icon(url("./image/svg/wishlisted.svg"));
+							width: 1em;
+							height: 1em;
+							display: inline-block;
+							top: .05em;
+							margin-right: .2em;
+							position: relative;
+						}
+					}
 				}
 				
 				&-description {

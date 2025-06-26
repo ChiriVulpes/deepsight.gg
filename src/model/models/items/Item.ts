@@ -882,6 +882,34 @@ class Item {
 		}
 	}
 
+	public hasWishlist () {
+		const wishlists = Store.items[`item${this.baseItem?.hash ?? this.definition.hash}PerkWishlists`];
+		return !!wishlists && wishlists.length > 0;
+	}
+
+	public getWishlistChance () {
+		const wishlists = Store.items[`item${this.baseItem?.hash ?? this.definition.hash}PerkWishlists`];
+		if (!wishlists)
+			return 1;
+
+		if (!wishlists.length)
+			return 0;
+
+		let notWishlistedChance = 1;
+		for (const wishlist of wishlists) {
+			let wishlistChance = 1;
+			for (const socket of this.collections?.sockets ?? this.sockets) {
+				const socketPoolSize = socket?.plugs?.filter(plug => !plug.is("Perk/TraitEnhanced")).length ?? 0;
+				const wishlistPoolSize = socket?.plugs?.filter(plug => wishlist.plugs.includes(plug.plugItemHash)).length ?? 0;
+				if (wishlistPoolSize)
+					wishlistChance *= wishlistPoolSize / socketPoolSize;
+			}
+			notWishlistedChance *= 1 - wishlistChance;
+		}
+
+		return 1 - notWishlistedChance;
+	}
+
 	/**
 	 * @returns undefined if there are no wishlists for this item, true if a wishlist matches, false otherwise
 	 */
