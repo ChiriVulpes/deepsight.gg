@@ -1,0 +1,28 @@
+.wordmark-logo:
+	%grid
+	grid-template-columns: auto auto
+	%align-items-centre
+	gap: .5em
+	%width-fit
+	%colour-inherit
+	%decoration-none
+
+	&-icon:
+		height: 6em
+	&-wordmark:
+		height: 6em
+		margin-top: 1em
+	&-text:
+		%relative
+		grid-column: 2
+		%uppercase
+		letter-spacing: .3em
+		font-size: 1em
+		padding-bottom: .5em
+		@after:
+			%block
+			%absolute
+			%bottom-0
+			height: .2em
+			width: 1em
+			background: currentcolor

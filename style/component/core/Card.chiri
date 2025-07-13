@@ -1,0 +1,31 @@
+.card:
+	%block
+	%relative
+	%z-index-fg
+	; %border-2
+	%padding-inline-4
+	%width-8
+
+	@before:
+		%absolute
+		%inset-0
+		%z-index-bg
+		%backdrop-blur
+		background: #2229
+
+	&-header:
+		%block
+		%width-100
+		%unmargin-inline-4
+		%padding-inline-4
+		background: #4449
+		%border-bottom-2
+		%uppercase
+		%padding-block-1
+		letter-spacing: .2em
+		%weight-semibold
+		%font-3
+		%colour-6
+
+		&-text:
+			%font-vertical-align

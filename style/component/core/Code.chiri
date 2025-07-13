@@ -1,0 +1,5 @@
+.code:
+	background: #1116
+	%border-radius-1
+	%padding-inline-1
+	box-shadow: 0 0 0 .1em #1116

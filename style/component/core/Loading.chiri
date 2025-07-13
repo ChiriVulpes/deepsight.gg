@@ -1,0 +1,88 @@
+.loading:
+	%flex
+	%flex-column
+	%gap-3
+	%align-items-centre
+	%margin-top-3
+
+	&--loaded:
+		%contents
+
+	&-spinner:
+		%block
+		%width-fit
+		%relative
+		%size-4
+		%margin-3
+		#animate 6s infinite linear:
+			to: rotate: z 360deg
+
+		&-dot:
+			%absolute
+			%size-1
+			%border-radius-100
+			%background-currentcolour
+			&--no-animate:
+				animation: none !important
+
+			#dec animation-time = 2
+			#string animation-params = "#{animation-time}s
+			#string ease-in-out = "cubic-bezier(.7,0,.3,1)
+			#string ease-in = "cubic-bezier(.7,0,1,1)
+			#string ease-out = "cubic-bezier(0,0,.3,1)
+
+			&-1:
+				%translate-up-50
+				%translate-left-50
+				; top left to bottom right (via centre)
+				%top-0
+				%left-0
+				#animate #{animation-params} #{ease-in-out}:
+					to:
+						%left-100
+						%top-100
+			&-2:
+				%translate-up-50
+				%translate-right-50
+				; top right to bottom left (via bottom right)
+				%top-0
+				%right-0
+				#animation loading-spinner-dot-2-x:
+					to: %right-100
+				#animation loading-spinner-dot-2-y:
+					to: %top-100
+				animation:
+					loading-spinner-dot-2-x #{animation-time / 2}s #{animation-time / 2}s #{ease-out} forwards,
+					loading-spinner-dot-2-y #{animation-time / 2}s #{ease-in} forwards
+			&-3:
+				%translate-down-50
+				%translate-right-50
+				; bottom right to top left (via centre)
+				%bottom-0
+				%right-0
+				#animate #{animation-params} #{ease-in-out}:
+					to:
+						%bottom-100
+						%right-100
+			&-4:
+				%translate-down-50
+				%translate-left-50
+				; bottom left to top right (via top left)
+				%bottom-0
+				%left-0
+				#animation loading-spinner-dot-4-x:
+					to: %left-100
+				#animation loading-spinner-dot-4-y:
+					to: %bottom-100
+				animation:
+					loading-spinner-dot-4-x #{animation-time / 2}s #{animation-time / 2}s #{ease-out} forwards,
+					loading-spinner-dot-4-y #{animation-time / 2}s #{ease-in} forwards
+
+	&-progress:
+		&--unknown:
+			%hidden
+
+	&-message:
+		%margin-top-0
+	&-error-icon:
+	&-error:

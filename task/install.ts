@@ -1,16 +1,20 @@
-import ansi from "ansicolor";
-import { Task } from "task";
-import Env from "./utility/Env";
-import Log from "./utility/Log";
+import { Task } from 'task'
 
-export default Task("install", async task => {
-	await task.exec({ cwd: "src" }, "PATH:npm", "install");
-
-	if (Env.DEEPSIGHT_ENVIRONMENT === "dev") {
-		Log.info(`Installing ${ansi.lightCyan("bungie-api-ts@latest")}...`);
-		await task.exec({ cwd: "src" }, "PATH:npm", "install", "bungie-api-ts@latest", "--no-fund", "--prefer-online", "--no-audit");
-	}
-
-	Log.info(`Installing ${ansi.lightCyan("deepsight.gg@latest")}...`);
-	await task.exec({ cwd: "src" }, "PATH:npm", "install", "deepsight.gg@latest", "--no-fund", "--prefer-online", "--no-audit");
-});
+export default Task('install', async task => task.install(
+	{
+		path: '.',
+		dependencies: {
+			task: { path: 'chirivulpes/task', branch: 'package' },
+			lint: { path: 'fluff4me/lint' },
+			chiri: { path: 'fluff4me/chiri', branch: 'package' },
+			weaving: { path: 'chirivulpes/weaving', branch: 'package' },
+		},
+	},
+	{
+		path: 'src',
+		dependencies: {
+			'kitsui': { path: 'fluff4me/kitsui', branch: 'package' },
+			'conduit.deepsight.gg': { path: 'chirivulpes/conduit.deepsight.gg', branch: 'package' },
+		},
+	},
+))

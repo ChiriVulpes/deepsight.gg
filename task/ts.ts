@@ -1,17 +1,25 @@
-/* eslint-disable no-control-regex */
-import { Task, TypeScript } from "task";
-import Env from "./utility/Env";
+import { Task, TypeScript } from 'task'
+import Env from './utility/Env'
 
-const options = Env.DEEPSIGHT_ENVIRONMENT === "dev"
-	? ["--inlineSourceMap", "--inlineSources", /*"--incremental" */]
-	: ["--pretty"];
+const options = Env.ENVIRONMENT === 'dev'
+	? ['--inlineSourceMap', '--inlineSources', '--incremental']
+	: ['--pretty']
 
-export default Task("ts", task => task.series(
-	() => TypeScript.compile(task, "src", "--pretty",
-		...options),
-	// () => fs.unlink("docs/index.tsbuildinfo")
-));
+const ts = Task('ts', task => task.series(
+	Task('ts', () => TypeScript.compile(task, 'src', '--pretty', ...options)),
+	// copyClientToPlatform,
+))
 
-export const tsWatch = Task("ts (watch)", task =>
-	TypeScript.compile(task, "src", "--watch", "--preserveWatchOutput", "--pretty",
-		...options));
+export default ts
+
+export const tsWatch = Task('ts (watch)', task => task.series(
+	ts,
+	task.parallel(
+		() => TypeScript.compile(task, 'src', '--watch', '--preserveWatchOutput', '--pretty', ...options),
+		// () => task.watch('out/client/index.js', copyClientToPlatform),
+	),
+))
+
+// function copyClientToPlatform () {
+// 	return fs.copyFile('out/client/index.js', 'out/service/client.js').catch(() => { })
+// }

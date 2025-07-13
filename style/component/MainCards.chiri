@@ -1,0 +1,17 @@
+.main-cards:
+	%contents
+
+.grant:
+	%flex
+	%flex-column
+	%colour-inherit
+	%decoration-none
+
+	::hover, ::focus:
+		%decoration-underline
+
+	&-name:
+		%font-3
+
+	&-time:
+		%margin-top-0

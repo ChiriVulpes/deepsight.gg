@@ -1,0 +1,4 @@
+.footer:
+	%flex
+	%justify-content-centre
+	%margin-bottom-3

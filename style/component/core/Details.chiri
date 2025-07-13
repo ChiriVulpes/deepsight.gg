@@ -1,0 +1,6 @@
+.details:
+
+	&-summary:
+		%margin-bottom-3
+
+	&-content:

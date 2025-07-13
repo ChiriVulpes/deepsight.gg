@@ -1,0 +1,41 @@
+.button:
+	%relative
+	background: #5556
+	%border-1
+	%padding-2-3
+	%font-inherit
+	%font-family-inherit
+	%font-vertical-align
+	%cursor-pointer
+	letter-spacing: .05em
+	%colour-0
+	%decoration-none
+
+	@before:
+		%block
+		%absolute
+		inset: -10px
+		%transparent
+		box-shadow: inset 0 0 0 2px currentcolor
+		#transition: #{transition("inset")}, #{transition("opacity")}
+		%no-pointer-events
+
+	::hover, ::focus:
+		@before:
+			inset: -5px
+			%opaque
+			%transition-focus
+
+	&-text:
+		%font-vertical-align
+
+	&--disabled:
+		#after: .button
+		%cursor-default
+		%border-colour-5
+		%colour-7
+		%background-none
+
+		@before:
+			%transparent
+			inset: -10px
