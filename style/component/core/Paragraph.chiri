@@ -1,0 +1,5 @@
+.paragraph:
+	%block
+	%font-vertical-align
+	%margin-block-3
+	%font-2

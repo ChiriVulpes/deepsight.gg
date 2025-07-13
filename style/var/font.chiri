@@ -1,0 +1,35 @@
+#function google-font-format returns string:
+	#int weight
+	#string format?
+
+	#int format-code = match format:
+		"italic": 1
+		else: 0
+
+	#return "#{format-code},#{weight}
+
+#macro google-font:
+	#string family
+	#list!string formats?
+
+	#string format-text = if exists formats: ":ital,wght@#{join(formats, ";")}" else: ""
+
+	#import css: url("https://fonts.googleapis.com/css2?family=#{family}#{format-text}&display=swap")
+
+#google-font
+	family="EB+Garamond
+
+#font-face family="Overused Grotesk":
+	font-display: swap
+	font-weight: 300 900
+	src:
+		url('../static/font/OverusedGrotesk-VF.woff2') format('woff2-variations'),
+		url('../static/font/OverusedGrotesk-VF.woff') format('woff-variations'),
+		url('../static/font/OverusedGrotesk-VF.ttf') format('truetype-variations')
+
+#font-family
+	name="Overused Grotesk
+	vertical-align=-.08
+	letter-spacing=.03
+
+%font-overused-grotesk

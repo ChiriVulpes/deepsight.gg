@@ -1,35 +1,32 @@
-
-export interface IEnvironment {
-	DEEPSIGHT_ENVIRONMENT: "dev" | "beta" | "prod";
-	DEEPSIGHT_PATH: string;
-	DEEPSIGHT_BUNGIE_CLIENT_ID: string;
-	DEEPSIGHT_BUNGIE_API_KEY: string;
-	DEEPSIGHT_BUNGIE_API_SECRET: string;
-	DEEPSIGHT_BUILD_NUMBER?: string;
-	DEEPSIGHT_BUILD_SHA?: string;
-	DEEPSIGHT_MANIFEST_CLIENT_ID?: string
-	DEEPSIGHT_MANIFEST_CLIENT_SECRET?: string
+interface Env {
+	ENVIRONMENT: 'dev' | 'prod'
+	BUNGIE_API_KEY: string
+	BUNGIE_AUTH_CLIENT_ID: string
+	BUNGIE_AUTH_CLIENT_SECRET: string
 }
 
-interface Env extends Readonly<IEnvironment> { }
 class Env {
-	public async load () {
-		const origin = location.origin;
-		const root = location.pathname.startsWith("/beta/") ? "/beta/" : "/";
-		Object.assign(this, await fetch(origin + root + "env.json").then(response => response.json()));
-		document.documentElement.classList.add(`environment-${this.DEEPSIGHT_ENVIRONMENT}`);
-		Object.assign(window, { Env: this });
+
+	protected async init () {
+		const raw = await fetch('/.env').then(res => res.text())
+		const acc = this as any as Record<string, string>
+		for (const line of raw.split('\n')) {
+			if (line.startsWith('#') || !line.trim())
+				continue
+
+			let [key, value] = line.split('=')
+			if (!key || !value)
+				throw new Error(`Invalid .env line: ${line}`)
+
+			key = key.trim()
+			value = value.trim()
+			if (value.startsWith('"') && value.endsWith('"'))
+				value = value.slice(1, -1)
+
+			acc[key] = value
+		}
 	}
 
-	public path (path: string) {
-		if (path.startsWith("/"))
-			path = path.slice(1);
-
-		else if (path.startsWith("./"))
-			path = path.slice(2);
-
-		return this.DEEPSIGHT_PATH + path;
-	}
 }
 
-export default new Env;
+export default new Env()

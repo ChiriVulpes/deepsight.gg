@@ -1,23 +1,35 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"target": "ES2021",
-		"lib": ["ES2021", "DOM", "DOM.Iterable"],
+		"target": "ES2024",
+		"lib": ["ES2024", "DOM", "DOM.Iterable", "ESNext.Iterator"],
 		"moduleResolution": "node",
-		"outFile": "../docs/index.js",
-		"module": "AMD",
+		"outFile": "../out/index.js",
+		"module": "amd",
 		"baseUrl": ".",
-        "incremental": true,
-        "noImplicitOverride": true,
-        "experimentalDecorators": true,
-        "forceConsistentCasingInFileNames": true,
-        "noUnusedLocals": true,
+		"incremental": true,
+		"esModuleInterop": true,
+		"noImplicitOverride": true,
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUnusedLocals": true,
+		"allowJs": true,
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
 		"paths": {
-			"@deepsight.gg/interfaces": ["node_modules/deepsight.gg/Interfaces.d.ts"],
-			"@deepsight.gg/plugs": ["node_modules/deepsight.gg/DeepsightPlugCategorisation.d.ts"],
-			"@deepsight.gg/enums": ["node_modules/deepsight.gg/Enums.d.ts"]
+			"*": [
+				"./*",
+			],
+			"lang": ["./lang/index.d.ts"],
+			"style": ["./style/index.d.ts"],
+			"kitsui": ["./node_modules/kitsui/index.d.ts"],
+			"kitsui/*": ["./node_modules/kitsui/*"],
+			"conduit.deepsight.gg": ["./node_modules/conduit.deepsight.gg/index.d.ts"],
+			"conduit.deepsight.gg/*": ["./node_modules/conduit.deepsight.gg/*"],
 		}
-	}
+	},
+	"include": [
+		"bundle/amd.js",
+		"**/*.ts"
+	]
 }

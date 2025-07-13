@@ -1,7 +1,8 @@
 {
+	"name": "deepsight.gg",
 	"private": true,
 	"dependencies": {
-		"bungie-api-ts": "^5.2.0",
-		"deepsight.gg": "^1.0.1281"
+		"kitsui": "github:fluff4me/kitsui#package",
+		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#package"
 	}
 }

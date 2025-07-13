@@ -1,0 +1,9 @@
+.text-input:
+	%appearance-none
+	%border-1
+	%border-radius-0
+	%border-colour-5
+	%padding-1-2
+	%font-3
+	%margin-bottom-3
+	background: #1115

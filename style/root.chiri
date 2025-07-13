@@ -1,0 +1,32 @@
+font-size: 1.2rem
+
+.body:
+	%relative
+	%flex
+	%flex-column
+	min-height: 100vh
+	%gap-4
+	%justify-content-centre
+	%align-items-centre
+	%margin-0
+	%padding-block-5
+	%border-box
+
+	@before, @after:
+		%fixed
+		%z-index-bg
+		%block
+		%top-0
+		%left-0
+		height: 100vh
+		width: 100vw
+
+	@before:
+		background-image: url('https://images.contentstack.io/v3/assets/blte410e3b15535c144/blt4a94341edf1f8820/668673f3fda3920cfb663c7f/D2_TFS_Social_Wallpapers_PostCinematic_4K.jpg')
+		background-image: url('../static/relic.webp')
+		background-size: cover
+		background-position: center
+
+	@after:
+		%backdrop-blur-3
+		background: radial-gradient(#222a, #111)
