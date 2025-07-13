@@ -1,0 +1,36 @@
+.checklist:
+	%grid
+	grid-template-columns: auto 1fr auto
+	%gap-2
+	%padding-0
+	%margin-0
+	%margin-block-3
+
+	&-item:
+		%grid
+		%column-1-3
+		%columns-subgrid
+		%gap-2
+		%align-items-centre
+
+		&-marker:
+			%colour-7
+			%weight-semibold
+			%font-6
+			%font-vertical-align
+
+		&-content:
+		&-check-icon:
+			%opacity-10
+			@before:
+				%block
+				height: calc($space-3 + $space-2)
+				width: calc($space-2 + $space-1)
+				%unmargin-top-3
+				%margin-right-3
+				border-bottom: 3px solid currentcolor
+				border-right: 3px solid currentcolor
+				rotate: z 45deg
+
+			&--checked:
+				%opaque

@@ -1,0 +1,24 @@
+#import: chiri:defaults
+
+#import:
+	var/font
+
+#import: root
+
+#import:
+	component/core/Card
+	component/core/Paragraph
+	component/core/Loading
+	component/core/Checkbox
+	component/core/Checklist
+	component/core/Button
+	component/core/Lore
+	component/core/Footer
+	component/core/ActionRow
+	component/core/FormRow
+	component/core/TextInput
+	component/core/Details
+	component/core/Break
+	component/core/Code
+	component/WordmarkLogo
+	component/MainCards

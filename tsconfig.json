@@ -2,21 +2,20 @@
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
+		"allowJs": true,
 		"noEmit": true,
-		"target": "ES2022",
+		"target": "ES2024",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
 		"paths": {
-			"bungie-api-ts/*": ["./src/node_modules/bungie-api-ts/*"],
-			"@deepsight.gg/utility/*": ["./src/utility/*"],
-			"@deepsight.gg/Enums": ["./static/manifest/Enums.d.ts"],
-			"@deepsight.gg/Interfaces": ["./static/manifest/Interfaces.d.ts"]
 		}
 	},
 	"include": [
 		"**/*.ts",
-		"**/*.mts"
+		"**/*.mts",
+		"**/*.js",
+		"**/*.mjs"
 	]
 }

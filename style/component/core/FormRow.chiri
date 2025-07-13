@@ -1,0 +1,9 @@
+.form-row:
+	%flex
+	%flex-column
+
+	&-label:
+		%font-0
+		%uppercase
+		%weight-semibold
+		letter-spacing: .1em
