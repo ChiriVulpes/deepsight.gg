@@ -12,6 +12,8 @@ import type { DisplayPropertied } from "ui/utility/DisplayProperties";
 import Display from "ui/utility/DisplayProperties";
 import ICollectionsView from "ui/view/collections/ICollectionsView";
 
+const _ = undefined;
+
 const moreInfoLinks: Partial<Record<DeepsightDropTableDefinition["type"], string | undefined>> = {
 	nightfall: "https://bray.tech/weeklies#nightfall",
 	"lost-sector": "https://bray.tech/weeklies#lost-sector",
@@ -120,7 +122,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 			this.event.subscribe("contextmenu", () => window.open(moreInfoLink, "_blank"));
 
 		this.title.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityTitle)
-			.text.set(undefined
+			.text.set(_
 				?? Display.name(source.dropTable.displayProperties)
 				?? Display.name(activity))
 			.appendTo(this.content); // the title should be part of the content instead of part of the header
@@ -128,7 +130,7 @@ export class CollectionsCurrentlyAvailableActivity extends Card<[activity: Desti
 		Component.create()
 			.classes.add(CollectionsCurrentlyAvailableActivityClasses.ActivityDescription)
 			.tweak(Display.applyDescription,
-				(undefined
+				(_
 					?? Display.description(source.dropTable.displayProperties)
 					?? Display.description(activity)),
 				{

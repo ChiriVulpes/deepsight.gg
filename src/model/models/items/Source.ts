@@ -7,6 +7,8 @@ import type Manifest from "model/models/Manifest";
 import type { IItemInit } from "model/models/items/Item";
 import Bungie from "utility/endpoint/bungie/Bungie";
 
+const _ = undefined
+
 export enum SourceType {
 	Playlist,
 	Rotator,
@@ -76,7 +78,7 @@ namespace Source {
 		const activityDefinition = await DestinyActivityDefinition.get(table.hash);
 		const masterActivityDefinition = await DestinyActivityDefinition.get(table.master?.activityHash);
 
-		const type = undefined
+		const type = _
 			?? (table.availability === "rotator" ? SourceType.Rotator : undefined)
 			?? (table.availability === "repeatable" ? SourceType.Repeatable : undefined)
 			?? (table.availability === "new" ? SourceType.New : undefined)

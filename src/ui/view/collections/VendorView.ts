@@ -27,14 +27,15 @@ function getId (vendor: DeepsightVendorDefinition) {
 }
 
 export async function resolveVendorURL (vendorId: string, api: IModelGenerationApi) {
-	const manifest = await api.subscribeProgressAndWait(Manifest, 1);
-	const { DeepsightVendorDefinition } = manifest;
+	// const manifest = await api.subscribeProgressAndWait(Manifest, 1);
+	// const { DeepsightVendorDefinition } = manifest;
 
-	const vendors = await DeepsightVendorDefinition.all();
+	// const vendors = await DeepsightVendorDefinition.all();
 
-	const searchHash = +vendorId;
-	return vendors.find(vendor => vendor.hash === searchHash
-		|| vendorId === getId(vendor));
+	// const searchHash = +vendorId;
+	// return vendors.find(vendor => vendor.hash === searchHash
+	// 	|| vendorId === getId(vendor));
+	return undefined
 }
 
 export enum VendorViewClasses {
@@ -77,7 +78,7 @@ const vendorViewBase = View.create({
 			view.setBackground(`../.${vendor.background}`).setUnfiltered(true);
 
 		VendorDisplay.Button.create([vendor])
-			.event.subscribe("click", () => viewManager.showVendors())
+			// .event.subscribe("click", () => viewManager.showVendors())
 			.appendTo(view.content);
 
 		const appendItemSlot = async (to: AnyComponent, itemRef: DeepsightVendorItemDefinition, initialiser?: (itemComponent: ItemComponent) => any) => {

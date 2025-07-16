@@ -298,7 +298,7 @@
 		displayProperties: {
 			name: "The Final Shape",
 			description: "The Final Shape looms—a nightmarish calcification of reality into the Witness's twisted design. Embark on a perilous journey into the heart of the Traveler, rally the Vanguard, and end the War of Light and Darkness.",
-			icon: { DestinyTraitDefinition: 2878306895 }, // The Final Shape
+			// icon: { DestinyTraitDefinition: 2878306895 }, // The Final Shape
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 1681583613 }, // Ergo Sum
 		expansion: true,
@@ -341,6 +341,28 @@
 		iconWatermark: { DestinyInventoryItemDefinition: 2730671571 }, // Terminus Horizon
 		year: 7,
 		expansion: true,
+	},
+	"40": {
+		id: "edgeoffate",
+		aliases: ["eof"],
+		displayProperties: {
+			name: "Edge of Fate",
+			description: "Something has manipulated time to get our attention. Guardians will travel into the deep hidden corners of Sol, responding to a call that will shake their perceptions of reality.",
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 648595258 }, // Graviton Spike exotic hand cannon
+		expansion: true,
+		year: 8,
+	},
+	"41": {
+		"id": "reclamation",
+		"displayProperties": {
+			"name": { DestinyInventoryItemDefinition: 1399867989 },
+			"description": { DestinyInventoryItemDefinition: 1399867989 },
+		},
+		iconWatermark: { DestinyInventoryItemDefinition: 2973900274 }, // Third Iteration exotic scout
+		year: 8,
+		season: 27,
+		seasonHash: 2758726575,
 	},
 	"-1": {
 		id: "revelry",

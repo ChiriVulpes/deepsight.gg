@@ -18,9 +18,10 @@ export default View.create({
 	noProfileInURL: true,
 	navGroupViewId: "collections",
 	initialise: async (view, Manifest) => {
-		const vendors = (await Manifest.DeepsightVendorDefinition.all())
-			.sort((a, b) => (a.displayProperties.name ?? "").localeCompare(b.displayProperties.name ?? ""))
-			.sort((a, b) => (b.moment ?? Infinity) - (a.moment ?? Infinity));
+		const vendors: any[] = []
+		// (await Manifest.DeepsightVendorDefinition.all())
+		// .sort((a, b) => (a.displayProperties.name ?? "").localeCompare(b.displayProperties.name ?? ""))
+		// .sort((a, b) => (b.moment ?? Infinity) - (a.moment ?? Infinity));
 
 		for (const group of [VendorGroupHashes.LimitedTime, VendorGroupHashes.Seasonal, VendorGroupHashes.Tower, VendorGroupHashes.Destination]) {
 			const groupDef = await Manifest.DestinyVendorGroupDefinition.get(group);

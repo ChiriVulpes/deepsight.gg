@@ -2,17 +2,17 @@
 	"name": "deepsight.gg",
 	"private": true,
 	"scripts": {
-		"build": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums build",
-		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums pre_watch_build -- serve watch",
-		"manifest": "npx ts-node tasks/utility/TaskRunner.ts clean install ensure_enums deepsight_manifest",
-		"bump_versions": "npx ts-node tasks/utility/TaskRunner.ts bump_versions",
-		"refresh_token": "npx ts-node tasks/utility/TaskRunner.ts refresh_token"
+		"build": "npx task clean install ensure_enums build",
+		"watch": "npx task clean install ensure_enums pre_watch_build -- serve watch",
+		"manifest": "npx task clean install ensure_enums deepsight_manifest",
+		"bump_versions": "npx task bump_versions",
+		"refresh_token": "npx task refresh_token"
 	},
 	"devDependencies": {
 		"fs-extra": "10.1.0",
 		"@types/fs-extra": "9.0.13",
-		"ts-node": "10.8.0",
-		"typescript": "5.3.3",
+		"typescript": "5.8.3",
+		"ts-node": "10.9.2",
 		"sass": "1.52.1",
 		"@types/sass": "1.43.1",
 		"del": "6.1.1",
@@ -29,11 +29,6 @@
 		"@types/connect": "3.4.34",
 		"serve-static": "1.15.0",
 		"@types/serve-static": "1.15.0",
-		"eslint": "8.52.0",
-		"@types/eslint": "8.44.6",
-		"@typescript-eslint/eslint-plugin": "6.9.0",
-		"@typescript-eslint/parser": "6.9.0",
-		"eslint-plugin-only-warn": "1.0.3",
 		"https-localhost": "4.7.1",
 		"@types/express": "4.17.13",
 		"json-diff": "1.0.6",
@@ -42,6 +37,8 @@
 		"tsconfig-paths": "4.2.0",
 		"jimp": "0.22.12",
 		"color-convert": "2.0.1",
-		"@types/color-convert": "2.0.3"
+		"@types/color-convert": "2.0.3",
+		"lint": "github:fluff4me/lint",
+		"task": "github:chirivulpes/task#package"
 	}
 }

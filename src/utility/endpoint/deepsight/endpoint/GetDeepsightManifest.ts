@@ -1,4 +1,4 @@
-import type { DeepsightAdeptDefinition, DeepsightBreakerSourceDefinition, DeepsightBreakerTypeDefinition, DeepsightCatalystDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightSocketExtendedDefinition, DeepsightTierTypeDefinition, DeepsightVendorDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightAdeptDefinition, DeepsightBreakerSourceDefinition, DeepsightBreakerTypeDefinition, DeepsightCatalystDefinition, DeepsightCollectionsDefinition, DeepsightDropTableDefinition, DeepsightEmblemDefinition, DeepsightMomentDefinition, DeepsightSocketExtendedDefinition, DeepsightTierTypeDefinition, DeepsightWallpaperDefinition } from "@deepsight.gg/interfaces";
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from "@deepsight.gg/plugs";
 import Endpoint from "utility/endpoint/Endpoint";
 import GetDeepsightAdeptDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightAdeptDefinition";
@@ -13,7 +13,7 @@ import GetDeepsightPlugCategorisation from "utility/endpoint/deepsight/endpoint/
 import GetDeepsightSocketCategorisation from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketCategorisation";
 import GetDeepsightSocketExtendedDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightSocketExtendedDefinition";
 import GetDeepsightTierTypeDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightTierTypeDefinition";
-import GetDeepsightVendorDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightVendorDefinition";
+// import GetDeepsightVendorDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightVendorDefinition";
 import GetDeepsightWallpaperDefinition from "utility/endpoint/deepsight/endpoint/GetDeepsightWallpaperDefinition";
 
 export interface AllDeepsightManifestComponents {
@@ -23,7 +23,7 @@ export interface AllDeepsightManifestComponents {
 	DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation>;
 	DeepsightSocketCategorisation: Record<number, DeepsightSocketCategorisationDefinition>;
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>;
-	DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
+	// DeepsightVendorDefinition: Record<number, DeepsightVendorDefinition>;
 	DeepsightCollectionsDefinition: Record<number, DeepsightCollectionsDefinition>;
 	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>;
 	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>;
@@ -46,7 +46,7 @@ export default (new class extends Endpoint<AllDeepsightManifestComponents> {
 			DeepsightPlugCategorisation: await GetDeepsightPlugCategorisation.query(),
 			DeepsightSocketCategorisation: await GetDeepsightSocketCategorisation.query(),
 			DeepsightTierTypeDefinition: await GetDeepsightTierTypeDefinition.query(),
-			DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
+			// DeepsightVendorDefinition: await GetDeepsightVendorDefinition.query(),
 			DeepsightCollectionsDefinition: await GetDeepsightCollectionsDefinition.query(),
 			DeepsightAdeptDefinition: await GetDeepsightAdeptDefinition.query(),
 			DeepsightEmblemDefinition: await GetDeepsightEmblemDefinition.query(),

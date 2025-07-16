@@ -2,9 +2,8 @@
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
-		"allowJs": true,
 		"noEmit": true,
-		"target": "ES2020",
+		"target": "ES2022",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
@@ -15,5 +14,9 @@
 			"@deepsight.gg/enums": ["./static/manifest/Enums.d.ts"],
 			"@deepsight.gg/interfaces": ["./static/manifest/Interfaces.d.ts"]
 		}
-	}
+	},
+	"include": [
+		"**/*.ts",
+		"**/*.mts"
+	]
 }

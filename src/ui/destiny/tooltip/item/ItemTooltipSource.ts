@@ -8,6 +8,8 @@ import Component from "ui/component/Component";
 import Display from "ui/utility/DisplayProperties";
 import Bound from "utility/decorator/Bound";
 
+const _ = undefined
+
 export enum ItemTooltipSourceClasses {
 	Main = "item-tooltip-source",
 	Heading = "item-tooltip-source-heading",
@@ -85,7 +87,7 @@ export default class ItemTooltipSource extends Component {
 
 			const activityComponent = Component.create()
 				.classes.add(ItemTooltipSourceClasses.Activity)
-				.style.set("--icon", undefined
+				.style.set("--icon", _
 					?? Display.icon(source.dropTable.displayProperties)
 					?? Display.icon(activity))
 				.appendTo(this.activityWrapper);
@@ -96,7 +98,7 @@ export default class ItemTooltipSource extends Component {
 
 			Component.create()
 				.classes.add(ItemTooltipSourceClasses.ActivityName)
-				.text.set(undefined
+				.text.set(_
 					?? Display.name(lostSectorDisplay)
 					?? Display.name(source.dropTable.displayProperties)
 					?? Display.name(activity))

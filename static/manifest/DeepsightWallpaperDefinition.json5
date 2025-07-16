@@ -580,5 +580,17 @@
 	"38.1": [
 		"https://www.destinythegame.com/content/dam/destiny/heresy/Heresy_Act_1_Feature_2_1920x1080.jpg",
 		"https://www.destinythegame.com/content/dam/destiny/heresy/Heresy_Act_1_Feature_3_1920x1080.jpg",
+	],
+	"40": [
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/wallpapers/2025_Apollo_Reveal_Gear_LARGE_02.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/wallpapers/Edge-of-Fate_Standard_Key_Art_3840x2160_Wallpaper.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Location_COMPRESSED_02.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Location_COMPRESSED_04.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Location_COMPRESSED_10.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Location_COMPRESSED_11.jpg"
+	],
+	"40.1": [
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Gear_COMPRESSED_05.jpg",
+		"https://www.destinythegame.com/content/dam/destiny/year-of-prophecy/screenshots/2025_Apollo_Reveal_Press_Kit_Enemy_COMPRESSED_01.jpg"
 	]
 }

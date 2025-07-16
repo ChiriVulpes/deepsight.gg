@@ -5,12 +5,12 @@ import Manifest from "model/models/Manifest";
 
 export interface StatTypesDefinition {
 	array: DestinyStatDefinition[];
-	mobility: DestinyStatDefinition;
-	resilience: DestinyStatDefinition;
-	recovery: DestinyStatDefinition;
-	discipline: DestinyStatDefinition;
-	intellect: DestinyStatDefinition;
-	strength: DestinyStatDefinition;
+	weapons: DestinyStatDefinition;
+	health: DestinyStatDefinition;
+	class: DestinyStatDefinition;
+	grenade: DestinyStatDefinition;
+	super: DestinyStatDefinition;
+	melee: DestinyStatDefinition;
 }
 
 /**
@@ -21,14 +21,14 @@ const StatTypes = EnumModel.create("StatTypes", {
 		const { DestinyStatDefinition } = await Manifest.await();
 		const types = await DestinyStatDefinition.all();
 
-		const mobility = types.find(type => type.hash === StatHashes.Mobility)!;
-		const resilience = types.find(type => type.hash === StatHashes.Resilience)!;
-		const recovery = types.find(type => type.hash === StatHashes.Recovery)!;
-		const discipline = types.find(type => type.hash === StatHashes.Discipline)!;
-		const intellect = types.find(type => type.hash === StatHashes.Intellect)!;
-		const strength = types.find(type => type.hash === StatHashes.Strength)!;
+		const health = types.find(type => type.hash === StatHashes.Health)!;
+		const melee = types.find(type => type.hash === StatHashes.Melee4244567218)!;
+		const grenade = types.find(type => type.hash === StatHashes.Grenade)!;
+		const superStat = types.find(type => type.hash === StatHashes.Super)!;
+		const classStat = types.find(type => type.hash === StatHashes.Class1943323491)!;
+		const weapons = types.find(type => type.hash === StatHashes.Weapons)!;
 
-		const array = [mobility, resilience, recovery, discipline, intellect, strength];
+		const array = [health, melee, grenade, superStat, classStat, weapons];
 
 		for (const def of array) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -37,12 +37,12 @@ const StatTypes = EnumModel.create("StatTypes", {
 
 		return {
 			array,
-			mobility,
-			resilience,
-			recovery,
-			discipline,
-			intellect,
-			strength,
+			health,
+			melee,
+			grenade,
+			super: superStat,
+			class: classStat,
+			weapons,
 		};
 	},
 });

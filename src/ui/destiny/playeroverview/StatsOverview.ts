@@ -1,5 +1,4 @@
 import { ItemCategoryHashes } from "@deepsight.gg/enums";
-import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import type { Character } from "model/models/Characters";
 import DamageTypes from "model/models/enum/DamageTypes";
 import type { Bucket } from "model/models/items/Bucket";
@@ -59,9 +58,9 @@ export default class StatsOverview extends ItemStat.Wrapper {
 						value = 0;
 						statValues.subclass += item.getSocketedPlugs("Subclass/Fragment")
 							.map(fragment => {
-								const isClassStat = fragment.getCategorisationAs(DeepsightPlugCategory.Subclass)?.affectsClassStat;
-								if (isClassStat && character.stat?.hash !== hash)
-									return 0;
+								// const isClassStat = fragment.getCategorisationAs(DeepsightPlugCategory.Subclass)?.affectsClassStat;
+								// if (isClassStat && character.stat?.hash !== hash)
+								// 	return 0;
 
 								return fragment.definition?.investmentStats?.find(stat => stat.statTypeHash === hash)?.value ?? 0;
 							})

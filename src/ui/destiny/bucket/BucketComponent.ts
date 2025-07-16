@@ -12,6 +12,8 @@ import type FilterManager from "ui/destiny/filter/FilterManager";
 import type SortManager from "ui/destiny/sort/SortManager";
 import type InventoryView from "ui/view/inventory/InventoryView";
 
+const _ = undefined
+
 export enum BucketClasses {
 	Main = "bucket",
 	Header = "bucket-header",
@@ -199,7 +201,7 @@ export default abstract class BucketComponent<BUCKET_ID extends BucketId = Bucke
 
 		const equippedItem = this.bucket?.equippedItem;
 		if (equippedItem)
-			equippedItem.fallbackItem = undefined
+			equippedItem.fallbackItem = _
 				?? items.find(item => item !== equippedItem
 					&& (item.isTierLessThan(equippedItem.tier?.tierType, TierType.Superior)))
 				?? this.view?.getVaultBucket(this.bucket?.characterId)?.items.find(item => item !== equippedItem

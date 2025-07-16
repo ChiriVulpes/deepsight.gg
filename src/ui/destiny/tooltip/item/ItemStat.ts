@@ -110,9 +110,9 @@ const customStats: Partial<Record<CustomStat, ICustomStatDisplayDefinition>> = {
 				renderFormula: () => distribution.groups.map((groupValue, i) => Component.create()
 					.classes.add(ItemStatClasses.Distribution)
 					.text.set(`${Math.floor(groupValue * 100)}%`)
-					.append(Component.create("sup")
-						.classes.add(ItemStatClasses.DistributionGroupLabel)
-						.text.set(`${i + 1}`))
+					// .append(Component.create("sup")
+					// 	.classes.add(ItemStatClasses.DistributionGroupLabel)
+					// 	.text.set(`${i + 1}`))
 					.style.set("--value", `${groupValue}`)),
 			};
 		},
@@ -207,7 +207,7 @@ class ItemStat extends Component<HTMLElement, [ICustomStatDisplayDefinition]> {
 			?? `${this.stat.hash}`;
 
 		this.groupLabel = stat.group === undefined ? undefined : Component.create()
-			.text.set(`${stat.group + 1}`)
+			// .text.set(`${stat.group + 1}`)
 			.classes.add(ItemStatClasses.GroupLabel)
 			.appendTo(this);
 

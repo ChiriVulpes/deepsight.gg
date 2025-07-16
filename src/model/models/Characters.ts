@@ -1,5 +1,4 @@
-import { StatHashes } from "@deepsight.gg/enums";
-import { DestinyClass, type DestinyCharacterComponent, type DestinyClassDefinition, type DestinyInventoryItemDefinition, type DestinyProfileProgressionComponent, type DestinyStatDefinition, type SingleComponentResponse } from "bungie-api-ts/destiny2";
+import { DestinyClass, type DestinyCharacterComponent, type DestinyClassDefinition, type DestinyInventoryItemDefinition, type DestinyProfileProgressionComponent, type SingleComponentResponse } from "bungie-api-ts/destiny2";
 import type { ILoadoutsProfile, Loadout } from "model/models/Loadouts";
 import Loadouts from "model/models/Loadouts";
 import Manifest from "model/models/Manifest";
@@ -19,19 +18,11 @@ export interface Character extends Omit<DestinyCharacterComponent, "characterId"
 	 */
 	power: number;
 	loadouts: Loadout[];
-	stat?: DestinyStatDefinition;
 }
 
 interface IProfileProgression {
 	profileProgression?: SingleComponentResponse<DestinyProfileProgressionComponent>;
 }
-
-export const CLASSES: Record<DestinyClass, StatHashes | undefined> = {
-	[DestinyClass.Unknown]: undefined,
-	[DestinyClass.Hunter]: StatHashes.Mobility,
-	[DestinyClass.Titan]: StatHashes.Resilience,
-	[DestinyClass.Warlock]: StatHashes.Recovery,
-};
 
 export class Character {
 
@@ -39,12 +30,12 @@ export class Character {
 		const character = new Character();
 		Object.assign(character, characterComponent);
 
-		const { DestinyClassDefinition, DestinyInventoryItemDefinition, DestinyStatDefinition } = manifest;
+		const { DestinyClassDefinition, DestinyInventoryItemDefinition } = manifest;
 		character.class = await DestinyClassDefinition.get(character.classHash)!;
 		character.emblem = await DestinyInventoryItemDefinition.get(character.emblemHash);
 		character.power = (character.light ?? 0) - (profile.profileProgression?.data?.seasonalArtifact.powerBonus ?? 0);
 		await Loadouts.apply(character, profile);
-		character.stat = await DestinyStatDefinition.get(CLASSES[character.classType]);
+		// character.stat = await DestinyStatDefinition.get(CLASSES[character.classType]);
 
 		return character;
 	}

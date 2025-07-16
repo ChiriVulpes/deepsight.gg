@@ -10,6 +10,8 @@ import Arrays from "utility/Arrays";
 import type { PromiseOr } from "utility/Type";
 import type { ClarityDescription } from "utility/endpoint/clarity/endpoint/GetClarityDescriptions";
 
+const _ = undefined;
+
 type PlugCat = DeepsightPlugCategoryName;
 type PlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> = DeepsightPlugFullName<CATEGORY>;
 type PlugRaw = DestinyItemPlugBase | DestinyItemSocketEntryPlugItemRandomizedDefinition | DestinyItemSocketEntryPlugItemDefinition;
@@ -125,7 +127,7 @@ export class Socket {
 
 		const { DestinyPlugSetDefinition, DeepsightSocketExtendedDefinition } = manifest;
 
-		let plugs: PlugRaw[] = undefined
+		let plugs: PlugRaw[] = _
 			?? (this.state ? refresh.plugs ?? [] : undefined)
 			?? this.plugs?.slice()
 			?? (!this.plugSetHash ? undefined : (await DestinyPlugSetDefinition.get(this.plugSetHash))?.reusablePlugItems)

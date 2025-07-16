@@ -29,61 +29,61 @@
 		grid-column: 1/3;
 	}
 
-	&-group-label {
-		position: relative;
-		margin-top: 10px;
-		margin-bottom: -10px;
-		grid-column: 1;
-		font-size: 12px;
-		--color: #{gradient-mix(in lch, var(--value), #9e4949, #e04d4d 50%, #ff0 75%, #4eff13)};
-		color: var(--color);
-		transition: 100ms color linear;
+	// &-group-label {
+	// 	position: relative;
+	// 	margin-top: 10px;
+	// 	margin-bottom: -10px;
+	// 	grid-column: 1;
+	// 	font-size: 12px;
+	// 	--color: #{gradient-mix(in lch, var(--value), #9e4949, #e04d4d 50%, #ff0 75%, #4eff13)};
+	// 	color: var(--color);
+	// 	transition: 100ms color linear;
 
-		&::before,
-		&::after {
-			content: "";
-			display: block;
-			position: absolute;
-			transition:
-				100ms height 50ms linear,
-				100ms width 130ms linear,
-				100ms border-color 100ms linear;
-		}
+	// 	&::before,
+	// 	&::after {
+	// 		content: "";
+	// 		display: block;
+	// 		position: absolute;
+	// 		transition:
+	// 			100ms height 50ms linear,
+	// 			100ms width 130ms linear,
+	// 			100ms border-color 100ms linear;
+	// 	}
 
-		&::before {
-			left: 50%;
-			bottom: calc(100% + 2px);
-			width: 8px;
-			height: 3px;
-			border-top: 1px solid var(--color, currentColor);
-			border-left: 1px solid var(--color, currentColor);
-		}
+	// 	&::before {
+	// 		left: 50%;
+	// 		bottom: calc(100% + 2px);
+	// 		width: 8px;
+	// 		height: 3px;
+	// 		border-top: 1px solid var(--color, currentColor);
+	// 		border-left: 1px solid var(--color, currentColor);
+	// 	}
 
-		&::after {
-			left: 50%;
-			top: calc(100% + 2px);
-			width: 8px;
-			height: 30px;
-			border-bottom: 1px solid var(--color, currentColor);
-			border-left: 1px solid var(--color, currentColor);
-		}
+	// 	&::after {
+	// 		left: 50%;
+	// 		top: calc(100% + 2px);
+	// 		width: 8px;
+	// 		height: 30px;
+	// 		border-bottom: 1px solid var(--color, currentColor);
+	// 		border-left: 1px solid var(--color, currentColor);
+	// 	}
 
-		:root:not(.show-extra-info) & {
-			color: transparent;
-			transition: 100ms color 180ms linear;
+	// 	:root:not(.show-extra-info) & {
+	// 		color: transparent;
+	// 		transition: 100ms color 180ms linear;
 
-			&::before,
-			&::after {
-				border-color: transparent;
-				transition:
-					100ms height 80ms linear,
-					100ms width linear,
-					100ms border-color 130ms linear;
-				height: 0px;
-				width: 0px;
-			}
-		}
-	}
+	// 		&::before,
+	// 		&::after {
+	// 			border-color: transparent;
+	// 			transition:
+	// 				100ms height 80ms linear,
+	// 				100ms width linear,
+	// 				100ms border-color 130ms linear;
+	// 			height: 0px;
+	// 			width: 0px;
+	// 		}
+	// 	}
+	// }
 
 	&-bar {
 		grid-column: 3;
@@ -257,12 +257,12 @@
 		&-component {
 			padding-right: 8px;
 			position: relative;
-			&-group-label {
-				position: absolute;
-				top: 0;
-				right: 0;
-				font-size: 12px;
-			}
+			// &-group-label {
+			// 	position: absolute;
+			// 	top: 0;
+			// 	right: 0;
+			// 	font-size: 12px;
+			// }
 		}
 	}
 }

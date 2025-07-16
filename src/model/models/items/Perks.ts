@@ -3,6 +3,8 @@ import { type DestinyItemPerkEntryDefinition, type DestinySandboxPerkDefinition 
 import type Manifest from "model/models/Manifest";
 import type { CharacterId, IItemInit } from "model/models/items/Item";
 
+const _ = undefined
+
 export interface IPerk extends DestinyItemPerkEntryDefinition {
 	definition: DestinySandboxPerkDefinition;
 	reference?: DestinyPerkReference;
@@ -25,7 +27,7 @@ namespace Perks {
 		if (!item.definition.perks?.length)
 			return undefined;
 
-		const perkRefs = undefined
+		const perkRefs = _
 			// only applies to instanced items
 			?? profile.itemComponents?.perks.data?.[item.reference.itemInstanceId!]?.perks
 			// `perks.data` is always {}
