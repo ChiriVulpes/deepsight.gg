@@ -113,7 +113,7 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
 				for (const plug of socket.plugs ?? []) {
-					if (!socket.state && plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced"))
+					if (!socket.state && (plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced") || plug.type.endsWith("Enhanced")))
 						continue;
 
 					if (socket.is("Masterwork/ExoticCatalyst") && !this.item.isMasterwork())
@@ -233,7 +233,7 @@ export class ItemPlug extends Button<[Plug?, Perk?, Item?]> {
 
 		this.classes.toggle(!!plug.socketed, ItemSocketsClasses.Socketed)
 			.classes.toggle((plug.is("Intrinsic", "=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic, ItemSocketsClasses.PlugExotic)
-			.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemSocketsClasses.PlugEnhanced)
+			.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst") || plug.type.endsWith("Enhanced"), ItemSocketsClasses.PlugEnhanced)
 			.classes.removeWhere(cls => cls.startsWith(ItemSocketsClasses.PlugType))
 			.classes.add(`${ItemSocketsClasses.PlugType}-${plug.categorisation?.categoryName.toLowerCase()}`)
 			.classes.add(`${ItemSocketsClasses.PlugType}-${plug.type.replaceAll("/", "-").toLowerCase()}`)

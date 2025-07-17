@@ -106,7 +106,7 @@ export default class ItemPerks extends ItemSockets {
 		for (const socket of this.sockets) {
 			for (const plug of socket.plugs) {
 				plug.event.subscribe("click", () => {
-					if (plug.plug?.is("Perk/TraitEnhanced"))
+					if (plug.plug?.is("Perk/TraitEnhanced") || plug.plug?.type.endsWith("Enhanced"))
 						return;
 
 					if (!this.editingWishlist)

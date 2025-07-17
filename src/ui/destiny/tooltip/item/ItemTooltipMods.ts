@@ -1,3 +1,4 @@
+import { DeepsightPlugCategory } from "@deepsight.gg/plugs";
 import { ItemPerkVisibility } from "bungie-api-ts/destiny2";
 import type Item from "model/models/items/Item";
 import type { PlugType } from "model/models/items/Plugs";
@@ -143,11 +144,14 @@ export default class ItemTooltipMods extends Component {
 				if (plug.is("Perk/TraitLocked"))
 					continue;
 
-				const isEnhanced = plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced");
+				const isEnhanced = (false
+					|| plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced")
+					|| (plug.categorisation?.category === DeepsightPlugCategory.Perk && plug.type.endsWith("Enhanced"))
+				);
 				if (mightDisplayMoreThan13PlugsDueToEnhanced && !isEnhanced)
 					continue;
 
-				if (!item.shaped && isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
+				if (!item.instance && !item.shaped && isEnhanced && (!plug.craftingRequirements?.unlockRequirements.length || !this.isShaped()))
 					continue;
 
 				const plugComponent = Component.create()

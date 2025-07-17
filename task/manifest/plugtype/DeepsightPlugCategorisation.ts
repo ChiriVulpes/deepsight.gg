@@ -612,37 +612,39 @@ namespace DeepsightPlugCategorisation {
 					return DeepsightPlugTypePerk.TraitEnhanced;
 			}
 
+			const isEnhanced = context.definition.itemTypeDisplayName.includes("Enhanced");
+
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.Scopes:
-					return DeepsightPlugTypePerk.Scope;
+					return isEnhanced ? DeepsightPlugTypePerk.ScopeEnhanced : DeepsightPlugTypePerk.Scope;
 				case PlugCategoryHashes.Barrels:
-					return DeepsightPlugTypePerk.Barrel;
+					return isEnhanced ? DeepsightPlugTypePerk.BarrelEnhanced : DeepsightPlugTypePerk.Barrel;
 				case PlugCategoryHashes.Batteries:
-					return DeepsightPlugTypePerk.Battery;
+					return isEnhanced ? DeepsightPlugTypePerk.BatteryEnhanced : DeepsightPlugTypePerk.Battery;
 				case PlugCategoryHashes.Magazines:
-					return DeepsightPlugTypePerk.Magazine;
+					return isEnhanced ? DeepsightPlugTypePerk.MagazineEnhanced : DeepsightPlugTypePerk.Magazine;
 				case PlugCategoryHashes.Grips:
-					return DeepsightPlugTypePerk.Grip;
+					return isEnhanced ? DeepsightPlugTypePerk.GripEnhanced : DeepsightPlugTypePerk.Grip;
 				case PlugCategoryHashes.Stocks:
-					return DeepsightPlugTypePerk.Stock;
+					return isEnhanced ? DeepsightPlugTypePerk.StockEnhanced : DeepsightPlugTypePerk.Stock;
 				case PlugCategoryHashes.Blades:
-					return DeepsightPlugTypePerk.Blade;
+					return isEnhanced ? DeepsightPlugTypePerk.BladeEnhanced : DeepsightPlugTypePerk.Blade;
 				case PlugCategoryHashes.Rails:
-					return DeepsightPlugTypePerk.Rail;
+					return isEnhanced ? DeepsightPlugTypePerk.RailEnhanced : DeepsightPlugTypePerk.Rail;
 				case PlugCategoryHashes.Bolts:
-					return DeepsightPlugTypePerk.Bolt;
+					return isEnhanced ? DeepsightPlugTypePerk.BoltEnhanced : DeepsightPlugTypePerk.Bolt;
 				case PlugCategoryHashes.Guards:
-					return DeepsightPlugTypePerk.Guard;
+					return isEnhanced ? DeepsightPlugTypePerk.GuardEnhanced : DeepsightPlugTypePerk.Guard;
 				case PlugCategoryHashes.Bowstrings:
-					return DeepsightPlugTypePerk.Bowstring;
+					return isEnhanced ? DeepsightPlugTypePerk.BowstringEnhanced : DeepsightPlugTypePerk.Bowstring;
 				case PlugCategoryHashes.Arrows:
-					return DeepsightPlugTypePerk.Arrow;
+					return isEnhanced ? DeepsightPlugTypePerk.ArrowEnhanced : DeepsightPlugTypePerk.Arrow;
 				case PlugCategoryHashes.MagazinesGl:
-					return DeepsightPlugTypePerk.GrenadeLauncherMagazine;
+					return isEnhanced ? DeepsightPlugTypePerk.GrenadeLauncherMagazineEnhanced : DeepsightPlugTypePerk.GrenadeLauncherMagazine;
 				case PlugCategoryHashes.Tubes:
-					return DeepsightPlugTypePerk.Tube;
+					return isEnhanced ? DeepsightPlugTypePerk.TubeEnhanced : DeepsightPlugTypePerk.Tube;
 				case PlugCategoryHashes.Hafts:
-					return DeepsightPlugTypePerk.Haft;
+					return isEnhanced ? DeepsightPlugTypePerk.HaftEnhanced : DeepsightPlugTypePerk.Haft;
 				case PlugCategoryHashes.SocialClansPerks:
 					return DeepsightPlugTypePerk.Clan;
 				case PlugCategoryHashes.V300GhostsModsPerks:

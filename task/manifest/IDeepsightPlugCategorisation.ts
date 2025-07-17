@@ -67,6 +67,21 @@ export enum DeepsightPlugTypePerk {
 	Random,
 	Rail,
 	Bolt,
+	RailEnhanced,
+	BoltEnhanced,
+	ScopeEnhanced,
+	BarrelEnhanced,
+	MagazineEnhanced,
+	GripEnhanced,
+	StockEnhanced,
+	BladeEnhanced,
+	GuardEnhanced,
+	HaftEnhanced,
+	ArrowEnhanced,
+	GrenadeLauncherMagazineEnhanced,
+	TubeEnhanced,
+	BowstringEnhanced,
+	BatteryEnhanced,
 }
 
 export enum DeepsightPlugTypeMod {
