@@ -29,6 +29,7 @@ export const SORTS_INAPPLICABLE_EMBLEMS = [
 	Sort.Energy,
 	Sort.Masterwork,
 	Sort.DamageType,
+	Sort.Featured,
 	"stat-.*",
 ] as const;
 export const FILTERS_INAPPLICABLE_EMBLEMS = [
@@ -47,6 +48,7 @@ export const FILTERS_INAPPLICABLE_EMBLEMS = [
 	Filter.Element,
 	Filter.Adept,
 	Filter.Masterwork,
+	Filter.Featured,
 ] as const;
 
 export const VIEW_ID_EMBLEMS = "emblems";

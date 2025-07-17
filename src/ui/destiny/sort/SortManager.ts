@@ -10,6 +10,7 @@ import SortCanShape from "ui/destiny/sort/sorts/SortCanShape";
 import SortDamageType from "ui/destiny/sort/sorts/SortDamageType";
 import SortEnergy from "ui/destiny/sort/sorts/SortEnergy";
 import SortExotic from "ui/destiny/sort/sorts/SortExotic";
+import SortFeatured from "ui/destiny/sort/sorts/SortFeatured";
 import SortHarmonizable from "ui/destiny/sort/sorts/SortHarmonizable";
 import SortLocked from "ui/destiny/sort/sorts/SortLocked";
 import SortMasterwork from "ui/destiny/sort/sorts/SortMasterwork";
@@ -52,6 +53,7 @@ const BASE_SORT_MAP: Record<Sort, ISort> = {
 	[Sort.BreakerType]: SortBreakerType,
 	[Sort.Acquired]: SortAcquired,
 	[Sort.StatLegacyDistribution]: SortStatDistributionUniqueness,
+	[Sort.Featured]: SortFeatured,
 };
 
 const DYNAMIC_SORTS: (() => Promise<ISort[]>)[] = [

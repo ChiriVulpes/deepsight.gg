@@ -167,6 +167,13 @@
 				border-right: .8em solid transparent;
 			}
 			
+			&-featured-icon::before {
+				height: 1em;
+				width: .8em;
+				background: currentColor;
+				clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+			}
+			
 			&-name-icon {
 				position: relative;
 				height: 100%;

@@ -31,6 +31,7 @@ export enum ItemTooltipClasses {
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
 	MomentWatermark = "item-tooltip-moment-watermark",
+	MomentWatermark_Featured = "item-tooltip-moment-watermark--featured",
 	// MomentWatermark_Sunset = "item-tooltip-moment-watermark--sunset",
 	Locked = "item-tooltip-locked",
 	Unlocked = "item-tooltip-unlocked",
@@ -333,6 +334,7 @@ class ItemTooltip extends Tooltip {
 
 		const momentIcon = item.definition.iconWatermark;
 		this.moment.classes.toggle(!momentIcon, Classes.Hidden)
+			.classes.toggle(!!item?.definition.isFeaturedItem, ItemTooltipClasses.MomentWatermark_Featured)
 		if (momentIcon)
 			this.moment.style.set("--icon", `url("${momentIcon.startsWith("/") ? `https://www.bungie.net${momentIcon}` : momentIcon}")`);
 

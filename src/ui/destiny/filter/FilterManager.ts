@@ -14,6 +14,7 @@ import FilterCatalyst from "ui/destiny/filter/filters/FilterCatalyst";
 import FilterDuplicate from "ui/destiny/filter/filters/FilterDuplicate";
 import ElementFilter from "ui/destiny/filter/filters/FilterElement";
 import FilterEnhance from "ui/destiny/filter/filters/FilterEnhance";
+import FilterFeatured from "ui/destiny/filter/filters/FilterFeatured";
 import FilterLocked from "ui/destiny/filter/filters/FilterLocked";
 import FilterMasterwork from "ui/destiny/filter/filters/FilterMasterwork";
 import FilterMoment from "ui/destiny/filter/filters/FilterMoment";
@@ -81,6 +82,7 @@ class FilterManager<T extends Item | Plug | IEmblem = Item> {
 			[Filter.BreakerType]: await FilterBreakerType(),
 			[Filter.Acquired]: FilterAcquired,
 			[Filter.Catalyst]: FilterCatalyst,
+			[Filter.Featured]: FilterFeatured,
 			[Filter.Raw]: {
 				id: Filter.Raw,
 				prefix: "",

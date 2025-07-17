@@ -39,6 +39,7 @@ export const FILTERS_INAPPLICABLE_EQUIPMENT = [
 	Filter.Pattern,
 	Filter.BreakerType,
 	Filter.Acquired,
+	Filter.Featured,
 ] as const;
 
 export const VIEW_ID_EQUIPMENT = "equipment";

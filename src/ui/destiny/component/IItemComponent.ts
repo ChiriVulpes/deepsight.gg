@@ -6,7 +6,8 @@ export enum ItemClasses {
 	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",
 	MomentWatermark = "item-moment-watermark",
-	MomentWatermarkCustom = "item-moment-watermark-custom",
+	// MomentWatermarkCustom = "item-moment-watermark-custom",
+	MomentWatermark_Featured = "item-moment-watermark--featured",
 	IsMasterwork = "item-is-masterwork",
 	Masterwork = "item-masterwork",
 	MasterworkSpinny = "item-masterwork-spinny",
@@ -43,4 +44,5 @@ export enum ItemClasses {
 	Classified = "item-classified",
 	_Classified = "item--classified",
 	_FilteredOut = "item--filtered-out",
+	_Featured = "item--featured",
 }

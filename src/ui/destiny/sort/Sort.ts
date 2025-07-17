@@ -27,6 +27,7 @@ enum Sort {
 	BreakerType,
 	Acquired,
 	StatLegacyDistribution,
+	Featured,
 }
 
 export default Sort;

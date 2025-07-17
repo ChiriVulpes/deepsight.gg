@@ -14,8 +14,9 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		border-right: 44px solid #0008;
-		border-bottom: 44px solid transparent;
+		$corner-size: 44px;
+		border-right: $corner-size solid #0008;
+		border-bottom: $corner-size solid transparent;
 		&::before {
 			content: "";
 			display: block;
@@ -28,6 +29,22 @@
 			mask-image: var(--icon);
 			mask-mode: luminance;
 			mask-size: contain;
+			z-index: 1;
+		}
+		
+		&--featured {
+			border-color: transparent;
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				border: none;
+				width: 25px;
+				height: 32px;
+				right: -$corner-size;
+				background: #169191;
+				clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 87%, 0% 100%);
+			}
 		}
 		
 		&--sunset {

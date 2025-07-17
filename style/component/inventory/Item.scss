@@ -140,6 +140,14 @@ $z-index-loading: 1000;
 			border-left: calc(var(--slot-size) * 0.45) solid #0009;
 		}
 		
+		&--featured::before {
+			border: none;
+			width: 31%;
+			height: 36%;
+			background: #169191;
+			clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%);
+		}
+		
 		&::after {
 			top: 2%;
 			left: 2%;

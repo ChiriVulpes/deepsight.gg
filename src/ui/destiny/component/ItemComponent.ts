@@ -167,6 +167,7 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		});
 
 		this.classes.toggle(!!item?.isMasterwork(), ItemClasses.IsMasterwork);
+		this.classes.toggle(!!item?.definition.isFeaturedItem, ItemClasses._Featured);
 
 		this.extra ??= Component.create("span")
 			.classes.add(ItemClasses.Extra);
@@ -240,14 +241,15 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 		else
 			watermark = item?.definition.iconWatermark ?? item?.definition.iconWatermarkShelved;
 
-		if (watermark || item?.moment?.displayProperties.icon)
+		if (watermark)
 			(this.momentWatermark ??= Component.create("span")
 				.classes.add(ItemClasses.MomentWatermark)
 				.indexInto(this, index))
 				.classes.remove(Classes.Hidden)
-				.classes.toggle(!watermark && !!item?.moment?.displayProperties.icon, ItemClasses.MomentWatermarkCustom)
+				.classes.toggle(!!item?.definition.isFeaturedItem, ItemClasses.MomentWatermark_Featured)
+				// .classes.toggle(!watermark && !!item?.moment?.displayProperties.icon, ItemClasses.MomentWatermarkCustom)
 				.style.set("--watermark", watermark && `url("https://www.bungie.net${watermark}")`)
-				.style.set("--icon", item?.moment?.displayProperties.icon && `url("${item.moment.displayProperties.icon}")`);
+		// .style.set("--icon", item?.moment?.displayProperties.icon && `url("${item.moment.displayProperties.icon}")`);
 		else
 			this.momentWatermark?.classes.add(Classes.Hidden);
 

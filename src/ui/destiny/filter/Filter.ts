@@ -27,6 +27,7 @@ enum Filter {
 	Duplicate,
 	Acquired,
 	Locked,
+	Featured,
 	Raw,
 }
 
