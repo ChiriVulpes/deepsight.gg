@@ -105,6 +105,8 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		[InventoryItemHashes.JoltingFeedbackEnhancedTraitPlug]: [BreakerSource.Jolt],
 		[InventoryItemHashes.DestabilizingRoundsTraitPlug]: [BreakerSource.VolatileRounds],
 		[InventoryItemHashes.DestabilizingRoundsEnhancedTraitPlug]: [BreakerSource.VolatileRounds],
+		[InventoryItemHashes.BurningAmbitionTraitPlug]: [BreakerSource.Scorch],
+		[InventoryItemHashes.BurningAmbitionEnhancedTraitPlug]: [BreakerSource.Scorch],
 
 		// exotic class items
 		[InventoryItemHashes.SpiritOfContactIntrinsicPlug]: [BreakerSource.IntrinsicDisruption],
