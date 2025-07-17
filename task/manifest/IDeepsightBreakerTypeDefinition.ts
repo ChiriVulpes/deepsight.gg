@@ -15,6 +15,7 @@ export enum BreakerSource {
 	VolatileRounds,
 	Suppress,
 
+	Slow,
 	Freeze,
 	StasisCrystal,
 

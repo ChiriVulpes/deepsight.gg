@@ -28,8 +28,9 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		[BreakerSource.VolatileRounds]: source([BreakerTypeHashes.ShieldPiercing], undefined, [TraitHashes.KeywordsDebuffsVoidVolatile]),
 		[BreakerSource.Suppress]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsDebuffsVoidSuppression),
 
-		[BreakerSource.Freeze]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsStasisFreeze),
-		[BreakerSource.StasisCrystal]: source([BreakerTypeHashes.Disruption, BreakerTypeHashes.Stagger], TraitHashes.KeywordsBuffsStasisCrystal, [TraitHashes.KeywordsDebuffsStasisSlow, TraitHashes.KeywordsDebuffsStasisFreeze]),
+		[BreakerSource.Slow]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsDebuffsStasisSlow),
+		[BreakerSource.Freeze]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsDebuffsStasisFreeze),
+		[BreakerSource.StasisCrystal]: source([BreakerTypeHashes.Disruption], TraitHashes.KeywordsBuffsStasisCrystal, [TraitHashes.KeywordsDebuffsStasisSlow, TraitHashes.KeywordsDebuffsStasisFreeze]),
 
 		[BreakerSource.Suspend]: source([BreakerTypeHashes.Stagger], TraitHashes.KeywordsDebuffsStrandSuspend),
 		[BreakerSource.UnravelingRounds]: source([BreakerTypeHashes.ShieldPiercing], undefined, [TraitHashes.KeywordsDebuffsStrandInfest]),
@@ -38,9 +39,9 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 	const DeepsightBreakerTypeDefinition: Record<number, BreakerSource[]> = {
 		// kinetic exotic weapons
 		[InventoryItemHashes.WishKeeperCombatBow]: [BreakerSource.Suspend],
-		[InventoryItemHashes.AgersScepterTraceRifle]: [BreakerSource.Freeze],
+		[InventoryItemHashes.AgersScepterTraceRifle]: [BreakerSource.Slow],
 		[InventoryItemHashes.Cryosthesia77kSidearm]: [BreakerSource.Freeze],
-		[InventoryItemHashes.WickedImplementScoutRifle]: [BreakerSource.Freeze],
+		[InventoryItemHashes.WickedImplementScoutRifle]: [BreakerSource.Slow],
 		[InventoryItemHashes.ConditionalFinalityShotgun]: [BreakerSource.Freeze, BreakerSource.Ignition],
 		[InventoryItemHashes.VerglasCurveCombatBow]: [BreakerSource.StasisCrystal],
 
@@ -62,7 +63,7 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		[InventoryItemHashes.TwoTailedFoxRocketLauncher]: [BreakerSource.Suppress],
 		[InventoryItemHashes.SalvationsGripGrenadeLauncher]: [BreakerSource.Freeze],
 		[InventoryItemHashes.TheLamentSword]: [BreakerSource.IntrinsicShieldPierce],
-		[InventoryItemHashes.WinterbiteGlaive]: [BreakerSource.Freeze],
+		[InventoryItemHashes.WinterbiteGlaive]: [BreakerSource.Slow],
 		[InventoryItemHashes.DragonsBreathRocketLauncher]: [BreakerSource.Scorch],
 
 		// titan armour
@@ -97,8 +98,8 @@ export default Task("DeepsightBreakerTypeDefinition", async () => {
 		[InventoryItemHashes.RainOfFireLegArmor511709874]: [BreakerSource.Radiant],
 
 		// normal weapon perks
-		[InventoryItemHashes.ChillClipTraitPlug]: [BreakerSource.Freeze],
-		[InventoryItemHashes.ChillClipEnhancedTraitPlug]: [BreakerSource.Freeze],
+		[InventoryItemHashes.ChillClipTraitPlug]: [BreakerSource.Slow],
+		[InventoryItemHashes.ChillClipEnhancedTraitPlug]: [BreakerSource.Slow],
 		[InventoryItemHashes.VoltshotTraitPlug]: [BreakerSource.Jolt],
 		[InventoryItemHashes.VoltshotEnhancedTraitPlug]: [BreakerSource.Jolt],
 		[InventoryItemHashes.JoltingFeedbackTraitPlug]: [BreakerSource.Jolt],
