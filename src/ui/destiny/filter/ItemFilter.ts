@@ -55,6 +55,7 @@ export enum ItemFilterClasses {
 	FilterChipButton = "item-filter-chip-button",
 	FilterChipButtonPrefix = "item-filter-chip-button-prefix",
 	FilterChipButtonValue = "item-filter-chip-button-value",
+	FilterChipButtonValueId = "item-filter-chip-button-value-id",
 	FilterChipButtonValueHasIcon = "item-filter-chip-button-value-has-icon",
 	FilterChipButtonValueHasMaskIcon = "item-filter-chip-button-value-has-mask-icon",
 	FilterChipButtonValueHint = "item-filter-chip-button-value-hint",
@@ -100,6 +101,7 @@ export class FilterChipButton extends Button<[filter: IFilter, value: string, ic
 				.text.set(filter.prefix))
 			.append(Component.create("span")
 				.classes.add(ItemFilterClasses.FilterChipButtonValue)
+				.classes.add(`${ItemFilterClasses.FilterChipButtonValueId}-${filter.internalName}`)
 				.classes.toggle(isHint ?? false, ItemFilterClasses.FilterChipButtonValueHint)
 				.classes.toggle(icon !== undefined, ItemFilterClasses.FilterChipButtonValueHasIcon)
 				.classes.toggle(maskIcon !== undefined, ItemFilterClasses.FilterChipButtonValueHasMaskIcon)

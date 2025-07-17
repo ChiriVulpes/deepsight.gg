@@ -35,7 +35,7 @@ export default IFilter.async(async () => {
 			if (matches.length !== 1)
 				return undefined;
 
-			const icon = matches[0].displayProperties.icon;
+			const icon = matches[0].iconWatermark;
 			return `url("${icon?.startsWith("/") ? `https://www.bungie.net${icon}` : icon}")`;
 		},
 	};

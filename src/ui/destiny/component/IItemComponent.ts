@@ -1,6 +1,7 @@
 
 export enum ItemClasses {
 	Main = "item",
+	_HasThickBorder = "item--has-thick-border",
 	Icon = "item-icon",
 	Borderless = "item-borderless",
 	UniversalArmourOrnament = "item-universal-armour-ornament",

@@ -153,6 +153,12 @@
 			mask-size: contain;
 			mask-position: center;
 			mask-repeat: no-repeat;
+			
+			.item-filter-id-moment & {
+				mask-size: calc(1em * 4.3);
+				mask-position: -.1em -.14em;
+				mask-mode: luminance;
+			}
 		} 
 		&-has-icon::before {
 			background-image: var(--icon);

@@ -20,11 +20,14 @@
 			content: "";
 			display: block;
 			position: absolute;
-			width: 20px;
-			height: 20px;
+			width: 75px;
+			height: 75px;
 			left: 21px;
 			top: 3px;
-			@include mask-icon;
+			background: white;
+			mask-image: var(--icon);
+			mask-mode: luminance;
+			mask-size: contain;
 		}
 		
 		&--sunset {

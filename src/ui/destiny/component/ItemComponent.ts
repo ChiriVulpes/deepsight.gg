@@ -365,6 +365,15 @@ export default class ItemComponent<ARGS extends [Item?, Inventory?, ...any[]] = 
 
 		index++;
 
+		const hasThickBorder = false
+			|| !!item?.isMasterwork()
+			|| displayWishlistedBorder
+			|| displayJunkBorder
+			|| !!item?.isFomo()
+			|| (!shaped && !!item?.hasDeepsight())
+
+		this.classes.toggle(hasThickBorder, ItemClasses._HasThickBorder);
+
 		void Async.debounce(this.rerenderExtra);
 		this.extra.indexInto(this, index);
 

@@ -8,7 +8,7 @@
 		id: "crimsondays",
 		displayProperties: {
 			name: "Crimson Days",
-			icon: "./image/svg/moment/crimsondays.svg",
+			// icon: "./image/svg/moment/crimsondays.svg",
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 263371512 }, // Entwining Heart Shell
 		event: true,
@@ -33,7 +33,7 @@
 		displayProperties: {
 			name: "The Red War",
 			description: { DestinyInventoryItemDefinition: 3684627728 }, // dummy quest item
-			icon: { DestinySandboxPerkDefinition: 3794132046 }, // Cabal Arrival (transmat effect perk)
+			// icon: { DestinySandboxPerkDefinition: 3794132046 }, // Cabal Arrival (transmat effect perk)
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 2362471601 }, // Rat King
 		expansion: true,
@@ -43,7 +43,7 @@
 	},
 	"6": {
 		id: "osiris",
-		displayProperties: { icon: "./image/svg/moment/osiris.svg" },
+		// displayProperties: { icon: "./image/svg/moment/osiris.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 3373357627 }, // Eye of Osiris ornament for Prometheus Lens
 		expansion: true,
 		season: 2,
@@ -54,7 +54,7 @@
 		id: "warmind",
 		displayProperties: { 
 			name: "Warmind",
-			icon: "./image/svg/moment/warmind.svg",
+			// icon: "./image/svg/moment/warmind.svg",
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 1229016681 }, // Zeus-Like Physique emote
 		expansion: true,
@@ -68,7 +68,7 @@
 		displayProperties: {
 			name: "Forsaken",
 			description: { DestinyActivityDefinition: 2068689865 },
-			icon: "./image/svg/moment/forsaken.svg",
+			// icon: "./image/svg/moment/forsaken.svg",
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 3148574214 }, // Jeweled Projection
 		expansion: true,
@@ -78,7 +78,7 @@
 	},
 	"10": {
 		id: "forge",
-		displayProperties: { icon: "./image/svg/moment/forge.svg" },
+		// displayProperties: { icon: "./image/svg/moment/forge.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 227918506 }, // Rust Punk Shell
 		season: 5,
 		year: 2,
@@ -86,7 +86,7 @@
 	},
 	"11": {
 		id: "drifter",
-		displayProperties: { icon: "./image/svg/moment/drifter.svg" },
+		// displayProperties: { icon: "./image/svg/moment/drifter.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 527607311 }, // Totem Shell
 		season: 6,
 		year: 2,
@@ -94,7 +94,7 @@
 	},
 	"12": {
 		id: "opulence",
-		displayProperties: { icon: "./image/svg/moment/opulence.svg" },
+		// displayProperties: { icon: "./image/svg/moment/opulence.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 258623695 }, // One Fell Swoop sparrow
 		season: 7,
 		year: 2,
@@ -105,7 +105,7 @@
 		displayProperties: { 
 			name: { DestinyRecordDefinition: 2584970263 }, // badge record
 			description: { DestinyActivityDefinition: 466447952 },
-			icon: "./image/svg/moment/shadowkeep.svg",
+			// icon: "./image/svg/moment/shadowkeep.svg",
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 613601972 }, // Symphony of Death quest step
 		expansion: true,
@@ -113,7 +113,7 @@
 	},
 	"14": {
 		id: "undying",
-		displayProperties: { icon: "./image/svg/moment/undying.svg" },
+		// displayProperties: { icon: "./image/svg/moment/undying.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 55722088 }, // The Vow exotic catalyst quest step
 		season: 8,
 		year: 3,
@@ -121,7 +121,7 @@
 	},
 	"15": {
 		id: "dawn",
-		displayProperties: { icon: "./image/svg/moment/dawn.svg" },
+		// displayProperties: { icon: "./image/svg/moment/dawn.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 2422240131 }, // Timeswept Shell
 		season: 9,
 		year: 3,
@@ -129,7 +129,7 @@
 	},
 	"16": {
 		id: "worthy",
-		displayProperties: { icon: "./image/svg/moment/worthy.svg" },
+		// displayProperties: { icon: "./image/svg/moment/worthy.svg" },
 		iconWatermark: { DestinyInventoryItemDefinition: 3394806033 },
 		season: 10,
 		year: 3,
@@ -147,7 +147,7 @@
 		displayProperties: {
 			name: { DestinyInventoryItemDefinition: 3612061731 }, // quest step
 			description: { DestinyActivityDefinition: 1082553800 },
-			icon: { DestinyRecordDefinition: 1209487292 },
+			// icon: { DestinyRecordDefinition: 1209487292 },
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 296637832 }, // No Love Lost ghost shell
 		expansion: true,
@@ -186,7 +186,7 @@
 		displayProperties: {
 			name: "Bungie 30th Anniversary",
 			description: { DestinyInventoryItemDefinition: 1499880210 },
-			icon: { DestinyRecordDefinition: 161894518 }, // 30th Exotics record
+			// icon: { DestinyRecordDefinition: 161894518 }, // 30th Exotics record
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 1538938257 }, // Seventh Column Projection
 		expansion: true,
@@ -197,7 +197,7 @@
 		displayProperties: {
 			name: { DestinyInventoryItemDefinition: 147850787 }, // quest step
 			description: { DestinyActivityDefinition: 1292955609 },
-			icon: { DestinyRecordDefinition: 487894732 }, // legendary completion record
+			// icon: { DestinyRecordDefinition: 487894732 }, // legendary completion record
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 2814111722 },
 		expansion: true,
@@ -244,7 +244,7 @@
 		displayProperties: {
 			name: { DestinyActivityDefinition: 2160512434 },
 			description: { DestinyActivityDefinition: 2160512434 },
-			icon: "./image/svg/moment/lightfall.svg",
+			// icon: "./image/svg/moment/lightfall.svg",
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 1781477733 }, // Scintillant Trajectory shader
 		expansion: true,
@@ -283,7 +283,7 @@
 		displayProperties: {
 			name: "Into the Light",
 			description: "The Witness's forces swell across Sol in unparalleled numbers. Arm yourself with Shaxx’s armory, and repel waves of the Witness’s forces in the new Onslaught PvE Activity.",
-			icon: { DestinyRecordDefinition: 4168737328 }, // BRAVE Collector
+			// icon: { DestinyRecordDefinition: 4168737328 }, // BRAVE Collector
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 2005792304 }, // Parade Helm
 		expansion: true,
@@ -330,13 +330,13 @@
 		displayProperties: {
 			name: "Rite of the Nine",
 			description: "The Emmisary brings you a message from The Nine. They put forth a challenge to the Lightbearers — We ask: make known your value, so divided gods may wield you in time.",
-			icon: { 
-				DestinyPresentationNodeDefinition: {
-					hash: 2530001514, // Rite of the Nine
-					iconSequence: 1,
-					frame: 0,
-				},
-			}, 
+			// icon: { 
+			// 	DestinyPresentationNodeDefinition: {
+			// 		hash: 2530001514, // Rite of the Nine
+			// 		iconSequence: 1,
+			// 		frame: 0,
+			// 	},
+			// }, 
 		},
 		iconWatermark: { DestinyInventoryItemDefinition: 2730671571 }, // Terminus Horizon
 		year: 7,
