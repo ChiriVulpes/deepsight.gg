@@ -75,7 +75,9 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 			if (socket.state?.isVisible !== false) {
 				let socketComponent: ItemSocket | undefined;
 
-				for (const plug of socket.plugs ?? []) {
+				const socketPlugs = socket.plugs ?? [];
+				// const shouldOnlyShowEnhanced = !socket.state && !this.item.deepsight?.pattern && socketPlugs.some(p => p.type.endsWith('Enhanced'))
+				for (const plug of socketPlugs) {
 					if (!socket.state && plug.is("Intrinsic/FrameEnhanced"))
 						continue;
 
@@ -84,6 +86,10 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 					if (plug.is("Perk/EmptyCraftingSocket", "Intrinsic/EmptyCraftingSocket"))
 						continue;
+
+					// if (shouldOnlyShowEnhanced && !plug.type.endsWith('Enhanced') && plug.isNot('Intrinsic/Frame') && plug.isNot('Masterwork'))
+					// skip unenhanced perks for non-shaped weapons in collections
+					// continue;
 
 					if (!plug.definition?.displayProperties.name)
 						continue;
@@ -112,7 +118,8 @@ export default abstract class ItemSockets extends Card<[Item, Inventory]> {
 
 		for (const socket of sockets) {
 			if (socket.state?.isVisible !== false) {
-				for (const plug of socket.plugs ?? []) {
+				const socketPlugs = socket.plugs ?? []
+				for (const plug of socketPlugs) {
 					if (!socket.state && (plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced") || plug.type.endsWith("Enhanced")))
 						continue;
 

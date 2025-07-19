@@ -135,7 +135,7 @@ export class Socket {
 			?? [];
 
 		if (!this.state && !this.plugs)
-			plugs.concat(this.definition.reusablePlugItems);
+			plugs = plugs.concat(this.definition.reusablePlugItems);
 
 		plugs = plugs.distinct(plug => plug.plugItemHash);
 

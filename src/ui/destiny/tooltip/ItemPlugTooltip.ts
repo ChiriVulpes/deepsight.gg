@@ -133,7 +133,7 @@ class ItemPlugTooltip extends Tooltip {
 			keywords.push(description.keywords);
 
 		this.header.classes.toggle(plug.is("Perk"), ItemPlugTooltipClasses.IsPerk);
-		this.header.classes.toggle(plug.is("Perk/TraitEnhanced", "Intrinsic/FrameEnhanced", "=Masterwork/ExoticCatalyst"), ItemPlugTooltipClasses.IsEnhanced);
+		this.header.classes.toggle(plug.is("=Masterwork/ExoticCatalyst") || plug.type.endsWith('Enhanced'), ItemPlugTooltipClasses.IsEnhanced);
 		this.header.classes.toggle((plug.is("Intrinsic") || plug.is("=Masterwork/ExoticCatalyst")) && item?.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic, ItemPlugTooltipClasses.IsExotic);
 
 		this.image.classes.toggle(!plug.definition?.secondaryIcon, Classes.Hidden)

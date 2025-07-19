@@ -406,6 +406,9 @@ namespace DeepsightPlugCategorisation {
 			if (context.definition.itemTypeAndTierDisplayName === "Exotic Intrinsic")
 				return DeepsightPlugTypeIntrinsic.Exotic;
 
+			if (context.definition.itemTypeDisplayName === 'Enhanced Origin Trait')
+				return DeepsightPlugTypeIntrinsic.OriginEnhanced;
+
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
 					return DeepsightPlugTypeIntrinsic.Shaped;

@@ -20,19 +20,23 @@ import Display from "ui/utility/DisplayProperties";
 import TooltipManager, { Tooltip } from "ui/utility/TooltipManager";
 import type { IKeyEvent, IKeyUpEvent } from "ui/utility/UiEventBus";
 import UiEventBus from "ui/utility/UiEventBus";
+import Arrays from "utility/Arrays";
 import Bound from "utility/decorator/Bound";
 
 const _ = undefined;
 
 export enum ItemTooltipClasses {
 	Main = "item-tooltip",
-	Tier_ = "item-tooltip-tier-",
+	Rarity_ = "item-tooltip-tier-",
 	Extra = "item-tooltip-extra",
 	Content = "item-tooltip-content",
 	ProgressBar = "item-tooltip-progress-bar",
 	MomentWatermark = "item-tooltip-moment-watermark",
 	MomentWatermark_Featured = "item-tooltip-moment-watermark--featured",
 	// MomentWatermark_Sunset = "item-tooltip-moment-watermark--sunset",
+	MomentWatermarkTier = "item-tooltip-moment-watermark-tier",
+	MomentWatermarkTier_ = "item-tooltip-moment-watermark-tier--",
+	MomentWatermarkTierDot = "item-tooltip-moment-watermark-tier-dot",
 	Locked = "item-tooltip-locked",
 	Unlocked = "item-tooltip-unlocked",
 	Masterwork = "item-tooltip-masterwork",
@@ -78,6 +82,7 @@ class ItemTooltip extends Tooltip {
 
 	public item?: Item;
 	public moment!: Component;
+	public tier!: Component;
 	public locked!: Component;
 	public primaryInfo!: Component;
 	public primaryStat!: Component;
@@ -129,9 +134,13 @@ class ItemTooltip extends Tooltip {
 			.classes.add(ItemTooltipClasses.MomentWatermark, Classes.Hidden)
 			.appendTo(this.header);
 
+		this.tier = Component.create()
+			.classes.add(ItemTooltipClasses.MomentWatermarkTier)
+			.appendTo(this.moment);
+
 		this.locked = Component.create()
 			.classes.add(ItemTooltipClasses.Locked, Classes.Hidden)
-			.appendTo(this.tier);
+			.appendTo(this.rarity);
 
 		this.primaryInfo = Component.create()
 			.classes.add(ItemTooltipClasses.PrimaryInfo)
@@ -316,11 +325,11 @@ class ItemTooltip extends Tooltip {
 		if (item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies) || item.definition.itemType === DestinyItemType.None)
 			tierHash = undefined;
 
-		const tier = await DestinyItemTierTypeDefinition.get(tierHash);
-		const tierName = (tierHash === undefined ? "none" : item.definition.inventory?.tierTypeName ?? tier?.displayProperties.name ?? "none")?.toLowerCase();
+		const rarity = await DestinyItemTierTypeDefinition.get(tierHash);
+		const tierName = (tierHash === undefined ? "none" : item.definition.inventory?.tierTypeName ?? rarity?.displayProperties.name ?? "none")?.toLowerCase();
 
-		this.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.Tier_))
-			.classes.add(`${ItemTooltipClasses.Tier_}${tierName}`)
+		this.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.Rarity_))
+			.classes.add(`${ItemTooltipClasses.Rarity_}${tierName}`)
 			.classes.toggle(item.isMasterwork(), ItemTooltipClasses.Masterwork)
 			.classes.toggle(!!item.definition.itemCategoryHashes?.includes(ItemCategoryHashes.SeasonalArtifacts), ItemTooltipClasses.Artifact);
 
@@ -328,7 +337,7 @@ class ItemTooltip extends Tooltip {
 		this.subtitle.removeContents();
 
 		this.subtitle.text.set(item.definition.itemTypeDisplayName ?? "Unknown");
-		this.tier.text.set(tier && item.definition.inventory?.tierTypeName);
+		this.rarity.text.set(rarity && item.definition.inventory?.tierTypeName);
 
 		this.locked.classes.toggle(!item.isLocked(), Classes.Hidden);
 
@@ -337,6 +346,16 @@ class ItemTooltip extends Tooltip {
 			.classes.toggle(!!item?.definition.isFeaturedItem, ItemTooltipClasses.MomentWatermark_Featured)
 		if (momentIcon)
 			this.moment.style.set("--icon", `url("${momentIcon.startsWith("/") ? `https://www.bungie.net${momentIcon}` : momentIcon}")`);
+
+		const tier = item.instance?.gearTier;
+		this.tier.classes.toggle(!tier, Classes.Hidden)
+		if (tier)
+			this.tier.classes.removeWhere(cls => cls.startsWith(ItemTooltipClasses.MomentWatermarkTier_))
+				.classes.add(`${ItemTooltipClasses.MomentWatermarkTier_}${tier}`)
+				.removeContents()
+				.append(...Arrays.range(tier).map(() => Component.create()
+					.classes.add(ItemTooltipClasses.MomentWatermarkTierDot)
+				));
 
 		const primaryStat = item.getPower();
 		const damageType = await DestinyDamageTypeDefinition.get(item.getDamageType());

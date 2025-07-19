@@ -16,7 +16,7 @@ export enum TooltipClasses {
 	Header = "tooltip-header",
 	Title = "tooltip-title",
 	Subtitle = "tooltip-subtitle",
-	Tier = "tooltip-tier",
+	Rarity = "tooltip-tier",
 	Content = "tooltip-content",
 	Footer = "tooltip-footer",
 	Hints = "tooltip-hints",
@@ -39,7 +39,7 @@ export class Tooltip extends Component {
 	public header!: Component;
 	public title!: Component<HTMLHeadingElement>;
 	public subtitle!: Component;
-	public tier!: Component;
+	public rarity!: Component;
 	public content!: Component;
 	public footer!: Component;
 	public wrapper!: TooltipWrapper;
@@ -77,8 +77,8 @@ export class Tooltip extends Component {
 			.classes.add(TooltipClasses.Subtitle)
 			.appendTo(this.header);
 
-		this.tier = Component.create()
-			.classes.add(TooltipClasses.Tier)
+		this.rarity = Component.create()
+			.classes.add(TooltipClasses.Rarity)
 			.appendTo(this.header);
 
 		this.content = Component.create()
