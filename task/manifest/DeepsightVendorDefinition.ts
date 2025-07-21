@@ -1,4 +1,4 @@
-import { VendorHashes } from "@deepsight.gg/enums";
+import { VendorHashes } from "@deepsight.gg/Enums";
 import fs from "fs-extra";
 import { Task } from "task";
 import DestinyVendors from "./utility/endpoint/DestinyVendors";

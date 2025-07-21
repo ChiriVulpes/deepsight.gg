@@ -1,5 +1,5 @@
-import type { ObjectiveHashes } from "@deepsight.gg/enums";
-import { InventoryItemHashes, ItemTierTypeHashes, RecordHashes } from "@deepsight.gg/enums";
+import type { ObjectiveHashes } from "@deepsight.gg/Enums";
+import { InventoryItemHashes, ItemTierTypeHashes, RecordHashes } from "@deepsight.gg/Enums";
 import fs from "fs-extra";
 import { Task } from "task";
 import type { DeepsightCatalystDefinition } from "../../static/manifest/Interfaces";

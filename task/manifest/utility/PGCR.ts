@@ -1,4 +1,4 @@
-import type { ActivityTypeHashes } from "@deepsight.gg/enums";
+import type { ActivityTypeHashes } from "@deepsight.gg/Enums";
 import type { DestinyActivityModeType, DestinyPostGameCarnageReportData, ServerResponse } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import type { DeepsightManifest, DeepsightManifestReferencePGCR } from "../../../static/manifest/Interfaces";

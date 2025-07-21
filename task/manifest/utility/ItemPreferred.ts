@@ -1,5 +1,5 @@
 
-import { InventoryItemHashes, ItemCategoryHashes, SocketCategoryHashes } from "@deepsight.gg/enums";
+import { InventoryItemHashes, ItemCategoryHashes, SocketCategoryHashes } from "@deepsight.gg/Enums";
 import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "bungie-api-ts/destiny2";
 import manifest from "./endpoint/DestinyManifest";
 

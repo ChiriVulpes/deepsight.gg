@@ -1,5 +1,5 @@
-import { InventoryItemHashes } from "@deepsight.gg/enums";
-import type { DeepsightSocketExtendedDefinition } from "@deepsight.gg/interfaces";
+import { InventoryItemHashes } from "@deepsight.gg/Enums";
+import type { DeepsightSocketExtendedDefinition } from "@deepsight.gg/Interfaces";
 import fs from "fs-extra";
 import { Task } from "task";
 

@@ -1,5 +1,5 @@
-import { InventoryItemHashes, type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/enums";
-import type { DeepsightCollectionsDefinitionManifest } from "@deepsight.gg/interfaces";
+import { InventoryItemHashes, type InventoryBucketHashes, type MomentHashes } from "@deepsight.gg/Enums";
+import type { DeepsightCollectionsDefinitionManifest } from "@deepsight.gg/Interfaces";
 import Arrays from "@deepsight.gg/utility/Arrays";
 import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import ansi from "ansicolor";

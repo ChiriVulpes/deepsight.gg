@@ -1,4 +1,6 @@
-import type { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, StatHashes } from "@deepsight.gg/enums";
+import type { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, StatHashes } from '@deepsight.gg/Enums'
+
+/* eslint-disable @stylistic/spaced-comment */
 
 export enum DeepsightPlugCategory {
 	None,
@@ -231,79 +233,79 @@ export const DeepsightPlugTypeMap = {
 	[DeepsightPlugCategory.Destination]: /*%typeof*/ DeepsightPlugTypeDestination,
 	[DeepsightPlugCategory.Information]: null,
 	[DeepsightPlugCategory.Seasonal]: /*%typeof*/ DeepsightPlugTypeSeasonal,
-};
+}
 
 export type DeepsightPlugType<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
 	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugType<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
-	: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM[keyof TYPE_ENUM] : never;
+	: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM[keyof TYPE_ENUM] : never
 
 export interface DeepsightPlugCategorisationGeneric<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> {
-	hash: number;
-	category: CATEGORY;
-	categoryName: string;
-	type?: DeepsightPlugType<CATEGORY>;
-	typeName?: string;
-	fullName: DeepsightPlugFullName<CATEGORY>;
+	hash: number
+	category: CATEGORY
+	categoryName: string
+	type?: DeepsightPlugType<CATEGORY>
+	typeName?: string
+	fullName: DeepsightPlugFullName<CATEGORY>
 }
 
 export interface DeepsightPlugCategorisationMasterwork extends DeepsightPlugCategorisationGeneric<DeepsightPlugCategory.Masterwork> {
-	complete?: boolean;
-	stat?: StatHashes;
-	value?: number;
+	complete?: boolean
+	stat?: StatHashes
+	value?: number
 }
 
 export interface DeepsightItemInvestmentStatDefinition {
-	statTypeHash: number;
+	statTypeHash: number
 	/**
 	 * Either a static value, or an array of numbers which is how much the total value of stat is from the equipped copies of the mod.
 	 * IE, [30, 50, 60] for 1, 2, and 3 armour charge mods equipped.
 	 */
-	value: number | number[];
-	isConditionallyActive: boolean;
+	value: number | number[]
+	isConditionallyActive: boolean
 }
 
 export interface DeepsightPlugCategorisationMod extends DeepsightPlugCategorisationGeneric<DeepsightPlugCategory.Mod> {
-	adept?: boolean;
-	bucketHash?: InventoryBucketHashes;
-	raid?: boolean;
-	artifice?: boolean;
-	activityHash?: ActivityHashes;
-	armourChargeStats?: DeepsightItemInvestmentStatDefinition[];
+	adept?: boolean
+	bucketHash?: InventoryBucketHashes
+	raid?: boolean
+	artifice?: boolean
+	activityHash?: ActivityHashes
+	armourChargeStats?: DeepsightItemInvestmentStatDefinition[]
 }
 
 export interface DeepsightPlugCategorisationSubclass extends DeepsightPlugCategorisationGeneric<DeepsightPlugCategory.Subclass> {
-	damageType?: DamageTypeHashes;
-	subclasses?: InventoryItemHashes[];
+	damageType?: DamageTypeHashes
+	subclasses?: InventoryItemHashes[]
 }
 
 interface DeepsightPlugCategorisationMap {
-	[DeepsightPlugCategory.Masterwork]: DeepsightPlugCategorisationMasterwork;
-	[DeepsightPlugCategory.Mod]: DeepsightPlugCategorisationMod;
-	[DeepsightPlugCategory.Subclass]: DeepsightPlugCategorisationSubclass;
+	[DeepsightPlugCategory.Masterwork]: DeepsightPlugCategorisationMasterwork
+	[DeepsightPlugCategory.Mod]: DeepsightPlugCategorisationMod
+	[DeepsightPlugCategory.Subclass]: DeepsightPlugCategorisationSubclass
 }
 
 export type DeepsightPlugCategorisation<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
 	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugCategorisation<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
-	: DeepsightPlugCategorisationMap extends { [KEY in CATEGORY]: infer CATEGORISATION } ? CATEGORISATION : DeepsightPlugCategorisationGeneric<CATEGORY>;
+	: DeepsightPlugCategorisationMap extends { [KEY in CATEGORY]: infer CATEGORISATION } ? CATEGORISATION : DeepsightPlugCategorisationGeneric<CATEGORY>
 
 type ReverseCategoryMap = { [KEY in keyof typeof DeepsightPlugCategory as (typeof DeepsightPlugCategory)[KEY] extends infer ORDINAL extends number ? ORDINAL : never]: KEY }
 
-export type DeepsightPlugCategoryName = ReverseCategoryMap[keyof ReverseCategoryMap];
+export type DeepsightPlugCategoryName = ReverseCategoryMap[keyof ReverseCategoryMap]
 
 export type DeepsightPlugFullName<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> =
 	DeepsightPlugCategory extends CATEGORY ? ({ [CATEGORY in DeepsightPlugCategory]: DeepsightPlugFullName<CATEGORY> } extends infer ALL_CATEGORIES ? ALL_CATEGORIES[keyof ALL_CATEGORIES] : never)
 	: (/*<*/typeof /*>*/DeepsightPlugTypeMap)[CATEGORY] extends infer TYPE_ENUM ? TYPE_ENUM extends null ? `${ReverseCategoryMap[CATEGORY]}`
-	: `${ReverseCategoryMap[CATEGORY]}/${Extract<keyof TYPE_ENUM, string>}` : never;
+	: `${ReverseCategoryMap[CATEGORY]}/${Extract<keyof TYPE_ENUM, string>}` : never
 
-export declare interface DeepsightSocketCategorisationDefinition {
-	hash: number;
-	categorisation: DeepsightSocketCategorisation[];
+export interface DeepsightSocketCategorisationDefinition {
+	hash: number
+	categorisation: DeepsightSocketCategorisation[]
 }
 
-export declare interface DeepsightSocketCategorisation<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> {
-	category: CATEGORY;
-	categoryName: string;
-	type?: DeepsightPlugType<CATEGORY>;
-	typeName?: string;
-	fullName: DeepsightPlugFullName<CATEGORY>;
+export interface DeepsightSocketCategorisation<CATEGORY extends DeepsightPlugCategory = DeepsightPlugCategory> {
+	category: CATEGORY
+	categoryName: string
+	type?: DeepsightPlugType<CATEGORY>
+	typeName?: string
+	fullName: DeepsightPlugFullName<CATEGORY>
 }

@@ -1,4 +1,4 @@
-import { ItemCategoryHashes, SocketTypeHashes } from "@deepsight.gg/enums";
+import { ItemCategoryHashes, SocketTypeHashes } from "@deepsight.gg/Enums";
 import type { PromiseOr } from "@deepsight.gg/utility/Type";
 import fs from "fs-extra";
 import { Task } from "task";

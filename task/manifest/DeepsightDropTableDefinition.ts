@@ -1,4 +1,4 @@
-import { ActivityModeHashes, ActivityTypeHashes } from "@deepsight.gg/enums";
+import { ActivityModeHashes, ActivityTypeHashes } from "@deepsight.gg/Enums";
 import type { DestinyObjectiveDefinition } from "bungie-api-ts/destiny2";
 import fs from "fs-extra";
 import { Task } from "task";

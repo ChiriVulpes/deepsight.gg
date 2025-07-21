@@ -1,4 +1,4 @@
-import type { ActivityHashes } from "@deepsight.gg/enums";
+import type { ActivityHashes } from "@deepsight.gg/Enums";
 import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase, DeepsightDropTableRotationsDefinition as DeepsightDropTableRotationsDefinitionBase, ISOString } from "../../../static/manifest/Interfaces";
 import type DestinyManifestReference from "../DestinyManifestReference";
 import CrotasEnd from "./CrotasEnd";

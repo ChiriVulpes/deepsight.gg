@@ -1,5 +1,5 @@
-import { BreakerTypeHashes, InventoryItemHashes, TraitHashes } from "@deepsight.gg/enums";
-import type { DeepsightBreakerSourceDefinition } from "@deepsight.gg/interfaces";
+import { BreakerTypeHashes, InventoryItemHashes, TraitHashes } from "@deepsight.gg/Enums";
+import type { DeepsightBreakerSourceDefinition } from "@deepsight.gg/Interfaces";
 import fs from "fs-extra";
 import { Task } from "task";
 import { BreakerSource } from "./IDeepsightBreakerTypeDefinition";

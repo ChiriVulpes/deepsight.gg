@@ -1,4 +1,4 @@
-import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/enums";
+import { ActivityHashes, ActivityModifierHashes, InventoryItemHashes, RecordHashes } from "@deepsight.gg/Enums";
 import type { DeepsightDropTableDefinition } from "./DeepsightDropTableDefinition";
 
 export default {

@@ -1,4 +1,4 @@
-import type { DeepsightEmblemDefinition } from "@deepsight.gg/interfaces";
+import type { DeepsightEmblemDefinition } from "@deepsight.gg/Interfaces";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import convert from "color-convert";

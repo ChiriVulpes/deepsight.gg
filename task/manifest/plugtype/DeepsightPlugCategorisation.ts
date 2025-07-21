@@ -1,14 +1,14 @@
-import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from "@deepsight.gg/enums";
-import type { PromiseOr } from "@deepsight.gg/utility/Type";
-import type { DestinyInventoryBucketDefinition } from "bungie-api-ts/destiny2";
-import { DestinyItemType } from "bungie-api-ts/destiny2";
-import { EnumHelper } from "../../generate_enums";
-import Env from "../../utility/Env";
-import Log from "../../utility/Log";
-import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from "../IDeepsightPlugCategorisation";
-import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeDestination, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from "../IDeepsightPlugCategorisation";
-import manifest from "../utility/endpoint/DestinyManifest";
-import DeepsightPlugContextDefinition from "./DeepsightPlugContextDefinition";
+import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from '@deepsight.gg/Enums'
+import type { PromiseOr } from '@deepsight.gg/utility/Type'
+import type { DestinyInventoryBucketDefinition } from 'bungie-api-ts/destiny2'
+import { DestinyItemType } from 'bungie-api-ts/destiny2'
+import { EnumHelper } from '../../generate_enums'
+import Env from '../../utility/Env'
+import Log from '../../utility/Log'
+import type { DeepsightItemInvestmentStatDefinition, DeepsightPlugCategorisationMasterwork, DeepsightPlugCategorisationMod, DeepsightPlugCategorisationSubclass } from '../IDeepsightPlugCategorisation'
+import { DeepsightPlugCategorisation, DeepsightPlugCategory, DeepsightPlugTypeCosmetic, DeepsightPlugTypeDestination, DeepsightPlugTypeExtractable, DeepsightPlugTypeIntrinsic, DeepsightPlugTypeMap, DeepsightPlugTypeMasterwork, DeepsightPlugTypeMod, DeepsightPlugTypePerk, DeepsightPlugTypeSubclass, DeepsightPlugTypeVendor } from '../IDeepsightPlugCategorisation'
+import manifest from '../utility/endpoint/DestinyManifest'
+import DeepsightPlugContextDefinition from './DeepsightPlugContextDefinition'
 
 namespace DeepsightPlugCategorisation {
 
@@ -20,7 +20,7 @@ namespace DeepsightPlugCategorisation {
 			case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
 			case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
 			case InventoryItemHashes.AggressiveFrameTraitPlug:
-				return DeepsightPlugCategory.Intrinsic;
+				return DeepsightPlugCategory.Intrinsic
 
 			case InventoryItemHashes.RandomizedPerksIntrinsicDummyPlug:
 			case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug2443995506:
@@ -29,22 +29,22 @@ namespace DeepsightPlugCategorisation {
 			case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
 			case InventoryItemHashes.TraitLockedPlug2106726848:
 			case InventoryItemHashes.TraitLockedPlug3665398231:
-				return DeepsightPlugCategory.Perk;
+				return DeepsightPlugCategory.Perk
 
 			case InventoryItemHashes.EmptyModSocketPlug:
-				return DeepsightPlugCategory.Mod;
+				return DeepsightPlugCategory.Mod
 
 			case InventoryItemHashes.EmptyMementoSocketPlug:
-				return DeepsightPlugCategory.Cosmetic;
+				return DeepsightPlugCategory.Cosmetic
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
 			case PlugCategoryHashes.SchismBoonsDestinationModsEfficiency:
 			case PlugCategoryHashes.SchismBoonsDestinationModsPlaystyle:
-				return DeepsightPlugCategory.Destination;
+				return DeepsightPlugCategory.Destination
 
 			case PlugCategoryHashes.SchismBoonsDestinationModsInfo:
-				return DeepsightPlugCategory.Information;
+				return DeepsightPlugCategory.Information
 
 			case PlugCategoryHashes.Intrinsics:
 			case PlugCategoryHashes.Origins:
@@ -52,7 +52,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
 			case PlugCategoryHashes.ArmorStats:
 			case PlugCategoryHashes.ArmorArchetypes:
-				return DeepsightPlugCategory.Intrinsic;
+				return DeepsightPlugCategory.Intrinsic
 
 			case PlugCategoryHashes.Shader:
 			case PlugCategoryHashes.Mementos:
@@ -70,7 +70,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.V900weaponModConfetti:
 			case PlugCategoryHashes.WeaponTieringKillVfx:
 			case PlugCategoryHashes.WeaponTieringTier5Skins:
-				return DeepsightPlugCategory.Cosmetic;
+				return DeepsightPlugCategory.Cosmetic
 
 			case PlugCategoryHashes.PlugsGhostsMasterworks:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
@@ -82,7 +82,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.V400EmptyExoticMasterwork:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers:
 			case PlugCategoryHashes.V460PlugsArmorMasterworks:
-				return DeepsightPlugCategory.Masterwork;
+				return DeepsightPlugCategory.Masterwork
 
 			case PlugCategoryHashes.EventsDawningTurnkeyRecipe:
 			case PlugCategoryHashes.EventsDawningTurnkeyNoRecipe:
@@ -91,7 +91,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.EventsDawningTurnkeyOvenCombine:
 			case PlugCategoryHashes.EventsDawningTurnkeyOvenEmpty:
 			case PlugCategoryHashes.EventsDawningTurnkeyOvenEmptyCombination:
-				return DeepsightPlugCategory.Vendor;
+				return DeepsightPlugCategory.Vendor
 
 			case PlugCategoryHashes.EnhancementsGhostsActivity:
 			case PlugCategoryHashes.EnhancementsGhostsActivityFake:
@@ -105,7 +105,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.V460WeaponModSword:
 			case PlugCategoryHashes.V400WeaponModMagazine:
 			case PlugCategoryHashes.V900WeaponModMagAdjusting:
-				return DeepsightPlugCategory.Mod;
+				return DeepsightPlugCategory.Mod
 
 			case PlugCategoryHashes.SocialClansPerks:
 			case PlugCategoryHashes.Scopes:
@@ -127,24 +127,24 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.CraftingRecipesEmptySocket:
 			case PlugCategoryHashes.EmblemPerk:
 			case PlugCategoryHashes.RandomPerk:
-				return DeepsightPlugCategory.Perk;
+				return DeepsightPlugCategory.Perk
 
 			case PlugCategoryHashes.StatusEffectTooltip:
-				return DeepsightPlugCategory.StatusEffect;
+				return DeepsightPlugCategory.StatusEffect
 
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsMemories:
 			case PlugCategoryHashes.CraftingPlugsWeaponsModsExtractors:
-				return DeepsightPlugCategory.Extractable;
+				return DeepsightPlugCategory.Extractable
 
 			case PlugCategoryHashes.SharedStasisTrinkets:
-				return DeepsightPlugCategory.Subclass;
+				return DeepsightPlugCategory.Subclass
 
 			case PlugCategoryHashes.DummyInfuse:
-				return DeepsightPlugCategory.Infusion;
+				return DeepsightPlugCategory.Infusion
 		}
 
-		if (context.definition.plug?.plugCategoryHash === PlugCategoryHashes.Deprecated && context.definition.displayProperties.name.includes("Minor Boons"))
-			return DeepsightPlugCategory.Mod;
+		if (context.definition.plug?.plugCategoryHash === PlugCategoryHashes.Deprecated && context.definition.displayProperties.name.includes('Minor Boons'))
+			return DeepsightPlugCategory.Mod
 
 		for (const traitHash of context.definition.traitHashes ?? []) {
 			switch (traitHash) {
@@ -155,171 +155,171 @@ namespace DeepsightPlugCategorisation {
 				case TraitHashes.ItemArmorClass:
 				case TraitHashes.ItemArmorHead:
 				case TraitHashes.ItemArmorLegs:
-					return DeepsightPlugCategory.Cosmetic;
+					return DeepsightPlugCategory.Cosmetic
 
 				case TraitHashes.ItemExoticCatalyst:
-					return DeepsightPlugCategory.Masterwork;
+					return DeepsightPlugCategory.Masterwork
 
 				case TraitHashes.ItemPlugAspect:
 				case TraitHashes.ItemPlugFragment:
-					return DeepsightPlugCategory.Subclass;
+					return DeepsightPlugCategory.Subclass
 			}
 		}
 
 		for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 			switch (itemCategoryHash) {
 				case ItemCategoryHashes.ArmorModsGlowEffects:
-					return DeepsightPlugCategory.Cosmetic;
+					return DeepsightPlugCategory.Cosmetic
 				case ItemCategoryHashes.GhostModsTrackers:
-					return DeepsightPlugCategory.Cosmetic;
+					return DeepsightPlugCategory.Cosmetic
 				case ItemCategoryHashes.SparrowModsPerks:
-					return DeepsightPlugCategory.Perk;
+					return DeepsightPlugCategory.Perk
 				case ItemCategoryHashes.SparrowModsSpeed:
-					return DeepsightPlugCategory.Intrinsic;
+					return DeepsightPlugCategory.Intrinsic
 			}
 		}
 
 		switch (context.definition.itemTypeDisplayName) {
-			case "Deprecated Perk":
-			case "Trait":
-			case "Enhanced Trait":
-				return DeepsightPlugCategory.Perk;
+			case 'Deprecated Perk':
+			case 'Trait':
+			case 'Enhanced Trait':
+				return DeepsightPlugCategory.Perk
 		}
 
 		for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 			switch (itemCategoryHash) {
 				case ItemCategoryHashes.ArmorModsGlowEffects:
-					return DeepsightPlugCategory.Cosmetic;
+					return DeepsightPlugCategory.Cosmetic
 
 				case ItemCategoryHashes.ArmorMods: // matches ornaments, so this *must* come after the cosmetic checks
 				case ItemCategoryHashes.GhostMods:
-					return DeepsightPlugCategory.Mod;
+					return DeepsightPlugCategory.Mod
 			}
 		}
 
 		switch (context.definition.itemTypeDisplayName) {
-			case "Armor Mod":
-			case "Weapon Mod":
-			case "Deprecated Armor Mod":
-			case "Deprecated Weapon Mod":
-				return DeepsightPlugCategory.Mod;
+			case 'Armor Mod':
+			case 'Weapon Mod':
+			case 'Deprecated Armor Mod':
+			case 'Deprecated Weapon Mod':
+				return DeepsightPlugCategory.Mod
 
-			case "Ship Mod":
-				return DeepsightPlugCategory.Perk;
+			case 'Ship Mod':
+				return DeepsightPlugCategory.Perk
 
-			case "Artifact Perk":
-				return DeepsightPlugCategory.Artifact;
+			case 'Artifact Perk':
+				return DeepsightPlugCategory.Artifact
 		}
 
-		const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier;
-		if (plugCategoryIdentifier?.startsWith("armor_skins_"))
-			return DeepsightPlugCategory.Cosmetic;
+		const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier
+		if (plugCategoryIdentifier?.startsWith('armor_skins_'))
+			return DeepsightPlugCategory.Cosmetic
 
-		if (plugCategoryIdentifier?.endsWith(".masterworks.trackers"))
-			return DeepsightPlugCategory.Cosmetic;
+		if (plugCategoryIdentifier?.endsWith('.masterworks.trackers'))
+			return DeepsightPlugCategory.Cosmetic
 
-		if (plugCategoryIdentifier?.includes(".masterworks.") || plugCategoryIdentifier?.endsWith(".masterwork"))
-			return DeepsightPlugCategory.Masterwork;
+		if (plugCategoryIdentifier?.includes('.masterworks.') || plugCategoryIdentifier?.endsWith('.masterwork'))
+			return DeepsightPlugCategory.Masterwork
 
-		const lastPlugCategoryIdentifierSegment = plugCategoryIdentifier?.slice(plugCategoryIdentifier.lastIndexOf(".") + 1);
+		const lastPlugCategoryIdentifierSegment = plugCategoryIdentifier?.slice(plugCategoryIdentifier.lastIndexOf('.') + 1)
 		switch (lastPlugCategoryIdentifierSegment) {
-			case "aspects":
-			case "fragments":
-			case "class_abilities":
-			case "supers":
-			case "melee":
-			case "grenades":
-			case "movement":
-			case "prism_grenade":
-			case "transcendence":
-				return DeepsightPlugCategory.Subclass;
+			case 'aspects':
+			case 'fragments':
+			case 'class_abilities':
+			case 'supers':
+			case 'melee':
+			case 'grenades':
+			case 'movement':
+			case 'prism_grenade':
+			case 'transcendence':
+				return DeepsightPlugCategory.Subclass
 		}
 
 		switch (context.definition.displayProperties?.name) {
-			case "Classified":
-				return DeepsightPlugCategory.Classified;
+			case 'Classified':
+				return DeepsightPlugCategory.Classified
 
-			case "Upgrade Masterwork":
-				return DeepsightPlugCategory.Masterwork;
+			case 'Upgrade Masterwork':
+				return DeepsightPlugCategory.Masterwork
 		}
 
-		if (context.definition.displayProperties?.name.endsWith(" Catalyst") && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
-			return DeepsightPlugCategory.Masterwork;
+		if (context.definition.displayProperties?.name.endsWith(' Catalyst') && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
+			return DeepsightPlugCategory.Masterwork
 
-		if (context.definition.displayProperties?.description.includes("An Exotic catalyst can be inserted into this socket."))
-			return DeepsightPlugCategory.Masterwork;
+		if (context.definition.displayProperties?.description.includes('An Exotic catalyst can be inserted into this socket.'))
+			return DeepsightPlugCategory.Masterwork
 
 		if (!context.definition.displayProperties?.name && (context.definition.plug?.plugCategoryHash === PlugCategoryHashes.Frames || context.definition.plug?.plugCategoryHash === PlugCategoryHashes.EnhancementsUniversal))
-			return DeepsightPlugCategory.Unknown;
+			return DeepsightPlugCategory.Unknown
 
-		return -1;
+		return -1
 	}
 
 	const plugTypeHandlers: Partial<Record<DeepsightPlugCategory, (context: DeepsightPlugContextDefinition) => number | void>> = {
 		[DeepsightPlugCategory.Masterwork]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.EmptyEnhancementSocketPlug:
-					return DeepsightPlugTypeMasterwork.EnhancementEmpty;
+					return DeepsightPlugTypeMasterwork.EnhancementEmpty
 				case InventoryItemHashes.MasterworkUpgradePlug1176735155:
-					return DeepsightPlugTypeMasterwork.ArmorEmpty;
+					return DeepsightPlugTypeMasterwork.ArmorEmpty
 				case InventoryItemHashes.ReworkArmorPlug:
-					return DeepsightPlugTypeMasterwork.Legacy;
+					return DeepsightPlugTypeMasterwork.Legacy
 				case InventoryItemHashes.ProtocolSocketPlug:
-					return DeepsightPlugTypeMasterwork.AuthorizationEmpty;
+					return DeepsightPlugTypeMasterwork.AuthorizationEmpty
 				case InventoryItemHashes.EmptyWeaponLevelBoostSocketPlug:
-					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty;
+					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty
 				case InventoryItemHashes.MasterworkUpgradePlug236077174:
-					return DeepsightPlugTypeMasterwork.WeaponEmpty;
+					return DeepsightPlugTypeMasterwork.WeaponEmpty
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsTransfusersLevel:
-					return DeepsightPlugTypeMasterwork.ShapedWeapon;
+					return DeepsightPlugTypeMasterwork.ShapedWeapon
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenNotMasterworked:
 				case PlugCategoryHashes.EventsDawningOvenMasterworked:
-					return DeepsightPlugTypeMasterwork.HolidayOven;
+					return DeepsightPlugTypeMasterwork.HolidayOven
 				case PlugCategoryHashes.V700WeaponsModsMissionAvalon:
-					return DeepsightPlugTypeMasterwork.Authorization;
+					return DeepsightPlugTypeMasterwork.Authorization
 				case PlugCategoryHashes.ExoticWeaponMasterworkUpgrade:
-					return DeepsightPlugTypeMasterwork.Weapon;
+					return DeepsightPlugTypeMasterwork.Weapon
 				case PlugCategoryHashes.V400EmptyExoticMasterwork:
-					return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty;
+					return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsEnhancers:
-					return DeepsightPlugTypeMasterwork.Enhancement;
+					return DeepsightPlugTypeMasterwork.Enhancement
 			}
 
-			const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier;
+			const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier
 			if (plugCategoryIdentifier) {
-				if (plugCategoryIdentifier.includes(".armor.masterworks") || plugCategoryIdentifier.includes(".masterworks.armor.") || plugCategoryIdentifier.includes(".masterworks.generic.armor."))
-					return DeepsightPlugTypeMasterwork.Armor;
+				if (plugCategoryIdentifier.includes('.armor.masterworks') || plugCategoryIdentifier.includes('.masterworks.armor.') || plugCategoryIdentifier.includes('.masterworks.generic.armor.'))
+					return DeepsightPlugTypeMasterwork.Armor
 
-				if (plugCategoryIdentifier.includes(".weapons.masterworks") || plugCategoryIdentifier.includes(".masterworks.weapons.") || plugCategoryIdentifier.includes(".masterworks.generic.weapons."))
-					return DeepsightPlugTypeMasterwork.Weapon;
+				if (plugCategoryIdentifier.includes('.weapons.masterworks') || plugCategoryIdentifier.includes('.masterworks.weapons.') || plugCategoryIdentifier.includes('.masterworks.generic.weapons.'))
+					return DeepsightPlugTypeMasterwork.Weapon
 
-				if (plugCategoryIdentifier.includes(".ghosts.masterworks"))
-					return DeepsightPlugTypeMasterwork.Ghost;
+				if (plugCategoryIdentifier.includes('.ghosts.masterworks'))
+					return DeepsightPlugTypeMasterwork.Ghost
 			}
 
 			for (const traitHash of context.definition.traitHashes ?? []) {
 				switch (traitHash) {
 					case TraitHashes.ItemExoticCatalyst:
-						return DeepsightPlugTypeMasterwork.ExoticCatalyst;
+						return DeepsightPlugTypeMasterwork.ExoticCatalyst
 				}
 			}
 
 			switch (context.definition.displayProperties?.name) {
-				case "Upgrade Masterwork":
-					return DeepsightPlugTypeMasterwork.ExoticCatalystUpgrade;
+				case 'Upgrade Masterwork':
+					return DeepsightPlugTypeMasterwork.ExoticCatalystUpgrade
 			}
 
-			if (context.definition.displayProperties.description.includes("An Exotic catalyst can be inserted into this socket."))
-				return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty;
+			if (context.definition.displayProperties.description.includes('An Exotic catalyst can be inserted into this socket.'))
+				return DeepsightPlugTypeMasterwork.ExoticCatalystEmpty
 
-			if (context.definition.displayProperties?.name.endsWith(" Catalyst") && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
-				return DeepsightPlugTypeMasterwork.ExoticCatalystAvailable;
+			if (context.definition.displayProperties?.name.endsWith(' Catalyst') && context.definition.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies))
+				return DeepsightPlugTypeMasterwork.ExoticCatalystAvailable
 
-			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic && plugCategoryIdentifier?.endsWith(".masterwork"))
-				return DeepsightPlugTypeMasterwork.ExoticCatalyst;
+			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Exotic && plugCategoryIdentifier?.endsWith('.masterwork'))
+				return DeepsightPlugTypeMasterwork.ExoticCatalyst
 		},
 		[DeepsightPlugCategory.Vendor]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
@@ -330,37 +330,37 @@ namespace DeepsightPlugCategorisation {
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenCombine:
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenEmpty:
 				case PlugCategoryHashes.EventsDawningTurnkeyOvenEmptyCombination:
-					return DeepsightPlugTypeVendor.HolidayOven;
+					return DeepsightPlugTypeVendor.HolidayOven
 			}
 		},
 		[DeepsightPlugCategory.Destination]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.SchismBoonsDestinationModsEfficiency:
-					return DeepsightPlugTypeDestination.TravelersBlessingsEfficiency;
+					return DeepsightPlugTypeDestination.TravelersBlessingsEfficiency
 				case PlugCategoryHashes.SchismBoonsDestinationModsPlaystyle:
-					return DeepsightPlugTypeDestination.TravelersBlessingsPlaystyle;
+					return DeepsightPlugTypeDestination.TravelersBlessingsPlaystyle
 			}
 		},
 		[DeepsightPlugCategory.Extractable]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.EmptyDeepsightSocketPlug:
-					return DeepsightPlugTypeExtractable.DeepsightActivation;
+					return DeepsightPlugTypeExtractable.DeepsightActivation
 			}
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsMemories:
 				case PlugCategoryHashes.CraftingPlugsWeaponsModsExtractors:
-					return DeepsightPlugTypeExtractable.DeepsightResonance;
+					return DeepsightPlugTypeExtractable.DeepsightResonance
 			}
 		},
 		[DeepsightPlugCategory.Intrinsic]: context => {
 			switch (context.definition.hash) {
 				case InventoryItemHashes.ArtificeArmorIntrinsicPlug:
-					return DeepsightPlugTypeIntrinsic.ArmorArtifice;
+					return DeepsightPlugTypeIntrinsic.ArmorArtifice
 
 				case InventoryItemHashes.FriendlyCompetitionIntrinsicPlug2596471870:
 				case InventoryItemHashes.FriendlyCompetitionIntrinsicPlug2596471871:
 				case InventoryItemHashes.SpiritOfCompetitionIntrinsicPlug:
-					return DeepsightPlugTypeIntrinsic.Armor; // special case weird guardian games armour perks
+					return DeepsightPlugTypeIntrinsic.Armor // special case weird guardian games armour perks
 
 				case InventoryItemHashes.Collector1IntrinsicPlug:
 				case InventoryItemHashes.Collector2IntrinsicPlug:
@@ -377,11 +377,11 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.DeepStoneCryptArmorIntrinsicPlug:
 				case InventoryItemHashes.GardenOfSalvationArmorIntrinsicPlug:
 				case InventoryItemHashes.LastWishArmorIntrinsicPlug:
-					return DeepsightPlugTypeIntrinsic.ArmorLegacy;
+					return DeepsightPlugTypeIntrinsic.ArmorLegacy
 
 				case InventoryItemHashes.UnrepentantIntrinsicPlug1579862386:
 				case InventoryItemHashes.ExhumationIntrinsicPlug1563633475:
-					return DeepsightPlugTypeIntrinsic.Exotic; // these are old/dummy versions of these perks
+					return DeepsightPlugTypeIntrinsic.Exotic // these are old/dummy versions of these perks
 
 				case InventoryItemHashes.AdaptiveFrameIntrinsicPlug2189829540: // rose's adaptive frame is considered exotic tier
 				case InventoryItemHashes.WaveSwordFrameIntrinsicPlug289811733:
@@ -389,56 +389,56 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.VortexFrameIntrinsicPlug_TooltipStyleUndefined:
 				case InventoryItemHashes.LightweightFrameIntrinsicPlug2753228730:
 				case InventoryItemHashes.AggressiveFrameTraitPlug:
-					return DeepsightPlugTypeIntrinsic.Frame;
+					return DeepsightPlugTypeIntrinsic.Frame
 			}
 
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.CraftingRecipesEmptySocket:
-					return DeepsightPlugTypeIntrinsic.EmptyCraftingSocket;
+					return DeepsightPlugTypeIntrinsic.EmptyCraftingSocket
 			}
 
-			if (context.definition.itemTypeDisplayName === "Enhanced Intrinsic")
-				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
+			if (context.definition.itemTypeDisplayName === 'Enhanced Intrinsic')
+				return DeepsightPlugTypeIntrinsic.FrameEnhanced
 
-			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Legendary && context.definition.itemTypeDisplayName === "Intrinsic" && context.definition.investmentStats.some(stat => stat.value === 10 && !stat.isConditionallyActive))
-				return DeepsightPlugTypeIntrinsic.FrameEnhanced;
+			if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Legendary && context.definition.itemTypeDisplayName === 'Intrinsic' && context.definition.investmentStats.some(stat => stat.value === 10 && !stat.isConditionallyActive))
+				return DeepsightPlugTypeIntrinsic.FrameEnhanced
 
-			if (context.definition.itemTypeAndTierDisplayName === "Exotic Intrinsic")
-				return DeepsightPlugTypeIntrinsic.Exotic;
+			if (context.definition.itemTypeAndTierDisplayName === 'Exotic Intrinsic')
+				return DeepsightPlugTypeIntrinsic.Exotic
 
 			if (context.definition.itemTypeDisplayName === 'Enhanced Origin Trait')
-				return DeepsightPlugTypeIntrinsic.OriginEnhanced;
+				return DeepsightPlugTypeIntrinsic.OriginEnhanced
 
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.CraftingPlugsFrameIdentifiers:
-					return DeepsightPlugTypeIntrinsic.Shaped;
+					return DeepsightPlugTypeIntrinsic.Shaped
 				case PlugCategoryHashes.Origins:
-					return DeepsightPlugTypeIntrinsic.Origin;
+					return DeepsightPlugTypeIntrinsic.Origin
 				case PlugCategoryHashes.V300VehiclesModControls:
-					return DeepsightPlugTypeIntrinsic.Controls;
+					return DeepsightPlugTypeIntrinsic.Controls
 				case PlugCategoryHashes.Intrinsics:
 					if (DeepsightPlugContextDefinition.isExoticOnly(context))
-						return DeepsightPlugTypeIntrinsic.Exotic;
+						return DeepsightPlugTypeIntrinsic.Exotic
 
 					if (DeepsightPlugContextDefinition.isOnOnlyType(DestinyItemType.Armor, context)) {
 						if (context.definition.inventory?.tierTypeHash === ItemTierTypeHashes.Common)
-							return DeepsightPlugTypeIntrinsic.ArmorLegacy; // catches all the old armour stat perks
+							return DeepsightPlugTypeIntrinsic.ArmorLegacy // catches all the old armour stat perks
 
-						return DeepsightPlugTypeIntrinsic.Armor;
+						return DeepsightPlugTypeIntrinsic.Armor
 					}
 
-					return DeepsightPlugTypeIntrinsic.Frame;
+					return DeepsightPlugTypeIntrinsic.Frame
 
 				case PlugCategoryHashes.ArmorStats:
-					return DeepsightPlugTypeIntrinsic.ArmorStat;
+					return DeepsightPlugTypeIntrinsic.ArmorStat
 				case PlugCategoryHashes.ArmorArchetypes:
-					return DeepsightPlugTypeIntrinsic.ArmorArchetype;
+					return DeepsightPlugTypeIntrinsic.ArmorArchetype
 			}
 
 			for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 				switch (itemCategoryHash) {
 					case ItemCategoryHashes.SparrowModsSpeed:
-						return DeepsightPlugTypeIntrinsic.SparrowEngine;
+						return DeepsightPlugTypeIntrinsic.SparrowEngine
 				}
 			}
 		},
@@ -447,87 +447,87 @@ namespace DeepsightPlugCategorisation {
 				for (const traitHash of context.definition.traitHashes ?? []) {
 					switch (traitHash) {
 						case TraitHashes.ItemPlugAspect:
-							return DeepsightPlugTypeSubclass.Aspect;
+							return DeepsightPlugTypeSubclass.Aspect
 						case TraitHashes.ItemPlugFragment:
-							return DeepsightPlugTypeSubclass.Fragment;
+							return DeepsightPlugTypeSubclass.Fragment
 					}
 				}
 
-				const plugCategoryIdentifiers = context.definition.plug?.plugCategoryIdentifier.split(/\./g);
-				const lastPlugCategoryIdentifier = plugCategoryIdentifiers?.[plugCategoryIdentifiers.length - 1];
+				const plugCategoryIdentifiers = context.definition.plug?.plugCategoryIdentifier.split(/\./g)
+				const lastPlugCategoryIdentifier = plugCategoryIdentifiers?.[plugCategoryIdentifiers.length - 1]
 
 				switch (lastPlugCategoryIdentifier) {
-					case "aspects":
-						return DeepsightPlugTypeSubclass.Aspect;
-					case "fragments":
-					case "trinkets":
-						return DeepsightPlugTypeSubclass.Fragment;
-					case "class_abilities":
-						return DeepsightPlugTypeSubclass.ClassAbility;
-					case "supers":
-						return DeepsightPlugTypeSubclass.Super;
-					case "melee":
-						return DeepsightPlugTypeSubclass.Melee;
-					case "grenades":
-						return DeepsightPlugTypeSubclass.Grenade;
-					case "movement":
-						return DeepsightPlugTypeSubclass.Movement;
-					case "prism_grenade":
-						return DeepsightPlugTypeSubclass.PrismaticGrenade;
-					case "transcendence":
-						return DeepsightPlugTypeSubclass.Transcendence;
+					case 'aspects':
+						return DeepsightPlugTypeSubclass.Aspect
+					case 'fragments':
+					case 'trinkets':
+						return DeepsightPlugTypeSubclass.Fragment
+					case 'class_abilities':
+						return DeepsightPlugTypeSubclass.ClassAbility
+					case 'supers':
+						return DeepsightPlugTypeSubclass.Super
+					case 'melee':
+						return DeepsightPlugTypeSubclass.Melee
+					case 'grenades':
+						return DeepsightPlugTypeSubclass.Grenade
+					case 'movement':
+						return DeepsightPlugTypeSubclass.Movement
+					case 'prism_grenade':
+						return DeepsightPlugTypeSubclass.PrismaticGrenade
+					case 'transcendence':
+						return DeepsightPlugTypeSubclass.Transcendence
 				}
-			})();
+			})()
 
-			if (context.definition.displayProperties?.name?.endsWith(" Socket")) {
+			if (context.definition.displayProperties?.name?.endsWith(' Socket')) {
 				switch (plugType) {
-					case DeepsightPlugTypeSubclass.Aspect: return DeepsightPlugTypeSubclass.AspectEmpty;
-					case DeepsightPlugTypeSubclass.Fragment: return DeepsightPlugTypeSubclass.FragmentEmpty;
-					case DeepsightPlugTypeSubclass.Super: return DeepsightPlugTypeSubclass.SuperEmpty;
-					case DeepsightPlugTypeSubclass.Grenade: return DeepsightPlugTypeSubclass.GrenadeEmpty;
-					case DeepsightPlugTypeSubclass.Melee: return DeepsightPlugTypeSubclass.MeleeEmpty;
-					case DeepsightPlugTypeSubclass.ClassAbility: return DeepsightPlugTypeSubclass.ClassAbilityEmpty;
-					case DeepsightPlugTypeSubclass.Movement: return DeepsightPlugTypeSubclass.MovementEmpty;
+					case DeepsightPlugTypeSubclass.Aspect: return DeepsightPlugTypeSubclass.AspectEmpty
+					case DeepsightPlugTypeSubclass.Fragment: return DeepsightPlugTypeSubclass.FragmentEmpty
+					case DeepsightPlugTypeSubclass.Super: return DeepsightPlugTypeSubclass.SuperEmpty
+					case DeepsightPlugTypeSubclass.Grenade: return DeepsightPlugTypeSubclass.GrenadeEmpty
+					case DeepsightPlugTypeSubclass.Melee: return DeepsightPlugTypeSubclass.MeleeEmpty
+					case DeepsightPlugTypeSubclass.ClassAbility: return DeepsightPlugTypeSubclass.ClassAbilityEmpty
+					case DeepsightPlugTypeSubclass.Movement: return DeepsightPlugTypeSubclass.MovementEmpty
 				}
 			}
 
-			return plugType;
+			return plugType
 		},
 		[DeepsightPlugCategory.Mod]: context => {
 			const plugType = (() => {
 				switch (context.definition.itemTypeDisplayName) {
-					case "Deprecated Weapon Mod":
-					case "Deprecated Armor Mod":
-						return DeepsightPlugTypeMod.Deprecated;
+					case 'Deprecated Weapon Mod':
+					case 'Deprecated Armor Mod':
+						return DeepsightPlugTypeMod.Deprecated
 				}
 
-				if (context.definition.displayProperties?.description?.includes("This mod has been deprecated"))
-					return DeepsightPlugTypeMod.Deprecated;
+				if (context.definition.displayProperties?.description?.includes('This mod has been deprecated'))
+					return DeepsightPlugTypeMod.Deprecated
 
 				switch (context.definition.displayProperties?.name?.trim()) {
-					case "":
-						return DeepsightPlugTypeMod.Deprecated;
-					case "Locked Armor Mod":
-						return DeepsightPlugTypeMod.ArmorLocked;
+					case '':
+						return DeepsightPlugTypeMod.Deprecated
+					case 'Locked Armor Mod':
+						return DeepsightPlugTypeMod.ArmorLocked
 				}
 
 				switch (context.definition.plug?.plugCategoryHash) {
 					case PlugCategoryHashes.Deprecated:
 					case PlugCategoryHashes.V404ArmorFotlMasksAbyssPerks:
-						return DeepsightPlugTypeMod.Deprecated;
+						return DeepsightPlugTypeMod.Deprecated
 
 					case PlugCategoryHashes.CoreGearSystemsArmorTieringPlugsTuningMods:
-						return DeepsightPlugTypeMod.ArmorStatTuning;
+						return DeepsightPlugTypeMod.ArmorStatTuning
 
 					case PlugCategoryHashes.V400WeaponModDamage:
 					case PlugCategoryHashes.V400WeaponModGuns:
 					case PlugCategoryHashes.V460WeaponModSword:
 					case PlugCategoryHashes.V400WeaponModMagazine:
 					case PlugCategoryHashes.V900WeaponModMagAdjusting:
-						return DeepsightPlugTypeMod.WeaponEnhanced;
+						return DeepsightPlugTypeMod.WeaponEnhanced
 
 					case PlugCategoryHashes.EnhancementsExoticAeonCult:
-						return DeepsightPlugTypeMod.ArmorExotic;
+						return DeepsightPlugTypeMod.ArmorExotic
 
 					case PlugCategoryHashes.EnhancementsArms:
 					case PlugCategoryHashes.EnhancementsChest:
@@ -548,55 +548,55 @@ namespace DeepsightPlugCategorisation {
 					case PlugCategoryHashes.EnhancementsRaidV700:
 					case PlugCategoryHashes.EnhancementsRaidV720:
 					case PlugCategoryHashes.EnhancementsArtifice:
-						return DeepsightPlugTypeMod.Armor;
+						return DeepsightPlugTypeMod.Armor
 					case PlugCategoryHashes.EnhancementsGhostsEconomic:
 					case PlugCategoryHashes.EnhancementsGhostsActivity:
 					case PlugCategoryHashes.EnhancementsGhostsActivityFake:
 					case PlugCategoryHashes.EnhancementsGhostsExperience:
 					case PlugCategoryHashes.EnhancementsGhostsTracking:
-						return DeepsightPlugTypeMod.Ghost;
+						return DeepsightPlugTypeMod.Ghost
 					case PlugCategoryHashes.IntermediatePlugThatWorksInEveryCategory:
-						return DeepsightPlugTypeMod.Fallback;
+						return DeepsightPlugTypeMod.Fallback
 				}
 
 				switch (context.definition.itemTypeDisplayName) {
-					case "Weapon Mod":
-						return DeepsightPlugTypeMod.Weapon;
-					case "Armor Mod":
-						return DeepsightPlugTypeMod.Armor;
+					case 'Weapon Mod':
+						return DeepsightPlugTypeMod.Weapon
+					case 'Armor Mod':
+						return DeepsightPlugTypeMod.Armor
 				}
 
 				for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 					switch (itemCategoryHash) {
 						case ItemCategoryHashes.ArmorMods:
-							return DeepsightPlugTypeMod.Armor;
+							return DeepsightPlugTypeMod.Armor
 					}
 				}
 
 				switch (context.definition.displayProperties?.name) {
-					case "Empty Mod Socket":
-						return DeepsightPlugTypeMod.UniversalEmpty;
+					case 'Empty Mod Socket':
+						return DeepsightPlugTypeMod.UniversalEmpty
 				}
-			})();
+			})()
 
-			if (context.definition.plug?.plugCategoryHash === PlugCategoryHashes.Deprecated && context.definition.displayProperties.name.includes("Minor Boons"))
-				return DeepsightPlugTypeMod.GhostDeprecated;
+			if (context.definition.plug?.plugCategoryHash === PlugCategoryHashes.Deprecated && context.definition.displayProperties.name.includes('Minor Boons'))
+				return DeepsightPlugTypeMod.GhostDeprecated
 
-			if (plugType === DeepsightPlugTypeMod.Weapon && context.definition.plug?.insertionRules.some(rule => rule.failureMessage === "Requires Adept Weapon"))
-				return DeepsightPlugTypeMod.WeaponAdept;
+			if (plugType === DeepsightPlugTypeMod.Weapon && context.definition.plug?.insertionRules.some(rule => rule.failureMessage === 'Requires Adept Weapon'))
+				return DeepsightPlugTypeMod.WeaponAdept
 
-			if (context.definition.displayProperties?.name.endsWith("Mod Socket")) {
+			if (context.definition.displayProperties?.name.endsWith('Mod Socket')) {
 				switch (plugType) {
 					case DeepsightPlugTypeMod.Armor:
-						return DeepsightPlugTypeMod.ArmorEmpty;
+						return DeepsightPlugTypeMod.ArmorEmpty
 					case DeepsightPlugTypeMod.Weapon:
-						return DeepsightPlugTypeMod.WeaponEmpty;
+						return DeepsightPlugTypeMod.WeaponEmpty
 					case DeepsightPlugTypeMod.Ghost:
-						return DeepsightPlugTypeMod.GhostEmpty;
+						return DeepsightPlugTypeMod.GhostEmpty
 				}
 			}
 
-			return plugType;
+			return plugType
 		},
 		[DeepsightPlugCategory.Perk]: context => {
 			switch (context.definition.hash) {
@@ -605,267 +605,267 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug4114716976:
 				case InventoryItemHashes.RandomizedPerks1IntrinsicDummyPlug440670601:
 				case InventoryItemHashes.RandomizedPerks2IntrinsicDummyPlug:
-					return DeepsightPlugTypePerk.Random;
+					return DeepsightPlugTypePerk.Random
 
 				case InventoryItemHashes.TraitLockedPlug2106726848:
 				case InventoryItemHashes.TraitLockedPlug3665398231:
-					return DeepsightPlugTypePerk.TraitLocked;
+					return DeepsightPlugTypePerk.TraitLocked
 
 				case InventoryItemHashes.DeconstructTraitPlug_InventoryTierType3:
-					return DeepsightPlugTypePerk.TraitEnhanced;
+					return DeepsightPlugTypePerk.TraitEnhanced
 			}
 
-			const isEnhanced = context.definition.itemTypeDisplayName.includes("Enhanced");
+			const isEnhanced = context.definition.itemTypeDisplayName.includes('Enhanced')
 
 			switch (context.definition.plug?.plugCategoryHash) {
 				case PlugCategoryHashes.Scopes:
-					return isEnhanced ? DeepsightPlugTypePerk.ScopeEnhanced : DeepsightPlugTypePerk.Scope;
+					return isEnhanced ? DeepsightPlugTypePerk.ScopeEnhanced : DeepsightPlugTypePerk.Scope
 				case PlugCategoryHashes.Barrels:
-					return isEnhanced ? DeepsightPlugTypePerk.BarrelEnhanced : DeepsightPlugTypePerk.Barrel;
+					return isEnhanced ? DeepsightPlugTypePerk.BarrelEnhanced : DeepsightPlugTypePerk.Barrel
 				case PlugCategoryHashes.Batteries:
-					return isEnhanced ? DeepsightPlugTypePerk.BatteryEnhanced : DeepsightPlugTypePerk.Battery;
+					return isEnhanced ? DeepsightPlugTypePerk.BatteryEnhanced : DeepsightPlugTypePerk.Battery
 				case PlugCategoryHashes.Magazines:
-					return isEnhanced ? DeepsightPlugTypePerk.MagazineEnhanced : DeepsightPlugTypePerk.Magazine;
+					return isEnhanced ? DeepsightPlugTypePerk.MagazineEnhanced : DeepsightPlugTypePerk.Magazine
 				case PlugCategoryHashes.Grips:
-					return isEnhanced ? DeepsightPlugTypePerk.GripEnhanced : DeepsightPlugTypePerk.Grip;
+					return isEnhanced ? DeepsightPlugTypePerk.GripEnhanced : DeepsightPlugTypePerk.Grip
 				case PlugCategoryHashes.Stocks:
-					return isEnhanced ? DeepsightPlugTypePerk.StockEnhanced : DeepsightPlugTypePerk.Stock;
+					return isEnhanced ? DeepsightPlugTypePerk.StockEnhanced : DeepsightPlugTypePerk.Stock
 				case PlugCategoryHashes.Blades:
-					return isEnhanced ? DeepsightPlugTypePerk.BladeEnhanced : DeepsightPlugTypePerk.Blade;
+					return isEnhanced ? DeepsightPlugTypePerk.BladeEnhanced : DeepsightPlugTypePerk.Blade
 				case PlugCategoryHashes.Rails:
-					return isEnhanced ? DeepsightPlugTypePerk.RailEnhanced : DeepsightPlugTypePerk.Rail;
+					return isEnhanced ? DeepsightPlugTypePerk.RailEnhanced : DeepsightPlugTypePerk.Rail
 				case PlugCategoryHashes.Bolts:
-					return isEnhanced ? DeepsightPlugTypePerk.BoltEnhanced : DeepsightPlugTypePerk.Bolt;
+					return isEnhanced ? DeepsightPlugTypePerk.BoltEnhanced : DeepsightPlugTypePerk.Bolt
 				case PlugCategoryHashes.Guards:
-					return isEnhanced ? DeepsightPlugTypePerk.GuardEnhanced : DeepsightPlugTypePerk.Guard;
+					return isEnhanced ? DeepsightPlugTypePerk.GuardEnhanced : DeepsightPlugTypePerk.Guard
 				case PlugCategoryHashes.Bowstrings:
-					return isEnhanced ? DeepsightPlugTypePerk.BowstringEnhanced : DeepsightPlugTypePerk.Bowstring;
+					return isEnhanced ? DeepsightPlugTypePerk.BowstringEnhanced : DeepsightPlugTypePerk.Bowstring
 				case PlugCategoryHashes.Arrows:
-					return isEnhanced ? DeepsightPlugTypePerk.ArrowEnhanced : DeepsightPlugTypePerk.Arrow;
+					return isEnhanced ? DeepsightPlugTypePerk.ArrowEnhanced : DeepsightPlugTypePerk.Arrow
 				case PlugCategoryHashes.MagazinesGl:
-					return isEnhanced ? DeepsightPlugTypePerk.GrenadeLauncherMagazineEnhanced : DeepsightPlugTypePerk.GrenadeLauncherMagazine;
+					return isEnhanced ? DeepsightPlugTypePerk.GrenadeLauncherMagazineEnhanced : DeepsightPlugTypePerk.GrenadeLauncherMagazine
 				case PlugCategoryHashes.Tubes:
-					return isEnhanced ? DeepsightPlugTypePerk.TubeEnhanced : DeepsightPlugTypePerk.Tube;
+					return isEnhanced ? DeepsightPlugTypePerk.TubeEnhanced : DeepsightPlugTypePerk.Tube
 				case PlugCategoryHashes.Hafts:
-					return isEnhanced ? DeepsightPlugTypePerk.HaftEnhanced : DeepsightPlugTypePerk.Haft;
+					return isEnhanced ? DeepsightPlugTypePerk.HaftEnhanced : DeepsightPlugTypePerk.Haft
 				case PlugCategoryHashes.SocialClansPerks:
-					return DeepsightPlugTypePerk.Clan;
+					return DeepsightPlugTypePerk.Clan
 				case PlugCategoryHashes.V300GhostsModsPerks:
-					return DeepsightPlugTypePerk.Ghost;
+					return DeepsightPlugTypePerk.Ghost
 				case PlugCategoryHashes.CraftingRecipesEmptySocket:
-					return DeepsightPlugTypePerk.EmptyCraftingSocket;
+					return DeepsightPlugTypePerk.EmptyCraftingSocket
 				case PlugCategoryHashes.EmblemPerk:
-					return DeepsightPlugTypePerk.EmblemAura;
+					return DeepsightPlugTypePerk.EmblemAura
 				case PlugCategoryHashes.RandomPerk:
-					return DeepsightPlugTypePerk.Random;
+					return DeepsightPlugTypePerk.Random
 			}
 
 			switch (context.definition.itemTypeDisplayName) {
-				case "Trait":
-					return DeepsightPlugTypePerk.Trait;
-				case "Enhanced Trait":
-					return DeepsightPlugTypePerk.TraitEnhanced;
-				case "Deprecated Perk":
-					return DeepsightPlugTypePerk.Deprecated;
-				case "Ship Mod":
-					return DeepsightPlugTypePerk.Ship;
+				case 'Trait':
+					return DeepsightPlugTypePerk.Trait
+				case 'Enhanced Trait':
+					return DeepsightPlugTypePerk.TraitEnhanced
+				case 'Deprecated Perk':
+					return DeepsightPlugTypePerk.Deprecated
+				case 'Ship Mod':
+					return DeepsightPlugTypePerk.Ship
 			}
 
 			for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 				switch (itemCategoryHash) {
 					case ItemCategoryHashes.Dummies:
-						return DeepsightPlugTypePerk.Dummy;
+						return DeepsightPlugTypePerk.Dummy
 					case ItemCategoryHashes.SparrowModsPerks:
-						return DeepsightPlugTypePerk.Sparrow;
+						return DeepsightPlugTypePerk.Sparrow
 				}
 			}
 		},
 		[DeepsightPlugCategory.Cosmetic]: context => {
 			const plugType = (() => {
 				switch (context.definition.itemTypeDisplayName) {
-					case "Mask Ornament":
-						return DeepsightPlugTypeCosmetic.OrnamentMask;
+					case 'Mask Ornament':
+						return DeepsightPlugTypeCosmetic.OrnamentMask
 				}
 
 				switch (context.definition.hash) {
 					case InventoryItemHashes.DefaultEmblemEmblemPlug:
-						return DeepsightPlugTypeCosmetic.EmblemEmpty;
+						return DeepsightPlugTypeCosmetic.EmblemEmpty
 					case InventoryItemHashes.BaseRadiancePlug:
-						return DeepsightPlugTypeCosmetic.Radiance;
+						return DeepsightPlugTypeCosmetic.Radiance
 					case InventoryItemHashes.EmptyMementoSocketPlug:
-						return DeepsightPlugTypeCosmetic.MementoEmpty;
+						return DeepsightPlugTypeCosmetic.MementoEmpty
 					case InventoryItemHashes.NoProjectionRestoreDefaultsPlug:
-						return DeepsightPlugTypeCosmetic.GhostProjectionEmpty;
+						return DeepsightPlugTypeCosmetic.GhostProjectionEmpty
 					case InventoryItemHashes.DefaultEffectPlug:
-						return DeepsightPlugTypeCosmetic.TransmatEffectEmpty;
+						return DeepsightPlugTypeCosmetic.TransmatEffectEmpty
 					case InventoryItemHashes.RandomModPlug_PlugPlugCategoryHashShipSpawnfx:
-						return DeepsightPlugTypeCosmetic.TransmatEffectRandom;
+						return DeepsightPlugTypeCosmetic.TransmatEffectRandom
 					case InventoryItemHashes.DefaultWeaponEffectsPlug:
 					case InventoryItemHashes.DefaultCombatFlairCombatFlairPlug:
-						return DeepsightPlugTypeCosmetic.WeaponEffectsDefault;
+						return DeepsightPlugTypeCosmetic.WeaponEffectsDefault
 					case InventoryItemHashes.DefaultOrnamentPlug3854296178:
-						return DeepsightPlugTypeCosmetic.OrnamentDefault;
+						return DeepsightPlugTypeCosmetic.OrnamentDefault
 				}
 
 				switch (context.definition.displayProperties?.name) {
-					case "Default Shader":
-						return DeepsightPlugTypeCosmetic.ShaderDefault;
+					case 'Default Shader':
+						return DeepsightPlugTypeCosmetic.ShaderDefault
 				}
 
 				switch (context.definition.plug?.plugCategoryHash) {
 					case PlugCategoryHashes.Shader:
 					case PlugCategoryHashes.DawningShipShader:
-						return DeepsightPlugTypeCosmetic.Shader;
+						return DeepsightPlugTypeCosmetic.Shader
 					case PlugCategoryHashes.Mementos:
-						return DeepsightPlugTypeCosmetic.Memento;
+						return DeepsightPlugTypeCosmetic.Memento
 					case PlugCategoryHashes.Emote:
-						return DeepsightPlugTypeCosmetic.Emote;
+						return DeepsightPlugTypeCosmetic.Emote
 					case PlugCategoryHashes.ShipSpawnfx:
 					case PlugCategoryHashes.DawningShipSpawnfx:
-						return DeepsightPlugTypeCosmetic.TransmatEffect;
+						return DeepsightPlugTypeCosmetic.TransmatEffect
 					case PlugCategoryHashes.V500ShipsEventsDawningExoticShip0Engines:
-						return DeepsightPlugTypeCosmetic.ShipEngineEffect;
+						return DeepsightPlugTypeCosmetic.ShipEngineEffect
 					case PlugCategoryHashes.Hologram:
-						return DeepsightPlugTypeCosmetic.GhostProjection;
+						return DeepsightPlugTypeCosmetic.GhostProjection
 					case PlugCategoryHashes.ArmorSkinsSharedHead:
-						return DeepsightPlugTypeCosmetic.OrnamentArmor;
+						return DeepsightPlugTypeCosmetic.OrnamentArmor
 					case PlugCategoryHashes.ExoticAllSkins:
 					case PlugCategoryHashes.ArmorSkinsEmpty:
-						return DeepsightPlugTypeCosmetic.OrnamentDefault;
+						return DeepsightPlugTypeCosmetic.OrnamentDefault
 					case PlugCategoryHashes.SocialClansStaves:
-						return DeepsightPlugTypeCosmetic.ClanBannerStaff;
+						return DeepsightPlugTypeCosmetic.ClanBannerStaff
 					case PlugCategoryHashes.V420PlugsWeaponsMasterworksToggleVfx:
 					case PlugCategoryHashes.V900weaponModConfetti:
 					case PlugCategoryHashes.WeaponTieringKillVfx:
-						return DeepsightPlugTypeCosmetic.WeaponEffects;
+						return DeepsightPlugTypeCosmetic.WeaponEffects
 				}
 
 				for (const traitHash of context.definition.traitHashes ?? []) {
 					switch (traitHash) {
 						case TraitHashes.ItemOrnamentWeapon:
-							return DeepsightPlugTypeCosmetic.OrnamentWeapon;
+							return DeepsightPlugTypeCosmetic.OrnamentWeapon
 						case TraitHashes.ItemOrnamentArmor:
 						case TraitHashes.ItemArmorArms:
 						case TraitHashes.ItemArmorChest:
 						case TraitHashes.ItemArmorClass:
 						case TraitHashes.ItemArmorHead:
 						case TraitHashes.ItemArmorLegs:
-							return DeepsightPlugTypeCosmetic.OrnamentArmor;
+							return DeepsightPlugTypeCosmetic.OrnamentArmor
 					}
 				}
 
 				for (const itemCategoryHash of context.definition.itemCategoryHashes ?? []) {
 					switch (itemCategoryHash) {
 						case ItemCategoryHashes.ArmorModsGlowEffects:
-							return DeepsightPlugTypeCosmetic.ArmorGlow;
+							return DeepsightPlugTypeCosmetic.ArmorGlow
 						case ItemCategoryHashes.GhostModsTrackers:
-							return DeepsightPlugTypeCosmetic.GhostTracker;
+							return DeepsightPlugTypeCosmetic.GhostTracker
 					}
 				}
 
-				const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier;
-				if (plugCategoryIdentifier?.endsWith(".masterworks.trackers"))
-					return DeepsightPlugTypeCosmetic.Tracker;
+				const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier
+				if (plugCategoryIdentifier?.endsWith('.masterworks.trackers'))
+					return DeepsightPlugTypeCosmetic.Tracker
 
-				if (plugCategoryIdentifier?.startsWith("armor_skins_"))
-					return DeepsightPlugTypeCosmetic.OrnamentArmor;
-			})();
+				if (plugCategoryIdentifier?.startsWith('armor_skins_'))
+					return DeepsightPlugTypeCosmetic.OrnamentArmor
+			})()
 
 			switch (context.definition.inventory?.tierTypeHash) {
 				case ItemTierTypeHashes.Exotic:
 					switch (plugType) {
 						case DeepsightPlugTypeCosmetic.OrnamentArmor:
-							return DeepsightPlugTypeCosmetic.OrnamentArmorExotic;
+							return DeepsightPlugTypeCosmetic.OrnamentArmorExotic
 						case DeepsightPlugTypeCosmetic.OrnamentWeapon:
-							return DeepsightPlugTypeCosmetic.OrnamentWeaponExotic;
+							return DeepsightPlugTypeCosmetic.OrnamentWeaponExotic
 					}
 			}
 
-			return plugType;
+			return plugType
 		},
 
 		[DeepsightPlugCategory.Seasonal]: context => {
 			switch (context.definition.plug?.plugCategoryHash) {
 			}
 		},
-	};
+	}
 
 	function getArmourModBucketHash (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.plug?.plugCategoryHash) {
 			case PlugCategoryHashes.EnhancementsV2Arms:
-				return InventoryBucketHashes.Gauntlets;
+				return InventoryBucketHashes.Gauntlets
 			case PlugCategoryHashes.EnhancementsV2Chest:
-				return InventoryBucketHashes.ChestArmor;
+				return InventoryBucketHashes.ChestArmor
 			case PlugCategoryHashes.EnhancementsV2ClassItem:
-				return InventoryBucketHashes.ClassArmor;
+				return InventoryBucketHashes.ClassArmor
 			case PlugCategoryHashes.EnhancementsV2Head:
-				return InventoryBucketHashes.Helmet;
+				return InventoryBucketHashes.Helmet
 			case PlugCategoryHashes.EnhancementsV2Legs:
-				return InventoryBucketHashes.LegArmor;
+				return InventoryBucketHashes.LegArmor
 		}
 
-		return InventoryBucketHashes.General;
+		return InventoryBucketHashes.General
 	}
 
 	function getArmourModRaidActivityHash (context: DeepsightPlugContextDefinition) {
 		switch (context.definition.itemTypeDisplayName) {
-			case "Deep Stone Crypt Raid Mod":
-				return ActivityHashes.DeepStoneCrypt_RewardsLength0;
-			case "Root of Nightmares Armor Mod":
-				return ActivityHashes.RootOfNightmaresStandard;
-			case "Crota's End Mod":
-				return ActivityHashes.CrotasEndNormal;
-			case "Last Wish Raid Mod":
-				return ActivityHashes.LastWishNormal;
-			case "Garden of Salvation Raid Mod":
-				return ActivityHashes.GardenOfSalvation1042180643;
-			case "Vault of Glass Armor Mod":
-				return ActivityHashes.VaultOfGlass;
-			case "Vow of the Disciple Raid Mod":
-				return ActivityHashes.VowOfTheDiscipleStandard;
-			case "King's Fall Mod":
-				return ActivityHashes.KingsFallStandard;
+			case 'Deep Stone Crypt Raid Mod':
+				return ActivityHashes.DeepStoneCrypt_RewardsLength0
+			case 'Root of Nightmares Armor Mod':
+				return ActivityHashes.RootOfNightmaresStandard
+			case 'Crota\'s End Mod':
+				return ActivityHashes.CrotasEndNormal
+			case 'Last Wish Raid Mod':
+				return ActivityHashes.LastWishNormal
+			case 'Garden of Salvation Raid Mod':
+				return ActivityHashes.GardenOfSalvation1042180643
+			case 'Vault of Glass Armor Mod':
+				return ActivityHashes.VaultOfGlass
+			case 'Vow of the Disciple Raid Mod':
+				return ActivityHashes.VowOfTheDiscipleStandard
+			case 'King\'s Fall Mod':
+				return ActivityHashes.KingsFallStandard
 		}
 	}
 
 	const subclasses: Record<string, InventoryItemHashes[]> = {
-		"hunter.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1],
-		"hunter.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1],
-		"hunter.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1],
-		"hunter.stasis": [InventoryItemHashes.RevenantHunterSubclass],
-		"hunter.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass],
+		'hunter.void': [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1],
+		'hunter.solar': [InventoryItemHashes.GunslingerHunterSubclass_ClassType1],
+		'hunter.arc': [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1],
+		'hunter.stasis': [InventoryItemHashes.RevenantHunterSubclass],
+		'hunter.strand': [InventoryItemHashes.ThreadrunnerHunterSubclass],
 
-		"titan.void": [InventoryItemHashes.SentinelTitanSubclass_ClassType0],
-		"titan.solar": [InventoryItemHashes.SunbreakerTitanSubclass_ClassType0],
-		"titan.arc": [InventoryItemHashes.StrikerTitanSubclass_ClassType0],
-		"titan.stasis": [InventoryItemHashes.BehemothTitanSubclass],
-		"titan.strand": [InventoryItemHashes.BerserkerTitanSubclass],
+		'titan.void': [InventoryItemHashes.SentinelTitanSubclass_ClassType0],
+		'titan.solar': [InventoryItemHashes.SunbreakerTitanSubclass_ClassType0],
+		'titan.arc': [InventoryItemHashes.StrikerTitanSubclass_ClassType0],
+		'titan.stasis': [InventoryItemHashes.BehemothTitanSubclass],
+		'titan.strand': [InventoryItemHashes.BerserkerTitanSubclass],
 
-		"warlock.void": [InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
-		"warlock.solar": [InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
-		"warlock.arc": [InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
-		"warlock.stasis": [InventoryItemHashes.ShadebinderWarlockSubclass],
-		"warlock.strand": [InventoryItemHashes.BroodweaverWarlockSubclass],
+		'warlock.void': [InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		'warlock.solar': [InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		'warlock.arc': [InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
+		'warlock.stasis': [InventoryItemHashes.ShadebinderWarlockSubclass],
+		'warlock.strand': [InventoryItemHashes.BroodweaverWarlockSubclass],
 
-		"shared.void": [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1, InventoryItemHashes.SentinelTitanSubclass_ClassType0, InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
-		"shared.solar": [InventoryItemHashes.GunslingerHunterSubclass_ClassType1, InventoryItemHashes.SunbreakerTitanSubclass_ClassType0, InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
-		"shared.arc": [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1, InventoryItemHashes.StrikerTitanSubclass_ClassType0, InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
-		"shared.stasis": [InventoryItemHashes.RevenantHunterSubclass, InventoryItemHashes.BehemothTitanSubclass, InventoryItemHashes.ShadebinderWarlockSubclass],
-		"shared.strand": [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
-	};
+		'shared.void': [InventoryItemHashes.NightstalkerHunterSubclass_ClassType1, InventoryItemHashes.SentinelTitanSubclass_ClassType0, InventoryItemHashes.VoidwalkerWarlockSubclass_ClassType2],
+		'shared.solar': [InventoryItemHashes.GunslingerHunterSubclass_ClassType1, InventoryItemHashes.SunbreakerTitanSubclass_ClassType0, InventoryItemHashes.DawnbladeWarlockSubclass_ClassType2],
+		'shared.arc': [InventoryItemHashes.ArcstriderHunterSubclass_ClassType1, InventoryItemHashes.StrikerTitanSubclass_ClassType0, InventoryItemHashes.StormcallerWarlockSubclass_ClassType2],
+		'shared.stasis': [InventoryItemHashes.RevenantHunterSubclass, InventoryItemHashes.BehemothTitanSubclass, InventoryItemHashes.ShadebinderWarlockSubclass],
+		'shared.strand': [InventoryItemHashes.ThreadrunnerHunterSubclass, InventoryItemHashes.BerserkerTitanSubclass, InventoryItemHashes.BroodweaverWarlockSubclass],
+	}
 
 	const damageTypes: Record<string, DamageTypeHashes> = {
-		"void": DamageTypeHashes.Void,
-		"solar": DamageTypeHashes.Solar,
-		"arc": DamageTypeHashes.Arc,
-		"stasis": DamageTypeHashes.Stasis,
-		"strand": DamageTypeHashes.Strand,
-	};
+		void: DamageTypeHashes.Void,
+		solar: DamageTypeHashes.Solar,
+		arc: DamageTypeHashes.Arc,
+		stasis: DamageTypeHashes.Stasis,
+		strand: DamageTypeHashes.Strand,
+	}
 
 	const baseArmourChargeStat = {
 		value: [30, 50, 60],
 		isConditionallyActive: true,
-	};
+	}
 	const armourChargeStats: Partial<Record<InventoryItemHashes, DeepsightItemInvestmentStatDefinition[]>> = {
 		[InventoryItemHashes.WeaponsFontLegArmorModPlug_PlugEnabledRulesLength3]: [{ statTypeHash: StatHashes.Weapons, ...baseArmourChargeStat }],
 		[InventoryItemHashes.WeaponsFontLegArmorModPlug_PlugEnabledRulesLength4]: [{ statTypeHash: StatHashes.Weapons, ...baseArmourChargeStat }],
@@ -879,83 +879,83 @@ namespace DeepsightPlugCategorisation {
 		[InventoryItemHashes.SuperFontHelmetArmorModPlug_PlugEnabledRulesLength3]: [{ statTypeHash: StatHashes.Super, ...baseArmourChargeStat }],
 		[InventoryItemHashes.MeleeFontArmsArmorModPlug_PlugEnabledRulesLength2]: [{ statTypeHash: StatHashes.Melee4244567218, ...baseArmourChargeStat }],
 		[InventoryItemHashes.MeleeFontArmsArmorModPlug_PlugEnabledRulesLength3]: [{ statTypeHash: StatHashes.Melee4244567218, ...baseArmourChargeStat }],
-	};
+	}
 
-	let DestinyInventoryBucketDefinition: Record<number, DestinyInventoryBucketDefinition> | undefined;
+	let DestinyInventoryBucketDefinition: Record<number, DestinyInventoryBucketDefinition> | undefined
 
 	const additionalDetailsHandlers: Partial<Record<DeepsightPlugCategory, (context: DeepsightPlugContextDefinition, type?: number) => any>> = {
 		[DeepsightPlugCategory.Masterwork]: (context, type?: number) => {
 			const result = {
 				stat: -1 as StatHashes,
 				complete: false,
-			} as Partial<DeepsightPlugCategorisationMasterwork>;
+			} as Partial<DeepsightPlugCategorisationMasterwork>
 
-			const primaryInvestmentStat = context.definition.investmentStats[0];
-			result.stat = primaryInvestmentStat?.statTypeHash;
-			result.value = primaryInvestmentStat?.value;
-			result.complete =
-				type !== DeepsightPlugTypeMasterwork.Weapon && type !== DeepsightPlugTypeMasterwork.Armor && type !== DeepsightPlugTypeMasterwork.Ghost ? undefined
-					: result.value === 10;
+			const primaryInvestmentStat = context.definition.investmentStats[0]
+			result.stat = primaryInvestmentStat?.statTypeHash
+			result.value = primaryInvestmentStat?.value
+			result.complete
+				= type !== DeepsightPlugTypeMasterwork.Weapon && type !== DeepsightPlugTypeMasterwork.Armor && type !== DeepsightPlugTypeMasterwork.Ghost ? undefined
+					: result.value === 10
 
-			return result;
+			return result
 		},
 		[DeepsightPlugCategory.Mod]: (context, type?: DeepsightPlugTypeMod) => {
-			const bucketHash = type === DeepsightPlugTypeMod.Armor || type === DeepsightPlugTypeMod.ArmorEmpty ? getArmourModBucketHash(context) as InventoryBucketHashes : undefined;
-			const activityHash = type === DeepsightPlugTypeMod.Armor || type === DeepsightPlugTypeMod.ArmorEmpty ? getArmourModRaidActivityHash(context) as ActivityHashes : undefined;
+			const bucketHash = type === DeepsightPlugTypeMod.Armor || type === DeepsightPlugTypeMod.ArmorEmpty ? getArmourModBucketHash(context) as InventoryBucketHashes : undefined
+			const activityHash = type === DeepsightPlugTypeMod.Armor || type === DeepsightPlugTypeMod.ArmorEmpty ? getArmourModRaidActivityHash(context) as ActivityHashes : undefined
 
 			const result = {
 				bucketHash,
 				bucketHashName: EnumHelper.simplifyName(DestinyInventoryBucketDefinition?.[bucketHash!]?.displayProperties?.name),
-				adept: type !== DeepsightPlugTypeMod.Weapon ? undefined : context.definition.displayProperties?.name.startsWith("Adept "),
+				adept: type !== DeepsightPlugTypeMod.Weapon ? undefined : context.definition.displayProperties?.name.startsWith('Adept '),
 				raid: activityHash !== undefined,
 				activityHash,
 				artifice: context.definition.plug?.plugCategoryHash === PlugCategoryHashes.EnhancementsArtifice,
 				armourChargeStats: armourChargeStats[context.definition.hash as InventoryItemHashes],
-			} as Partial<DeepsightPlugCategorisationMod>;
+			} as Partial<DeepsightPlugCategorisationMod>
 
-			return result;
+			return result
 		},
 		[DeepsightPlugCategory.Subclass]: (context, type?: DeepsightPlugTypeMod) => {
-			const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier;
-			const subclassIdentifier = plugCategoryIdentifier?.slice(0, plugCategoryIdentifier.lastIndexOf("."));
-			const damageTypeIdentifier = subclassIdentifier?.slice(subclassIdentifier.lastIndexOf(".") + 1);
+			const plugCategoryIdentifier = context.definition.plug?.plugCategoryIdentifier
+			const subclassIdentifier = plugCategoryIdentifier?.slice(0, plugCategoryIdentifier.lastIndexOf('.'))
+			const damageTypeIdentifier = subclassIdentifier?.slice(subclassIdentifier.lastIndexOf('.') + 1)
 
 			return {
 				subclasses: !subclassIdentifier ? undefined : subclasses[subclassIdentifier],
 				damageType: !damageTypeIdentifier ? undefined : damageTypes[damageTypeIdentifier],
-			} as Partial<DeepsightPlugCategorisationSubclass>;
+			} as Partial<DeepsightPlugCategorisationSubclass>
 		},
-	};
+	}
 
-	let DeepsightPlugCategorisation: PromiseOr<Record<number, DeepsightPlugCategorisation>> | undefined;
+	let DeepsightPlugCategorisation: PromiseOr<Record<number, DeepsightPlugCategorisation>> | undefined
 
 	export function reset () {
-		DeepsightPlugCategorisation = undefined;
+		DeepsightPlugCategorisation = undefined
 	}
 
 	export async function resolve () {
-		DeepsightPlugCategorisation ??= computeDeepsightPlugCategorisation();
-		return DeepsightPlugCategorisation = await DeepsightPlugCategorisation;
+		DeepsightPlugCategorisation ??= computeDeepsightPlugCategorisation()
+		return DeepsightPlugCategorisation = await DeepsightPlugCategorisation
 	}
 
 	async function computeDeepsightPlugCategorisation () {
-		const DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation> = {};
+		const DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation> = {}
 
-		const plugContexts = await DeepsightPlugContextDefinition.discover();
+		const plugContexts = await DeepsightPlugContextDefinition.discover()
 
-		const DestinyItemCategoryDefinition = await manifest.DestinyItemCategoryDefinition.all();
-		DestinyInventoryBucketDefinition = await manifest.DestinyInventoryBucketDefinition.all();
+		const DestinyItemCategoryDefinition = await manifest.DestinyItemCategoryDefinition.all()
+		DestinyInventoryBucketDefinition = await manifest.DestinyInventoryBucketDefinition.all()
 
-		const uncategorised: DeepsightPlugContextDefinition[] = [];
+		const uncategorised: DeepsightPlugContextDefinition[] = []
 
 		for (const [plugItemHash, context] of Object.entries(plugContexts)) {
-			const category = determinePlugCategory(context) as DeepsightPlugCategory;
-			const plugTypeEnum = DeepsightPlugTypeMap[category];
-			const type = plugTypeEnum ? plugTypeHandlers[category]?.(context) ?? -1 : undefined;
-			const categoryName = DeepsightPlugCategory[category];
-			const typeName = plugTypeEnum?.[type!];
+			const category = determinePlugCategory(context) as DeepsightPlugCategory
+			const plugTypeEnum = DeepsightPlugTypeMap[category]
+			const type = plugTypeEnum ? plugTypeHandlers[category]?.(context) ?? -1 : undefined
+			const categoryName = DeepsightPlugCategory[category]
+			const typeName = plugTypeEnum?.[type!]
 			DeepsightPlugCategorisation[+plugItemHash] = {
-				...Env.DEEPSIGHT_ENVIRONMENT !== "dev" ? undefined : {
+				...Env.DEEPSIGHT_ENVIRONMENT !== 'dev' ? undefined : {
 					name: context.definition.displayProperties?.name,
 					itemTypeName: context.definition.itemTypeDisplayName,
 					itemTypeAndTierName: context.definition.itemTypeAndTierDisplayName,
@@ -969,13 +969,13 @@ namespace DeepsightPlugCategorisation {
 				type,
 				categoryName,
 				typeName,
-				fullName: `${categoryName}${typeName ? `/${typeName}` : ""}`,
+				fullName: `${categoryName}${typeName ? `/${typeName}` : ''}`,
 				...additionalDetailsHandlers[category]?.(context, type),
 				context: category as number !== -1 ? undefined : context,
-			} as DeepsightPlugCategorisation;
+			} as DeepsightPlugCategorisation
 
 			if (category as number === -1 || type === -1)
-				uncategorised.push(context);
+				uncategorised.push(context)
 		}
 
 		if (uncategorised.length) {
@@ -983,20 +983,20 @@ namespace DeepsightPlugCategorisation {
 				.map(context =>
 					[
 						context.definition.hash,
-						context.definition.displayProperties?.name ?? "???",
-						context.definition.plug?.plugCategoryIdentifier ?? "no plug cat id",
+						context.definition.displayProperties?.name ?? '???',
+						context.definition.plug?.plugCategoryIdentifier ?? 'no plug cat id',
 					]
-						.join(" / "))
-				.join("\n- ")}`;
+						.join(' / '))
+				.join('\n- ')}`
 
-			if (Env.DEEPSIGHT_ENVIRONMENT === "dev")
-				Log.warn(message);
+			if (Env.DEEPSIGHT_ENVIRONMENT === 'dev')
+				Log.warn(message)
 			else
-				throw new Error(message);
+				throw new Error(message)
 		}
 
-		return DeepsightPlugCategorisation;
+		return DeepsightPlugCategorisation
 	}
 }
 
-export default DeepsightPlugCategorisation;
+export default DeepsightPlugCategorisation

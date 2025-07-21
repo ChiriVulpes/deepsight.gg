@@ -1,4 +1,4 @@
-import { ItemTierTypeHashes } from "@deepsight.gg/enums";
+import { ItemTierTypeHashes } from "@deepsight.gg/Enums";
 import type { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2";
 import { DestinyItemType } from "bungie-api-ts/destiny2";
 import manifest from "../utility/endpoint/DestinyManifest";
