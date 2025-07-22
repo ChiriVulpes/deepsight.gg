@@ -5,12 +5,12 @@ action/authenticate: Authenticate
 
 ## profile-card
 title: Profiles
-description: View the spoils of a guardian.
+description: View the spoils of a specific guardian.
 search/placeholder: Search
 
 ## collections-card
 title: Collections
-description: All the weapons and armour across sol, ever since the Red War.
+description: All the weapons and armour across Sol, from the Red War to today.
 action/view: View Collections
 
 ## alerts-card
