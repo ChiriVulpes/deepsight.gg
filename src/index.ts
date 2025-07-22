@@ -1,4 +1,4 @@
-import WordmarkLogo from 'component/WordmarkLogo'
+import SplashView from 'component/view/SplashView'
 import { Component } from 'kitsui'
 import ActiveListener from 'kitsui/utility/ActiveListener'
 import FocusListener from 'kitsui/utility/FocusListener'
@@ -11,18 +11,13 @@ import Env from 'utility/Env'
 import Text from 'utility/Text'
 
 export default async function () {
-	void Relic.init()
-
 	Component.allowBuilding()
 	Text.init()
 
 	Component.getBody().style('body')
-	Component('a')
-		.and(WordmarkLogo)
-		.attributes.set('href', location.origin)
-		.appendTo(document.body)
 
 	await Env['init']()
+	void Relic.init()
 
 	DevServer.listen()
 	HoverListener.listen()
@@ -30,4 +25,6 @@ export default async function () {
 	FocusListener.listen()
 	Mouse.listen()
 	Viewport.listen()
+
+	SplashView().show()
 }

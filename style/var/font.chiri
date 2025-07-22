@@ -32,4 +32,13 @@
 	vertical-align=-.08
 	letter-spacing=.03
 
+#font-face family="icons":
+	font-weight: normal
+	font-style: normal
+	src:
+		url('../static/font/icons.woff2') format('woff2'),
+		url('../static/font/icons.woff') format('woff'),
+		url('../static/font/icons.ttf') format('truetype')
+
+$fallback-fonts: "icons"
 %font-overused-grotesk

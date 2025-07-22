@@ -1,0 +1,4 @@
+.view:
+	%flex
+	%flex-column
+	%gap-3

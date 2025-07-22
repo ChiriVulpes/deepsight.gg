@@ -9,4 +9,5 @@ export default Task('static', async task => {
 	await fs.copyFile('src/node_modules/conduit.deepsight.gg/index.js', 'out/conduit.deepsight.gg.js')
 	await fs.rm('out/static', { recursive: true, force: true })
 	await fs.cp('static', 'out/static', { recursive: true, force: true })
+	await fs.cp('icon/out', 'out/static/font', { recursive: true, force: true })
 })

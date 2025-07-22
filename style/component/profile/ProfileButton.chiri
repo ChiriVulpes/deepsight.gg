@@ -1,0 +1,143 @@
+.profile-button:
+	#after: .button
+	$height: calc($space-4 + $space-2)
+	%flex
+	%align-items-centre
+	%column-gap-2
+	background: $emblem-colour
+	%padding-0-2
+	padding-left: calc($height + $space-2)
+	height: $height
+	%border-box
+	%borderless
+	%weight-semibold
+	$text-shadow-em: $font-size-1-base
+
+	&-border:
+		%block
+		%absolute
+		%inset-0
+		$profile-button-border-color-dodge: #222
+		$profile-button-border-normal: #fff1
+		#transition: #{transition("background")}
+
+		@before, @after:
+			%absolute
+			%inset-0
+			#transition: #{transition("box-shadow")}
+
+		@before:
+			box-shadow: inset 0 0 0 1px $profile-button-border-color-dodge
+			mix-blend-mode: color-dodge
+
+		@after:
+			box-shadow: inset 0 0 0 1px $profile-button-border-normal
+
+		&--hover:
+			#after: .profile-button-border
+			background: #fff2
+			$profile-button-border-color-dodge: #888
+			$profile-button-border-normal: #fff5
+			%transition-focus
+
+			@before, @after:
+				%transition-focus
+
+	&-icon:
+		%absolute
+		%top-0
+		%left-0
+		%block
+		size: $height
+		background: $emblem-icon
+		background-size: contain
+
+	&-name:
+		%font-vertical-align
+		%text-shadow
+		&-display:
+		&-code:
+			%opacity-70
+			%colour-3
+			; colour: #58ccff
+
+	&-clan:
+		&-callsign:
+			%font-vertical-align
+			%opacity-80
+			%colour-2
+		&-name:
+			%row-3
+			%column-1-2
+			%font-1
+			%opacity-70
+			%colour-3
+
+	&-power:
+		colour: #e2d26a
+		font-size: 1.6rem
+		%weight-bolder
+		%column-2
+		%row-1-2
+		%text-shadow
+		%align-self-start
+		%font-vertical-align
+		top: -.23em
+		; letter-spacing: .05em
+
+		&--seasonal-bonus:
+			; colour: #00dddd
+
+	&-guardian-rank:
+		%row-2
+		%grid
+		grid-template-columns: auto auto
+		%align-items-centre
+		%width-fit
+		%gap-1
+		%font-1
+
+		@before:
+			%block
+			%column-1
+			%row-1
+			%relative
+			top: .05em
+			%size-em
+			%border-radius-100
+			box-shadow: .02em .1em .08em light-dark(#0003, #0005)
+
+		&-icon:
+			%column-1
+			%row-1
+			%relative
+			%flex
+			top: .05em
+			%background-10
+			%size-em
+			%border-radius-100
+			%align-items-centre
+			%justify-content-centre
+			mix-blend-mode: exclusion
+
+			&-number:
+				%relative
+				%weight-bolder
+				%colour-15
+				top: -.05em
+
+		&-name:
+			%opacity-75
+			%text-shadow
+
+	&--expanded:
+		#after: .profile-button
+		%grid
+		%padding-1-2
+		padding-left: 18%
+		background-image: $emblem-background
+		background-size: 100% auto
+		background-position: center left
+		background-repeat: no-repeat
+		grid-template-columns: 1fr auto
+		height: auto

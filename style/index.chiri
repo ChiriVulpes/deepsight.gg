@@ -20,5 +20,7 @@
 	component/core/Details
 	component/core/Break
 	component/core/Code
+	component/core/View
+	component/core/Icon
 	component/WordmarkLogo
-	component/MainCards
+	component/profile/ProfileButton

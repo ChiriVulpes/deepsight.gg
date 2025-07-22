@@ -1,6 +1,7 @@
 import { Component, State } from 'kitsui'
 
 interface ButtonExtensions {
+	readonly textWrapper: Component
 	readonly disabled: State<boolean>
 	setDisabled (disabled: boolean, reason: string): this
 	bindDisabled (state: State<boolean>, reason: string): this
@@ -23,6 +24,7 @@ const Button = Component('button', (component): Button => {
 		.attributes.bind(disabled, 'aria-disabled', 'true')
 		.extend<ButtonExtensions>(button => ({
 			disabled,
+			textWrapper: buttonText,
 			setDisabled (disabled, reason) {
 				unsubscribeReasons.get(reason)?.(); unsubscribeReasons.delete(reason)
 				if (disabled)
