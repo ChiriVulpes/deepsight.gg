@@ -20,6 +20,7 @@ const Button = Component('button', (component): Button => {
 	const unsubscribeReasons = new Map<string, State.Unsubscribe>()
 	return button
 		.style.bind(disabled, 'button--disabled')
+		.style.bind(button.hoveredOrHasFocused, 'button--hover')
 		.attributes.bind(disabled, 'disabled')
 		.attributes.bind(disabled, 'aria-disabled', 'true')
 		.extend<ButtonExtensions>(button => ({

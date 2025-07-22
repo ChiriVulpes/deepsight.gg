@@ -1,4 +1,5 @@
 import { Component, Kit } from 'kitsui'
+import ViewTransition from 'utility/ViewTransition'
 
 Kit.Loading.extend(loading => {
 	const spinner = loading.spinner
@@ -15,6 +16,8 @@ Kit.Loading.extend(loading => {
 	loading.onSet((loading, owner, state) => {
 		loading.errorText.text.bind(state.error.map(owner, error => error?.message ?? (quilt => quilt['shared/errored']())))
 	})
+
+	loading.onLoad((loading, display) => ViewTransition.perform('view', display))
 
 	loading.onRemoveManual(() => clearInterval(interval))
 	return {}

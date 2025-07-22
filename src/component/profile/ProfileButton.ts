@@ -15,6 +15,8 @@ const ProfileButton = Component((component, profile: Profile): ProfileButton => 
 	const button = component.and(Button)
 		.style('profile-button')
 		.style.bind(expanded, 'profile-button--expanded')
+		.style.toggle(!!profile.authed, 'profile-button--authed')
+		.style.bind(!!profile.authed && expanded.truthy, 'profile-button--authed--expanded')
 
 	button.textWrapper.remove()
 

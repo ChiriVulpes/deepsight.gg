@@ -1,0 +1,56 @@
+
+#dec duration-multiplier = 1
+
+$$view-transition-classes!*: placeholder-class
+$$view-transition-delay!*: placeholder-delay-class
+.view-transition:
+	$backdrop-filter-override: none
+
+	@view-transition-class!old:
+		#animate #{.1 * duration-multiplier}s ease-out both:
+			to:
+				opacity: 0
+
+	@view-transition-class!new:
+		#animate #{.2 * duration-multiplier}s ease-out backwards:
+			from:
+				opacity: 0
+
+	view-transition-class: view-transition $view-transition-classes $view-transition-delay
+.view-transition-swipe:
+	$backdrop-filter-override: none
+
+	@view-transition-class!old:
+		#animate #{.1 * duration-multiplier}s ease-out both:
+			to:
+				translate: 0 $space-5
+				opacity: 0
+
+	@view-transition-class!new:
+		#animate #{.2 * duration-multiplier}s ease-out backwards:
+			from:
+				translate: 0 $space-4
+				opacity: 0
+
+	view-transition-class: view-transition-swipe $view-transition-classes $view-transition-delay
+
+$$subview-transition-classes!*: placeholder-class
+.subview-transition:
+	$backdrop-filter-override: none
+
+	@view-transition-class!group:
+		animation-timing-function: ease-out
+		animation-duration: .2s
+		animation-fill-mode: both
+
+	@view-transition-class!old:
+		animation-duration: .1s
+
+	view-transition-class: subview-transition $subview-transition-classes $view-transition-delay
+
+#each in 0..40 as var i:
+	.view-transition-delay-#{i}:
+		@view-transition-class!old:
+			animation-delay: #{i * .04}s
+		@view-transition-class!new:
+			animation-delay: #{i * .04}s
