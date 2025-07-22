@@ -4,4 +4,4 @@ out/
 .env
 *.tsbuildinfo
 src/lang/*.d.ts
-src/style/*.d.ts
+src/style/*.ts

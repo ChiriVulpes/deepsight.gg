@@ -1,5 +1,6 @@
 import { Task } from 'task'
 import chiri, { chiriwatch } from './chiri'
+import icons from './icons'
 import serve from './serve'
 import _static from './static'
 import { tsWatch } from './ts'
@@ -12,6 +13,7 @@ export default Task('watch', async task => {
 		_static,
 		chiri,
 		weaving,
+		icons,
 	))
 
 	task.watch([
@@ -19,7 +21,12 @@ export default Task('watch', async task => {
 		'.env',
 		'src/node_modules/**/*.js',
 		'static/**/*',
+		'icon/out/**/*.ttf',
+		'icon/out/**/*.woff',
+		'icon/out/**/*.woff2',
 	], _static)
+
+	task.watch('icon/**/*.svg', icons)
 
 	await Promise.all([
 		task.run(tsWatch),

@@ -10,6 +10,8 @@
 		"typescript": "5.8.3",
 		"ts-node": "10.9.2",
 		"ansicolor": "2.0.3",
+		"fantasticon": "3.0.0",
+		"tinyglobby": "0.2.14",
 		"lint": "github:fluff4me/lint",
 		"task": "github:chirivulpes/task#package",
 		"chiri": "github:fluff4me/chiri#package",
