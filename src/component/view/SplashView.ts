@@ -1,6 +1,5 @@
 import Button from 'component/core/Button'
 import BaseCard from 'component/core/Card'
-import Footer from 'component/core/Footer'
 import Loading from 'component/core/Loading'
 import View from 'component/core/View'
 import ProfileButton from 'component/profile/ProfileButton'
@@ -42,6 +41,8 @@ export default Component((component): View => {
 				if (!conduit)
 					return
 
+				const authed = profiles.some(profile => profile.authed)
+
 				const cards = Component().style('splash-view-cards').appendTo(slot)
 
 				const Card = () => BaseCard()
@@ -54,17 +55,17 @@ export default Component((component): View => {
 				profileCard.headerText.set(quilt => quilt['view/splash/profile-card/title']())
 				profileCard.descriptionText.set(quilt => quilt['view/splash/profile-card/description']())
 
-				if (!profiles?.length) {
-					const footer = Footer().appendTo(profileCard)
+				if (!authed) {
 					Button()
 						.text.set(quilt => quilt['view/splash/action/authenticate']())
 						.event.subscribe('click', async () => {
 							await conduit.ensureAuthenticated('deepsight.gg')
 							slot.refresh()
 						})
-						.appendTo(footer)
+						.appendTo(profileCard)
 				}
-				else {
+
+				if (profiles.length) {
 					const profilesList = Component()
 						.style('splash-view-profile-list')
 						.appendTo(profileCard)
