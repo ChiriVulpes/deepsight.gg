@@ -4,7 +4,6 @@
 	%z-index-fg
 	; %border-2
 	%padding-inline-4
-	%width-8
 
 	@before:
 		%absolute
@@ -12,6 +11,24 @@
 		%z-index-bg
 		%backdrop-blur
 		background: #2229
+
+	&--flush:
+		#after: .card
+		%padding-0
+
+		@before:
+			%backdrop-filter-none
+			%background-none
+			%uninset-2-3
+			#transition: #{transition("backdrop-filter")}, #{transition("background")}
+			mask-image: linear-gradient(to bottom, black, transparent)
+
+		&--hover:
+			#after: .card--flush
+			@before:
+				%backdrop-blur
+				background: #6662
+				%transition-focus
 
 	&-header:
 		%block
@@ -27,5 +44,29 @@
 		%font-3
 		%colour-6
 
+		&--flush:
+			#after: .card-header
+			%background-none
+			%font-4
+			%colour-3
+			letter-spacing: .1em
+			%weight-semibold
+			%borderless
+			%padding-0
+			%margin-0
+
+			@before:
+				content: "// "
+				%relative
+				top: -.07em
+
 		&-text:
 			%font-vertical-align
+
+	&-description:
+		#after: .paragraph, .lore
+
+		&--flush:
+			#after: .card-description
+			%colour-5
+			%margin-top-0

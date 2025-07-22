@@ -1,0 +1,26 @@
+.splash-view:
+	#after: .view
+
+	&--ready:
+		#after: .splash-view
+		%padding-block-7
+
+	&-wordmark:
+		$view-transition-translate-out: 0
+		$view-transition-translate-in: 0
+
+		&--ready:
+			#after: .splash-view-wordmark
+			%absolute
+			bottom: calc(100% - $space-7 + $space-3)
+
+	&-cards:
+		%flex
+		%flex-wrap
+		%gap-5
+
+	&-card:
+		flex: 1 1 0
+
+	&-profile-list:
+		%isolate

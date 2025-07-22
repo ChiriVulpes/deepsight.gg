@@ -12,6 +12,9 @@
 	%borderless
 	%weight-semibold
 	$text-shadow-em: $font-size-1-base
+	min-width: calc($space-7 + $space-6)
+	%margin-bottom-2
+	%box-shadow-none
 
 	&-border:
 		%block
@@ -118,7 +121,7 @@
 			%border-radius-100
 			%align-items-centre
 			%justify-content-centre
-			mix-blend-mode: exclusion
+			mix-blend-mode: lighten
 
 			&-number:
 				%relative
@@ -141,3 +144,17 @@
 		background-repeat: no-repeat
 		grid-template-columns: 1fr auto
 		height: auto
+
+	&--authed:
+		%padding-right-3
+		@after:
+			%block
+			%absolute
+			inset: 2px
+			%left-auto
+			%width-1
+			%background-15
+
+		&--expanded:
+			#after: .profile-button--authed, .profile-button--expanded
+			%padding-right-3
