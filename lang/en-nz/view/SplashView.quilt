@@ -2,3 +2,17 @@
 load/connecting: Connecting...
 load/profiles: Checking profiles...
 action/authenticate: Authenticate
+
+## profile-card
+title: Profiles
+description: View the spoils of a guardian.
+search/placeholder: Search
+
+## collections-card
+title: Collections
+description: All the weapons and armour across sol, ever since the Red War.
+action/view: View Collections
+
+## alerts-card
+title: Alerts
+description: 

@@ -6,13 +6,16 @@
 #import: root
 
 #import:
-	component/core/Card
+	utility/ViewTransition
+
+#import:
 	component/core/Paragraph
+	component/core/Lore
+	component/core/Card
 	component/core/Loading
 	component/core/Checkbox
 	component/core/Checklist
 	component/core/Button
-	component/core/Lore
 	component/core/Footer
 	component/core/ActionRow
 	component/core/FormRow
@@ -22,5 +25,10 @@
 	component/core/Code
 	component/core/View
 	component/core/Icon
+
+#import:
 	component/WordmarkLogo
 	component/profile/ProfileButton
+
+#import:
+	component/view/SplashView
