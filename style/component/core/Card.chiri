@@ -48,7 +48,7 @@
 			#after: .card-header
 			%background-none
 			%font-4
-			%colour-3
+			%colour-2
 			letter-spacing: .1em
 			%weight-semibold
 			%borderless
@@ -68,5 +68,5 @@
 
 		&--flush:
 			#after: .card-description
-			%colour-5
+			%colour-4
 			%margin-top-0
