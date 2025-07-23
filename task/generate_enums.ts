@@ -393,7 +393,7 @@ export default Task('generate_enums', async () => {
 			if (!name)
 				continue
 
-			if (!name.match(/^[A-Z][a-zA-Z0-9]+$/))
+			if (!name.match(/^[A-Z][a-zA-Z0-9_]+$/))
 				continue
 
 			if (!started) {
