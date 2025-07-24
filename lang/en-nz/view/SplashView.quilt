@@ -1,5 +1,5 @@
 # splash
-load/connecting: Connecting...
+load/connecting=shared/load/connecting
 load/profiles: Checking profiles...
 action/authenticate: Authenticate
 

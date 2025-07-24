@@ -3,3 +3,12 @@
 	%flex
 	%flex-column
 	%gap-3
+
+	&-title:
+		%font-9
+		%weight-bold
+		%uppercase
+		%text-shadow
+		$text-shadow-em: $font-size-5-base
+		width: fit-content
+		height: fit-content

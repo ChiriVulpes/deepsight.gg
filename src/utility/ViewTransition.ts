@@ -1,6 +1,20 @@
 import { Component } from 'kitsui'
 import { NonNullish } from 'kitsui/utility/Arrays'
 
+// view transition api fallback
+const noopViewTransition: ViewTransition = {
+	types: new Set(),
+	finished: Promise.resolve(undefined),
+	ready: Promise.resolve(undefined),
+	updateCallbackDone: Promise.resolve(undefined),
+	skipTransition: () => { },
+}
+
+document.startViewTransition ??= cb => {
+	cb?.()
+	return noopViewTransition
+}
+
 declare module 'kitsui/Component' {
 	interface ComponentExtensions extends ViewTransitionComponentExtensions { }
 }

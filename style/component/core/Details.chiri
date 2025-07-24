@@ -4,3 +4,21 @@
 		%margin-bottom-3
 
 	&-content:
+		&--open:
+
+	@details-content:
+		#transition: #{transition("height")}, #{transition("mask-position")}, #{transition("content-visibility")}
+		%interpolate-size
+		%transition-discrete
+		%overflow-hidden
+		mask: linear-gradient(to bottom, black, black 50%, transparent)
+		mask-size: 100% 200%
+		mask-repeat: no-repeat
+		height: 0
+		mask-position: 0 300%
+
+	&--open:
+		#after: .details
+		@details-content:
+			height: auto
+			mask-position: 0 0%
