@@ -1,91 +1,82 @@
 import Button from 'component/core/Button'
 import BaseCard from 'component/core/Card'
-import Loading from 'component/core/Loading'
+import Link from 'component/core/Link'
 import View from 'component/core/View'
 import ProfileButton from 'component/profile/ProfileButton'
 import WordmarkLogo from 'component/WordmarkLogo'
 import { Component } from 'kitsui'
 import Relic from 'Relic'
 
-export default Component((component): View => {
-	const view = component.and(View)
-		.style('splash-view')
+export default View(async view => {
+	view.style('splash-view')
 
-	const loading = Loading()
+	view.style.bind(view.loading.loaded, 'splash-view--ready')
 
-	view.style.bind(loading.loaded, 'splash-view--ready')
-
-	Component('a')
+	Link('/')
 		.and(WordmarkLogo)
-		.attributes.set('href', location.origin)
 		.appendTo(Component()
 			.style('splash-view-wordmark')
-			.style.bind(loading.loaded, 'splash-view-wordmark--ready')
+			.style.bind(view.loading.loaded, 'splash-view-wordmark--ready')
 			.viewTransition('splash-view-wordmark')
 			.appendTo(view)
 		)
 
-	loading.appendTo(component)
-		.set(
-			async (signal, setProgress) => {
-				setProgress(null, quilt => quilt['view/splash/load/connecting']())
-				const conduit = await Relic.connected
-				if (signal.aborted)
-					return {}
+	view.loading.appendTo(view)
 
-				setProgress(null, quilt => quilt['view/splash/load/profiles']())
-				const profiles = await conduit.getProfiles()
-				return { conduit, profiles }
-			},
-			(slot, { conduit, profiles }) => {
-				if (!conduit)
-					return
+	const { signal, setProgress } = await view.loading.start()
+	setProgress(null, quilt => quilt['view/splash/load/connecting']())
+	const conduit = await Relic.connected
+	if (signal.aborted)
+		return
 
-				const authed = profiles.some(profile => profile.authed)
+	setProgress(null, quilt => quilt['view/splash/load/profiles']())
+	const profiles = await conduit.getProfiles()
+	if (signal.aborted)
+		return
 
-				const cards = Component().style('splash-view-cards').appendTo(slot)
+	await view.loading.finish()
 
-				const Card = () => BaseCard()
-					.style('splash-view-card')
-					.viewTransitionSwipe('splash-view-card')
-					.tweak(card => card.flush.value = true)
-					.appendTo(cards)
+	const authed = profiles.some(profile => profile.authed)
 
-				const profileCard = Card()
-				profileCard.headerText.set(quilt => quilt['view/splash/profile-card/title']())
-				profileCard.descriptionText.set(quilt => quilt['view/splash/profile-card/description']())
+	const cards = Component().style('splash-view-cards').appendTo(view.loading)
 
-				if (!authed) {
-					Button()
-						.text.set(quilt => quilt['view/splash/action/authenticate']())
-						.event.subscribe('click', async () => {
-							await conduit.ensureAuthenticated('deepsight.gg')
-							slot.refresh()
-						})
-						.appendTo(profileCard)
-				}
+	const Card = () => BaseCard()
+		.style('splash-view-card')
+		.viewTransitionSwipe('splash-view-card')
+		.tweak(card => card.flush.value = true)
+		.appendTo(cards)
 
-				if (profiles.length) {
-					const profilesList = Component()
-						.style('splash-view-profile-list')
-						.appendTo(profileCard)
+	const profileCard = Card()
+	profileCard.headerText.set(quilt => quilt['view/splash/profile-card/title']())
+	profileCard.descriptionText.set(quilt => quilt['view/splash/profile-card/description']())
 
-					for (const profile of profiles)
-						ProfileButton(profile)
-							.tweak(button => button.expanded.setValue(!!profile.authed))
-							.appendTo(profilesList)
-				}
+	if (!authed) {
+		Button()
+			.text.set(quilt => quilt['view/splash/action/authenticate']())
+			.event.subscribe('click', async () => {
+				await conduit.ensureAuthenticated('deepsight.gg')
+				void view.refresh()
+			})
+			.appendTo(profileCard)
+	}
 
-				const collectionsCard = Card()
-				collectionsCard.headerText.set(quilt => quilt['view/splash/collections-card/title']())
-				collectionsCard.descriptionText.set(quilt => quilt['view/splash/collections-card/description']())
+	if (profiles.length) {
+		const profilesList = Component()
+			.style('splash-view-profile-list')
+			.appendTo(profileCard)
 
-				Component('a')
-					.and(Button)
-					.text.set(quilt => quilt['view/splash/collections-card/action/view']())
-					.appendTo(collectionsCard)
-			},
-		)
+		for (const profile of profiles)
+			ProfileButton(profile)
+				.tweak(button => button.expanded.setValue(!!profile.authed))
+				.appendTo(profilesList)
+	}
 
-	return view
+	const collectionsCard = Card()
+	collectionsCard.headerText.set(quilt => quilt['view/splash/collections-card/title']())
+	collectionsCard.descriptionText.set(quilt => quilt['view/splash/collections-card/description']())
+
+	Link('/collections')
+		.and(Button)
+		.text.set(quilt => quilt['view/splash/collections-card/action/view']())
+		.appendTo(collectionsCard)
 })

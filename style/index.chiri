@@ -2,6 +2,7 @@
 
 #import:
 	var/font
+	var/colours
 
 #import: root
 
@@ -25,10 +26,13 @@
 	component/core/Code
 	component/core/View
 	component/core/Icon
+	component/core/Image
 
 #import:
 	component/WordmarkLogo
 	component/profile/ProfileButton
+	component/Item
 
 #import:
 	component/view/SplashView
+	component/view/CollectionsView

@@ -1,3 +1,5 @@
+$$button-z-index-hover-1!int: 0
+$$button-z-index-hover-2!int: 0
 .button:
 	%relative
 	background: #5556
@@ -11,6 +13,9 @@
 	%colour-0
 	%decoration-none
 	box-shadow: inset 0 0 $space-3 #fff3
+	z-index: calc($button-z-index-hover-1 + $button-z-index-hover-2)
+	transition: $$button-z-index-hover-1 0s linear $transition-blur
+	%transition-discrete
 
 	@before, @after:
 		%block
@@ -29,6 +34,9 @@
 
 	&--hover:
 		#after: .button
+		$button-z-index-hover-1: 1
+		$button-z-index-hover-2: 1
+		transition: none
 
 		@before:
 			inset: -5px
