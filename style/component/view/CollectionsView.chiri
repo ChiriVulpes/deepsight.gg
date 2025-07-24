@@ -1,0 +1,111 @@
+.collections-view:
+	%padding-inline-5
+	%border-box
+
+	&--ready:
+		%width-100
+
+	&-moment:
+		#after: .details
+		%relative
+		%width-100
+		%z-index-fg
+
+		@details-content:
+			%unmargin-inline-3
+			%padding-3
+			%padding-top-0
+
+		@before:
+			%block
+			%absolute
+			%uninset-3-4
+			%z-index-bg
+			#transition: #{transition("backdrop-filter")}, #{transition("background")}
+			mask-image: linear-gradient(to bottom, black, transparent)
+
+		&--open, &--hover:
+			#after: .collections-view-moment
+			@before:
+				%backdrop-blur
+				%transition-focus
+
+		&--hover:
+			#after: .collections-view-moment
+			@before:
+				background: #4442
+
+		&--open:
+			#after: .collections-view-moment
+			@before:
+				background: #7772
+
+		&-summary:
+			#after: .details-summary
+			%block
+			%font-5
+			%uppercase
+			letter-spacing: .15em
+			%relative
+			%cursor-pointer
+			%colour-2
+			%margin-0
+			#transition: #{transition("color")}
+
+			@before:
+				%block
+				%absolute
+				%top-100
+				%left-0
+				%width-100
+				height: 2px
+				%background-currentcolour
+				scale: 0 1
+				#transition: #{transition("scale")}
+				transform-origin: left
+
+			&--hover, &--open:
+				#after: .collections-view-moment-summary
+				%colour-0
+				%transition-focus
+
+			&--open:
+				#after: .collections-view-moment-summary
+				@before:
+					scale: 1 1
+
+		&-icon:
+			%relative
+			%inline-block
+			%size-em
+			%margin-right-2
+			%top-1
+			background-color: white
+			mask-image: $moment-watermark-icon
+			mask-mode: luminance
+			mask-size: 350%
+
+		&-content:
+			#after: .details-content
+			%block
+
+		&-lore:
+			%colour-3
+			max-width: calc($space-8 + $space-7)
+
+		&-buckets:
+			%flex
+			%column-gap-5
+
+		&-bucket:
+			%block
+			&-title:
+				%block
+				%uppercase
+				%margin-bottom-2
+				%font-3
+				letter-spacing: .1em
+			&-content:
+				%flex
+				%flex-wrap
+				gap: calc($space-1 + $space-1 / 2)

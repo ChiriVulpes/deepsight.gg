@@ -1,0 +1,6 @@
+.image:
+	%opacity-0
+	#transition: #{transition("opacity")}
+
+	&--loaded:
+		%opacity-1

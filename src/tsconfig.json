@@ -14,6 +14,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"noUnusedLocals": true,
 		"allowJs": true,
+		"preserveSymlinks": true,
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
 		"paths": {
@@ -26,8 +27,6 @@
 			"kitsui/*": ["./node_modules/kitsui/*"],
 			"conduit.deepsight.gg": ["./node_modules/conduit.deepsight.gg/index.d.ts"],
 			"conduit.deepsight.gg/*": ["./node_modules/conduit.deepsight.gg/*"],
-			"bungie-api-ts": ["./node_modules/bungie-api-ts/index.d.ts"],
-			"bungie-api-ts/*": ["./node_modules/bungie-api-ts/*"],
 		}
 	},
 	"include": [

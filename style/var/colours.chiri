@@ -1,0 +1,20 @@
+#string colour-rarity-common-1 = "#c2bcb4
+#string colour-rarity-common-2 = "#dddddd
+#string colour-rarity-common-3 = "#eeeeee
+#string colour-rarity-uncommon-1 = "#366f42
+#string colour-rarity-uncommon-2 = "#5fa16d
+#string colour-rarity-uncommon-3 = "#9ccaa6
+#string colour-rarity-rare-1 = "#5076a3
+#string colour-rarity-rare-2 = "#7eaadf
+#string colour-rarity-rare-3 = "#c0dafa
+#string colour-rarity-legendary-1 = "#522f65
+#string colour-rarity-legendary-2 = "#774493
+#string colour-rarity-legendary-3 = "#b791cc
+#string colour-rarity-exotic-1 = "#c4a73d
+#string colour-rarity-exotic-2 = "#f5dc56
+#string colour-rarity-exotic-3 = "#fff4b5
+
+#string colour-masterwork-1 = "#cbaf3c
+#string colour-masterwork-2 = "#ecca3e
+
+#string colour-featured-1 = "#169191

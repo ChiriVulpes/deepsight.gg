@@ -1,0 +1,16 @@
+# collections
+title: Collections
+load/connecting=shared/load/connecting
+load/fetching: Downloading collections...
+
+## bucket/weapons
+title: // Weapons
+
+## bucket/armour/warlock
+title: // Warlock Armour
+
+## bucket/armour/hunter
+title: // Hunter Armour
+
+## bucket/armour/titan
+title: // Titan Armour
