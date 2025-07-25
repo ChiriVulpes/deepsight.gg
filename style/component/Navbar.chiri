@@ -1,0 +1,30 @@
+.navbar:
+	%width-100
+	%fixed
+	%top-0
+	%left-0
+	%padding-1-2
+	%border-box
+	%z-index-fg-2
+	#transition: #{transition("translate")}
+
+	:start:
+		%translate-up-100
+
+	@before, @after:
+		%block
+		%absolute
+		%inset-0
+		%no-pointer-events
+
+	@before:
+		%z-index-bg
+		%backdrop-blur
+		background: #1115
+
+	@after:
+		box-shadow: inset 0 -1px 0 #3339
+		%z-index-fg
+
+	&-homelink:
+		font-size: .3em
