@@ -12,3 +12,4 @@
 		$text-shadow-em: $font-size-5-base
 		width: fit-content
 		height: fit-content
+		%unmargin-bottom-2
