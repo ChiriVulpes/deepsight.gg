@@ -1,4 +1,7 @@
 import { State } from 'kitsui'
+import Dialog from 'kitsui/component/Dialog'
+import Popover from 'kitsui/component/Popover'
+import EventManipulator from 'kitsui/utility/EventManipulator'
 import type { RoutePath } from 'navigation/RoutePath'
 import Routes from 'navigation/Routes'
 // import ErrorView from 'ui/view/ErrorView'
@@ -13,7 +16,7 @@ export interface NavigatorEvents {
 
 interface Navigator {
 	readonly state: State<string>
-	// readonly event: EventManipulator<this, NavigatorEvents>
+	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
@@ -28,7 +31,7 @@ function Navigator (): Navigator {
 	let lastURL: URL | undefined
 	const navigate = {
 		state,
-		// event: undefined! as Navigator['event'],
+		event: undefined! as Navigator['event'],
 		isURL: (glob: string) => {
 			const pattern = glob
 				.replace(/(?<=\/)\*(?!\*)/g, '[^/]*')
@@ -83,9 +86,9 @@ function Navigator (): Navigator {
 		// },
 	}
 
-	// Object.assign(navigate, {
-	// 	event: EventManipulator(navigate),
-	// })
+	Object.assign(navigate, {
+		event: EventManipulator(navigate),
+	})
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	window.addEventListener('popstate', navigate.fromURL)
@@ -104,7 +107,7 @@ function Navigator (): Navigator {
 		lastURL = new URL(location.href)
 		state.value = location.href
 
-		// let matchedRoute: RoutePath | undefined
+		let matchedRoute: RoutePath | undefined
 		let errored = false
 		if (location.pathname !== oldURL?.pathname) {
 			const url = location.pathname
@@ -114,7 +117,7 @@ function Navigator (): Navigator {
 				if (!params)
 					continue
 
-				// matchedRoute = route.path
+				matchedRoute = route.path
 
 				await route.handler((!Object.keys(params).length ? undefined : params) as never)
 				handled = true
@@ -141,7 +144,9 @@ function Navigator (): Navigator {
 			element.focus()
 		}
 
-		// navigate.event.emit('Navigate', matchedRoute)
+		navigate.event.emit('Navigate', matchedRoute)
+		Popover.forceCloseAll()
+		Dialog.forceCloseAll()
 	}
 }
 

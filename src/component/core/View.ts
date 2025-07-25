@@ -1,6 +1,6 @@
-import Loading from 'component/core/Loading'
 import Navbar from 'component/Navbar'
 import { Component, State } from 'kitsui'
+import Loading from 'kitsui/component/Loading'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import ViewTransition from 'utility/ViewTransition'
 
