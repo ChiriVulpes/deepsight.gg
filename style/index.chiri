@@ -30,6 +30,7 @@
 
 #import:
 	component/WordmarkLogo
+	component/Navbar
 	component/profile/ProfileButton
 	component/Item
 
