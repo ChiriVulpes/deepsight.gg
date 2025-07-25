@@ -8,16 +8,17 @@ import { Component } from 'kitsui'
 import Relic from 'Relic'
 
 export default View(async view => {
+	view.hasNavbar.value = false
 	view.style('splash-view')
 
 	view.style.bind(view.loading.loaded, 'splash-view--ready')
 
 	Link('/')
 		.and(WordmarkLogo)
+		.viewTransition('wordmark-logo-home-link')
 		.appendTo(Component()
 			.style('splash-view-wordmark')
 			.style.bind(view.loading.loaded, 'splash-view-wordmark--ready')
-			.viewTransition('splash-view-wordmark')
 			.appendTo(view)
 		)
 

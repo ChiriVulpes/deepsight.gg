@@ -1,5 +1,6 @@
 import Loading from 'component/core/Loading'
-import { Component } from 'kitsui'
+import Navbar from 'component/Navbar'
+import { Component, State } from 'kitsui'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import ViewTransition from 'utility/ViewTransition'
 
@@ -15,6 +16,7 @@ interface ViewLoading extends Loading {
 
 interface ViewExtensions {
 	readonly loading: ViewLoading
+	readonly hasNavbar: State.Mutable<boolean>
 	refresh (): Promise<void>
 }
 
@@ -41,15 +43,18 @@ namespace View {
 
 const ViewExt = Component.Extension(view => view)
 
+let navbar: Navbar | undefined
 function View (builder: (view: View) => unknown): View.Builder.NoParams
 function View<PARAMS extends object> (builder: (view: View, params: PARAMS) => unknown): View.Builder.WithParams<PARAMS>
 function View<PARAMS extends object | undefined> (builder: (view: View, params: PARAMS) => unknown): View.Builder<PARAMS> {
+	const hasNavbar = State(true)
 	return Component((component, params) => {
 		const view = component
 			.and(ViewExt)
 			.style('view')
 			.extend<ViewExtensions>(view => ({
 				loading: undefined!,
+				hasNavbar,
 				refresh: navigate.refresh,
 			}))
 
@@ -78,9 +83,19 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 
 			builderPromise = builder(view, params)
 			view.appendTo(document.body)
+
+			navbar ??= Navbar()
+			const newShowNavbar = view.hasNavbar.value
+			if (navbar.visible.value !== newShowNavbar) {
+				navbar.viewTransitionsEnabled.value = true
+				navbar.visible.value = newShowNavbar
+			}
 		})
 
 		void trans.finished.then(() => {
+			if (navbar)
+				navbar.viewTransitionsEnabled.value = false
+
 			if (!loading)
 				return
 
