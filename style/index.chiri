@@ -27,6 +27,9 @@
 	component/core/View
 	component/core/Icon
 	component/core/Image
+	component/core/Popover
+	component/core/Dialog
+	component/core/Tooltip
 
 #import:
 	component/WordmarkLogo

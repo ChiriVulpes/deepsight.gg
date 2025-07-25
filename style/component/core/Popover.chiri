@@ -1,0 +1,35 @@
+.popover:
+	%transparent
+	%translate-right-4
+	#transition:
+		#{transition("display")},
+		#{transition("overlay")},
+		#{transition("opacity")},
+		#{transition("translate")},
+		#{transition("margin")}
+
+	:popover:
+		%flex
+		%opaque
+		%transition-focus
+		%translate-right-2
+
+		:start:
+			%transparent
+			%translate-right-3
+
+	&--anchored-top:
+		#after: .popover
+		%margin-top-2
+
+	&--anchored-left:
+		#after: .popover
+		%translate-left-4
+
+		:popover:
+			%translate-left-2
+
+			:start:
+				%translate-left-3
+
+	&-close-surface:

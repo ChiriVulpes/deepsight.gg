@@ -1,5 +1,6 @@
 import Button from 'component/core/Button'
 import Image from 'component/core/Image'
+import ItemTooltip from 'component/tooltip/ItemTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { CollectionsItem } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
@@ -46,6 +47,8 @@ const Item = Component((component, item: State.Or<CollectionsItem>, collections:
 		.style('item-border-glow')
 		.style.bind(masterworked, 'item-border-glow--masterworked')
 		.appendTo(component)
+
+	component.setTooltip(tooltip => tooltip.and(ItemTooltip, item, collections))
 
 	return component.extend<ItemExtensions>(itemComponent => ({
 		item,

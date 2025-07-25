@@ -1,3 +1,4 @@
+import styleKit from 'component/Kit'
 import { Component } from 'kitsui'
 import ActiveListener from 'kitsui/utility/ActiveListener'
 import FocusListener from 'kitsui/utility/FocusListener'
@@ -25,6 +26,8 @@ export default async function () {
 	FocusListener.listen()
 	Mouse.listen()
 	Viewport.listen()
+
+	styleKit()
 
 	await Navigator().fromURL()
 }
