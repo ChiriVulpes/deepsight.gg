@@ -10,16 +10,20 @@
 		%relative
 		%width-100
 		%z-index-fg
+		%unmargin-inline-3
+		%padding-3
+		%padding-top-0
 
 		@details-content:
 			%unmargin-inline-3
 			%padding-3
 			%padding-top-0
+			%unmargin-bottom-3
 
 		@before:
 			%block
 			%absolute
-			%uninset-3-4
+			%uninset-3-3
 			%z-index-bg
 			#transition: #{transition("backdrop-filter")}, #{transition("background")}
 			mask-image: linear-gradient(to bottom, black, transparent)
@@ -33,12 +37,12 @@
 		&--hover:
 			#after: .collections-view-moment
 			@before:
-				background: #4442
+				background: #6662
 
 		&--open:
 			#after: .collections-view-moment
 			@before:
-				background: #7772
+				background: #7773
 
 		&-summary:
 			#after: .details-summary
@@ -48,9 +52,9 @@
 			letter-spacing: .15em
 			%relative
 			%cursor-pointer
-			%colour-2
+			%colour-3
 			%margin-0
-			#transition: #{transition("color")}
+			#transition: #{transition("color")}, #{transition("font-weight")}, #{transition("letter-spacing")}
 
 			@before:
 				%block
@@ -68,6 +72,8 @@
 				#after: .collections-view-moment-summary
 				%colour-0
 				%transition-focus
+				%weight-semibold
+				letter-spacing: .17em
 
 			&--open:
 				#after: .collections-view-moment-summary
@@ -77,13 +83,29 @@
 		&-icon:
 			%relative
 			%inline-block
-			%size-em
+			size: 1.1em
 			%margin-right-2
-			%top-1
-			background-color: white
+			%background-currentcolour
 			mask-image: $moment-watermark-icon
 			mask-mode: luminance
 			mask-size: 350%
+			scale: 0.90909
+			translate: 0 .21em
+			#transition: #{transition("scale")}, #{transition("translate")}
+
+			&--hover, &--open:
+				#after: .collections-view-moment-icon
+				scale: 1
+				%transition-focus
+
+		&-title:
+			#transition: #{transition("translate")}
+			%inline-block
+			%relative
+
+			&--hover, &--open:
+				translate: .06em 0
+				%transition-focus
 
 		&-content:
 			#after: .details-content
