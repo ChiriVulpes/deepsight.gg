@@ -27,6 +27,10 @@ export default async function () {
 	Mouse.listen()
 	Viewport.listen()
 
+	Component.getBody().monitorScrollEvents()
+	Component.getDocument().monitorScrollEvents()
+	Component.getWindow().monitorScrollEvents()
+
 	styleKit()
 
 	await Navigator().fromURL()

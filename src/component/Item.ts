@@ -4,7 +4,6 @@ import ItemTooltip from 'component/tooltip/ItemTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { CollectionsItem } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
-import type { ItemTierTypeHashes } from 'node_modules/deepsight.gg/Enums'
 
 interface ItemExtensions {
 	readonly item: State<CollectionsItem>
@@ -18,11 +17,11 @@ const Item = Component((component, item: State.Or<CollectionsItem>, collections:
 
 	const masterworked = item.map(component, item => false)
 	const featured = item.map(component, item => !!item.featuredWatermark)
-	const rarity = item.map(component, item => collections.value.rarities[item.rarity].displayProperties.name!.toLowerCase() as Lowercase<keyof typeof ItemTierTypeHashes>)
+	const rarity = item.map(component, item => collections.value.rarities[item.rarity])
 
 	component.and(Button)
 	component.style('item')
-	component.style.bindFrom(rarity.map(component, rarity => `item--${rarity}` as 'item--common'))
+	component.style.bindFrom(rarity.map(component, rarity => `item--${rarity.displayProperties.name!.toLowerCase()}` as 'item--common'))
 	component.style.bind(masterworked, 'item--masterworked')
 
 	Component()

@@ -1,0 +1,92 @@
+.item-tooltip:
+
+	&--common:
+		$item-rarity-background-colour: #{colour-rarity-common-1}
+		$item-rarity-border-colour: #{colour-rarity-common-2}
+	&--uncommon:
+		$item-rarity-background-colour: #{colour-rarity-uncommon-1}
+		$item-rarity-border-colour: #{colour-rarity-uncommon-2}
+	&--rare:
+		$item-rarity-background-colour: #{colour-rarity-rare-1}
+		$item-rarity-border-colour: #{colour-rarity-rare-2}
+	&--legendary:
+		$item-rarity-background-colour: #{colour-rarity-legendary-1}
+		$item-rarity-border-colour: #{colour-rarity-legendary-2}
+	&--exotic:
+		$item-rarity-background-colour: #{colour-rarity-exotic-1}
+		$item-rarity-border-colour: #{colour-rarity-exotic-2}
+
+	&-header:
+		%grid
+		grid-template-columns: 1fr auto
+		background: color-mix(in lch, $item-rarity-background-colour, 15% transparent)
+
+	&-title:
+		%font-5
+		%weight-semibold
+		%uppercase
+		letter-spacing: .05em
+		%unmargin-block-1
+
+	&-subtitle:
+		%column-1
+		%row-2
+		%font-2
+		%flex
+		%justify-content-space-between
+		%padding-right-3
+
+		&-type:
+			%opacity-70
+		&-rarity:
+			%opacity-50
+
+	&-watermark:
+		%block
+		%relative
+		%unmargin-top-2
+		%unmargin-right-3
+		@before:
+			%absolute
+			%top-0
+			%right-0
+			border-bottom: $space-3 solid transparent
+			border-right: $space-3 solid #0009
+
+		&--featured:
+			#after: .item-tooltip-watermark
+			@before:
+				%borderless
+				width: calc($space-3 + $space-2)
+				height: calc($space-3 + $space-2 + $space-1)
+				right: 0
+				background: #{colour-featured-1}
+				clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%)
+
+		@after:
+			%absolute
+			%inset-0
+			top: 0
+			left: calc(100% - $space-3 - $space-2)
+			size: calc($space-5 + $space-4 * 0.6)
+			background-color: white
+			mask-image: $item-watermark
+			mask-mode: luminance
+			mask-size: contain
+
+		&-tier:
+			%absolute
+			top: calc($space-3 + $space-2 + $space-1)
+			%width-0
+			right: calc($space-2 + $space-1 / 3 * 2)
+			%flex
+			%flex-column
+			%gap-1
+			$dot-colour: #bbb
+			&--4: $dot-colour: #dfc2ff
+			&--5: $dot-colour: #ffec9d
+			&-dot:
+				%translate-left-50
+				%size-1
+				background: $dot-colour
+				rotate: z 45deg

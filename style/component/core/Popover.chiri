@@ -1,4 +1,7 @@
 .popover:
+	%background-none
+	%borderless
+	%padding-0
 	%transparent
 	%translate-right-4
 	#transition:
