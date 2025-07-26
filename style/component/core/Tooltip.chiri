@@ -1,3 +1,52 @@
 .tooltip:
 	#after: .popover
 	%opaque
+	$tooltip-content-opacity: 0
+	$tooltip-content-transition-duration: $transition-blur
+	width: calc($space-7 + $space-6 + $space-5)
+
+	@before:
+		%block
+		%absolute
+		%inset-0
+		%z-index-bg
+		%background-none
+		%backdrop-filter-none
+		#transition: #{transition("background")}, #{transition("backdrop-filter")}
+		%transition-focus
+
+	:popover:
+		$tooltip-content-opacity: 1
+		$tooltip-content-transition-duration: $transition-focus
+		#animate $transition-focus ease-out:
+			from: $tooltip-content-opacity: 0
+		@before:
+			background: #fff4
+			%backdrop-blur-3
+			%transition-focus
+			#animate $transition-blur ease-out:
+				from:
+					%backdrop-filter-none
+					%background-none
+		:start:
+			%opaque
+
+	&-content:
+		%block
+		%width-100
+		%isolate
+		opacity: $tooltip-content-opacity
+		#transition: #{transition("opacity")}
+		transition-duration: $tooltip-content-transition-duration
+
+	&-header:
+		%block
+		%padding-2-3
+		%width-100
+		%border-box
+
+	&-body:
+		%block
+		%padding-2-3
+		%width-100
+		%border-box

@@ -44,7 +44,7 @@ export default Task('serve', async task => {
 		server.sendMessage('notify:ts', null)
 	}))
 
-	task.watch('out/style/index.css', Task(null, () => {
+	task.watch(['out/style/index.css', 'out/style/index.js'], Task(null, () => {
 		server.sendMessage('notify:css', null)
 	}))
 })
