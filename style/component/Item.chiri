@@ -15,7 +15,6 @@
 	%borderless
 	%box-shadow-none
 
-	&--invalid:
 	&--common:
 		$item-rarity-background-colour: #{colour-rarity-common-1}
 		$item-rarity-border-colour: #{colour-rarity-common-2}

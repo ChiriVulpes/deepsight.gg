@@ -1,6 +1,14 @@
 import { Component, Kit } from 'kitsui'
 import ViewTransition from 'utility/ViewTransition'
 
+declare module 'kitsui/component/Tooltip' {
+	interface TooltipExtensions {
+		readonly content: Component
+		readonly header: Component
+		readonly body: Component
+	}
+}
+
 export default function styleKit () {
 	////////////////////////////////////
 	//#region Loading
@@ -67,6 +75,22 @@ export default function styleKit () {
 	////////////////////////////////////
 	//#region Tooltip
 
+	Kit.Tooltip.extend(tooltip => {
+		const content = Component()
+			.style('tooltip-content')
+			.appendTo(tooltip)
+		const header = Component()
+			.style('tooltip-header')
+			.appendTo(content)
+		const body = Component()
+			.style('tooltip-body')
+			.appendTo(content)
+		return {
+			content,
+			header,
+			body,
+		}
+	})
 	Kit.Tooltip.styleTargetsPartial<Component.PartialStyleTargets<Kit.Tooltip, Kit.Popover>>({
 		Tooltip: 'tooltip',
 	})
