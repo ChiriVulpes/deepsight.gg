@@ -402,20 +402,20 @@ export declare interface DeepsightCatalystDefinition {
 	progressDescription: string
 }
 
-export interface DeepsightBreakerSourceDefinition {
+export declare interface DeepsightBreakerSourceDefinition {
 	hash: BreakerSource
 	trait?: TraitHashes
 	appliesTraits?: TraitHashes[]
 	breakerTypes: BreakerTypeHashes[]
 }
 
-export interface DeepsightBreakerTypeDefinition {
+export declare interface DeepsightBreakerTypeDefinition {
 	hash: InventoryItemHashes
 	sources: BreakerSource[]
 	types: BreakerTypeHashes[]
 }
 
-export interface DeepsightItemDamageTypesDefinition {
+export declare interface DeepsightItemDamageTypesDefinition {
 	hash: InventoryItemHashes
 	damageTypes: DamageTypeHashes[]
 }
