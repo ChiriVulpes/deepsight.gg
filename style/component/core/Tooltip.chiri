@@ -47,6 +47,5 @@
 
 	&-body:
 		%block
-		%padding-2-3
 		%width-100
 		%border-box

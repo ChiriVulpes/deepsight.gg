@@ -18,3 +18,11 @@
 #string colour-masterwork-2 = "#ecca3e
 
 #string colour-featured-1 = "#169191
+
+$colour-damage-kinetic: #ffffff
+$colour-damage-void: #b185df
+$colour-damage-arc: #7aecf3
+$colour-damage-solar: #f0631e
+$colour-damage-stasis: #4d88ff
+$colour-damage-strand: #35e366
+$colour-damage-prismatic: #d9648e
