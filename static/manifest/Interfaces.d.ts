@@ -1,6 +1,6 @@
 import type { DestinyColor, DestinyDisplayCategoryDefinition, DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfuint32, DestinyItemQuantity, DestinyVendorItemDefinition, DestinyVendorLocationDefinition, TierType } from 'bungie-api-ts/destiny2'
 import type { BreakerSource } from './DeepsightBreakerTypeDefinition'
-import type { DeepsightPlugCategorisation, DeepsightSocketCategorisation } from './DeepsightPlugCategorisation'
+import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from './DeepsightPlugCategorisation'
 import type { ActivityHashes, ActivityModifierHashes, BreakerTypeHashes, CollectibleHashes, DamageTypeHashes, EventCardHashes, InventoryBucketHashes, InventoryItemHashes, ItemTierTypeHashes, MomentHashes, ObjectiveHashes, RecordHashes, SeasonHashes, TraitHashes, VendorGroupHashes, VendorHashes } from './Enums'
 
 export declare type ISOString = `${bigint}-${'0' | ''}${bigint}-${'0' | ''}${bigint}T${'0' | ''}${bigint}:${'0' | ''}${bigint}:${'0' | ''}${bigint}Z`
@@ -61,20 +61,20 @@ export declare interface DeepsightManifestReferencePGCR {
 }
 
 export declare interface DeepsightManifestComponentsMap {
-	DeepsightAdeptDefinition: DeepsightAdeptDefinition
-	DeepsightBreakerSourceDefinition: DeepsightBreakerSourceDefinition
-	DeepsightBreakerTypeDefinition: DeepsightBreakerTypeDefinition
-	DeepsightCatalystDefinition: DeepsightCatalystDefinition
-	DeepsightDropTableDefinition: DeepsightDropTableDefinition
-	DeepsightEmblemDefinition: DeepsightEmblemDefinition
-	DeepsightItemDamageTypesDefinition: DeepsightItemDamageTypesDefinition
-	DeepsightMomentDefinition: DeepsightMomentDefinition
-	DeepsightPlugCategorisation: DeepsightPlugCategorisation
-	DeepsightSocketCategorisation: DeepsightSocketCategorisation
-	DeepsightSocketExtendedDefinition: DeepsightSocketExtendedDefinition
-	DeepsightStats: DeepsightStats
-	DeepsightTierTypeDefinition: DeepsightTierTypeDefinition
-	DeepsightWallpaperDefinition: DeepsightWallpaperDefinition
+	DeepsightAdeptDefinition: Record<number, DeepsightAdeptDefinition>
+	DeepsightBreakerSourceDefinition: Record<number, DeepsightBreakerSourceDefinition>
+	DeepsightBreakerTypeDefinition: Record<number, DeepsightBreakerTypeDefinition>
+	DeepsightCatalystDefinition: Record<number, DeepsightCatalystDefinition>
+	DeepsightDropTableDefinition: Record<number, DeepsightDropTableDefinition>
+	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>
+	DeepsightItemDamageTypesDefinition: Record<number, DeepsightItemDamageTypesDefinition>
+	DeepsightMomentDefinition: Record<number, DeepsightMomentDefinition>
+	DeepsightPlugCategorisation: Record<number, DeepsightPlugCategorisation>
+	DeepsightSocketCategorisation: Record<number, DeepsightSocketCategorisationDefinition>
+	DeepsightSocketExtendedDefinition: Record<number, DeepsightSocketExtendedDefinition>
+	DeepsightStats: Record<number, DeepsightStats>
+	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>
+	DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition>
 }
 
 export declare interface DeepsightDisplayPropertiesDefinition {
