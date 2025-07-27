@@ -65,6 +65,7 @@ export declare interface DeepsightManifestComponentsMap {
 	DeepsightBreakerSourceDefinition: Record<number, DeepsightBreakerSourceDefinition>
 	DeepsightBreakerTypeDefinition: Record<number, DeepsightBreakerTypeDefinition>
 	DeepsightCatalystDefinition: Record<number, DeepsightCatalystDefinition>
+	DeepsightCollectionsDefinition: DeepsightCollectionsDefinitionManifest
 	DeepsightDropTableDefinition: Record<number, DeepsightDropTableDefinition>
 	DeepsightEmblemDefinition: Record<number, DeepsightEmblemDefinition>
 	DeepsightItemDamageTypesDefinition: Record<number, DeepsightItemDamageTypesDefinition>
