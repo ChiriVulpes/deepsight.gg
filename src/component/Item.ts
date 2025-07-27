@@ -4,6 +4,7 @@ import ItemTooltip from 'component/tooltip/ItemTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { CollectionsItem } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
+import type Tooltip from 'kitsui/component/Tooltip'
 
 interface ItemExtensions {
 	readonly item: State<CollectionsItem>
@@ -11,6 +12,9 @@ interface ItemExtensions {
 
 interface Item extends Component, ItemExtensions { }
 
+let itemTooltip: Tooltip | undefined
+let itemTooltipItemState: State.Mutable<CollectionsItem> | undefined
+let itemTooltipCollectionsState: State.Mutable<Collections> | undefined
 const Item = Component((component, item: State.Or<CollectionsItem>, collections: State.Or<Collections>): Item => {
 	item = State.get(item)
 	collections = State.get(collections)
@@ -47,7 +51,16 @@ const Item = Component((component, item: State.Or<CollectionsItem>, collections:
 		.style.bind(masterworked, 'item-border-glow--masterworked')
 		.appendTo(component)
 
-	component.setTooltip(tooltip => tooltip.and(ItemTooltip, item, collections))
+	const componentWithPopover = itemTooltip
+		? component.setTooltip(itemTooltip)
+		: component.setTooltip(tooltip => itemTooltip = tooltip.and(ItemTooltip, itemTooltipItemState ??= State(item.value), itemTooltipCollectionsState ??= State(collections.value)))
+
+	State.Use(component, { focused: componentWithPopover.hoveredOrHasFocused, visible: componentWithPopover.popover.visible }).subscribe(component, ({ focused, visible }, { visible: oldVisible } = { focused: false, visible: false }) => {
+		if (focused && visible && !oldVisible) {
+			itemTooltipItemState!.value = item.value
+			itemTooltipCollectionsState!.value = collections.value
+		}
+	})
 
 	return component.extend<ItemExtensions>(itemComponent => ({
 		item,

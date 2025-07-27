@@ -17,13 +17,14 @@
 		$item-rarity-border-colour: #{colour-rarity-exotic-2}
 
 	&-header:
+		%relative
 		%grid
 		grid-template-columns: 1fr auto
 		background: color-mix(in lch, $item-rarity-background-colour, 15% transparent)
 
 	&-title:
-		%font-5
-		%weight-semibold
+		font-size: calc(($font-size-4-base + $font-size-5-base) / 2)
+		%weight-bold
 		%uppercase
 		letter-spacing: .05em
 		%unmargin-block-1
@@ -46,12 +47,6 @@
 		%relative
 		%unmargin-top-2
 		%unmargin-right-3
-		@before:
-			%absolute
-			%top-0
-			%right-0
-			border-bottom: $space-3 solid transparent
-			border-right: $space-3 solid #0009
 
 		&--featured:
 			#after: .item-tooltip-watermark
@@ -73,16 +68,22 @@
 			mask-image: $item-watermark
 			mask-mode: luminance
 			mask-size: contain
+			%z-index-fg
 
 		&-tier:
 			%absolute
-			top: calc($space-3 + $space-2 + $space-1)
-			%width-0
-			right: calc($space-2 + $space-1 / 3 * 2)
+			%top-0
+			%right-0
+			%border-box
+			padding-top: calc($space-3 + $space-2 + $space-1)
+			width: calc($space-3 + $space-2)
+			%height-100
+			padding-right: calc($space-2 + $space-1 / 3 * 2)
 			%flex
 			%flex-column
 			%gap-1
 			$dot-colour: #bbb
+			background: linear-gradient(to bottom, #0008, transparent)
 			&--4: $dot-colour: #dfc2ff
 			&--5: $dot-colour: #ffec9d
 			&-dot:
@@ -90,3 +91,100 @@
 				%size-1
 				background: $dot-colour
 				rotate: z 45deg
+
+	&-primary-info:
+		%block
+		background: #222d
+
+	&-damage:
+		%flex
+		%align-items-centre
+		%font-8
+		padding: calc($space-2)
+		gap: calc($space-2 + $space-1)
+		%padding-left-3
+
+		&-icon:
+			%relative
+			%grid
+			size: 1cap
+			%align-content-centre
+			%justify-content-centre
+			%unmargin-right-1
+
+			&--1:
+				$item-tooltip-damage-size: 1cap
+				%stack
+			&--2:
+				size: .9cap
+				$item-tooltip-damage-size: calc($space-3 + $space-2)
+				$item-tooltip-damage-margin-inline: $unspace-1
+				$item-tooltip-damage-margin-block: $unspace-1
+				%padding-right-1
+				grid-template-areas:
+					"damage-1 ."
+					". damage-2"
+				@before:
+					%size-0
+					%row-1
+					%column-2
+				@after:
+					%size-0
+					%row-2
+					%column-1
+			&--3:
+				$item-tooltip-damage-size: calc($space-3 + $space-1)
+				$item-tooltip-damage-margin-inline: $unspace-1
+				grid-template-areas:
+					"damage-1 . damage-3"
+					". damage-2 ."
+				@before:
+					%size-0
+					%row-1
+					%column-2
+				@after:
+					%size-0
+					%row-2
+					%column-1
+
+			&-image:
+				%block
+				size: $item-tooltip-damage-size
+				background: $item-tooltip-damage-image
+				background-size: contain
+				margin: ${item-tooltip-damage-margin-block: 0} ${item-tooltip-damage-margin-inline: 0}
+				; translate: calc(${item-tooltip-damage-margin-inline: 0px} * -0.1) calc(${item-tooltip-damage-margin-block: 0px} * -0.1)
+				&--prismatic:
+					#after: .item-tooltip-damage-icon-image
+					background: $colour-damage-prismatic
+					mask-image: $item-tooltip-damage-image
+					mask-mode: luminance
+					mask-size: contain
+					%stack-self
+					size: 1.4cap
+					%align-self-centre
+					%justify-self-centre
+
+				&-prismatic-gradient-fixer:
+					size: 1.4cap
+					%grid
+					%stack
+					%stack-self
+					mask: linear-gradient(-45deg, black, transparent)
+					%align-self-centre
+					%justify-self-centre
+
+		&-power:
+			%weight-bolder
+			height: 1cap
+			%flex
+			%align-items-centre
+			%font-vertical-align
+			%padding-1
+			%unmargin-left-1
+
+			&--colour: colour: $item-tooltip-damage-colour
+
+			&--gradient:
+				background: $item-tooltip-damage-gradient
+				%background-clip-text
