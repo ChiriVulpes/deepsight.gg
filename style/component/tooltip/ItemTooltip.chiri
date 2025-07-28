@@ -93,7 +93,7 @@
 				rotate: z 45deg
 
 	&-primary-info:
-		%block
+		%flex
 		background: #222d
 
 	&-damage:
@@ -182,9 +182,84 @@
 			%font-vertical-align
 			%padding-1
 			%unmargin-left-1
+			translate: 0 .02em
 
 			&--colour: colour: $item-tooltip-damage-colour
 
 			&--gradient:
 				background: $item-tooltip-damage-gradient
 				%background-clip-text
+
+	&-type:
+		%flex
+		%align-items-centre
+		%gap-3
+		%padding-left-3
+		%margin-left-1
+		%relative
+
+		@before:
+			%block
+			%absolute
+			%top-50
+			%translate-up-50
+			%right-100
+			width: 2px
+			height: 1cap
+			%font-8
+			background: #555
+
+		&-icon:
+			%block
+			size: calc($space-4 + $space-2)
+			background: $item-tooltip-type-image
+			background-size: contain
+
+			&--ammo:
+				size: calc($space-5 + $space-2)
+				%unmargin-2
+				%unmargin-right-3
+
+		&-label:
+			%uppercase
+			%letter-spacing-1
+			%font-4
+			%font-vertical-align
+
+	&-stats:
+		%grid
+		grid-template-columns: auto auto auto 1fr auto
+		background: #222d
+		border-block: 2px solid #666d
+		%padding-2-3
+		%column-gap-2
+
+		&-section:
+			%grid
+			%columns-subgrid
+			%column-1-5
+
+		&-stat:
+			%grid
+			%columns-subgrid
+			%column-1-5
+
+			&-label:
+				%text-align-right
+				%colour-3
+			&-bar:
+				%block
+				%relative
+				height: 1.2cap
+				background: #fff1
+				%align-self-centre
+				%span-3
+				@after:
+					%block
+					background: $colour-0
+					%height-100
+					width: calc(100% * $item-tooltip-stats-stat-bar-progress)
+			&-value:
+				%text-align-right
+				font-variant-numeric: tabular-nums
+				%weight-semibold

@@ -2,7 +2,7 @@ import Button from 'component/core/Button'
 import Image from 'component/core/Image'
 import ItemTooltip from 'component/tooltip/ItemTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { CollectionsItem } from 'conduit.deepsight.gg/Collections'
+import type { Item as CollectionsItem } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
 
@@ -57,6 +57,7 @@ const Item = Component((component, item: State.Or<CollectionsItem>, collections:
 
 	State.Use(component, { focused: componentWithPopover.hoveredOrHasFocused, visible: componentWithPopover.popover.visible }).subscribe(component, ({ focused, visible }, { visible: oldVisible } = { focused: false, visible: false }) => {
 		if (focused && visible && !oldVisible) {
+			console.log(item.value.displayProperties.name, item.value)
 			itemTooltipItemState!.value = item.value
 			itemTooltipCollectionsState!.value = collections.value
 		}
