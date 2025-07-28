@@ -1,5 +1,6 @@
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item } from 'conduit.deepsight.gg/Collections'
+import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Tooltip from 'kitsui/component/Tooltip'
@@ -35,6 +36,10 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 	const rarity = item.map(tooltip, item => collections.value.rarities[item.rarity])
 
 	tooltip.style.bindFrom(rarity.map(tooltip, rarity => `item-tooltip--${rarity.displayProperties.name!.toLowerCase()}` as 'item-tooltip--common'))
+
+	////////////////////////////////////
+	//#region Header
+
 	tooltip.header.style('item-tooltip-header')
 
 	Component()
@@ -53,6 +58,9 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 			.text.bind(rarity.map(tooltip, rarity => rarity.displayProperties.name))
 		)
 		.appendTo(tooltip.header)
+
+	////////////////////////////////////
+	//#region Watermark
 
 	const featured = item.map(tooltip, item => !!item.featuredWatermark)
 	Component()
@@ -76,18 +84,37 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 		})
 		.appendTo(tooltip.header)
 
+	//#endregion
+	////////////////////////////////////
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Primary Info
+
 	const primaryInfo = Component()
 		.style('item-tooltip-primary-info')
 		.appendTo(tooltip.body)
 
+	////////////////////////////////////
+	//#region Damage
+
 	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 	const primaryDamageType = State.Map(tooltip, [item, collections], (item, collections) => collections.damageTypes[item.damageTypes?.[0]!])
 	const damageTypes = item.map(tooltip, item => item.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
+	function getDamageTypeName (damageType: DamageTypeHashes | undefined): string | undefined {
+		const def = damageType === undefined ? undefined : (collections as State<Collections>).value.damageTypes[damageType]
+		return def?.displayProperties.name.toLowerCase()
+	}
 	Component()
 		.style('item-tooltip-damage')
 		.appendWhen(primaryDamageType.truthy, Component()
 			.style('item-tooltip-damage-icon')
 			.tweak(wrapper => {
+				wrapper.style.bindFrom(damageTypes.map(wrapper, damageTypes =>
+					damageTypes?.length !== 1 ? undefined : `item-tooltip-damage-icon--solo-${getDamageTypeName(damageTypes[0])?.toLowerCase() as 'strand'}` as const
+				))
 				State.Use(wrapper, { primaryDamageType, damageTypes, prismaticIcon }).use(wrapper, ({ damageTypes, prismaticIcon }) => {
 					wrapper.removeContents()
 					wrapper.style.remove('item-tooltip-damage-icon--1', 'item-tooltip-damage-icon--2', 'item-tooltip-damage-icon--3')
@@ -111,8 +138,9 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 					wrapper.style(`item-tooltip-damage-icon--${damageTypes?.length ?? 1}` as 'item-tooltip-damage-icon--1')
 					for (const damageType of damageTypes ?? []) {
 						const def = collections.value.damageTypes[damageType]
+						const damageTypeName = def.displayProperties.name.toLowerCase()
 						Component()
-							.style('item-tooltip-damage-icon-image', `item-tooltip-damage-icon-image--${def.displayProperties.name.toLowerCase() as 'prismatic'}`)
+							.style('item-tooltip-damage-icon-image', `item-tooltip-damage-icon-image--${damageTypeName as 'prismatic'}`)
 							.style.bindVariable('item-tooltip-damage-image', `url(https://www.bungie.net${def.displayProperties.icon})`)
 							.appendTo(wrapper)
 					}
@@ -140,6 +168,12 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 			.text.set('10')
 		)
 		.appendTo(primaryInfo)
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Secondary Type
 
 	const ammo = item.map(tooltip, item => item.ammo)
 	const archetype = item.map(tooltip, item => {
@@ -171,6 +205,15 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 			.text.bind(secondaryType.map(component, type => type?.name))
 		)
 		.appendToWhen(secondaryType.truthy, primaryInfo)
+
+	//#endregion
+	////////////////////////////////////
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Stats
 
 	const statsVisible = State(false)
 	Component()
@@ -224,6 +267,9 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 			})
 		})
 		.appendToWhen(statsVisible, tooltip.body)
+
+	//#endregion
+	////////////////////////////////////
 
 	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
 	return tooltip
