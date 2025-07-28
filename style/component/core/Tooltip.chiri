@@ -21,13 +21,11 @@
 		#animate $transition-focus ease-out:
 			from: $tooltip-content-opacity: 0
 		@before:
-			background: #fff4
 			%backdrop-blur-3
 			%transition-focus
 			#animate $transition-blur ease-out:
 				from:
 					%backdrop-filter-none
-					%background-none
 		:start:
 			%opaque
 
@@ -38,6 +36,7 @@
 		opacity: $tooltip-content-opacity
 		#transition: #{transition("opacity")}
 		transition-duration: $tooltip-content-transition-duration
+		background: #fff4
 
 	&-header:
 		%block

@@ -1,5 +1,6 @@
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { CollectionsItem } from 'conduit.deepsight.gg/Collections'
+import type { Item } from 'conduit.deepsight.gg/Collections'
+import type { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Tooltip from 'kitsui/component/Tooltip'
 import Relic from 'Relic'
@@ -10,48 +11,51 @@ const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgre
 	return loadoutIcon?.iconImagePath
 })
 
-export default Component((component, item: State.Or<CollectionsItem>, collections: State.Or<Collections>) => {
+const PLUG_ARCHETYPE_ICON_SEQUENCE = 0
+const PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME = 1
+
+export default Component((component, item: State.Or<Item>, collections: State.Or<Collections>) => {
 	item = State.get(item)
 	collections = State.get(collections)
-
-	const rarity = item.map(component, item => collections.value.rarities[item.rarity])
-	const featured = item.map(component, item => !!item.featuredWatermark)
-	const tier = item.map(component, item => item.tier)
 
 	const tooltip = component.as(Tooltip)!
 		.anchor.reset()
 		.anchor.add('off right', 'sticky centre')
 		.anchor.add('off left', 'sticky centre')
-		.style.bindFrom(rarity.map(component, rarity => `item-tooltip--${rarity.displayProperties.name!.toLowerCase()}` as 'item-tooltip--common'))
 
+	const rarity = item.map(tooltip, item => collections.value.rarities[item.rarity])
+
+	tooltip.style.bindFrom(rarity.map(tooltip, rarity => `item-tooltip--${rarity.displayProperties.name!.toLowerCase()}` as 'item-tooltip--common'))
 	tooltip.header.style('item-tooltip-header')
 
 	Component()
 		.style('item-tooltip-title')
-		.text.bind(item.map(component, item => item.displayProperties.name))
+		.text.bind(item.map(tooltip, item => item.displayProperties.name))
 		.appendTo(tooltip.header)
 
 	Component()
 		.style('item-tooltip-subtitle')
 		.append(Component()
 			.style('item-tooltip-subtitle-type')
-			.text.bind(item.map(component, item => item.type))
+			.text.bind(item.map(tooltip, item => item.type))
 		)
 		.append(Component()
 			.style('item-tooltip-subtitle-rarity')
-			.text.bind(rarity.map(component, rarity => rarity.displayProperties.name))
+			.text.bind(rarity.map(tooltip, rarity => rarity.displayProperties.name))
 		)
 		.appendTo(tooltip.header)
 
+	const featured = item.map(tooltip, item => !!item.featuredWatermark)
 	Component()
 		.style('item-tooltip-watermark')
 		.style.bind(featured, 'item-tooltip-watermark--featured')
-		.style.bindVariable('item-watermark', item.map(component, item => `url(https://www.bungie.net${item.watermark})`))
+		.style.bindVariable('item-watermark', item.map(tooltip, item => `url(https://www.bungie.net${item.watermark})`))
 		.appendTo(tooltip.header)
 
+	const tier = item.map(tooltip, item => item.tier)
 	Component()
 		.style('item-tooltip-watermark-tier')
-		.style.bindFrom(tier.map(component, tier => `item-tooltip-watermark-tier--${tier}` as 'item-tooltip-watermark-tier--4'))
+		.style.bindFrom(tier.map(tooltip, tier => `item-tooltip-watermark-tier--${tier}` as 'item-tooltip-watermark-tier--4'))
 		.tweak(wrapper => {
 			tier.use(wrapper, (tier = 0) => {
 				wrapper.removeContents()
@@ -68,8 +72,8 @@ export default Component((component, item: State.Or<CollectionsItem>, collection
 		.appendTo(tooltip.body)
 
 	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-	const primaryDamageType = State.Map(component, [item, collections], (item, collections) => collections.damageTypes[item.damageTypes?.[0]!])
-	const damageTypes = item.map(component, item => item.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
+	const primaryDamageType = State.Map(tooltip, [item, collections], (item, collections) => collections.damageTypes[item.damageTypes?.[0]!])
+	const damageTypes = item.map(tooltip, item => item.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
 	Component()
 		.style('item-tooltip-damage')
 		.appendWhen(primaryDamageType.truthy, Component()
@@ -128,5 +132,90 @@ export default Component((component, item: State.Or<CollectionsItem>, collection
 		)
 		.appendTo(primaryInfo)
 
+	const ammo = item.map(tooltip, item => item.ammo)
+	const archetype = item.map(tooltip, item => {
+		const socket = item.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')
+		return socket?.plugs.find(plug => plug.hash === socket.defaultPlugHash)
+	})
+
+	const secondaryType = State.Map(tooltip, [archetype, ammo], (archetype, ammo) => {
+		if (ammo?.displayProperties)
+			return ammo.displayProperties
+
+		if (archetype?.displayProperties)
+			return {
+				...archetype.displayProperties,
+				icon: archetype.displayProperties.iconSequences?.[PLUG_ARCHETYPE_ICON_SEQUENCE]?.frames?.[PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME]
+					?? archetype.displayProperties.icon,
+			}
+	})
+
+	Component()
+		.style('item-tooltip-type')
+		.append(Component()
+			.style('item-tooltip-type-icon')
+			.style.bind(ammo.truthy, 'item-tooltip-type-icon--ammo')
+			.style.bindVariable('item-tooltip-type-image', secondaryType.map(component, type => type && `url(https://www.bungie.net${type.icon})`))
+		)
+		.append(Component()
+			.style('item-tooltip-type-label')
+			.text.bind(secondaryType.map(component, type => type?.name))
+		)
+		.appendToWhen(secondaryType.truthy, primaryInfo)
+
+	const statsVisible = State(false)
+	Component()
+		.style('item-tooltip-stats')
+		.tweak(wrapper => {
+			State.Use(wrapper, { item, collections }, ({ item, collections }) => {
+				wrapper.removeContents()
+
+				let _barStatsWrapper: Component | undefined
+				let _numericStatsWrapper: Component | undefined
+				const barStatsWrapper = () => _barStatsWrapper ??= Component().style('item-tooltip-stats-section').prependTo(wrapper)
+				const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('item-tooltip-stats-section').appendTo(wrapper)
+
+				const statGroupDef = collections.statGroups[item.statGroupHash!]
+
+				const stats = !item.stats ? [] : Object.values(item.stats)
+					.sort((a, b) => 0
+						|| +(a.displayAsNumeric ?? false) - +(b.displayAsNumeric ?? false)
+						|| (statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === a.hash) ?? 0) - (statGroupDef.scaledStats.findIndex(stat => stat.statHash === b.hash) ?? 0)
+						|| (collections.stats[a.hash]?.index ?? 0) - (collections.stats[b.hash]?.index ?? 0)
+					)
+
+				let hasVisibleStat = false
+				for (const stat of stats) {
+					const def = collections.stats[stat.hash]
+					const overrideDisplayProperties = statGroupDef?.overrides?.[stat.hash]?.displayProperties
+					const statName = (overrideDisplayProperties ?? def?.displayProperties)?.name ?? ''
+					if (!statName)
+						continue
+
+					hasVisibleStat = true
+
+					Component()
+						.style('item-tooltip-stats-stat')
+						.append(Component()
+							.style('item-tooltip-stats-stat-label')
+							.text.set(statName)
+						)
+						.append(!stat.displayAsNumeric && Component()
+							.style('item-tooltip-stats-stat-bar')
+							.style.bindVariable('item-tooltip-stats-stat-bar-progress', stat.value / (stat.max ?? 100))
+						)
+						.append(Component()
+							.style('item-tooltip-stats-stat-value')
+							.text.set(stat.value.toLocaleString(navigator.language))
+						)
+						.appendTo(stat.displayAsNumeric ? numericStatsWrapper() : barStatsWrapper())
+				}
+
+				statsVisible.value = hasVisibleStat
+			})
+		})
+		.appendToWhen(statsVisible, tooltip.body)
+
+	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
 	return tooltip
 })

@@ -13,6 +13,7 @@ export default Object.assign(
 				service: Env.CONDUIT_ORIGIN,
 			})
 			this.asMutable?.setValue(conduit)
+			Object.assign(window, { conduit })
 			resolveConduit(conduit)
 		},
 	}
