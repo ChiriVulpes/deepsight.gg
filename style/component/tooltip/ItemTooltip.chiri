@@ -308,7 +308,7 @@
 				background: #333d
 
 			&-icon:
-				%height-4
+				%size-4
 			&-label:
 				%font-vertical-align
 				%flex-grow

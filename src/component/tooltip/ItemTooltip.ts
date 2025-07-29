@@ -300,7 +300,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 						.map(plugHash => collections.plugs[plugHash])
 						.filter(plug => !!plug)
 
-					const Socket = Component((wrapper, socket: ItemSocket, plugs?: ItemPlug[]) => {
+					const Socket = Component((wrapper, socket: ItemSocket, plugs?: ItemPlug[], noSocketed?: boolean) => {
 						wrapper.style('item-tooltip-perks-perk')
 
 						plugs ??= Plugs(socket)
@@ -312,11 +312,12 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 							)
 
 						const isCollectionsRoll = isCollections && plugs.length >= 4
-						const socketed = (_
+						noSocketed = isCollectionsRoll ? noSocketed : false
+						const socketed = noSocketed ? undefined : (_
 							?? collections.plugs[socket.defaultPlugHash!]
 							?? (!isCollectionsRoll ? plugs.at(0) : undefined)
 						) as ItemPlug | undefined
-						if (!socketed?.displayProperties.name && !isCollectionsRoll)
+						if (!socketed?.displayProperties.name && !isCollectionsRoll && !noSocketed)
 							return
 
 						if (socketed) {
@@ -411,7 +412,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 
 					const perks = sockets.filter(Categorisation.IsPerk)
 					for (const socket of perks)
-						Socket(socket)
+						Socket(socket, undefined, isCollections)
 							?.appendTo(slot)
 
 					//#endregion
