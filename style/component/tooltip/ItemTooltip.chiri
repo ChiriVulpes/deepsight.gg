@@ -94,7 +94,7 @@
 
 	&-primary-info:
 		%flex
-		background: #222d
+		background: #1b1b1bdd
 
 	&-damage:
 		%flex
@@ -164,6 +164,7 @@
 				size: $item-tooltip-damage-size
 				background: $item-tooltip-damage-image
 				background-size: contain
+				background-repeat: no-repeat
 				margin: ${item-tooltip-damage-margin-block: 0} ${item-tooltip-damage-margin-inline: 0}
 				; translate: calc(${item-tooltip-damage-margin-inline: 0px} * -0.1) calc(${item-tooltip-damage-margin-block: 0px} * -0.1)
 				&--prismatic:
@@ -238,27 +239,41 @@
 			%font-4
 			%font-vertical-align
 
+	&-body:
+		%font-2
+
 	&-stats:
 		%grid
 		grid-template-columns: auto auto auto 1fr auto
-		background: #222d
+		background: #1b1b1bdd
 		border-block: 2px solid #666d
-		%padding-2-3
+		%padding-inline-3
+		padding-block: calc($space-2 + $space-1)
 		%column-gap-2
+		%row-gap-2
+
+		&--no-visible-stats:
+			#after: .item-tooltip-stats
+			border-bottom: none
+			%padding-0
 
 		&-section:
 			%grid
 			%columns-subgrid
 			%column-1-5
+			row-gap: calc($space-1 * 1.5)
 
 		&-stat:
 			%grid
 			%columns-subgrid
 			%column-1-5
+			height: 1.2cap
+			%align-content-centre
 
 			&-label:
 				%text-align-right
 				%colour-3
+				%font-vertical-align
 			&-bar:
 				%block
 				%relative
@@ -275,3 +290,30 @@
 				%text-align-right
 				font-variant-numeric: tabular-nums
 				%weight-semibold
+				%font-vertical-align
+
+	&-perks:
+		%flex
+		%flex-column
+		font-size: calc(($font-size-2-base + $font-size-3-base) / 2)
+
+		&-perk:
+			%flex
+			%padding-1-3
+			%align-items-centre
+			background: #1b1b1bdd
+
+			&--intrinsic:
+				#after: .item-tooltip-perks-perk
+				background: #333d
+
+			&-icon:
+				%height-4
+			&-label:
+				%font-vertical-align
+				%flex-grow
+				%margin-inline-2
+
+				&--set-bonus:
+					%uppercase
+					%weight-semibold
