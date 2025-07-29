@@ -1,10 +1,15 @@
+import type { DestinyEquipableItemSetDefinition } from 'bungie-api-ts/destiny2/interfaces'
+import Image from 'component/core/Image'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemAmmo, ItemPlug } from 'conduit.deepsight.gg/Collections'
-import type { DamageTypeHashes } from 'deepsight.gg/Enums'
+import type { Item, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
+import type { DamageTypeHashes, SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
+import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
 import Relic from 'Relic'
+import Categorisation from 'utility/Categorisation'
+import { _ } from 'utility/Objects'
 
 const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgress) => {
 	const conduit = await Relic.connected
@@ -34,6 +39,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 		.anchor.add('off left', 'sticky centre')
 
 	const rarity = item.map(tooltip, item => collections.value.rarities[item.rarity])
+	const isCollections = item.map(tooltip, item => !item.instanceId)
 
 	tooltip.style.bindFrom(rarity.map(tooltip, rarity => `item-tooltip--${rarity.displayProperties.name!.toLowerCase()}` as 'item-tooltip--common'))
 
@@ -89,6 +95,8 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 
 	//#endregion
 	////////////////////////////////////
+
+	tooltip.body.style('item-tooltip-body')
 
 	////////////////////////////////////
 	//#region Primary Info
@@ -216,8 +224,10 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 	//#region Stats
 
 	const statsVisible = State(false)
+	const hasStats = State(false)
 	Component()
 		.style('item-tooltip-stats')
+		.style.bind(statsVisible.falsy, 'item-tooltip-stats--no-visible-stats')
 		.tweak(wrapper => {
 			State.Use(wrapper, { item, collections }, ({ item, collections }) => {
 				wrapper.removeContents()
@@ -228,6 +238,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 				const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('item-tooltip-stats-section').appendTo(wrapper)
 
 				const statGroupDef = collections.statGroups[item.statGroupHash!]
+				hasStats.value = !!statGroupDef.scaledStats.length
 
 				const stats = !item.stats ? [] : Object.values(item.stats)
 					.sort((a, b) => 0
@@ -266,7 +277,149 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 				statsVisible.value = hasVisibleStat
 			})
 		})
-		.appendToWhen(statsVisible, tooltip.body)
+		.appendToWhen(hasStats, tooltip.body)
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Perks
+
+	const perks = item.map(tooltip, item => item.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
+	const itemSet = item.map(tooltip, (item): DestinyEquipableItemSetDefinition | undefined => collections.value.itemSets[item.itemSetHash!])
+	Component()
+		.style('item-tooltip-perks')
+		.tweak(wrapper => {
+			Slot().appendTo(wrapper).use(
+				State.Use(wrapper, { sockets: perks, itemSet, isCollections, collections }),
+				(slot, { sockets, itemSet, isCollections, collections }) => {
+					////////////////////////////////////
+					//#region Socket component
+
+					const Plugs = (socket: ItemSocket) => socket.plugs
+						.map(plugHash => collections.plugs[plugHash])
+						.filter(plug => !!plug)
+
+					const Socket = Component((wrapper, socket: ItemSocket, plugs?: ItemPlug[]) => {
+						wrapper.style('item-tooltip-perks-perk')
+
+						plugs ??= Plugs(socket)
+						plugs = plugs
+							.filter(plug => !!plug)
+							.sort((a, b) => 0
+								|| +!!b.displayProperties.name - +!!a.displayProperties.name
+								|| +Categorisation.IsEnhanced(a) - +Categorisation.IsEnhanced(b)
+							)
+
+						const isCollectionsRoll = isCollections && plugs.length >= 4
+						const socketed = (_
+							?? collections.plugs[socket.defaultPlugHash!]
+							?? (!isCollectionsRoll ? plugs.at(0) : undefined)
+						) as ItemPlug | undefined
+						if (!socketed?.displayProperties.name && !isCollectionsRoll)
+							return
+
+						if (socketed) {
+							Image(`https://www.bungie.net${socketed?.displayProperties.icon}`)
+								.style('item-tooltip-perks-perk-icon')
+								.appendTo(wrapper)
+
+							Component()
+								.style('item-tooltip-perks-perk-label')
+								.text.set(socketed?.displayProperties.name)
+								.appendTo(wrapper)
+						}
+
+						const isSocketedEnhanced = Categorisation.IsEnhanced(socketed)
+						const additionalPlugs = plugs.filter(plug => true
+							&& plug.hash !== socketed?.hash
+							&& (isSocketedEnhanced || !Categorisation.IsEnhanced(plug))
+						)
+						for (const plug of additionalPlugs)
+							Image(`https://www.bungie.net${plug.displayProperties.icon}`)
+								.style('item-tooltip-perks-perk-icon')
+								.appendTo(wrapper)
+
+						return wrapper
+					})
+
+					//#endregion
+					////////////////////////////////////
+
+					////////////////////////////////////
+					//#region Intrinsics
+					// frame, origin, artifice, armour set perk (pre set bonuses, think iron banner perks)
+
+					const intrinsics = sockets.filter(socket => !Categorisation.IsPerk(socket) && !Categorisation.IsExoticCatalyst(socket))
+					for (const socket of intrinsics)
+						Socket(socket)
+							?.style('item-tooltip-perks-perk--intrinsic')
+							.appendTo(slot)
+
+					//#endregion
+					////////////////////////////////////
+
+					////////////////////////////////////
+					//#region Catalyst
+
+					const exoticCatalyst = sockets.find(Categorisation.IsExoticCatalyst)
+					if (exoticCatalyst && (isCollections || false)) {
+						const realCatalystPlug = exoticCatalyst.plugs.map(plugHash => collections.plugs[plugHash]).find(plug => plug.type === 'Masterwork/ExoticCatalyst')
+						const perks = (realCatalystPlug?.perks ?? []).map(perkHash => collections.perks[perkHash]).filter(perk => !!perk)
+						for (const perk of perks) {
+							Component()
+								.style('item-tooltip-perks-perk', 'item-tooltip-perks-perk--intrinsic')
+								.append(Image(`https://www.bungie.net${perk.displayProperties.icon}`)
+									.style('item-tooltip-perks-perk-icon')
+								)
+								.append(Component()
+									.style('item-tooltip-perks-perk-label')
+									.text.set(perk.displayProperties.name)
+								)
+								.appendTo(slot)
+						}
+					}
+
+					//#endregion
+					////////////////////////////////////
+
+					////////////////////////////////////
+					//#region Set Bonuses
+
+					if (itemSet) {
+						const perks = itemSet.setPerks
+							.sort((a, b) => b.requiredSetCount - a.requiredSetCount)
+							.map(perk => collections.perks[perk.sandboxPerkHash as SandboxPerkHashes])
+							.filter(perk => !!perk)
+						Component()
+							.style('item-tooltip-perks-perk', 'item-tooltip-perks-perk--intrinsic')
+							.append(Component()
+								.style('item-tooltip-perks-perk-label', 'item-tooltip-perks-perk-label--set-bonus')
+								.text.set(itemSet.displayProperties.name)
+							)
+							.append(...perks.map(perk => Image(`https://www.bungie.net${perk.displayProperties.icon}`)
+								.style('item-tooltip-perks-perk-icon')
+							))
+							.appendTo(slot)
+					}
+
+					//#endregion
+					////////////////////////////////////
+
+					////////////////////////////////////
+					//#region Perks
+
+					const perks = sockets.filter(Categorisation.IsPerk)
+					for (const socket of perks)
+						Socket(socket)
+							?.appendTo(slot)
+
+					//#endregion
+					////////////////////////////////////
+				},
+			)
+		})
+		.appendTo(tooltip.body)
 
 	//#endregion
 	////////////////////////////////////
