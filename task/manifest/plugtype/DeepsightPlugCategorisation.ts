@@ -643,7 +643,7 @@ namespace DeepsightPlugCategorisation {
 				case PlugCategoryHashes.Arrows:
 					return isEnhanced ? DeepsightPlugTypePerk.ArrowEnhanced : DeepsightPlugTypePerk.Arrow
 				case PlugCategoryHashes.MagazinesGl:
-					return isEnhanced ? DeepsightPlugTypePerk.GrenadeLauncherMagazineEnhanced : DeepsightPlugTypePerk.GrenadeLauncherMagazine
+					return isEnhanced ? DeepsightPlugTypePerk.MagazineGrenadeLauncherEnhanced : DeepsightPlugTypePerk.MagazineGrenadeLauncher
 				case PlugCategoryHashes.Tubes:
 					return isEnhanced ? DeepsightPlugTypePerk.TubeEnhanced : DeepsightPlugTypePerk.Tube
 				case PlugCategoryHashes.Hafts:
