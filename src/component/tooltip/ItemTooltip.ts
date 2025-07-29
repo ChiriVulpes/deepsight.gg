@@ -1,5 +1,5 @@
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item } from 'conduit.deepsight.gg/Collections'
+import type { Item, ItemPlug } from 'conduit.deepsight.gg/Collections'
 import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
@@ -176,9 +176,9 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 	//#region Secondary Type
 
 	const ammo = item.map(tooltip, item => item.ammo)
-	const archetype = item.map(tooltip, item => {
-		const socket = item.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')
-		return socket?.plugs.find(plug => plug.hash === socket.defaultPlugHash)
+	const archetype = State.Map(tooltip, [item, collections], (item, collections): ItemPlug | undefined => {
+		const socketPlugHash = item.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')?.defaultPlugHash
+		return collections.plugs[socketPlugHash!]
 	})
 
 	const secondaryType = State.Map(tooltip, [archetype, ammo], (archetype, ammo) => {
