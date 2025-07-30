@@ -146,11 +146,15 @@ export declare interface DeepsightDropTableDefinition {
 	/**
 	 * The type of activity as a string
 	 */
-	type: 'nightfall' | 'trials' | 'dungeon' | 'raid' | 'lost-sector' | 'exotic-mission'
+	type: 'nightfall' | 'trials' | 'dungeon' | 'raid' | 'lost-sector' | 'exotic-mission' | 'bonus-focus'
 	/**
 	 * Partial display properties. Not all fields are guaranteed to be provided.
 	 */
 	typeDisplayProperties: DeepsightDisplayPropertiesDefinition
+	/**
+	 * A PGCR image that should override the default one for the activity.
+	 */
+	pgcrImage?: string
 }
 
 export declare interface DeepsightDropTableEncounterDefinition {
