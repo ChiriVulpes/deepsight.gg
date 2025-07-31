@@ -1,3 +1,4 @@
+import DisplayBar from 'component/DisplayBar'
 import Navbar from 'component/Navbar'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
@@ -17,6 +18,7 @@ interface ViewLoading extends Loading {
 interface ViewExtensions {
 	readonly loading: ViewLoading
 	readonly hasNavbar: State.Mutable<boolean>
+	readonly displayBarConfig: State.Mutable<DisplayBar.Config | undefined>
 	refresh (): Promise<void>
 }
 
@@ -44,10 +46,12 @@ namespace View {
 const ViewExt = Component.Extension(view => view)
 
 let navbar: Navbar | undefined
+let displayBar: DisplayBar | undefined
 function View (builder: (view: View) => unknown): View.Builder.NoParams
 function View<PARAMS extends object> (builder: (view: View, params: PARAMS) => unknown): View.Builder.WithParams<PARAMS>
 function View<PARAMS extends object | undefined> (builder: (view: View, params: PARAMS) => unknown): View.Builder<PARAMS> {
 	const hasNavbar = State(true)
+	const displayBarConfig = State<DisplayBar.Config | undefined>(undefined)
 	return Component((component, params) => {
 		const view = component
 			.and(ViewExt)
@@ -55,6 +59,7 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 			.extend<ViewExtensions>(view => ({
 				loading: undefined!,
 				hasNavbar,
+				displayBarConfig,
 				refresh: navigate.refresh,
 			}))
 
@@ -85,11 +90,13 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 			view.appendTo(document.body)
 
 			navbar ??= Navbar()
+			displayBar ??= DisplayBar()
 			const newShowNavbar = view.hasNavbar.value
 			if (navbar.visible.value !== newShowNavbar) {
 				navbar.viewTransitionsEnabled.value = true
 				navbar.visible.value = newShowNavbar
 			}
+			displayBar.config.bind(view, view.displayBarConfig)
 		})
 
 		void trans.finished.then(() => {

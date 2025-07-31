@@ -5,6 +5,40 @@
 	&--ready:
 		%width-100
 
+	&-year:
+		%flex
+		%flex-column
+		%gap-3
+		%relative
+		%padding-bottom-2
+		%margin-bottom-3
+
+		@before:
+			%block
+			%absolute
+			%bottom-0
+			%unleft-4
+			%width-6
+			%height-1
+			%background-currentcolour
+			%opacity-15
+
+		&-label:
+			%block
+			%absolute
+			%z-index-fg-2
+			%uppercase
+			rotate: z 90deg
+			transform-origin: top left
+			%translate-left-2
+			%translate-down-2
+			%margin-top-1
+			margin-left: .1em
+			%opacity-30
+			%weight-bolder
+			%letter-spacing-3
+			%font-4
+
 	&-moment:
 		#after: .details
 		%relative
@@ -127,7 +161,7 @@
 				%uppercase
 				%margin-bottom-2
 				%font-3
-				letter-spacing: .1em
+				%letter-spacing-2
 				%width-fit
 				%nowrap
 			&-content:

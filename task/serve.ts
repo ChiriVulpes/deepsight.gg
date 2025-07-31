@@ -22,6 +22,7 @@ export default Task('serve', async task => {
 		'not ends_with(http.request.uri.path, ".ttf")',
 		'not ends_with(http.request.uri.path, ".webp")',
 		'not ends_with(http.request.uri.path, ".png")',
+		'not ends_with(http.request.uri.path, ".svg")',
 		'http.request.uri.path ne "/.env"',
 	].join(' and ')})`
 	const router = Middleware((definition, req, res) => _

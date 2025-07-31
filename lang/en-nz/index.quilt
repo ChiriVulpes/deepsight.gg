@@ -1,5 +1,7 @@
 ~shared
 
+~component/DisplayBar
+
 # view
 ~view/SplashView
 ~view/CollectionsView
