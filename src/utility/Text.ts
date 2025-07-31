@@ -1,13 +1,15 @@
-import { Component } from 'kitsui'
+import { Component, State } from 'kitsui'
 import { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import type { Quilt, Weave, Weft } from 'lang'
-import quilt, { WeavingArg } from 'lang'
+import quiltBase, { WeavingArg } from 'lang'
 
 declare module 'kitsui/utility/StringApplicator' {
 	interface StringApplicatorSources {
 		weave: Quilt.Handler
 	}
 }
+
+export const quilt: State<Quilt> = State(quiltBase)
 
 namespace Text {
 	export function init () {
@@ -16,10 +18,10 @@ namespace Text {
 				return typeof source === 'function'
 			},
 			toNodes (source: Quilt.Handler): Node[] {
-				return renderWeave(source(quilt))
+				return renderWeave(source(quilt.value))
 			},
 			toString (source: Quilt.Handler): string {
-				return source(quilt).toString()
+				return source(quilt.value).toString()
 			},
 		})
 	}

@@ -1,7 +1,7 @@
 import { Component, State } from 'kitsui'
 import Task from 'kitsui/utility/Task'
 
-export default Component('img', (component, src: State.Or<string>) => {
+export default Component('img', (component, src: State.Or<string | undefined>) => {
 	src = State.get(src)
 	return component.replaceElement('img')
 		.style('image')

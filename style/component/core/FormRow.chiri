@@ -6,4 +6,4 @@
 		%font-0
 		%uppercase
 		%weight-semibold
-		letter-spacing: .1em
+		%letter-spacing-2

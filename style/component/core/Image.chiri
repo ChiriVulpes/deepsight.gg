@@ -1,6 +1,8 @@
 .image:
 	%opacity-0
 	#transition: #{transition("opacity")}
+	%max-height-100
+	$transition-duration: ${image-opacity-duration: $transition-blur}
 
 	&--loaded:
 		%opacity-1

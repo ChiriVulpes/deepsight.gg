@@ -1,7 +1,14 @@
 import View from 'component/core/View'
+import DisplayBar from 'component/DisplayBar'
 import Moment from 'component/view/collections/Moment'
 import { Component } from 'kitsui'
 import Relic from 'Relic'
+
+const COLLECTIONS_DISPLAY = DisplayBar.Config({
+	id: 'collections',
+	sortConfig: {},
+	filterConfig: {},
+})
 
 export default View(async view => {
 	view.style('collections-view')
@@ -29,7 +36,22 @@ export default View(async view => {
 	await view.loading.finish()
 
 	console.log(collections)
+	view.displayBarConfig.value = COLLECTIONS_DISPLAY
 
-	for (const moment of collections.moments)
-		Moment(moment, collections).appendTo(view)
+	let year: number | undefined = NaN
+	let yearWrapper: Component | undefined
+	for (const moment of collections.moments) {
+		if (moment.moment.year !== year) {
+			year = moment.moment.year
+			yearWrapper = !year ? undefined : Component()
+				.style('collections-view-year')
+				.append(Component()
+					.style('collections-view-year-label')
+					.text.set(quilt => quilt['view/collections/year'](year))
+				)
+				.appendTo(view)
+		}
+
+		Moment(moment, collections).appendTo(yearWrapper ?? view)
+	}
 })
