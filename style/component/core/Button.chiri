@@ -9,7 +9,7 @@ $$button-z-index-hover-2!int: 0
 	%font-family-inherit
 	%font-vertical-align
 	%cursor-pointer
-	letter-spacing: .05em
+	%letter-spacing-1
 	%colour-0
 	%decoration-none
 	box-shadow: inset 0 0 $space-3 #fff3

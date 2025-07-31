@@ -1,5 +1,6 @@
 font-size: 1.2rem
 view-transition-name: unset
+%user-select-none
 
 .body:
 	%relative

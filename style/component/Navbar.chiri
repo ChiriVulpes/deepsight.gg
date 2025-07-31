@@ -1,8 +1,11 @@
 .navbar:
-	%width-100
 	%fixed
+	%flex
+	%align-items-centre
 	%top-0
 	%left-0
+	%width-100
+	height: calc($space-4 + $space-3)
 	%padding-1-2
 	%border-box
 	%z-index-fg-2
@@ -20,7 +23,7 @@
 	@before:
 		%z-index-bg
 		%backdrop-blur
-		background: #1115
+		background: #181818aa
 
 	@after:
 		box-shadow: inset 0 -1px 0 #3339

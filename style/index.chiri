@@ -37,6 +37,8 @@
 	component/profile/ProfileButton
 	component/Item
 	component/tooltip/ItemTooltip
+	component/DisplayBar
+	component/display/Filter
 
 #import:
 	component/view/SplashView

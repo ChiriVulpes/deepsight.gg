@@ -1,0 +1,91 @@
+.display-bar:
+	%fixed
+	%flex
+	%align-items-centre
+	%bottom-0
+	%left-0
+	%width-100
+	%height-5
+	%border-box
+	%z-index-fg-2
+	#transition: #{transition("translate")}
+
+	:start:
+		%translate-up-100
+
+	@before, @after:
+		%block
+		%absolute
+		%inset-0
+		%no-pointer-events
+
+	@before:
+		%z-index-bg
+		%backdrop-blur
+		background: #181818aa
+
+	@after:
+		box-shadow: inset 0 1px 0 #3339
+		%z-index-fg
+
+	&-button:
+		%relative
+		%height-100
+		%border-box
+		min-width: calc($space-7 + $space-5)
+		%padding-2-3
+		%cursor-pointer
+		%grid
+		grid-template-columns: $space-5 1fr
+		%column-gap-2
+		grid-template-rows: 1fr 1fr
+		#transition: #{transition("background")}
+
+		&--hover:
+			#after: .display-bar-button
+			background: #fff1
+			%transition-focus
+
+		&--active:
+			#after: .display-bar-button--hover
+			; background: #0004
+			; %transition-active
+
+		&-icon:
+			%column-1
+			%row-1-2
+		&-title:
+			%uppercase
+			font-size: calc(($font-size-0-base + $font-size-1-base) / 2)
+			%weight-semibold
+			%letter-spacing-2
+			%column-2
+			%row-1
+			%colour-6
+			%align-self-end
+		&-subtitle:
+			font-size: calc(($font-size-1-base + $font-size-2-base) / 2)
+			%column-2
+			%row-2
+			%align-self-start
+			%unmargin-top-1
+
+	&-sort:
+
+		&-button:
+
+	&-filter:
+
+		&-button:
+			%flex-grow
+
+			&-title:
+				#transition: #{transition("translate")}
+				%transition-focus
+				&--has-filter, &--has-focus:
+					%translate-up-1
+					%colour-2
+
+	&-help:
+
+		&-button:

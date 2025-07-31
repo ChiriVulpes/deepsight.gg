@@ -26,7 +26,7 @@
 		font-size: calc(($font-size-4-base + $font-size-5-base) / 2)
 		%weight-bold
 		%uppercase
-		letter-spacing: .05em
+		%letter-spacing-1
 		%unmargin-block-1
 
 	&-subtitle:
