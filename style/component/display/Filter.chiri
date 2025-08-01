@@ -69,6 +69,38 @@
 				%color-dodge
 				box-shadow: inset 0 0 0 1px #444
 
+			&--element:
+				#dec lightness = .5
+				#dec chroma-modifier = .6
+				&--void: $filter-chip-colour: oklch(from $colour-damage-void #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--arc: $filter-chip-colour: oklch(from $colour-damage-arc #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--solar: $filter-chip-colour: oklch(from $colour-damage-solar #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--strand: $filter-chip-colour: oklch(from $colour-damage-strand #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--stasis: $filter-chip-colour: oklch(from $colour-damage-stasis #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+
+			&-text-wrapper:
+				%grid
+				grid-template-columns: auto auto
+				%align-items-centre
+
+			&-text:
+
+				&-placeholder:
+					%column-1-2
+					%row-1
+					%opacity-0
+
+				&-label:
+					%opacity-70
+					%row-1
+					%column-1
+					font-size: .95em
+					margin-right: .2em
+
+				&-main:
+					%row-1
+					%column-2
+
 			&-icon-wrapper:
 				%inline-grid
 				%stack

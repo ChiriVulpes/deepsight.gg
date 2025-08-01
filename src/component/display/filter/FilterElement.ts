@@ -16,13 +16,22 @@ export default Filter.Definition({
 			return undefined
 
 		const element = token.lowercase.slice(prefix.length).trim()
-		const damageType = DestinyDamageTypeDefinition.map(owner, defs => Object.values(defs ?? {})
-			.find(def => def?.displayProperties?.name.toLowerCase() === element)
-		)
+		const damageType = DestinyDamageTypeDefinition.map(owner, defs => {
+			const matches = Object.values(defs ?? {})
+				.filter(def => def?.displayProperties?.name.toLowerCase().startsWith(element))
+			return matches.length === 1 ? matches[0] : undefined
+		})
+		const [labelText, filterText] = token.displayText.split(':')
 		return {
+			chip (chip, token) {
+				chip.style('filter-display-chip--element')
+				chip.style.bindFrom(damageType.map(chip, def => def && `filter-display-chip--element--${def.displayProperties.name.toLowerCase()}` as 'filter-display-chip--element--arc'))
+				chip.labelText.set(`${labelText}:`)
+				chip.text.set(filterText)
+			},
 			icon (icon, token) {
 				Image(damageType.map(icon, def => def && `https://www.bungie.net${def.displayProperties.icon}`))
-					.appendTo(icon)
+					.appendToWhen(damageType.truthy, icon)
 			},
 			filter (item, token) {
 				return !item.damageTypes?.length || item.damageTypes.includes(damageType.value?.hash ?? NaN)
