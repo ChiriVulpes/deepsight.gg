@@ -1,16 +1,33 @@
 import type { Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
-import Slot from 'kitsui/component/Slot'
+import type TextManipulator from 'kitsui/utility/TextManipulator'
 import { quilt } from 'utility/Text'
 
-interface FilterFunction {
-	filter (item: Item, token: Token): boolean
-	chip?(chip: Component, token: Token): unknown
-	icon?: true | ((icon: Component, token: Token) => unknown)
+// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+interface FilterToken extends String {
+	readonly lowercase: string
+	readonly displayText: string
+	readonly start: number
+	readonly end: number
 }
-interface ParsedFilter extends FilterFunction {
+
+interface FilterFunction {
+	filter (item: Item, token: FilterToken): boolean
+	chip?(chip: Filter.Chip, token: FilterToken): unknown
+	icon?: true | ((icon: Component, token: FilterToken) => unknown)
+}
+interface FilterMatch extends FilterFunction {
 	readonly id: string
-	readonly token: Token
+	readonly token: FilterToken
+}
+
+interface FilterChipExtensions {
+	readonly iconWrapper?: Component
+	readonly iconPlaceholder?: Component
+	readonly icon?: Component
+	readonly labelWrapper: Component
+	readonly labelText: TextManipulator<this>
+	readonly textWrapper: Component
 }
 
 interface FilterExtensions {
@@ -30,8 +47,10 @@ namespace Filter {
 
 	export interface Definition {
 		readonly id: string
-		match (owner: State.Owner, token: Token): FilterFunction | undefined
+		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
+
+	export interface Chip extends Component, FilterChipExtensions { }
 }
 
 const PLAINTEXT_FILTER_FUNCTION: FilterFunction['filter'] = (item, token) => item.displayProperties.name.toLowerCase().includes(token.lowercase)
@@ -50,6 +69,10 @@ const Filter = Object.assign(
 
 		let filtersOwner: State.Owner.Removable | undefined
 		const filterText = State('')
+
+		////////////////////////////////////
+		//#region Filter Parsing
+
 		const filters = State.Map(filter, [filterText, config], (text, config) => {
 			filtersOwner?.remove(); filtersOwner = State.Owner.create()
 			text = text.toLowerCase()
@@ -58,7 +81,7 @@ const Filter = Object.assign(
 			if (tokens.length === 0)
 				return []
 
-			const filters: ParsedFilter[] = []
+			const filters: FilterMatch[] = []
 			NextToken: for (const token of tokens) {
 				for (const filter of config?.filters ?? []) {
 					const fn = filter.match(filtersOwner, token)
@@ -80,6 +103,58 @@ const Filter = Object.assign(
 			return filters
 		})
 
+		function tokenise (filterText: string): FilterToken[] {
+			const tokens: FilterToken[] = []
+
+			let doubleQuote = false
+			let tokenStart = 0
+			let tokenEnd = 0
+			for (let i = 0; i < filterText.length + 1; i++) {
+				if (i === filterText.length)
+					doubleQuote = false // end of string, reset double quote state
+
+				const char = filterText[i] ?? ' '
+				if (char === '"')
+					doubleQuote = !doubleQuote
+
+				const isSpace = !doubleQuote && (false
+					|| char === ' '
+					|| filterText.slice(i, i + EMOJI_SPACE_PLACEHOLDER.length) === EMOJI_SPACE_PLACEHOLDER
+				)
+				if (isSpace) {
+					const spaceLength = char === ' ' ? 1 : EMOJI_SPACE_PLACEHOLDER.length
+					if (tokenEnd === tokenStart) { // skip consecutive spaces
+						tokenStart += spaceLength
+						tokenEnd += spaceLength
+						continue
+					}
+
+					const tokenText = filterText.slice(tokenStart, tokenEnd)
+					tokens.push(Object.assign(String(tokenText), {
+						lowercase: (tokenText
+							.toLowerCase()
+							.replace(/["\p{Emoji}\p{Extended_Pictographic}]/gu, '')
+						),
+						displayText: (tokenText
+							.replaceAll(' ', '\xa0')
+							.replace(EMOJI_REGEX, '')
+						),
+						start: tokenStart,
+						end: tokenEnd,
+					}))
+					tokenStart = tokenEnd = i + spaceLength // put new start after space
+					continue
+				}
+
+				tokenEnd++ // extend current token by 1 char
+			}
+
+			return tokens
+		}
+
+		//#endregion
+		////////////////////////////////////
+
 		const input = Component('input')
 			.attributes.set('type', 'text')
 			.attributes.bind('placeholder', quilt.map(filter, quilt => quilt['display-bar/filter/placeholder']().toString()))
@@ -88,6 +163,9 @@ const Filter = Object.assign(
 			.style.bind(filterText.truthy, 'filter-input--has-content')
 			.event.subscribe('input', e => filterText.value = e.host.element.value)
 			.appendTo(filter)
+
+		////////////////////////////////////
+		//#region Hidden Emoji Spacing
 
 		filters.use(input, filters => {
 			for (let i = filters.length - 1; i >= 0; i--) {
@@ -143,32 +221,144 @@ const Filter = Object.assign(
 			filterText.value = input.element.value
 		})
 
-		Slot().tweak(slot => slot.useDisplayContents.value = false).style('filter-display').appendTo(filter).use(filters, (slot, filters) => {
-			for (let i = 0; i < filters.length; i++) {
-				const filter = filters[i]
-				const lastEnd = filters[i - 1]?.token.end ?? 0
-				const diff = filter.token.start - lastEnd
-				slot.append(Component().style('filter-display-space').text.set(EMOJI_SPACE_PLACEHOLDER.repeat(diff)))
-				slot.append(Component()
-					.style('filter-display-chip', `filter-display-chip--${filter.id}` as 'filter-display-chip')
-					.append(filter.icon && Component()
-						.style('filter-display-chip-icon-wrapper')
-						.append(Component().style('filter-display-chip-icon-placeholder').text.set(EMOJI_ICON_PLACEHOLDER))
-						.append(Component()
-							.style('filter-display-chip-icon', `filter-display-chip-icon--${filter.id}` as 'filter-display-chip-icon')
-							.tweak(icon => typeof filter.icon === 'function' && filter.icon(icon, filter.token))
-						)
-					)
-					.append(Component()
-						.text.set(filter.token
-							.replaceAll(' ', '\xa0')
-							.replace(EMOJI_REGEX, '')
-						)
-					)
-					.tweak(chip => filter.chip?.(chip, filter.token))
-				)
-			}
-		})
+		//#endregion
+		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region Filter Display
+
+		Component()
+			.style('filter-display')
+			.tweak(wrapper => {
+				interface FilterDisplaySpace {
+					readonly type: 'space'
+					readonly length: number
+					component?: Component
+				}
+				interface FilterDisplayChip {
+					readonly type: 'chip'
+					readonly id: string
+					readonly match: FilterMatch
+					component?: Component
+				}
+				const displayData = filters.map(wrapper, filters => {
+					const display: (FilterDisplaySpace | FilterDisplayChip)[] = []
+					for (let i = 0; i < filters.length; i++) {
+						const filter = filters[i]
+						const lastEnd = filters[i - 1]?.token.end ?? 0
+						const spaceLength = filter.token.start - lastEnd
+						if (spaceLength)
+							display.push({
+								type: 'space',
+								length: spaceLength,
+							})
+
+						display.push({
+							type: 'chip',
+							id: filter.id,
+							match: filter,
+						})
+					}
+					return display
+				})
+
+				displayData.use(wrapper, (newDisplayData, oldDisplayData = []) => {
+					const children = wrapper.getChildren().toArray()
+					let n = 0
+					let o = 0
+					let lastComponent: Component | undefined
+					NextNew: for (; n < newDisplayData.length; n++) {
+						const newDisplayDataItem = newDisplayData[n]
+						for (; o < oldDisplayData.length; o++) {
+							const oldDisplayDataItem = oldDisplayData[o]
+							const matches = newDisplayDataItem.type === 'chip' && oldDisplayDataItem.type === 'chip'
+								? (newDisplayDataItem.id === oldDisplayDataItem.id
+									&& newDisplayDataItem.match.token.slice() === oldDisplayDataItem.match.token.slice()
+								)
+								: newDisplayDataItem.type === 'space' && oldDisplayDataItem.type === 'space'
+									? newDisplayDataItem.length === oldDisplayDataItem.length
+									: false
+
+							if (!matches) {
+								oldDisplayDataItem.component?.remove()
+								continue
+							}
+
+							o++
+							lastComponent = oldDisplayDataItem.component
+							newDisplayDataItem.component = oldDisplayDataItem.component
+							continue NextNew
+						}
+
+						// this token didn't exist before, so create a new component for it
+						switch (newDisplayDataItem.type) {
+							case 'space':
+								lastComponent = newDisplayDataItem.component = Component()
+									.style('filter-display-space')
+									.text.set(EMOJI_SPACE_PLACEHOLDER.repeat(newDisplayDataItem.length))
+									.insertTo(wrapper, 'after', lastComponent)
+								break
+							case 'chip': {
+								const filterMatch = newDisplayDataItem.match
+
+								const iconWrapper = filterMatch.icon && Component()
+									.style('filter-display-chip-icon-wrapper')
+
+								const iconPlaceholder = iconWrapper && Component()
+									.style('filter-display-chip-icon-placeholder')
+									.text.set(EMOJI_ICON_PLACEHOLDER)
+									.appendTo(iconWrapper)
+
+								const icon = iconWrapper && Component()
+									.style('filter-display-chip-icon', `filter-display-chip-icon--${newDisplayDataItem.id}` as 'filter-display-chip-icon')
+									.tweak(icon => typeof filterMatch.icon === 'function' && filterMatch.icon(icon, filterMatch.token))
+									.appendTo(iconWrapper)
+
+								const textWrapper = Component()
+									.style('filter-display-chip-text-wrapper')
+
+								Component()
+									.style('filter-display-chip-text-placeholder')
+									.text.set(filterMatch.token.displayText)
+									.appendTo(textWrapper)
+
+								const labelText = Component()
+									.style('filter-display-chip-text-label')
+									.appendTo(textWrapper)
+
+								const filterText = Component()
+									.style('filter-display-chip-text-main')
+									.text.set(filterMatch.token.displayText)
+									.appendTo(textWrapper)
+
+								lastComponent = newDisplayDataItem.component = Component()
+									.style('filter-display-chip', `filter-display-chip--${newDisplayDataItem.id}` as 'filter-display-chip')
+									.append(iconWrapper, textWrapper)
+									.extend<FilterChipExtensions>(chip => ({
+										iconWrapper,
+										iconPlaceholder,
+										icon,
+										labelWrapper: labelText,
+										labelText: labelText.text.rehost(chip),
+										textWrapper: filterText,
+									}))
+									.extendJIT('text', chip => filterText.text.rehost(chip))
+									.tweak(chip => filterMatch.chip?.(chip, filterMatch.token))
+									.insertTo(wrapper, 'after', lastComponent)
+								break
+							}
+						}
+					}
+
+					// remove unneeded components off the end
+					for (let r = children.length - 1; r >= n; r--)
+						children[r].remove()
+				})
+			})
+			.appendTo(filter)
+
+		//#endregion
+		////////////////////////////////////
 
 		return filter.extend<FilterExtensions>(filter => ({
 			input,
@@ -195,54 +385,3 @@ const Filter = Object.assign(
 )
 
 export default Filter
-
-// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
-interface Token extends String {
-	readonly lowercase: string
-	readonly start: number
-	readonly end: number
-}
-function tokenise (filterText: string): Token[] {
-	const tokens: Token[] = []
-
-	let doubleQuote = false
-	let tokenStart = 0
-	let tokenEnd = 0
-	for (let i = 0; i < filterText.length + 1; i++) {
-		if (i === filterText.length)
-			doubleQuote = false // end of string, reset double quote state
-
-		const char = filterText[i] ?? ' '
-		if (char === '"')
-			doubleQuote = !doubleQuote
-
-		const isSpace = !doubleQuote && (false
-			|| char === ' '
-			|| filterText.slice(i, i + EMOJI_SPACE_PLACEHOLDER.length) === EMOJI_SPACE_PLACEHOLDER
-		)
-		if (isSpace) {
-			const spaceLength = char === ' ' ? 1 : EMOJI_SPACE_PLACEHOLDER.length
-			if (tokenEnd === tokenStart) { // skip consecutive spaces
-				tokenStart += spaceLength
-				tokenEnd += spaceLength
-				continue
-			}
-
-			const tokenText = filterText.slice(tokenStart, tokenEnd)
-			tokens.push(Object.assign(String(tokenText), {
-				lowercase: (tokenText
-					.toLowerCase()
-					.replace(/["\p{Emoji}\p{Extended_Pictographic}]/gu, '')
-				),
-				start: tokenStart,
-				end: tokenEnd,
-			}))
-			tokenStart = tokenEnd = i + spaceLength // put new start after space
-			continue
-		}
-
-		tokenEnd++ // extend current token by 1 char
-	}
-
-	return tokens
-}
