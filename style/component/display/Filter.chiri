@@ -124,3 +124,83 @@
 				&--element:
 					filter: brightness(100)
 					padding: .2em
+
+	&-popover:
+		#after: .popover
+		%translate-x-0
+		%translate-up-4
+		margin-top: 1px !important
+		%padding-3-4
+		%border-box
+		%flex
+		%flex-column
+		%gap-2
+		%max-height-50
+
+		@before, @after:
+			%block
+			%absolute
+			%inset-0
+			%no-pointer-events
+
+		@before:
+			%z-index-bg
+			%backdrop-blur
+			background: #181818aa
+
+		@after:
+			box-shadow: inset 0 0 0 1px #5559
+			%z-index-bg
+
+		:popover:
+			%translate-x-0
+			%translate-up-2
+
+			:start:
+				%translate-up-2
+
+		&-title:
+			%uppercase
+			%font-2
+			%letter-spacing-2
+			%font-vertical-align
+			%unmargin-top-1
+
+		&-suggestions-wrapper:
+			%flex
+			%flex-wrap
+			%gap-2
+
+		&-suggestion:
+			#after: .filter-display-chip
+			%flex
+			height: calc($space-3 + $space-2 + $space-1)
+			%padding-block-0
+			%padding-right-2
+			%padding-left-1
+			%align-items-centre
+			font-size: $font-size-2-base
+			%box-shadow-none
+			%relative
+			%border-none
+
+			&-colour-wrapper:
+				@before, @after:
+					%block
+					%absolute
+					%inset-0
+
+				@before:
+					background: ${filter-chip-colour: #666}
+					%z-index-bg
+					box-shadow: inset 0 0 0 1px #fff1
+
+				@after:
+					%color-dodge
+					box-shadow: inset 0 0 0 1px #444
+
+			&-text-wrapper:
+				#after: .filter-display-chip-text-wrapper
+				; %unmargin-top-1
+				%align-items-end
+				%font-vertical-align

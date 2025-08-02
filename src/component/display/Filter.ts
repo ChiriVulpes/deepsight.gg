@@ -1,5 +1,12 @@
+import Button from 'component/core/Button'
 import type { Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
+import Popover from 'kitsui/component/Popover'
+import Slot from 'kitsui/component/Slot'
+import { NonNullish } from 'kitsui/utility/Arrays'
+import InputBus from 'kitsui/utility/InputBus'
+import Mouse from 'kitsui/utility/Mouse'
+import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import { quilt } from 'utility/Text'
 
@@ -9,6 +16,23 @@ interface FilterToken extends String {
 	readonly displayText: string
 	readonly start: number
 	readonly end: number
+}
+
+namespace FilterToken {
+	export function create (text: string, start = 0, end = text.length): FilterToken {
+		return Object.assign(String(text), {
+			lowercase: (text
+				.toLowerCase()
+				.replace(/["\p{Emoji}\p{Extended_Pictographic}]/gu, '')
+			),
+			displayText: (text
+				.replaceAll(' ', '\xa0')
+				.replace(EMOJI_REGEX, '')
+			),
+			start,
+			end,
+		})
+	}
 }
 
 interface FilterFunction {
@@ -25,9 +49,10 @@ interface FilterChipExtensions {
 	readonly iconWrapper?: Component
 	readonly iconPlaceholder?: Component
 	readonly icon?: Component
+	readonly textWrapper: Component
 	readonly labelWrapper: Component
 	readonly labelText: TextManipulator<this>
-	readonly textWrapper: Component
+	readonly mainTextWrapper: Component
 }
 
 interface FilterExtensions {
@@ -47,6 +72,7 @@ namespace Filter {
 
 	export interface Definition {
 		readonly id: string
+		suggestions (owner: State.Owner, token?: FilterToken): State.Or<string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
 
@@ -61,6 +87,53 @@ const EMOJI_REGEX = /[\p{Emoji}\p{Extended_Pictographic}]/gu
 const EMOJI_SPACE_PLACEHOLDER = '–'
 const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
 
+const Chip = Component((component, match: FilterMatch): Filter.Chip => {
+	const iconWrapper = match.icon && Component()
+		.style('filter-display-chip-icon-wrapper')
+
+	const iconPlaceholder = iconWrapper && Component()
+		.style('filter-display-chip-icon-placeholder')
+		.text.set(EMOJI_ICON_PLACEHOLDER)
+		.appendTo(iconWrapper)
+
+	const icon = iconWrapper && Component()
+		.style('filter-display-chip-icon', `filter-display-chip-icon--${match.id}` as 'filter-display-chip-icon')
+		.tweak(icon => typeof match.icon === 'function' && match.icon(icon, match.token))
+		.appendTo(iconWrapper)
+
+	const textWrapper = Component()
+		.style('filter-display-chip-text-wrapper')
+
+	Component()
+		.style('filter-display-chip-text-placeholder')
+		.text.set(match.token.displayText)
+		.appendTo(textWrapper)
+
+	const labelText = Component()
+		.style('filter-display-chip-text-label')
+		.appendTo(textWrapper)
+
+	const filterText = Component()
+		.style('filter-display-chip-text-main')
+		.text.set(match.token.displayText)
+		.appendTo(textWrapper)
+
+	return component
+		.style('filter-display-chip', `filter-display-chip--${match.id}` as 'filter-display-chip')
+		.append(iconWrapper, textWrapper)
+		.extend<FilterChipExtensions>(chip => ({
+			iconWrapper,
+			iconPlaceholder,
+			icon,
+			textWrapper: textWrapper,
+			labelWrapper: labelText,
+			labelText: labelText.text.rehost(chip),
+			mainTextWrapper: filterText,
+		}))
+		.extendJIT('text', chip => filterText.text.rehost(chip))
+		.tweak(chip => match.chip?.(chip, match.token))
+})
+
 const Filter = Object.assign(
 	Component((component): Filter => {
 		const filter = component.style('filter')
@@ -69,6 +142,7 @@ const Filter = Object.assign(
 
 		let filtersOwner: State.Owner.Removable | undefined
 		const filterText = State('')
+		const caretPosition = State<number | undefined>(0)
 
 		////////////////////////////////////
 		//#region Filter Parsing
@@ -130,18 +204,7 @@ const Filter = Object.assign(
 					}
 
 					const tokenText = filterText.slice(tokenStart, tokenEnd)
-					tokens.push(Object.assign(String(tokenText), {
-						lowercase: (tokenText
-							.toLowerCase()
-							.replace(/["\p{Emoji}\p{Extended_Pictographic}]/gu, '')
-						),
-						displayText: (tokenText
-							.replaceAll(' ', '\xa0')
-							.replace(EMOJI_REGEX, '')
-						),
-						start: tokenStart,
-						end: tokenEnd,
-					}))
+					tokens.push(FilterToken.create(tokenText, tokenStart, tokenEnd))
 					tokenStart = tokenEnd = i + spaceLength // put new start after space
 					continue
 				}
@@ -152,6 +215,17 @@ const Filter = Object.assign(
 			return tokens
 		}
 
+		const selectedToken = State.MapManual([filters, caretPosition], (filters, caretPosition) => {
+			if (caretPosition === undefined)
+				return undefined
+
+			for (const filter of filters)
+				if (caretPosition >= filter.token.start && caretPosition <= filter.token.end)
+					return filter
+
+			return undefined
+		})
+
 		//#endregion
 		////////////////////////////////////
 
@@ -161,7 +235,12 @@ const Filter = Object.assign(
 			.style('filter-input')
 			.style.bind(component.hasFocused, 'filter-input--has-focus')
 			.style.bind(filterText.truthy, 'filter-input--has-content')
-			.event.subscribe('input', e => filterText.value = e.host.element.value)
+			.event.subscribe('input', e =>
+				filterText.value = e.host.element.value
+			)
+			.event.subscribe('selectionchange', e =>
+				caretPosition.value = e.host.element.selectionStart === e.host.element.selectionEnd ? e.host.element.selectionStart ?? undefined : undefined
+			)
 			.appendTo(filter)
 
 		////////////////////////////////////
@@ -299,51 +378,7 @@ const Filter = Object.assign(
 									.insertTo(wrapper, 'after', lastComponent)
 								break
 							case 'chip': {
-								const filterMatch = newDisplayDataItem.match
-
-								const iconWrapper = filterMatch.icon && Component()
-									.style('filter-display-chip-icon-wrapper')
-
-								const iconPlaceholder = iconWrapper && Component()
-									.style('filter-display-chip-icon-placeholder')
-									.text.set(EMOJI_ICON_PLACEHOLDER)
-									.appendTo(iconWrapper)
-
-								const icon = iconWrapper && Component()
-									.style('filter-display-chip-icon', `filter-display-chip-icon--${newDisplayDataItem.id}` as 'filter-display-chip-icon')
-									.tweak(icon => typeof filterMatch.icon === 'function' && filterMatch.icon(icon, filterMatch.token))
-									.appendTo(iconWrapper)
-
-								const textWrapper = Component()
-									.style('filter-display-chip-text-wrapper')
-
-								Component()
-									.style('filter-display-chip-text-placeholder')
-									.text.set(filterMatch.token.displayText)
-									.appendTo(textWrapper)
-
-								const labelText = Component()
-									.style('filter-display-chip-text-label')
-									.appendTo(textWrapper)
-
-								const filterText = Component()
-									.style('filter-display-chip-text-main')
-									.text.set(filterMatch.token.displayText)
-									.appendTo(textWrapper)
-
-								lastComponent = newDisplayDataItem.component = Component()
-									.style('filter-display-chip', `filter-display-chip--${newDisplayDataItem.id}` as 'filter-display-chip')
-									.append(iconWrapper, textWrapper)
-									.extend<FilterChipExtensions>(chip => ({
-										iconWrapper,
-										iconPlaceholder,
-										icon,
-										labelWrapper: labelText,
-										labelText: labelText.text.rehost(chip),
-										textWrapper: filterText,
-									}))
-									.extendJIT('text', chip => filterText.text.rehost(chip))
-									.tweak(chip => filterMatch.chip?.(chip, filterMatch.token))
+								lastComponent = newDisplayDataItem.component = Chip(newDisplayDataItem.match)
 									.insertTo(wrapper, 'after', lastComponent)
 								break
 							}
@@ -356,6 +391,82 @@ const Filter = Object.assign(
 				})
 			})
 			.appendTo(filter)
+
+		//#endregion
+		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region Suggested Filters
+
+		const popover = Popover()
+			.style('filter-popover')
+			.anchor.from(input)
+			.anchor.add('aligned left', 'off top')
+			.setCloseDueToMouseInputFilter(event => !filter.contains(event.targetComponent))
+			.event.subscribe('click', e => e.host.focus())
+			.appendTo(document.body)
+
+		const mouseWithinPopover = State.Map(popover, [Mouse.state, popover.visible], (mouse, visible) => visible && popover.isMouseWithin())
+
+		State.Some(popover, input.hasFocused, popover.hasFocused, mouseWithinPopover).subscribe(popover, async focused => {
+			if (!focused) {
+				if (InputBus.isDown('F4'))
+					return
+
+				popover.hide()
+				return
+			}
+
+			popover.style.setProperty('width', `${input.element.offsetWidth}px`)
+			popover.style.setProperty('visibility', 'hidden')
+			popover.show()
+			popover.focus()
+			popover.style.removeProperties('left', 'top')
+			await Task.yield()
+			popover.anchor.apply()
+			await Task.yield()
+			popover.style.removeProperties('visibility')
+		})
+
+		Component()
+			.style('filter-popover-title')
+			.text.set(quilt => quilt['display-bar/filter/suggestions/title']())
+			.appendTo(popover)
+
+		Slot().tweak(slot => slot.useDisplayContents.value = false).style('filter-popover-suggestions-wrapper').appendTo(popover).use(
+			State.UseManual({ config, selectedToken, filters }),
+			(slot, { config, selectedToken, filters }) => {
+				for (const filter of config?.filters ?? []) {
+					const suggestions = filter.suggestions(slot, selectedToken?.token)
+					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
+						const chips = suggestions
+							.filter(suggestion => true
+								&& suggestion.startsWith(selectedToken?.token.lowercase ?? '')
+								&& !filters.some(filter => filter.token.lowercase === suggestion.toLowerCase())
+							)
+							.map((suggestion): FilterMatch | undefined => {
+								const token = FilterToken.create(suggestion)
+								const match = filter.match(slot, token)
+								if (!match)
+									return undefined
+
+								return Object.assign(match, { token, id: filter.id })
+							})
+							.filter(NonNullish)
+							.map(fn => Button()
+								.tweak(button => button.textWrapper.remove())
+								.and(Chip, fn)
+								.style.remove('filter-display-chip')
+								.style('filter-popover-suggestion')
+								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
+								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
+							)
+
+						slot.append(...chips)
+					})
+				}
+			}
+		)
 
 		//#endregion
 		////////////////////////////////////
