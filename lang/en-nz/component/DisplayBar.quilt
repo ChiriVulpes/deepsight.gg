@@ -2,5 +2,6 @@
 sort/title: Sort
 filter/title: Filter
 filter/placeholder: No filter enabled
+filter/suggestions/title: Suggested Filters
 help/title: Help
 help/subtitle: Keybindings & more
