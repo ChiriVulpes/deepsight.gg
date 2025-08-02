@@ -169,7 +169,7 @@
 		&-suggestions-wrapper:
 			%flex
 			%flex-wrap
-			%gap-2
+			%gap-1
 
 		&-suggestion:
 			#after: .filter-display-chip
