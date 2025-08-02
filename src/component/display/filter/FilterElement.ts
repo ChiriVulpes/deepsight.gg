@@ -1,5 +1,6 @@
 import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
+import { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
 import Relic from 'Relic'
 
@@ -9,8 +10,32 @@ const DestinyDamageTypeDefinition = State.Async(State.Owner.create(), async (sig
 })
 
 const prefix = 'element:'
+
+const defaultOrder = [
+	DamageTypeHashes.Kinetic,
+	DamageTypeHashes.Void,
+	DamageTypeHashes.Arc,
+	DamageTypeHashes.Solar,
+	DamageTypeHashes.Stasis,
+	DamageTypeHashes.Strand,
+]
+
+const suggestions = DestinyDamageTypeDefinition.mapManual(defs => {
+	return Object.values(defs ?? {})
+		.filter(def => def.hash as DamageTypeHashes !== DamageTypeHashes.Raid)
+		.sort((a, b) => defaultOrder.indexOf(a.hash) - defaultOrder.indexOf(b.hash))
+		.map(def => def?.displayProperties?.name)
+		.filter(name => !!name)
+		.map(name => `${prefix}${name.toLowerCase()}`)
+})
+
 export default Filter.Definition({
 	id: 'element',
+	suggestions (owner, token) {
+		return suggestions.map(owner, suggestions => {
+			return !token ? suggestions : suggestions.filter(suggestion => suggestion.startsWith(token.lowercase))
+		})
+	},
 	match (owner, token) {
 		if (!token.lowercase.startsWith(prefix))
 			return undefined
