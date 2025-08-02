@@ -36,6 +36,7 @@ namespace FilterToken {
 }
 
 interface FilterFunction {
+	readonly fullText: State.Or<string>
 	filter (item: Item, token: FilterToken): boolean
 	chip?(chip: Filter.Chip, token: FilterToken): unknown
 	icon?: true | ((icon: Component, token: FilterToken) => unknown)
@@ -70,9 +71,14 @@ namespace Filter {
 		readonly filters: Filter.Definition[]
 	}
 
+	export interface Suggestions {
+		readonly all: string[]
+		filter?(suggestion: string, token: FilterToken | undefined, filters: string[]): boolean
+	}
+
 	export interface Definition {
 		readonly id: string
-		suggestions (owner: State.Owner, token?: FilterToken): State.Or<string[]>
+		suggestions (owner: State.Owner): State.Or<Suggestions | string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
 
@@ -168,6 +174,7 @@ const Filter = Object.assign(
 
 				filters.push({
 					id: 'plaintext',
+					fullText: token.lowercase,
 					token,
 					filter: PLAINTEXT_FILTER_FUNCTION,
 					chip: PLAINTEXT_FILTER_TWEAK_CHIP,
@@ -175,6 +182,12 @@ const Filter = Object.assign(
 			}
 
 			return filters
+		})
+
+		let fullFilterTextsOwner: State.Owner.Removable | undefined
+		const fullFilterTexts = filters.mapManual(filters => {
+			fullFilterTextsOwner?.remove(); fullFilterTextsOwner = State.Owner.create()
+			return State.Map(fullFilterTextsOwner, filters.map(filter => State.get(filter.fullText)), (...texts) => texts)
 		})
 
 		function tokenise (filterText: string): FilterToken[] {
@@ -221,7 +234,7 @@ const Filter = Object.assign(
 
 			for (const filter of filters)
 				if (caretPosition >= filter.token.start && caretPosition <= filter.token.end)
-					return filter
+					return filter.token
 
 			return undefined
 		})
@@ -243,6 +256,25 @@ const Filter = Object.assign(
 			)
 			.appendTo(filter)
 
+		function spliceInput (start: number, end: number, replacement: string, collapseLeft?: true) {
+			const inputElement: HTMLInputElement = input.element
+
+			const originalValue = inputElement.value
+			let caretStart = inputElement.selectionStart
+			let caretEnd = inputElement.selectionEnd
+			const selectionDirection = inputElement.selectionDirection
+
+			inputElement.value = originalValue.slice(0, start) + replacement + originalValue.slice(end)
+
+			const delta = replacement.length - (end - start)
+
+			const shiftRightPos = collapseLeft ? end + 1 : end
+			caretStart = caretStart === null ? null : caretStart >= shiftRightPos ? caretStart + delta : Math.min(start, caretStart)
+			caretEnd = caretEnd === null ? null : caretEnd >= shiftRightPos ? caretEnd + delta : Math.min(start, caretEnd)
+
+			inputElement.setSelectionRange(caretStart, caretEnd, selectionDirection ?? undefined)
+		}
+
 		////////////////////////////////////
 		//#region Hidden Emoji Spacing
 
@@ -253,45 +285,22 @@ const Filter = Object.assign(
 				const textAfter = input.element.value.slice(filter.token.end, lastStart)
 				for (const match of textAfter.matchAll(EMOJI_OR_WHITESPACE_REGEX).toArray().reverse()) {
 					// ensure all whitespace between tokens is single ➕ characters
-					const inputElement: HTMLInputElement = input.element
 					const start = filter.token.end + (match.index ?? 0)
 					const end = start + match[0].length
-					let caretStart = inputElement.selectionStart
-					let caretEnd = inputElement.selectionEnd
-					const selectionDirection = inputElement.selectionDirection
-					inputElement.value = inputElement.value.slice(0, start) + EMOJI_SPACE_PLACEHOLDER + inputElement.value.slice(end)
-					caretStart = caretStart === null ? null : caretStart >= end ? caretStart + EMOJI_SPACE_PLACEHOLDER.length - (end - start) : Math.min(start, caretStart)
-					caretEnd = caretEnd === null ? null : caretEnd >= end ? caretEnd + EMOJI_SPACE_PLACEHOLDER.length - (end - start) : Math.min(start, caretEnd)
-					inputElement.setSelectionRange(caretStart, caretEnd, selectionDirection ?? undefined)
+					spliceInput(start, end, EMOJI_SPACE_PLACEHOLDER)
 				}
 
 				for (const match of filter.token.matchAll(EMOJI_REGEX).toArray().reverse()) {
 					// remove emojis from the token
-					const inputElement: HTMLInputElement = input.element
 					const start = filter.token.start + (match.index ?? 0)
 					const end = start + match[0].length
-					const value = inputElement.value
-					let caretStart = inputElement.selectionStart
-					let caretEnd = inputElement.selectionEnd
-					const selectionDirection = inputElement.selectionDirection
-					inputElement.value = value.slice(0, start) + value.slice(end)
-					caretStart = caretStart === null ? null : caretStart > start ? caretStart - (end - start) : caretStart
-					caretEnd = caretEnd === null ? null : caretEnd > start ? caretEnd - (end - start) : caretEnd
-					inputElement.setSelectionRange(caretStart, caretEnd, selectionDirection ?? undefined)
+					spliceInput(start, end, '')
 				}
 
 				if (filter.icon) {
 					// insert a ⬛ emoji at the start of tokens with icon
-					const inputElement: HTMLInputElement = input.element
 					const start = filter.token.start
-					const value = inputElement.value
-					let caretStart = inputElement.selectionStart
-					let caretEnd = inputElement.selectionEnd
-					const selectionDirection = inputElement.selectionDirection
-					inputElement.value = value.slice(0, start) + EMOJI_ICON_PLACEHOLDER + value.slice(start)
-					caretStart = caretStart === null ? null : caretStart > start ? caretStart + EMOJI_ICON_PLACEHOLDER.length : caretStart
-					caretEnd = caretEnd === null ? null : caretEnd > start ? caretEnd + EMOJI_ICON_PLACEHOLDER.length : caretEnd
-					inputElement.setSelectionRange(caretStart, caretEnd, selectionDirection ?? undefined)
+					spliceInput(start, start, EMOJI_ICON_PLACEHOLDER, true)
 				}
 			}
 
@@ -433,17 +442,14 @@ const Filter = Object.assign(
 			.text.set(quilt => quilt['display-bar/filter/suggestions/title']())
 			.appendTo(popover)
 
-		Slot().tweak(slot => slot.useDisplayContents.value = false).style('filter-popover-suggestions-wrapper').appendTo(popover).use(
-			State.UseManual({ config, selectedToken, filters }),
-			(slot, { config, selectedToken, filters }) => {
+		Slot()
+			.tweak(slot => slot.useDisplayContents.value = false)
+			.style('filter-popover-suggestions-wrapper')
+			.use(config, (slot, config) => {
 				for (const filter of config?.filters ?? []) {
-					const suggestions = filter.suggestions(slot, selectedToken?.token)
+					const suggestions = filter.suggestions(slot)
 					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
-						const chips = suggestions
-							.filter(suggestion => true
-								&& suggestion.startsWith(selectedToken?.token.lowercase ?? '')
-								&& !filters.some(filter => filter.token.lowercase === suggestion.toLowerCase())
-							)
+						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
 							.map((suggestion): FilterMatch | undefined => {
 								const token = FilterToken.create(suggestion)
 								const match = filter.match(slot, token)
@@ -453,20 +459,50 @@ const Filter = Object.assign(
 								return Object.assign(match, { token, id: filter.id })
 							})
 							.filter(NonNullish)
-							.map(fn => Button()
+
+						for (const suggestion of suggestionMatches)
+							Button()
 								.tweak(button => button.textWrapper.remove())
-								.and(Chip, fn)
+								.and(Chip, suggestion)
 								.style.remove('filter-display-chip')
 								.style('filter-popover-suggestion')
 								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
 								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
-							)
-
-						slot.append(...chips)
+								.event.subscribe('click', async e => {
+									spliceInput(
+										selectedToken.value?.start ?? caretPosition.value ?? 0,
+										selectedToken.value?.end ?? caretPosition.value ?? 0,
+										`${suggestion.token.lowercase} `,
+									)
+									filterText.value = input.element.value
+									const selectionStart = input.element.selectionStart
+									const selectionEnd = input.element.selectionEnd
+									const selectionDirection = input.element.selectionDirection
+									await Task.yield()
+									input.focus()
+									input.element.setSelectionRange(
+										selectionStart,
+										selectionEnd,
+										selectionDirection ?? undefined
+									)
+								})
+								.appendToWhen(
+									State.Map(slot, [selectedToken, fullFilterTexts], (selectedToken, filters) => {
+										const lowercase = suggestion.token.lowercase
+										return true
+											// this suggestion isn't already something we're filtering by
+											&& !filters.includes(lowercase)
+											// ensure the suggestion matches the current filter text
+											&& (!selectedToken || lowercase.startsWith(selectedToken.lowercase))
+											// ensure the suggestion matches the filter provided
+											&& (Array.isArray(suggestions) ? true : suggestions.filter?.(lowercase, selectedToken, filters) ?? true)
+									}),
+									slot
+								)
 					})
 				}
-			}
-		)
+			})
+			.appendTo(popover)
 
 		//#endregion
 		////////////////////////////////////
