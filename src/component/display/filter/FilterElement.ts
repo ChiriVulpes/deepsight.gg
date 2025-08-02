@@ -31,10 +31,10 @@ const suggestions = DestinyDamageTypeDefinition.mapManual(defs => {
 
 export default Filter.Definition({
 	id: 'element',
-	suggestions (owner, token) {
-		return suggestions.map(owner, suggestions => {
-			return !token ? suggestions : suggestions.filter(suggestion => suggestion.startsWith(token.lowercase))
-		})
+	suggestions (owner) {
+		return suggestions.map(owner, suggestions => ({
+			all: suggestions,
+		}))
 	},
 	match (owner, token) {
 		if (!token.lowercase.startsWith(prefix))
@@ -48,6 +48,7 @@ export default Filter.Definition({
 		})
 		const [labelText, filterText] = token.displayText.split(':')
 		return {
+			fullText: damageType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name.toLowerCase()}`),
 			chip (chip, token) {
 				chip.style('filter-display-chip--element')
 				chip.style.bindFrom(damageType.map(chip, def => def && `filter-display-chip--element--${def.displayProperties.name.toLowerCase()}` as 'filter-display-chip--element--arc'))
