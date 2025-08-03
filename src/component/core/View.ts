@@ -1,3 +1,4 @@
+import type { DisplayHandlers } from 'component/DisplayBar'
 import DisplayBar from 'component/DisplayBar'
 import Navbar from 'component/Navbar'
 import { Component, State } from 'kitsui'
@@ -19,6 +20,7 @@ interface ViewExtensions {
 	readonly loading: ViewLoading
 	readonly hasNavbar: State.Mutable<boolean>
 	readonly displayBarConfig: State.Mutable<DisplayBar.Config | undefined>
+	readonly displayHandlers: State<DisplayHandlers | undefined>
 	refresh (): Promise<void>
 }
 
@@ -60,6 +62,7 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 				loading: undefined!,
 				hasNavbar,
 				displayBarConfig,
+				displayHandlers: displayBarConfig.map(view, config => config ? displayBar?.handlers : undefined),
 				refresh: navigate.refresh,
 			}))
 

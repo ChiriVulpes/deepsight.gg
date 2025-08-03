@@ -41,8 +41,13 @@ const DisplayBarButton = Component((component): DisplayBarButton => {
 	}))
 })
 
+export interface DisplayHandlers {
+	readonly filter: Filter
+}
+
 interface DisplayBarExtensions {
 	readonly config: State.Mutable<DisplayBar.Config | undefined>
+	readonly handlers: DisplayHandlers
 }
 
 interface DisplayBar extends Component, DisplayBarExtensions { }
@@ -91,6 +96,9 @@ const DisplayBar = Object.assign(
 		return component
 			.extend<DisplayBarExtensions>(displayBar => ({
 				config,
+				handlers: {
+					filter,
+				},
 			}))
 			.appendToWhen(config.truthy, Component.getBody())
 	}),

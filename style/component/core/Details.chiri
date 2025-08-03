@@ -1,4 +1,8 @@
+$$details-dummy-transitioning!length
+
 .details:
+	#transition: #{transition("$$details-dummy-transitioning")}
+	$details-dummy-transitioning: 1em
 
 	&-summary:
 		%margin-bottom-3
@@ -19,6 +23,7 @@
 
 	&--open:
 		#after: .details
+		$details-dummy-transitioning: 2em
 		@details-content:
 			height: auto
 			mask-position: 0 0%
