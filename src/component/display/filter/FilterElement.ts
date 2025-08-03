@@ -22,6 +22,7 @@ const defaultOrder = [
 
 export default Filter.Definition({
 	id: 'element',
+	type: 'or',
 	suggestions: DestinyDamageTypeDefinition.mapManual(defs => {
 		return Object.values(defs ?? {})
 			.filter(def => def.hash as DamageTypeHashes !== DamageTypeHashes.Raid)

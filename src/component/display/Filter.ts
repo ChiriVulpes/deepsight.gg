@@ -79,7 +79,8 @@ namespace Filter {
 
 	export interface Definition {
 		readonly id: string
-		suggestions: ((owner: State.Owner) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
+		readonly type: 'and' | 'or'
+		readonly suggestions: ((owner: State.Owner) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
 
@@ -561,10 +562,33 @@ const Filter = Object.assign(
 				if (!parsedFilters.length)
 					return true
 
-				for (const filter of parsedFilters) {
-					const result = filter.filter(item, filter.token)
-					if (!result || (!showIrrelevant && result === 'irrelevant'))
-						return false
+				const groupedFilters = Object.groupBy(parsedFilters, filter => filter.id)
+				for (const [filterId, filters] of Object.entries(groupedFilters)) {
+					if (!filters)
+						continue
+
+					const type = config.value?.filters.find(filter => filter.id === filterId)?.type ?? 'and'
+					switch (type) {
+						case 'and':
+							for (const filter of filters) {
+								const result = filter.filter(item, filter.token)
+								if (!result || (!showIrrelevant && result === 'irrelevant'))
+									return false
+							}
+							break
+						case 'or': {
+							let hasMatch = false
+							for (const filter of filters) {
+								const result = filter.filter(item, filter.token)
+								if (result === true || (result === 'irrelevant' && showIrrelevant)) {
+									hasMatch = true
+									break
+								}
+							}
+							if (!hasMatch)
+								return false
+						}
+					}
 				}
 
 				return true
