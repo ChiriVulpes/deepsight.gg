@@ -42,6 +42,9 @@
 
 		&-text:
 
+			&--inactive:
+				%opacity-50
+
 		&-space:
 			%transparent
 			margin-left: -.03em
@@ -79,7 +82,7 @@
 				&--stasis: $filter-chip-colour: oklch(from $colour-damage-stasis #{100 * lightness}% calc(c * #{chroma-modifier}) h)
 
 			&-text-wrapper:
-				%grid
+				%inline-grid
 				grid-template-columns: auto auto
 				%align-items-centre
 
@@ -96,6 +99,9 @@
 					%column-1
 					font-size: .95em
 					margin-right: .2em
+
+					:empty:
+						%hidden
 
 				&-main:
 					%row-1

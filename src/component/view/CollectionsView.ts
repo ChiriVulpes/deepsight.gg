@@ -1,7 +1,7 @@
 import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
 import Moment from 'component/view/collections/Moment'
-import { Component } from 'kitsui'
+import { Component, State } from 'kitsui'
 import Relic from 'Relic'
 
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
@@ -38,10 +38,15 @@ export default View(async view => {
 	console.log(collections)
 	view.displayBarConfig.value = COLLECTIONS_DISPLAY
 
+	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+
 	let year: number | undefined = NaN
 	let yearWrapper: Component | undefined
+	let yearMomentVisibilityStates: State<boolean>[] = []
 	for (const moment of collections.moments) {
 		if (moment.moment.year !== year) {
+			handleYearWrapperEnd()
+
 			year = moment.moment.year
 			yearWrapper = !year ? undefined : Component()
 				.style('collections-view-year')
@@ -49,9 +54,22 @@ export default View(async view => {
 					.style('collections-view-year-label')
 					.text.set(quilt => quilt['view/collections/year'](year))
 				)
-				.appendTo(view)
 		}
 
-		Moment(moment, collections).appendTo(yearWrapper ?? view)
+		const momentComponent = Moment(moment, collections, view.displayHandlers)
+		const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)
+		yearMomentVisibilityStates.push(shouldShow)
+		momentComponent.appendToWhen(shouldShow, yearWrapper ?? view)
+	}
+
+	handleYearWrapperEnd()
+	function handleYearWrapperEnd () {
+		if (!yearWrapper)
+			return
+
+		const momentVisibilityStates = yearMomentVisibilityStates.slice()
+		yearMomentVisibilityStates = []
+		const shouldShow = State.Map(yearWrapper, momentVisibilityStates, (...states) => states.includes(true))
+		yearWrapper.appendToWhen(shouldShow, view)
 	}
 })

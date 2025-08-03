@@ -37,7 +37,8 @@ namespace FilterToken {
 
 interface FilterFunction {
 	readonly fullText: State.Or<string>
-	filter (item: Item, token: FilterToken): boolean
+	readonly isPartial: State.Or<boolean>
+	filter (item: Item, token: FilterToken): true | false | 'irrelevant'
 	chip?(chip: Filter.Chip, token: FilterToken): unknown
 	icon?: true | ((icon: Component, token: FilterToken) => unknown)
 }
@@ -60,7 +61,7 @@ interface FilterExtensions {
 	readonly input: Component
 	readonly filterText: State<string>
 	readonly config: State.Mutable<Filter.Config | undefined>
-	filter (item: Item): boolean
+	filter (item: Item, showIrrelevant: boolean): boolean
 }
 
 interface Filter extends Component, FilterExtensions { }
@@ -78,7 +79,7 @@ namespace Filter {
 
 	export interface Definition {
 		readonly id: string
-		suggestions (owner: State.Owner): State.Or<Suggestions | string[]>
+		suggestions: ((owner: State.Owner) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
 
@@ -86,12 +87,15 @@ namespace Filter {
 }
 
 const PLAINTEXT_FILTER_FUNCTION: FilterFunction['filter'] = (item, token) => item.displayProperties.name.toLowerCase().includes(token.lowercase)
-const PLAINTEXT_FILTER_TWEAK_CHIP: FilterFunction['chip'] = (chip, token) => chip/* .style.remove('filter-display-chip')*/.style('filter-display-text')
+const PLAINTEXT_FILTER_TWEAK_CHIP: FilterFunction['chip'] = (chip, token) => chip.style('filter-display-text').style.toggle(token.lowercase.length < 3, 'filter-display-text--inactive')
 
 const EMOJI_ICON_PLACEHOLDER = '⬛'
 const EMOJI_REGEX = /[\p{Emoji}\p{Extended_Pictographic}]/gu
 const EMOJI_SPACE_PLACEHOLDER = '–'
 const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
+
+////////////////////////////////////
+//#region Filter Display Chip
 
 const Chip = Component((component, match: FilterMatch): Filter.Chip => {
 	const iconWrapper = match.icon && Component()
@@ -140,6 +144,9 @@ const Chip = Component((component, match: FilterMatch): Filter.Chip => {
 		.tweak(chip => match.chip?.(chip, match.token))
 })
 
+//#endregion
+////////////////////////////////////
+
 const Filter = Object.assign(
 	Component((component): Filter => {
 		const filter = component.style('filter')
@@ -175,6 +182,7 @@ const Filter = Object.assign(
 				filters.push({
 					id: 'plaintext',
 					fullText: token.lowercase,
+					isPartial: true,
 					token,
 					filter: PLAINTEXT_FILTER_FUNCTION,
 					chip: PLAINTEXT_FILTER_TWEAK_CHIP,
@@ -184,10 +192,40 @@ const Filter = Object.assign(
 			return filters
 		})
 
-		let fullFilterTextsOwner: State.Owner.Removable | undefined
-		const fullFilterTexts = filters.mapManual(filters => {
-			fullFilterTextsOwner?.remove(); fullFilterTextsOwner = State.Owner.create()
-			return State.Map(fullFilterTextsOwner, filters.map(filter => State.get(filter.fullText)), (...texts) => texts)
+		let filterFullTextsOwner: State.Owner.Removable | undefined
+		const filterFullTexts = filters.mapManual(filters => {
+			filterFullTextsOwner?.remove(); filterFullTextsOwner = State.Owner.create()
+			return State.Map(filterFullTextsOwner,
+				filters.map(filter => State.get(filter.fullText)),
+				(...texts) => texts,
+			)
+		})
+
+		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || filter.token.lowercase.length >= 3))
+		const appliedFilterText = appliedFilters.mapManual(filters => filters.map(filter => filter.token.lowercase).join(' '))
+
+		let noPartialFiltersOwner: State.Owner.Removable | undefined
+		const noPartialFilters = filters.mapManual(filters => {
+			noPartialFiltersOwner?.remove(); noPartialFiltersOwner = State.Owner.create()
+			return State.Map(noPartialFiltersOwner,
+				filters.map(filter => State.get(filter.isPartial)),
+				(...partialStates) => !partialStates.includes(true),
+			)
+		})
+
+		const debounceFinished = State(true)
+		let filterTextEditTimeout: number | undefined
+		appliedFilterText.useManual(filterText => {
+			debounceFinished.value = false
+			clearTimeout(filterTextEditTimeout)
+			filterTextEditTimeout = window.setTimeout(() => {
+				debounceFinished.value = true
+			}, 200)
+		})
+
+		let oldFilterText = ''
+		const debouncedFilterText = State.MapManual([appliedFilterText, noPartialFilters, debounceFinished], (filterText, noPartialFilters, debounceFinished) => {
+			return oldFilterText = noPartialFilters || debounceFinished ? filterText : oldFilterText
 		})
 
 		function tokenise (filterText: string): FilterToken[] {
@@ -241,6 +279,9 @@ const Filter = Object.assign(
 
 		//#endregion
 		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region Input
 
 		const input = Component('input')
 			.attributes.set('type', 'text')
@@ -308,6 +349,9 @@ const Filter = Object.assign(
 			// (this won't infinitely recurse because the emojis will have already been corrected the first time)
 			filterText.value = input.element.value
 		})
+
+		//#endregion
+		////////////////////////////////////
 
 		//#endregion
 		////////////////////////////////////
@@ -447,7 +491,7 @@ const Filter = Object.assign(
 			.style('filter-popover-suggestions-wrapper')
 			.use(config, (slot, config) => {
 				for (const filter of config?.filters ?? []) {
-					const suggestions = filter.suggestions(slot)
+					const suggestions = typeof filter.suggestions === 'function' ? filter.suggestions(slot) : filter.suggestions
 					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
 						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
 							.map((suggestion): FilterMatch | undefined => {
@@ -487,7 +531,7 @@ const Filter = Object.assign(
 									)
 								})
 								.appendToWhen(
-									State.Map(slot, [selectedToken, fullFilterTexts], (selectedToken, filters) => {
+									State.Map(slot, [selectedToken, filterFullTexts], (selectedToken, filters) => {
 										const lowercase = suggestion.token.lowercase
 										return true
 											// this suggestion isn't already something we're filtering by
@@ -509,16 +553,18 @@ const Filter = Object.assign(
 
 		return filter.extend<FilterExtensions>(filter => ({
 			input,
-			filterText,
+			filterText: debouncedFilterText,
 			config,
-			filter: item => {
-				const parsedFilters = filters.value
+			filter: (item, showIrrelevant) => {
+				const parsedFilters = appliedFilters.value
 				if (!parsedFilters.length)
 					return true
 
-				for (const filter of parsedFilters)
-					if (!filter.filter(item, filter.token))
+				for (const filter of parsedFilters) {
+					const result = filter.filter(item, filter.token)
+					if (!result || (!showIrrelevant && result === 'irrelevant'))
 						return false
+				}
 
 				return true
 			},

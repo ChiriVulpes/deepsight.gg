@@ -20,22 +20,16 @@ const defaultOrder = [
 	DamageTypeHashes.Strand,
 ]
 
-const suggestions = DestinyDamageTypeDefinition.mapManual(defs => {
-	return Object.values(defs ?? {})
-		.filter(def => def.hash as DamageTypeHashes !== DamageTypeHashes.Raid)
-		.sort((a, b) => defaultOrder.indexOf(a.hash) - defaultOrder.indexOf(b.hash))
-		.map(def => def?.displayProperties?.name)
-		.filter(name => !!name)
-		.map(name => `${prefix}${name.toLowerCase()}`)
-})
-
 export default Filter.Definition({
 	id: 'element',
-	suggestions (owner) {
-		return suggestions.map(owner, suggestions => ({
-			all: suggestions,
-		}))
-	},
+	suggestions: DestinyDamageTypeDefinition.mapManual(defs => {
+		return Object.values(defs ?? {})
+			.filter(def => def.hash as DamageTypeHashes !== DamageTypeHashes.Raid)
+			.sort((a, b) => defaultOrder.indexOf(a.hash) - defaultOrder.indexOf(b.hash))
+			.map(def => def?.displayProperties?.name)
+			.filter(name => !!name)
+			.map(name => `${prefix}${name.toLowerCase()}`)
+	}),
 	match (owner, token) {
 		if (!token.lowercase.startsWith(prefix))
 			return undefined
@@ -49,6 +43,7 @@ export default Filter.Definition({
 		const [labelText, filterText] = token.displayText.split(':')
 		return {
 			fullText: damageType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name.toLowerCase()}`),
+			isPartial: damageType.falsy,
 			chip (chip, token) {
 				chip.style('filter-display-chip--element')
 				chip.style.bindFrom(damageType.map(chip, def => def && `filter-display-chip--element--${def.displayProperties.name.toLowerCase()}` as 'filter-display-chip--element--arc'))
@@ -60,7 +55,8 @@ export default Filter.Definition({
 					.appendToWhen(damageType.truthy, icon)
 			},
 			filter (item, token) {
-				return !item.damageTypes?.length || item.damageTypes.includes(damageType.value?.hash ?? NaN)
+				return !item.damageTypes?.length ? 'irrelevant'
+					: item.damageTypes.includes(damageType.value?.hash ?? NaN)
 			},
 		}
 	},
