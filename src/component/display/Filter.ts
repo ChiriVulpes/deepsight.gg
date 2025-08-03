@@ -395,7 +395,6 @@ const Filter = Object.assign(
 				})
 
 				displayData.use(wrapper, (newDisplayData, oldDisplayData = []) => {
-					const children = wrapper.getChildren().toArray()
 					let n = 0
 					let o = 0
 					let lastComponent: Component | undefined
@@ -438,9 +437,11 @@ const Filter = Object.assign(
 						}
 					}
 
-					// remove unneeded components off the end
-					for (let r = children.length - 1; r >= n; r--)
-						children[r].remove()
+					// remove other components that have been removed
+					const children = wrapper.getChildren().toArray()
+					for (const child of children)
+						if (!newDisplayData.some(item => item.component === child))
+							child.remove()
 				})
 			})
 			.appendTo(filter)
