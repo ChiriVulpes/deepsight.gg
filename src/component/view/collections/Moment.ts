@@ -149,6 +149,10 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 						void shouldShowItem.await(bucket, true).then(() => {
 							const itemComponent = Item(item, collections)
 							Object.assign(itemComponent, { shouldShowItem, filterState })
+							filterText.use(itemComponent, () => {
+								itemComponent.rect.markDirty()
+								Item.Tooltip?.anchor.markDirty()
+							})
 							itemComponent.appendToWhen(shouldShowItem, bucket.content)
 						})
 						filterStates.push(shouldShowItem)
