@@ -1,36 +1,35 @@
-
-import { InventoryItemHashes, ItemCategoryHashes, SocketCategoryHashes } from "@deepsight.gg/Enums";
-import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from "bungie-api-ts/destiny2";
-import manifest from "./endpoint/DestinyManifest";
+import { InventoryItemHashes, ItemCategoryHashes, SocketCategoryHashes } from '@deepsight.gg/Enums'
+import type { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } from 'bungie-api-ts/destiny2'
+import manifest from './endpoint/DestinyManifest'
 
 namespace ItemPreferred {
 
 	export async function findPreferredCopy (item: string | number | DestinyInventoryItemDefinition) {
-		const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest;
-		const items = await DestinyInventoryItemDefinition.all();
-		const powerCaps = await DestinyPowerCapDefinition.all();
+		const { DestinyInventoryItemDefinition, DestinyPowerCapDefinition } = manifest
+		const items = await DestinyInventoryItemDefinition.all()
+		const powerCaps = await DestinyPowerCapDefinition.all()
 
-		if (typeof item !== "string") {
-			const definition = typeof item === "object" ? item : items[item];
+		if (typeof item !== 'string') {
+			const definition = typeof item === 'object' ? item : items[item]
 			if (!definition?.displayProperties.name)
-				return undefined;
+				return undefined
 
-			item = definition.displayProperties.name;
+			item = definition.displayProperties.name
 		}
 
-		const name = item;
-		const matching = Object.values(items).filter(item => item.displayProperties?.name === name);
+		const name = item
+		const matching = Object.values(items).filter(item => item.displayProperties?.name === name)
 
 		const [preferred] = matching.filter(item => !isEquippableDummy(item))
-			.sort((a, b) => sortPreferredCopy(a, b, powerCaps));
+			.sort((a, b) => sortPreferredCopy(a, b, powerCaps))
 
-		return preferred;
+		return preferred
 	}
 
 	export function isEquippableDummy (item: DestinyInventoryItemDefinition) {
 		return !item.equippable
 			|| item.itemCategoryHashes?.includes(ItemCategoryHashes.Dummies)
-			|| !(item.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) || item.itemCategoryHashes?.includes(ItemCategoryHashes.Armor));
+			|| !(item.itemCategoryHashes?.includes(ItemCategoryHashes.Weapon) || item.itemCategoryHashes?.includes(ItemCategoryHashes.Armor))
 	}
 
 	const IGNORED_ITEMS = [
@@ -56,29 +55,29 @@ namespace ItemPreferred {
 		InventoryItemHashes.TaraxipposScoutRifle1389546626, // older
 		InventoryItemHashes.TheTitleSubmachineGun655712834, // older
 		InventoryItemHashes.FortunateStarCombatBow2631466936, // special
-		InventoryItemHashes.JudgmentAdeptHandCannon3329218848, // special
-	];
+		InventoryItemHashes.JudgmentAdeptHandCannon_IsHolofoiltrue, // special
+	]
 
 	export function isIgnored (item: InventoryItemHashes) {
-		return IGNORED_ITEMS.includes(item);
+		return IGNORED_ITEMS.includes(item)
 	}
 
 	const hasDeprecatedArmorPerksSocket = (item: DestinyInventoryItemDefinition) =>
 		!!item.sockets?.socketCategories.some(socket => socket.socketCategoryHash === SocketCategoryHashes.ArmorPerks_CategoryStyle1)
 
 	const hasDeepsightSocket = (item: DestinyInventoryItemDefinition) =>
-		!!item.sockets?.socketEntries.some(socket => socket.singleInitialItemHash === InventoryItemHashes.EmptyDeepsightSocketPlug);
+		!!item.sockets?.socketEntries.some(socket => socket.singleInitialItemHash === InventoryItemHashes.EmptyDeepsightSocketPlug)
 
 	// todo make this better
 	const armorArchetypePlugset = 1315181101
 	const hasArchetypeSocket = (item: DestinyInventoryItemDefinition) =>
-		!!item.sockets?.socketEntries.some(socket => socket.randomizedPlugSetHash === armorArchetypePlugset);
+		!!item.sockets?.socketEntries.some(socket => socket.randomizedPlugSetHash === armorArchetypePlugset)
 
 	export function sortPreferredCopy (itemA: DestinyInventoryItemDefinition, itemB: DestinyInventoryItemDefinition, powerCaps: Record<number, DestinyPowerCapDefinition>) {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const powerCapA = powerCaps[itemA.quality?.versions[itemA.quality.currentVersion]?.powerCapHash!];
+		const powerCapA = powerCaps[itemA.quality?.versions[itemA.quality.currentVersion]?.powerCapHash!]
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-		const powerCapB = powerCaps[itemB.quality?.versions[itemB.quality.currentVersion]?.powerCapHash!];
+		const powerCapB = powerCaps[itemB.quality?.versions[itemB.quality.currentVersion]?.powerCapHash!]
 
 		return 0
 			|| +IGNORED_ITEMS.includes(itemA.hash) - +IGNORED_ITEMS.includes(itemB.hash)
@@ -87,8 +86,8 @@ namespace ItemPreferred {
 			|| +hasArchetypeSocket(itemB) - +hasArchetypeSocket(itemA)
 			|| +hasDeprecatedArmorPerksSocket(itemA) - +hasDeprecatedArmorPerksSocket(itemB)
 			|| +((powerCapB?.powerCap ?? 0) > 900_000) - +((powerCapA?.powerCap ?? 0) > 900_000)
-			|| +hasDeepsightSocket(itemB) - +hasDeepsightSocket(itemA);
+			|| +hasDeepsightSocket(itemB) - +hasDeepsightSocket(itemA)
 	}
 }
 
-export default ItemPreferred;
+export default ItemPreferred
