@@ -424,3 +424,28 @@ export declare interface DeepsightItemDamageTypesDefinition {
 	hash: InventoryItemHashes
 	damageTypes: DamageTypeHashes[]
 }
+
+export declare const enum DeepsightItemSourceType {
+	CommanderZavalaLegacyGear,
+	LordShaxxLegacyGear,
+	DrifterLegacyGear,
+	// SaladinLegacyGear,
+	Saint14LegacyGear,
+	BansheeFocusedDecoding,
+	BansheeFeatured,
+	// XurFeatured,
+	ExoticKioskLegacyGear,
+	VanguardOps,
+	PinnacleOps,
+	CrucibleOps,
+}
+
+export declare interface DeepsightItemSourceListDefinition {
+	hash: number
+	sources: DeepsightItemSourceType[]
+}
+
+export declare interface DeepsightItemSourceDefinition {
+	hash: DeepsightItemSourceType
+	displayProperties: DeepsightDisplayPropertiesDefinition
+}
