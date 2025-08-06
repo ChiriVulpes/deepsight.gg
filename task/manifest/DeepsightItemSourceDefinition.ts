@@ -151,6 +151,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.CommanderZavala_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear3444362755 },
 				description: { DestinyVendorDefinition: VendorHashes.CommanderZavala_Enabledtrue },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.CommanderZavala_Enabledtrue, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.LordShaxxLegacyGear]: {
@@ -160,6 +161,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.LordShaxx_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2595490586 },
 				description: { DestinyVendorDefinition: VendorHashes.LordShaxx_Enabledtrue },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.LordShaxx_Enabledtrue, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.DrifterLegacyGear]: {
@@ -169,6 +171,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.TheDrifter_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2906014866 },
 				description: { DestinyVendorDefinition: VendorHashes.TheDrifter_Enabledtrue },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.TheDrifter_Enabledtrue, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.Saint14LegacyGear]: {
@@ -178,6 +181,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.Saint14 },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear4140351452 },
 				description: { DestinyVendorDefinition: VendorHashes.Saint14 },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Saint14, property: 'mapIcon' } },
 			}),
 		},
 		// [DeepsightItemSourceType.SaladinLegacyGear]: {
@@ -195,6 +199,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
 				subtitle: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
 				description: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.MonumentToLostLights, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.BansheeFocusedDecoding]: {
@@ -205,6 +210,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.FocusedDecoding2435958557 },
 				description: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Banshee44_Enabledtrue, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.BansheeFeatured]: {
@@ -215,6 +221,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
 				description: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Banshee44_Enabledtrue, property: 'mapIcon' } },
 			}),
 		},
 		// [DeepsightItemSourceType.XurFeatured]: {

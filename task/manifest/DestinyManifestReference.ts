@@ -12,13 +12,18 @@ interface HasDisplayPropertiesOrIconWatermark {
 	iconWatermarkShelved?: string
 }
 
-interface ManifestReferenceWhich {
+interface ManifestReferenceWhichFrame {
 	hash: number
 	iconSequence: number
 	frame: number
 }
 
-type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number | ManifestReferenceWhich }
+interface ManifestReferenceWhichProperty {
+	hash: number
+	property: string
+}
+
+type DestinyManifestReference = { [KEY in keyof AllDestinyManifestComponents]?: number | ManifestReferenceWhichProperty | ManifestReferenceWhichFrame }
 namespace DestinyManifestReference {
 	export interface DisplayPropertiesDefinition {
 		name?: string | DestinyManifestReference
@@ -38,7 +43,7 @@ namespace DestinyManifestReference {
 			if (!definition)
 				continue
 
-			if (typeof which === 'object' && 'displayProperties' in definition) {
+			if (typeof which === 'object' && 'frame' in which && 'displayProperties' in definition) {
 				const icon = definition.displayProperties.iconSequences[which.iconSequence]?.frames[which.frame]
 				if (!icon) {
 					Log.error(`Unable to resolve icon from manifest reference: ${definition.displayProperties.name} (${componentName}), icon sequence ${which.iconSequence}, frame ${which.frame}`)
@@ -46,6 +51,16 @@ namespace DestinyManifestReference {
 				}
 
 				return icon
+			}
+
+			if (typeof which === 'object' && 'property' in which && 'displayProperties' in definition) {
+				const propertyValue = definition.displayProperties[which.property as 'name']
+				if (!propertyValue) {
+					Log.error(`Unable to resolve icon from manifest reference: ${definition.displayProperties.name} (${componentName}), property ${which.property}`)
+					return undefined
+				}
+
+				return propertyValue
 			}
 
 			const result = resolveSource(definition, type)
