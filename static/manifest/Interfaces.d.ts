@@ -76,6 +76,8 @@ export declare interface DeepsightManifestComponentsMap {
 	DeepsightStats: Record<number, DeepsightStats>
 	DeepsightTierTypeDefinition: Record<number, DeepsightTierTypeDefinition>
 	DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition>
+	DeepsightItemSourceDefinition: Record<number, DeepsightItemSourceDefinition>
+	DeepsightItemSourceListDefinition: Record<number, DeepsightItemSourceListDefinition>
 }
 
 export declare interface DeepsightDisplayPropertiesDefinition {
