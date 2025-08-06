@@ -440,6 +440,15 @@ export declare const enum DeepsightItemSourceType {
 	VanguardOps,
 	PinnacleOps,
 	CrucibleOps,
+	TrialsOfOsiris,
+	ArmsWeekEvent,
+	SolsticeEvent,
+}
+
+export declare const enum DeepsightItemSourceCategory {
+	Vendor,
+	ActivityReward,
+	EventReward,
 }
 
 export declare interface DeepsightItemSourceListDefinition {
@@ -449,5 +458,7 @@ export declare interface DeepsightItemSourceListDefinition {
 
 export declare interface DeepsightItemSourceDefinition {
 	hash: DeepsightItemSourceType
+	category: DeepsightItemSourceCategory
+	rotates?: true
 	displayProperties: DeepsightDisplayPropertiesDefinition
 }

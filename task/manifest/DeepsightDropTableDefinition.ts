@@ -13,19 +13,6 @@ import type { Activity } from './utility/endpoint/DestinyActivities'
 import DestinyActivities from './utility/endpoint/DestinyActivities'
 import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from './utility/endpoint/DestinyManifest'
 
-declare module 'bungie-api-ts/destiny2/interfaces' {
-	interface DestinyActivity {
-		visibleRewards: {
-			displayBehavior: number
-			rewardItems: {
-				itemQuantity: DestinyItemQuantity
-				uiStyle: string
-				visibilityUnlockExpression: { steps: [], scope: number }
-			}[]
-		}[]
-	}
-}
-
 const ACTIVITY_GRAPH_HASH_SOLO_OPS = 1733518967
 const ACTIVITY_GRAPH_HASH_FIRETEAM_OPS = 2021988413
 const ACTIVITY_GRAPH_HASH_PINNACLE_OPS = 2427019152

@@ -1,7 +1,7 @@
 import type { ActivityGraphHashes } from '@deepsight.gg/Enums'
-import { ActivityHashes, ActivityModeHashes, DestinationHashes, VendorHashes } from '@deepsight.gg/Enums'
+import { ActivityHashes, ActivityModeHashes, EventCardHashes, FireteamFinderActivityGraphHashes, VendorHashes } from '@deepsight.gg/Enums'
 import type { DeepsightItemSourceDefinition } from '@deepsight.gg/Interfaces'
-import { DeepsightItemSourceType, type DeepsightItemSourceListDefinition } from '@deepsight.gg/Interfaces'
+import { DeepsightItemSourceCategory, DeepsightItemSourceType, type DeepsightItemSourceListDefinition } from '@deepsight.gg/Interfaces'
 import type { DestinyActivityDefinition, DestinyDisplayCategoryDefinition } from 'bungie-api-ts/destiny2/interfaces'
 import fs from 'fs-extra'
 import { Task } from 'task'
@@ -124,6 +124,9 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		[DeepsightItemSourceType.VanguardOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_SOLO_OPS, ACTIVITY_GRAPH_HASH_FIRETEAM_OPS),
 		[DeepsightItemSourceType.PinnacleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_PINNACLE_OPS),
 		[DeepsightItemSourceType.CrucibleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS),
+		[DeepsightItemSourceType.TrialsOfOsiris]: await getVendorCategories(VendorHashes.TrialsOfOsirisGear110620395).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.ArmsWeekEventWeaponsEngram237769120).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.SolsticeEvent]: await getVendorCategories(VendorHashes.DistortedSolsticeEngram2110607183).then(getVendorCategoryItems),
 	}
 
 	const items = new Set(Object.values(itemSources).flat())
@@ -143,6 +146,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 	const DeepsightItemSourceDefinition: Record<DeepsightItemSourceType, DeepsightItemSourceDefinition> = {
 		[DeepsightItemSourceType.CommanderZavalaLegacyGear]: {
 			hash: DeepsightItemSourceType.CommanderZavalaLegacyGear,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.CommanderZavala_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear3444362755 },
@@ -151,6 +155,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.LordShaxxLegacyGear]: {
 			hash: DeepsightItemSourceType.LordShaxxLegacyGear,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.LordShaxx_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2595490586 },
@@ -159,6 +164,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.DrifterLegacyGear]: {
 			hash: DeepsightItemSourceType.DrifterLegacyGear,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.TheDrifter_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2906014866 },
@@ -167,6 +173,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.Saint14LegacyGear]: {
 			hash: DeepsightItemSourceType.Saint14LegacyGear,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.Saint14 },
 				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear4140351452 },
@@ -183,6 +190,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		// },
 		[DeepsightItemSourceType.ExoticKioskLegacyGear]: {
 			hash: DeepsightItemSourceType.ExoticKioskLegacyGear,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
 				subtitle: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
@@ -191,6 +199,8 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.BansheeFocusedDecoding]: {
 			hash: DeepsightItemSourceType.BansheeFocusedDecoding,
+			category: DeepsightItemSourceCategory.Vendor,
+			rotates: true,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.FocusedDecoding2435958557 },
@@ -199,6 +209,8 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.BansheeFeatured]: {
 			hash: DeepsightItemSourceType.BansheeFeatured,
+			category: DeepsightItemSourceCategory.Vendor,
+			rotates: true,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
 				subtitle: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
@@ -214,6 +226,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		// },
 		[DeepsightItemSourceType.VanguardOps]: {
 			hash: DeepsightItemSourceType.VanguardOps,
+			category: DeepsightItemSourceCategory.ActivityReward,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyActivityDefinition: ActivityHashes.VanguardOps },
 				description: { DestinyActivityDefinition: ActivityHashes.VanguardOps },
@@ -222,6 +235,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.PinnacleOps]: {
 			hash: DeepsightItemSourceType.PinnacleOps,
+			category: DeepsightItemSourceCategory.ActivityReward,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyActivityDefinition: ActivityHashes.PinnacleOps },
 				description: { DestinyActivityDefinition: ActivityHashes.PinnacleOps },
@@ -230,10 +244,36 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.CrucibleOps]: {
 			hash: DeepsightItemSourceType.CrucibleOps,
+			category: DeepsightItemSourceCategory.ActivityReward,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyDestinationDefinition: DestinationHashes.TheCrucible4088006058 },
-				description: { DestinyDestinationDefinition: DestinationHashes.TheCrucible4088006058 },
+				name: { DestinyFireteamFinderActivityGraphDefinition: FireteamFinderActivityGraphHashes.CrucibleOps },
+				description: { DestinyFireteamFinderActivityGraphDefinition: FireteamFinderActivityGraphHashes.CrucibleOps },
 				icon: { DestinyActivityModeDefinition: ActivityModeHashes.Crucible },
+			}),
+		},
+		[DeepsightItemSourceType.TrialsOfOsiris]: {
+			hash: DeepsightItemSourceType.TrialsOfOsiris,
+			category: DeepsightItemSourceCategory.ActivityReward,
+			displayProperties: await DestinyManifestReference.resolveAll({
+				name: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris3148168425 },
+				description: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris3148168425 },
+				icon: { DestinyActivityModeDefinition: ActivityModeHashes.TrialsOfOsiris },
+			}),
+		},
+		[DeepsightItemSourceType.ArmsWeekEvent]: {
+			hash: DeepsightItemSourceType.ArmsWeekEvent,
+			category: DeepsightItemSourceCategory.EventReward,
+			displayProperties: await DestinyManifestReference.resolveAll({
+				name: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
+				icon: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
+			}),
+		},
+		[DeepsightItemSourceType.SolsticeEvent]: {
+			hash: DeepsightItemSourceType.SolsticeEvent,
+			category: DeepsightItemSourceCategory.EventReward,
+			displayProperties: await DestinyManifestReference.resolveAll({
+				name: { DestinyEventCardDefinition: EventCardHashes.Solstice },
+				icon: { DestinyEventCardDefinition: EventCardHashes.Solstice },
 			}),
 		},
 	}

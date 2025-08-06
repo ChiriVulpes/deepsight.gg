@@ -54,7 +54,7 @@ namespace ItemPreferred {
 		InventoryItemHashes.HullabalooGrenadeLauncher657927352, // older
 		InventoryItemHashes.TaraxipposScoutRifle1389546626, // older
 		InventoryItemHashes.TheTitleSubmachineGun655712834, // older
-		InventoryItemHashes.FortunateStarCombatBow2631466936, // special
+		InventoryItemHashes.FortunateStarCombatBow2326578623, // older
 		InventoryItemHashes.JudgmentAdeptHandCannon_IsHolofoiltrue, // special
 	]
 
