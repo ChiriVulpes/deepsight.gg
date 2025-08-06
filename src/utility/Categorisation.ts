@@ -8,6 +8,8 @@ type PlugCategorisationExpression =
 	| `${DeepsightPlugCategoryName}/*Enhanced`
 	| '*Empty'
 	| `${DeepsightPlugCategoryName}/*Empty`
+	| '*Empty*'
+	| `${DeepsightPlugCategoryName}/*Empty*`
 	| '*Default'
 	| `${DeepsightPlugCategoryName}/*Default`
 	| 'Masterwork/ExoticCatalyst*'
@@ -24,7 +26,7 @@ namespace Categorisation {
 	] satisfies PlugCategorisationExpression[])
 	export const IsPerk = matcher('Perk/*')
 	export const IsEnhanced = matcher('*Enhanced')
-	export const IsEmpty = matcher('*Empty')
+	export const IsEmpty = matcher('*Empty*')
 	export const IsDefault = matcher('*Default')
 	export const IsShaderOrnament = matcher('Cosmetic/Shader', 'Cosmetic/Ornament')
 	export const IsEmptyOrIncompleteCatalyst = matcher('Masterwork/ExoticCatalyst*', '!Masterwork/ExoticCatalyst')
@@ -52,6 +54,12 @@ namespace Categorisation {
 			for (const expression of expressions) {
 				if (expression === categorisation)
 					return true
+
+				if (expression.startsWith('*') && expression.endsWith('*'))
+					if (categorisation.includes(expression.slice(1, -1)))
+						return true
+					else
+						continue
 
 				if (expression.startsWith('*'))
 					if (categorisation.endsWith(expression.slice(1)))
