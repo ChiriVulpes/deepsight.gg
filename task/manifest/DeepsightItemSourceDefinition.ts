@@ -11,19 +11,27 @@ import manifest from './utility/endpoint/DestinyManifest'
 
 type VendorCategoryTuple = readonly [DestinyDisplayCategoryDefinition, number[]]
 
-async function getVendorCategories (vendorHash: number) {
+async function getVendorCategories (...vendorHashes: VendorHashes[]) {
+	const result: VendorCategoryTuple[] = []
 	const { DestinyVendorDefinition } = manifest
-	const vendor = await DestinyVendorDefinition.get(vendorHash)
-	return !vendor ? [] : vendor?.displayCategories
-		.map((category, i) => [
-			category,
-			vendor.itemList.filter(item => item.displayCategoryIndex === i).map(item => item.itemHash),
-		] as const)
+	for (const vendorHash of vendorHashes) {
+		const vendor = await DestinyVendorDefinition.get(vendorHash)
+		if (!vendor)
+			continue
+
+		result.push(...vendor.displayCategories
+			.map((category, i) => [
+				category,
+				vendor.itemList.filter(item => item.displayCategoryIndex === i).map(item => item.itemHash),
+			] as const)
+		)
+	}
+	return result
 }
 
 async function getVendorCategoryItems (categories: VendorCategoryTuple[]) {
 	return await Promise.all(categories.map(([category, items]) => getCollectionsItems(items)))
-		.then(items => items.flat())
+		.then(items => Array.from(new Set(items.flat())))
 }
 
 async function getDropsFromActivityGraphs (...graphs: ActivityGraphHashes[]) {
@@ -125,7 +133,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		[DeepsightItemSourceType.PinnacleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_PINNACLE_OPS),
 		[DeepsightItemSourceType.CrucibleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS),
 		[DeepsightItemSourceType.TrialsOfOsiris]: await getVendorCategories(VendorHashes.TrialsOfOsirisGear110620395).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.TowerShootingRangeAdaFocusing).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.TowerShootingRangeAdaFocusing, VendorHashes.ArmsWeekEventWeaponsEngram237769120).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.SolsticeEvent]: await getVendorCategories(VendorHashes.DistortedSolsticeEngram2110607183).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.Kepler]: await getVendorCategories(VendorHashes.FocusedDecoding3550596112).then(getVendorCategoryItems),
 	}
