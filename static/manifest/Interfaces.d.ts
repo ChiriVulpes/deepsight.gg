@@ -441,12 +441,14 @@ export declare const enum DeepsightItemSourceType {
 	TrialsOfOsiris,
 	ArmsWeekEvent,
 	SolsticeEvent,
+	Kepler,
 }
 
 export declare const enum DeepsightItemSourceCategory {
 	Vendor,
 	ActivityReward,
 	EventReward,
+	Destination,
 }
 
 export declare interface DeepsightItemSourceListDefinition {

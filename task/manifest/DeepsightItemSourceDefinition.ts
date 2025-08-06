@@ -1,5 +1,5 @@
 import type { ActivityGraphHashes } from '@deepsight.gg/Enums'
-import { ActivityHashes, ActivityModeHashes, EventCardHashes, FireteamFinderActivityGraphHashes, VendorHashes } from '@deepsight.gg/Enums'
+import { ActivityHashes, ActivityModeHashes, EventCardHashes, FireteamFinderActivityGraphHashes, PresentationNodeHashes, VendorHashes } from '@deepsight.gg/Enums'
 import type { DeepsightItemSourceDefinition } from '@deepsight.gg/Interfaces'
 import { DeepsightItemSourceCategory, DeepsightItemSourceType, type DeepsightItemSourceListDefinition } from '@deepsight.gg/Interfaces'
 import type { DestinyActivityDefinition, DestinyDisplayCategoryDefinition } from 'bungie-api-ts/destiny2/interfaces'
@@ -115,7 +115,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		[DeepsightItemSourceType.DrifterLegacyGear]: await getVendorCategories(VendorHashes.GambitEngramFocusingLegacy).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.Saint14LegacyGear]: await getVendorCategories(VendorHashes.TrialsEngramFocusingLegacy).then(getVendorCategoryItems),
 		// [DeepsightItemSourceType.SaladinLegacyGear]: await getCategories(VendorHashes.LegacyGear2672927612).then(getItems),
-		[DeepsightItemSourceType.ExoticKioskLegacyGear]: await getVendorCategories(VendorHashes.TowerExoticArchive).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.ExoticKioskLegacyGear]: await getVendorCategories(VendorHashes.TowerExoticArchivePinnacle).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.BansheeFocusedDecoding]: await getVendorCategories(VendorHashes.GunsmithFocusedDecoding).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.BansheeFeatured]: await getVendorCategories(VendorHashes.Gunsmith)
 			.then(categories => categories.filter(([category]) => category.identifier === 'category_weapon_meta'))
@@ -127,6 +127,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		[DeepsightItemSourceType.TrialsOfOsiris]: await getVendorCategories(VendorHashes.TrialsOfOsirisGear110620395).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.TowerShootingRangeAdaFocusing).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.SolsticeEvent]: await getVendorCategories(VendorHashes.DistortedSolsticeEngram2110607183).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.Kepler]: await getVendorCategories(VendorHashes.FocusedDecoding3550596112).then(getVendorCategoryItems),
 	}
 
 	const items = new Set(Object.values(itemSources).flat())
@@ -272,7 +273,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
-				subtitle: { DestinyVendorDefinition: VendorHashes.TowerShootingRangeAda },
+				subtitle: { DestinyVendorDefinition: { hash: VendorHashes.TowerShootingRangeAda, property: 'name' } },
 				icon: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
 			}),
 		},
@@ -282,6 +283,15 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyEventCardDefinition: EventCardHashes.Solstice },
 				icon: { DestinyEventCardDefinition: EventCardHashes.Solstice },
+			}),
+		},
+		[DeepsightItemSourceType.Kepler]: {
+			hash: DeepsightItemSourceType.Kepler,
+			category: DeepsightItemSourceCategory.Destination,
+			displayProperties: await DestinyManifestReference.resolveAll({
+				name: { DestinyPresentationNodeDefinition: PresentationNodeHashes.Kepler },
+				subtitle: { DestinyActivityDefinition: ActivityHashes.TheEdgeOfFate_PlaceHash4076196532 },
+				icon: { DestinyPresentationNodeDefinition: { hash: PresentationNodeHashes.Kepler, iconSequence: 1, frame: 0 } },
 			}),
 		},
 	}
