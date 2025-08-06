@@ -270,7 +270,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.ArmsWeekEvent]: {
 			hash: DeepsightItemSourceType.ArmsWeekEvent,
-			category: DeepsightItemSourceCategory.Vendor,
+			category: DeepsightItemSourceCategory.EventVendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
 				subtitle: { DestinyVendorDefinition: { hash: VendorHashes.TowerShootingRangeAda, property: 'name' } },

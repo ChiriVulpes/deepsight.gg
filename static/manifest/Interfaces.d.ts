@@ -449,6 +449,7 @@ export declare const enum DeepsightItemSourceCategory {
 	ActivityReward,
 	EventReward,
 	Destination,
+	EventVendor,
 }
 
 export declare interface DeepsightItemSourceListDefinition {
