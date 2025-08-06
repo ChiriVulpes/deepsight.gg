@@ -6,6 +6,7 @@ declare module 'kitsui/component/Tooltip' {
 		readonly content: Component
 		readonly header: Component
 		readonly body: Component
+		readonly extra: Component
 	}
 }
 
@@ -76,15 +77,29 @@ export default function styleKit () {
 	//#region Tooltip
 
 	Kit.Tooltip.extend(tooltip => {
+		const main = Component()
+			.style('tooltip-block')
+			.style.bind(tooltip.visible, 'tooltip-block--visible')
+			.appendTo(tooltip)
+
 		const content = Component()
 			.style('tooltip-content')
-			.appendTo(tooltip)
+			.appendTo(main)
 		const header = Component()
 			.style('tooltip-header')
 			.appendTo(content)
 		const body = Component()
 			.style('tooltip-body')
 			.appendTo(content)
+
+		tooltip.extendJIT('extra', () => Component()
+			.style('tooltip-content', 'tooltip-extra')
+			.appendTo(Component()
+				.style('tooltip-block')
+				.style.bind(tooltip.visible, 'tooltip-block--visible')
+				.appendTo(tooltip.style('tooltip--has-extra'))
+			)
+		)
 		return {
 			content,
 			header,

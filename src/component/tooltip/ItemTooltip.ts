@@ -1,12 +1,16 @@
 import type { DestinyEquipableItemSetDefinition } from 'bungie-api-ts/destiny2/interfaces'
+import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
+import Lore from 'component/core/Lore'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
 import type { DamageTypeHashes, SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { StatHashes } from 'deepsight.gg/Enums'
+import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
+import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
@@ -321,13 +325,13 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 							return
 
 						if (socketed) {
-							Image(`https://www.bungie.net${socketed?.displayProperties.icon}`)
+							Image(`https://www.bungie.net${socketed.displayProperties.icon}`)
 								.style('item-tooltip-perks-perk-icon')
 								.appendTo(wrapper)
 
 							Component()
 								.style('item-tooltip-perks-perk-label')
-								.text.set(socketed?.displayProperties.name)
+								.text.set(socketed.displayProperties.name)
 								.appendTo(wrapper)
 						}
 
@@ -335,6 +339,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 						const additionalPlugs = plugs.filter(plug => true
 							&& plug.hash !== socketed?.hash
 							&& (isSocketedEnhanced || !Categorisation.IsEnhanced(plug))
+							&& !Categorisation.IsEmpty(plug)
 						)
 						for (const plug of additionalPlugs)
 							Image(`https://www.bungie.net${plug.displayProperties.icon}`)
@@ -424,6 +429,68 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 
 	//#endregion
 	////////////////////////////////////
+
+	const flavourText = item.map(tooltip, item => item.flavorText)
+	Component()
+		.style('item-tooltip-flavour-text-wrapper')
+		.append(Lore().style('item-tooltip-flavour-text').text.bind(flavourText))
+		.appendToWhen(flavourText.truthy, tooltip.extra)
+
+	const sources = item.map(tooltip, item => item.sources)
+	const sourceList = DisplaySlot()
+		.style('item-tooltip-source-list')
+		.appendTo(tooltip.extra)
+	sourceList.use(State.Use(tooltip, { sources, collections }), (slot, { sources, collections }) => {
+		if (!sources?.length)
+			return
+
+		for (let i = 0; i < sources.length; i++) {
+			const sourceRef = sources[i]
+			switch (sourceRef.type) {
+				case 'defined': {
+					const source = collections.sources[sourceRef.id]
+					const displayProperties = source?.displayProperties
+					if (!displayProperties)
+						break
+
+					let subtitle: StringApplicatorSource | undefined = _
+						?? (source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.EventReward ? quilt => quilt['item-tooltip/source/type/event-reward']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.EventVendor ? quilt => quilt['item-tooltip/source/type/event-vendor']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.Vendor
+							? quilt => quilt[source.rotates ? 'item-tooltip/source/type/vendor-rotation' : 'item-tooltip/source/type/vendor']()
+							: undefined
+						)
+
+					if (source.displayProperties.subtitle) {
+						const baseSubtitle = subtitle
+						subtitle = quilt => quilt['item-tooltip/source/subtitle'](
+							displayProperties.subtitle,
+							typeof baseSubtitle === 'function' ? baseSubtitle(quilt) : baseSubtitle,
+						)
+					}
+
+					const icon = displayProperties.icon
+					Component()
+						.style('item-tooltip-source')
+						.style.toggle(!!i, 'item-tooltip-source--additional')
+						.style.toggle(!!icon, 'item-tooltip-source--has-icon')
+						.append(icon && Image(`https://www.bungie.net${icon}`).style('item-tooltip-source-icon'))
+						.append(Component()
+							.style('item-tooltip-source-title')
+							.text.set(displayProperties.name)
+							// .text.set(quilt => quilt['item-tooltip/source/title'](displayProperties.name, displayProperties.subtitle))
+						)
+						.append(subtitle && Component()
+							.style('item-tooltip-source-subtitle')
+							.text.set(subtitle)
+						)
+						.appendTo(slot)
+					break
+				}
+			}
+		}
+	})
 
 	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
 	return tooltip
