@@ -44,7 +44,7 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 	],
 	DestinyActivityDefinition: ['loadouts*', 'destinationHash'],
 	DestinyRecordDefinition: ['loreHash', 'completionInfo.ScoreValue', 'objectiveHashes*', 'parentNodeHashes*'],
-	DestinyVendorDefinition: ['itemList.*'],
+	DestinyVendorDefinition: ['itemList.*', 'categories.*'],
 	DestinyPresentationNodeDefinition: ['children.*'],
 	DestinyDestinationDefinition: ['bubble*', 'activityGraphEntries*'],
 }
@@ -87,6 +87,7 @@ interface IComponentNameGeneratorApi {
 
 const COMPONENT_NAME_GENERATORS: { [KEY in keyof AllDestinyManifestComponents]?: (definition: AllDestinyManifestComponents[KEY][number], api: IComponentNameGeneratorApi) => Promise<string | undefined> | string | undefined } = {
 	DestinyVendorGroupDefinition: def => def.categoryName,
+	DestinyVendorDefinition: def => def.vendorIdentifier,
 	DestinyLoadoutNameDefinition: def => def.name,
 	DestinyLocationDefinition: async (def, api) => Promise
 		.all(([] as (Promise<string | undefined> | string | undefined)[])
@@ -287,9 +288,9 @@ export class EnumHelper {
 			return undefined
 
 		const name = OVERRIDDEN_ENUM_NAMES[type]?.[definition.hash!]
-			?? definition.displayProperties?.name
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			?? await COMPONENT_NAME_GENERATORS[type]?.(definition as any, EnumHelper.getComponentNameGeneratorApi())
+			?? definition.displayProperties?.name
 			?? MISSING_ENUM_NAMES[type]?.[definition.hash!]
 
 		return name

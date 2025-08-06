@@ -108,16 +108,16 @@ const ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS = 3557894678 as ActivityGraphHashes
 
 export default Task('DeepsightItemSourceDefinition', async task => {
 	const itemSources: Record<DeepsightItemSourceType, number[]> = {
-		[DeepsightItemSourceType.CommanderZavalaLegacyGear]: await getVendorCategories(VendorHashes.LegacyGear3444362755)
+		[DeepsightItemSourceType.CommanderZavalaLegacyGear]: await getVendorCategories(VendorHashes.VanguardEngramFocusingLegacy)
 			.then(categories => categories.filter(([category]) => category.identifier !== 'category_legacy_nightfall'))
 			.then(getVendorCategoryItems),
-		[DeepsightItemSourceType.LordShaxxLegacyGear]: await getVendorCategories(VendorHashes.LegacyGear2595490586).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.DrifterLegacyGear]: await getVendorCategories(VendorHashes.LegacyGear2906014866).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.Saint14LegacyGear]: await getVendorCategories(VendorHashes.LegacyGear4140351452).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.LordShaxxLegacyGear]: await getVendorCategories(VendorHashes.CrucibleEngramFocusingLegacy).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.DrifterLegacyGear]: await getVendorCategories(VendorHashes.GambitEngramFocusingLegacy).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.Saint14LegacyGear]: await getVendorCategories(VendorHashes.TrialsEngramFocusingLegacy).then(getVendorCategoryItems),
 		// [DeepsightItemSourceType.SaladinLegacyGear]: await getCategories(VendorHashes.LegacyGear2672927612).then(getItems),
-		[DeepsightItemSourceType.ExoticKioskLegacyGear]: await getVendorCategories(VendorHashes.LegacyGear1092954315).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.BansheeFocusedDecoding]: await getVendorCategories(VendorHashes.FocusedDecoding2435958557).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.BansheeFeatured]: await getVendorCategories(VendorHashes.Banshee44_Enabledtrue)
+		[DeepsightItemSourceType.ExoticKioskLegacyGear]: await getVendorCategories(VendorHashes.TowerExoticArchive).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.BansheeFocusedDecoding]: await getVendorCategories(VendorHashes.GunsmithFocusedDecoding).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.BansheeFeatured]: await getVendorCategories(VendorHashes.Gunsmith)
 			.then(categories => categories.filter(([category]) => category.identifier === 'category_weapon_meta'))
 			.then(getVendorCategoryItems),
 		// [DeepsightItemSourceType.XurFeatured]: [],
@@ -125,7 +125,7 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		[DeepsightItemSourceType.PinnacleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_PINNACLE_OPS),
 		[DeepsightItemSourceType.CrucibleOps]: await getDropsFromActivityGraphs(ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS),
 		[DeepsightItemSourceType.TrialsOfOsiris]: await getVendorCategories(VendorHashes.TrialsOfOsirisGear110620395).then(getVendorCategoryItems),
-		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.ArmsWeekEventWeaponsEngram237769120).then(getVendorCategoryItems),
+		[DeepsightItemSourceType.ArmsWeekEvent]: await getVendorCategories(VendorHashes.TowerShootingRangeAdaFocusing).then(getVendorCategoryItems),
 		[DeepsightItemSourceType.SolsticeEvent]: await getVendorCategories(VendorHashes.DistortedSolsticeEngram2110607183).then(getVendorCategoryItems),
 	}
 
@@ -148,40 +148,40 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			hash: DeepsightItemSourceType.CommanderZavalaLegacyGear,
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.CommanderZavala_Enabledtrue },
-				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear3444362755 },
-				description: { DestinyVendorDefinition: VendorHashes.CommanderZavala_Enabledtrue },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.CommanderZavala_Enabledtrue, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.TitanVanguard },
+				subtitle: { DestinyVendorDefinition: VendorHashes.VanguardEngramFocusingLegacy },
+				description: { DestinyVendorDefinition: VendorHashes.TitanVanguard },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.TitanVanguard, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.LordShaxxLegacyGear]: {
 			hash: DeepsightItemSourceType.LordShaxxLegacyGear,
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.LordShaxx_Enabledtrue },
-				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2595490586 },
-				description: { DestinyVendorDefinition: VendorHashes.LordShaxx_Enabledtrue },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.LordShaxx_Enabledtrue, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.Crucible },
+				subtitle: { DestinyVendorDefinition: VendorHashes.CrucibleEngramFocusingLegacy },
+				description: { DestinyVendorDefinition: VendorHashes.Crucible },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Crucible, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.DrifterLegacyGear]: {
 			hash: DeepsightItemSourceType.DrifterLegacyGear,
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.TheDrifter_Enabledtrue },
-				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear2906014866 },
-				description: { DestinyVendorDefinition: VendorHashes.TheDrifter_Enabledtrue },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.TheDrifter_Enabledtrue, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.Gambit },
+				subtitle: { DestinyVendorDefinition: VendorHashes.GambitEngramFocusingLegacy },
+				description: { DestinyVendorDefinition: VendorHashes.Gambit },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Gambit, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.Saint14LegacyGear]: {
 			hash: DeepsightItemSourceType.Saint14LegacyGear,
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.Saint14 },
-				subtitle: { DestinyVendorDefinition: VendorHashes.LegacyGear4140351452 },
-				description: { DestinyVendorDefinition: VendorHashes.Saint14 },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.Saint14, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.TowerSaint14 },
+				subtitle: { DestinyVendorDefinition: VendorHashes.TrialsEngramFocusingLegacy },
+				description: { DestinyVendorDefinition: VendorHashes.TowerSaint14 },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.TowerSaint14, property: 'mapIcon' } },
 			}),
 		},
 		// [DeepsightItemSourceType.SaladinLegacyGear]: {
@@ -196,10 +196,10 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			hash: DeepsightItemSourceType.ExoticKioskLegacyGear,
 			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
-				subtitle: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
-				description: { DestinyVendorDefinition: VendorHashes.MonumentToLostLights },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.MonumentToLostLights, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.TowerExoticArchive },
+				subtitle: { DestinyVendorDefinition: VendorHashes.TowerExoticArchive },
+				description: { DestinyVendorDefinition: VendorHashes.TowerExoticArchive },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.TowerExoticArchive, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.BansheeFocusedDecoding]: {
@@ -207,10 +207,10 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			category: DeepsightItemSourceCategory.Vendor,
 			rotates: true,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
-				subtitle: { DestinyVendorDefinition: VendorHashes.FocusedDecoding2435958557 },
-				description: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.Banshee44_Enabledtrue, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.Gunsmith },
+				subtitle: { DestinyVendorDefinition: VendorHashes.GunsmithFocusedDecoding },
+				description: { DestinyVendorDefinition: VendorHashes.Gunsmith },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Gunsmith, property: 'mapIcon' } },
 			}),
 		},
 		[DeepsightItemSourceType.BansheeFeatured]: {
@@ -218,10 +218,10 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			category: DeepsightItemSourceCategory.Vendor,
 			rotates: true,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
-				subtitle: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
-				description: { DestinyVendorDefinition: VendorHashes.Banshee44_Enabledtrue },
-				icon: { DestinyVendorDefinition: { hash: VendorHashes.Banshee44_Enabledtrue, property: 'mapIcon' } },
+				name: { DestinyVendorDefinition: VendorHashes.Gunsmith },
+				subtitle: { DestinyVendorDefinition: VendorHashes.Gunsmith },
+				description: { DestinyVendorDefinition: VendorHashes.Gunsmith },
+				icon: { DestinyVendorDefinition: { hash: VendorHashes.Gunsmith, property: 'mapIcon' } },
 			}),
 		},
 		// [DeepsightItemSourceType.XurFeatured]: {
@@ -269,9 +269,10 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 		},
 		[DeepsightItemSourceType.ArmsWeekEvent]: {
 			hash: DeepsightItemSourceType.ArmsWeekEvent,
-			category: DeepsightItemSourceCategory.EventReward,
+			category: DeepsightItemSourceCategory.Vendor,
 			displayProperties: await DestinyManifestReference.resolveAll({
 				name: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
+				subtitle: { DestinyVendorDefinition: VendorHashes.TowerShootingRangeAda },
 				icon: { DestinyEventCardDefinition: EventCardHashes.ArmsWeek },
 			}),
 		},
