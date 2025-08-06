@@ -36,3 +36,9 @@
 				%translate-left-3
 
 	&-close-surface:
+		%fixed
+		width: 300vw
+		height: 300vh
+		top: -100vh
+		left: -100vw
+		%no-pointer-events

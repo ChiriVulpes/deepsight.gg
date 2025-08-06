@@ -3,31 +3,41 @@
 	%opaque
 	$tooltip-content-opacity: 0
 	$tooltip-content-transition-duration: $transition-blur
-	width: calc($space-7 + $space-6 + $space-5)
-
-	@before:
-		%block
-		%absolute
-		%inset-0
-		%z-index-bg
-		%background-none
-		%backdrop-filter-none
-		#transition: #{transition("background")}, #{transition("backdrop-filter")}
-		%transition-focus
+	$tooltip-width: calc($space-7 + $space-6 + $space-5)
+	width: $tooltip-width
 
 	:popover:
 		$tooltip-content-opacity: 1
 		$tooltip-content-transition-duration: $transition-focus
 		#animate $transition-focus ease-out:
 			from: $tooltip-content-opacity: 0
-		@before:
-			%backdrop-blur-3
-			%transition-focus
-			#animate $transition-blur ease-out:
-				from:
-					%backdrop-filter-none
 		:start:
 			%opaque
+
+	&-block:
+		%block
+		%relative
+		%height-fit
+		%width-100
+
+		@before:
+			%block
+			%absolute
+			%inset-0
+			%z-index-bg
+			%background-none
+			%backdrop-filter-none
+			#transition: #{transition("background")}, #{transition("backdrop-filter")}
+			%transition-focus
+
+		&--visible:
+			#after: .tooltip-block
+			@before:
+				%backdrop-blur-3
+				%transition-focus
+				#animate $transition-blur ease-out:
+					from:
+						%backdrop-filter-none
 
 	&-content:
 		%block
@@ -37,6 +47,8 @@
 		#transition: #{transition("opacity")}
 		transition-duration: $tooltip-content-transition-duration
 		background: #fff4
+		%height-fit
+		%relative
 
 	&-header:
 		%block
@@ -48,3 +60,10 @@
 		%block
 		%width-100
 		%border-box
+
+	&-extra:
+		#after: .tooltip-content
+
+	&--has-extra:
+		%gap-3
+		width: calc($tooltip-width * 2 + $space-3)
