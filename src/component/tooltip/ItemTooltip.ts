@@ -3,7 +3,7 @@ import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
+import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
 import type { DamageTypeHashes, SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
@@ -436,22 +436,66 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 		.append(Lore().style('item-tooltip-flavour-text').text.bind(flavourText))
 		.appendToWhen(flavourText.truthy, tooltip.extra)
 
-	const sources = item.map(tooltip, item => item.sources)
 	const sourceList = DisplaySlot()
 		.style('item-tooltip-source-list')
 		.appendTo(tooltip.extra)
-	sourceList.use(State.Use(tooltip, { sources, collections }), (slot, { sources, collections }) => {
+	sourceList.use(State.Use(tooltip, { item, collections }), (slot, { item, collections }) => {
+		const sources = item.sources
 		if (!sources?.length)
 			return
 
-		for (let i = 0; i < sources.length; i++) {
-			const sourceRef = sources[i]
+		interface SourceWrapperExtensions {
+			readonly icon?: Component<HTMLImageElement>
+			readonly title: Component
+			readonly subtitle?: Component
+		}
+
+		interface SourceWrapper extends Component, SourceWrapperExtensions { }
+
+		const SourceWrapper = Component((component, display: SourceDisplay): SourceWrapper => {
+			const icon = !display.icon ? undefined
+				: Image(`https://www.bungie.net${display.icon}`).style('item-tooltip-source-icon')
+			const title = Component()
+				.style('item-tooltip-source-title')
+				.text.set(display.name)
+			const subtitle = !display.subtitle ? undefined : Component()
+				.style('item-tooltip-source-subtitle')
+				.text.set(display.subtitle)
+			return component
+				.style('item-tooltip-source')
+				.style.toggle(!!display.icon, 'item-tooltip-source--has-icon')
+				.append(icon, title, subtitle)
+				.extend<SourceWrapperExtensions>(wrapper => ({
+					icon, title, subtitle,
+				}))
+				.tweak(display.tweak)
+		})
+
+		let displayIndex = 0
+		for (const source of sources) {
+			const display = resolveDisplay(source)
+			if (!display)
+				continue
+
+			SourceWrapper(display)
+				.style.toggle(!!displayIndex++, 'item-tooltip-source--additional')
+				.appendTo(slot)
+		}
+
+		interface SourceDisplay {
+			name: StringApplicatorSource
+			subtitle?: StringApplicatorSource
+			icon?: string
+			tweak?(wrapper: SourceWrapper): unknown
+		}
+
+		function resolveDisplay (sourceRef: ItemSource): SourceDisplay | undefined {
 			switch (sourceRef.type) {
 				case 'defined': {
 					const source = collections.sources[sourceRef.id]
 					const displayProperties = source?.displayProperties
-					if (!displayProperties)
-						break
+					if (!displayProperties?.name)
+						return undefined
 
 					let subtitle: StringApplicatorSource | undefined = _
 						?? (source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
@@ -471,22 +515,60 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 					}
 
 					const icon = displayProperties.icon
-					Component()
-						.style('item-tooltip-source')
-						.style.toggle(!!i, 'item-tooltip-source--additional')
-						.style.toggle(!!icon, 'item-tooltip-source--has-icon')
-						.append(icon && Image(`https://www.bungie.net${icon}`).style('item-tooltip-source-icon'))
-						.append(Component()
-							.style('item-tooltip-source-title')
-							.text.set(displayProperties.name)
-							// .text.set(quilt => quilt['item-tooltip/source/title'](displayProperties.name, displayProperties.subtitle))
-						)
-						.append(subtitle && Component()
-							.style('item-tooltip-source-subtitle')
-							.text.set(subtitle)
-						)
-						.appendTo(slot)
-					break
+					return {
+						name: displayProperties.name,
+						subtitle,
+						icon,
+					}
+				}
+				case 'table': {
+					const table = collections.dropTables[sourceRef.id]
+					if (!table?.displayProperties?.name)
+						return undefined
+
+					return {
+						name: table.displayProperties.name,
+						subtitle: table.type === 'bonus-focus' ? quilt => quilt['item-tooltip/source/type/bonus-focus']() : table.displayProperties.description,
+						icon: table.displayProperties.icon,
+						tweak: wrapper => {
+							if (table.type === 'raid' || table.type === 'dungeon')
+								wrapper.subtitle?.style('item-tooltip-source-subtitle--lore')
+
+							const mainDropTableEntry = table.dropTable?.[item.hash as never]
+							const realEncounters = (table.encounters ?? []).filter(encounter => !encounter.traversal)
+							const encountersDroppingItem = realEncounters
+								.filter(encounter => mainDropTableEntry || encounter.dropTable?.[item.hash as never])
+
+							let displayIndex = 0
+							for (const encounter of encountersDroppingItem) {
+								if (!encounter.displayProperties.name)
+									continue
+
+								const encounterIndex = realEncounters.indexOf(encounter) + 1
+
+								// const dropTableEntry = mainDropTableEntry ?? encounter.dropTable?.[item.hash as never]
+								const display: SourceDisplay = {
+									name: encounter.displayProperties.name,
+									subtitle: encounter.displayProperties.description ?? encounter.displayProperties.directive,
+									icon: encounter.displayProperties.icon,
+								}
+								const encounterWrapper = SourceWrapper(display)
+									.style('item-tooltip-source-encounter')
+									.style.toggle(!!displayIndex++, 'item-tooltip-source-encounter--additional')
+									.appendTo(wrapper)
+
+								encounterWrapper.title.style('item-tooltip-source-encounter-title')
+								encounterWrapper.subtitle?.style('item-tooltip-source-encounter-subtitle', 'item-tooltip-source-subtitle--lore')
+
+								Component()
+									.style('item-tooltip-source-icon', 'item-tooltip-source-encounter-number')
+									.text.set(`${encounterIndex}`)
+									.insertTo(encounterWrapper, 'after', encounterWrapper.icon)
+
+								encounterWrapper.icon?.remove()
+							}
+						},
+					}
 				}
 			}
 		}
