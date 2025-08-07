@@ -15,11 +15,16 @@
 		%absolute
 		%inset-0
 		%padding-bottom-2
-		padding-top: calc($space-4 - $space-2)
+		padding-top: calc($space-4 - $space-2 + .3em)
 		padding-left: calc($space-5 + $space-3 + $space-2)
 		%border-box
 		%word-spacing-inherit
 		%z-index-fg
+		line-height: 1.6em
+
+		@selection:
+			background: #fff3
+			height: calc(100% + 5px)
 
 		@placeholder:
 			%italic-2
