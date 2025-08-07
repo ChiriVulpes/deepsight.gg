@@ -10,6 +10,12 @@ declare module 'kitsui/component/Tooltip' {
 	}
 }
 
+declare module 'kitsui/component/Loading' {
+	interface LoadingExtensions {
+		readonly transitionFinished?: Promise<void>
+	}
+}
+
 export default function styleKit () {
 	////////////////////////////////////
 	//#region Loading
@@ -30,7 +36,14 @@ export default function styleKit () {
 			loading.errorText.text.bind(state.error.map(owner, error => error?.message ?? (quilt => quilt['shared/errored']())))
 		})
 
-		loading.onLoad((loading, display) => ViewTransition.perform('view', display))
+		loading.onLoad((loading, display) => {
+			const trans = ViewTransition.perform('view', display)
+			Object.assign(loading, { transitionFinished: trans.finished })
+			void trans.finished.then(() => {
+				if (loading.transitionFinished === trans.finished)
+					Object.assign(loading, { transitionFinished: undefined })
+			})
+		})
 
 		loading.onRemoveManual(() => clearInterval(interval))
 		return {}
