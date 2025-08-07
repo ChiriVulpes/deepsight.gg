@@ -291,7 +291,7 @@
 					width: calc(100% * $item-tooltip-stats-stat-bar-progress)
 			&-value:
 				%text-align-right
-				font-variant-numeric: tabular-nums
+				%tabular-nums
 				%weight-semibold
 				%font-vertical-align
 
@@ -405,6 +405,7 @@
 				%align-self-start
 				%align-items-centre
 				%font-vertical-align
+				%tabular-nums
 
 			&--additional:
 				#after: .item-tooltip-source, .item-tooltip-source--additional
