@@ -340,6 +340,7 @@
 		%grid
 		grid-template-columns: auto 1fr
 		%height-5
+		%height-fit
 		%padding-2-3
 		%border-box
 		%relative
@@ -351,7 +352,7 @@
 		&-icon:
 			%column-1
 			%row-1-2
-			%height-100
+			height: calc($space-5 - $space-2 * 2)
 			%min-height-0
 			%justify-self-centre
 		&-title:
@@ -367,7 +368,44 @@
 			%font-vertical-align
 			%font-2
 			%colour-3
-			%unmargin-top-1
+			line-height: 1em
+			top: -.2em
+
+			&--lore:
+				#after: .item-tooltip-source-subtitle
+				%font-1
+				%italic-2
 
 		&--additional:
 			%unmargin-top-2
+
+		&-encounter:
+			#after: .item-tooltip-source
+			%column-2
+			%padding-left-0
+			%column-gap-2
+			%unmargin-top-2
+
+			&-title:
+				#after: .item-tooltip-source-title
+				%colour-2
+				%font-2
+
+			&-subtitle:
+				#after: .item-tooltip-source-subtitle, .item-tooltip-source-subtitle--lore
+				%colour-4
+				font-size: calc(($font-size-0-base + $font-size-1-base) / 2)
+
+			&-number:
+				%flex
+				%height-em
+				%font-6
+				%weight-bold
+				%colour-8
+				%align-self-start
+				%align-items-centre
+				%font-vertical-align
+
+			&--additional:
+				#after: .item-tooltip-source, .item-tooltip-source--additional
+				%unmargin-top-3
