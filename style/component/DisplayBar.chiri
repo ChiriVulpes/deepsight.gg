@@ -11,7 +11,7 @@
 	#transition: #{transition("translate")}
 
 	:start:
-		%translate-up-100
+		%translate-down-100
 
 	@before, @after:
 		%block

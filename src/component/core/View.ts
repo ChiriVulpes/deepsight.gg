@@ -99,15 +99,16 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 				navbar.viewTransitionsEnabled.value = true
 				navbar.visible.value = newShowNavbar
 			}
-			displayBar.config.bind(view, view.displayBarConfig)
 		})
 
 		void trans.finished.then(() => {
 			if (navbar)
 				navbar.viewTransitionsEnabled.value = false
 
-			if (!loading)
+			if (!loading) {
+				displayBar?.config.bind(view, view.displayBarConfig)
 				return
+			}
 
 			const loadFinishedPromise = new Promise<void>(resolve => markLoadFinished = resolve)
 			loading.set(
@@ -122,6 +123,9 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 				async () => {
 					markFinishResolved!()
 					await builderPromise
+					void Promise.resolve(loading?.transitionFinished).then(() => {
+						displayBar?.config.bind(view, view.displayBarConfig)
+					})
 				},
 			)
 		})
