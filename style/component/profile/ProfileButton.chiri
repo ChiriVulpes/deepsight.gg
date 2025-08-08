@@ -36,6 +36,11 @@
 		@after:
 			box-shadow: inset 0 0 0 1px $profile-button-border-normal
 
+		&--simple:
+			#after: .profile-button-border
+			$profile-button-border-color-dodge: #2220
+			$profile-button-border-normal: #fff0
+
 		&--hover:
 			#after: .profile-button-border
 			background: #fff2
@@ -51,9 +56,26 @@
 		%top-0
 		%left-0
 		%block
-		size: $height
-		background: $emblem-icon
+		%height-100
+		%aspect-ratio-1
+		background-image: $emblem-icon
 		background-size: contain
+
+		&--overlay:
+			#after: .profile-button-icon
+			background-image: $emblem-background-overlay
+			background-size: cover
+			aspect-ratio: 1.5/1
+			%opacity-20
+			height: 90%
+			%top-auto
+			%bottom-0
+			#transition: #{transition("opacity")}
+
+			&--hover:
+				#after: .profile-button-icon--overlay
+				%opaque
+				%transition-focus
 
 	&-name:
 		%font-vertical-align
@@ -145,6 +167,9 @@
 		grid-template-columns: 1fr auto
 		height: auto
 
+		@after:
+			%opaque
+
 	&--authed:
 		%padding-right-3
 		@after:
@@ -158,3 +183,20 @@
 		&--expanded:
 			#after: .profile-button--authed, .profile-button--expanded
 			%padding-right-3
+
+	&--simple:
+		#after: .profile-button
+		%width-fit
+		%min-width-0
+		%margin-0
+		%top-auto
+		%background-none
+		%borderless
+		%padding-1-3
+
+		@after:
+			%z-index-bg
+			background-image: $emblem-background-secondary
+			background-size: cover
+			background-position: center left
+			background-repeat: no-repeat

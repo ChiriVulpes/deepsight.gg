@@ -30,7 +30,9 @@ $$button-z-index-hover-2!int: 0
 
 	@after:
 		%inset-0
-		#transition: #{transition("background")}
+		#transition: #{transition("opacity")}
+		background-colour: #fff2
+		%transparent
 
 	&--hover:
 		#after: .button
@@ -44,7 +46,7 @@ $$button-z-index-hover-2!int: 0
 			%transition-focus
 
 		@after:
-			background: #fff2
+			%opaque
 			%transition-focus
 
 	&-text:
