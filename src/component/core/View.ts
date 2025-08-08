@@ -99,6 +99,9 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 				navbar.viewTransitionsEnabled.value = true
 				navbar.visible.value = newShowNavbar
 			}
+
+			if (!view.displayBarConfig.value)
+				displayBar?.config.bind(view, view.displayBarConfig)
 		})
 
 		void trans.finished.then(() => {

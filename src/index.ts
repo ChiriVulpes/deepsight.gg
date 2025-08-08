@@ -5,6 +5,7 @@ import FocusListener from 'kitsui/utility/FocusListener'
 import HoverListener from 'kitsui/utility/HoverListener'
 import Mouse from 'kitsui/utility/Mouse'
 import Viewport from 'kitsui/utility/Viewport'
+import Profile from 'model/Profile'
 import Navigator from 'navigation/Navigate'
 import Relic from 'Relic'
 import DevServer from 'utility/DevServer'
@@ -19,6 +20,7 @@ export default async function () {
 
 	await Env['init']()
 	void Relic.init()
+	void Profile.init()
 
 	DevServer.listen()
 	HoverListener.listen()

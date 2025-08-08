@@ -5,6 +5,7 @@ import View from 'component/core/View'
 import ProfileButton from 'component/profile/ProfileButton'
 import WordmarkLogo from 'component/WordmarkLogo'
 import { Component } from 'kitsui'
+import Profile from 'model/Profile'
 import Relic from 'Relic'
 
 export default View(async view => {
@@ -31,7 +32,8 @@ export default View(async view => {
 		return
 
 	setProgress(null, quilt => quilt['view/splash/load/profiles']())
-	const profiles = await conduit.getProfiles()
+	await Profile.init()
+	const profiles = Profile.STATE.value.all
 	if (signal.aborted)
 		return
 
@@ -68,7 +70,7 @@ export default View(async view => {
 
 		for (const profile of profiles)
 			ProfileButton(profile)
-				.tweak(button => button.expanded.setValue(!!profile.authed))
+				.tweak(button => button.mode.setValue(profile.authed ? 'expanded' : 'collapsed'))
 				.appendTo(profilesList)
 	}
 
