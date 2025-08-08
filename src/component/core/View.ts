@@ -100,8 +100,8 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 				navbar.visible.value = newShowNavbar
 			}
 
-			if (!view.displayBarConfig.value)
-				displayBar?.config.bind(view, view.displayBarConfig)
+			if (!view.displayBarConfig.value && displayBar)
+				displayBar.config.value = undefined
 		})
 
 		void trans.finished.then(() => {
