@@ -3,6 +3,7 @@ import type { DeepsightDropTableDefinition as DeepsightDropTableDefinitionBase, 
 import type DestinyManifestReference from '../DestinyManifestReference'
 import CrotasEnd from './CrotasEnd'
 import DeepStoneCrypt from './DeepStoneCrypt'
+import DesertPerpetual from './DesertPerpetual'
 import Duality from './Duality'
 import GardenOfSalvation from './GardenOfSalvation'
 import GhostsOfTheDeep from './GhostsOfTheDeep'
@@ -48,6 +49,7 @@ export default {
 	[PitOfHeresy.hash]: PitOfHeresy,
 	[TheShatteredThrone.hash]: TheShatteredThrone,
 
+	[DesertPerpetual.hash]: DesertPerpetual,
 	[SalvationsEdge.hash]: SalvationsEdge,
 	[CrotasEnd.hash]: CrotasEnd,
 	[RootOfNightmares.hash]: RootOfNightmares,
