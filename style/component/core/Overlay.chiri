@@ -1,0 +1,20 @@
+.overlay:
+	%block
+	%fixed
+	%inset-0
+	background: #222a
+	%z-index-fg-2
+	%padding-top-5
+	%padding-inline-4
+	%transparent
+	#transition: #{transition("opacity")}
+	%backdrop-blur
+	%pointer-events-none
+
+	&--visible:
+		#after: .overlay
+		%opaque
+		%pointer-events-all
+
+.has-overlay:
+	%overflow-hidden

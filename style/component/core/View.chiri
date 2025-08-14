@@ -3,6 +3,7 @@
 	%flex
 	%flex-column
 	%gap-3
+	%z-index-fg
 
 	&-title:
 		%font-9

@@ -1,6 +1,7 @@
 interface Env {
 	ENVIRONMENT: 'dev' | 'prod'
 	CONDUIT_ORIGIN: string
+	ORIGIN: string
 }
 
 class Env {
