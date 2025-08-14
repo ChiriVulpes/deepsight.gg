@@ -31,7 +31,13 @@ type RouteParams<PATH extends string> =
 	| Empty extends PARAMS ? undefined : PARAMS
 	: never
 
-function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (path: PATH, view: View.Builder<NoInfer<PARAMS>>): Route<PATH, PARAMS> {
+type BuilderForParams<PARAMS extends object | undefined> =
+	| View.Builder.WithParams<[PARAMS] extends [undefined] ? any : PARAMS | undefined>
+	| View.Builder.NoParams
+
+let lastView: View<object | undefined> | undefined
+function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (path: PATH, view: BuilderForParams<NoInfer<PARAMS>>): Route<PATH, PARAMS>
+function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (path: PATH, viewBuilder: View.Builder<NoInfer<PARAMS>>): Route<PATH, PARAMS> {
 	const segments = (path.startsWith('/') ? path.slice(1) : path).split('/')
 	const varGroups: string[] = []
 	let regexString = '^'
@@ -59,7 +65,12 @@ function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (pat
 
 	return {
 		path,
-		handler: params => (view as View.Builder<object | undefined>)(params as never),
+		handler: params => {
+			if (lastView?.is(viewBuilder))
+				lastView.params.asMutable?.setValue(params as never)
+			else
+				lastView = (viewBuilder as View.Builder<object | undefined>)(params as never)
+		},
 		match: path => {
 			const match = path.match(regex)
 			if (!match)

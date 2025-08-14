@@ -68,10 +68,10 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			details.content.style('collections-view-moment-content')
 
 			const weapons = ([InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons] as const)
-				.flatMap(hash => buckets[hash].items)
+				.flatMap(hash => buckets[hash].items.map(hash => collections.items[hash]))
 
 			const armour = ([InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor] as const)
-				.flatMap(hash => buckets[hash].items)
+				.flatMap(hash => buckets[hash].items.map(hash => collections.items[hash]))
 
 			const armourWarlock = armour.filter(item => item.class === DestinyClass.Warlock)
 			const armourTitan = armour.filter(item => item.class === DestinyClass.Titan)

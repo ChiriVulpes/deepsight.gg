@@ -30,6 +30,7 @@
 	component/core/Popover
 	component/core/Dialog
 	component/core/Tooltip
+	component/core/Overlay
 
 #import:
 	component/WordmarkLogo
@@ -43,3 +44,4 @@
 #import:
 	component/view/SplashView
 	component/view/CollectionsView
+	component/overlay/ItemOverlay

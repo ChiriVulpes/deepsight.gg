@@ -1,0 +1,34 @@
+.item-overlay:
+	#after: .overlay
+	padding-top: calc($space-5 + $space-3)
+
+	&-image:
+		%absolute
+		%inset-0
+		%width-100
+		object-fit: cover
+		object-position: center calc((100% - $space-4 - $space-3) / 2)
+		%z-index-bg
+
+	&-header:
+		%grid
+		grid-template-columns: auto 1fr
+		%column-gap-3
+
+	&-icon:
+		%row-1-2
+		%column-1
+	&-title:
+		%font-8
+		%weight-bold
+		%height-cap
+		%flex
+		%align-items-centre
+		%uppercase
+		%font-vertical-align
+	&-subtitle:
+		%uppercase
+		%font-5
+		%weight-semibold
+		%colour-2
+		%font-vertical-align
