@@ -86,7 +86,7 @@ export default Task('DeepsightDropTableDefinition', async () => {
 			throw new Error('Failed to get the exotic weapon from the current exotic mission :(')
 
 		Log.info('Exotic Mission:', normalExoticMission.definition!.displayProperties.name, normalExoticMission.activity.activityHash)
-		DeepsightDropTableDefinition.exoticMission = {
+		DeepsightDropTableDefinition[normalExoticMission.activity.activityHash as ActivityHashes] = {
 			hash: normalExoticMission.activity.activityHash,
 			displayProperties: {
 				name: normalExoticMission.definition!.originalDisplayProperties.name,

@@ -59,4 +59,4 @@ export default {
 	[DeepStoneCrypt.hash]: DeepStoneCrypt,
 	[GardenOfSalvation.hash]: GardenOfSalvation,
 	[LastWish.hash]: LastWish,
-} as Partial<Record<ActivityHashes | 'trials' | 'nightfall' | 'lostSector' | 'exoticMission', DeepsightDropTableDefinition>>
+} as Partial<Record<ActivityHashes, DeepsightDropTableDefinition>>
