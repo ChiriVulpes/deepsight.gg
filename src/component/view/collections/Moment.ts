@@ -4,10 +4,11 @@ import Lore from 'component/core/Lore'
 import type { DisplayHandlers } from 'component/DisplayBar'
 import Item from 'component/Item'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item as CollectionsItem, CollectionsMoment } from 'conduit.deepsight.gg/Collections'
+import type { Item as CollectionsItem, CollectionsMoment, ItemSourceDefined, ItemSourceDropTable } from 'conduit.deepsight.gg/Collections'
 import { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
+import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'node_modules/deepsight.gg/Interfaces'
 
 interface MomentBucketExtensions {
 	readonly title: Component
@@ -103,6 +104,33 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 					.appendTo(details.content)
 
 				const addFilteredItems = (bucket: MomentBucket, items: CollectionsItem[]) => {
+					const sortValues = Object.fromEntries(items.map(item => [
+						item.hash,
+						[
+							item.rarity,
+							(item.sources
+								?.map(sourceRef => {
+									const def = sourceRef.type === 'table' ? collections.dropTables[sourceRef.id] : collections.sources[sourceRef.id]
+									return { ...sourceRef, def } as ItemSourceDropTable & { def: DeepsightDropTableDefinition } | ItemSourceDefined & { def: DeepsightItemSourceDefinition }
+								})
+								.filter(source => source.type !== 'table' || source.def.type === 'raid' || source.def.type === 'dungeon' || source.def.type === 'exotic-mission')
+								.map(source => `${source.type}:${source.id}`)
+								.join(',')
+								|| ''),
+							item.itemSetHash,
+						].map(v => v ?? 0),
+					])) as Record<number, (string | number)[]>
+					items = items.toSorted((a, b) => {
+						const aValues = sortValues[a.hash]
+						const bValues = sortValues[b.hash]
+						for (let i = 0; i < aValues.length; i++)
+							if (aValues[i] !== bValues[i])
+								return typeof aValues[i] === 'number'
+									? (aValues[i] as number) - (bValues[i] as number)
+									: +(aValues[i] === '') - +(bValues[i] === '') || (aValues[i] as string).localeCompare(bValues[i] as string)
+						return 0
+					})
+
 					const filterStates: State<boolean>[] = []
 					for (const item of items) {
 						const filterState = itemFilterStates.get(item)
@@ -153,7 +181,9 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 								itemComponent.rect.markDirty()
 								Item.Tooltip?.anchor.markDirty()
 							})
-							itemComponent.appendToWhen(shouldShowItem, bucket.content)
+							const ownIndex = items.indexOf(item)
+							const itemComponentToPositionAfter = bucket.content.getChildren(Item).toArray().findLast(item => items.indexOf(item.item.value) < ownIndex)
+							itemComponent.insertToWhen(shouldShowItem, bucket.content, 'after', itemComponentToPositionAfter)
 						})
 						filterStates.push(shouldShowItem)
 					}
