@@ -16,9 +16,9 @@ namespace Style {
 			await reloading
 
 		await (reloading = (async () => {
-			const stylesheetReloaded = reloadStylesheet('./style/index.css')
+			const stylesheetReloaded = reloadStylesheet(`${location.origin}/style/index.css`)
 			Script.allowModuleRedefinition('style')
-			await Script.reload('./style/index.js')
+			await Script.reload(`${location.origin}/style/index.js`)
 			style.value = await import('style').then(module => module.default)
 			await stylesheetReloaded
 		})())

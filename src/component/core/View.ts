@@ -16,15 +16,16 @@ interface ViewLoading extends Loading {
 	finish (): Promise<void>
 }
 
-interface ViewExtensions {
+interface ViewExtensions<PARAMS extends object | undefined> {
 	readonly loading: ViewLoading
 	readonly hasNavbar: State.Mutable<boolean>
 	readonly displayBarConfig: State.Mutable<DisplayBar.Config | undefined>
 	readonly displayHandlers: State<DisplayHandlers | undefined>
+	readonly params: State<PARAMS>
 	refresh (): Promise<void>
 }
 
-interface View extends Component, ViewExtensions { }
+interface View<PARAMS extends object | undefined> extends Component, ViewExtensions<PARAMS> { }
 
 const SYMBOL_VIEW_PARAMS = Symbol('VIEW_PARAMS')
 
@@ -34,13 +35,13 @@ namespace View {
 		: Builder.WithParams<PARAMS>
 	)
 	export namespace Builder {
-		export interface NoParams extends Component.BuilderExtensions<[], View> {
+		export interface NoParams extends Component.BuilderExtensions<[], View<undefined>> {
 			[SYMBOL_VIEW_PARAMS]: undefined
-			(): View
+			(): View<undefined>
 		}
-		export interface WithParams<PARAMS extends object | undefined> extends Component.BuilderExtensions<[PARAMS], View> {
+		export interface WithParams<PARAMS extends object | undefined> extends Component.BuilderExtensions<[PARAMS], View<PARAMS>> {
 			[SYMBOL_VIEW_PARAMS]: PARAMS
-			(params: PARAMS): View
+			(params: PARAMS): View<PARAMS>
 		}
 	}
 }
@@ -49,21 +50,23 @@ const ViewExt = Component.Extension(view => view)
 
 let navbar: Navbar | undefined
 let displayBar: DisplayBar | undefined
-function View (builder: (view: View) => unknown): View.Builder.NoParams
-function View<PARAMS extends object> (builder: (view: View, params: PARAMS) => unknown): View.Builder.WithParams<PARAMS>
-function View<PARAMS extends object | undefined> (builder: (view: View, params: PARAMS) => unknown): View.Builder<PARAMS> {
+function View (builder: (view: View<undefined>) => unknown): View.Builder.NoParams
+function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) => unknown): View.Builder.WithParams<PARAMS>
+function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) => unknown): View.Builder<PARAMS> {
 	const hasNavbar = State(true)
 	const displayBarConfig = State<DisplayBar.Config | undefined>(undefined)
-	return Component((component, params) => {
+	return Component((component, paramsIn) => {
+		const params = State(paramsIn)
 		const view = component
 			.and(ViewExt)
 			.style('view')
-			.extend<ViewExtensions>(view => ({
+			.extend<ViewExtensions<PARAMS>>(view => ({
 				loading: undefined!,
 				hasNavbar,
 				displayBarConfig,
 				displayHandlers: displayBarConfig.map(view, config => config ? displayBar?.handlers : undefined),
 				refresh: navigate.refresh,
+				params,
 			}))
 
 		let loading: ViewLoading | undefined
@@ -89,7 +92,7 @@ function View<PARAMS extends object | undefined> (builder: (view: View, params: 
 			for (const view of Component.getBody().getChildren(ViewExt))
 				view.remove()
 
-			builderPromise = builder(view, params)
+			builderPromise = builder(view)
 			view.appendTo(document.body)
 
 			navbar ??= Navbar()
