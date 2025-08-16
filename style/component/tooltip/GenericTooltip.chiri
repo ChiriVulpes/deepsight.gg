@@ -1,0 +1,16 @@
+.generic-tooltip:
+
+	&-header:
+		background: #000c
+		border-top: $space-1 solid
+		%colour-2
+	&-title:
+		font-size: calc(($font-size-4-base + $font-size-5-base) / 2)
+		%letter-spacing-2
+		%weight-semibold
+		%font-vertical-align
+	&-body:
+		background: #111c
+		%padding-2-3
+	&-description:
+		%font-vertical-align

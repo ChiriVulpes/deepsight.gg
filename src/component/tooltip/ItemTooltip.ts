@@ -2,10 +2,10 @@ import type { DestinyEquipableItemSetDefinition } from 'bungie-api-ts/destiny2/i
 import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
+import Stats from 'component/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
 import type { DamageTypeHashes, SandboxPerkHashes } from 'deepsight.gg/Enums'
-import { StatHashes } from 'deepsight.gg/Enums'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
@@ -23,15 +23,6 @@ const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgre
 
 const PLUG_ARCHETYPE_ICON_SEQUENCE = 0
 const PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME = 1
-
-const STATS_FILTERED_OUT = new Set<StatHashes>([
-	StatHashes.Impact,
-	StatHashes.AimAssistance,
-	StatHashes.Zoom,
-	StatHashes.AirborneEffectiveness,
-	StatHashes.AmmoGeneration,
-	StatHashes.RecoilDirection,
-])
 
 export default Component((component, item: State.Or<Item>, collections: State.Or<Collections>) => {
 	item = State.get(item)
@@ -227,61 +218,13 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 	////////////////////////////////////
 	//#region Stats
 
-	const statsVisible = State(false)
-	const hasStats = State(false)
 	Component()
 		.style('item-tooltip-stats')
-		.style.bind(statsVisible.falsy, 'item-tooltip-stats--no-visible-stats')
-		.tweak(wrapper => {
-			State.Use(wrapper, { item, collections }, ({ item, collections }) => {
-				wrapper.removeContents()
-
-				let _barStatsWrapper: Component | undefined
-				let _numericStatsWrapper: Component | undefined
-				const barStatsWrapper = () => _barStatsWrapper ??= Component().style('item-tooltip-stats-section').prependTo(wrapper)
-				const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('item-tooltip-stats-section').appendTo(wrapper)
-
-				const statGroupDef = collections.statGroups[item.statGroupHash!]
-				hasStats.value = !!statGroupDef.scaledStats.length
-
-				const stats = !item.stats ? [] : Object.values(item.stats)
-					.sort((a, b) => 0
-						|| +(a.displayAsNumeric ?? false) - +(b.displayAsNumeric ?? false)
-						|| (statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === a.hash) ?? 0) - (statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === b.hash) ?? 0)
-						|| (collections.stats[a.hash]?.index ?? 0) - (collections.stats[b.hash]?.index ?? 0)
-					)
-
-				let hasVisibleStat = false
-				for (const stat of stats) {
-					const def = collections.stats[stat.hash]
-					const overrideDisplayProperties = statGroupDef?.overrides?.[stat.hash]?.displayProperties
-					const statName = (overrideDisplayProperties ?? def?.displayProperties)?.name ?? ''
-					if (!statName || STATS_FILTERED_OUT.has(stat.hash))
-						continue
-
-					hasVisibleStat = true
-
-					Component()
-						.style('item-tooltip-stats-stat')
-						.append(Component()
-							.style('item-tooltip-stats-stat-label')
-							.text.set(statName)
-						)
-						.append(!stat.displayAsNumeric && Component()
-							.style('item-tooltip-stats-stat-bar')
-							.style.bindVariable('item-tooltip-stats-stat-bar-progress', stat.value / (stat.max ?? 100))
-						)
-						.append(Component()
-							.style('item-tooltip-stats-stat-value')
-							.text.set(stat.value.toLocaleString(navigator.language))
-						)
-						.appendTo(stat.displayAsNumeric ? numericStatsWrapper() : barStatsWrapper())
-				}
-
-				statsVisible.value = hasVisibleStat
-			})
+		.and(Stats, item, collections)
+		.tweak(stats => {
+			stats.style.bind(stats.anyVisible.falsy, 'item-tooltip-stats--no-visible-stats')
+			stats.appendToWhen(stats.hasStats, tooltip.body)
 		})
-		.appendToWhen(hasStats, tooltip.body)
 
 	//#endregion
 	////////////////////////////////////
