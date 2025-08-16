@@ -1,0 +1,10 @@
+.plug-tooltip:
+
+	&-header:
+		background: oklch(from $colour-perk calc(l + .05) calc(c - .02) h / .85)
+
+	&-description:
+		%block
+		%padding-2-3
+		%item-tooltip-background-dark
+		%white-space-pre-wrap

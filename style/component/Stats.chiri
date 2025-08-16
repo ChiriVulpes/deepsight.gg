@@ -1,0 +1,52 @@
+.stats:
+	%grid
+	grid-template-columns: auto auto auto 1fr auto
+	%column-gap-2
+	%row-gap-2
+
+
+	&-section:
+		%grid
+		%columns-subgrid
+		%column-1-5
+		row-gap: calc($space-1 * 1.5)
+
+	&-stat:
+		%grid
+		%columns-subgrid
+		%column-1-5
+		height: 1.2cap
+		%align-content-centre
+
+		&-label:
+			%text-align-right
+			%colour-3
+			%font-vertical-align
+
+		&-bar:
+			%flex
+			%relative
+			height: 1.2cap
+			background: #fff1
+			%align-self-centre
+			%span-3
+
+			@after:
+				%block
+				background: $colour-0
+				%height-100
+				width: calc(100% * $stats-stat-bar-progress)
+
+			&--negative:
+				#after: .stats-stat-bar
+				%justify-content-end
+
+				@after:
+					background: #883147ff
+					width: calc(100% * $stats-stat-bar-progress * -1)
+
+		&-value:
+			%text-align-right
+			%tabular-nums
+			%weight-semibold
+			%font-vertical-align
