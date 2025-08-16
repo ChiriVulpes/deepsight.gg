@@ -26,3 +26,5 @@ $colour-damage-solar: #f0631e
 $colour-damage-stasis: #4d88ff
 $colour-damage-strand: #35e366
 $colour-damage-prismatic: #d9648e
+
+$colour-perk: #559acf

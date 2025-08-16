@@ -2,6 +2,7 @@
 
 ~component/DisplayBar
 ~component/ItemTooltip
+~component/ItemOverlay
 
 # view
 ~view/SplashView
