@@ -3,6 +3,7 @@
 ~component/DisplayBar
 ~component/ItemTooltip
 ~component/ItemOverlay
+~component/PlugTooltip
 
 # view
 ~view/SplashView

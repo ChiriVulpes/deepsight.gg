@@ -8,3 +8,139 @@
 		%padding-2-3
 		%item-tooltip-background-dark
 		%white-space-pre-wrap
+
+	&-stats:
+		#after: .item-tooltip-stats
+		%border-bottom-none
+
+	&-clarity:
+		#string clarity-background = "#17351e
+		#string clarity-border = "#1f9139
+		#string clarity-title = "#499977
+		#string clarity-url = "#25e852
+		#string clarity-term = "#91e4a4
+		%block
+		%padding-2-3
+		%padding-bottom-1
+		background: rgba(from #{clarity-background} r g b / 0.85)
+		%border-top-2
+		$border-colour: #{clarity-border}
+		colour: color-mix(in oklab, $colour-0, #{clarity-title} 25%)
+
+		&-header:
+			colour: #{clarity-title}
+			%font-1
+			%block
+			%font-vertical-align
+			%weight-semibold
+			%flex
+			%align-items-centre
+			%letter-spacing-2
+			%unmargin-bottom-1
+
+			&-icon:
+				%height-lh
+				%margin-right-1
+				%unmargin-left-1
+
+			&-name:
+				colour: #{clarity-url}
+				%margin-right-1
+				%letter-spacing-1
+
+		&-table:
+			&-row:
+			&-cell:
+				&--numeric:
+
+		&-text:
+
+		&-numeric:
+			%weight-bolder
+			%colour-0
+
+			&--estimate:
+				@after:
+					content: '?'
+					font-size: .8em
+					vertical-align: text-top
+					colour: color-mix(in oklab, $colour-0, #{clarity-title} 25%)
+			&--unknown:
+
+		&-stack-separator:
+			%margin-inline-1
+			colour: color-mix(in oklab, $colour-0, #{clarity-title} 85%)
+
+		&-line:
+			%block
+			%margin-block-2
+			%relative
+
+			&--enhanced:
+			&--list-item:
+				%padding-left-3
+				@before:
+					content: '•'
+					%absolute
+					%left-1
+					%weight-bold
+
+			&--label:
+				#after: .plug-tooltip-clarity-line
+				%unmargin-bottom-1
+				colour: color-mix(in oklab, $colour-0, #{clarity-title} 65%)
+				%italic-1
+				%font-1
+				%weight-semibold
+				%margin-top-3
+
+		&-labelled-line:
+			%block
+			%margin-block-2
+
+			&--after-label:
+				%margin-top-1
+
+			&-label:
+				%block
+				%unmargin-bottom-1
+			&-value:
+				%block
+
+		&-pvevp:
+			%inline-block
+			%height-em
+			&-label:
+				%relative
+				%font-0
+				%letter-spacing-1
+				%margin-inline-1
+				%weight-bold
+				colour: $pvevp-label-colour
+				vertical-align: text-top
+				top: .1em
+		&-pve:
+			$pvevp-label-colour: $colour-pve
+		&-pvp:
+			$pvevp-label-colour: $colour-pvp
+
+		&-spacer:
+		&-enhanced-arrow:
+		&-definition-reference:
+
+		&-icon:
+			%inline-block
+			%vertical-align-middle
+			%margin-inline-1
+			%unmargin-block-1
+
+			&--ammo-primary: colour: $colour-ammo-primary
+			&--ammo-special: colour: $colour-ammo-special
+			&--ammo-heavy: colour: $colour-ammo-heavy
+			&--damage-arc: colour: $colour-damage-arc
+			&--damage-kinetic: colour: $colour-damage-kinetic
+			&--damage-prismatic: colour: $colour-damage-prismatic
+			&--damage-solar: colour: $colour-damage-solar
+			&--damage-stasis: colour: $colour-damage-stasis
+			&--damage-strand: colour: $colour-damage-strand
+			&--damage-void: colour: $colour-damage-void
