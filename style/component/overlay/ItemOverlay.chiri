@@ -5,6 +5,7 @@
 	grid-template-columns: 2fr 1fr
 	%align-content-start
 	%column-gap-5
+	%padding-inline-6
 
 	&-image:
 		%absolute
@@ -13,6 +14,11 @@
 		object-fit: cover
 		object-position: center calc((100% - $space-4 - $space-3) / 2)
 		%z-index-bg
+
+	&-foundry:
+		%absolute
+		%z-index-bg
+		%height-8
 
 	&-header:
 		%grid
@@ -43,6 +49,10 @@
 		%colour-3
 		%column-1
 
+	$plug-size: calc($space-4 + $space-3 + $space-2)
+	$plug-margin: $space-2
+	$plug-padding: $space-2
+	$socket-background-size: calc(($plug-size + $plug-margin * 2 + $plug-padding * 2) / 4)
 	&-socket-group:
 		%block
 		%column-1
@@ -105,7 +115,7 @@
 				%inset-0
 				background-image:
 					linear-gradient(to bottom, currentcolor 1px, transparent 1px)
-				background-size: calc($space-3 + $space-2) calc($space-3 + $space-2)
+				background-size: $socket-background-size $socket-background-size
 				border-bottom: 1px solid
 				%opacity-05
 
@@ -125,7 +135,7 @@
 		%flex-column
 		%flex-wrap
 		%max-height-8
-		%gap-3
+		gap: calc($plug-margin * 2)
 
 		@before:
 			%block
@@ -134,17 +144,18 @@
 			background-image:
 				linear-gradient(to right, currentcolor 1px, transparent 1px),
 				linear-gradient(to bottom, currentcolor 1px, transparent 1px)
-			background-size: calc($space-3 + $space-2) calc($space-3 + $space-2)
+			background-size: $socket-background-size $socket-background-size
 			border-right: 1px solid
 			border-bottom: 1px solid
 			%opacity-05
 
 	&-plug:
 		%block
-		%size-5
+		size: $plug-size
 		%isolate
 		%relative
 		%margin-0
+		padding: $plug-padding
 		%borderless
 		%content-box
 		%cursor-pointer
@@ -187,6 +198,7 @@
 
 		&--perk:
 			#after: .item-overlay-plug
-			%padding-2
 			background: rgb(from $colour-perk r g b / .85)
 			%border-radius-100
+
+	&-watermark:

@@ -28,3 +28,10 @@ $colour-damage-strand: #35e366
 $colour-damage-prismatic: #d9648e
 
 $colour-perk: #559acf
+
+$colour-pve: #7da4ff
+$colour-pvp: #c94e52
+
+$colour-ammo-primary: #ffffff
+$colour-ammo-special: #7af48b
+$colour-ammo-heavy: #b286ff

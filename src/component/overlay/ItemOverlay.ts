@@ -28,6 +28,10 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 		.style('item-overlay-image')
 		.appendTo(overlay)
 
+	Image(item.map(overlay, item => item?.foundryImage && `https://www.bungie.net${item.foundryImage}`))
+		.style('item-overlay-foundry')
+		.appendTo(overlay)
+
 	Component()
 		.style('item-overlay-header')
 		.append(Slot().use(item, (_, item) => item
