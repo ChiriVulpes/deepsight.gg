@@ -52,7 +52,7 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections
 			const def = collections.stats[stat.hash]
 			const overrideDisplayProperties = statGroupDef?.overrides?.[stat.hash]?.displayProperties
 			const statName = (overrideDisplayProperties ?? def?.displayProperties)?.name ?? ''
-			if (!statName || STATS_FILTERED_OUT.has(stat.hash))
+			if (!statName || (item.is === 'item' && STATS_FILTERED_OUT.has(stat.hash)))
 				continue
 
 			hasVisibleStat = true
