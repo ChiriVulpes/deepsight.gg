@@ -78,6 +78,7 @@ export declare interface DeepsightManifestComponentsMap {
 	DeepsightWallpaperDefinition: Record<number, DeepsightWallpaperDefinition>
 	DeepsightItemSourceDefinition: Record<number, DeepsightItemSourceDefinition>
 	DeepsightItemSourceListDefinition: Record<number, DeepsightItemSourceListDefinition>
+	DeepsightFormattedClarityDescriptions: Record<number, ClarityDescription>
 }
 
 export declare interface DeepsightDisplayPropertiesDefinition {
@@ -462,4 +463,126 @@ export declare interface DeepsightItemSourceDefinition {
 	category: DeepsightItemSourceCategory
 	rotates?: true
 	displayProperties: DeepsightDisplayPropertiesDefinition
+}
+
+export interface ClarityDescription {
+	hash: number
+	name: string
+	itemHash?: number
+	itemName?: string
+	lastUpload: number
+	stats?: Record<string, ClarityDescriptionStat[]>
+	type: string
+	uploadedBy: string
+	descriptions: ClarityComponentMain[]
+	definitions: ClarityDefinition[]
+}
+
+export interface ClarityDescriptionStat {
+	active?: ClarityDescriptionStatValues
+	passive?: ClarityDescriptionStatValues
+	weaponTypes?: string[]
+}
+
+export interface ClarityDescriptionStatValues {
+	stat?: number[]
+	multiplier?: number[]
+}
+
+export interface ClarityDefinition {
+	name: string
+	description: ClarityComponentMain[]
+	classNames?: string[]
+}
+
+export type ClarityComponentMain =
+	| ClarityTextComponent
+	| ClarityStackSeparatorComponent
+	| ClarityNumericComponent
+	| ClarityLineComponent
+	| ClarityLabelledLineComponent
+	| ClarityPVEVPComponent
+	| ClarityTableComponent
+	| ClaritySpacerComponent
+	| ClarityEnhancedArrowComponent
+	| ClarityIconComponent
+	| ClarityDefinitionReferenceComponent
+
+export type ClarityComponentAll =
+	| ClarityComponentMain
+	| ClarityTableRow
+	| ClarityTableCell
+
+interface ClarityComponentBase {
+	type: string
+	classNames?: string[]
+}
+
+export interface ClarityTextComponent extends ClarityComponentBase {
+	type: 'text'
+	text: string
+}
+
+export interface ClarityStackSeparatorComponent extends ClarityComponentBase {
+	type: 'stackSeparator'
+}
+
+export interface ClarityNumericComponent extends ClarityComponentBase {
+	type: 'numeric'
+	text: string
+	isUnknown?: boolean
+	isEstimate?: boolean
+}
+
+export interface ClarityLineComponent extends ClarityComponentBase {
+	type: 'line'
+	isListItem?: true
+	isEnhanced?: true
+	isLabel?: true
+	content: ClarityComponentMain[]
+}
+
+export interface ClarityLabelledLineComponent extends ClarityComponentBase {
+	type: 'labelledLine'
+	label: ClarityComponentMain[]
+	value: ClarityComponentMain[]
+}
+
+export interface ClarityPVEVPComponent extends ClarityComponentBase {
+	type: 'pve' | 'pvp'
+	content: ClarityComponentMain[]
+}
+
+export interface ClarityTableComponent extends ClarityComponentBase {
+	type: 'table'
+	isFirstColumnAllLabels?: true
+	rows: ClarityTableRow[]
+}
+
+export interface ClarityTableRow extends ClarityComponentBase {
+	type: 'tableRow'
+	cells: ClarityTableCell[]
+}
+
+export interface ClarityTableCell extends ClarityComponentBase {
+	type: 'tableCell'
+	isNumeric?: true
+	content: ClarityComponentMain[]
+}
+
+export interface ClaritySpacerComponent extends ClarityComponentBase {
+	type: 'spacer'
+}
+
+export interface ClarityEnhancedArrowComponent extends ClarityComponentBase {
+	type: 'enhancedArrow'
+}
+
+export interface ClarityIconComponent extends ClarityComponentBase {
+	type: 'icon'
+}
+
+export interface ClarityDefinitionReferenceComponent extends ClarityComponentBase {
+	type: 'definitionReference'
+	index: number
 }
