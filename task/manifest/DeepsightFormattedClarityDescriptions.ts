@@ -157,32 +157,31 @@ export default Task('DeepsightFormattedClarityDescriptions', async task => {
 			if (isPVE || isPVP)
 				component = trimTextMatchingFromStart(component, '[PVE] ', '[PVP] ', '[PVE]', '[PVP]', '[PvE] ', '[PvP] ', '[PvE]', '[PvP]')
 
-			let parsedComponent: ClarityComponentMain | undefined
+			const parsedComponents: ClarityComponentMain[] = []
 
 			if (isSpacer)
-				parsedComponent = { type: 'spacer', classNames: component.classNames }
+				parsedComponents.push({ type: 'spacer', classNames: component.classNames })
 			else if (isEnhancedArrow)
-				parsedComponent = { type: 'enhancedArrow', classNames: component.classNames }
+				parsedComponents.push({ type: 'enhancedArrow', classNames: component.classNames })
 			else if (isIcon)
-				parsedComponent = { type: 'icon', classNames: component.classNames }
+				parsedComponents.push({ type: 'icon', classNames: component.classNames })
 			else if (component.table?.length)
-				parsedComponent = parseClarityTable(component.table, definitionMap)
+				parsedComponents.push(parseClarityTable(component.table, definitionMap))
 			else if (isLabelledLine)
-				parsedComponent = parseClarityLabelledLine(component.linesContent!, definitionMap)
+				parsedComponents.push(parseClarityLabelledLine(component.linesContent!, definitionMap))
 			else if (isLine) {
 				const lineContent = parseClarityDescription(component.linesContent!, definitionMap, [...parentClassNames, ...isListItem ? ['list-item'] : []])
-				parsedComponent = {
+				parsedComponents.push({
 					type: 'line',
 					isListItem: isListItem ? true : undefined,
 					isEnhanced: isEnhancedEffect ? true : undefined,
 					isLabel: isLabel ? true : undefined,
 					content: lineContent,
 					classNames: component.classNames,
-				}
+				})
 			}
-			else if (component.text) {
-				result.push(...parseClarityText(component.text, isPVE || isPVP))
-			}
+			else if (component.text)
+				parsedComponents.push(...parseClarityText(component.text, isPVE || isPVP))
 
 			if (component.title) {
 				const def = component as ClarityDescriptionComponentWithTitle
@@ -192,16 +191,17 @@ export default Task('DeepsightFormattedClarityDescriptions', async task => {
 				}
 			}
 
-			if (parsedComponent) {
+			if (parsedComponents.length) {
 				if (isPVE || isPVP) {
+					const classNames = component.classNames?.filter(cls => cls !== 'pve' && cls !== 'pvp')
 					result.push({
 						type: isPVE ? 'pve' : 'pvp',
-						content: [parsedComponent],
-						classNames: component.classNames,
+						content: parsedComponents,
+						classNames: classNames?.length ? classNames : undefined,
 					})
 				}
 				else {
-					result.push(parsedComponent)
+					result.push(...parsedComponents)
 				}
 			}
 		}
