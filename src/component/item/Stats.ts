@@ -20,7 +20,16 @@ interface StatsExtensions {
 
 interface Stats extends Component, StatsExtensions { }
 
-const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections: State.Or<Collections>): Stats => {
+export interface StatsDisplayDefinition {
+	isAbbreviated?: true
+	tweakStatSection?(section: Component): unknown
+	tweakStatWrapper?(wrapper: Component): unknown
+	tweakStatLabel?(label: Component): unknown
+	tweakStatBar?(bar: Component): unknown
+	tweakStatValue?(value: Component): unknown
+}
+
+const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>, collections: State.Or<Collections>, display?: StatsDisplayDefinition): Stats => {
 	item = State.get(item)
 	collections = State.get(collections)
 
@@ -28,17 +37,18 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections
 
 	const statsVisible = State(false)
 	const hasStats = State(false)
+	const isAbbreviated = State(false)
 
-	State.Use(component, { item, collections }, ({ item, collections }) => {
+	State.Use(component, { item, collections, isAbbreviated }, ({ item, collections, isAbbreviated }) => {
 		component.removeContents()
 
 		let _barStatsWrapper: Component | undefined
 		let _numericStatsWrapper: Component | undefined
-		const barStatsWrapper = () => _barStatsWrapper ??= Component().style('stats-section').prependTo(component)
-		const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('stats-section').appendTo(component)
+		const barStatsWrapper = () => _barStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).prependTo(component)
+		const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).appendTo(component)
 
 		const statGroupDef = collections.statGroups[(item as Item).statGroupHash!] as DestinyStatGroupDefinition | undefined
-		const stats = !item.stats ? [] : Object.values(item.stats)
+		const stats = !item?.stats ? [] : Object.values(item.stats)
 			.sort((a, b) => 0
 				|| +(a.displayAsNumeric ?? false) - +(b.displayAsNumeric ?? false)
 				|| (statGroupDef && ((statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === a.hash) ?? 0) - (statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === b.hash) ?? 0)))
@@ -52,7 +62,7 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections
 			const def = collections.stats[stat.hash]
 			const overrideDisplayProperties = statGroupDef?.overrides?.[stat.hash]?.displayProperties
 			const statName = (overrideDisplayProperties ?? def?.displayProperties)?.name ?? ''
-			if (!statName || (item.is === 'item' && STATS_FILTERED_OUT.has(stat.hash)))
+			if (!statName || (item!.is === 'item' && isAbbreviated && STATS_FILTERED_OUT.has(stat.hash)))
 				continue
 
 			hasVisibleStat = true
@@ -62,16 +72,20 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections
 				.append(Component()
 					.style('stats-stat-label')
 					.text.set(statName)
+					.tweak(display?.tweakStatLabel)
 				)
 				.append(!stat.displayAsNumeric && Component()
 					.style('stats-stat-bar')
 					.style.toggle(stat.value < 0, 'stats-stat-bar--negative')
 					.style.setVariable('stats-stat-bar-progress', stat.value / (stat.max ?? 100))
+					.tweak(display?.tweakStatBar)
 				)
 				.append(Component()
 					.style('stats-stat-value')
-					.text.set((item.is === 'plug' && stat.value >= 0 ? '+' : '') + stat.value.toLocaleString(navigator.language))
+					.text.set((item!.is === 'plug' && stat.value >= 0 ? '+' : '') + stat.value.toLocaleString(navigator.language))
+					.tweak(display?.tweakStatValue)
 				)
+				.tweak(display?.tweakStatWrapper)
 				.appendTo(stat.displayAsNumeric ? numericStatsWrapper() : barStatsWrapper())
 		}
 
@@ -79,7 +93,9 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug>, collections
 	})
 
 	return component.extend<StatsExtensions>(stats => ({
-		anyVisible: statsVisible, hasStats,
+		anyVisible: statsVisible,
+		hasStats,
+		isAbbreviated,
 	}))
 })
 

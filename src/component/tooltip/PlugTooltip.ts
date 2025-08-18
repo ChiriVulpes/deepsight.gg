@@ -1,7 +1,7 @@
 import DisplaySlot from 'component/core/DisplaySlot'
 import Icon from 'component/core/Icon'
 import Image from 'component/core/Image'
-import Stats from 'component/Stats'
+import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { ItemPlug } from 'conduit.deepsight.gg/Collections'
 import type { ClarityComponentAll } from 'deepsight.gg/Interfaces'

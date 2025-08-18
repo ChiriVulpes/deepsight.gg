@@ -2,7 +2,8 @@
 	#after: .overlay
 	padding-top: calc($space-5 + $space-3)
 	%grid
-	grid-template-columns: 2fr 1fr
+	grid-template-columns: 5fr 3fr
+	grid-template-rows: 1fr
 	%align-content-start
 	%column-gap-5
 	%padding-inline-6
@@ -19,6 +20,16 @@
 		%absolute
 		%z-index-bg
 		%height-8
+
+	&-column:
+		%flex
+		%flex-column
+		%padding-bottom-5
+
+		&--main:
+			%justify-content-start
+		&--side:
+			%justify-content-end
 
 	&-header:
 		%grid
@@ -65,7 +76,7 @@
 			%inset-0
 			%pointer-events-none
 			%z-index-bg
-			#transition: #{transition("backdrop-filter")}
+			#transition: #{transition("backdrop-filter")}, #{transition("background")}
 
 		&--hover:
 			#after: .item-overlay-socket-group
@@ -73,6 +84,7 @@
 			@before:
 				%backdrop-blur
 				%transition-focus
+				background: #aaaaaa08
 
 		&-header:
 			%block
@@ -202,3 +214,78 @@
 			%border-radius-100
 
 	&-watermark:
+
+	&-stats:
+
+		&-wrapper:
+			%flex
+			%gap-4
+			%padding-2
+			%padding-left-4
+			%unmargin-right-2
+			%unmargin-bottom-2
+			%width-100
+			%height-fit
+			%relative
+
+			@before:
+				%block
+				%absolute
+				%inset-0
+				%z-index-bg
+				#transition: #{transition("backdrop-filter")}, #{transition("background")}
+
+			&--hover:
+				#after: .item-overlay-stats-wrapper
+				@before:
+					%transition-focus
+					%backdrop-blur
+					background: #aaaaaa08
+
+		%width-100
+
+		&-primary:
+			%block
+			%border-right-2
+			%padding-right-3
+			%border-colour-7
+
+			&-power:
+				%flex
+				%flex-column
+				%align-items-end
+				&-label:
+					%uppercase
+					%letter-spacing-2
+					%font-4
+					%text-align-right
+					%text-shadow
+					%colour-5
+					%weight-semibold
+					%unmargin-bottom-1
+				&-display:
+					#after: .power
+					%padding-0
+					%unmargin-right-1
+					%font-9
+					%weight-black
+
+			&-ammo:
+				%flex
+				%align-items-centre
+				&-icon:
+					height: 1.5lh
+				&-label:
+					%uppercase
+					%letter-spacing-2
+					%text-shadow
+
+		%row-2-5
+		%column-2
+		%align-self-end
+		%relative
+
+		&-stat-label:
+			%text-shadow
+		&-stat-section:
+			%margin-top-1
