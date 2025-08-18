@@ -1,0 +1,108 @@
+.power:
+	%flex
+	%align-items-centre
+	%font-8
+	padding: calc($space-2)
+	gap: calc($space-2 + $space-1)
+	%padding-left-3
+	%weight-bolder
+
+	&-damage:
+
+		&-icon:
+			%relative
+			%grid
+			size: 1cap
+			%align-content-centre
+			%justify-content-centre
+			%unmargin-right-1
+
+			&--1:
+				$power-damage-size: 1cap
+				%stack
+			&--2:
+				size: .9cap
+				$power-damage-size: calc($space-3 + $space-2)
+				$power-damage-margin-inline: $unspace-1
+				$power-damage-margin-block: $unspace-1
+				%padding-right-1
+				grid-template-areas:
+					"damage-1 ."
+					". damage-2"
+				@before:
+					%size-0
+					%row-1
+					%column-2
+				@after:
+					%size-0
+					%row-2
+					%column-1
+			&--3:
+				$power-damage-size: calc($space-3 + $space-1)
+				$power-damage-margin-inline: $unspace-1
+				grid-template-areas:
+					"damage-1 . damage-3"
+					". damage-2 ."
+				@before:
+					%size-0
+					%row-1
+					%column-2
+				@after:
+					%size-0
+					%row-2
+					%column-1
+
+			&--solo-strand:
+				#after: .power-damage-icon
+				%unmargin-inline-2
+
+			&--solo-stasis:
+				#after: .power-damage-icon
+				margin-inline: calc($space-1 * -1.5)
+
+			&--solo-solar:
+				#after: .power-damage-icon
+				%unmargin-inline-1
+
+			&-image:
+				%block
+				size: $power-damage-size
+				background: $power-damage-image
+				background-size: contain
+				background-repeat: no-repeat
+				margin: ${power-damage-margin-block: 0} ${power-damage-margin-inline: 0}
+				; translate: calc(${power-damage-margin-inline: 0px} * -0.1) calc(${power-damage-margin-block: 0px} * -0.1)
+				&--prismatic:
+					#after: .power-damage-icon-image
+					background: $colour-damage-prismatic
+					mask-image: $power-damage-image
+					mask-mode: luminance
+					mask-size: contain
+					%stack-self
+					size: 1.4cap
+					%align-self-centre
+					%justify-self-centre
+
+				&-prismatic-gradient-fixer:
+					size: 1.4cap
+					%grid
+					%stack
+					%stack-self
+					mask: linear-gradient(-45deg, black, transparent)
+					%align-self-centre
+					%justify-self-centre
+
+	&-power:
+		height: 1cap
+		%flex
+		%align-items-centre
+		%font-vertical-align
+		%padding-1
+		%unmargin-left-1
+		translate: 0 .02em
+
+		&--colour: colour: $power-damage-colour
+
+		&--gradient:
+			background: $power-damage-gradient
+			%background-clip-text
