@@ -118,7 +118,7 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 			.style('item-overlay-plug-icon')
 			.appendTo(component)
 
-		component.setTooltip(tooltip => tooltip.and(PlugTooltip, plug, collections))
+		PlugTooltip.apply(component, plug, collections)
 		return component
 	})
 	const Socket = Component((component, socket: ItemSocket, collections: Collections) => {
