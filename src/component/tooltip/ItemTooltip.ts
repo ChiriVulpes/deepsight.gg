@@ -2,24 +2,18 @@ import type { DestinyEquipableItemSetDefinition } from 'bungie-api-ts/destiny2/i
 import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
-import Stats from 'component/Stats'
+import Power from 'component/item/Power'
+import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
-import type { DamageTypeHashes, SandboxPerkHashes } from 'deepsight.gg/Enums'
+import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
-import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
-
-const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgress) => {
-	const conduit = await Relic.connected
-	const loadoutIcon = await conduit.definitions.en.DestinyLoadoutIconDefinition.get(814121290)
-	return loadoutIcon?.iconImagePath
-})
 
 const PLUG_ARCHETYPE_ICON_SEQUENCE = 0
 const PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME = 1
@@ -103,73 +97,8 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 	////////////////////////////////////
 	//#region Damage
 
-	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-	const primaryDamageType = State.Map(tooltip, [item, collections], (item, collections) => collections.damageTypes[item.damageTypes?.[0]!])
-	const damageTypes = item.map(tooltip, item => item.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
-	function getDamageTypeName (damageType: DamageTypeHashes | undefined): string | undefined {
-		const def = damageType === undefined ? undefined : (collections as State<Collections>).value.damageTypes[damageType]
-		return def?.displayProperties.name.toLowerCase()
-	}
-	Component()
+	Power(State.Use(primaryInfo, { damageTypes: item.map(primaryInfo, item => item.damageTypes) }), collections)
 		.style('item-tooltip-damage')
-		.appendWhen(primaryDamageType.truthy, Component()
-			.style('item-tooltip-damage-icon')
-			.tweak(wrapper => {
-				wrapper.style.bindFrom(damageTypes.map(wrapper, damageTypes =>
-					damageTypes?.length !== 1 ? undefined : `item-tooltip-damage-icon--solo-${getDamageTypeName(damageTypes[0])?.toLowerCase() as 'strand'}` as const
-				))
-				State.Use(wrapper, { primaryDamageType, damageTypes, prismaticIcon }).use(wrapper, ({ damageTypes, prismaticIcon }) => {
-					wrapper.removeContents()
-					wrapper.style.remove('item-tooltip-damage-icon--1', 'item-tooltip-damage-icon--2', 'item-tooltip-damage-icon--3')
-					if (damageTypes?.length === 5) {
-						wrapper.style('item-tooltip-damage-icon--1')
-						Component()
-							.style('item-tooltip-damage-icon-image', 'item-tooltip-damage-icon-image--prismatic')
-							.style.bindVariable('item-tooltip-damage-image', `url(https://www.bungie.net${prismaticIcon})`)
-							.appendTo(wrapper)
-						const gradientFixer = Component()
-							.style('item-tooltip-damage-icon-image-prismatic-gradient-fixer')
-							.appendTo(wrapper)
-						for (let i = 0; i < 4; i++)
-							Component()
-								.style('item-tooltip-damage-icon-image', 'item-tooltip-damage-icon-image--prismatic')
-								.style.bindVariable('item-tooltip-damage-image', `url(https://www.bungie.net${prismaticIcon})`)
-								.appendTo(gradientFixer)
-						return
-					}
-
-					wrapper.style(`item-tooltip-damage-icon--${damageTypes?.length ?? 1}` as 'item-tooltip-damage-icon--1')
-					for (const damageType of damageTypes ?? []) {
-						const def = collections.value.damageTypes[damageType]
-						const damageTypeName = def.displayProperties.name.toLowerCase()
-						Component()
-							.style('item-tooltip-damage-icon-image', `item-tooltip-damage-icon-image--${damageTypeName as 'prismatic'}`)
-							.style.bindVariable('item-tooltip-damage-image', `url(https://www.bungie.net${def.displayProperties.icon})`)
-							.appendTo(wrapper)
-					}
-				})
-			})
-		)
-		.append(Component()
-			.style('item-tooltip-damage-power')
-			.tweak(wrapper => {
-				damageTypes.use(wrapper, (damageTypes = []) => {
-					const single = damageTypes.length === 5 || damageTypes.length <= 1
-					wrapper.style.toggle(single, 'item-tooltip-damage-power--colour')
-					wrapper.style.toggle(!single, 'item-tooltip-damage-power--gradient')
-					const damageTypeColourVars = damageTypes
-						.map(type => collections.value.damageTypes[type]?.displayProperties.name.toLowerCase())
-						.map(name => `var(--colour-damage-${name ?? 'kinetic'})`)
-					wrapper.style.setVariable('item-tooltip-damage-colour', damageTypes.length === 5 ? 'var(--colour-damage-prismatic)' : damageTypeColourVars[0])
-					const gradient = damageTypes.length === 1 ? damageTypeColourVars[0]
-						: damageTypes.length === 2 ? `${damageTypeColourVars[0]} 30%, ${damageTypeColourVars[1]} 70%`
-							: damageTypes.length === 3 ? `${damageTypeColourVars[0]} 20%, ${damageTypeColourVars[1]} 45%, ${damageTypeColourVars[1]} 55%, ${damageTypeColourVars[2]} 80%`
-								: `${damageTypeColourVars[0]} 20%, ${damageTypeColourVars[1]} 40%, ${damageTypeColourVars[2]} 60%, ${damageTypeColourVars[3]} 80%`
-					wrapper.style.setVariable('item-tooltip-damage-gradient', `linear-gradient(130deg in oklab, ${gradient}`)
-				})
-			})
-			.text.set('10')
-		)
 		.appendTo(primaryInfo)
 
 	//#endregion
@@ -220,7 +149,7 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 
 	Component()
 		.style('item-tooltip-stats')
-		.and(Stats, item, collections)
+		.and(Stats, item, collections, { isAbbreviated: true })
 		.tweak(stats => {
 			stats.style.bind(stats.anyVisible.falsy, 'item-tooltip-stats--no-visible-stats')
 			stats.appendToWhen(stats.hasStats, tooltip.body)

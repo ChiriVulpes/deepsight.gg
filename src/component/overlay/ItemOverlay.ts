@@ -1,21 +1,28 @@
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
-import Item from 'component/Item'
+import Item from 'component/item/Item'
+import Power from 'component/item/Power'
+import Stats from 'component/item/Stats'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
 import PlugTooltip from 'component/tooltip/PlugTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item as CollectionsItem, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
+import type { Item as CollectionsItem, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
+import { SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
-import { SocketCategoryHashes } from 'node_modules/deepsight.gg/Enums'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 
 const DestinySocketCategoryDefinition = State.Async(async () => {
 	const conduit = await Relic.connected
 	return await conduit.definitions.en.DestinySocketCategoryDefinition.all()
+})
+
+const PowerStatDefinition = State.Async(async () => {
+	const conduit = await Relic.connected
+	return await conduit.definitions.en.DestinyStatDefinition.get(StatHashes.Power)
 })
 
 export default Component((component, item: State.Or<CollectionsItem | undefined>, collections: State.Or<Collections>) => {
@@ -32,6 +39,13 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 		.style('item-overlay-foundry')
 		.appendTo(overlay)
 
+	const mainColumn = Component()
+		.style('item-overlay-column', 'item-overlay-column--main')
+		.appendTo(overlay)
+
+	////////////////////////////////////
+	//#region Display
+
 	Component()
 		.style('item-overlay-header')
 		.append(Slot().use(item, (_, item) => item
@@ -39,13 +53,19 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 		))
 		.append(Component().style('item-overlay-title').text.bind(item.map(overlay, item => item?.displayProperties.name)))
 		.append(Component().style('item-overlay-subtitle').text.bind(item.map(overlay, item => item?.type)))
-		.appendTo(overlay)
+		.appendTo(mainColumn)
 
 	const flavourText = item.map(overlay, item => item?.flavorText)
 	Lore()
 		.style('item-overlay-lore')
 		.text.bind(flavourText)
-		.appendToWhen(flavourText.truthy, overlay)
+		.appendToWhen(flavourText.truthy, mainColumn)
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Sockets
 
 	interface SocketGroupExtensions {
 		readonly header: Component
@@ -114,7 +134,7 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 	})
 
 	const group = SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
-		.appendTo(overlay)
+		.appendTo(mainColumn)
 
 	Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
 		const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
@@ -128,7 +148,57 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 			}
 	})
 
-	InputBus.event.until(component, event => event.subscribe('Down', (_, event) => {
+	//#endregion
+	////////////////////////////////////
+
+	const sideColumn = Component()
+		.style('item-overlay-column', 'item-overlay-column--side')
+		.appendTo(overlay)
+
+	////////////////////////////////////
+	//#region Stats
+
+	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+	const ammo = State.Map(overlay, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item?.ammo!])
+	const stats = Stats(item, collections, {
+		tweakStatLabel: label => label.style('item-overlay-stats-stat-label'),
+		tweakStatSection: section => section.style('item-overlay-stats-stat-section'),
+	})
+	Component()
+		.style('item-overlay-stats-wrapper')
+		.tweak(c => c.style.bind(c.hoveredOrHasFocused, 'item-overlay-stats-wrapper--hover'))
+		.append(Component()
+			.style('item-overlay-stats-primary')
+			.append(Component()
+				.style('item-overlay-stats-primary-power')
+				.append(Component()
+					.style('item-overlay-stats-primary-power-label')
+					.text.bind(PowerStatDefinition.map(stats, def => def?.displayProperties.name))
+				)
+				.append(Power(State.Use(stats, { damageTypes: item.map(stats, item => item?.damageTypes) }), collections)
+					.style('item-overlay-stats-primary-power-display')
+				)
+			)
+			.appendWhen(ammo.truthy, Component()
+				.style('item-overlay-stats-primary-ammo')
+				.append(Image(ammo.mapManual(ammo => ammo && `https://www.bungie.net${ammo.displayProperties.icon}`))
+					.style('item-overlay-stats-primary-ammo-icon')
+				)
+				.append(Component()
+					.style('item-overlay-stats-primary-ammo-label')
+					.text.bind(ammo.mapManual(ammo => ammo?.displayProperties.name))
+				)
+			)
+		)
+		.appendWhen(stats.hasStats, stats
+			.style('item-overlay-stats')
+		)
+		.appendTo(sideColumn)
+
+	//#endregion
+	////////////////////////////////////
+
+	InputBus.event.until(overlay, event => event.subscribe('Down', (_, event) => {
 		if (event.use('Escape')) {
 			if (!item.value?.instanceId)
 				void navigate.toURL('/collections')

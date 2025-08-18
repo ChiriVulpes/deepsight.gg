@@ -36,8 +36,9 @@
 	component/WordmarkLogo
 	component/profile/ProfileButton
 	component/Navbar
-	component/Item
-	component/Stats
+	component/item/Item
+	component/item/Stats
+	component/item/Power
 	component/tooltip/ItemTooltip
 	component/tooltip/GenericTooltip
 	component/tooltip/PlugTooltip

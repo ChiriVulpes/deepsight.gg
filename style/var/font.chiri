@@ -31,6 +31,7 @@
 	name="Overused Grotesk
 	vertical-align=-.08
 	letter-spacing=.03
+	weight-black=800
 
 #font-face family="icons":
 	font-weight: normal
