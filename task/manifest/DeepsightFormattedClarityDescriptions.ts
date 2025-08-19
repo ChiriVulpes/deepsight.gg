@@ -25,7 +25,7 @@ const numericSplitNumericStart = /(?:(?<![\w\d.!+%-])|(?<=\d(?:st|nd|rd|th)-))(?
 const numericSplitUnknownStart = /(?<![\w\d.!+%-])(?=\?)/
 const numericSplitNumericEnd = /(?<=[\d?][%x°+]?\??)(?![\dx?%°+.])/
 const numericSplitRegex = new RegExp([numericSplitNumericStart.source, numericSplitUnknownStart.source, numericSplitNumericEnd.source].join('|'), 'g')
-const stackSizeSplitRegex = /(?=\|)|(?<=\|)/g
+const stackSizeSplitRegex = /(?=\s+\|)|(?<=\|\s+)/g
 const unknownValueBracketsRegex = /\(\?\)|\[\?\]/g
 const nonNumericNumberRegex = /^\?$|x[\d?]|[\d?](?:th|[%°-])/
 
