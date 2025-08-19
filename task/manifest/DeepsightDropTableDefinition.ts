@@ -360,7 +360,7 @@ export default Task('DeepsightDropTableDefinition', async () => {
 					typeDisplayProperties: await DestinyManifestReference.resolveAll({
 						name: { DestinyFireteamFinderActivityGraphDefinition: fireteamFinderGraphHash },
 						description: { DestinyFireteamFinderActivityGraphDefinition: fireteamFinderGraphHash },
-						icon: type === 'crucibleOps' ? { DestinyRecordDefinition: RecordHashes.CrucibleMatches } : undefined,
+						icon: `./image/png/activity/portal_${type.slice(0, -3)}.png`,
 					}),
 					pgcrImage: type === 'crucibleOps' ? (await DestinyActivityDefinition.get(ActivityHashes.TwilightGap111657329))?.pgcrImage : undefined,
 				}
