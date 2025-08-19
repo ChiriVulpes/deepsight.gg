@@ -36,6 +36,7 @@
 		%top-0
 		%z-index-bg
 		%height-8
+		%opacity-50
 
 	&-column:
 		%row-1
@@ -89,6 +90,7 @@
 	&-lore:
 		%colour-3
 		%column-1
+		%margin-bottom-0
 
 	$plug-size: calc($space-4 + $space-3 + $space-2)
 	$plug-margin: $space-2
@@ -99,6 +101,7 @@
 		%column-1
 		%width-100
 		%relative
+		%margin-top-3
 
 		@before:
 			%block
@@ -176,7 +179,7 @@
 		%flex
 		%flex-column
 		%flex-wrap
-		%max-height-8
+		max-height: calc($space-7 + $space-6)
 		gap: calc($plug-margin * 2)
 
 		@before:
@@ -191,6 +194,30 @@
 			border-bottom: 1px solid
 			%opacity-05
 
+		&--intrinsic:
+			#after: .item-overlay-socket
+			%flex-row
+
+		&-display:
+			%flex
+			%flex-column
+			%text-shadow
+			%justify-content-centre
+			%gap-1
+			width: calc(($plug-size + $plug-padding * 2 + $plug-margin * 2) * 5)
+			%border-box
+			%unmargin-2
+			%padding-inline-3
+			&-name:
+				%uppercase
+				%font-4
+				%letter-spacing-1
+				%weight-bold
+				%height-cap
+				%flex
+				%align-items-centre
+			&-description:
+
 	&-plug:
 		%block
 		size: $plug-size
@@ -201,6 +228,7 @@
 		%borderless
 		%content-box
 		%cursor-pointer
+		%background-none
 
 		&-icon:
 
@@ -235,6 +263,25 @@
 						box-shadow: inset 0 0 0 1px #fff5
 						background: #fff2
 
+			&--frame:
+				#after: .item-overlay-plug-effect
+				%unmargin-2
+				margin-bottom: calc(0px - $space-2 - 1px)
+				box-shadow: inset 0 0 0 1px #666
+				$clip-corner-size: calc($socket-background-size / 2)
+				$clip-corner-end: calc(100% - $clip-corner-size)
+				clip-path:
+					polygon(
+						0px 0px, 100% 0px, 100% 100%, 0px 100%, 0px 0px, /* outside ring */
+						$clip-corner-size 0px, $clip-corner-size $clip-corner-size, 0px $clip-corner-size,
+						0px $clip-corner-end, $clip-corner-size $clip-corner-end, $clip-corner-size 100%,
+						$clip-corner-end 100%, $clip-corner-end $clip-corner-end, 100% $clip-corner-end,
+						100% $clip-corner-size, $clip-corner-end $clip-corner-size, $clip-corner-end 0px
+					)
+
+				&--hover:
+					#after: .item-overlay-plug-effect--frame, .item-overlay-plug-effect--hover
+
 		&--hover:
 			#after: .item-overlay-plug
 
@@ -242,6 +289,11 @@
 			#after: .item-overlay-plug
 			background: rgb(from $colour-perk r g b / .85)
 			%border-radius-100
+
+		&--frame:
+			#after: .item-overlay-plug
+			$plug-padding: 0px
+			$plug-size: calc($space-4 + $space-3 + $space-2 + $space-2 * 2)
 
 	&-watermark:
 
