@@ -25,8 +25,11 @@ const PowerStatDefinition = State.Async(async () => {
 	return await conduit.definitions.en.DestinyStatDefinition.get(StatHashes.Power)
 })
 
-export default Component((component, item: State.Or<CollectionsItem | undefined>, collections: State.Or<Collections>) => {
-	item = State.get(item)
+export default Component((component, intendedItem: State.Or<CollectionsItem | undefined>, collections: State.Or<Collections>) => {
+	// preserve all the ui for the last item when the "intended" item is set to undefined
+	const item = State<CollectionsItem | undefined>(undefined)
+	State.get(intendedItem).use(component, intendedItem => item.value = intendedItem ?? item.value)
+
 	collections = State.get(collections)
 
 	const overlay = component.style('item-overlay')
@@ -200,7 +203,7 @@ export default Component((component, item: State.Or<CollectionsItem | undefined>
 
 	InputBus.event.until(overlay, event => event.subscribe('Down', (_, event) => {
 		if (event.use('Escape')) {
-			if (!item.value?.instanceId)
+			if (!item?.value?.instanceId)
 				void navigate.toURL('/collections')
 			else
 				throw new Error('Cannot navigate out of an item instance view yet')
