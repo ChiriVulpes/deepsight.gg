@@ -81,6 +81,8 @@ export default Task('DeepsightDropTableDefinition', async () => {
 			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.VexcaliburGlaive)
 		else if (normalExoticMission.definition?.displayProperties.name.includes('Encore'))
 			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.ChoirOfOneAutoRifle)
+		else if (normalExoticMission.definition?.displayProperties.name.includes('Kell\'s Fall'))
+			[exoticWeapon] = await getCollectionsCopies(InventoryItemHashes.SlayersFangShotgun)
 
 		if (!exoticWeapon)
 			throw new Error('Failed to get the exotic weapon from the current exotic mission :(')

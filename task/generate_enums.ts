@@ -40,7 +40,7 @@ const EXCLUDED_PATHS: Partial<Record<keyof AllDestinyManifestComponents, string[
 		'traitIds.length', 'traitHashes.length', 'loreHash', 'backgroundColor.*',
 		'defaultDamageType', 'defaultDamageTypeHash', 'investmentStats.*', 'stats.*',
 		'setData.itemList*', 'equippingBlock.uniqueLabelHash',
-		'quality.currentVersion',
+		'quality.currentVersion', 'displayProperties.iconHash',
 	],
 	DestinyActivityDefinition: ['loadouts*', 'destinationHash'],
 	DestinyRecordDefinition: ['loreHash', 'completionInfo.ScoreValue', 'objectiveHashes*', 'parentNodeHashes*'],
