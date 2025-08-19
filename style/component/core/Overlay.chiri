@@ -1,6 +1,6 @@
 .overlay:
 	%block
-	%fixed
+	%absolute
 	%inset-0
 	background: #222a
 	%z-index-fg-2
@@ -10,11 +10,11 @@
 	#transition: #{transition("opacity")}
 	%backdrop-blur
 	%pointer-events-none
+	margin-top: ${overlay-scroll-margin-top: 0px}
+	; transition-duration: 100s
 
 	&--visible:
 		#after: .overlay
 		%opaque
 		%pointer-events-all
-
-.has-overlay:
-	%overflow-hidden
+		%margin-top-0

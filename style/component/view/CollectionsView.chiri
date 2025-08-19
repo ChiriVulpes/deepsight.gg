@@ -4,6 +4,7 @@
 
 	&--ready:
 		%width-100
+		%align-self-start
 
 	&-year:
 		%flex

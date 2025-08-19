@@ -1,9 +1,11 @@
 import type { DisplayHandlers } from 'component/DisplayBar'
 import DisplayBar from 'component/DisplayBar'
 import Navbar from 'component/Navbar'
+import Overlay from 'component/Overlay'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
+import Task from 'kitsui/utility/Task'
 import ViewTransition from 'utility/ViewTransition'
 
 interface LoadingAPI {
@@ -48,6 +50,7 @@ namespace View {
 
 const ViewExt = Component.Extension(view => view)
 
+let viewContainer: Component | undefined
 let navbar: Navbar | undefined
 let displayBar: DisplayBar | undefined
 function View (builder: (view: View<undefined>) => unknown): View.Builder.NoParams
@@ -89,11 +92,38 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 
 		let builderPromise: unknown
 		const trans = ViewTransition.perform('view', () => {
-			for (const view of Component.getBody().getChildren(ViewExt))
+			for (const view of viewContainer?.getChildren(ViewExt) ?? [])
 				view.remove()
 
 			builderPromise = builder(view)
-			view.appendTo(document.body)
+
+			viewContainer ??= Component()
+				.style('view-container')
+				.tweak(container => {
+					let savedScroll = 0
+					Overlay.hasVisible.use(container, async hasVisible => {
+						if (hasVisible) {
+							savedScroll = document.documentElement.scrollTop
+							document.documentElement.scrollTop = 0
+							container.style('view-container--has-overlay')
+								.style.setVariable('overlay-scroll-margin-top', `${savedScroll}px`)
+							Component.getDocument().style.removeVariables('overlay-scroll-margin-top')
+							return
+						}
+
+						const overlayScrollTop = document.documentElement.scrollTop
+						Component.getDocument().style.setVariable('overlay-scroll-margin-top', `${-overlayScrollTop}px`)
+						document.documentElement.scrollTop = 0
+						container.style.remove('view-container--has-overlay')
+						await Task.yield()
+						Component.getDocument().style.setVariable('overlay-scroll-margin-top', `${savedScroll - overlayScrollTop}px`)
+						container.style.removeVariables('overlay-scroll-margin-top')
+						document.documentElement.scrollTop = savedScroll
+					})
+				})
+				.appendTo(document.body)
+
+			view.appendTo(viewContainer)
 
 			navbar ??= Navbar()
 			displayBar ??= DisplayBar()

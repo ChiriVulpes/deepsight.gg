@@ -1,6 +1,8 @@
 .item-overlay:
 	#after: .overlay
-	padding-top: calc($space-5 + $space-3)
+	$overlay-padding-top: calc($space-5 + $space-3)
+	padding-top: $overlay-padding-top
+	%border-box
 	%grid
 	grid-template-columns: 5fr 3fr
 	grid-template-rows: 1fr
@@ -8,28 +10,56 @@
 	%column-gap-5
 	%padding-inline-6
 
+	&-background:
+		%grid
+		%stack
+		%sticky
+		%column-1-2
+		%row-1
+		%unmargin-inline-6
+		margin-top: calc($overlay-padding-top * -1)
+		height: calc(100% + $overlay-padding-top)
+
 	&-image:
-		%absolute
-		%inset-0
+		%stack-self
+		%sticky
+		%top-0
 		%width-100
 		object-fit: cover
 		object-position: center calc((100% - $space-4 - $space-3) / 2)
 		%z-index-bg
+		height: 100vh
 
 	&-foundry:
-		%absolute
+		%stack-self
+		%sticky
+		%top-0
 		%z-index-bg
 		%height-8
 
 	&-column:
-		%flex
-		%flex-column
-		%padding-bottom-5
+		%row-1
+		%block
 
 		&--main:
-			%justify-content-start
+			%column-1
 		&--side:
-			%justify-content-end
+			%column-2
+
+		&-content:
+			%flex
+			%flex-column
+			%padding-bottom-5
+			%border-box
+			%justify-content-start
+			%sticky
+			top: calc($overlay-padding-top)
+
+			&--side:
+				#after: .item-overlay-column-content
+				%justify-content-end
+				%height-100
+				max-height: calc(100vh - $overlay-padding-top)
 
 	&-header:
 		%grid
