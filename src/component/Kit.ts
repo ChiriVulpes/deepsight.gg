@@ -13,6 +13,7 @@ declare module 'kitsui/component/Tooltip' {
 declare module 'kitsui/component/Loading' {
 	interface LoadingExtensions {
 		readonly transitionFinished?: Promise<void>
+		skipViewTransition (): void
 	}
 }
 
@@ -36,17 +37,25 @@ export default function styleKit () {
 			loading.errorText.text.bind(state.error.map(owner, error => error?.message ?? (quilt => quilt['shared/errored']())))
 		})
 
+		let trans: ViewTransition | undefined
 		loading.onLoad((loading, display) => {
-			const trans = ViewTransition.perform('view', display)
+			const transInstance = trans = ViewTransition.perform('view', display)
 			Object.assign(loading, { transitionFinished: trans.finished })
 			void trans.finished.then(() => {
-				if (loading.transitionFinished === trans.finished)
+				if (trans === transInstance)
+					trans = undefined
+
+				if (loading.transitionFinished === transInstance.finished)
 					Object.assign(loading, { transitionFinished: undefined })
 			})
 		})
 
 		loading.onRemoveManual(() => clearInterval(interval))
-		return {}
+		return {
+			skipViewTransition () {
+				trans?.skipTransition()
+			},
+		}
 	})
 	Kit.Loading.styleTargets({
 		Loading: 'loading',
