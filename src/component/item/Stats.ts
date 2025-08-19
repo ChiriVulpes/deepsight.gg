@@ -47,7 +47,8 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>,
 		const barStatsWrapper = () => _barStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).prependTo(component)
 		const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).appendTo(component)
 
-		const statGroupDef = collections.statGroups[(item as Item).statGroupHash!] as DestinyStatGroupDefinition | undefined
+		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+		const statGroupDef = collections.statGroups[(item as Item)?.statGroupHash!] as DestinyStatGroupDefinition | undefined
 		const stats = !item?.stats ? [] : Object.values(item.stats)
 			.sort((a, b) => 0
 				|| +(a.displayAsNumeric ?? false) - +(b.displayAsNumeric ?? false)

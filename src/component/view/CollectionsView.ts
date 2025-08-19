@@ -3,6 +3,7 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import Moment from 'component/view/collections/Moment'
+import type { Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Relic from 'Relic'
@@ -109,6 +110,9 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 	//#endregion
 	////////////////////////////////////
 
+	////////////////////////////////////
+	//#region Item Overlay
+
 	const itemMap = collections.mapManual((collections): ItemNameMaps => {
 		const nameToHash = Object.fromEntries(collections.moments.map(moment => [moment.moment.id,
 		Object.fromEntries(Object.values(moment.buckets)
@@ -138,18 +142,24 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 		return { nameToHash, hashToName }
 	})
-	const overlayItem = State.Map(view, [view.params, collections, itemMap], (params, collections, itemMap) => {
+	const overlayItem = State.Map(view, [view.params, collections, itemMap], (params, collections, itemMap): Item | undefined => {
 		if (!params)
 			return undefined
 
-		if ('itemHash' in params)
-			return collections.items[+params.itemHash] ?? null
+		const result = 'itemHash' in params
+			? collections.items[+params.itemHash] ?? undefined
+			: 'itemName' in params
+				? collections.items[itemMap.nameToHash[params.moment]?.[params.itemName]] ?? undefined
+				: undefined
 
-		if ('itemName' in params)
-			return collections.items[itemMap.nameToHash[params.moment]?.[params.itemName]] ?? null
+		if (result !== undefined) {
+			view.loading.skipViewTransition()
+			return result
+		}
 	})
 
-	setTimeout(() => {
-		Overlay(view).bind(overlayItem.truthy).and(ItemOverlay, overlayItem, collections)
-	}, 1000)
+	Overlay(view).bind(overlayItem.truthy).and(ItemOverlay, overlayItem, collections)
+
+	//#endregion
+	////////////////////////////////////
 })
