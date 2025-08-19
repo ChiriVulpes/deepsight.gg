@@ -12,12 +12,15 @@ type PlugCategorisationExpression =
 	| `${DeepsightPlugCategoryName}/*Empty*`
 	| '*Default'
 	| `${DeepsightPlugCategoryName}/*Default`
-	| 'Masterwork/ExoticCatalyst*'
+	// | 'Masterwork/ExoticCatalyst*'
+	| `${keyof { [N in DeepsightPlugFullName as N extends CatNameSuffix<infer R> ? R : never]: 0 }}*`
+
+type CatNameSuffix<T extends string> = `${T}Enhanced` | `${T}Empty` | `${T}Default`
 
 namespace Categorisation {
 
 	export const IsMasterwork = matcher('Masterwork/*')
-	export const IsIntrinsic = matcher('Intrinsic/*')
+	export const IsIntrinsic = matcher('Intrinsic/*', '!Intrinsic/Shaped')
 	export const IsIntrinsicPerk = matcher(...[
 		'Intrinsic/Frame', 'Intrinsic/FrameEnhanced',
 		'Intrinsic/Origin', 'Intrinsic/OriginEnhanced',
@@ -31,6 +34,8 @@ namespace Categorisation {
 	export const IsShaderOrnament = matcher('Cosmetic/Shader', 'Cosmetic/Ornament')
 	export const IsEmptyOrIncompleteCatalyst = matcher('Masterwork/ExoticCatalyst*', '!Masterwork/ExoticCatalyst')
 	export const IsExoticCatalyst = matcher('Masterwork/ExoticCatalyst*')
+	export const IsFrame = matcher('Intrinsic/Frame*')
+	export const IsOrigin = matcher('Intrinsic/Origin*')
 
 	export function matcher (...expressions: (PlugCategorisationExpression | `!${PlugCategorisationExpression}`)[]) {
 		const positiveExpressions = expressions.filter(expr => expr[0] !== '!') as PlugCategorisationExpression[]

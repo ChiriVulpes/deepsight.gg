@@ -7,7 +7,7 @@ import GenericTooltip from 'component/tooltip/GenericTooltip'
 import PlugTooltip from 'component/tooltip/PlugTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item as CollectionsItem, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
-import { SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
+import { ItemCategoryHashes, SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
@@ -111,15 +111,19 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	})
 
 	const Plug = Component('button', (component, plug: ItemPlug) => {
-		const isPerk = Categorisation.IsPerk(plug)
+		const isPerk = Categorisation.IsPerk(plug) || Categorisation.IsOrigin(plug)
+		const isFrame = Categorisation.IsFrame(plug)
 		component.style('item-overlay-plug')
 			.style.toggle(isPerk, 'item-overlay-plug--perk')
+			.style.toggle(isFrame, 'item-overlay-plug--frame')
 			.style.bind(component.hoveredOrHasFocused, 'item-overlay-plug--hover')
 
 		Component()
 			.style('item-overlay-plug-effect')
 			.style.toggle(isPerk, 'item-overlay-plug-effect--perk')
+			.style.toggle(isFrame, 'item-overlay-plug-effect--frame')
 			.style.bind(component.hoveredOrHasFocused.map(component, hover => hover && isPerk), 'item-overlay-plug-effect--perk--hover')
+			.style.bind(component.hoveredOrHasFocused.map(component, hover => hover && isFrame), 'item-overlay-plug-effect--frame--hover')
 			.appendTo(component)
 
 		Image(`https://www.bungie.net${plug.displayProperties.icon}`)
@@ -141,20 +145,56 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 		return component
 	})
 
-	const group = SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
+	////////////////////////////////////
+	//#region Weapon Perks
+
+	const isWeapon = item.map(component, item => !!item?.categories?.includes(ItemCategoryHashes.Weapon))
+	SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
+		.tweak(group => Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
+			const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
+			if (!item?.instanceId)
+				for (let i = 0; i < sockets.length; i++) {
+					if (i)
+						Component().style('item-overlay-socket-group-gap').appendTo(slot)
+
+					Socket(sockets[i], collections)
+						.appendTo(slot)
+				}
+		}))
+		.appendToWhen(isWeapon, mainColumn)
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Intrinsic Traits
+
+	SocketGroup(SocketCategoryHashes.IntrinsicTraits)
+		.tweak(group => Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
+			const sockets = item?.sockets.filter(Categorisation.IsIntrinsic) ?? []
+			if (!item?.instanceId)
+				for (let i = 0; i < sockets.length; i++) {
+					if (i)
+						Component().style('item-overlay-socket-group-gap').appendTo(slot)
+
+					const plug = collections.plugs[sockets[i].defaultPlugHash ?? sockets[i].plugs[0]]
+					Socket(sockets[i], collections)
+						.style('item-overlay-socket--intrinsic')
+						.append(!Categorisation.IsFrame(sockets[i]) || !plug ? undefined : Component()
+							.style('item-overlay-socket-display')
+							.append(Component()
+								.style('item-overlay-socket-display-name')
+								.text.set(plug.displayProperties.name)
+							)
+							.append(Component()
+								.style('item-overlay-socket-display-description')
+								.text.set(plug.displayProperties.description)
+							)
+						)
+						.appendTo(slot)
+				}
+		}))
 		.appendTo(mainColumn)
-
-	Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
-		const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
-		if (!item?.instanceId)
-			for (let i = 0; i < sockets.length; i++) {
-				if (i)
-					Component().style('item-overlay-socket-group-gap').appendTo(slot)
-
-				Socket(sockets[i], collections)
-					.appendTo(slot)
-			}
-	})
 
 	//#endregion
 	////////////////////////////////////
