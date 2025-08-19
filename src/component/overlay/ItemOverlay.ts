@@ -34,17 +34,22 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 	const overlay = component.style('item-overlay')
 
+	const background = Component().style('item-overlay-background').appendTo(overlay)
+
 	Image(item.map(overlay, item => item?.previewImage && `https://www.bungie.net${item.previewImage}`))
 		.style('item-overlay-image')
-		.appendTo(overlay)
+		.appendTo(background)
 
 	Image(item.map(overlay, item => item?.foundryImage && `https://www.bungie.net${item.foundryImage}`))
 		.style('item-overlay-foundry')
-		.appendTo(overlay)
+		.appendTo(background)
 
 	const mainColumn = Component()
-		.style('item-overlay-column', 'item-overlay-column--main')
-		.appendTo(overlay)
+		.style('item-overlay-column-content')
+		.appendTo(Component()
+			.style('item-overlay-column', 'item-overlay-column--main')
+			.appendTo(overlay)
+		)
 
 	////////////////////////////////////
 	//#region Display
@@ -155,8 +160,11 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 
 	const sideColumn = Component()
-		.style('item-overlay-column', 'item-overlay-column--side')
-		.appendTo(overlay)
+		.style('item-overlay-column-content', 'item-overlay-column-content--side')
+		.appendTo(Component()
+			.style('item-overlay-column', 'item-overlay-column--side')
+			.appendTo(overlay)
+		)
 
 	////////////////////////////////////
 	//#region Stats

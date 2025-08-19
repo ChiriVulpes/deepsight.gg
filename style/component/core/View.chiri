@@ -1,3 +1,15 @@
+.view-container:
+	%flex
+	%align-items-centre
+	%justify-content-centre
+	%width-100
+	$overlay-scroll-margin-top: 0px
+	margin-top: calc($overlay-scroll-margin-top * -1)
+	height: calc(100vh - $space-5 * 2 + $overlay-scroll-margin-top)
+
+	&--has-overlay:
+		%overflow-clip
+
 .view:
 	%relative
 	%flex
