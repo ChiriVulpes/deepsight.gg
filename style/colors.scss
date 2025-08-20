@@ -78,7 +78,7 @@ $colors: (
 	tooltip-note-background: color(--background-3),
 	tooltip-note-border: color(--background-7),
 	tooltip-footer-background: #000,
-	tooltip-clarity-background: rgba(23, 53, 30, 0.85),
+	tooltip-clarity-background: 'rgba(from #17351e r g b / 0.85)',
 	tooltip-clarity-border: #1f9139,
 	tooltip-clarity-title: #499977,
 	tooltip-clarity-url: #25e852,
