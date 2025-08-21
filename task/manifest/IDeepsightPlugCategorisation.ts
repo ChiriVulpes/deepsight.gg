@@ -105,6 +105,10 @@ export enum DeepsightPlugTypeMod {
 	ArmorStatTuning,
 	GhostDeprecated,
 	WeaponEnhanced,
+	ArmorStatTuningEmpty,
+	ArmorArtifice,
+	ArmorArtificeEmpty,
+	ArmorArtificeAction,
 }
 
 export enum DeepsightPlugTypeSubclass {

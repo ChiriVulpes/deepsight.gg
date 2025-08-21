@@ -1,30 +1,31 @@
-import type { DestinyDisplayPropertiesDefinition } from "bungie-api-ts/destiny2";
-import { DestinyAmmunitionType } from "bungie-api-ts/destiny2";
-import EnumModel from "model/models/enum/EnumModel";
+import type { DestinyDisplayPropertiesDefinition } from 'bungie-api-ts/destiny2'
+import { DestinyAmmunitionType } from 'bungie-api-ts/destiny2'
+import EnumModel from 'model/models/enum/EnumModel'
 
 export interface DestinyAmmunitionTypeDefinition {
-	enumValue: DestinyAmmunitionType;
-	displayProperties: DestinyDisplayPropertiesDefinition;
+	enumValue: DestinyAmmunitionType
+	displayProperties: DestinyDisplayPropertiesDefinition
 }
 
 export interface AmmoTypesDefinition {
-	array: DestinyAmmunitionTypeDefinition[];
-	primary: DestinyAmmunitionTypeDefinition;
-	special: DestinyAmmunitionTypeDefinition;
-	heavy: DestinyAmmunitionTypeDefinition;
+	array: DestinyAmmunitionTypeDefinition[]
+	primary: DestinyAmmunitionTypeDefinition
+	special: DestinyAmmunitionTypeDefinition
+	heavy: DestinyAmmunitionTypeDefinition
 }
 
-const AmmoTypes = EnumModel.create("AmmoTypes", {
+const AmmoTypes = EnumModel.create('AmmoTypes', {
 	// eslint-disable-next-line @typescript-eslint/require-await
 	async generate (): Promise<AmmoTypesDefinition> {
 		const emptyDisplayProperties: DestinyDisplayPropertiesDefinition = {
-			name: "",
-			description: "",
-			icon: "",
+			name: '',
+			description: '',
+			iconHash: 0,
+			icon: '',
 			iconSequences: [],
-			highResIcon: "",
+			highResIcon: '',
 			hasIcon: false,
-		};
+		}
 
 		const types: DestinyAmmunitionTypeDefinition[] = [
 			{
@@ -33,31 +34,31 @@ const AmmoTypes = EnumModel.create("AmmoTypes", {
 			},
 			{
 				enumValue: DestinyAmmunitionType.Unknown,
-				displayProperties: { ...emptyDisplayProperties, name: "Unknown" },
+				displayProperties: { ...emptyDisplayProperties, name: 'Unknown' },
 			},
 			{
 				enumValue: DestinyAmmunitionType.Primary,
-				displayProperties: { ...emptyDisplayProperties, name: "Primary", icon: "/img/destiny_content/ammo_types/primary.png" },
+				displayProperties: { ...emptyDisplayProperties, name: 'Primary', icon: '/img/destiny_content/ammo_types/primary.png' },
 			},
 			{
 				enumValue: DestinyAmmunitionType.Special,
-				displayProperties: { ...emptyDisplayProperties, name: "Special", icon: "/img/destiny_content/ammo_types/special.png" },
+				displayProperties: { ...emptyDisplayProperties, name: 'Special', icon: '/img/destiny_content/ammo_types/special.png' },
 			},
 			{
 				enumValue: DestinyAmmunitionType.Heavy,
-				displayProperties: { ...emptyDisplayProperties, name: "Heavy", icon: "/img/destiny_content/ammo_types/heavy.png" },
+				displayProperties: { ...emptyDisplayProperties, name: 'Heavy', icon: '/img/destiny_content/ammo_types/heavy.png' },
 			},
-		];
+		]
 
 		return {
 			array: types,
 			primary: types.find(type => type.enumValue === DestinyAmmunitionType.Primary)!,
 			special: types.find(type => type.enumValue === DestinyAmmunitionType.Special)!,
 			heavy: types.find(type => type.enumValue === DestinyAmmunitionType.Heavy)!,
-		};
+		}
 	},
-});
+})
 
-type AmmoTypes = typeof AmmoTypes;
+type AmmoTypes = typeof AmmoTypes
 
-export default AmmoTypes;
+export default AmmoTypes

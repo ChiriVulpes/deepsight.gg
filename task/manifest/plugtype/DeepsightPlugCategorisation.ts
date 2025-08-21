@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { ActivityHashes, DamageTypeHashes, InventoryBucketHashes, InventoryItemHashes, ItemCategoryHashes, ItemTierTypeHashes, PlugCategoryHashes, StatHashes, TraitHashes } from '@deepsight.gg/Enums'
 import type { PromiseOr } from '@deepsight.gg/utility/Type'
 import type { DestinyInventoryBucketDefinition } from 'bungie-api-ts/destiny2'
@@ -36,6 +37,9 @@ namespace DeepsightPlugCategorisation {
 
 			case InventoryItemHashes.EmptyMementoSocketPlug:
 				return DeepsightPlugCategory.Cosmetic
+
+			case InventoryItemHashes.RandomMasterworkWeaponModDummyPlug:
+				return DeepsightPlugCategory.Masterwork
 		}
 
 		switch (context.definition.plug?.plugCategoryHash) {
@@ -269,6 +273,7 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.EmptyWeaponLevelBoostSocketPlug:
 					return DeepsightPlugTypeMasterwork.ShapedWeaponEmpty
 				case InventoryItemHashes.MasterworkUpgradePlug236077174:
+				case InventoryItemHashes.RandomMasterworkWeaponModDummyPlug:
 					return DeepsightPlugTypeMasterwork.WeaponEmpty
 			}
 
@@ -495,10 +500,24 @@ namespace DeepsightPlugCategorisation {
 		},
 		[DeepsightPlugCategory.Mod]: context => {
 			const plugType = (() => {
+				switch (context.definition.hash) {
+					case InventoryItemHashes.EmptyTuningModSocketGeneralArmorModPlug:
+						return DeepsightPlugTypeMod.ArmorStatTuningEmpty
+					case InventoryItemHashes.LockedArtificeSocketArtificeArmorModPlug:
+					case InventoryItemHashes.EmptyModSocketArtificeArmorModPlug:
+						return DeepsightPlugTypeMod.ArmorArtificeEmpty
+					case InventoryItemHashes.UpgradeToArtificeArmorArtificeArmorModPlug:
+						return DeepsightPlugTypeMod.ArmorArtificeAction
+					case InventoryItemHashes.RandomDamageTypeWeaponModDummyPlug:
+						return DeepsightPlugTypeMod.Deprecated
+				}
+
 				switch (context.definition.itemTypeDisplayName) {
 					case 'Deprecated Weapon Mod':
 					case 'Deprecated Armor Mod':
 						return DeepsightPlugTypeMod.Deprecated
+					case 'Artifice Armor Mod':
+						return DeepsightPlugTypeMod.ArmorArtifice
 				}
 
 				if (context.definition.displayProperties?.description?.includes('This mod has been deprecated'))
@@ -519,12 +538,12 @@ namespace DeepsightPlugCategorisation {
 					case PlugCategoryHashes.CoreGearSystemsArmorTieringPlugsTuningMods:
 						return DeepsightPlugTypeMod.ArmorStatTuning
 
-					case PlugCategoryHashes.V400WeaponModDamage:
-					case PlugCategoryHashes.V400WeaponModGuns:
-					case PlugCategoryHashes.V460WeaponModSword:
-					case PlugCategoryHashes.V400WeaponModMagazine:
-					case PlugCategoryHashes.V900WeaponModMagAdjusting:
-						return DeepsightPlugTypeMod.WeaponEnhanced
+					// case PlugCategoryHashes.V400WeaponModDamage:
+					// case PlugCategoryHashes.V400WeaponModGuns:
+					// case PlugCategoryHashes.V460WeaponModSword:
+					// case PlugCategoryHashes.V400WeaponModMagazine:
+					// case PlugCategoryHashes.V900WeaponModMagAdjusting:
+					// 	return DeepsightPlugTypeMod.WeaponEnhanced
 
 					case PlugCategoryHashes.EnhancementsExoticAeonCult:
 						return DeepsightPlugTypeMod.ArmorExotic
@@ -560,6 +579,8 @@ namespace DeepsightPlugCategorisation {
 				}
 
 				switch (context.definition.itemTypeDisplayName) {
+					case 'Enhanced Weapon Mod':
+						return DeepsightPlugTypeMod.WeaponEnhanced
 					case 'Weapon Mod':
 						return DeepsightPlugTypeMod.Weapon
 					case 'Armor Mod':

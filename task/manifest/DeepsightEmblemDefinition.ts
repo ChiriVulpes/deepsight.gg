@@ -1,41 +1,11 @@
 import type { DeepsightEmblemDefinition } from '@deepsight.gg/Interfaces'
 import type { DestinyInventoryItemDefinition } from 'bungie-api-ts/destiny2'
 import { DestinyItemType } from 'bungie-api-ts/destiny2'
-import convert from 'color-convert'
 import fs from 'fs-extra'
 import { Task } from 'task'
 import Log from '../utility/Log'
 import manifest from './utility/endpoint/DestinyManifest'
-import SharpImage from './utility/SharpImage'
-
-async function getMedianColour (url: string) {
-	const image = await SharpImage(url)
-	const metadata = await image.metadata()
-	const width = metadata.width
-	const height = metadata.height
-	const colours: number[] = []
-	const usedPadding = 0.2
-
-	const { data, info } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true })
-	const channels = info.channels // Should be 4 for RGBA
-
-	for (let x = 0; x < width; x = x > width * usedPadding && x < width * (1 - usedPadding) ? Math.floor(x + width * (1 - usedPadding * 2)) : x + 1) {
-		for (let y = 0; y < height; y = y > height * usedPadding && y < height * (1 - usedPadding) ? Math.floor(y + height * (1 - usedPadding * 2)) : y + 1) {
-			const idx = (y * width + x) * channels
-			const r = data[idx]
-			const g = data[idx + 1]
-			const b = data[idx + 2]
-			const [h, s, l] = convert.rgb.hsl(r, g, b)
-			colours.push(l * 1e6 + h * 1e3 + s)
-		}
-	}
-
-	colours.sort((a, b) => a - b)
-	const median = colours[Math.floor(colours.length / 2)]
-
-	const hslToRgb = convert.hsl.rgb as any as (h: number, s: number, l: number) => [number, number, number]
-	return hslToRgb(Math.floor((median % 1e6) / 1e3), median % 1e3, Math.floor(median / 1e6))
-}
+import ImageManager from './utility/ImageManager'
 
 export default Task('DeepsightEmblemDefinition', async () => {
 	const { DestinyInventoryItemDefinition } = manifest
@@ -71,7 +41,7 @@ export default Task('DeepsightEmblemDefinition', async () => {
 		while (true) {
 			const url = `https://www.bungie.net${emblemIconURL}`;
 
-			[red, green, blue] = await getMedianColour(url)
+			[red, green, blue] = await ImageManager.getMedianColour(url)
 				.catch(() => [-1, -1, -1])
 
 			if (red === -1) {
