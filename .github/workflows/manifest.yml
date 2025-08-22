@@ -19,6 +19,13 @@ jobs:
           ref: manifest
           path: manifest
 
+      - uses: actions/checkout@v4
+        with:
+          ref: generated
+          path: generated
+
+      # todo checkout a new branch for generated iconography
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
@@ -78,21 +85,37 @@ jobs:
           DEEPSIGHT_BUILD_SHA: ${{ github.sha }}
         run: npm run manifest
         
-      - name: Commit & Publish
+      - name: Commit & Publish definitions
         run: |
           cd manifest
           if [[ -n $(git diff) ]]; then
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
             git add .
-            git commit -m "Updated manifests"
+            git commit -m "Updated definitions"
             git push
             npm publish
           else
             echo "No changes to commit & publish"
           fi
+          cd ..
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit images
+        run: |
+          cp -r docs/image/generated/* generated/
+          cd generated
+          if [[ -n $(git diff) ]]; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add .
+            git commit -m "Updated images"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+          cd ..
 
       - name: Save testiny artifact
         if: github.event_name != 'workflow_dispatch'

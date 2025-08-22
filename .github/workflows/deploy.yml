@@ -31,6 +31,12 @@ jobs:
           ref: manifest
           path: manifest
 
+      - name: Checkout images
+        uses: actions/checkout@v4
+        with:
+          ref: generated
+          path: generated
+
       - name: Checkout manifest to beta
         uses: actions/checkout@v4
         with:
@@ -43,6 +49,13 @@ jobs:
           rm -rf beta/.git
           rm -rf manifest/.git
           rm -rf beta/manifest/.git
+          rm -rf generated/.git
+
+      - name: Put generated images in place
+        run: |
+          mkdir -p docs/image/generated
+          cp -r generated/* docs/image/generated/
+          rm -rf generated
       
       - name: Prepare for GitHub Pages
         if: success()
