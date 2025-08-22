@@ -1,4 +1,5 @@
 import convert from 'color-convert'
+import type { HSL } from 'color-convert/conversions'
 import type { Metadata, Sharp } from 'sharp'
 import sharp from 'sharp'
 
@@ -35,7 +36,7 @@ namespace ImageManager {
 		const metadata = await image.metadata()
 		const width = metadata.width
 		const height = metadata.height
-		const colours: number[] = []
+		const colours: HSL[] = []
 		const usedPadding = 0.2
 
 		const { data, info } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true })
@@ -47,16 +48,24 @@ namespace ImageManager {
 				const r = data[idx]
 				const g = data[idx + 1]
 				const b = data[idx + 2]
-				const [h, s, l] = convert.rgb.hsl(r, g, b)
-				colours.push(l * 1e6 + h * 1e3 + s)
+				const hsl = convert.rgb.hsl(r, g, b)
+				colours.push(hsl)
 			}
 		}
 
-		colours.sort((a, b) => a - b)
-		const median = colours[Math.floor(colours.length / 2)]
+		colours.sort((a, b) => {
+			if (a[2] !== b[2]) // lightness
+				return a[2] - b[2]
 
-		const hslToRgb = convert.hsl.rgb as any as (h: number, s: number, l: number) => [number, number, number]
-		return hslToRgb(Math.floor((median % 1e6) / 1e3), median % 1e3, Math.floor(median / 1e6))
+			if (a[0] !== b[0]) // hue
+				return a[0] - b[0]
+
+			// saturation
+			return a[1] - b[1]
+		})
+
+		const median = colours[Math.floor(colours.length / 2)]
+		return convert.hsl.rgb(median)
 	}
 
 	/**
