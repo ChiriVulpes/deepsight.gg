@@ -39,6 +39,7 @@
 		"@types/color-convert": "2.0.3",
 		"lint": "github:fluff4me/lint",
 		"task": "github:chirivulpes/task#package",
-		"sharp": "0.34.3"
+		"sharp": "0.34.3",
+		"@types/node": "22.10.5"
 	}
 }

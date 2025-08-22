@@ -1,4 +1,4 @@
-import type { DestinyColor, DestinyDisplayCategoryDefinition, DestinyDisplayPropertiesDefinition, DestinyItemComponentSetOfuint32, DestinyItemQuantity, DestinyVendorItemDefinition, DestinyVendorLocationDefinition, TierType } from 'bungie-api-ts/destiny2'
+import type { DestinyColor, DestinyDisplayCategoryDefinition, DestinyDisplayPropertiesDefinition, DestinyIconDefinition, DestinyItemComponentSetOfuint32, DestinyItemQuantity, DestinyVendorItemDefinition, DestinyVendorLocationDefinition, TierType } from 'bungie-api-ts/destiny2'
 import type { BreakerSource } from './DeepsightBreakerTypeDefinition'
 import type { DeepsightPlugCategorisation, DeepsightSocketCategorisationDefinition } from './DeepsightPlugCategorisation'
 import type { ActivityHashes, ActivityModifierHashes, BreakerTypeHashes, CollectibleHashes, DamageTypeHashes, EventCardHashes, InventoryBucketHashes, InventoryItemHashes, ItemTierTypeHashes, MomentHashes, ObjectiveHashes, RecordHashes, SeasonHashes, TraitHashes, VendorGroupHashes, VendorHashes } from './Enums'
@@ -79,6 +79,7 @@ export declare interface DeepsightManifestComponentsMap {
 	DeepsightItemSourceDefinition: Record<number, DeepsightItemSourceDefinition>
 	DeepsightItemSourceListDefinition: Record<number, DeepsightItemSourceListDefinition>
 	DeepsightFormattedClarityDescriptions: Record<number, ClarityDescription>
+	DeepsightIconDefinition: Record<number, DestinyIconDefinition>
 }
 
 export declare interface DeepsightDisplayPropertiesDefinition {

@@ -7,6 +7,7 @@ task/manifest/Enums.d.ts
 static/manifest/DeepsightPlugCategorisation.d.ts
 static/manifest/DeepsightBreakerTypeDefinition.d.ts
 static/manifest/DeepsightEmblemDefinition.json
+static/manifest/DeepsightIconDefinition.json
 static/manifest/Enums.d.ts
 auth.json
 activitycache.json*

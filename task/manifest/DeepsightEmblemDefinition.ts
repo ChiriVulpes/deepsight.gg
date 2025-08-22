@@ -16,7 +16,11 @@ export default Task('DeepsightEmblemDefinition', async () => {
 		= await fs.readJson('static/manifest/DeepsightEmblemDefinition.json').catch(() => ({}))
 
 	let i = 0
+	let logI = 0
 	function logCurrent (item: DestinyInventoryItemDefinition) {
+		if (!(logI++ % 20))
+			return
+
 		const count = 20
 		const fraction = Math.floor((i / invItems.length) * count)
 		Log.info('Getting median emblem colour', `[${'#'.repeat(fraction)}${' '.repeat(count - fraction)}]`, item.displayProperties.name)
@@ -34,8 +38,7 @@ export default Task('DeepsightEmblemDefinition', async () => {
 		if (DeepsightEmblemDefinition[+itemHash]) // already calculated
 			continue
 
-		if (i % 100)
-			logCurrent(item)
+		logCurrent(item)
 
 		let red = -1, green = -1, blue = -1
 		while (true) {
