@@ -53,8 +53,8 @@ jobs:
 
       - name: Put generated images in place
         run: |
-          mkdir -p docs/image/generated
-          cp -r generated/* docs/image/generated/
+          mkdir -p image/generated
+          cp -r generated/* image/generated/
           rm -rf generated
       
       - name: Prepare for GitHub Pages
