@@ -547,6 +547,7 @@ export interface ClarityLabelledLineComponent extends ClarityComponentBase {
 	type: 'labelledLine'
 	label: ClarityComponentMain[]
 	value: ClarityComponentMain[]
+	isListItem?: true
 }
 
 export interface ClarityPVEVPComponent extends ClarityComponentBase {

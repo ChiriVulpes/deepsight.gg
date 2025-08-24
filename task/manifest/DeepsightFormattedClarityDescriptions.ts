@@ -168,7 +168,7 @@ export default Task('DeepsightFormattedClarityDescriptions', async task => {
 			else if (component.table?.length)
 				parsedComponents.push(parseClarityTable(component.table, definitionMap))
 			else if (isLabelledLine)
-				parsedComponents.push(parseClarityLabelledLine(component.linesContent!, definitionMap))
+				parsedComponents.push(parseClarityLabelledLine(component.linesContent!, definitionMap, isListItem || undefined))
 			else if (isLine) {
 				const lineContent = parseClarityDescription(component.linesContent!, definitionMap, [...parentClassNames, ...isListItem ? ['list-item'] : []])
 				parsedComponents.push({
@@ -247,7 +247,7 @@ export default Task('DeepsightFormattedClarityDescriptions', async task => {
 		}
 	}
 
-	function parseClarityLabelledLine (content: ClarityDescriptionComponent[], definitionMap: Map<ClarityDescriptionComponentWithTitle, number>): ClarityLabelledLineComponent {
+	function parseClarityLabelledLine (content: ClarityDescriptionComponent[], definitionMap: Map<ClarityDescriptionComponentWithTitle, number>, isListItem?: true): ClarityLabelledLineComponent {
 		const label: ClarityDescriptionComponent[] = []
 		const value: ClarityDescriptionComponent[] = []
 		let split = false
@@ -267,6 +267,7 @@ export default Task('DeepsightFormattedClarityDescriptions', async task => {
 			type: 'labelledLine',
 			label: parseClarityDescription(label, definitionMap),
 			value: parseClarityDescription(value, definitionMap),
+			isListItem,
 		}
 	}
 
