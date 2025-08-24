@@ -7,7 +7,10 @@
 		%block
 		%padding-2-3
 		%item-tooltip-background-dark
-		%white-space-pre-wrap
+
+		&-content:
+			%white-space-pre-wrap
+			%font-vertical-align
 
 	&-stats:
 		#after: .item-tooltip-stats
@@ -79,15 +82,20 @@
 			&--enhanced:
 			&--list-item:
 				%padding-left-3
+				%unmargin-top-1
 				@before:
 					content: '•'
 					%absolute
 					%left-1
 					%weight-bold
 
+				&--after-label:
+					#after: .plug-tooltip-clarity-line--list-item
+					margin-top: calc($space-2 + $space-1)
+
 			&--label:
 				#after: .plug-tooltip-clarity-line
-				%unmargin-bottom-1
+				%unmargin-bottom-2
 				colour: color-mix(in oklab, $colour-0, #{clarity-title} 65%)
 				%italic-1
 				%font-1
@@ -97,9 +105,16 @@
 		&-labelled-line:
 			%block
 			%margin-block-2
+			%relative
 
-			&--after-label:
-				%margin-top-1
+			&--simple:
+				#after: .plug-tooltip-clarity-labelled-line
+				%flex
+				%flex-wrap
+				%gap-2
+
+			&--list-item:
+				%padding-left-3
 
 			&-label:
 				%block

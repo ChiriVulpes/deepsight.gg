@@ -2,9 +2,11 @@
 	"name": "deepsight.gg",
 	"private": true,
 	"dependencies": {
-		"kitsui": "github:fluff4me/kitsui#package",
-		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#package",
-		"bungie-api-ts": "5.5.0",
-		"deepsight.gg": "1.0.1392"
+		"bungie-api-ts": "5.6.0",
+		"deepsight.gg": "1.0.1439"
+	},
+	"devDependencies": {
+		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#6a98451b314056275f6c678c8ce12dfa57d0f7ea",
+		"kitsui": "github:fluff4me/kitsui#05579c2dc232a99c136e6abd8d2e8e3f3ed5453c"
 	}
 }
