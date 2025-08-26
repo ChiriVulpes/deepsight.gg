@@ -72,6 +72,9 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
 
+	let isFirstSeason = true
+	let isFirstExpac = true
+
 	Slot().appendTo(view).use(collections, (slot, collections) => {
 		let year: number | undefined = NaN
 		let yearWrapper: Component | undefined
@@ -90,6 +93,16 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 			}
 
 			const momentComponent = Moment(moment, collections, view.displayHandlers)
+
+			if (moment.moment.expansion && isFirstExpac) {
+				isFirstExpac = false
+				momentComponent.open.value = true
+			}
+			else if (moment.moment.season !== undefined && isFirstSeason) {
+				isFirstSeason = false
+				momentComponent.open.value = true
+			}
+
 			const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)
 			yearMomentVisibilityStates.push(shouldShow)
 			momentComponent.appendToWhen(shouldShow, yearWrapper ?? slot)
