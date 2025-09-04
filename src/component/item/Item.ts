@@ -12,9 +12,6 @@ interface ItemExtensions {
 
 interface Item extends Component, ItemExtensions { }
 
-let itemTooltip: Tooltip | undefined
-let itemTooltipItemState: State.Mutable<CollectionsItem> | undefined
-let itemTooltipCollectionsState: State.Mutable<Collections> | undefined
 const Item = Object.assign(
 	Component((component, item: State.Or<CollectionsItem>, collections: State.Or<Collections>): Item => {
 		item = State.get(item)
@@ -52,17 +49,7 @@ const Item = Object.assign(
 			.style.bind(masterworked, 'item-border-glow--masterworked')
 			.appendTo(component)
 
-		const componentWithPopover = itemTooltip
-			? component.setTooltip(itemTooltip)
-			: component.setTooltip(tooltip => Item.Tooltip = itemTooltip = tooltip.and(ItemTooltip, itemTooltipItemState ??= State(item.value), itemTooltipCollectionsState ??= State(collections.value)))
-
-		State.Use(component, { focused: componentWithPopover.hoveredOrHasFocused, visible: componentWithPopover.popover.visible }).subscribe(component, ({ focused, visible }, { visible: oldVisible } = { focused: false, visible: false }) => {
-			if (focused && visible && !oldVisible) {
-				console.log(item.value.displayProperties.name, item.value)
-				itemTooltipItemState!.value = item.value
-				itemTooltipCollectionsState!.value = collections.value
-			}
-		})
+		ItemTooltip.apply(component, item, collections)
 
 		component.event.subscribe('contextmenu', event => {
 			event.preventDefault()
