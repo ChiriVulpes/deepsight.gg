@@ -376,6 +376,7 @@
 			&-ammo:
 				%flex
 				%align-items-centre
+				%justify-content-end
 				&-icon:
 					height: 1.5lh
 				&-label:
