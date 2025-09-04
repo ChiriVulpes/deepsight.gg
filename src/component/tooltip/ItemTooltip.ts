@@ -14,14 +14,12 @@ import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
+import TooltipManager from 'utility/TooltipManager'
 
 const PLUG_ARCHETYPE_ICON_SEQUENCE = 0
 const PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME = 1
 
-export default Component((component, item: State.Or<Item>, collections: State.Or<Collections>) => {
-	item = State.get(item)
-	collections = State.get(collections)
-
+const ItemTooltip = Component((component, item: State<Item>, collections: State<Collections>) => {
 	const tooltip = component.as(Tooltip)!
 		.anchor.reset()
 		.anchor.add('off right', 'sticky centre')
@@ -448,4 +446,27 @@ export default Component((component, item: State.Or<Item>, collections: State.Or
 
 	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
 	return tooltip
+})
+
+export default TooltipManager(ItemTooltip, {
+	states: {
+		item: undefined as State.Mutable<Item> | undefined,
+		collections: undefined as State.Mutable<Collections> | undefined,
+	},
+	update (states, plug: State.Or<Item>, collections: State.Or<Collections>) {
+		states.updateItem(plug)
+		states.updateCollections(collections)
+	},
+	build (states, tooltip, item: State.Or<Item>, collections: State.Or<Collections>) {
+		item = State.get(item)
+		collections = State.get(collections)
+		return tooltip.and(ItemTooltip,
+			states.item ??= State.Mutable(tooltip, item),
+			states.collections ??= State.Mutable(tooltip, collections),
+		)
+	},
+	onHover (states, item: State.Or<Item>, collections: State.Or<Collections>) {
+		item = State.value(item)
+		console.log(item.displayProperties.name, item)
+	},
 })

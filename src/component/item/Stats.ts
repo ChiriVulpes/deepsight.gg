@@ -1,6 +1,6 @@
-import type { DestinyStatGroupDefinition } from 'bungie-api-ts/destiny2'
+import type { DestinyStatDefinition, DestinyStatGroupDefinition } from 'bungie-api-ts/destiny2'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemPlug } from 'conduit.deepsight.gg/Collections'
+import type { Item, ItemPlug, ItemStat } from 'conduit.deepsight.gg/Collections'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 
@@ -24,9 +24,9 @@ export interface StatsDisplayDefinition {
 	isAbbreviated?: true
 	tweakStatSection?(section: Component): unknown
 	tweakStatWrapper?(wrapper: Component): unknown
-	tweakStatLabel?(label: Component): unknown
-	tweakStatBar?(bar: Component): unknown
-	tweakStatValue?(value: Component): unknown
+	tweakStatLabel?(label: Component, definition: DestinyStatDefinition, stat: ItemStat): unknown
+	tweakStatBar?(bar: Component, definition: DestinyStatDefinition, stat: ItemStat): unknown
+	tweakStatValue?(value: Component, definition: DestinyStatDefinition, stat: ItemStat): unknown
 }
 
 const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>, collections: State.Or<Collections>, display?: StatsDisplayDefinition): Stats => {
@@ -73,18 +73,18 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>,
 				.append(Component()
 					.style('stats-stat-label')
 					.text.set(statName)
-					.tweak(display?.tweakStatLabel)
+					.tweak(display?.tweakStatLabel, def, stat)
 				)
 				.append(!stat.displayAsNumeric && Component()
 					.style('stats-stat-bar')
 					.style.toggle(stat.value < 0, 'stats-stat-bar--negative')
 					.style.setVariable('stats-stat-bar-progress', stat.value / (stat.max ?? 100))
-					.tweak(display?.tweakStatBar)
+					.tweak(display?.tweakStatBar, def, stat)
 				)
 				.append(Component()
 					.style('stats-stat-value')
 					.text.set((item!.is === 'plug' && stat.value >= 0 ? '+' : '') + stat.value.toLocaleString(navigator.language))
-					.tweak(display?.tweakStatValue)
+					.tweak(display?.tweakStatValue, def, stat)
 				)
 				.tweak(display?.tweakStatWrapper)
 				.appendTo(stat.displayAsNumeric ? numericStatsWrapper() : barStatsWrapper())
