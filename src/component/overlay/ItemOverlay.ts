@@ -87,12 +87,12 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 		const header = Component()
 			.style('item-overlay-socket-group-header')
+			.style.bind(component.hoveredOrHasFocused, 'item-overlay-socket-group-header--hover')
+			.tweak(GenericTooltip.apply, tooltip => tooltip
+				.titleText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.name))
+				.descriptionText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.description))
+			)
 			.appendTo(component)
-		header.style.bind(component.hoveredOrHasFocused, 'item-overlay-socket-group-header--hover')
-		header.setTooltip(tooltip => tooltip.and(GenericTooltip)
-			.titleText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.name))
-			.descriptionText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.description))
-		)
 
 		const title = Component()
 			.style('item-overlay-socket-group-title')
@@ -212,7 +212,13 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 	const ammo = State.Map(overlay, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item?.ammo!])
 	const stats = Stats(item, collections, {
-		tweakStatLabel: label => label.style('item-overlay-stats-stat-label'),
+		tweakStatLabel: (label, def) => (label
+			.style('item-overlay-stats-stat-label')
+			.tweak(GenericTooltip.apply, tooltip => tooltip
+				.titleText.set(def.displayProperties.name)
+				.descriptionText.set(def.displayProperties.description)
+			)
+		),
 		tweakStatSection: section => section.style('item-overlay-stats-stat-section'),
 	})
 	Component()
