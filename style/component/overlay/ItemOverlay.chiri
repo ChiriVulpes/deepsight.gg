@@ -217,6 +217,8 @@
 				%flex
 				%align-items-centre
 			&-description:
+				%clamp-2
+				%white-space-pre-wrap
 
 	&-plug:
 		%block
@@ -229,6 +231,16 @@
 		%content-box
 		%cursor-pointer
 		%background-none
+
+		@before:
+			%block
+			%absolute
+			inset: -10px
+			%border-radius-100
+			%inset-border-2
+			%transparent
+			#transition: #{transition("opacity")}, #{transition("inset")}
+			$hover-inset: -5px
 
 		&-icon:
 
@@ -285,6 +297,11 @@
 		&--hover:
 			#after: .item-overlay-plug
 
+			@before:
+				inset: $hover-inset
+				%opaque
+				%transition-focus
+
 		&--perk:
 			#after: .item-overlay-plug
 			background: rgb(from $colour-perk r g b / .85)
@@ -294,6 +311,10 @@
 			#after: .item-overlay-plug
 			$plug-padding: 0px
 			$plug-size: calc($space-4 + $space-3 + $space-2 + $space-2 * 2)
+
+			@before:
+				border-radius: 10px
+				$hover-inset: 0px
 
 	&-watermark:
 
