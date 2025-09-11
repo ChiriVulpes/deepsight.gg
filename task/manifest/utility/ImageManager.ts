@@ -21,9 +21,18 @@ namespace ImageManager {
 			return sharp(inputPathOrUrl)
 
 		// is remote URL
-		const response = await fetch(inputPathOrUrl)
-		if (!response.ok)
-			throw new Error(`Failed to fetch image from ${inputPathOrUrl}: ${response.statusText}`)
+		let response!: Response
+		for (let i = 0; i < 6; i++) {
+			try {
+				response = await fetch(inputPathOrUrl).catch(err => ({ ok: false, statusText: err.message } as Response))
+				if (!response.ok)
+					throw new Error(`Failed to fetch image from ${inputPathOrUrl}: ${response.statusText}`)
+			}
+			catch {
+				// exponential backoff
+				await new Promise(res => setTimeout(res, (2 ** i) * 1000))
+			}
+		}
 
 		const arrayBuffer = await response.arrayBuffer()
 		const imageBuffer = Buffer.from(arrayBuffer)

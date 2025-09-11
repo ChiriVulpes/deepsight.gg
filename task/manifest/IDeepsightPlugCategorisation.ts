@@ -109,6 +109,8 @@ export enum DeepsightPlugTypeMod {
 	ArmorArtifice,
 	ArmorArtificeEmpty,
 	ArmorArtificeAction,
+	ArmorItemSet,
+	ArmorItemSetEmpty,
 }
 
 export enum DeepsightPlugTypeSubclass {

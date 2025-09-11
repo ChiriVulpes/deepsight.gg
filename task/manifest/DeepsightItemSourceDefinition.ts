@@ -112,7 +112,7 @@ async function getCollectionsItemMap () {
 const ACTIVITY_GRAPH_HASH_SOLO_OPS = 1733518967 as ActivityGraphHashes
 const ACTIVITY_GRAPH_HASH_FIRETEAM_OPS = 2021988413 as ActivityGraphHashes
 const ACTIVITY_GRAPH_HASH_PINNACLE_OPS = 2427019152 as ActivityGraphHashes
-const ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS = 3557894678 as ActivityGraphHashes
+const ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS = 2681843097 as ActivityGraphHashes
 
 export default Task('DeepsightItemSourceDefinition', async task => {
 	const itemSources: Record<DeepsightItemSourceType, number[]> = {
@@ -271,8 +271,8 @@ export default Task('DeepsightItemSourceDefinition', async task => {
 			hash: DeepsightItemSourceType.TrialsOfOsiris,
 			category: DeepsightItemSourceCategory.ActivityReward,
 			displayProperties: await DestinyManifestReference.resolveAll({
-				name: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris3148168425 },
-				description: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris3148168425 },
+				name: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris1114325415 },
+				description: { DestinyActivityDefinition: ActivityHashes.TrialsOfOsiris1114325415 },
 				icon: { DestinyActivityModeDefinition: ActivityModeHashes.TrialsOfOsiris },
 			}),
 		},

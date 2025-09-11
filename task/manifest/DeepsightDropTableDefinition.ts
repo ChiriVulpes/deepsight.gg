@@ -16,7 +16,7 @@ import manifest, { DESTINY_MANIFEST_MISSING_ICON_PATH } from './utility/endpoint
 const ACTIVITY_GRAPH_HASH_SOLO_OPS = 1733518967
 const ACTIVITY_GRAPH_HASH_FIRETEAM_OPS = 2021988413
 const ACTIVITY_GRAPH_HASH_PINNACLE_OPS = 2427019152
-const ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS = 3557894678
+const ACTIVITY_GRAPH_HASH_CRUCIBLE_OPS = 2681843097
 export default Task('DeepsightDropTableDefinition', async () => {
 	const { DestinyActivityDefinition, DestinyActivityGraphDefinition } = manifest
 	const activities = await DestinyActivities.get()

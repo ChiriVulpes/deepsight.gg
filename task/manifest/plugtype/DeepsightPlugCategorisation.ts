@@ -109,6 +109,7 @@ namespace DeepsightPlugCategorisation {
 			case PlugCategoryHashes.V460WeaponModSword:
 			case PlugCategoryHashes.V400WeaponModMagazine:
 			case PlugCategoryHashes.V900WeaponModMagAdjusting:
+			case PlugCategoryHashes.CoreGearSystemsEventGearItemSetsSelectors:
 				return DeepsightPlugCategory.Mod
 
 			case PlugCategoryHashes.SocialClansPerks:
@@ -367,18 +368,6 @@ namespace DeepsightPlugCategorisation {
 				case InventoryItemHashes.SpiritOfCompetitionIntrinsicPlug:
 					return DeepsightPlugTypeIntrinsic.Armor // special case weird guardian games armour perks
 
-				case InventoryItemHashes.Collector1IntrinsicPlug:
-				case InventoryItemHashes.Collector2IntrinsicPlug:
-				case InventoryItemHashes.Collector3IntrinsicPlug:
-				case InventoryItemHashes.Reaper1IntrinsicPlug:
-				case InventoryItemHashes.Reaper2IntrinsicPlug:
-				case InventoryItemHashes.Reaper3IntrinsicPlug:
-				case InventoryItemHashes.Invader1IntrinsicPlug:
-				case InventoryItemHashes.Invader2IntrinsicPlug:
-				case InventoryItemHashes.Invader3IntrinsicPlug:
-				case InventoryItemHashes.Sentry1IntrinsicPlug:
-				case InventoryItemHashes.Sentry2IntrinsicPlug:
-				case InventoryItemHashes.Sentry3IntrinsicPlug:
 				case InventoryItemHashes.DeepStoneCryptArmorIntrinsicPlug:
 				case InventoryItemHashes.GardenOfSalvationArmorIntrinsicPlug:
 				case InventoryItemHashes.LastWishArmorIntrinsicPlug:
@@ -537,6 +526,11 @@ namespace DeepsightPlugCategorisation {
 
 					case PlugCategoryHashes.CoreGearSystemsArmorTieringPlugsTuningMods:
 						return DeepsightPlugTypeMod.ArmorStatTuning
+
+					case PlugCategoryHashes.CoreGearSystemsEventGearItemSetsSelectors:
+						return context.definition.displayProperties.name.toLowerCase().includes('empty')
+							? DeepsightPlugTypeMod.ArmorItemSetEmpty
+							: DeepsightPlugTypeMod.ArmorItemSet
 
 					// case PlugCategoryHashes.V400WeaponModDamage:
 					// case PlugCategoryHashes.V400WeaponModGuns:

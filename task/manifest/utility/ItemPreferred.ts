@@ -81,6 +81,7 @@ namespace ItemPreferred {
 
 		return 0
 			|| +IGNORED_ITEMS.includes(itemA.hash) - +IGNORED_ITEMS.includes(itemB.hash)
+			|| +itemA.isHolofoil - +itemB.isHolofoil
 			|| +!!itemB.collectibleHash - +!!itemA.collectibleHash
 			|| +!itemB.plug - +!itemA.plug
 			|| +hasArchetypeSocket(itemB) - +hasArchetypeSocket(itemA)

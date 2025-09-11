@@ -5,7 +5,7 @@ import type { DeepsightDropTableDefinition } from './DeepsightDropTableDefinitio
 export default {
 	hash: ActivityHashes.TheDesertPerpetualStandard,
 	displayProperties: {
-		icon: { DestinyRecordDefinition: RecordHashes.TheDesertPerpetualLoreBookUnlocks_Scope0 },
+		icon: { DestinyRecordDefinition: RecordHashes.TheDesertPerpetualLoreBookUnlocks },
 	},
 	encounters: [
 		// The Nursery
