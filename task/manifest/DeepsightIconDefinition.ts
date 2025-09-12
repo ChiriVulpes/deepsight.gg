@@ -162,12 +162,15 @@ export default Task('DeepsightIconDefinition', async task => {
 			if (result) {
 				const subtractionResult = await ImageManager.subtractOverlays([enhancedOverlay, ...fragileOverlays, ...artifactsToStrip], result)
 				result = subtractionResult.result
+				const isSeasonal = variant === emptySeasonal
+				const isEnhanced = subtractionResult.subtracted.includes(enhancedOverlay)
+				const isFragile = fragileOverlays.some(overlay => subtractionResult.subtracted.includes(overlay))
 				DeepsightIconDefinition[iconHash] = {
 					hash: iconHash,
 					foreground: `/image/generated/icon/${iconHash}.png`,
-					background: `/image/png/mod/${variant === emptySeasonal ? 'mod_empty_seasonal' : 'mod_empty'}.png`,
-					secondaryBackground: subtractionResult.subtracted.includes(enhancedOverlay) ? '/image/png/mod/mod_enhanced_overlay.png' : '',
-					specialBackground: fragileOverlays.some(overlay => subtractionResult.subtracted.includes(overlay)) ? '/image/png/mod/mod_fragile_overlay.png' : '',
+					background: `/image/png/mod/${isSeasonal ? 'mod_empty_seasonal' : 'mod_empty'}.png`,
+					secondaryBackground: isEnhanced ? '/image/png/mod/mod_enhanced_overlay.png' : '',
+					specialBackground: !isFragile ? '' : `/image/png/mod/mod_fragile_overlay${isSeasonal ? '_seasonal' : ''}${isEnhanced ? '' : '_glow'}.png`,
 					highResForeground: '',
 					index: iconDef?.index ?? 0,
 					redacted: false,
