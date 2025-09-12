@@ -1,6 +1,6 @@
 import type { DestinyIconDefinition, DestinyInventoryItemDefinition } from 'bungie-api-ts/destiny2'
 import fs from 'fs-extra'
-import type { Metadata, Sharp } from 'sharp'
+import type { Metadata } from 'sharp'
 import { Log, Task } from 'task'
 import { DeepsightPlugCategory } from './IDeepsightPlugCategorisation'
 import DeepsightPlugCategorisationSource from './plugtype/DeepsightPlugCategorisation'
@@ -25,27 +25,20 @@ export default Task('DeepsightIconDefinition', async task => {
 
 	const iconURLsExtracted = new Set<number>()
 
+	let i = 0
 	let logI = 0
-	function logCurrent (i: number, stage: string, item: DestinyInventoryItemDefinition) {
+	function logCurrent (stage: string, item: DestinyInventoryItemDefinition) {
+		i++
 		if (logI++ % 20)
 			return
 
 		const count = 20
-		const fraction = Math.floor((i / queued.length) * count)
+		const fraction = Math.floor((i / promises.length) * count)
 		Log.info(`${stage} icon`, `[${'#'.repeat(fraction)}${' '.repeat(count - fraction)}]`, item.displayProperties.name)
 	}
 
-	interface QueuedIconExtraction {
-		// itemHash: number
-		def: DestinyInventoryItemDefinition
-		iconHash: number
-		iconDef: DestinyIconDefinition
-		modIcon: string
-		getSharp (): Promise<Sharp>
-	}
-	const queued: QueuedIconExtraction[] = []
-	for (let i = 0; i < invItems.length; i++) {
-		const [itemHash, def] = invItems[i]
+	const promises: Promise<void>[] = []
+	for (const [itemHash, def] of invItems) {
 		const cat = DeepsightPlugCategorisation[+itemHash]
 		if (cat?.category !== DeepsightPlugCategory.Mod)
 			continue
@@ -69,23 +62,10 @@ export default Task('DeepsightIconDefinition', async task => {
 			continue
 
 		iconURLsExtracted.add(iconHash)
-		queued.push({
-			// itemHash: +itemHash,
-			def,
-			iconHash,
-			iconDef,
-			modIcon,
-			getSharp: () => ImageManager.get(`https://www.bungie.net${modIcon}`),
-		})
-	}
-
-	const promises: Promise<void>[] = []
-	let i = 0
-	for (const { def, iconHash, iconDef, modIcon, getSharp } of queued) {
 		promises.push((async () => {
-			const sharp = await getSharp()
+			const sharp = await ImageManager.get(`https://www.bungie.net${modIcon}`)
 
-			logCurrent(i++, 'Extracting', def)
+			logCurrent('Extracting', def)
 
 			const emptySeasonal = 'task/manifest/icon/mod_empty_seasonal.png'
 			const emptyVariants = [
