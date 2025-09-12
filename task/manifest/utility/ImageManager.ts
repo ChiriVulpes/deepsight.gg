@@ -9,10 +9,45 @@ namespace ImageManager {
 
 	const channels = 4 // RGBA
 
+	interface ImageLoadQueueItem {
+		(): Promise<Sharp>
+		processing?: true
+	}
+	const imageLoadingQueue: ImageLoadQueueItem[] = []
+
 	/**
-	 * Loads an image into a sharp instance, handling both local file paths and remote URLs
+	 * Queues read/download of an image into a sharp instance, handling both local file paths and remote URLs.
+	 * At most 20 images will be loading at once.
 	 */
-	export async function get (inputPathOrUrl: string | Sharp): Promise<Sharp> {
+	export async function get (url: string | Sharp) {
+		if (typeof url !== 'string')
+			return url
+
+		let sharp: Sharp | undefined
+		const queueItem: ImageLoadQueueItem = async () => {
+			if (sharp)
+				return sharp
+
+			while (imageLoadingQueue.filter(i => i.processing).length > 20)
+				await new Promise(r => setTimeout(r, 10))
+
+			queueItem.processing = true
+			sharp = await ImageManager.getImmediate(url)
+
+			const index = imageLoadingQueue.indexOf(queueItem)
+			if (index !== -1)
+				imageLoadingQueue.splice(index, 1)
+
+			return sharp
+		}
+		imageLoadingQueue.push(queueItem)
+		return queueItem()
+	}
+
+	/**
+	 * Immediately reads/downloads an image into a sharp instance, handling both local file paths and remote URLs
+	 */
+	export async function getImmediate (inputPathOrUrl: string | Sharp): Promise<Sharp> {
 		if (typeof inputPathOrUrl !== 'string')
 			return inputPathOrUrl
 

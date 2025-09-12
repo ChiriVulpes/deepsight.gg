@@ -35,33 +35,6 @@ export default Task('DeepsightIconDefinition', async task => {
 		Log.info(`${stage} icon`, `[${'#'.repeat(fraction)}${' '.repeat(count - fraction)}]`, item.displayProperties.name)
 	}
 
-	interface ImageLoadQueueItem {
-		(): Promise<Sharp>
-		processing?: true
-	}
-	const imageLoadingQueue: ImageLoadQueueItem[] = []
-	function queueGet (url: string) {
-		let sharp: Sharp | undefined
-		const queueItem: ImageLoadQueueItem = async () => {
-			if (sharp)
-				return sharp
-
-			while (imageLoadingQueue.filter(i => i.processing).length > 20)
-				await new Promise(r => setTimeout(r, 10))
-
-			queueItem.processing = true
-			sharp = await ImageManager.get(url)
-
-			const index = imageLoadingQueue.indexOf(queueItem)
-			if (index !== -1)
-				imageLoadingQueue.splice(index, 1)
-
-			return sharp
-		}
-		imageLoadingQueue.push(queueItem)
-		return queueItem
-	}
-
 	interface QueuedIconExtraction {
 		// itemHash: number
 		def: DestinyInventoryItemDefinition
@@ -102,7 +75,7 @@ export default Task('DeepsightIconDefinition', async task => {
 			iconHash,
 			iconDef,
 			modIcon,
-			getSharp: queueGet(`https://www.bungie.net${modIcon}`),
+			getSharp: () => ImageManager.get(`https://www.bungie.net${modIcon}`),
 		})
 	}
 
