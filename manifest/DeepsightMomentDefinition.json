@@ -1,0 +1,589 @@
+{
+	"0": {
+		"id": "dawning",
+		"iconWatermark": "/common/destiny2_content/icons/83fbcacd223402c09af4b7ab067f8cce.png",
+		"event": 2302439334,
+		"hash": 0,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/be60f0242a039e62f1c5d4fc97801c75.png",
+		"displayProperties": {
+			"name": "The Dawning",
+			"description": "Complete limited-time Event Card challenges to earn various rewards and make progress toward event Title completion.",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_de8fe70bc9e0537c04681f5581c6c452.png"
+		}
+	},
+	"1": {
+		"id": "crimsondays",
+		"displayProperties": {
+			"name": "Crimson Days",
+			"description": ""
+		},
+		"iconWatermark": "/common/destiny2_content/icons/fe8bcc20fbfaf4cac69dfb640bb0b84e.png",
+		"event": true,
+		"hash": 1,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/19e8ff2fc05c8bc381a672c2b44d4bdf.png"
+	},
+	"2": {
+		"id": "guardiangames",
+		"iconWatermark": "/common/destiny2_content/icons/9c091ec0e22c01dacc25efb63b46eb9b.png",
+		"event": 3461628897,
+		"hash": 2,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/5cb49360f28fa037106307dda7cc7495.png",
+		"displayProperties": {
+			"name": "Guardian Games",
+			"description": "Complete limited-time Event Card challenges to earn various rewards and make progress toward event Title completion.",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_ce6c2cf855dce694bcc89803b6bc44b7.png"
+		}
+	},
+	"3": {
+		"id": "solstice",
+		"iconWatermark": "/common/destiny2_content/icons/50c3ebe414c6946429934d79504922fa.png",
+		"event": 3841872876,
+		"hash": 3,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/518a725160c326a532b33c4af7a5e027.png",
+		"displayProperties": {
+			"name": "Solstice",
+			"description": "Complete limited-time Event Card challenges to earn various rewards and make progress toward event Title completion.",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_4f9324534754826fe140c9b487884b9d.png"
+		}
+	},
+	"4": {
+		"id": "festivalofthelost",
+		"iconWatermark": "/common/destiny2_content/icons/53dc0b02306726ff1517af33ac908cef.png",
+		"event": 3265920761,
+		"hash": 4,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/6529f7497921fd62d40c7fa7a1e00dd3.png",
+		"displayProperties": {
+			"name": "Festival of the Lost",
+			"description": "Complete limited-time Event Card challenges to earn various rewards and make progress toward event Title completion.",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_1a1e3f8074c98241af80f4bee77084c3.png"
+		}
+	},
+	"5": {
+		"id": "redwar",
+		"displayProperties": {
+			"name": "The Red War",
+			"description": "Includes the Red War story campaign.\n\nHumanity's Last Safe City has fallen to an overwhelming invasion force led by Dominus Ghaul, the imposing commander of the brutal Red Legion. He has stripped the City's Guardians of their power and forced the survivors to flee. You will venture to mysterious, unexplored worlds of our solar system to discover an arsenal of devastating weapons and powerful armor.\n\nYou can pick up this quest from Amanda Holliday in the Tower Hangar."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/4f28dc0f39238fe25d298a894ea71389.png",
+		"expansion": true,
+		"season": 1,
+		"year": 1,
+		"seasonHash": 965757574,
+		"hash": 5,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/b7c66ccc849867c9be6f24a183fa70e3.png"
+	},
+	"6": {
+		"id": "osiris",
+		"iconWatermark": "/common/destiny2_content/icons/7ba9d804508dd083ec20fcdb8ba0869d.png",
+		"expansion": true,
+		"season": 2,
+		"year": 1,
+		"seasonHash": 2973407602,
+		"hash": 6,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/95b4ece09fb7ba577ed5a0c440042d0e.png",
+		"displayProperties": {
+			"name": "Curse of Osiris",
+			"description": "A new season has begun! Venture into the Infinite Forest, uncover the mysteries of Osiris, and seek new challenges on Mercury."
+		}
+	},
+	"7": {
+		"id": "warmind",
+		"displayProperties": {
+			"name": "Warmind",
+			"description": "A new season has begun! Search for relics of the past, learn the secrets of Rasputin, and unearth things long forgotten beneath the frozen surface of Mars."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/da5f961ef97b78293cc498978c10e178.png",
+		"expansion": true,
+		"season": 3,
+		"year": 1,
+		"seasonHash": 4033618594,
+		"hash": 7,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/cbf309e32b600da3f2077b5ee9f884fa.png"
+	},
+	"8": {
+		"id": "forsaken",
+		"aliases": [
+			"outlaw"
+		],
+		"displayProperties": {
+			"name": "Forsaken",
+			"description": "Return to the Reef, a lawless frontier and home to a broken people.\n\nHunt down a murderer and his gang, ally with the underbelly of the system, and walk the wrong side of right to see justice served."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/aeb95eb1abe8e45e1fe2573d6b3ab3c5.png",
+		"expansion": true,
+		"season": 4,
+		"year": 2,
+		"seasonHash": 2026773320,
+		"hash": 8,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/66b9c58a2fe597a173d9794b6f26ca82.png"
+	},
+	"10": {
+		"id": "forge",
+		"iconWatermark": "/common/destiny2_content/icons/e0c16042274fd7d9cbffc4489e340c5d.png",
+		"season": 5,
+		"year": 2,
+		"seasonHash": 2236269318,
+		"hash": 10,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/3baa918ed7dd95f509ee3eaecdc1e5b3.png",
+		"displayProperties": {
+			"name": "Season of the Forge",
+			"description": "A new season has begun! Rediscover the glories of the past and acquire beautiful new instruments of destruction."
+		}
+	},
+	"11": {
+		"id": "drifter",
+		"iconWatermark": "/common/destiny2_content/icons/2c022e452f395db7b1daec1cb44631fc.png",
+		"season": 6,
+		"year": 2,
+		"seasonHash": 2891088360,
+		"hash": 11,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/a501d8889d7d89d44e87727218260754.png",
+		"displayProperties": {
+			"name": "Season of the Drifter",
+			"description": "A new season has begun! Choose what kind of Guardian you will become. Reckon with the path that lies ahead."
+		}
+	},
+	"12": {
+		"id": "opulence",
+		"iconWatermark": "/common/destiny2_content/icons/58d3ec8338cc9746a2e0cf901fbcec0e.png",
+		"season": 7,
+		"year": 2,
+		"seasonHash": 4275747712,
+		"hash": 12,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/851d625c6dddb90b6be61a68b4645deb.png",
+		"displayProperties": {
+			"name": "Season of Opulence",
+			"description": "A new season has begun! Lavish yourself in gifts from the mighty Emperor Calus. Seek lost treasures throughout the system."
+		}
+	},
+	"13": {
+		"id": "shadowkeep",
+		"displayProperties": {
+			"name": "Shadowkeep",
+			"description": "New nightmares have emerged from the shadows of our Moon. Called forth by haunting visions, Eris Morn has returned. Join her to slay these nightmares before they reach out beyond the Moon to cast humanity back into an age of darkness."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/a15754752f40aaf7b1b00aadb70a8f35.png",
+		"expansion": true,
+		"year": 3,
+		"hash": 13,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/59172b06d7abeca120ecf35f79e33a67.png"
+	},
+	"14": {
+		"id": "undying",
+		"iconWatermark": "/common/destiny2_content/icons/0b212b58a961f150708bca95095e0ecb.png",
+		"season": 8,
+		"year": 3,
+		"seasonHash": 1743682818,
+		"hash": 14,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/8ab1d58ebd3945a5686eec7575eb2f0a.png",
+		"displayProperties": {
+			"name": "Season of the Undying",
+			"description": "…in circles. Ancient enemies return to plague old battlegrounds. Time moves…",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_b45d3d6ae817684a98d69aa44fc8ce58.png"
+		}
+	},
+	"15": {
+		"id": "dawn",
+		"iconWatermark": "/common/destiny2_content/icons/ede19a0e1a54564243b0e5e8a18bde84.png",
+		"season": 9,
+		"year": 3,
+		"seasonHash": 1743682819,
+		"hash": 15,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/5fed5e618423591a8cf4bd66a4f69c97.png",
+		"displayProperties": {
+			"name": "Season of Dawn",
+			"description": "Re-entwine the strands of time on Mercury and ignite the flames of hope.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_b5a0daa606e06eb6ec2bca66c7572a26.png"
+		}
+	},
+	"16": {
+		"id": "worthy",
+		"iconWatermark": "/common/destiny2_content/icons/247715dd42abef457b52ef37280c0e42.png",
+		"season": 10,
+		"year": 3,
+		"seasonHash": 2809059425,
+		"hash": 16,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/4487c1c73c54e95ea54142058c0e1cae.png",
+		"displayProperties": {
+			"name": "Season of the Worthy",
+			"description": "With the Almighty bearing down on the Last City, Guardians from all walks of life unite to bring all their power to bear against the Cabal sun-killer and forge new bonds with old rivals."
+		}
+	},
+	"17": {
+		"id": "arrivals",
+		"iconWatermark": "/common/destiny2_content/icons/d105aa342f2d0c53a90a28477552f61f.png",
+		"season": 11,
+		"year": 3,
+		"seasonHash": 2809059424,
+		"hash": 17,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/4520f392d955026aac4c4740345d2361.png",
+		"displayProperties": {
+			"name": "Season of Arrivals",
+			"description": "The Almighty bears down on the Last City. Join forces with unlikely allies to avert this crisis and destroy the last vestige of Cabal power in the system.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_97331ffcc89a51d8032b1e655546c218.png"
+		}
+	},
+	"18": {
+		"id": "beyondlight",
+		"displayProperties": {
+			"name": "Beyond Light",
+			"description": "Go beyond the Light and discover dark secrets held within the frozen frontier of Europa."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/bce51cf90464e28026140df77c4eb6ce.png",
+		"expansion": true,
+		"year": 4,
+		"hash": 18,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/c4204008ac8496a9dafcf696145f37b9.png"
+	},
+	"19": {
+		"id": "hunt",
+		"iconWatermark": "/common/destiny2_content/icons/a5e27dc822aa72787f388bd1fc115803.png",
+		"season": 12,
+		"year": 4,
+		"seasonHash": 2809059427,
+		"hash": 19,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/b4f8743a293c3ee5f0dcdca0212180aa.png",
+		"displayProperties": {
+			"name": "Season of the Hunt",
+			"description": "As the Pyramids send the system into chaos, Guardians must work with unexpected allies to hunt the monstrous forces of Xivu Arath and unravel the Hive god's network of mysterious cryptoliths.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_a12fd678d5e2b9d614af4e02e43fbd5b.png"
+		}
+	},
+	"20": {
+		"id": "chosen",
+		"iconWatermark": "/common/destiny2_content/icons/7b48b09fbb50634680168d5880b16bc9.png",
+		"season": 13,
+		"year": 4,
+		"seasonHash": 2809059426,
+		"hash": 20,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/a4465539d5e5c65c12c9862cd653d082.png",
+		"displayProperties": {
+			"name": "Season of the Chosen",
+			"description": "Battle Empress Caiatl's forces and prove your strength against the champions of the Cabal.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_d1eb59faf9fb654af3735c710f6e374a.png"
+		}
+	},
+	"21": {
+		"id": "splicer",
+		"iconWatermark": "/common/destiny2_content/icons/36418dde751148bd3b95a023d491ea73.png",
+		"season": 14,
+		"year": 4,
+		"seasonHash": 2809059429,
+		"hash": 21,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/3d602b7985a350dd5e85130b148484f1.png",
+		"displayProperties": {
+			"name": "Season of the Splicer",
+			"description": "As the Last City is consumed by an Endless Night, Guardians must hack their way through the Vex Network with help from Mithrax, the Sacred Splicer.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_471b4cef2f4c007d2a4ac33a02355054.png"
+		}
+	},
+	"22": {
+		"id": "lost",
+		"iconWatermark": "/common/destiny2_content/icons/914322d11262322c839a5388db2a4943.png",
+		"season": 15,
+		"year": 4,
+		"seasonHash": 2809059428,
+		"hash": 22,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/6f97ea5b246a70fec98acf31b5b47eef.png",
+		"displayProperties": {
+			"name": "Season of the Lost",
+			"description": "Savathûn has been brought out of hiding, revealing a harrowing discovery that shakes the Vanguard. As Xivu Arath prepares to capture her sister, Savathûn offers you a bargain: free her from her worm, and she will reveal the truth about the Darkness.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_265abf1e776ea726de1f1459392727b6.png"
+		}
+	},
+	"23": {
+		"id": "30th",
+		"displayProperties": {
+			"name": "Bungie 30th Anniversary",
+			"description": ""
+		},
+		"iconWatermark": "/common/destiny2_content/icons/bcc26708e314306fb2fc8cb98fcbf47e.png",
+		"expansion": true,
+		"year": 4,
+		"hash": 23,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/7f608702455231339fe7eb7ee6179527.png"
+	},
+	"24": {
+		"id": "witchqueen",
+		"displayProperties": {
+			"name": "The Witch Queen",
+			"description": "Delve into Savathûn's surreal throne world to uncover hidden memories and expose a web of lies."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/0b441021fbc328e6d0e2abc895f5c96e.png",
+		"expansion": true,
+		"year": 5,
+		"hash": 24,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/b1769a37f7cb2ae740d10d5e86d22015.png"
+	},
+	"25": {
+		"id": "risen",
+		"iconWatermark": "/common/destiny2_content/icons/7b41678824a620d4f295984862702179.png",
+		"season": 16,
+		"year": 5,
+		"seasonHash": 2809059431,
+		"itemHashes": [
+			3056950148,
+			4144240158,
+			3473867303,
+			4017738218,
+			2516879931
+		],
+		"hash": 25,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/3ac40b44ff238beec1f0c5715fab5f2d.png",
+		"displayProperties": {
+			"name": "Season of the Risen",
+			"description": "When Savathûn's Lucent Hive threaten the source of the Guardians' power, survival depends on the fragile alliance between the Vanguard and Empress Caiatl. Wielding a spear imbued with Light-suppressing technology, the Guardian must work with Lord Saladin and Caiatl's most trusted Psion to search for secrets in the minds of the Lucent Hive and stop their ghoulish plans.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_0f47a186cf0cb88d2388d811a6ec89cb.png"
+		}
+	},
+	"26": {
+		"id": "haunted",
+		"iconWatermark": "/common/destiny2_content/icons/75adde12e4e9c9fb237e492d8258eb73.png",
+		"season": 17,
+		"year": 5,
+		"seasonHash": 2809059430,
+		"hash": 26,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/b53275ee009af7fa70aa728dae78a0c0.png",
+		"displayProperties": {
+			"name": "Season of the Haunted",
+			"description": "The prison ship of the exiled Cabal Emperor Calus has returned. But its reappearance heralds the beginning of the end as the once-dormant lunar Pyramid stirs to life once more. With the aid of Eris Morn's witchcraft, the Guardian must work with Empress Caiatl, Commander Zavala, and Crow to unravel the mysteries of the Leviathan and the lunar Pyramid and stop Calus before it is too late.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_3847a7f2241ce39588bfc2c85239b055.png"
+		}
+	},
+	"27": {
+		"id": "plunder",
+		"iconWatermark": "/common/destiny2_content/icons/7d815c943977fe71bbf00caf1bd9c514.png",
+		"season": 18,
+		"year": 5,
+		"seasonHash": 2809059433,
+		"hash": 27,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/eff64e4ea0eedf135899d98ce8f33f36.png",
+		"displayProperties": {
+			"name": "Season of Plunder",
+			"description": "Eramis, Kell of House Salvation, has broken free from her icy prison on Europa. As she rallies the old Pirate Lords of Eliksni legend, the Guardian must assemble a motley crew of their own and retrieve powerful relics of Darkness before they fall into Eramis's hands.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_b358e1c398ec9f74b1f90318b0b08c21.png"
+		}
+	},
+	"28": {
+		"id": "seraph",
+		"iconWatermark": "/common/destiny2_content/icons/41d05b7cb5cc0a384af07ee9b7d36dd2.png",
+		"season": 19,
+		"year": 5,
+		"seasonHash": 2809059432,
+		"hash": 28,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/37a47df16553e25597c3717d427d4321.png",
+		"displayProperties": {
+			"name": "Season of the Seraph",
+			"description": "Assist Ana Bray and Osiris in finding a way to restore the Warmind, Rasputin, in order to combat the enemies of Sol.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_dd9fe0539a0c29c9e6f5f4d257d3c15a.png"
+		}
+	},
+	"29": {
+		"id": "lightfall",
+		"displayProperties": {
+			"name": "Lightfall",
+			"description": "The Witness has arrived, threatening the City, the Traveler, and all of Sol. Aided by its newest disciple, Emperor Calus, the Witness aims to bring about a second collapse.\n\nRace Emperor Calus to the edge of the solar system. Learn the ways of the Cloud Striders, wield Strand, a new power of the Darkness, and bring an end to Calus's reign."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/fc02418ad2002351a3f88faa5b14eb88.png",
+		"expansion": true,
+		"year": 6,
+		"hash": 29,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/df9d5f7f1d41a9f5feae229442acaf3e.png"
+	},
+	"30": {
+		"id": "defiance",
+		"iconWatermark": "/common/destiny2_content/icons/a0556509f8825756b6b89f59f90528ec.png",
+		"season": 20,
+		"year": 6,
+		"seasonHash": 2758726568,
+		"hash": 30,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/b17f9db83470e98839ae21433122e976.png",
+		"displayProperties": {
+			"name": "Season of Defiance",
+			"description": "In the aftermath of the Witness's attack, the Vanguard calls upon its closest allies. The Guardian must master the righteous powers of the Awoken to stand against the encroaching Shadow Legion and prove themselves as Queensguard.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_50d80a655bccddfd26e954dbfc3b9746.png"
+		}
+	},
+	"31": {
+		"id": "deep",
+		"iconWatermark": "/common/destiny2_content/icons/ae5c7f708a36f754c2f68c65c88ab9aa.png",
+		"season": 21,
+		"year": 6,
+		"seasonHash": 2758726569,
+		"hash": 31,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/d31fd6397a41caa861a1861f150805aa.png",
+		"displayProperties": {
+			"name": "Season of the Deep",
+			"description": "Delve into the depths of Titan's methane sea in search of lost technology and knowledge.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_f82759315a8d05fc597778d2086acee4.png"
+		}
+	},
+	"32": {
+		"id": "witch",
+		"iconWatermark": "/common/destiny2_content/icons/2dc17f123b7449b14144e76cfbeb2309.png",
+		"season": 22,
+		"year": 6,
+		"seasonHash": 2758726570,
+		"hash": 32,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/669e649732ef72f873de7bbb696cfd50.png",
+		"displayProperties": {
+			"name": "Season of the Witch",
+			"description": "Savathûn's Ghost Immaru has approached the Vanguard with a dire bargain: the Witch Queen holds the information we need to pursue the Witness and will share it with us if we first contend with her sister, Xivu Arath. \n\nThrough the power of arcane rituals, the Guardians must gather tithes for Eris Morn so she can fulfill this dangerous pact with the Hive god of lies.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_fdbb36bb7f4f81c0170ca0b2cced22d6.png"
+		}
+	},
+	"33": {
+		"id": "wish",
+		"iconWatermark": "/common/destiny2_content/icons/6f17d323d81dd683086d88a9268f8106.png",
+		"season": 23,
+		"year": 6,
+		"seasonHash": 2758726571,
+		"hash": 33,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/27df0ae2b804bdb49b75456e2ad759ef.png",
+		"displayProperties": {
+			"name": "Season of the Wish",
+			"description": "Return to the Dreaming City and aid Queen Mara in making one last wish.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_7026238c20605a7e6842a5d799732d4b.png"
+		}
+	},
+	"34": {
+		"id": "intothelight",
+		"displayProperties": {
+			"name": "Into the Light",
+			"description": "The Witness's forces swell across Sol in unparalleled numbers. Arm yourself with Shaxx’s armory, and repel waves of the Witness’s forces in the new Onslaught PvE Activity."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/60d34bc853c51063b79592233c3661d4.png",
+		"expansion": true,
+		"year": 6,
+		"itemHashes": [
+			1983149589,
+			3824673936
+		],
+		"hash": 34,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/9087446b3fb6c1aff878d39cd9966b60.png"
+	},
+	"35": {
+		"id": "finalshape",
+		"displayProperties": {
+			"name": "The Final Shape",
+			"description": "The Final Shape looms—a nightmarish calcification of reality into the Witness's twisted design. Embark on a perilous journey into the heart of the Traveler, rally the Vanguard, and end the War of Light and Darkness."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/661c84a377389a3b8a1fc38b44189b41.png",
+		"expansion": true,
+		"year": 7,
+		"hash": 35,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/cc9167a8e8955b9f327d57d037327d02.png"
+	},
+	"36": {
+		"id": "echoes",
+		"iconWatermark": "/common/destiny2_content/icons/9bfaa5536772e2f3ef1252813a21c4d1.png",
+		"season": 24,
+		"year": 7,
+		"seasonHash": 2758726572,
+		"hash": 36,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/a4b625257c5339538a82a1b17eec99aa.png",
+		"displayProperties": {
+			"name": "Episode: Echoes",
+			"description": "As the system reels in the wake of the events of the Final Shape, an unknown object impacts Nessus. \n\nGuardians must venture deep into the mysterious core of Nessus and deal with an awakening threat wielding an incredible and terrifying new power.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_191cb7a0671a82cd7eb5a7c2d5e159ba.png"
+		}
+	},
+	"37": {
+		"id": "revenant",
+		"iconWatermark": "/common/destiny2_content/icons/5232219633cc4d90570bffda36caccf4.png",
+		"season": 25,
+		"year": 7,
+		"seasonHash": 2758726573,
+		"hash": 37,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/2401d52b8266057a1359e74c762a86ef.png",
+		"displayProperties": {
+			"name": "Episode: Revenant",
+			"description": "All is not well for the Eliksni. A paracausal curse is slowly corrupting Mithrax, the leader of House Light, while an old threat has re-emerged to plague the system with a new breed of Revenant Scorn.\n \nWith Eido's help, Guardians face a kinetic battle against the renewed Scorn, and a metaphysical one for the fate of Mithrax's soul.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_df1a769d27453619889872819b775924.png"
+		}
+	},
+	"38": {
+		"id": "heresy",
+		"iconWatermark": "/common/destiny2_content/icons/0ac354c1c326441716ddb15d2c158c59.png",
+		"season": 26,
+		"year": 7,
+		"seasonHash": 2758726574,
+		"hash": 38,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/1e56af6ab4bbbe7cafba8b3bab690d7c.png",
+		"displayProperties": {
+			"name": "Episode: Heresy",
+			"description": "The Dreadnaught returns. Powerful Taken threaten to overwhelm the system.\n\nTo survive the onslaught, the Guardians must learn the secrets of Taken power—and harness them.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_c704c59d44f0cfb7472cd09101eb8399.png"
+		}
+	},
+	"39": {
+		"id": "riteofthenine",
+		"displayProperties": {
+			"name": "Rite of the Nine",
+			"description": "The Emmisary brings you a message from The Nine. They put forth a challenge to the Lightbearers — We ask: make known your value, so divided gods may wield you in time."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/0d6c3365022ed3b059eac467b076978f.png",
+		"year": 7,
+		"expansion": true,
+		"hash": 39,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/17efe5b87a689739a5008426773f9cd5.png"
+	},
+	"40": {
+		"id": "edgeoffate",
+		"aliases": [
+			"eof"
+		],
+		"displayProperties": {
+			"name": "Edge of Fate",
+			"description": "Something has manipulated time to get our attention. Guardians will travel into the deep hidden corners of Sol, responding to a call that will shake their perceptions of reality."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/6129365b4fad6754f2b8c4478fc3c4ac.png",
+		"expansion": true,
+		"year": 8,
+		"hash": 40,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/d133cfc43687423246b5afb81a3ae489.png"
+	},
+	"41": {
+		"id": "reclamation",
+		"displayProperties": {
+			"name": "Reclamation",
+			"description": "While the Vanguard investigates cosmic forces at the edge of Sol, the Forces of the City reclaim lost territory closer to home.",
+			"icon": "/common/destiny2_content/icons/DestinySeasonDefinition_a16e9585a24eaccc9ef3021a1769e50d.png"
+		},
+		"iconWatermark": "/common/destiny2_content/icons/249813e647271a8227bae0d8a39ed505.png",
+		"year": 8,
+		"season": 27,
+		"seasonHash": 2758726575,
+		"hash": 41,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/0e7739e80c1a520923e42610c7c52467.png"
+	},
+	"-1": {
+		"id": "revelry",
+		"displayProperties": {
+			"name": "The Revelry",
+			"description": "The Revelry is a new event available to all Destiny 2 players that celebrates the joy of Spring. The Tower is overflowing with colorful arrangements, and Eva Levante has a new activity for you to enjoy with new rewards to claim."
+		},
+		"iconWatermark": "/common/destiny2_content/icons/c1e11e70eba15abcd4e0414fa29ef714.png",
+		"event": true,
+		"itemHashes": [
+			53761356,
+			3503026437,
+			1165027035,
+			3425898631,
+			4199694578,
+			1821343040,
+			3682383633,
+			4079552711,
+			3089075939,
+			500083158,
+			1356657785,
+			870019568,
+			2967148056,
+			1187078090,
+			1362642485,
+			2130065553
+		],
+		"hash": -1,
+		"iconWatermarkShelved": "/common/destiny2_content/icons/00d64d97639991cfdb1afaefecf418b6.png"
+	}
+}

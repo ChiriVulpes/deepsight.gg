@@ -1,0 +1,139 @@
+{
+	"0": {
+		"hash": 0,
+		"category": 0,
+		"displayProperties": {
+			"name": "Commander Zavala",
+			"subtitle": "Legacy Gear",
+			"description": "The resolute Commander Zavala advises Guardians on all Vanguard-related activities.",
+			"icon": "/common/destiny2_content/icons/b46bfdaa8287c0af02e597a6090ca767.png"
+		}
+	},
+	"1": {
+		"hash": 1,
+		"category": 0,
+		"displayProperties": {
+			"name": "Lord Shaxx",
+			"subtitle": "Legacy Gear",
+			"description": "The Crucible is the arena in which Guardians forge their Light. Lord Shaxx is the Crucible.",
+			"icon": "/common/destiny2_content/icons/63912bb6dbdbaab769880e7a15a55386.png"
+		}
+	},
+	"2": {
+		"hash": 2,
+		"category": 0,
+		"displayProperties": {
+			"name": "The Drifter",
+			"subtitle": "Legacy Gear",
+			"description": "The name says it all.",
+			"icon": "/common/destiny2_content/icons/b7c164377f46128cd26d9268115039ad.png"
+		}
+	},
+	"3": {
+		"hash": 3,
+		"category": 0,
+		"displayProperties": {
+			"name": "Saint-14",
+			"subtitle": "Legacy Gear",
+			"description": "A legendary hero and the former Titan Vanguard, Saint-14 disappeared into the Infinite Forest only to be later rescued by a fellow Guardian.",
+			"icon": "/common/destiny2_content/icons/7add0da73da4c4d88cb3cbb717d5ddf9.png"
+		}
+	},
+	"4": {
+		"hash": 4,
+		"category": 0,
+		"rotates": true,
+		"displayProperties": {
+			"name": "Banshee-44",
+			"subtitle": "Focused Decoding",
+			"description": "Banshee-44 has lived many lives. As master weaponsmith for the Tower, he supplies Guardians with only the best.",
+			"icon": "/common/destiny2_content/icons/16f38e867ad607cb5e1aae5c3594fbdc.png"
+		}
+	},
+	"5": {
+		"hash": 5,
+		"category": 0,
+		"rotates": true,
+		"displayProperties": {
+			"name": "Banshee-44",
+			"subtitle": "Gunsmith",
+			"description": "Banshee-44 has lived many lives. As master weaponsmith for the Tower, he supplies Guardians with only the best.",
+			"icon": "/common/destiny2_content/icons/16f38e867ad607cb5e1aae5c3594fbdc.png"
+		}
+	},
+	"6": {
+		"hash": 6,
+		"category": 0,
+		"displayProperties": {
+			"name": "Monument to Lost Lights",
+			"subtitle": "Exotic Archive",
+			"description": "Built in honor of those who sacrificed their Light to defend humanity. Created in collaboration with Cryptarchs to help Guardians manage armaments.",
+			"icon": "/common/destiny2_content/icons/e1538aa0647a83af5b8e010f1ba29dc5.png"
+		}
+	},
+	"7": {
+		"hash": 7,
+		"category": 1,
+		"displayProperties": {
+			"name": "Vanguard Ops",
+			"description": "The Vanguard seeks Guardians to undertake high-priority missions against the City's enemies.",
+			"icon": "/common/destiny2_content/icons/3642cf9e2acd174dcab5b5f9e3a3a45d.png"
+		}
+	},
+	"8": {
+		"hash": 8,
+		"category": 1,
+		"displayProperties": {
+			"name": "Pinnacle Ops",
+			"description": "Test your might against the toughest combatants.",
+			"icon": "/common/destiny2_content/icons/DestinyActivityDefinition_d80e05f226db50bac4bc1479568ea87f.png"
+		}
+	},
+	"9": {
+		"hash": 9,
+		"category": 1,
+		"displayProperties": {
+			"name": "Crucible Ops",
+			"description": "Hone your skills and win glory in battle against other Guardians.",
+			"icon": "/common/destiny2_content/icons/DestinyActivityModeDefinition_fb3e9149c43f7a2e8f8b66cbea7845fe.png"
+		}
+	},
+	"10": {
+		"hash": 10,
+		"category": 1,
+		"displayProperties": {
+			"name": "Trials of Osiris",
+			"description": "Eliminate your opponents or capture the zone to win. Earn as many round and match wins on a ticket as you can.",
+			"icon": "/common/destiny2_content/icons/DestinyActivityModeDefinition_e35792b49b249ca5dcdb1e7657ca42b6.png"
+		}
+	},
+	"11": {
+		"hash": 11,
+		"category": 4,
+		"displayProperties": {
+			"name": "Arms Week",
+			"subtitle": "Ada-1",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_a6387809eb029e6fb70d40c3326d8a02.png",
+			"description": ""
+		}
+	},
+	"12": {
+		"hash": 12,
+		"category": 2,
+		"displayProperties": {
+			"name": "Solstice",
+			"icon": "/common/destiny2_content/icons/DestinyEventCardDefinition_4f9324534754826fe140c9b487884b9d.png",
+			"description": ""
+		}
+	},
+	"13": {
+		"hash": 13,
+		"category": 3,
+		"displayProperties": {
+			"name": "Kepler",
+			"subtitle": "The Edge of Fate",
+			"icon": "/common/destiny2_content/icons/c197d7085c39c4bc2385f2cdb0dbb65d.png",
+			"description": ""
+		}
+	}
+}

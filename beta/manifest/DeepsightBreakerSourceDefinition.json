@@ -1,0 +1,119 @@
+{
+	"0": {
+		"hash": 0,
+		"breakerTypes": []
+	},
+	"1": {
+		"hash": 1,
+		"breakerTypes": [
+			485622768
+		]
+	},
+	"2": {
+		"hash": 2,
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"3": {
+		"hash": 3,
+		"breakerTypes": [
+			3178805705
+		]
+	},
+	"4": {
+		"hash": 4,
+		"trait": 500183315,
+		"breakerTypes": [
+			3178805705
+		]
+	},
+	"5": {
+		"hash": 5,
+		"trait": 3221118171,
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"6": {
+		"hash": 6,
+		"trait": 1096356879,
+		"appliesTraits": [
+			3268862716
+		],
+		"breakerTypes": [
+			3178805705
+		]
+	},
+	"7": {
+		"hash": 7,
+		"trait": 3268862716,
+		"breakerTypes": [
+			3178805705
+		]
+	},
+	"8": {
+		"hash": 8,
+		"trait": 157469667,
+		"breakerTypes": [
+			485622768
+		]
+	},
+	"9": {
+		"hash": 9,
+		"appliesTraits": [
+			4105407564
+		],
+		"breakerTypes": [
+			485622768
+		]
+	},
+	"10": {
+		"hash": 10,
+		"trait": 2578642829,
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"11": {
+		"hash": 11,
+		"trait": 4239423954,
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"12": {
+		"hash": 12,
+		"trait": 2968599152,
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"13": {
+		"hash": 13,
+		"trait": 3385340084,
+		"appliesTraits": [
+			4239423954,
+			2968599152
+		],
+		"breakerTypes": [
+			2611060930
+		]
+	},
+	"14": {
+		"hash": 14,
+		"trait": 2679722414,
+		"breakerTypes": [
+			3178805705
+		]
+	},
+	"15": {
+		"hash": 15,
+		"appliesTraits": [
+			945613349
+		],
+		"breakerTypes": [
+			485622768
+		]
+	}
+}
