@@ -11,7 +11,7 @@ export default Task('static', async task => {
 	await fs.rm('out/static', { recursive: true, force: true })
 	await fs.cp('static', 'out/static', { recursive: true, force: true })
 	const index = await fs.readFile('index.html', 'utf8')
-	await fs.writeFile('out/index.html', index.replaceAll('./', `https://localhost:${Env.PORT}/`))
+	await fs.writeFile('out/index.html', index.replaceAll('./', `${Env.ORIGIN ?? `https://localhost:${Env.PORT}`}/`))
 	await fs.cp('icon/out', 'out/static/font', { recursive: true, force: true })
 	if (Env.ORIGIN) await fs.writeFile('out/CNAME', Env.ORIGIN.slice('https://'.length))
 })
