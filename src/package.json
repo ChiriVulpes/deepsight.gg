@@ -6,7 +6,7 @@
 		"deepsight.gg": "1.0.1439"
 	},
 	"devDependencies": {
-		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#6a98451b314056275f6c678c8ce12dfa57d0f7ea",
-		"kitsui": "github:fluff4me/kitsui#dc9faa594a25a7ed39cf634f0c1d1af7b107a6e7"
+		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#package",
+		"kitsui": "github:fluff4me/kitsui#package"
 	}
 }

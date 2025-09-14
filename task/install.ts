@@ -17,6 +17,7 @@ export default Task('install', async task => {
 			dependencies: {
 				'kitsui': { repo: 'fluff4me/kitsui', branch: 'package' },
 				'conduit.deepsight.gg': { repo: 'chirivulpes/conduit.deepsight.gg', branch: 'package' },
+				'deepsight.gg': { name: 'deepsight.gg' },
 			},
 		},
 	)
