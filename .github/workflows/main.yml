@@ -24,13 +24,15 @@ jobs:
         run: |
           npm ci
           npx task install
+
+      - name: Write .env file
+        run: |
+          echo "ORIGIN=https://new.deepsight.gg" >> .env
         
       - name: Build
         run: npx task build
-        env:
-          ORIGIN: 'https://new.deepsight.gg'
       
-      - name: Prepare service for GitHub Pages
+      - name: Prepare for GitHub Pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v4
         with:
