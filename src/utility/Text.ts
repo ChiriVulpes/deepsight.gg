@@ -26,6 +26,10 @@ namespace Text {
 		})
 	}
 
+	export function isWeave (weave: Weave | Weft): weave is Weave {
+		return Object.keys(weave).includes('toString')
+	}
+
 	export function renderWeave (weave: Weave): Node[] {
 		return weave.content.map(renderWeft)
 	}
@@ -42,8 +46,12 @@ namespace Text {
 		if (Array.isArray(weft.content))
 			element.append(...weft.content.map(renderWeft))
 		else if (typeof weft.content === 'object' && weft.content) {
-			if (!WeavingArg.isRenderable(weft.content))
-				element.append(...renderWeave(weft.content))
+			if (!WeavingArg.isRenderable(weft.content)) {
+				if (isWeave(weft.content))
+					element.append(...renderWeave(weft.content))
+				else
+					element.append(renderWeft(weft.content))
+			}
 			else if (Component.is(weft.content))
 				element.append(weft.content.element)
 			else if (weft.content instanceof Node)
