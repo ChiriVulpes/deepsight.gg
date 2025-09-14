@@ -27,6 +27,8 @@ jobs:
         
       - name: Build
         run: npx task build
+        env:
+          ORIGIN: 'https://new.deepsight.gg'
       
       - name: Prepare service for GitHub Pages
         if: success()
