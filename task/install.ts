@@ -18,6 +18,7 @@ export default Task('install', async task => {
 				'kitsui': { repo: 'fluff4me/kitsui', branch: 'package' },
 				'conduit.deepsight.gg': { repo: 'chirivulpes/conduit.deepsight.gg', branch: 'package' },
 				'deepsight.gg': { name: 'deepsight.gg' },
+				'bungie-api-ts': { name: 'bungie-api-ts' },
 			},
 		},
 	)
