@@ -5,7 +5,7 @@ import Lore from 'component/core/Lore'
 import Power from 'component/item/Power'
 import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
+import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource, ItemSourceDefined } from 'conduit.deepsight.gg/Collections'
 import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
@@ -314,6 +314,17 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 		if (!sources?.length)
 			return
 
+		const getSourceName = (source: ItemSourceDefined): string | undefined => collections.sources[source.id]?.displayProperties.name
+		const getSourceCategory = (source: ItemSourceDefined): DeepsightItemSourceCategory | undefined => collections.sources[source.id]?.category
+		const hasUniversalReward = sources
+			.filter((source): source is ItemSourceDefined => source.type === 'defined')
+			.groupBy(getSourceName)
+			.toObject(([name, sources]) => {
+				const hasActivityRewardSource = sources.some(source => getSourceCategory(source) === DeepsightItemSourceCategory.ActivityReward)
+				const hasBonusRewardSource = sources.some(source => getSourceCategory(source) === DeepsightItemSourceCategory.BonusReward)
+				return [name ?? '', hasActivityRewardSource && hasBonusRewardSource] as const
+			})
+
 		interface SourceWrapperExtensions {
 			readonly icon?: Component<HTMLImageElement>
 			readonly title: Component
@@ -367,8 +378,15 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 					if (!displayProperties?.name)
 						return undefined
 
+					const sourceName = getSourceName(sourceRef)
+					const isUniversalReward = hasUniversalReward[sourceName!] ?? false
+					if (source.category === DeepsightItemSourceCategory.BonusReward && isUniversalReward)
+						return undefined
+
 					let subtitle: StringApplicatorSource | undefined = _
-						?? (source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
+						// ?? (isUniversalReward ? quilt => quilt['item-tooltip/source/type/universal-reward']() : undefined)
+						?? (isUniversalReward || source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.BonusReward ? quilt => quilt['item-tooltip/source/type/bonus-reward']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.EventReward ? quilt => quilt['item-tooltip/source/type/event-reward']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.EventVendor ? quilt => quilt['item-tooltip/source/type/event-vendor']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.Vendor

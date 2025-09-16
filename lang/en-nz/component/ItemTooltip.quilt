@@ -5,4 +5,6 @@ source/type/event-reward: Event Reward
 source/type/event-vendor: Event Vendor
 source/type/vendor: Vendor
 source/type/vendor-rotation: Vendor Rotation
-source/type/bonus-focus: Bonus Focus
+source/type/bonus-focus: Bonus Focus!
+source/type/bonus-reward: Bonus Reward Only
+source/type/universal-reward: Universal Reward

@@ -8,9 +8,12 @@ import Viewport from 'kitsui/utility/Viewport'
 import Profile from 'model/Profile'
 import Navigator from 'navigation/Navigate'
 import Relic from 'Relic'
+import Arrays from 'utility/Arrays'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Text from 'utility/Text'
+
+Arrays.applyPrototypes()
 
 export default async function () {
 	Component.allowBuilding()
