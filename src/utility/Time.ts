@@ -1,4 +1,33 @@
+import { State } from 'kitsui'
+import type { Quilt } from 'lang'
+
 namespace Time {
+
+	export const state = State(Date.now() / 1000)
+	setInterval(() => state.value = Date.now() / 1000, 100)
+
+	export function translateComponent (component: 'week' | 'day' | 'hour' | 'minute', value: number): Quilt.Handler {
+		return quilt => quilt[`shared/time/x-${component}${value === 1 ? '' : 's'}`](value)
+	}
+
+	export function translateDuration (time: number, maxComponents = 2): Quilt.Handler {
+		const weeks = Math.floor(time / Time.weeks(1))
+		const days = Math.floor((time % Time.weeks(1)) / Time.days(1))
+		const hours = Math.floor((time % Time.days(1)) / Time.hours(1))
+		const minutes = Math.floor((time % Time.hours(1)) / Time.minutes(1))
+
+		const components: Quilt.Handler[] = []
+		if (weeks)
+			components.push(translateComponent('week', weeks))
+		if (days && components.length < maxComponents)
+			components.push(translateComponent('day', days))
+		if (hours && components.length < maxComponents)
+			components.push(translateComponent('hour', hours))
+		if (minutes && components.length < maxComponents)
+			components.push(translateComponent('minute', minutes))
+
+		return quilt => quilt['shared/spaced'](...components.map(h => h(quilt)))
+	}
 
 	export type ISO = `${bigint}-${bigint}-${bigint}T${bigint}:${bigint}:${number}Z`
 

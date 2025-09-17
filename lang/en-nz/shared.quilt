@@ -1,4 +1,16 @@
 # shared
+passthrough: {*}
+spaced: {* }
 errored: An error occurred
 
 load/connecting: Connecting...
+
+## time
+x-weeks: {0} Weeks
+x-week: {0} Week
+x-days: {0} Days
+x-day: {0} Day
+x-hours: {0} Hours
+x-hour: {0} Hour
+x-minutes: {0} Minutes
+x-minute: {0} Minute

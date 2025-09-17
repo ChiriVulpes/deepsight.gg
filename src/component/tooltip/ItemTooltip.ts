@@ -306,6 +306,9 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 		.append(Lore().style('item-tooltip-flavour-text').text.bind(flavourText))
 		.appendToWhen(flavourText.truthy, tooltip.extra)
 
+	////////////////////////////////////
+	//#region Sources
+
 	const sourceList = DisplaySlot()
 		.style('item-tooltip-source-list')
 		.appendTo(tooltip.extra)
@@ -461,6 +464,9 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 			}
 		}
 	})
+
+	//#endregion
+	////////////////////////////////////
 
 	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
 	return tooltip

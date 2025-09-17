@@ -3,6 +3,7 @@ title: Collections
 load/connecting=shared/load/connecting
 load/fetching: Downloading collections...
 year: Yr. {0}
+event-ends: Event Ends: {0}
 
 ## bucket/weapons
 title: // Weapons

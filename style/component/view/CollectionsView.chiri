@@ -40,6 +40,8 @@
 			%letter-spacing-3
 			%font-4
 
+		&--event:
+
 	&-moment:
 		#after: .details
 		%relative
@@ -63,6 +65,25 @@
 			#transition: #{transition("backdrop-filter")}, #{transition("background")}
 			mask-image: linear-gradient(to bottom, black, transparent)
 
+		@after:
+			%block
+			%absolute
+			%uninset-3-3
+			%z-index-bg
+			background-image: $event-background
+			background-repeat: no-repeat
+			background-size: contain
+			mask-image:
+				linear-gradient(to right, #000c, #0000),
+				linear-gradient(to bottom, #0000, #000f)
+			mask-composite: subtract
+			%right-auto
+			%bottom-auto
+			aspect-ratio: $event-background-aspect-ratio
+			height: calc($space-7 + $space-6)
+			%transparent
+			#transition: #{transition("opacity")}
+
 		&--open, &--hover:
 			#after: .collections-view-moment
 			@before:
@@ -78,6 +99,9 @@
 			#after: .collections-view-moment
 			@before:
 				background: #7773
+			@after:
+				%opaque
+				%transition-focus
 
 		&-summary:
 			#after: .details-summary
@@ -116,17 +140,21 @@
 					scale: 1 1
 
 		&-icon:
+			#after: .image
 			%relative
 			%inline-block
 			size: 1.1em
 			%margin-right-2
-			%background-currentcolour
-			mask-image: $moment-watermark-icon
-			mask-mode: luminance
-			mask-size: 350%
 			scale: 0.90909
 			translate: 0 .21em
 			#transition: #{transition("scale")}, #{transition("translate")}
+
+			&--watermark:
+				#after: .collections-view-moment-icon
+				%background-currentcolour
+				mask-image: $moment-watermark-icon
+				mask-mode: luminance
+				mask-size: 350%
 
 			&--hover, &--open:
 				#after: .collections-view-moment-icon
@@ -141,6 +169,11 @@
 			&--hover, &--open:
 				translate: .06em 0
 				%transition-focus
+
+			&-time-remaining:
+				%inline-block
+				float: right
+				%colour-4
 
 		&-content:
 			#after: .details-content

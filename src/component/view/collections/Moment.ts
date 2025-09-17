@@ -1,5 +1,6 @@
 import { DestinyClass } from 'bungie-api-ts/destiny2'
 import Details from 'component/core/Details'
+import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
 import type { DisplayHandlers } from 'component/DisplayBar'
 import Item from 'component/item/Item'
@@ -52,10 +53,15 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			.style.bind(details.open, 'collections-view-moment-summary--open')
 			.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
 			.append(moment.iconWatermark && Component()
-				.style('collections-view-moment-icon')
+				.style('collections-view-moment-icon', 'collections-view-moment-icon--watermark')
 				.style.bind(details.open, 'collections-view-moment-icon--open')
 				.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-icon--hover')
 				.style.setVariable('moment-watermark-icon', `url(https://www.bungie.net${moment.iconWatermark})`)
+			)
+			.append(!moment.iconWatermark && moment.displayProperties.icon && Image(`https://www.bungie.net${moment.displayProperties.icon}`)
+				.style('collections-view-moment-icon')
+				.style.bind(details.open, 'collections-view-moment-icon--open')
+				.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-icon--hover')
 			)
 			.append(Component()
 				.style('collections-view-moment-title')
