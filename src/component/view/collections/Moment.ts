@@ -212,6 +212,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 
 				if (weapons.length)
 					MomentBucket()
+						.style('collections-view-moment-bucket--weapons')
 						.titleText.set(quilt => quilt['view/collections/bucket/weapons/title']())
 						.tweak(addFilteredItems, weapons)
 

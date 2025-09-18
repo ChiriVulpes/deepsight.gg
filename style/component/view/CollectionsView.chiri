@@ -2,6 +2,9 @@
 	%padding-inline-5
 	%border-box
 
+	#phone-mode:
+		%padding-inline-3
+
 	@after:
 		%block
 		%height-5
@@ -44,6 +47,9 @@
 			%letter-spacing-3
 			%font-4
 
+			#phone-mode:
+				%hidden
+
 		&--event:
 
 	&-moment:
@@ -55,11 +61,21 @@
 		%padding-3
 		%padding-top-0
 
+		#phone-mode:
+			%padding-1
+			%padding-top-0
+			%unmargin-inline-1
+
 		@details-content:
 			%unmargin-inline-3
 			%padding-3
 			%padding-top-0
 			%unmargin-bottom-3
+
+			#phone-mode:
+				%padding-1
+				%padding-top-0
+				%unmargin-inline-1
 
 		@before:
 			%block
@@ -69,12 +85,15 @@
 			#transition: #{transition("backdrop-filter")}, #{transition("background")}
 			mask-image: linear-gradient(to bottom, black, transparent)
 
+			#phone-mode:
+				inset: calc(0px - $space-2 - $space-1)
+
 		@after:
 			%block
 			%absolute
 			%uninset-3-3
 			%z-index-bg
-			$image-height: min($event-background-height * 1px, $space-7 + $space-6 + $space-5)
+			$image-height: min($event-background-height * 1.5px, $space-7 + $space-6 + $space-5)
 			background-image: $event-background
 			background-repeat: no-repeat
 			background-size: auto $image-height
@@ -91,6 +110,9 @@
 			%transparent
 			#transition: #{transition("opacity")}
 			box-shadow: inset 0 0 0 2px #fff2
+
+			#phone-mode:
+				inset: calc(0px - $space-2 - $space-1)
 
 		&--open, &--hover:
 			#after: .collections-view-moment
@@ -123,6 +145,10 @@
 			%margin-0
 			#transition: #{transition("color")}, #{transition("font-weight")}, #{transition("letter-spacing")}
 
+			#phone-mode:
+				%font-3
+				%margin-bottom-2
+
 			@before:
 				%block
 				%absolute
@@ -134,6 +160,9 @@
 				scale: 0 1
 				#transition: #{transition("scale")}
 				transform-origin: left
+
+				#phone-mode:
+					height: 1px
 
 			&--hover, &--open:
 				#after: .collections-view-moment-summary
@@ -183,22 +212,48 @@
 				float: right
 				%colour-4
 
+				#phone-mode:
+					float: none
+					%font-1
+
 		&-content:
 			#after: .details-content
 			%block
 			%padding-bottom-2
+
+			#phone-mode:
+				%padding-bottom-3
 
 		&-lore:
 			%colour-3
 			max-width: calc($space-8 + $space-7)
 			%clamp-2
 
+			#phone-mode:
+				%hidden
+
 		&-buckets:
 			%flex
-			%column-gap-5
+			$buckets-column-gap: $space-4
+			column-gap: $buckets-column-gap
+			%row-gap-3
+
+			#vertical-monitor-mode:
+				%flex-wrap
 
 		&-bucket:
 			%block
+
+			#vertical-monitor-mode:
+				flex-basis: calc((100% - $buckets-column-gap * 2) / 3)
+
+			&--weapons:
+				#vertical-monitor-mode:
+					%flex-basis-100
+
+			#phone-mode:
+				%flex-basis-100
+
 			&-title:
 				%block
 				%uppercase
@@ -207,6 +262,10 @@
 				%letter-spacing-2
 				%width-fit
 				%nowrap
+
+				#phone-mode:
+					%font-2
+
 			&-content:
 				%flex
 				%flex-wrap

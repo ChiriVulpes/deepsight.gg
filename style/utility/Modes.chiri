@@ -1,0 +1,9 @@
+#macro vertical-monitor-mode:
+	#body!component content
+	:media (max-width: 1440px):
+		#include content
+
+#macro phone-mode:
+	#body!component content
+	:media (max-width: 900px):
+		#include content

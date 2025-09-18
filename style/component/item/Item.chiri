@@ -8,12 +8,16 @@
 	#after: .button
 	%block
 	%relative
-	#string item-size = "${item-size: calc($space-5 + $space-2)}
+	$item-size-base: calc($space-5 + $space-2)
+	#string item-size = "${item-size: $item-size-base}
 	size: #{item-size}
 	$item-inset: 1px
 	%padding-0
 	%borderless
 	%box-shadow-none
+
+	#phone-mode:
+		$item-size-base: calc($space-5)
 
 	&--common:
 		$item-rarity-background-colour: #{colour-rarity-common-1}

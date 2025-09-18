@@ -25,4 +25,7 @@
 		$text-shadow-em: $font-size-5-base
 		width: fit-content
 		height: fit-content
-		%unmargin-bottom-2
+		%margin-bottom-2
+
+		#phone-mode:
+			%font-6

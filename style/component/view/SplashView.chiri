@@ -14,10 +14,18 @@
 			%absolute
 			bottom: calc(100% - $space-7 + $space-3)
 
+		#phone-mode:
+			scale: 0.8
+
 	&-cards:
 		%flex
 		%flex-wrap
 		%gap-5
+		%padding-inline-4
+
+		#phone-mode:
+			%flex-column
+			%gap-4
 
 	&-card:
 		flex: 1 1 0
