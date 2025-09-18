@@ -2,6 +2,10 @@
 	%padding-inline-5
 	%border-box
 
+	@after:
+		%block
+		%height-5
+
 	&--ready:
 		%width-100
 		%align-self-start
@@ -70,19 +74,23 @@
 			%absolute
 			%uninset-3-3
 			%z-index-bg
+			$image-height: min($event-background-height * 1px, $space-7 + $space-6 + $space-5)
 			background-image: $event-background
 			background-repeat: no-repeat
-			background-size: contain
+			background-size: auto $image-height
+			background-position: -2px -2px
 			mask-image:
-				linear-gradient(to right, #000c, #0000),
-				linear-gradient(to bottom, #0000, #000f)
+				linear-gradient(to right, #000c, #0008 70%, #0000),
+				linear-gradient(to bottom, #0000, #000f min(100%, $image-height))
 			mask-composite: subtract
+			; mask-size: 100% 
 			%right-auto
 			%bottom-auto
-			aspect-ratio: $event-background-aspect-ratio
-			height: calc($space-7 + $space-6)
+			width: min(100%, $image-height / $event-background-height * $event-background-width)
+			height: 100%
 			%transparent
 			#transition: #{transition("opacity")}
+			box-shadow: inset 0 0 0 2px #fff2
 
 		&--open, &--hover:
 			#after: .collections-view-moment
@@ -183,6 +191,7 @@
 		&-lore:
 			%colour-3
 			max-width: calc($space-8 + $space-7)
+			%clamp-2
 
 		&-buckets:
 			%flex

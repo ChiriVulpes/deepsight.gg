@@ -99,16 +99,6 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 			const eventWrapper = Component()
 				.style('collections-view-year', 'collections-view-year--event')
 
-			if (ActiveEvent.images.themeBackgroundImagePath) {
-				const url = `https://www.bungie.net${ActiveEvent.images.themeBackgroundImagePath}`
-				const image = new Image()
-				image.src = url
-				image.onload = e => {
-					eventWrapper.style.setVariable('event-background', `url(${url})`)
-					eventWrapper.style.setVariable('event-background-aspect-ratio', `${image.naturalWidth}/${image.naturalHeight}`)
-				}
-			}
-
 			const buckets = collections.moments
 				.flatMap(m => Object.entries(m.buckets))
 				.groupBy(
@@ -133,7 +123,10 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 						.replace(/[^a-z]+/g, '')
 						.trim()
 					),
+					iconWatermark: '',
 					displayProperties: ActiveEvent.displayProperties as DeepsightDisplayPropertiesDefinition,
+					primaryImage: ActiveEvent.images.themeBackgroundImagePath,
+					images: !ActiveEvent.images.themeBackgroundImagePath ? undefined : [ActiveEvent.images.themeBackgroundImagePath],
 				},
 			}
 

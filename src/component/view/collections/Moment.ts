@@ -42,12 +42,24 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 	display = State.get(display)
 	const filterText = display.map(component, display => display?.filter.filterText)
 	return component.and(Details)
-		.tweak(details => details
-			.style('collections-view-moment')
-			.style.bind(details.open, 'details--open', 'collections-view-moment--open')
-			.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
-			.viewTransitionSwipe(`collections-view-moment-${moment.id}`)
-		)
+		.tweak(details => {
+			details
+				.style('collections-view-moment')
+				.style.bind(details.open, 'details--open', 'collections-view-moment--open')
+				.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
+				.viewTransitionSwipe(`collections-view-moment-${moment.id}`)
+
+			if (moment.primaryImage) {
+				const url = `https://www.bungie.net${moment.primaryImage}`
+				const image = document.createElement('img')
+				image.src = url
+				image.onload = e => {
+					details.style.setVariable('event-background', `url(${url})`)
+					details.style.setVariable('event-background-width', `${image.naturalWidth}`)
+					details.style.setVariable('event-background-height', `${image.naturalHeight}`)
+				}
+			}
+		})
 		.tweak(details => details.summary
 			.style('collections-view-moment-summary')
 			.style.bind(details.open, 'collections-view-moment-summary--open')
