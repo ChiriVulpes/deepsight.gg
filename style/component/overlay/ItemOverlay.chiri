@@ -10,6 +10,10 @@
 	%column-gap-5
 	%padding-inline-6
 
+	#vertical-monitor-mode:
+		grid-template-columns: 1fr
+		%padding-right-4
+
 	&-background:
 		%grid
 		%stack
@@ -19,6 +23,10 @@
 		%unmargin-inline-6
 		margin-top: calc($overlay-padding-top * -1)
 		height: calc(100% + $overlay-padding-top)
+		max-width: calc(100% + $space-6 + $space-4)
+
+		#vertical-monitor-mode:
+			%row-1-2
 
 	&-image:
 		%stack-self
@@ -26,7 +34,8 @@
 		%top-0
 		%width-100
 		object-fit: cover
-		object-position: center calc((100% - $space-4 - $space-3) / 2)
+		object-position: center
+		; object-position: center calc((100% - $space-4 - $space-3) / 2)
 		%z-index-bg
 		height: 100vh
 
@@ -46,6 +55,10 @@
 			%column-1
 		&--side:
 			%column-2
+
+			#vertical-monitor-mode:
+				%column-1
+				%row-2
 
 		&-content:
 			%flex
@@ -144,6 +157,7 @@
 			%flex
 			%justify-content-start
 			%gap-2
+			%overflow-hidden
 
 			&--hover:
 
@@ -331,6 +345,10 @@
 			%height-fit
 			%relative
 
+			#vertical-monitor-mode:
+				%margin-right-0
+				%border-box
+
 			@before:
 				%block
 				%absolute
@@ -388,6 +406,10 @@
 		%column-2
 		%align-self-end
 		%relative
+
+		#vertical-monitor-mode:
+			%column-1
+			%row-auto
 
 		&-stat-label:
 			%text-shadow
