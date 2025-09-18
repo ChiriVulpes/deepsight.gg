@@ -8,3 +8,4 @@ source/type/vendor-rotation: Vendor Rotation
 source/type/bonus-focus: Bonus Focus!
 source/type/bonus-reward: Bonus Reward Only
 source/type/universal-reward: Universal Reward
+armour-set/perk-requirement: {0}/{1}

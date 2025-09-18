@@ -266,3 +266,58 @@
 			&--additional:
 				#after: .item-tooltip-source, .item-tooltip-source--additional
 				%unmargin-top-3
+
+	&-armour-set-details:
+		%block
+		%border-top-2
+		$border-colour: #666d
+
+		&-title:
+			%block
+			%uppercase
+			%weight-bold
+			%padding-2-3
+			%item-tooltip-background-light
+
+			&-text:
+				%font-vertical-align
+
+		&-perk-list:
+			%flex
+			%flex-column
+			%gap-2
+			%padding-block-2
+			%item-tooltip-background-dark
+
+		&-perk:
+			%grid
+			grid-template-columns: auto 1fr
+			%padding-inline-3
+			%column-gap-2
+
+			&-icon:
+				%column-1
+				%row-1-2
+				size: calc($space-4 + $space-3)
+
+			&-label:
+				%column-2
+				%uppercase
+				%letter-spacing-1
+				font-size: calc(($font-size-1-base + $font-size-2-base + $font-size-2-base) / 3)
+				%weight-semibold
+
+				&-title:
+				&-separator:
+					%margin-inline-2
+					%colour-8
+				&-requirement:
+					%letter-spacing-3
+					%colour-4
+
+			&-description:
+				#after: .paragraph
+				%column-2
+				%font-1
+				%margin-0
+				%colour-4

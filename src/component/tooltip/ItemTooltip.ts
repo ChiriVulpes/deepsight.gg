@@ -1,7 +1,7 @@
-import type { DestinyEquipableItemSetDefinition } from 'bungie-api-ts/destiny2/interfaces'
 import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
+import Paragraph from 'component/core/Paragraph'
 import Power from 'component/item/Power'
 import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
@@ -12,6 +12,7 @@ import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
+import type { DestinySandboxPerkDefinition } from 'node_modules/bungie-api-ts/destiny2'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
 import TooltipManager from 'utility/TooltipManager'
@@ -160,7 +161,21 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	//#region Perks
 
 	const perks = item.map(tooltip, item => item.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
-	const itemSet = item.map(tooltip, (item): DestinyEquipableItemSetDefinition | undefined => collections.value.itemSets[item.itemSetHash!])
+	const itemSet = State.Map(tooltip, [item, collections], (item, collections) => {
+		const definition = collections.itemSets[item.itemSetHash!]
+		interface Perk {
+			requiredSetCount: number
+			definition: DestinySandboxPerkDefinition
+		}
+		const perks = definition?.setPerks
+			.sort((a, b) => a.requiredSetCount - b.requiredSetCount)
+			.map(perk => ({ requiredSetCount: perk.requiredSetCount, definition: collections.perks[perk.sandboxPerkHash as SandboxPerkHashes] }))
+			.filter((perk): perk is Perk => !!perk.definition)
+		return !definition ? undefined : {
+			definition,
+			perks,
+		}
+	})
 	Component()
 		.style('item-tooltip-perks')
 		.tweak(wrapper => {
@@ -263,17 +278,13 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 					//#region Set Bonuses
 
 					if (itemSet) {
-						const perks = itemSet.setPerks
-							.sort((a, b) => b.requiredSetCount - a.requiredSetCount)
-							.map(perk => collections.perks[perk.sandboxPerkHash as SandboxPerkHashes])
-							.filter(perk => !!perk)
 						Component()
 							.style('item-tooltip-perks-perk', 'item-tooltip-perks-perk--intrinsic')
 							.append(Component()
 								.style('item-tooltip-perks-perk-label', 'item-tooltip-perks-perk-label--set-bonus')
-								.text.set(itemSet.displayProperties.name)
+								.text.set(itemSet.definition.displayProperties.name)
 							)
-							.append(...perks.map(perk => Image(`https://www.bungie.net${perk.displayProperties.icon}`)
+							.append(...itemSet.perks.map(perk => Image(`https://www.bungie.net${perk.definition.displayProperties.icon}`)
 								.style('item-tooltip-perks-perk-icon')
 							))
 							.appendTo(slot)
@@ -312,7 +323,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	const sourceList = DisplaySlot()
 		.style('item-tooltip-source-list')
 		.appendTo(tooltip.extra)
-	sourceList.use(State.Use(tooltip, { item, collections }), (slot, { item, collections }) => {
+	sourceList.use({ item, collections }, (slot, { item, collections }) => {
 		const sources = item.sources
 		if (!sources?.length)
 			return
@@ -464,6 +475,57 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 			}
 		}
 	})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Armour Set Details
+
+	Component()
+		.style('item-tooltip-armour-set-details')
+		.tweak(details => details
+			.append(Component()
+				.style('item-tooltip-armour-set-details-title')
+				.append(Component()
+					.style('item-tooltip-armour-set-details-title-text')
+					.text.bind(itemSet.map(details, itemSet => itemSet?.definition.displayProperties.name))
+				)
+			)
+			.append(DisplaySlot().style('item-tooltip-armour-set-details-perk-list').use(itemSet, (slot, itemSet) => {
+				if (!itemSet?.perks.length)
+					return
+
+				for (const perk of itemSet.perks)
+					Component()
+						.style('item-tooltip-armour-set-details-perk')
+						.append(Image(`https://www.bungie.net${perk.definition.displayProperties.icon}`)
+							.style('item-tooltip-armour-set-details-perk-icon')
+						)
+						.append(Component()
+							.style('item-tooltip-armour-set-details-perk-label')
+							.append(Component()
+								.style('item-tooltip-armour-set-details-perk-label-title')
+								.text.set(perk.definition.displayProperties.name)
+							)
+							.append(Component()
+								.style('item-tooltip-armour-set-details-perk-label-separator')
+								.text.set('/')
+							)
+							.append(Component()
+								.style('item-tooltip-armour-set-details-perk-label-requirement')
+								.text.set(quilt => quilt['item-tooltip/armour-set/perk-requirement'](perk.requiredSetCount, 5)
+								)
+							)
+						)
+						.append(Paragraph()
+							.style('item-tooltip-armour-set-details-perk-description')
+							.text.set(perk.definition.displayProperties.description)
+						)
+						.appendTo(slot)
+			}))
+		)
+		.appendToWhen(itemSet.truthy, tooltip.extra)
 
 	//#endregion
 	////////////////////////////////////

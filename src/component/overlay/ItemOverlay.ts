@@ -150,7 +150,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 	const isWeapon = item.map(component, item => !!item?.categories?.includes(ItemCategoryHashes.Weapon))
 	SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
-		.tweak(group => Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
+		.tweak(group => Slot().appendTo(group.content).use({ item, collections }, (slot, { item, collections }) => {
 			const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
 			if (!item?.instanceId)
 				for (let i = 0; i < sockets.length; i++) {
@@ -170,7 +170,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	//#region Intrinsic Traits
 
 	SocketGroup(SocketCategoryHashes.IntrinsicTraits)
-		.tweak(group => Slot().appendTo(group.content).use(State.Use(group, { item, collections }), (slot, { item, collections }) => {
+		.tweak(group => Slot().appendTo(group.content).use({ item, collections }, (slot, { item, collections }) => {
 			const sockets = item?.sockets.filter(Categorisation.IsIntrinsic) ?? []
 			if (!item?.instanceId)
 				for (let i = 0; i < sockets.length; i++) {

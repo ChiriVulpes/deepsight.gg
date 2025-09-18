@@ -91,7 +91,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 	let isFirstSeason = true
 	let isFirstExpac = true
 
-	Slot().appendTo(view).use(State.Use(view, { collections, ActiveEvent }), (slot, { collections, ActiveEvent }) => {
+	Slot().appendTo(view).use({ collections, ActiveEvent }, (slot, { collections, ActiveEvent }) => {
 		////////////////////////////////////
 		//#region Active Event
 

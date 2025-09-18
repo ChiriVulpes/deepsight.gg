@@ -1,4 +1,5 @@
 import Button from 'component/core/Button'
+import DisplaySlot from 'component/core/DisplaySlot'
 import type { Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import Popover from 'kitsui/component/Popover'
@@ -488,12 +489,11 @@ const Filter = Object.assign(
 			.text.set(quilt => quilt['display-bar/filter/suggestions/title']())
 			.appendTo(popover)
 
-		Slot()
-			.tweak(slot => slot.useDisplayContents.value = false)
+		DisplaySlot()
 			.style('filter-popover-suggestions-wrapper')
 			.use(config, (slot, config) => {
 				for (const filter of config?.filters ?? []) {
-					const suggestions = typeof filter.suggestions === 'function' ? filter.suggestions(slot) : filter.suggestions
+					const suggestions = State.get(typeof filter.suggestions === 'function' ? filter.suggestions(slot) : filter.suggestions)
 					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
 						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
 							.map((suggestion): FilterMatch | undefined => {
