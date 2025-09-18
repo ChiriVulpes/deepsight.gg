@@ -23,9 +23,9 @@
 		%unmargin-inline-6
 		margin-top: calc($overlay-padding-top * -1)
 		height: calc(100% + $overlay-padding-top)
-		max-width: calc(100% + $space-6 + $space-4)
 
 		#vertical-monitor-mode:
+			max-width: calc(100% + $space-6 + $space-4)
 			%row-1-2
 
 	&-image:

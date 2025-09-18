@@ -240,6 +240,7 @@
 
 			#vertical-monitor-mode:
 				%flex-wrap
+				$buckets-column-gap: $space-3
 
 		&-bucket:
 			%block
