@@ -10,14 +10,16 @@ export default Component('img', (component, src: State.Or<string | undefined>) =
 			src.use(image, async src => {
 				abort?.abort()
 
-				abort = new AbortController()
-				const signal = abort.signal
-				component.attributes.remove('src')
-				component.style.remove('image--loaded')
+				if (component.attributes.has('src')) {
+					abort = new AbortController()
+					const signal = abort.signal
+					component.attributes.remove('src')
+					component.style.remove('image--loaded')
 
-				await Task.yield()
-				if (signal.aborted)
-					return
+					await Task.yield()
+					if (signal.aborted)
+						return
+				}
 
 				component.attributes.set('src', src)
 			})
