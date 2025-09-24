@@ -12,6 +12,9 @@ import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
+import ArmourSet from 'model/ArmourSet'
+import type { DestinyDisplayPropertiesDefinition } from 'node_modules/bungie-api-ts/destiny2'
+import type { DeepsightPlugFullName } from 'node_modules/deepsight.gg/DeepsightPlugCategorisation'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 
@@ -82,21 +85,25 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 		readonly titleText: TextManipulator<this>
 	}
 	interface SocketGroup extends Component, SocketGroupExtensions { }
-	const SocketGroup = Component((component, socket: SocketCategoryHashes): SocketGroup => {
+	const SocketGroup = Component((component, socket: SocketCategoryHashes | State.Or<{ displayProperties: DestinyDisplayPropertiesDefinition }>): SocketGroup => {
 		component.style.bind(component.hoveredOrHasFocused, 'item-overlay-socket-group--hover')
+
+		const def = typeof socket !== 'number'
+			? State.get(socket)
+			: DestinySocketCategoryDefinition.map(component, defs => defs?.[socket])
 
 		const header = Component()
 			.style('item-overlay-socket-group-header')
 			.style.bind(component.hoveredOrHasFocused, 'item-overlay-socket-group-header--hover')
 			.tweak(GenericTooltip.apply, tooltip => tooltip
-				.titleText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.name))
-				.descriptionText.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.description))
+				.titleText.bind(def.map(component, def => def?.displayProperties.name))
+				.descriptionText.bind(def.map(component, def => def?.displayProperties.description))
 			)
 			.appendTo(component)
 
 		const title = Component()
 			.style('item-overlay-socket-group-title')
-			.text.bind(DestinySocketCategoryDefinition.map(component, defs => defs?.[socket].displayProperties.name))
+			.text.bind(def.map(component, def => def?.displayProperties.name))
 			.appendTo(header)
 
 		const content = Component()
@@ -110,18 +117,22 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 		}))
 	})
 
+	const ArmorSetPlugType = 'Intrinsic/ArmorSet' as DeepsightPlugFullName
 	const Plug = Component('button', (component, plug: ItemPlug) => {
 		const isPerk = Categorisation.IsPerk(plug) || Categorisation.IsOrigin(plug)
 		const isFrame = Categorisation.IsFrame(plug)
+		const isArmorSet = plug.type === ArmorSetPlugType
 		component.style('item-overlay-plug')
 			.style.toggle(isPerk, 'item-overlay-plug--perk')
 			.style.toggle(isFrame, 'item-overlay-plug--frame')
+			.style.toggle(isArmorSet, 'item-overlay-plug--armorset')
 			.style.bind(component.hoveredOrHasFocused, 'item-overlay-plug--hover')
 
 		Component()
 			.style('item-overlay-plug-effect')
 			.style.toggle(isPerk, 'item-overlay-plug-effect--perk')
 			.style.toggle(isFrame, 'item-overlay-plug-effect--frame')
+			.style.toggle(isArmorSet, 'item-overlay-plug-effect--armorset')
 			.style.bind(component.hoveredOrHasFocused.map(component, hover => hover && isPerk), 'item-overlay-plug-effect--perk--hover')
 			.style.bind(component.hoveredOrHasFocused.map(component, hover => hover && isFrame), 'item-overlay-plug-effect--frame--hover')
 			.appendTo(component)
@@ -169,32 +180,89 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Intrinsic Traits
 
-	SocketGroup(SocketCategoryHashes.IntrinsicTraits)
-		.tweak(group => Slot().appendTo(group.content).use({ item, collections }, (slot, { item, collections }) => {
-			const sockets = item?.sockets.filter(Categorisation.IsIntrinsic) ?? []
-			if (!item?.instanceId)
-				for (let i = 0; i < sockets.length; i++) {
-					if (i)
-						Component().style('item-overlay-socket-group-gap').appendTo(slot)
+	Slot().appendTo(mainColumn).use({ item, collections }, (slot, { item, collections }) => {
+		const sockets = item?.sockets.filter(Categorisation.IsIntrinsic) ?? []
+		if (!sockets.length)
+			return
 
-					const plug = collections.plugs[sockets[i].defaultPlugHash ?? sockets[i].plugs[0]]
-					Socket(sockets[i], collections)
-						.style('item-overlay-socket--intrinsic')
-						.append(!Categorisation.IsFrame(sockets[i]) || !plug ? undefined : Component()
+		SocketGroup(SocketCategoryHashes.IntrinsicTraits)
+			.tweak(group => {
+				if (!item?.instanceId) {
+					for (let i = 0; i < sockets.length; i++) {
+						if (i)
+							Component().style('item-overlay-socket-group-gap').appendTo(slot)
+
+						const plug = collections.plugs[sockets[i].defaultPlugHash ?? sockets[i].plugs[0]]
+						Socket(sockets[i], collections)
+							.style('item-overlay-socket--intrinsic')
+							.append(!Categorisation.IsFrame(sockets[i]) || !plug ? undefined : Component()
+								.style('item-overlay-socket-display')
+								.append(Component()
+									.style('item-overlay-socket-display-name')
+									.text.set(plug.displayProperties.name)
+								)
+								.append(Component()
+									.style('item-overlay-socket-display-description')
+									.text.set(plug.displayProperties.description)
+								)
+							)
+							.appendTo(group.content)
+					}
+				}
+			})
+			.appendTo(slot)
+	})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Armour Set
+
+	const itemSet = ArmourSet(component, item, collections)
+	Slot().appendTo(mainColumn).use(itemSet, (slot, itemSet) => {
+		if (!itemSet)
+			return
+
+		return SocketGroup(itemSet.definition)
+			.tweak(group => {
+				for (let i = 0; i < itemSet.perks.length; i++) {
+					if (i)
+						Component().style('item-overlay-socket-group-gap').appendTo(group.content)
+
+					const perk = itemSet.perks[i]
+					Component()
+						.style('item-overlay-socket', 'item-overlay-socket--intrinsic')
+						.append(Plug({
+							is: 'plug',
+							hash: -1,
+							type: ArmorSetPlugType,
+							displayProperties: perk.definition.displayProperties,
+							enhanced: false,
+						}))
+						.append(Component()
 							.style('item-overlay-socket-display')
 							.append(Component()
 								.style('item-overlay-socket-display-name')
-								.text.set(plug.displayProperties.name)
+								.text.set(perk.definition.displayProperties.name)
+								.append(Component()
+									.style('item-overlay-socket-armour-set-label-separator')
+									.text.set('/')
+								)
+								.append(Component()
+									.style('item-overlay-socket-armour-set-label-requirement')
+									.text.set(quilt => quilt['item-tooltip/armour-set/perk-requirement'](perk.requiredSetCount, 5))
+								)
 							)
 							.append(Component()
 								.style('item-overlay-socket-display-description')
-								.text.set(plug.displayProperties.description)
+								.text.set(perk.definition.displayProperties.description)
 							)
 						)
-						.appendTo(slot)
+						.appendTo(group.content)
 				}
-		}))
-		.appendTo(mainColumn)
+			})
+	})
 
 	//#endregion
 	////////////////////////////////////

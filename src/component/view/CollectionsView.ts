@@ -6,6 +6,7 @@ import Moment from 'component/view/collections/Moment'
 import type { CollectionsMoment, Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
+import type { DestinyEventCardDefinition } from 'node_modules/bungie-api-ts/destiny2'
 import type { InventoryBucketHashes } from 'node_modules/deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'node_modules/deepsight.gg/Interfaces'
 import Relic from 'Relic'
@@ -47,8 +48,8 @@ const ActiveEvent = State.Async(async () => {
 		conduit.definitions.en.DeepsightStats.all(),
 		conduit.definitions.en.DestinyEventCardDefinition.all(),
 	])
-	const event = DestinyEventCardDefinition[DeepsightStats.activeEvent!]
-	if (event.endTime && Date.now() > +event.endTime * 1000)
+	const event = DestinyEventCardDefinition[DeepsightStats.activeEvent!] as DestinyEventCardDefinition | undefined
+	if (!event || (event.endTime && Date.now() > +event.endTime * 1000))
 		return undefined
 
 	return event

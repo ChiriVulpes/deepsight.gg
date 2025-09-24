@@ -20,7 +20,13 @@ type CatNameSuffix<T extends string> = `${T}Enhanced` | `${T}Empty` | `${T}Defau
 namespace Categorisation {
 
 	export const IsMasterwork = matcher('Masterwork/*')
-	export const IsIntrinsic = matcher('Intrinsic/*', '!Intrinsic/Shaped')
+	export const IsIntrinsic = matcher(
+		'Intrinsic/*',
+		'!Intrinsic/Shaped',
+		'!Intrinsic/ArmorStat',
+		'!Intrinsic/ArmorArchetype',
+		'!Intrinsic/ArmorLegacy'
+	)
 	export const IsIntrinsicPerk = matcher(...[
 		'Intrinsic/Frame', 'Intrinsic/FrameEnhanced',
 		'Intrinsic/Origin', 'Intrinsic/OriginEnhanced',

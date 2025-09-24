@@ -6,13 +6,12 @@ import Power from 'component/item/Power'
 import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource, ItemSourceDefined } from 'conduit.deepsight.gg/Collections'
-import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
-import type { DestinySandboxPerkDefinition } from 'node_modules/bungie-api-ts/destiny2'
+import ArmourSet from 'model/ArmourSet'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
 import TooltipManager from 'utility/TooltipManager'
@@ -161,21 +160,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	//#region Perks
 
 	const perks = item.map(tooltip, item => item.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
-	const itemSet = State.Map(tooltip, [item, collections], (item, collections) => {
-		const definition = collections.itemSets[item.itemSetHash!]
-		interface Perk {
-			requiredSetCount: number
-			definition: DestinySandboxPerkDefinition
-		}
-		const perks = definition?.setPerks
-			.sort((a, b) => a.requiredSetCount - b.requiredSetCount)
-			.map(perk => ({ requiredSetCount: perk.requiredSetCount, definition: collections.perks[perk.sandboxPerkHash as SandboxPerkHashes] }))
-			.filter((perk): perk is Perk => !!perk.definition)
-		return !definition ? undefined : {
-			definition,
-			perks,
-		}
-	})
+	const itemSet = ArmourSet(tooltip, item, collections)
 	Component()
 		.style('item-tooltip-perks')
 		.tweak(wrapper => {
@@ -514,8 +499,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 							)
 							.append(Component()
 								.style('item-tooltip-armour-set-details-perk-label-requirement')
-								.text.set(quilt => quilt['item-tooltip/armour-set/perk-requirement'](perk.requiredSetCount, 5)
-								)
+								.text.set(quilt => quilt['item-tooltip/armour-set/perk-requirement'](perk.requiredSetCount, 5))
 							)
 						)
 						.append(Paragraph()
