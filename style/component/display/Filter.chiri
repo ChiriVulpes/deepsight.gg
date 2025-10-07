@@ -86,6 +86,13 @@
 				&--strand: $filter-chip-colour: oklch(from $colour-damage-strand #{100 * lightness}% calc(c * #{chroma-modifier}) h)
 				&--stasis: $filter-chip-colour: oklch(from $colour-damage-stasis #{100 * lightness}% calc(c * #{chroma-modifier}) h)
 
+			&--ammo:
+				#dec lightness = .5
+				#dec chroma-modifier = .6
+				&--primary: $filter-chip-colour: oklch(from $colour-ammo-primary #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--special: $filter-chip-colour: oklch(from $colour-ammo-special #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+				&--heavy: $filter-chip-colour: oklch(from $colour-ammo-heavy #{100 * lightness}% calc(c * #{chroma-modifier}) h)
+
 			&-text-wrapper:
 				%inline-grid
 				grid-template-columns: auto auto
@@ -131,9 +138,9 @@
 				%align-items-centre
 				margin-top: .1em
 				$image-opacity-duration: 0s
+				filter: brightness(100)
 
 				&--element:
-					filter: brightness(100)
 					padding: .2em
 
 	&-popover:

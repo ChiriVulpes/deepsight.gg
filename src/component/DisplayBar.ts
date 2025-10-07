@@ -1,5 +1,6 @@
 import Button from 'component/core/Button'
 import Filter from 'component/display/Filter'
+import FilterAmmo from 'component/display/filter/FilterAmmo'
 import FilterElement from 'component/display/filter/FilterElement'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
@@ -72,7 +73,7 @@ const DisplayBar = Object.assign(
 		const filter = Filter()
 		filter.config.value = {
 			id: 'display-bar-filter',
-			filters: [FilterElement],
+			filters: [FilterElement, FilterAmmo],
 		}
 		DisplayBarButton()
 			.style('display-bar-filter-button')
