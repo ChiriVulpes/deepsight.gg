@@ -1,5 +1,6 @@
 import Button from 'component/core/Button'
 import BaseCard from 'component/core/Card'
+import DisplaySlot from 'component/core/DisplaySlot'
 import Link from 'component/core/Link'
 import View from 'component/core/View'
 import ProfileButton from 'component/profile/ProfileButton'
@@ -33,13 +34,14 @@ export default View(async view => {
 
 	setProgress(null, quilt => quilt['view/splash/load/profiles']())
 	await Profile.init()
-	const profiles = Profile.STATE.value.all
 	if (signal.aborted)
 		return
 
 	await view.loading.finish()
 
-	const authed = profiles.some(profile => profile.authed)
+	const profiles = Profile.STATE.map(view, profiles => profiles.all)
+	const hasAnyProfiles = Profile.STATE.map(view, profiles => profiles.all.length > 0)
+	const authed = Profile.STATE.map(view, profiles => profiles.all.some(profile => profile.authed))
 
 	const cards = Component().style('splash-view-cards').appendTo(view.loading)
 
@@ -53,26 +55,24 @@ export default View(async view => {
 	profileCard.headerText.set(quilt => quilt['view/splash/profile-card/title']())
 	profileCard.descriptionText.set(quilt => quilt['view/splash/profile-card/description']())
 
-	if (!authed) {
-		Button()
-			.text.set(quilt => quilt['view/splash/action/authenticate']())
-			.event.subscribe('click', async () => {
-				await conduit.ensureAuthenticated('deepsight.gg')
-				void view.refresh()
-			})
-			.appendTo(profileCard)
-	}
+	DisplaySlot()
+		.style('splash-view-profile-list')
+		.style.bind(authed.falsy, 'splash-view-profile-list--not-authed')
+		.use(profiles, (slot, profiles) => {
+			for (const profile of profiles)
+				ProfileButton(profile)
+					.tweak(button => button.mode.setValue(profile.authed ? 'expanded' : 'collapsed'))
+					.appendTo(slot)
+		})
+		.appendToWhen(hasAnyProfiles, profileCard)
 
-	if (profiles.length) {
-		const profilesList = Component()
-			.style('splash-view-profile-list')
-			.appendTo(profileCard)
-
-		for (const profile of profiles)
-			ProfileButton(profile)
-				.tweak(button => button.mode.setValue(profile.authed ? 'expanded' : 'collapsed'))
-				.appendTo(profilesList)
-	}
+	Button()
+		.text.set(quilt => quilt['view/splash/action/authenticate']())
+		.event.subscribe('click', async () => {
+			await conduit.ensureAuthenticated('deepsight.gg')
+			void view.refresh()
+		})
+		.appendToWhen(authed.falsy, profileCard)
 
 	const collectionsCard = Card()
 	collectionsCard.headerText.set(quilt => quilt['view/splash/collections-card/title']())
