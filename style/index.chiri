@@ -49,4 +49,5 @@
 #import:
 	component/view/SplashView
 	component/view/CollectionsView
+	component/view/DataView
 	component/overlay/ItemOverlay

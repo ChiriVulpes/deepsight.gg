@@ -1,0 +1,58 @@
+.data-view:
+	%padding-inline-5
+	%border-box
+
+	#phone-mode:
+		%padding-inline-3
+
+	@after:
+		%block
+		%height-5
+
+	&--ready:
+		%width-100
+		%align-self-start
+
+
+	&-definition-list:
+		%flex
+		%flex-wrap
+		%gap-2
+		%padding-block-3
+
+	&-definition-button:
+		#after: .button
+
+		%grid
+		grid-template-columns: auto 1fr
+		grid-template-areas:
+			"icon ."
+			"icon title"
+			"icon subtitle"
+			"icon ."
+		width: calc((100% - $space-2 * 4 - 2px * 5) / 5)
+		%min-width-7
+		%column-gap-2
+		%text-align-left
+		%padding-0
+		box-shadow: inset 0 0 $space-3 #fff1
+		background: #222a
+		%border-colour-6
+		%padding-left-1
+		%border-box
+
+		&-icon:
+			grid-area: icon
+			%size-5
+			object-fit: contain
+			%align-self-centre
+		&-title:
+			grid-area: title
+			%uppercase
+			%font-3
+		&-subtitle:
+			grid-area: subtitle
+			%uppercase
+			%colour-4
+			%font-1
+			%clamp-1

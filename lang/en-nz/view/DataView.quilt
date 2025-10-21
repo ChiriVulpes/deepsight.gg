@@ -1,0 +1,4 @@
+# data
+title: Data
+load/connecting=shared/load/connecting
+load/fetching: Downloading table list...

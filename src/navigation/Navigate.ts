@@ -109,7 +109,7 @@ function Navigator (): Navigator {
 
 		let matchedRoute: RoutePath | undefined
 		let errored = false
-		if (location.pathname !== oldURL?.pathname) {
+		if (location.pathname !== oldURL?.pathname || force) {
 			const url = location.pathname
 			let handled = false
 			for (const route of Routes) {

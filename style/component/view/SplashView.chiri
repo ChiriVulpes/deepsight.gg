@@ -17,7 +17,7 @@
 		#phone-mode:
 			scale: 0.8
 
-	&-cards:
+	&-columns:
 		%flex
 		%flex-wrap
 		%gap-5
@@ -27,8 +27,16 @@
 			%flex-column
 			%gap-4
 
-	&-card:
+	&-column:
 		flex: 1 1 0
+		%flex
+		%flex-column
+		%gap-4
+		%width-fit
+		%max-width-8
+
+	&-card:
+		; %width-fit
 
 	&-profile-list:
 		%block

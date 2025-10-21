@@ -15,7 +15,7 @@ import Time from 'utility/Time'
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	id: 'collections',
 	sortConfig: {},
-	filterConfig: {},
+	// filterConfig: {},
 })
 
 export interface CollectionsParamsItemHash {

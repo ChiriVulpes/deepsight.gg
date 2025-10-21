@@ -13,6 +13,11 @@ title: Collections
 description: All the weapons and armour across Sol, from the Red War to today.
 action/view: View Collections
 
+## data-card
+title: Destiny Data
+description: The internal definitions that make up the game, along with additional definitions provided by third party apps like deepsight.gg.
+action/view: View Data
+
 ## alerts-card
 title: Alerts
 description: 

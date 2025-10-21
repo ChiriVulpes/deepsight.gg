@@ -57,7 +57,7 @@ namespace DisplayBar {
 	export interface Config {
 		readonly id: string
 		readonly sortConfig?: {}
-		readonly filterConfig?: {}
+		readonly filterConfig?: Filter.Config
 	}
 }
 
@@ -65,16 +65,20 @@ const DisplayBar = Object.assign(
 	Component((component): DisplayBar => {
 		component.style('display-bar')
 
+		const config = State<DisplayBar.Config | undefined>(undefined)
+
 		DisplayBarButton()
 			.style('display-bar-sort-button')
 			.titleText.set(quilt => quilt['display-bar/sort/title']())
 			.appendTo(component)
 
 		const filter = Filter()
-		filter.config.value = {
-			id: 'display-bar-filter',
+		filter.config.bind(filter, config.map(filter, config => ({
+			id: 'display-bar-default-filter',
 			filters: [FilterElement, FilterAmmo],
-		}
+			...config?.filterConfig,
+		})))
+
 		DisplayBarButton()
 			.style('display-bar-filter-button')
 			.titleText.set(quilt => quilt['display-bar/filter/title']())
@@ -93,7 +97,6 @@ const DisplayBar = Object.assign(
 			.subtitleText.set(quilt => quilt['display-bar/help/subtitle']())
 			.appendTo(component)
 
-		const config = State<DisplayBar.Config | undefined>(undefined)
 		return component
 			.extend<DisplayBarExtensions>(displayBar => ({
 				config,

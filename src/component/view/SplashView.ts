@@ -8,6 +8,7 @@ import WordmarkLogo from 'component/WordmarkLogo'
 import { Component } from 'kitsui'
 import Profile from 'model/Profile'
 import Relic from 'Relic'
+import Env from 'utility/Env'
 
 export default View(async view => {
 	view.hasNavbar.value = false
@@ -43,15 +44,20 @@ export default View(async view => {
 	const hasAnyProfiles = Profile.STATE.map(view, profiles => profiles.all.length > 0)
 	const authed = Profile.STATE.map(view, profiles => profiles.all.some(profile => profile.authed))
 
-	const cards = Component().style('splash-view-cards').appendTo(view.loading)
+	const columns = Component().style('splash-view-columns').appendTo(view.loading)
+
+	const Column = () => Component()
+		.style('splash-view-column')
+		.appendTo(columns)
 
 	const Card = () => BaseCard()
 		.style('splash-view-card')
 		.viewTransitionSwipe('splash-view-card')
 		.tweak(card => card.flush.value = true)
-		.appendTo(cards)
 
-	const profileCard = Card()
+	const profileColumn = Column()
+
+	const profileCard = Card().appendTo(profileColumn)
 	profileCard.headerText.set(quilt => quilt['view/splash/profile-card/title']())
 	profileCard.descriptionText.set(quilt => quilt['view/splash/profile-card/description']())
 
@@ -74,7 +80,9 @@ export default View(async view => {
 		})
 		.appendToWhen(authed.falsy, profileCard)
 
-	const collectionsCard = Card()
+	const collectionsColumn = Column()
+
+	const collectionsCard = Card().appendTo(collectionsColumn)
 	collectionsCard.headerText.set(quilt => quilt['view/splash/collections-card/title']())
 	collectionsCard.descriptionText.set(quilt => quilt['view/splash/collections-card/description']())
 
@@ -82,4 +90,15 @@ export default View(async view => {
 		.and(Button)
 		.text.set(quilt => quilt['view/splash/collections-card/action/view']())
 		.appendTo(collectionsCard)
+
+	if (Env.ENVIRONMENT === 'dev') {
+		const dataCard = Card().appendTo(collectionsColumn)
+		dataCard.headerText.set(quilt => quilt['view/splash/data-card/title']())
+		dataCard.descriptionText.set(quilt => quilt['view/splash/data-card/description']())
+
+		Link('/data')
+			.and(Button)
+			.text.set(quilt => quilt['view/splash/data-card/action/view']())
+			.appendTo(dataCard)
+	}
 })
