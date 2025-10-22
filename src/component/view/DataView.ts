@@ -129,7 +129,12 @@ export default View<DataParams | undefined>(async view => {
 		if (signal.aborted)
 			return undefined
 
-		return await conduit.definitions.en[params.table as Exclude<AllComponentNames, 'DeepsightStats'>].get(params.hash)
+		const result = await conduit.definitions.en[params.table as Exclude<AllComponentNames, 'DeepsightStats'>].get(params.hash)
+		if (!result || signal.aborted)
+			return undefined
+
+		view.loading.skipViewTransition()
+		return result
 	})
 
 	Overlay(view).bind(overlayDefinition.truthy).and(DataOverlay, overlayDefinition)
