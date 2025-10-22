@@ -51,3 +51,4 @@
 	component/view/CollectionsView
 	component/view/DataView
 	component/overlay/ItemOverlay
+	component/overlay/DataOverlay

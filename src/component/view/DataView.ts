@@ -1,6 +1,8 @@
 import Details from 'component/core/Details'
 import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
+import Overlay from 'component/Overlay'
+import DataOverlay from 'component/overlay/DataOverlay'
 import DataComponentHelper from 'component/view/data/DataComponentHelper'
 import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
@@ -101,6 +103,11 @@ export default View<DataParams | undefined>(async view => {
 						for (const [, definition] of Object.entries(definitions)) {
 							DataDefinitionButton()
 								.tweak(button => button.data.value = { component: name, definition })
+								.event.subscribe('contextmenu', e => {
+									e.preventDefault()
+									void navigate.toURL(`/data/${name}/${definition.hash}`)
+									return false
+								})
 								.appendTo(list)
 						}
 					}))
@@ -110,4 +117,23 @@ export default View<DataParams | undefined>(async view => {
 			}
 		})
 		.appendTo(view)
+
+	////////////////////////////////////
+	//#region Data Overlay
+
+	const overlayDefinition = State.Async(view, view.params, async (params, signal, setProgress) => {
+		if (!params)
+			return undefined
+
+		const conduit = await Relic.connected
+		if (signal.aborted)
+			return undefined
+
+		return await conduit.definitions.en[params.table as Exclude<AllComponentNames, 'DeepsightStats'>].get(params.hash)
+	})
+
+	Overlay(view).bind(overlayDefinition.truthy).and(DataOverlay, overlayDefinition)
+
+	//#endregion
+	////////////////////////////////////
 })

@@ -1,0 +1,44 @@
+.data-overlay:
+
+	&-json:
+		font-family: monospace
+
+		&-punctuation:
+
+		&-object:
+
+			&-entry:
+				&-summary:
+					&--simple:
+						list-style: none
+						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
+						@marker:
+							%hidden
+			&-key:
+			&-value:
+			&-expandable:
+				%block
+				%padding-left-4
+
+		&-array:
+
+			&-entry:
+				&-summary:
+					&--simple:
+						list-style: none
+						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
+						@marker:
+							%hidden
+			&-index:
+			&-value:
+			&-expandable:
+				%block
+				%padding-left-4
+
+		&-string:
+
+			&-value:
+
+		&-number:
+		&-boolean:
+		&-null:
