@@ -2,6 +2,7 @@ import Details from 'component/core/Details'
 import type { State } from 'kitsui'
 import { Component } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
+import InputBus from 'kitsui/utility/InputBus'
 
 const JSONPunctuation = Component((component, punctuationString: string) => component
 	.style('data-overlay-json-punctuation')
@@ -114,6 +115,12 @@ export default Component((component, definition: State<object | undefined>) => {
 	Slot()
 		.use(definition, (s, def) => def && JSONObject(def))
 		.appendTo(component)
+
+	InputBus.event.until(component, event => event.subscribe('Down', (_, event) => {
+		if (event.use('Escape')) {
+			void navigate.toURL('/data')
+		}
+	}))
 
 	return component
 })
