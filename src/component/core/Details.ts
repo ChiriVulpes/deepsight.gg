@@ -14,7 +14,7 @@ interface DetailsExtensions {
 
 interface Details extends Component<HTMLDetailsElement>, DetailsExtensions { }
 
-export default Component('details', (component): Details => {
+const Details = Component('details', (component): Details => {
 	const open = State(false)
 	const manualOpenState = State(false)
 	const transitioning = State(false)
@@ -61,3 +61,5 @@ export default Component('details', (component): Details => {
 			})
 		})
 })
+
+export default Details

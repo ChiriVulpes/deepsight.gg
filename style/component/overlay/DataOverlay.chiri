@@ -1,14 +1,30 @@
 .data-overlay:
+	#after: .overlay
+	background: #222e
 
 	&-json:
 		font-family: monospace
+		%font-2
+		line-height: 1.7em
+		%user-select-text
 
 		&-punctuation:
+			%user-select-none
 
-		&-object:
+		&-placeholder:
+			%user-select-none
 
+		&-copypaste:
+			%background-none
+			%border-none
+			%font-family-inherit
+			%font-inherit
+
+		&-container:
 			&-entry:
 				&-summary:
+					#after: .details-summary
+					%margin-0
 					&--simple:
 						list-style: none
 						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
@@ -20,23 +36,23 @@
 				%block
 				%padding-left-4
 
+		&-object:
+
+			&-entry:
+				&-summary:
+			&-key:
+			&-value:
+			&-expandable:
+
 		&-array:
 
 			&-entry:
 				&-summary:
-					&--simple:
-						list-style: none
-						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
-						@marker:
-							%hidden
 			&-index:
 			&-value:
 			&-expandable:
-				%block
-				%padding-left-4
 
 		&-string:
-
 			&-value:
 
 		&-number:
