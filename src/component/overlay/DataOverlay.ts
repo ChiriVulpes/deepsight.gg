@@ -4,6 +4,7 @@ import { Component } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import Task from 'kitsui/utility/Task'
+import Arrays from 'utility/Arrays'
 
 const JSONPunctuation = Component((component, punctuationString: string) => component
 	.style('data-overlay-json-punctuation')
@@ -22,7 +23,7 @@ const JSONCopyPaste = Component('input', (component, value: string | number) => 
 	.tweak(input => {
 		const string = `${value}`
 		input.element.value = string
-		input.element.size = Math.max(1, string.length - 1)
+		input.style.setVariable('chars', string.length)
 	})
 	.event.subscribe('mousedown', e => {
 		const input = e.host
@@ -41,12 +42,13 @@ interface JSONContainerExtensions {
 
 interface JSONContainer extends Details, JSONContainerExtensions { }
 
-const JSONContainer = Component((component, key: string | number, value: any): JSONContainer => {
+const JSONContainer = Component((component, key: string | number | Component | Component[], value: any): JSONContainer => {
 	const valueComponent = JSONValue(value)
 	const expandable = valueComponent.as(JSONObject) ?? valueComponent.as(JSONArray)
 	const keyComponent = Component()
-		.style('data-overlay-json-object-key')
-		.text.set(`${key}`)
+		.style('data-overlay-json-container-key')
+		.append(...typeof key === 'object' ? Arrays.resolve(key) : [])
+		.text.append(typeof key !== 'object' ? `${key}` : '')
 	return component.and(Details)
 		.style('data-overlay-json-container-entry')
 		.tweak(details => details.summary
@@ -100,7 +102,7 @@ interface JSONArray extends Component, JSONArrayExtensions { }
 const JSONArray = Component((component, array: any[]): JSONArray => {
 	component.style('data-overlay-json', 'data-overlay-json-array')
 	for (let i = 0; i < array.length; i++) {
-		JSONContainer(i, array[i])
+		JSONContainer([JSONPunctuation('['), JSONNumber(i), JSONPunctuation(']')], array[i])
 			.tweak(container => container.key.style('data-overlay-json-array-index'))
 			.appendTo(component)
 	}

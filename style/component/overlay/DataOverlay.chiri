@@ -1,6 +1,6 @@
 .data-overlay:
 	#after: .overlay
-	background: #222e
+	background: #111e
 
 	&-json:
 		font-family: monospace
@@ -10,27 +10,34 @@
 
 		&-punctuation:
 			%user-select-none
+			colour: #6b79a5
 
 		&-placeholder:
 			%user-select-none
+			colour: #6b79a5
 
 		&-copypaste:
 			%background-none
 			%border-none
 			%font-family-inherit
 			%font-inherit
+			%colour-inherit
+			width: calc(${chars: 0} * 1ch)
 
 		&-container:
 			&-entry:
 				&-summary:
 					#after: .details-summary
 					%margin-0
+					@marker:
+						colour: #57638b
 					&--simple:
 						list-style: none
 						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
 						@marker:
 							%hidden
 			&-key:
+				colour: #8879e0ff
 			&-value:
 			&-expandable:
 				%block
@@ -49,12 +56,17 @@
 			&-entry:
 				&-summary:
 			&-index:
+				colour: #71be71
 			&-value:
 			&-expandable:
 
 		&-string:
 			&-value:
+				colour: #59c2ff
 
 		&-number:
+			colour: #71be71
 		&-boolean:
+			colour: #4879ff
 		&-null:
+			colour: #5255ff
