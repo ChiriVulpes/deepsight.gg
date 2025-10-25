@@ -12,10 +12,12 @@ declare global {
 
 export interface NavigatorEvents {
 	Navigate (route: RoutePath | undefined): void
+	HashChange (newHash: string, oldHash: string | undefined): void
 }
 
 interface Navigator {
 	readonly state: State<string>
+	readonly hash: State<string>
 	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
@@ -28,9 +30,11 @@ interface Navigator {
 
 function Navigator (): Navigator {
 	const state = State<string>(location.href)
+	const hash = State<string>(location.hash)
 	let lastURL: URL | undefined
 	const navigate = {
 		state,
+		hash,
 		event: undefined! as Navigator['event'],
 		isURL: (glob: string) => {
 			const pattern = glob
@@ -71,6 +75,7 @@ function Navigator (): Navigator {
 				}
 
 				location.hash = url
+				hash.value = location.hash
 				return true
 			}
 
@@ -106,9 +111,9 @@ function Navigator (): Navigator {
 		const oldURL = lastURL
 		lastURL = new URL(location.href)
 		state.value = location.href
+		hash.value = location.hash
 
 		let matchedRoute: RoutePath | undefined
-		let errored = false
 		if (location.pathname !== oldURL?.pathname || force) {
 			const url = location.pathname
 			let handled = false
@@ -125,23 +130,13 @@ function Navigator (): Navigator {
 			}
 
 			if (!handled) {
-				errored = true
 				console.error('TODO implement error view')
 				// await app.view.show(ErrorView, { code: 404 })
 			}
 		}
-
-		if (location.hash && !errored) {
-			const id = location.hash.slice(1)
-			const element = document.getElementById(id)
-			if (!element) {
-				console.error(`No element by ID: "${id}"`)
-				location.hash = ''
-				return
-			}
-
-			element.scrollIntoView()
-			element.focus()
+		else if (location.hash !== oldURL?.hash) {
+			hash.value = location.hash
+			navigate.event.emit('HashChange', location.hash, oldURL?.hash)
 		}
 
 		navigate.event.emit('Navigate', matchedRoute)

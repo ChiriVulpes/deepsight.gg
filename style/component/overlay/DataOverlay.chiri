@@ -2,6 +2,15 @@
 	#after: .overlay
 	background: #111e
 
+	$json-punctuation-colour: #4d5980
+	$json-placeholder-colour: #4d5980
+	$json-highlight-colour: #f9b5ff
+	$json-key-colour: #8879e0
+	$json-string-colour: #59c2ff
+	$json-number-colour: #71be71
+	$json-boolean-colour: #4879ff
+	$json-null-colour: #5255ff
+
 	&-json:
 		font-family: monospace
 		%font-2
@@ -10,11 +19,11 @@
 
 		&-punctuation:
 			%user-select-none
-			colour: #6b79a5
+			colour: $json-punctuation-colour
 
 		&-placeholder:
 			%user-select-none
-			colour: #6b79a5
+			colour: $json-placeholder-colour
 
 		&-copypaste:
 			%background-none
@@ -22,6 +31,7 @@
 			%font-family-inherit
 			%font-inherit
 			%colour-inherit
+			%weight-inherit
 			width: calc(${chars: 0} * 1ch)
 
 		&-container:
@@ -30,14 +40,22 @@
 					#after: .details-summary
 					%margin-0
 					@marker:
-						colour: #57638b
+						colour: $json-punctuation-colour
 					&--simple:
 						list-style: none
 						padding-left: calc($space-3 + $space-1 + $space-1 / 2)
 						@marker:
 							%hidden
 			&-key:
-				colour: #8879e0ff
+				colour: $json-key-colour
+				%no-decoration
+				%cursor-default
+				&--highlighted:
+					colour: $json-highlight-colour
+					$json-punctuation-colour: $json-highlight-colour
+					$json-number-colour: $json-highlight-colour
+					%weight-bold
+
 			&-value:
 			&-expandable:
 				%block
@@ -56,17 +74,16 @@
 			&-entry:
 				&-summary:
 			&-index:
-				colour: #71be71
 			&-value:
 			&-expandable:
 
 		&-string:
 			&-value:
-				colour: #59c2ff
+				colour: $json-string-colour
 
 		&-number:
-			colour: #71be71
+			colour: $json-number-colour
 		&-boolean:
-			colour: #4879ff
+			colour: $json-boolean-colour
 		&-null:
-			colour: #5255ff
+			colour: $json-null-colour
