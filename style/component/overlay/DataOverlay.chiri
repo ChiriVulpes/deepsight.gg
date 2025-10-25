@@ -1,6 +1,8 @@
 .data-overlay:
 	#after: .overlay
 	background: #111e
+	%overflow-auto
+	%padding-bottom-6
 
 	$json-punctuation-colour: #4d5980
 	$json-placeholder-colour: #4d5980
