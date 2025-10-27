@@ -7,9 +7,9 @@ import Item from 'component/item/Item'
 import type Collections from 'conduit.deepsight.gg/Collections'
 import type { Item as CollectionsItem, CollectionsMoment, ItemSourceDefined, ItemSourceDropTable } from 'conduit.deepsight.gg/Collections'
 import { InventoryBucketHashes } from 'deepsight.gg/Enums'
+import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
-import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'node_modules/deepsight.gg/Interfaces'
 
 interface MomentBucketExtensions {
 	readonly title: Component

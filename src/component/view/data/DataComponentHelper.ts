@@ -9,14 +9,4 @@ function DataComponentHelper<T> (helper: DataComponentHelper<T>): DataComponentH
 	return helper
 }
 
-namespace DataComponentHelper {
-	export function getComponentName (component: string) {
-		return component
-			.replace(/([A-Z])/g, ' $1')
-			.trimStart()
-			.replace(' ', ': ')
-			.replace('Definition', '')
-	}
-}
-
 export default DataComponentHelper

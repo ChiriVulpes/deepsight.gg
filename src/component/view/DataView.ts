@@ -2,9 +2,11 @@ import Details from 'component/core/Details'
 import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
+import type { DataOverlayParams } from 'component/overlay/DataOverlay'
 import DataOverlay from 'component/overlay/DataOverlay'
-import DataComponentHelper from 'component/view/data/DataComponentHelper'
 import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
+import DataHelper from 'component/view/data/DataHelper'
+import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
@@ -88,7 +90,7 @@ export default View<DataParams | undefined>(async view => {
 						.style('collections-view-moment-summary')
 						.style.bind(details.open, 'collections-view-moment-summary--open')
 						.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
-						.text.set(DataComponentHelper.getComponentName(name))
+						.text.set(DataHelper.getComponentName(name))
 
 					const list = Component()
 						.style('data-view-definition-list')
@@ -125,16 +127,21 @@ export default View<DataParams | undefined>(async view => {
 		if (!params)
 			return undefined
 
-		const conduit = await Relic.connected
-		if (signal.aborted)
-			return undefined
-
-		const result = await conduit.definitions.en[params.table as Exclude<AllComponentNames, 'DeepsightStats'>].get(params.hash)
+		const result = DataProvider.get(params.table as AllComponentNames, params.hash)
 		if (!result || signal.aborted)
 			return undefined
 
+		await result.promise
+		if (signal.aborted || !result.value)
+			return undefined
+
 		view.loading.skipViewTransition()
-		return result
+		return {
+			table: params.table as AllComponentNames,
+			hash: params.hash,
+			definition: result.value.definition,
+			links: result.value.links,
+		} satisfies DataOverlayParams
 	})
 
 	Overlay(view).bind(overlayDefinition.truthy).and(DataOverlay, overlayDefinition)

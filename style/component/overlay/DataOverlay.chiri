@@ -12,6 +12,8 @@
 	$json-number-colour: #71be71
 	$json-boolean-colour: #4879ff
 	$json-null-colour: #5255ff
+	$json-reference-colour: #e46ab5ff
+	$json-reference-colour-label: #9c417aff
 
 	&-json:
 		font-family: monospace
@@ -89,3 +91,22 @@
 			colour: $json-boolean-colour
 		&-null:
 			colour: $json-null-colour
+
+		&-reference:
+			colour: $json-reference-colour-label
+			$json-punctuation-colour: inherit
+
+			&-label:
+
+			&-enum:
+				&-name:
+				&-member:
+					colour: $json-reference-colour
+
+			&-definition:
+				&-link:
+					%no-decoration
+					%colour-inherit
+					&-title:
+						colour: $json-reference-colour
+						%decoration-underline
