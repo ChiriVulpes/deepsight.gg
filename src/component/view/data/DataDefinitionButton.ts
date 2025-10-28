@@ -42,7 +42,7 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 		const title = button.data.mapManual(data => DataHelper.getTitle(data?.component, data?.definition))
 		const subtitle = button.data.mapManual(data => DataHelper.getSubtitle(data?.component, data?.definition))
 
-		Image(icon)
+		Image(icon, DataHelper.FALLBACK_ICON)
 			.style('data-view-definition-button-icon')
 			.appendTo(button)
 

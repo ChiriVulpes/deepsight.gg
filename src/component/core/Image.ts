@@ -1,7 +1,7 @@
 import { Component, State } from 'kitsui'
 import Task from 'kitsui/utility/Task'
 
-export default Component('img', (component, src: State.Or<string | undefined>) => {
+export default Component('img', (component, src: State.Or<string | undefined>, fallback?: string) => {
 	src = State.get(src)
 	return component.replaceElement('img')
 		.style('image')
@@ -26,5 +26,8 @@ export default Component('img', (component, src: State.Or<string | undefined>) =
 		})
 		.event.subscribe('load', () => {
 			component.style('image--loaded')
+		})
+		.event.subscribe('error', () => {
+			component.attributes.set('src', fallback)
 		})
 })

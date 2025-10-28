@@ -5,6 +5,10 @@ import type { DeepsightDisplayPropertiesDefinition } from 'node_modules/deepsigh
 import { _ } from 'utility/Objects'
 
 namespace DataHelper {
+
+	export const FALLBACK_ICON = 'https://www.bungie.net/img/destiny_content/collections/undiscovered.png'
+	const MISSING_ICON = 'https://www.bungie.net/img/misc/missing_icon_d2.png'
+
 	export function getComponentName (component: AllComponentNames): string
 	export function getComponentName (component?: AllComponentNames): string | undefined
 	export function getComponentName (component?: AllComponentNames) {
@@ -30,13 +34,16 @@ namespace DataHelper {
 				?? get(component)?.getIcon?.(definition)
 				?? display(definition)?.icon
 
+			if (icon && MISSING_ICON.endsWith(icon))
+				return FALLBACK_ICON
+
 			if (icon && icon.startsWith('/'))
 				return `https://www.bungie.net${icon}`
 			if (icon && icon.startsWith('./'))
 				return `https://deepsight.gg${icon.slice(1)}`
 		}
 
-		return 'https://www.bungie.net/img/destiny_content/collections/undiscovered.png'
+		return FALLBACK_ICON
 	}
 
 	export function getTitle (component?: AllComponentNames, definition?: object): string {
