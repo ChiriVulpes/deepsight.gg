@@ -31,6 +31,7 @@
 			"icon title"
 			"icon subtitle"
 			"icon ."
+		grid-auto-rows: min-content
 		width: calc((100% - $space-2 * 4) / 5)
 		%min-width-7
 		%column-gap-2
@@ -40,21 +41,27 @@
 		background: #222a
 		%border-colour-6
 		%padding-left-1
+		%padding-block-1
 		%border-box
 
 		&-icon:
 			grid-area: icon
-			%size-5
+			size: calc($space-4 + $space-3)
 			object-fit: contain
 			%align-self-centre
 		&-title:
 			grid-area: title
 			%uppercase
-			%font-3
+			%font-2
 			%clamp-1
+			%weight-semibold
+			; %font-vertical-align
+			%unmargin-top-1
 		&-subtitle:
 			grid-area: subtitle
 			%uppercase
 			%colour-4
-			%font-1
+			%font-0
+			%weight-semibold
 			%clamp-1
+			%font-vertical-align

@@ -99,7 +99,7 @@ export default View<DataParams | undefined>(async view => {
 
 						openedOnce.value = true
 
-						const pageSize = 40
+						const pageSize = 50
 						Paginator()
 							.style('data-view-component-paginator')
 							.config({
