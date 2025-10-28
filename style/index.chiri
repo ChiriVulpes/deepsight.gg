@@ -32,6 +32,7 @@
 	component/core/Dialog
 	component/core/Tooltip
 	component/core/Overlay
+	component/core/Paginator
 
 #import:
 	component/WordmarkLogo

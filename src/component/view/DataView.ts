@@ -1,4 +1,5 @@
 import Details from 'component/core/Details'
+import Paginator from 'component/core/Paginator'
 import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
@@ -10,7 +11,6 @@ import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
-import AbortablePromise from 'kitsui/utility/AbortablePromise'
 import Relic from 'Relic'
 
 const PRIORITY_COMPONENTS: AllComponentNames[] = [
@@ -92,27 +92,45 @@ export default View<DataParams | undefined>(async view => {
 						.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
 						.text.set(DataHelper.getComponentName(name))
 
-					const list = Component()
-						.style('data-view-definition-list')
-						.appendTo(details.content)
-
-					details.open.useManual(AbortablePromise.throttled(async (signal, opened) => {
+					const openedOnce = State(false)
+					State.Some(details, openedOnce, details.open).useManual(opened => {
 						if (!opened)
 							return
 
-						const conduit = await Relic.connected
-						const definitions = await conduit.definitions.en[name].all()
-						for (const [, definition] of Object.entries(definitions)) {
-							DataDefinitionButton()
-								.tweak(button => button.data.value = { component: name, definition })
-								.event.subscribe('contextmenu', e => {
-									e.preventDefault()
-									void navigate.toURL(`/data/${name}/${definition.hash}`)
-									return false
-								})
-								.appendTo(list)
-						}
-					}))
+						openedOnce.value = true
+
+						const pageSize = 40
+						Paginator()
+							.style('data-view-component-paginator')
+							.config({
+								async get (page) {
+									const state = DataProvider.PAGED.get(name, pageSize, page)
+									await state.promise
+									return state.value
+								},
+								init (paginator, slot, page, data) {
+									const list = Component()
+										.style('data-view-definition-list')
+										.appendTo(slot)
+
+									for (let i = -5; i <= 5; i++)
+										DataProvider.PAGED.prep(name, pageSize, page + i)
+
+									if (!data) {
+										console.error('Failed to load definitions page')
+										return
+									}
+
+									paginator.setTotalPages(Math.max(paginator.getTotalPages(), data.totalPages))
+									for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
+										DataDefinitionButton()
+											.tweak(button => button.data.value = { component: name, definition })
+											.appendTo(list)
+									}
+								},
+							})
+							.appendTo(details.content)
+					})
 				}
 
 				return
@@ -127,7 +145,7 @@ export default View<DataParams | undefined>(async view => {
 		if (!params)
 			return undefined
 
-		const result = DataProvider.get(params.table as AllComponentNames, params.hash)
+		const result = DataProvider.SINGLE.get(params.table as AllComponentNames, params.hash)
 		if (!result || signal.aborted)
 			return undefined
 

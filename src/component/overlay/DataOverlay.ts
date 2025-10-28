@@ -311,7 +311,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 				const defs = links.definitions?.[link.component] as Partial<Record<number, object>> | undefined
 				const linkedDef = defs?.[number]
-				DataProvider.prep(link.component, number)
+				DataProvider.SINGLE.prep(link.component, number)
 				if (linkedDef) ref
 					.style('data-overlay-json-reference-definition')
 					.append(Link(`/data/${link.component}/${number}`)

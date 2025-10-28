@@ -1,0 +1,49 @@
+.paginator:
+	%grid
+	grid-template-columns: auto 1fr auto
+	%gap-2
+
+	&-button:
+		&--next:
+		&--prev:
+
+	&-page-container:
+		%grid
+		%stack
+
+	&-page:
+		%stack-self
+		%hidden
+		#transition: #{transition("display")}, #{transition("opacity")}, #{transition("translate")}
+		%transition-discrete
+		%transition-focus
+		%transparent
+		translate: calc($space-4 * $direction * -1) 0
+
+		&--active:
+			#after: .paginator-page
+			%block
+			%opaque
+			translate: 0 0
+
+			:start:
+				%transparent
+				translate: calc($space-4 * $direction) 0
+
+	&-display:
+		%column-1-3
+		%block
+		%width-fit
+		%margin-auto
+
+		&-page:
+			%inline-block
+			%height-1
+			width: calc(round(down, (1 - min(max(0, $distance - 20), 10) / 10) * $space-1, 1px))
+			margin-right: calc(round(down, (1 - min(max(0, $distance - 30), 1) / 1) * $space-1, 1px))
+			opacity: calc(1 - min(max(0, $distance - 20), 8) / 8)
+			%background-13
+			#transition: #{transition("width")}, #{transition("margin-right")}, #{transition("opacity")}
+
+			&--active:
+				%width-4

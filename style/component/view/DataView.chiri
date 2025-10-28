@@ -13,12 +13,13 @@
 		%width-100
 		%align-self-start
 
+	&-component-paginator:
+		%padding-block-3
 
 	&-definition-list:
 		%flex
 		%flex-wrap
 		%gap-2
-		%padding-block-3
 
 	&-definition-button:
 		#after: .button
@@ -30,7 +31,7 @@
 			"icon title"
 			"icon subtitle"
 			"icon ."
-		width: calc((100% - $space-2 * 4 - 2px * 5) / 5)
+		width: calc((100% - $space-2 * 4) / 5)
 		%min-width-7
 		%column-gap-2
 		%text-align-left
@@ -50,6 +51,7 @@
 			grid-area: title
 			%uppercase
 			%font-3
+			%clamp-1
 		&-subtitle:
 			grid-area: subtitle
 			%uppercase
