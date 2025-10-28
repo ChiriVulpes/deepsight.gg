@@ -123,6 +123,7 @@ export default View<DataParams | undefined>(async view => {
 
 									paginator.setTotalPages(Math.max(paginator.getTotalPages(), data.totalPages))
 									for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
+										DataProvider.SINGLE.prep(name, definition.hash)
 										DataDefinitionButton()
 											.tweak(button => button.data.value = { component: name, definition })
 											.appendTo(list)
