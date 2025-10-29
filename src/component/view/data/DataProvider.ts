@@ -1,6 +1,8 @@
 import type { AllComponentNames, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { DefinitionsFilter } from 'conduit.deepsight.gg/Definitions'
 import { State } from 'kitsui'
 import Relic from 'Relic'
+import Arrays from 'utility/Arrays'
 import { _ } from 'utility/Objects'
 
 type DataProviderParam = number | string | boolean
@@ -101,21 +103,67 @@ namespace DataProvider {
 		},
 	})
 
-	export const PAGED = DataProvider<[component: AllComponentNames, pageSize: number, page: number], DefinitionsPage<object>>({
-		provider: async ([component, pageSize, page], signal, setProgress) => {
-			const conduit = await Relic.connected
-			if (signal.aborted)
-				return undefined
+	export const createPaged = (filters?: DefinitionsFilter<object> | string) => {
+		const filtersObj = typeof filters === 'string' ? createDefinitionsFilter(filters) : filters
+		return DataProvider<[component: AllComponentNames, pageSize: number, page: number], DefinitionsPage<object>>({
+			provider: async ([component, pageSize, page], signal, setProgress) => {
+				const conduit = await Relic.connected
+				if (signal.aborted)
+					return undefined
 
-			const definitionsPage = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].page(pageSize, page)
-			if (signal.aborted)
-				return undefined
+				const definitionsPage = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].page(pageSize, page, filtersObj as never)
+				if (signal.aborted)
+					return undefined
 
-			return definitionsPage
-		},
-		cacheSize: 5,
-		prepCacheSize: 5,
-	})
+				return definitionsPage
+			},
+			cacheSize: 5,
+			prepCacheSize: 5,
+		})
+	}
+
+	export function createDefinitionsFilter (filterText?: string): DefinitionsFilter<object> | undefined {
+		if (!filterText)
+			return undefined
+
+		filterText = filterText.replace(/\s+/g, ' ').trim()
+
+		let inQuotes = false
+		let tokens: string[] = ['']
+		for (let i = 0; i < filterText.length; i++) {
+			const char = filterText[i]
+			if (char === '"') {
+				inQuotes = !inQuotes
+				continue
+			}
+
+			if (char === ' ' && !inQuotes) {
+				tokens.push('')
+				continue
+			}
+
+			tokens[tokens.length - 1] += char
+		}
+
+		const filter: DefinitionsFilter<object> = {}
+
+		tokens = tokens.filter(token => token.length > 3)
+		for (const token of tokens) {
+			if (token.startsWith('deep:')) {
+				Arrays.resolve(filter.deepContains ??= []).push(token.substring(5))
+				continue
+			}
+
+			if (token.startsWith('$')) {
+				Arrays.resolve(filter.jsonPathExpression ??= []).push(token)
+				continue
+			}
+
+			Arrays.resolve(filter.nameContainsOrHashIs ??= []).push(token)
+		}
+
+		return filter
+	}
 }
 
 export default DataProvider

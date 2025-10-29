@@ -24,7 +24,7 @@ namespace FilterToken {
 		return Object.assign(String(text), {
 			lowercase: (text
 				.toLowerCase()
-				.replace(/["\p{Emoji}\p{Extended_Pictographic}]/gu, '')
+				.replace(EMOJI_REGEX, '')
 			),
 			displayText: (text
 				.replaceAll(' ', '\xa0')
@@ -59,7 +59,7 @@ interface FilterChipExtensions {
 }
 
 interface FilterExtensions {
-	readonly input: Component
+	readonly input: Component<HTMLInputElement>
 	readonly filterText: State<string>
 	readonly config: State.Mutable<Filter.Config | undefined>
 	filter (item: Item, showIrrelevant: boolean): boolean
@@ -71,6 +71,7 @@ namespace Filter {
 	export interface Config {
 		readonly id: string
 		readonly filters: Filter.Definition[]
+		readonly allowUppercase?: true
 	}
 
 	export interface Suggestions {
@@ -92,7 +93,7 @@ const PLAINTEXT_FILTER_FUNCTION: FilterFunction['filter'] = (item, token) => ite
 const PLAINTEXT_FILTER_TWEAK_CHIP: FilterFunction['chip'] = (chip, token) => chip.style('filter-display-text').style.toggle(token.lowercase.length < 3, 'filter-display-text--inactive')
 
 const EMOJI_ICON_PLACEHOLDER = '⬛'
-const EMOJI_REGEX = /[\p{Emoji}\p{Extended_Pictographic}]/gu
+const EMOJI_REGEX = /(?!\p{N})[\p{Emoji}\p{Extended_Pictographic}]/gu
 const EMOJI_SPACE_PLACEHOLDER = '–'
 const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
 
@@ -164,7 +165,7 @@ const Filter = Object.assign(
 
 		const filters = State.Map(filter, [filterText, config], (text, config) => {
 			filtersOwner?.remove(); filtersOwner = State.Owner.create()
-			text = text.toLowerCase()
+			text = config?.allowUppercase ? text : text.toLowerCase()
 
 			const tokens = tokenise(text)
 			if (tokens.length === 0)
@@ -183,7 +184,7 @@ const Filter = Object.assign(
 
 				filters.push({
 					id: 'plaintext',
-					fullText: token.lowercase,
+					fullText: config?.allowUppercase ? token.slice() : token.lowercase,
 					isPartial: true,
 					token,
 					filter: PLAINTEXT_FILTER_FUNCTION,
@@ -204,7 +205,7 @@ const Filter = Object.assign(
 		})
 
 		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || filter.token.lowercase.length >= 3))
-		const appliedFilterText = appliedFilters.mapManual(filters => filters.map(filter => filter.token.lowercase).join(' '))
+		const appliedFilterText = appliedFilters.mapManual(filters => filters.map(filter => `"${config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase}"`).join(' '))
 
 		let noPartialFiltersOwner: State.Owner.Removable | undefined
 		const noPartialFilters = filters.mapManual(filters => {

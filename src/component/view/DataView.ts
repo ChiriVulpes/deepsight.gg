@@ -28,9 +28,9 @@ const PRIORITY_COMPONENTS: AllComponentNames[] = [
 
 const DATA_DISPLAY = DisplayBar.Config({
 	id: 'data',
-	sortConfig: {},
 	filterConfig: {
 		id: 'data-filter',
+		allowUppercase: true,
 		filters: [],
 	},
 })
@@ -75,67 +75,69 @@ export default View<DataParams | undefined>(async view => {
 			const indices = componentNames.toObject(name => [name, PRIORITY_COMPONENTS.indexOf(name) + 1 || Infinity])
 			componentNames.sort((a, b) => indices[a] - indices[b])
 
-			if (!filterText) {
-				for (const name of componentNames) {
-					const details = Details()
-						.style('collections-view-moment')
-						.tweak(details => details
-							.style.bind(details.open, 'details--open', 'collections-view-moment--open')
-							.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
-						)
-						.viewTransitionSwipe(`data-view-component-${name}`)
-						.appendTo(slot)
+			const dataPageProvider = DataProvider.createPaged(filterText)
 
-					details.summary
-						.style('collections-view-moment-summary')
-						.style.bind(details.open, 'collections-view-moment-summary--open')
-						.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
-						.text.set(DataHelper.getComponentName(name))
+			// if (!filterText) {
+			for (const name of componentNames) {
+				const details = Details()
+					.style('collections-view-moment')
+					.tweak(details => details
+						.style.bind(details.open, 'details--open', 'collections-view-moment--open')
+						.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
+					)
+					.viewTransitionSwipe(`data-view-component-${name}`)
+					.appendTo(slot)
 
-					const openedOnce = State(false)
-					State.Some(details, openedOnce, details.open).useManual(opened => {
-						if (!opened)
-							return
+				details.summary
+					.style('collections-view-moment-summary')
+					.style.bind(details.open, 'collections-view-moment-summary--open')
+					.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
+					.text.set(DataHelper.getComponentName(name))
 
-						openedOnce.value = true
+				const openedOnce = State(false)
+				State.Some(details, openedOnce, details.open).useManual(opened => {
+					if (!opened)
+						return
 
-						const pageSize = 50
-						Paginator()
-							.style('data-view-component-paginator')
-							.config({
-								async get (page) {
-									const state = DataProvider.PAGED.get(name, pageSize, page)
-									await state.promise
-									return state.value
-								},
-								init (paginator, slot, page, data) {
-									const list = Component()
-										.style('data-view-definition-list')
-										.appendTo(slot)
+					openedOnce.value = true
 
-									for (let i = -5; i <= 5; i++)
-										DataProvider.PAGED.prep(name, pageSize, page + i)
+					const pageSize = 50
+					Paginator()
+						.style('data-view-component-paginator')
+						.config({
+							async get (page) {
+								const state = dataPageProvider.get(name, pageSize, page)
+								await state.promise
+								return state.value
+							},
+							init (paginator, slot, page, data) {
+								const list = Component()
+									.style('data-view-definition-list')
+									.appendTo(slot)
 
-									if (!data) {
-										console.error('Failed to load definitions page')
-										return
-									}
+								for (let i = -5; i <= 5; i++)
+									dataPageProvider.prep(name, pageSize, page + i)
 
-									paginator.setTotalPages(Math.max(paginator.getTotalPages(), data.totalPages))
-									for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
-										DataProvider.SINGLE.prep(name, definition.hash)
-										DataDefinitionButton()
-											.tweak(button => button.data.value = { component: name, definition })
-											.appendTo(list)
-									}
-								},
-							})
-							.appendTo(details.content)
-					})
-				}
+								if (!data) {
+									console.error('Failed to load definitions page')
+									return
+								}
 
-				return
+								paginator.setTotalPages(Math.max(paginator.getTotalPages(), data.totalPages))
+								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
+									DataProvider.SINGLE.prep(name, definition.hash)
+									DataDefinitionButton()
+										.tweak(button => button.data.value = { component: name, definition })
+										.appendTo(list)
+								}
+							},
+						})
+						.appendTo(details.content)
+				})
 			}
+
+			return
+			// }
 		})
 		.appendTo(view)
 

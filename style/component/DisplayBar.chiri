@@ -41,6 +41,9 @@
 		grid-template-rows: 1fr 1fr
 		#transition: #{transition("background")}
 
+		&--disabled:
+			%transparent
+
 		&--hover:
 			#after: .display-bar-button
 			background: #fff1

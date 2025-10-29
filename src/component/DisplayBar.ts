@@ -67,8 +67,11 @@ const DisplayBar = Object.assign(
 
 		const config = State<DisplayBar.Config | undefined>(undefined)
 
+		const noSort = config.mapManual(config => !config?.sortConfig)
 		DisplayBarButton()
 			.style('display-bar-sort-button')
+			.style.bind(noSort, 'display-bar-button--disabled')
+			.attributes.bind(noSort, 'inert')
 			.titleText.set(quilt => quilt['display-bar/sort/title']())
 			.appendTo(component)
 
