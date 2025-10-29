@@ -58,6 +58,7 @@ $$button-z-index-hover-2!int: 0
 		%border-colour-5
 		%colour-7
 		%background-none
+		%opacity-30
 
 		@before:
 			%transparent
