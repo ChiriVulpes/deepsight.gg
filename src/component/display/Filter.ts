@@ -72,6 +72,7 @@ namespace Filter {
 		readonly id: string
 		readonly filters: Filter.Definition[]
 		readonly allowUppercase?: true
+		readonly debounceTime?: number
 	}
 
 	export interface Suggestions {
@@ -223,7 +224,7 @@ const Filter = Object.assign(
 			clearTimeout(filterTextEditTimeout)
 			filterTextEditTimeout = window.setTimeout(() => {
 				debounceFinished.value = true
-			}, 200)
+			}, config.value?.debounceTime ?? 200)
 		})
 
 		let oldFilterText = ''

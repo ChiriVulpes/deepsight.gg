@@ -31,6 +31,7 @@ const DATA_DISPLAY = DisplayBar.Config({
 	filterConfig: {
 		id: 'data-filter',
 		allowUppercase: true,
+		debounceTime: 500,
 		filters: [],
 	},
 })
@@ -86,7 +87,12 @@ export default View<DataParams | undefined>(async view => {
 						.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
 					)
 					.viewTransitionSwipe(`data-view-component-${name}`)
-					.appendTo(slot)
+
+				const filteredIn = State(false)
+				if (!filterText)
+					details.appendTo(slot)
+				else
+					details.appendToWhen(filteredIn, slot)
 
 				details.summary
 					.style('collections-view-moment-summary')
@@ -94,7 +100,7 @@ export default View<DataParams | undefined>(async view => {
 					.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
 					.text.set(DataHelper.getComponentName(name))
 
-				const openedOnce = State(false)
+				const openedOnce = State(!!filterText)
 				State.Some(details, openedOnce, details.open).useManual(opened => {
 					if (!opened)
 						return
@@ -102,6 +108,7 @@ export default View<DataParams | undefined>(async view => {
 					openedOnce.value = true
 
 					const pageSize = 50
+					const isInitialInit = true
 					Paginator()
 						.style('data-view-component-paginator')
 						.config({
@@ -115,15 +122,21 @@ export default View<DataParams | undefined>(async view => {
 									.style('data-view-definition-list')
 									.appendTo(slot)
 
-								for (let i = -5; i <= 5; i++)
-									dataPageProvider.prep(name, pageSize, page + i)
-
 								if (!data) {
 									console.error('Failed to load definitions page')
 									return
 								}
 
-								paginator.setTotalPages(Math.max(paginator.getTotalPages(), data.totalPages))
+								for (let i = -5; i <= 5; i++)
+									if (page + i >= 0 && page + i < data.totalPages)
+										dataPageProvider.prep(name, pageSize, page + i)
+
+								if (isInitialInit && data.totalPages && filterText) {
+									details.open.value = true
+									filteredIn.value = true
+								}
+
+								paginator.setTotalPages(!data.totalPages ? 0 : Math.max(paginator.getTotalPages(), data.totalPages))
 								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
 									DataProvider.SINGLE.prep(name, definition.hash)
 									DataDefinitionButton()

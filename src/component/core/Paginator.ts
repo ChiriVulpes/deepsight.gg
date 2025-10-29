@@ -1,6 +1,7 @@
 import Button from 'component/core/Button'
 import DisplaySlot from 'component/core/DisplaySlot'
 import { Component, State } from 'kitsui'
+import Loading from 'kitsui/component/Loading'
 import type ComponentInsertionTransaction from 'kitsui/ext/ComponentInsertionTransaction'
 
 interface PaginatorDefinition<T> {
@@ -26,6 +27,16 @@ const Paginator = Component((component): Paginator<unknown> => {
 	const pageData: State<unknown>[] = []
 	const pages: Component[] = []
 
+	const hasPageData = State(false)
+	const loading = State(false)
+
+	const shouldDisplay = State.MapManual([hasPageData, totalPages], (hasPageData, totalPages) => hasPageData && totalPages >= 1)
+
+	Loading()
+		.style('paginator-loading')
+		.showForever()
+		.appendToWhen(loading, component)
+
 	const Page = Component((pageComponent, page: number) => {
 		pageData[page] ??= State<unknown>(undefined)
 		return pageComponent.style('paginator-page')
@@ -34,6 +45,8 @@ const Paginator = Component((component): Paginator<unknown> => {
 				if (data === undefined)
 					return
 
+				hasPageData.value = true
+				loading.value = false
 				state.value?.init(component as Paginator<unknown>, slot, page, data)
 			})
 	})
@@ -42,12 +55,12 @@ const Paginator = Component((component): Paginator<unknown> => {
 		.style('paginator-button', 'paginator-button--prev')
 		.bindDisabled(currentPage.equals(0), 'no previous pages')
 		.event.subscribe('click', () => currentPage.value = Math.max(0, currentPage.value - 1))
-		.appendTo(component)
+		.appendToWhen(shouldDisplay, component)
 
 	const pageContainer = Component()
 		.style('paginator-page-container')
 		.style.bindVariable('direction', lastDirection)
-		.appendTo(component)
+		.appendToWhen(shouldDisplay, component)
 
 	currentPage.subscribeManual((page, lastPage) => {
 		if (!state.value)
@@ -55,7 +68,12 @@ const Paginator = Component((component): Paginator<unknown> => {
 
 		lastDirection.value = page > (lastPage ?? -1) ? 1 : -1
 
-		pageData[page] ??= State.Async(component, async () => await state.value?.get(page))
+		pageData[page] ??= State.Async(component, async () => {
+			if (!hasPageData.value)
+				loading.value = true
+
+			return await state.value?.get(page)
+		})
 		pages[page] ??= Page(page)
 			.style.bind(currentPage.equals(page), 'paginator-page--active')
 			.appendTo(pageContainer)
@@ -65,7 +83,7 @@ const Paginator = Component((component): Paginator<unknown> => {
 		.style('paginator-button', 'paginator-button--next')
 		.bindDisabled(isLastPage, 'no more pages')
 		.event.subscribe('click', () => currentPage.value = Math.min(totalPages.value - 1, currentPage.value + 1))
-		.appendTo(component)
+		.appendToWhen(shouldDisplay, component)
 
 	DisplaySlot()
 		.style('paginator-display')
@@ -80,7 +98,7 @@ const Paginator = Component((component): Paginator<unknown> => {
 					.appendTo(slot)
 			}
 		})
-		.appendTo(component)
+		.appendToWhen(shouldDisplay, component)
 
 	return component.style('paginator')
 		.extend<PaginatorExtensions<unknown>>(component => ({
@@ -91,6 +109,7 @@ const Paginator = Component((component): Paginator<unknown> => {
 				state.value = definition
 				totalPages.value = 1
 				currentPage.value = 0
+				hasPageData.value = false
 				return component
 			},
 			getTotalPages () {
