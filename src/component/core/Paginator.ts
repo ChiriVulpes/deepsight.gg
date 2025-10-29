@@ -52,7 +52,10 @@ const Paginator = Component((component): Paginator<unknown> => {
 	})
 
 	Button()
-		.style('paginator-button', 'paginator-button--prev')
+		.style('paginator-button', 'paginator-button-prev')
+		.append(Component()
+			.style('paginator-button-arrow', 'paginator-button-prev-arrow')
+		)
 		.bindDisabled(currentPage.equals(0), 'no previous pages')
 		.event.subscribe('click', () => currentPage.value = Math.max(0, currentPage.value - 1))
 		.appendToWhen(shouldDisplay, component)
@@ -80,7 +83,10 @@ const Paginator = Component((component): Paginator<unknown> => {
 	})
 
 	Button()
-		.style('paginator-button', 'paginator-button--next')
+		.style('paginator-button', 'paginator-button-next')
+		.append(Component()
+			.style('paginator-button-arrow', 'paginator-button-next-arrow')
+		)
 		.bindDisabled(isLastPage, 'no more pages')
 		.event.subscribe('click', () => currentPage.value = Math.min(totalPages.value - 1, currentPage.value + 1))
 		.appendToWhen(shouldDisplay, component)

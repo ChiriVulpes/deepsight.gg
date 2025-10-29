@@ -8,8 +8,18 @@
 		%justify-self-centre
 
 	&-button:
-		&--next:
-		&--prev:
+		&-arrow:
+			%block
+			border-block: $space-2 solid transparent
+			%unmargin-inline-2
+		&-next:
+			&-arrow:
+				border-left: $space-2 solid
+				%unmargin-left-1
+		&-prev:
+			&-arrow:
+				border-right: $space-2 solid
+				%unmargin-right-1
 
 	&-page-container:
 		%grid
