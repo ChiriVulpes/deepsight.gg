@@ -65,3 +65,41 @@
 			%weight-semibold
 			%clamp-1
 			%font-vertical-align
+
+	&-breadcrumbs:
+
+		&-wrapper:
+			%block
+			overflow-x: auto
+			scrollbar-width: none
+			%padding-block-3
+			%padding-left-2
+			%unmargin-right-2
+			%border-box
+			%margin-top-2
+
+		%flex
+		%gap-2
+		%width-max
+		%padding-inline-2
+
+		&-button:
+			#after: .button
+			%padding-inline-2
+			%flex
+			%flex-column
+			%padding-top-0
+			%padding-bottom-1
+
+			&-component:
+				%font-0
+				%uppercase
+				%weight-bold
+				%colour-5
+				margin-top: calc(0px - $space-2 + $space-1 / 2)
+
+		; &-separator:
+		; 	%relative
+		; 	%colour-8
+		; 	%untop-1
+		; 	%margin-inline-2

@@ -2,6 +2,7 @@
 	#after: .overlay
 	background: #111e
 	%overflow-auto
+	overflow-x: hidden
 	%padding-bottom-6
 
 	$json-punctuation-colour: #4d5980

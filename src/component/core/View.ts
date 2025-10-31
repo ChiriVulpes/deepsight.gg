@@ -25,6 +25,7 @@ interface ViewExtensions<PARAMS extends object | undefined> {
 	readonly displayHandlers: State<DisplayHandlers | undefined>
 	readonly params: State<PARAMS>
 	refresh (): Promise<void>
+	getNavbar (): Navbar | undefined
 }
 
 interface View<PARAMS extends object | undefined> extends Component, ViewExtensions<PARAMS> { }
@@ -70,6 +71,9 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 				displayHandlers: displayBarConfig.map(view, config => config ? displayBar?.handlers : undefined),
 				refresh: navigate.refresh,
 				params,
+				getNavbar () {
+					return navbar
+				},
 			}))
 
 		let loading: ViewLoading | undefined

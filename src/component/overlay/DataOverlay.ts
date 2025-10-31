@@ -1,5 +1,8 @@
 import Details from 'component/core/Details'
 import Link from 'component/core/Link'
+import Paginator from 'component/core/Paginator'
+import Tabinator from 'component/core/Tabinator'
+import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
 import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames, DefinitionLinks } from 'conduit.deepsight.gg/DefinitionComponents'
@@ -7,6 +10,7 @@ import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import Task from 'kitsui/utility/Task'
+import type { RoutePath } from 'navigation/RoutePath'
 import Arrays from 'utility/Arrays'
 
 export interface DataOverlayParams {
@@ -19,7 +23,13 @@ export interface DataOverlayParams {
 export default Component((component, params: State<DataOverlayParams | undefined>) => {
 	component.style('data-overlay')
 
-	const links = params.map(component, params => {
+	const dedupedParams = params.delay(component, 10, params => params, (a, b) => true
+		&& a?.table === b?.table
+		&& a?.hash === b?.hash
+		&& a?.definition === b?.definition
+		&& a?.links === b?.links
+	)
+	const links = dedupedParams.map(component, params => {
 		const links = params?.links
 		if (!links)
 			return undefined
@@ -372,9 +382,65 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	//#endregion
 	////////////////////////////////////
 
+	const dataTabs = Tabinator()
+		.watchNavigation()
+		.appendTo(component)
+
+	const jsonLink = params.map(component, (params): RoutePath => `/data/${params?.table ?? ''}/${params?.hash ?? ''}`)
+	const jsonTab = dataTabs.Tab(jsonLink)
+		.text.set(quilt => quilt['view/data/overlay/tab/main']())
+
 	Slot()
 		.use(params, (s, params) => params && JSONValue(params.definition))
-		.appendTo(component)
+		.appendTo(jsonTab.content)
+
+	const referencesCount = State<number | undefined>(undefined)
+
+	const refLink = params.map(component, (params): RoutePath => `/data/${params?.table ?? ''}/${params?.hash ?? ''}/references`)
+	const referencesTab = dataTabs.Tab(refLink)
+		.text.bind(referencesCount.map(component, count => quilt => quilt['view/data/overlay/tab/references'](count)))
+
+	Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
+		if (!params)
+			return
+
+		referencesCount.value = undefined
+
+		const pageSize = 50
+		const referencePageProvider = DataProvider.createReferencesPaged(params.table, params.hash)
+		Paginator()
+			.config({
+				async get (page) {
+					const state = referencePageProvider.get(pageSize, page)
+					await state.promise
+					return state.value
+				},
+				init (paginator, slot, page, data) {
+					if (!data)
+						return
+
+					referencesCount.value = data.totalReferences
+					for (let i = -5; i <= 5; i++)
+						if (page + i >= 0 && page + i < data.totalPages)
+							referencePageProvider.prep(pageSize, page + i)
+
+					paginator.setTotalPages(!data.totalPages ? 0 : Math.max(paginator.getTotalPages(), data.totalPages))
+					const list = Component()
+						.style('data-view-definition-list')
+						.appendTo(slot)
+
+					for (const [component, defs] of Object.entries(data.references)) {
+						for (const definition of Object.values(defs)) {
+							DataProvider.SINGLE.prep(component as AllComponentNames, definition.hash)
+							DataDefinitionButton()
+								.tweak(button => button.data.value = { component: component as AllComponentNames, definition })
+								.appendTo(list)
+						}
+					}
+				},
+			})
+			.appendTo(slot)
+	})
 
 	InputBus.event.until(component, event => event.subscribe('Down', (_, event) => {
 		if (event.use('Escape')) {

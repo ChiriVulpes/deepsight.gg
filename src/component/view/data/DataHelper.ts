@@ -9,14 +9,15 @@ namespace DataHelper {
 	export const FALLBACK_ICON = 'https://www.bungie.net/img/destiny_content/collections/undiscovered.png'
 	const MISSING_ICON = 'https://www.bungie.net/img/misc/missing_icon_d2.png'
 
-	export function getComponentName (component: AllComponentNames): string
-	export function getComponentName (component?: AllComponentNames): string | undefined
-	export function getComponentName (component?: AllComponentNames) {
-		return component
+	export function getComponentName (component: AllComponentNames, short?: true): string
+	export function getComponentName (component?: AllComponentNames, short?: true): string | undefined
+	export function getComponentName (component?: AllComponentNames, short?: true) {
+		const result = component
 			?.replace(/([A-Z])/g, ' $1')
 			.trimStart()
 			.replace(' ', ': ')
 			.replace('Definition', '')
+		return short ? result?.split(': ')[1] : result
 	}
 
 	export function display (definition?: object | null) {

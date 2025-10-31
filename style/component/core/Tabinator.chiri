@@ -1,0 +1,31 @@
+.tabinator:
+	%grid
+	grid-template-rows: auto 1fr
+	%gap-3
+
+	&-header:
+		%flex
+		%flex-wrap
+		%gap-3
+
+	&-content:
+		%grid
+		%stack
+
+	&-tab-content:
+		%stack-self
+		#transition: #{transition("display")}, #{transition("opacity")}, #{transition("translate")}
+		%transition-discrete
+		%opaque
+
+		:start:
+			%transparent
+			translate: calc($space-4 * $tabinator-direction)
+
+		&--hidden:
+			#after: .tabinator-tab-content
+			%hidden
+			%transparent
+			%transition-focus
+			%transition-discrete
+			translate: calc($space-4 * $tabinator-direction * -1)

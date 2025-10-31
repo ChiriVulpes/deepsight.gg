@@ -4,10 +4,12 @@ import WordmarkLogo from 'component/WordmarkLogo'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Profile from 'model/Profile'
+import type { RoutePath } from 'navigation/RoutePath'
 
 interface NavbarExtensions {
 	readonly visible: State.Mutable<boolean>
 	readonly viewTransitionsEnabled: State.Mutable<boolean>
+	overrideHomeLink (route: RoutePath, owner: State.Owner): this
 }
 
 interface Navbar extends Component, NavbarExtensions { }
@@ -16,7 +18,9 @@ const Navbar = Component('nav', (component): Navbar => {
 	const visible = State(false)
 	const viewTransitionsEnabled = State(false)
 
-	const homelink = Link('/')
+	const homeLinkState = State<RoutePath>('/')
+
+	const homelink = Link(homeLinkState)
 		.and(WordmarkLogo)
 		.style('navbar-homelink')
 		.appendTo(component)
@@ -37,6 +41,14 @@ const Navbar = Component('nav', (component): Navbar => {
 		.extend<NavbarExtensions>(navbar => ({
 			visible,
 			viewTransitionsEnabled,
+			overrideHomeLink (route, owner) {
+				homeLinkState.value = route
+				void owner.removed.await(navbar, true).then(() => {
+					if (homeLinkState.value === route)
+						homeLinkState.value = '/'
+				})
+				return navbar
+			},
 		}))
 		.appendToWhen(visible, Component.getBody())
 })

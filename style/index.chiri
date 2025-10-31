@@ -33,6 +33,8 @@
 	component/core/Tooltip
 	component/core/Overlay
 	component/core/Paginator
+	component/core/TabButton
+	component/core/Tabinator
 
 #import:
 	component/WordmarkLogo

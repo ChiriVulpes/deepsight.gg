@@ -1,4 +1,4 @@
-import type { AllComponentNames, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { AllComponentNames, DefinitionReferencesPage, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
 import type { DefinitionsFilter } from 'conduit.deepsight.gg/Definitions'
 import { State } from 'kitsui'
 import Relic from 'Relic'
@@ -116,6 +116,20 @@ namespace DataProvider {
 					return undefined
 
 				return definitionsPage
+			},
+			cacheSize: 5,
+			prepCacheSize: 5,
+		})
+	}
+
+	export const createReferencesPaged = (component: AllComponentNames, hash: number | string) => {
+		return DataProvider<[pageSize: number, page: number], DefinitionReferencesPage>({
+			provider: async ([pageSize, page], signal, setProgress) => {
+				const conduit = await Relic.connected
+				if (signal.aborted)
+					return undefined
+
+				return await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].getReferencing(hash, pageSize, page)
 			},
 			cacheSize: 5,
 			prepCacheSize: 5,

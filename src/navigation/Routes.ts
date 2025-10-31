@@ -13,6 +13,7 @@ const Routes = [
 	Route('/collections/$moment/$itemName', CollectionsView as View.Builder.WithParams<CollectionsParamsItemName | undefined>),
 	Route('/data', DataView),
 	Route('/data/$table/$hash', DataView),
+	Route('/data/$table/$hash/references', DataView),
 ]
 
 RoutePath.setRoutes(Routes)

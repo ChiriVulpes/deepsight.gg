@@ -2,3 +2,7 @@
 title: Data
 load/connecting=shared/load/connecting
 load/fetching: Downloading table list...
+
+## overlay
+tab/main: Definition
+tab/references: References ({0?{0}:...})

@@ -14,6 +14,7 @@ declare module 'kitsui/component/Loading' {
 	interface LoadingExtensions {
 		readonly transitionFinished?: Promise<void>
 		skipViewTransition (): void
+		setNormalTransitions (): this
 	}
 }
 
@@ -22,6 +23,8 @@ export default function styleKit () {
 	//#region Loading
 
 	Kit.Loading.extend(loading => {
+		let normalTransitions = false
+
 		const spinner = loading.spinner
 		loading.spinner.append(...([1, 2, 3, 4] as const).map(i => Component().style('loading-spinner-dot', `loading-spinner-dot-${i}`)))
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -39,6 +42,9 @@ export default function styleKit () {
 
 		let trans: ViewTransition | undefined
 		loading.onLoad((loading, display) => {
+			if (normalTransitions)
+				return display()
+
 			const transInstance = trans = ViewTransition.perform('view', display)
 			Object.assign(loading, { transitionFinished: trans.finished })
 			void trans.finished.then(() => {
@@ -54,6 +60,10 @@ export default function styleKit () {
 		return {
 			skipViewTransition () {
 				trans?.skipTransition()
+			},
+			setNormalTransitions () {
+				normalTransitions = true
+				return this
 			},
 		}
 	})

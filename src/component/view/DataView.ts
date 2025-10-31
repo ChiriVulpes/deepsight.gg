@@ -1,5 +1,8 @@
 import Details from 'component/core/Details'
+import DisplaySlot from 'component/core/DisplaySlot'
+import Link from 'component/core/Link'
 import Paginator from 'component/core/Paginator'
+import TabButton from 'component/core/TabButton'
 import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
@@ -11,6 +14,7 @@ import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
+import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 
 const PRIORITY_COMPONENTS: AllComponentNames[] = [
@@ -35,6 +39,17 @@ const DATA_DISPLAY = DisplayBar.Config({
 		filters: [],
 	},
 })
+
+interface Breadcrumb {
+	path: RoutePath
+	name: string
+}
+
+namespace Breadcrumb {
+	export function equals (a?: Breadcrumb, b?: Breadcrumb) {
+		return a?.path === b?.path && a?.name === b?.name
+	}
+}
 
 export interface DataParams {
 	table: string
@@ -154,6 +169,49 @@ export default View<DataParams | undefined>(async view => {
 		})
 		.appendTo(view)
 
+	const breadcrumbs = State<Breadcrumb[]>([])
+	const breadcrumbsCursor = State(-1)
+	const actualCursor = State.MapManual([breadcrumbs, breadcrumbsCursor], (breadcrumbs, cursor) => cursor < 0 ? breadcrumbs.length + cursor : cursor)
+	// function resetBreadcrumbs () {
+	// 	breadcrumbs.value = []
+	// 	breadcrumbsCursor.value = -1
+	// }
+
+	view.getNavbar()
+		?.overrideHomeLink('/data', view)
+		.append(DisplaySlot()
+			.style('data-view-breadcrumbs-wrapper')
+			.setOwner(view)
+			.use(breadcrumbs, (slot, crumbs) => {
+				const breadcrumbs = Component()
+					.style('data-view-breadcrumbs')
+					.appendTo(slot)
+
+				for (let i = 0; i < crumbs.length; i++) {
+					// if (i)
+					// 	Component()
+					// 		.style('data-view-breadcrumbs-separator')
+					// 		.text.set('/')
+					// 		.prependTo(breadcrumbs)
+
+					const breadcrumb = crumbs[i]
+					const componentName = breadcrumb.path.slice(6).split('/')[0] as AllComponentNames
+					TabButton(actualCursor.equals(i))
+						.and(Link, breadcrumb.path)
+						.style('data-view-breadcrumbs-button')
+						.text.set(breadcrumb.name)
+						.append(Component()
+							.style('data-view-breadcrumbs-button-component')
+							.text.set(DataHelper.getComponentName(componentName, true))
+						)
+						.event.subscribe('click', e => {
+							breadcrumbsCursor.value = i
+						})
+						.prependTo(breadcrumbs)
+				}
+			})
+		)
+
 	////////////////////////////////////
 	//#region Data Overlay
 
@@ -162,16 +220,31 @@ export default View<DataParams | undefined>(async view => {
 			return undefined
 
 		const result = DataProvider.SINGLE.get(params.table as AllComponentNames, params.hash)
-		if (!result || signal.aborted)
+		if (!result || signal.aborted) {
 			return undefined
+		}
 
 		await result.promise
 		if (signal.aborted || !result.value)
 			return undefined
 
+		const table = params.table as AllComponentNames
+		const newBreadcrumb: Breadcrumb = {
+			path: `/data/${table}/${params.hash}`,
+			name: DataHelper.getTitle(table, result.value.definition),
+		}
+		const breadcrumbIndex = breadcrumbs.value.findIndex(bc => Breadcrumb.equals(bc, newBreadcrumb))
+		if (breadcrumbIndex !== -1) {
+			breadcrumbsCursor.value = breadcrumbIndex
+		}
+		else {
+			breadcrumbs.value = [...breadcrumbs.value, newBreadcrumb]
+			breadcrumbsCursor.value = -1
+		}
+
 		view.loading.skipViewTransition()
 		return {
-			table: params.table as AllComponentNames,
+			table,
 			hash: params.hash,
 			definition: result.value.definition,
 			links: result.value.links,
