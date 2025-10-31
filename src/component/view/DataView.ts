@@ -170,12 +170,6 @@ export default View<DataParams | undefined>(async view => {
 		.appendTo(view)
 
 	const breadcrumbs = State<Breadcrumb[]>([])
-	const breadcrumbsCursor = State(-1)
-	const actualCursor = State.MapManual([breadcrumbs, breadcrumbsCursor], (breadcrumbs, cursor) => cursor < 0 ? breadcrumbs.length + cursor : cursor)
-	// function resetBreadcrumbs () {
-	// 	breadcrumbs.value = []
-	// 	breadcrumbsCursor.value = -1
-	// }
 
 	view.getNavbar()
 		?.overrideHomeLink('/data', view)
@@ -183,20 +177,15 @@ export default View<DataParams | undefined>(async view => {
 			.style('data-view-breadcrumbs-wrapper')
 			.setOwner(view)
 			.use(breadcrumbs, (slot, crumbs) => {
-				const breadcrumbs = Component()
+				const wrapper = Component()
 					.style('data-view-breadcrumbs')
 					.appendTo(slot)
 
-				for (let i = 0; i < crumbs.length; i++) {
-					// if (i)
-					// 	Component()
-					// 		.style('data-view-breadcrumbs-separator')
-					// 		.text.set('/')
-					// 		.prependTo(breadcrumbs)
-
-					const breadcrumb = crumbs[i]
+				const navigatePath = navigate.state.map(slot, url => new URL(url).pathname as RoutePath)
+				for (const breadcrumb of crumbs) {
 					const componentName = breadcrumb.path.slice(6).split('/')[0] as AllComponentNames
-					TabButton(actualCursor.equals(i))
+					const selected = navigatePath.equals(breadcrumb.path)
+					TabButton(selected)
 						.and(Link, breadcrumb.path)
 						.style('data-view-breadcrumbs-button')
 						.text.set(breadcrumb.name)
@@ -204,10 +193,18 @@ export default View<DataParams | undefined>(async view => {
 							.style('data-view-breadcrumbs-button-component')
 							.text.set(DataHelper.getComponentName(componentName, true))
 						)
-						.event.subscribe('click', e => {
-							breadcrumbsCursor.value = i
+						.event.subscribe('auxclick', e => {
+							const index = crumbs.indexOf(breadcrumb)
+							if (index !== -1)
+								breadcrumbs.value.splice(index, 1)
+
+							if (selected.value)
+								void navigate.toURL(breadcrumbs.value[index - 1]?.path ?? breadcrumbs.value[index]?.path ?? '/data')
+
+							e.host.remove()
+							e.preventDefault()
 						})
-						.prependTo(breadcrumbs)
+						.prependTo(wrapper)
 				}
 			})
 		)
@@ -233,14 +230,8 @@ export default View<DataParams | undefined>(async view => {
 			path: `/data/${table}/${params.hash}`,
 			name: DataHelper.getTitle(table, result.value.definition),
 		}
-		const breadcrumbIndex = breadcrumbs.value.findIndex(bc => Breadcrumb.equals(bc, newBreadcrumb))
-		if (breadcrumbIndex !== -1) {
-			breadcrumbsCursor.value = breadcrumbIndex
-		}
-		else {
+		if (!breadcrumbs.value.some(bc => Breadcrumb.equals(bc, newBreadcrumb)))
 			breadcrumbs.value = [...breadcrumbs.value, newBreadcrumb]
-			breadcrumbsCursor.value = -1
-		}
 
 		view.loading.skipViewTransition()
 		return {
