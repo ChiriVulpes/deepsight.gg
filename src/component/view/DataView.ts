@@ -194,6 +194,10 @@ export default View<DataParams | undefined>(async view => {
 							.text.set(DataHelper.getComponentName(componentName, true))
 						)
 						.event.subscribe('auxclick', e => {
+							if (e.button !== 1)
+								// only handle middle-clicks
+								return
+
 							const index = crumbs.indexOf(breadcrumb)
 							if (index !== -1)
 								breadcrumbs.value.splice(index, 1)
@@ -217,10 +221,10 @@ export default View<DataParams | undefined>(async view => {
 			return undefined
 
 		const result = DataProvider.SINGLE.get(params.table as AllComponentNames, params.hash)
-		if (!result || signal.aborted) {
+		if (!result)
 			return undefined
-		}
 
+		view.loading.skipViewTransition()
 		await result.promise
 		if (signal.aborted || !result.value)
 			return undefined
@@ -233,7 +237,6 @@ export default View<DataParams | undefined>(async view => {
 		if (!breadcrumbs.value.some(bc => Breadcrumb.equals(bc, newBreadcrumb)))
 			breadcrumbs.value = [...breadcrumbs.value, newBreadcrumb]
 
-		view.loading.skipViewTransition()
 		return {
 			table,
 			hash: params.hash,
@@ -242,7 +245,8 @@ export default View<DataParams | undefined>(async view => {
 		} satisfies DataOverlayParams
 	})
 
-	Overlay(view).bind(overlayDefinition.truthy).and(DataOverlay, overlayDefinition)
+	const hasPendingOverlayDefinition = State.Every(view, view.params.truthy, overlayDefinition.settled.falsy)
+	Overlay(view).bind(State.Some(view, overlayDefinition.truthy, hasPendingOverlayDefinition)).and(DataOverlay, overlayDefinition)
 
 	//#endregion
 	////////////////////////////////////

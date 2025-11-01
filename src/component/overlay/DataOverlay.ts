@@ -7,6 +7,7 @@ import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames, DefinitionLinks } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
+import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import Task from 'kitsui/utility/Task'
@@ -383,12 +384,21 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	////////////////////////////////////
 
 	const dataTabs = Tabinator()
-		.watchNavigation()
 		.appendTo(component)
 
 	const jsonLink = params.map(component, (params): RoutePath => `/data/${params?.table ?? ''}/${params?.hash ?? ''}`)
 	const jsonTab = dataTabs.Tab(jsonLink)
+		.bindEnabled(params.truthy)
 		.text.set(quilt => quilt['view/data/overlay/tab/main']())
+
+	params.use(component, params => {
+		if (!params)
+			jsonTab.select()
+	})
+
+	Loading()
+		.showForever()
+		.appendToWhen(params.map(component, p => !p?.definition), jsonTab.content)
 
 	Slot()
 		.use(params, (s, params) => params && JSONValue(params.definition))
@@ -398,7 +408,8 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 	const refLink = params.map(component, (params): RoutePath => `/data/${params?.table ?? ''}/${params?.hash ?? ''}/references`)
 	const referencesTab = dataTabs.Tab(refLink)
-		.text.bind(referencesCount.map(component, count => quilt => quilt['view/data/overlay/tab/references'](count)))
+		.bindEnabled(params.truthy)
+		.text.bind(referencesCount.map(component, count => quilt => quilt['view/data/overlay/tab/references'](count, count === undefined)))
 
 	Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
 		if (!params)

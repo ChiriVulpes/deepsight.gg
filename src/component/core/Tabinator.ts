@@ -5,18 +5,16 @@ import type { RoutePath } from 'navigation/RoutePath'
 
 interface TabExtensions {
 	readonly content: Component
-	readonly selected: State.Mutable<boolean>
+	readonly selected: State<boolean>
 	bindEnabled (state?: State<boolean>): this
+	setDefaultSelection (): this
+	select (): void
 }
 
 export interface Tab extends Component, TabExtensions { }
 
 interface TabinatorExtensions {
 	readonly Tab: Component.Builder<[State.Or<RoutePath>?], Tab>
-	/**
-	 * For when this Tabinator has Link tabs — automatically updates the selected tab based on navigation changes.
-	 */
-	watchNavigation (): this
 }
 
 interface Tabinator extends Component, TabinatorExtensions { }
@@ -30,17 +28,30 @@ const Tabinator = Component((component): Tabinator => {
 		.style('tabinator-content')
 		.appendTo(component)
 
+	let watchingNavigation = false
 	const tabinatorId = Math.random().toString(36).slice(2)
 
 	const tabinatorDirection = State<-1 | 1>(-1)
+	const defaultSelection = State<Tab | undefined>(undefined)
+
+	const currentURL = State<RoutePath | undefined>(undefined)
 
 	const Tab = Component((component, route?: State.Or<RoutePath>): Tab => {
-		const selected = State(route ? false : !header.getChildren(Tab).some(tab => tab.selected.value))
-		if (route)
-			selected.bind(component, State.Map(component, [navigate.state, State.get(route)], (navigateState, route) => {
-				const navigatePath = new URL(navigateState).pathname
-				return navigatePath === route
-			}))
+		if ([...header.getChildren(Tab)].every(tab => !tab.selected.value))
+			defaultSelection.value ??= component as Tab
+
+		const selected = State(false)
+
+		const isDefaultSelection = defaultSelection.equals(component as Tab)
+		selected.bind(component, isDefaultSelection)
+
+		if (route) {
+			watchNavigation()
+			State.Use(component, { currentURL, route: State.get(route) }, ({ currentURL, route }) => {
+				if (currentURL === route)
+					selectTab(component as Tab)
+			})
+		}
 
 		const tabId = Math.random().toString(36).slice(2)
 
@@ -61,6 +72,7 @@ const Tabinator = Component((component): Tabinator => {
 		return component
 			.and(TabButton, selected)
 			.bindDisabled(enabled.falsy, 'bindEnabled')
+			.tweak(b => b.style.bind(b.disabled, 'button--disabled', 'tabinator-tab-button--disabled'))
 			.ariaRole('tab')
 			.setId(`tabinator-${tabinatorId}-tab-${tabId}`)
 			.attributes.bind('aria-selected', selected.mapManual(isSelected => isSelected ? 'true' : 'false'))
@@ -74,6 +86,13 @@ const Tabinator = Component((component): Tabinator => {
 					else
 						enabled.value = true
 					return tab
+				},
+				setDefaultSelection () {
+					defaultSelection.value = tab
+					return tab
+				},
+				select () {
+					selectTab(tab)
 				},
 			}))
 			.onRooted(tab => {
@@ -92,17 +111,15 @@ const Tabinator = Component((component): Tabinator => {
 		.style.bindVariable('tabinator-direction', tabinatorDirection)
 		.extend<TabinatorExtensions>(tabinator => ({
 			Tab,
-			watchNavigation () {
-				navigate.state.delay(tabinator, 10).use(tabinator, () => {
-					for (const tab of header.getChildren(Tab))
-						if (tab.is(Link) && tab.href.value === new URL(navigate.state.value).pathname) {
-							selectTab(tab)
-							break
-						}
-				})
-				return tabinator
-			},
 		}))
+
+	function watchNavigation () {
+		if (watchingNavigation)
+			return
+
+		watchingNavigation = true
+		currentURL.bind(component, navigate.state.delay(component, 10).map(component, url => new URL(url).pathname as RoutePath))
+	}
 
 	function selectTab (newSelectedTab: Tab) {
 		let previousSelectedTabIndex = Infinity
@@ -118,11 +135,13 @@ const Tabinator = Component((component): Tabinator => {
 			if (tab.selected.value)
 				previousSelectedTabIndex = Math.min(previousSelectedTabIndex, i)
 
-			tab.selected.value = false
+			tab.selected.asMutable?.setValue(false)
 		}
 
 		tabinatorDirection.value = (Math.sign(newSelectedTabIndex - previousSelectedTabIndex) || -1) as -1 | 1
-		newSelectedTab.selected.value = true
+		newSelectedTab.selected.asMutable?.setValue(true)
+
+		defaultSelection.value = undefined
 	}
 })
 

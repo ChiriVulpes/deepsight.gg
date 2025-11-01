@@ -12,6 +12,17 @@
 		%grid
 		%stack
 
+	&-tab-button:
+		#after: .tab-button
+
+		&--disabled:
+			#after: .tabinator-tab-button, .button--disabled
+			%opacity-70
+			$border-colour: transparent
+
+			@after:
+				%background-none
+
 	&-tab-content:
 		%stack-self
 		#transition: #{transition("display")}, #{transition("opacity")}, #{transition("translate")}
