@@ -100,7 +100,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 	interface JSONContainer extends Details, JSONContainerExtensions { }
 
-	const JSONContainer = Component((component, key: string | number | Component | Component[], value: any, path: (string | number)[], hold?: State<boolean>): JSONContainer => {
+	const JSONContainer = Component((component, key: string | number | Component | Component[], value: any, path: (string | number)[], hold?: State<boolean>, isSoloKey = false): JSONContainer => {
 		const pathString = path.join('/')
 		const highlighted = navigate.hash.equals(`#${pathString}`)
 
@@ -159,6 +159,9 @@ export default Component((component, params: State<DataOverlayParams | undefined
 					)
 			}))
 			.onRooted(() => {
+				if (isSoloKey)
+					container.open.value = true
+
 				highlighted.use(keyComponent, highlighted => {
 					if (!highlighted)
 						return
@@ -199,7 +202,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		component.style('data-overlay-json', 'data-overlay-json-object')
 		const entries = Object.entries(object)
 		for (const [key, value] of entries) {
-			JSONContainer(key, value, [...path ?? [], key], hold)
+			JSONContainer(key, value, [...path ?? [], key], hold, entries.length === 1)
 				.tweak(container => container.key.style('data-overlay-json-object-key'))
 				.appendTo(component)
 		}
@@ -223,7 +226,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	const JSONArray = Component((component, array: any[], path?: (string | number)[], hold?: State<boolean>): JSONArray => {
 		component.style('data-overlay-json', 'data-overlay-json-array')
 		for (let i = 0; i < array.length; i++) {
-			JSONContainer([JSONPunctuation('['), JSONNumber(i), JSONPunctuation(']')], array[i], [...path ?? [], i], hold)
+			JSONContainer([JSONPunctuation('['), JSONNumber(i), JSONPunctuation(']')], array[i], [...path ?? [], i], hold, array.length === 1)
 				.tweak(container => container.key.style('data-overlay-json-array-index'))
 				.appendTo(component)
 		}
