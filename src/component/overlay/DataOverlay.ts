@@ -1,4 +1,5 @@
 import Details from 'component/core/Details'
+import Image from 'component/core/Image'
 import Link from 'component/core/Link'
 import Paginator from 'component/core/Paginator'
 import Tabinator from 'component/core/Tabinator'
@@ -237,7 +238,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	////////////////////////////////////
 	//#region Literals
 
-	const JSONString = Component((component, string: string, path?: (string | number)[]) => component.and(JSONComponent)
+	const JSONString = Component((component, string: string) => component.and(JSONComponent)
 		.style('data-overlay-json', 'data-overlay-json-string')
 		.append(JSONPunctuation('"'))
 		.append(string && JSONCopyPaste(string).style('data-overlay-json-string-value'))
@@ -362,9 +363,54 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	//#endregion
 	////////////////////////////////////
 
+	////////////////////////////////////
+	//#region Image
+
+	const imageRegex = /^(?:\/|\.\/|https?:\/\/).*?\.(?:png|gif|jpg|jpeg)$/
+	const JSONImage = Component((component, url: string) => component.and(JSONComponent)
+		.style('data-overlay-json', 'data-overlay-json-image')
+		.append(JSONString(url)
+			.style('data-overlay-json-image-link')
+		)
+		.tweak(wrapper => {
+			const preview = Component()
+				.style('data-overlay-json-image-preview')
+				.appendTo(wrapper)
+
+			const actualURL = DataHelper.resolveImagePath(url)
+			const image = Image(actualURL, DataHelper.FALLBACK_ICON)
+				.style('data-overlay-json-image-preview-image')
+			Component('a')
+				.style('data-overlay-json-image-anchor')
+				.attributes.set('href', actualURL)
+				.attributes.set('target', '_blank')
+				.append(image)
+				.appendTo(preview)
+
+			Component()
+				.style('data-overlay-json-image-preview-metadata')
+				.append(Component()
+					.style('data-overlay-json-image-preview-metadata-number')
+					.text.bind(image.dimensions.map(preview, dimensions => `${dimensions?.width}`))
+				)
+				.append(JSONPunctuation(' x '))
+				.append(Component()
+					.style('data-overlay-json-image-preview-metadata-number')
+					.text.bind(image.dimensions.map(preview, dimensions => `${dimensions?.height}`))
+				)
+				.appendToWhen(image.dimensions.truthy, preview)
+		})
+	)
+
+	//#endregion
+	////////////////////////////////////
+
 	const JSONValue = (value: unknown, path?: (string | number)[], hold?: State<boolean>) => {
+		if (typeof value === 'string' && imageRegex.test(value))
+			return JSONImage(value)
+
 		if (typeof value === 'string')
-			return JSONString(value, path)
+			return JSONString(value)
 
 		if (typeof value === 'number')
 			return JSONNumber(value, path)
@@ -404,6 +450,9 @@ export default Component((component, params: State<DataOverlayParams | undefined
 	Slot()
 		.use(params, (s, params) => params && JSONValue(params.definition))
 		.appendTo(jsonTab.content)
+
+	////////////////////////////////////
+	//#region References
 
 	const referencesCount = State<number | undefined>(undefined)
 
@@ -453,6 +502,9 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			})
 			.appendTo(slot)
 	})
+
+	//#endregion
+	////////////////////////////////////
 
 	InputBus.event.until(component, event => event.subscribe('Down', (_, event) => {
 		if (event.use('Escape')) {

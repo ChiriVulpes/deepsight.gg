@@ -111,3 +111,34 @@
 					&-title:
 						colour: $json-reference-colour
 						%decoration-underline
+
+		&-image:
+			%inline-flex
+			%flex-column
+			%vertical-align-top
+
+			&-link:
+			&-anchor:
+				%relative
+				%inline-flex
+				%isolate
+				@before, @after:
+					%block
+					%absolute
+					%inset-0
+				@before:
+					box-shadow: inset 0 0 0 1px #fff2
+				@after:
+					box-shadow: inset 0 0 0 1px #333
+					%colour-dodge
+			&-preview:
+				%width-fit
+				%flex
+				%flex-column
+				%align-items-end
+				&-image:
+					%max-height-7
+				&-metadata:
+					%colour-4
+					&-number:
+						colour: $json-number-colour

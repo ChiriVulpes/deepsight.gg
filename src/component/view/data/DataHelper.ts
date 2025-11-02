@@ -38,13 +38,28 @@ namespace DataHelper {
 			if (icon && MISSING_ICON.endsWith(icon))
 				return FALLBACK_ICON
 
-			if (icon && icon.startsWith('/'))
-				return `https://www.bungie.net${icon}`
-			if (icon && icon.startsWith('./'))
-				return `https://deepsight.gg${icon.slice(1)}`
+			if (icon)
+				return DataHelper.resolveImagePath(icon, component) ?? FALLBACK_ICON
 		}
 
 		return FALLBACK_ICON
+	}
+
+	export function resolveImagePath (url: string, component?: AllComponentNames): string | undefined {
+		if (component?.startsWith('Destiny'))
+			return url.startsWith('/') ? `https://www.bungie.net${url}`
+				: url.startsWith('./') ? `https://www.bungie.net${url.slice(1)}`
+					: url.startsWith('http') ? url
+						: undefined
+
+		if (!component || component?.startsWith('Deepsight'))
+			return url.startsWith('/') ? `https://www.bungie.net${url}`
+				: url.startsWith('./') ? `https://deepsight.gg${url.slice(1)}`
+					: url.startsWith('http') ? url
+						: undefined
+
+		console.warn(`Unable to resolve image path for URL "${url}" and component "${component}"`)
+		return undefined
 	}
 
 	export function getTitle (component?: AllComponentNames, definition?: object): string {
