@@ -9,6 +9,7 @@ type DataProviderParam = number | string | boolean
 interface DataProvider<PARAMS extends DataProviderParam[], T> {
 	prep (...params: PARAMS): void
 	get (...params: PARAMS): State.Async<T | undefined>
+	clear (): void
 }
 
 interface DataProviderDefinition<PARAMS extends DataProviderParam[], T> {
@@ -78,6 +79,10 @@ function DataProvider<PARAMS extends DataProviderParam[], T> (definition: DataPr
 				cachedData.shift()
 
 			return cached.data
+		},
+		clear () {
+			cachedData.length = 0
+			prepCache.length = 0
 		},
 	}
 }

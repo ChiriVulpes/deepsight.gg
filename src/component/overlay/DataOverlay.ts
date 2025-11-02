@@ -105,6 +105,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 		let container: JSONContainer
 		const keyComponent = Component('a')
+			.setOwner(component)
 			.style('data-overlay-json-container-key')
 			.attributes.set('href', `#${pathString}`)
 			.append(...typeof key === 'object' ? Arrays.resolve(key) : [])
@@ -411,7 +412,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		.bindEnabled(params.truthy)
 		.text.bind(referencesCount.map(component, count => quilt => quilt['view/data/overlay/tab/references'](count, count === undefined)))
 
-	Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
+	const slot = Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
 		if (!params)
 			return
 

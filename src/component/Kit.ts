@@ -25,14 +25,14 @@ export default function styleKit () {
 	Kit.Loading.extend(loading => {
 		let normalTransitions = false
 
-		const spinner = loading.spinner
-		loading.spinner.append(...([1, 2, 3, 4] as const).map(i => Component().style('loading-spinner-dot', `loading-spinner-dot-${i}`)))
+		const dots = ([1, 2, 3, 4] as const).map(i => Component().style('loading-spinner-dot', `loading-spinner-dot-${i}`))
+		loading.spinner.append(...dots)
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		const interval = setInterval(async () => {
-			for (const dot of spinner.getChildren())
+			for (const dot of dots)
 				dot.style('loading-spinner-dot--no-animate')
 			await new Promise(resolve => setTimeout(resolve, 10))
-			for (const dot of spinner.getChildren())
+			for (const dot of dots)
 				dot.style.remove('loading-spinner-dot--no-animate')
 		}, 2000)
 

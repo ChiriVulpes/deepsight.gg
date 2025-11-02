@@ -45,6 +45,9 @@ const Paginator = Component((component): Paginator<unknown> => {
 				if (data === undefined)
 					return
 
+				if (pageComponent.removed.value)
+					return
+
 				hasPageData.value = true
 				loading.value = false
 				state.value?.init(component as Paginator<unknown>, slot, page, data)
