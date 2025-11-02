@@ -122,6 +122,7 @@
 				%relative
 				%inline-flex
 				%isolate
+				%width-fit
 				@before, @after:
 					%block
 					%absolute
@@ -135,10 +136,10 @@
 				%width-fit
 				%flex
 				%flex-column
-				%align-items-end
 				&-image:
 					%max-height-7
 				&-metadata:
 					%colour-4
+					%align-self-end
 					&-number:
 						colour: $json-number-colour
