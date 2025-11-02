@@ -9,7 +9,7 @@ import type { RoutePath } from 'navigation/RoutePath'
 interface NavbarExtensions {
 	readonly visible: State.Mutable<boolean>
 	readonly viewTransitionsEnabled: State.Mutable<boolean>
-	overrideHomeLink (route: RoutePath, owner: State.Owner): this
+	overrideHomeLink (route: State.Or<RoutePath>, owner: State.Owner): this
 }
 
 interface Navbar extends Component, NavbarExtensions { }
@@ -42,7 +42,7 @@ const Navbar = Component('nav', (component): Navbar => {
 			visible,
 			viewTransitionsEnabled,
 			overrideHomeLink (route, owner) {
-				homeLinkState.value = route
+				homeLinkState.bind(owner, State.get(route))
 				void owner.removed.await(navbar, true).then(() => {
 					if (homeLinkState.value === route)
 						homeLinkState.value = '/'

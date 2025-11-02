@@ -8,7 +8,6 @@ import WordmarkLogo from 'component/WordmarkLogo'
 import { Component } from 'kitsui'
 import Profile from 'model/Profile'
 import Relic from 'Relic'
-import Env from 'utility/Env'
 
 export default View(async view => {
 	view.hasNavbar.value = false
@@ -91,14 +90,12 @@ export default View(async view => {
 		.text.set(quilt => quilt['view/splash/collections-card/action/view']())
 		.appendTo(collectionsCard)
 
-	if (Env.ENVIRONMENT === 'dev') {
-		const dataCard = Card().appendTo(collectionsColumn)
-		dataCard.headerText.set(quilt => quilt['view/splash/data-card/title']())
-		dataCard.descriptionText.set(quilt => quilt['view/splash/data-card/description']())
+	const dataCard = Card().appendTo(collectionsColumn)
+	dataCard.headerText.set(quilt => quilt['view/splash/data-card/title']())
+	dataCard.descriptionText.set(quilt => quilt['view/splash/data-card/description']())
 
-		Link('/data')
-			.and(Button)
-			.text.set(quilt => quilt['view/splash/data-card/action/view']())
-			.appendTo(dataCard)
-	}
+	Link('/data')
+		.and(Button)
+		.text.set(quilt => quilt['view/splash/data-card/action/view']())
+		.appendTo(dataCard)
 })

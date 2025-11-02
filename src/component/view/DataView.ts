@@ -171,8 +171,13 @@ export default View<DataParams | undefined>(async view => {
 
 	const breadcrumbs = State<Breadcrumb[]>([])
 
+	const homeLinkURL = navigate.state.map(view, url => {
+		const route = new URL(url).pathname as RoutePath
+		return route === '/data' ? '/' : '/data'
+	})
+
 	view.getNavbar()
-		?.overrideHomeLink('/data', view)
+		?.overrideHomeLink(homeLinkURL, view)
 		.append(DisplaySlot()
 			.style('data-view-breadcrumbs-wrapper')
 			.setOwner(view)
