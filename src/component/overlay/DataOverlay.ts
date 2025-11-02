@@ -412,7 +412,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		.bindEnabled(params.truthy)
 		.text.bind(referencesCount.map(component, count => quilt => quilt['view/data/overlay/tab/references'](count, count === undefined)))
 
-	const slot = Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
+	Slot().appendTo(referencesTab.content).use(dedupedParams, (slot, params) => {
 		if (!params)
 			return
 
