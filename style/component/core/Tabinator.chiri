@@ -2,11 +2,35 @@
 	%grid
 	grid-template-rows: auto 1fr
 	%gap-3
+	$tabinator-vertical-modifier: 0
+
+	&--vertical:
+		#after: .tabinator
+		grid-template-rows: auto
+		grid-template-columns: auto 1fr
+		$tabinator-vertical-modifier: 1
 
 	&-header:
 		%flex
 		%flex-wrap
 		%gap-3
+
+		&--vertical:
+			#after: .tabinator-header
+
+		&--hidden:
+			#after: .tabinator-header
+
+		&-sticky-wrapper:
+			%contents
+			&--vertical:
+				#after: .tabinator-header-sticky-wrapper
+				%flex
+				%flex-column
+				%gap-0
+				%sticky
+				%top-0
+				%height-fit
 
 	&-content:
 		%grid
@@ -14,6 +38,12 @@
 
 	&-tab-button:
 		#after: .tab-button
+
+		&--vertical:
+			#after: .tabinator-tab-button
+			%font-1
+			$button-effects-inset-block: $space-1
+			%text-align-right
 
 		&--disabled:
 			#after: .tabinator-tab-button, .button--disabled
@@ -31,7 +61,7 @@
 
 		:start:
 			%transparent
-			translate: calc($space-4 * $tabinator-direction)
+			translate: calc($space-4 * $tabinator-direction * (1 - $tabinator-vertical-modifier)) calc($space-4 * $tabinator-direction * $tabinator-vertical-modifier)
 
 		&--hidden:
 			#after: .tabinator-tab-content
@@ -39,4 +69,4 @@
 			%transparent
 			%transition-focus
 			%transition-discrete
-			translate: calc($space-4 * $tabinator-direction * -1)
+			translate: calc($space-4 * $tabinator-direction * -1 * (1 - $tabinator-vertical-modifier)) calc($space-4 * $tabinator-direction * -1 * $tabinator-vertical-modifier)

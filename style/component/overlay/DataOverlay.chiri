@@ -5,6 +5,26 @@
 	overflow-x: hidden
 	%padding-bottom-6
 
+	&-tabinator-header:
+		%relative
+		@before:
+			%block
+			%absolute
+			bottom: 1.5px
+			%width-100
+			%border-bottom-1
+			%opacity-10
+
+	&-augmentations-tabinator-header:
+		%relative
+		@before:
+			%block
+			%absolute
+			right: 1px
+			%height-100
+			%border-right-1
+			%opacity-10
+
 	$json-punctuation-colour: #4d5980
 	$json-placeholder-colour: #4d5980
 	$json-highlight-colour: #f9b5ff

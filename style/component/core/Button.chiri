@@ -18,6 +18,7 @@ $$button-z-index-hover-2!int: 0
 		$$button-z-index-hover-1 0s linear $transition-blur,
 		#{transition("background")}, #{transition("border")}, #{transition("box-shadow")}
 	%transition-discrete
+	$button-effects-inset-block: 0px
 
 	@before, @after:
 		%block
@@ -25,13 +26,15 @@ $$button-z-index-hover-2!int: 0
 		%no-pointer-events
 
 	@before:
-		inset: -10px
+		inset-inline: -10px
+		inset-block: calc(-10px + $button-effects-inset-block)
 		%transparent
 		box-shadow: inset 0 0 0 2px currentcolor
 		#transition: #{transition("inset")}, #{transition("opacity")}
 
 	@after:
-		%inset-0
+		inset-inline: 0
+		inset-block: $button-effects-inset-block
 		#transition: #{transition("opacity")}
 		background-colour: #fff2
 		%transparent
@@ -43,7 +46,8 @@ $$button-z-index-hover-2!int: 0
 		transition: none
 
 		@before:
-			inset: -5px
+			inset-inline: -5px
+			inset-block: calc(-5px + $button-effects-inset-block)
 			%opaque
 			%transition-focus
 
@@ -64,7 +68,8 @@ $$button-z-index-hover-2!int: 0
 
 		@before:
 			%transparent
-			inset: -10px
+			inset-inline: -10px
+			inset-block: calc(-10px + $button-effects-inset-block)
 
 		@after:
 			%opacity-20

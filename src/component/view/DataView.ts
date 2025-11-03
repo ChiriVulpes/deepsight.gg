@@ -54,6 +54,11 @@ namespace Breadcrumb {
 export interface DataParams {
 	table: string
 	hash: string
+	augmentation?: string
+}
+
+export interface DataParamsWithAugmentation extends DataParams {
+	augmentation: string
 }
 
 export default View<DataParams | undefined>(async view => {

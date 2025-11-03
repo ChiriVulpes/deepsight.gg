@@ -15,14 +15,31 @@ export interface Tab extends Component, TabExtensions { }
 
 interface TabinatorExtensions {
 	readonly Tab: Component.Builder<[State.Or<RoutePath>?], Tab>
+	readonly header: Component
+	hideWhenSingleTab (): this
+	setDisplayMode (mode: 'horizontal' | 'vertical'): this
 }
 
 interface Tabinator extends Component, TabinatorExtensions { }
 
 const Tabinator = Component((component): Tabinator => {
+	// eslint-disable-next-line prefer-const
+	let Tab: Component.Builder<[State.Or<RoutePath>?], Tab>
+
+	const displayMode = State<'horizontal' | 'vertical'>('horizontal')
+	const hideWhenSingleTab = State(false)
+	const isSingleTab = State.JIT((): boolean => !!Tab && [...tabsWrapper.getChildren(Tab)].length <= 1)
+
 	const header = Component()
 		.style('tabinator-header')
+		.style.bind(displayMode.equals('vertical'), 'tabinator-header--vertical')
+		.style.bind(State.Every(component, hideWhenSingleTab, isSingleTab), 'tabinator-header--hidden')
 		.appendTo(component)
+
+	const tabsWrapper = Component()
+		.style('tabinator-header-sticky-wrapper')
+		.style.bind(displayMode.equals('vertical'), 'tabinator-header-sticky-wrapper--vertical')
+		.appendTo(header)
 
 	const content = Component()
 		.style('tabinator-content')
@@ -36,22 +53,14 @@ const Tabinator = Component((component): Tabinator => {
 
 	const currentURL = State<RoutePath | undefined>(undefined)
 
-	const Tab = Component((component, route?: State.Or<RoutePath>): Tab => {
-		if ([...header.getChildren(Tab)].every(tab => !tab.selected.value))
+	Tab = Component((component, route?: State.Or<RoutePath>): Tab => {
+		if ([...tabsWrapper.getChildren(Tab)].every(tab => !tab.selected.value))
 			defaultSelection.value ??= component as Tab
 
 		const selected = State(false)
 
 		const isDefaultSelection = defaultSelection.equals(component as Tab)
 		selected.bind(component, isDefaultSelection)
-
-		if (route) {
-			watchNavigation()
-			State.Use(component, { currentURL, route: State.get(route) }, ({ currentURL, route }) => {
-				if (currentURL === route)
-					selectTab(component as Tab)
-			})
-		}
 
 		const tabId = Math.random().toString(36).slice(2)
 
@@ -71,8 +80,11 @@ const Tabinator = Component((component): Tabinator => {
 
 		return component
 			.and(TabButton, selected)
+			.style('tabinator-tab-button')
+			.style.bind(displayMode.equals('vertical'), 'tabinator-tab-button--vertical')
+			.setDisplayMode(displayMode)
 			.bindDisabled(enabled.falsy, 'bindEnabled')
-			.tweak(b => b.style.bind(b.disabled, 'button--disabled', 'tabinator-tab-button--disabled'))
+			.tweak(b => b.style.bind(b.disabled, 'button--disabled', 'tab-button--disabled', 'tabinator-tab-button--disabled'))
 			.ariaRole('tab')
 			.setId(`tabinator-${tabinatorId}-tab-${tabId}`)
 			.attributes.bind('aria-selected', selected.mapManual(isSelected => isSelected ? 'true' : 'false'))
@@ -96,21 +108,41 @@ const Tabinator = Component((component): Tabinator => {
 				},
 			}))
 			.onRooted(tab => {
+				if (route) {
+					watchNavigation()
+					State.Use(component, { currentURL, route: State.get(route) }, ({ currentURL, route }) => {
+						if (currentURL === route)
+							selectTab(component as Tab)
+					})
+				}
+
 				tab.event.subscribe('click', e => {
 					e.preventDefault()
 					selectTab(tab)
 					if (tab.is(Link))
 						navigate.setURL(tab.href.value)
 				})
+
+				isSingleTab.markDirty()
 			})
-			.appendTo(header)
+			.appendTo(tabsWrapper)
 	})
 
 	return component
 		.style('tabinator')
+		.style.bind(displayMode.equals('vertical'), 'tabinator--vertical')
 		.style.bindVariable('tabinator-direction', tabinatorDirection)
 		.extend<TabinatorExtensions>(tabinator => ({
 			Tab,
+			header,
+			hideWhenSingleTab () {
+				hideWhenSingleTab.value = true
+				return tabinator
+			},
+			setDisplayMode (mode) {
+				displayMode.value = mode
+				return tabinator
+			},
 		}))
 
 	function watchNavigation () {
@@ -124,7 +156,7 @@ const Tabinator = Component((component): Tabinator => {
 	function selectTab (newSelectedTab: Tab) {
 		let previousSelectedTabIndex = Infinity
 		let newSelectedTabIndex = -1
-		const tabs = [...header.getChildren(Tab)]
+		const tabs = [...tabsWrapper.getChildren(Tab)]
 		for (let i = 0; i < tabs.length; i++) {
 			const tab = tabs[i]
 			if (tab === newSelectedTab) {

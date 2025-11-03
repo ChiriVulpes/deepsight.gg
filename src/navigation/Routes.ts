@@ -1,6 +1,7 @@
 import type View from 'component/core/View'
 import type { CollectionsParamsItemHash, CollectionsParamsItemName } from 'component/view/CollectionsView'
 import CollectionsView from 'component/view/CollectionsView'
+import type { DataParamsWithAugmentation } from 'component/view/DataView'
 import DataView from 'component/view/DataView'
 import SplashView from 'component/view/SplashView'
 import Route from 'navigation/Route'
@@ -14,6 +15,7 @@ const Routes = [
 	Route('/data', DataView),
 	Route('/data/$table/$hash', DataView),
 	Route('/data/$table/$hash/references', DataView),
+	Route('/data/$table/$hash/$augmentation', DataView as View.Builder.WithParams<DataParamsWithAugmentation | undefined>),
 ]
 
 RoutePath.setRoutes(Routes)

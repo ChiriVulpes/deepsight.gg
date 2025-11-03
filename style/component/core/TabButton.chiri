@@ -2,13 +2,23 @@
 	#after: .button
 	%background-none
 	%box-shadow-none
-	$border-colour: transparent
+	; $border-colour: transparent
+	%border-none
 
 	&--hover:
-		$border-colour: currentcolor
+		; $border-colour: currentcolor
 
 	&--active:
 		#after: .tab-button
+
+	@after:
+		%border-1
+
+	&--disabled:
+		#after: .tab-button
+		@after:
+			%hidden
+			$border-colour: transparent
 
 	&-underline:
 		%absolute
@@ -22,8 +32,18 @@
 		%transparent
 		#transition: #{transition("scale")}, #{transition("opacity")}
 
-		&--active:
+		&--vertical:
 			#after: .tab-button-underline
+			%width-1
+			height: calc(100% - $button-effects-inset-block * 2)
+			%left-auto
+			%top-50
+			%translate-up-50
+			right: -1px
+			scale: 1 0
+
+		&--active:
+			#after: .tab-button-underline, .tab-button-underline--vertical
 			scale: 1 1
 			%opaque
 			%transition-focus
