@@ -158,6 +158,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 					details.summary
 						.style('data-overlay-json-container-entry-summary')
 						.style.toggle(!expandable, 'data-overlay-json-container-entry-summary--simple')
+						.style.bind(details.open, 'data-overlay-json-container-entry-summary--open')
 						.append(keyComponent)
 						.append(JSONPunctuation(':'))
 						.text.append(' ')
@@ -314,6 +315,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 						details.summary
 							.style('data-overlay-json-container-entry-summary')
+							.style.bind(details.open, 'data-overlay-json-container-entry-summary--open')
 							.append(Component()
 								.style('data-overlay-json-container-key')
 								.style.bind(highlighted, 'data-overlay-json-container-key--highlighted')
