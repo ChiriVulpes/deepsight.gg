@@ -268,6 +268,12 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			}))
 		})
 
+		//#endregion
+		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region Cascade
+
 		const JSONCascade = <T> (array: T[], path: (string | number)[] | undefined, hold: State<boolean> | undefined, init: (value: T) => Component): Component => {
 			const CASCADE_SIZE = 25
 			const chunks = array.groupBy((v, index) => Math.floor(index / CASCADE_SIZE)).map(([, chunk]) => chunk)
@@ -275,6 +281,12 @@ export default Component((component, params: State<DataOverlayParams | undefined
 				return JSONCascade(chunks, path, hold, chunk => cascadeChunk(chunk))
 
 			const result = Component()
+			if (chunks.length === 1) {
+				for (const item of chunks[0])
+					init(item).appendTo(result)
+				return result
+			}
+
 			for (const chunk of chunks)
 				cascadeChunk(chunk)
 					.appendTo(result)
