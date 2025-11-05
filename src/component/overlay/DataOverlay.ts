@@ -250,15 +250,120 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 		const JSONArray = Component((component, array: any[], path?: (string | number)[], hold?: State<boolean>): JSONArray => {
 			component.style('data-overlay-json', 'data-overlay-json-array')
-			for (let i = 0; i < array.length; i++) {
-				JSONContainer([JSONPunctuation('['), JSONNumber(i), JSONPunctuation(']')], array[i], [...path ?? [], i], hold, array.length === 1)
+
+			JSONCascade(array.map((_, i) => i), path, hold,
+				i => JSONContainer(
+					[JSONPunctuation('['), JSONNumber(i), JSONPunctuation(']')],
+					array[i],
+					[...path ?? [], i],
+					hold,
+					array.length === 1,
+				)
 					.tweak(container => container.key.style('data-overlay-json-array-index'))
-					.appendTo(component)
-			}
+			)
+				.appendTo(component)
+
 			return component.and(JSONComponent).extend<JSONArrayExtensions>(arr => ({
 				length: array.length,
 			}))
 		})
+
+		const JSONCascade = <T> (array: T[], path: (string | number)[] | undefined, hold: State<boolean> | undefined, init: (value: T) => Component): Component => {
+			const CASCADE_SIZE = 25
+			const chunks = array.groupBy((v, index) => Math.floor(index / CASCADE_SIZE)).map(([, chunk]) => chunk)
+			if (chunks.length > CASCADE_SIZE)
+				return JSONCascade(chunks, path, hold, chunk => cascadeChunk(chunk))
+
+			const result = Component()
+			for (const chunk of chunks)
+				cascadeChunk(chunk)
+					.appendTo(result)
+
+			return result
+
+			function cascadeChunk (chunk: T[]) {
+				const [start, end] = getEnds(chunk as CascadedKeys)
+				return Component()
+					.style('data-overlay-json-container-entry')
+					.and(Details)
+					.tweak(details => {
+						const pathBeforeKey = path?.join('/')
+						const highlighted = navigate.hash.map(component, hash => {
+							if (!pathBeforeKey)
+								return false
+
+							if (!hash.startsWith(`#${pathBeforeKey}`))
+								return false
+
+							const nextSegment = hash.slice(pathBeforeKey.length + 2).split('/')[0]
+							const nextKey = isNaN(+nextSegment) ? nextSegment : +nextSegment
+							return containsKey(chunk as CascadedKeys, nextKey)
+						})
+
+						details.summary
+							.style('data-overlay-json-container-entry-summary')
+							.append(Component()
+								.style('data-overlay-json-container-key')
+								.style.bind(highlighted, 'data-overlay-json-container-key--highlighted')
+								.append(
+									JSONPunctuation('['),
+									JSONValue(start),
+									JSONPunctuation('..'),
+									JSONValue(end),
+									JSONPunctuation(']'),
+								)
+							)
+
+						const expandable = Component()
+							.style('data-overlay-json-container-expandable')
+							.appendTo(details.content)
+
+						const openedOnce = State(false)
+						State.Every(details, details.open, openedOnce.falsy).use(details, open => {
+							if (!open)
+								return
+
+							openedOnce.value = true
+							for (const item of chunk)
+								init(item).appendTo(expandable)
+						})
+
+						highlighted.use(details, highlighted => {
+							if (!highlighted)
+								return
+
+							details.open.value = highlighted
+						})
+					})
+			}
+
+			type CascadedKeys = (string | number)[] | CascadedKeys[]
+			function getEnds (arr: CascadedKeys) {
+				return [getStart(arr), getEnd(arr)]
+
+				function getStart (arr: CascadedKeys): string | number {
+					if (typeof arr[0] !== 'object')
+						return arr[0] ?? '???'
+
+					return getStart(arr[0])
+				}
+
+				function getEnd (arr: CascadedKeys): string | number {
+					const last = arr.at(-1)
+					if (typeof last !== 'object')
+						return last ?? '???'
+
+					return getEnd(last)
+				}
+			}
+
+			function containsKey (arr: CascadedKeys, key: string | number): boolean {
+				if (typeof arr[0] !== 'object')
+					return (arr as (string | number)[]).includes(key)
+
+				return arr.some(subArr => containsKey(subArr as CascadedKeys, key))
+			}
+		}
 
 		//#endregion
 		////////////////////////////////////
