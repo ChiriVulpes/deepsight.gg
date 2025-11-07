@@ -186,7 +186,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						)
 				}))
 				.onRooted(() => {
-					if (isSoloKey)
+					if (isSoloKey || path.at(-1) === 'displayProperties')
 						container.open.value = true
 
 					highlighted.use(keyComponent, highlighted => {
@@ -234,6 +234,23 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		const JSONObject = Component((component, object: object, path?: (string | number)[], hold?: State<boolean>): JSONObject => {
 			component.style('data-overlay-json', 'data-overlay-json-object')
 			const entries = Object.entries(object)
+
+			const isDisplayProperties = ['name', 'description', 'icon', 'hasIcon'].every(prop => prop in object)
+			const displayPropertiesOrder = ['name', 'description']
+			if (isDisplayProperties)
+				entries.sort(([a], [b]) => {
+					const aIndex = displayPropertiesOrder.indexOf(a) + 1 || Infinity
+					const bIndex = displayPropertiesOrder.indexOf(b) + 1 || Infinity
+					return aIndex - bIndex
+				})
+
+			if ('displayProperties' in object || 'hash' in object)
+				entries.sort(([a], [b]) => 0
+					|| +(b === 'hash') - +(a === 'hash')
+					|| +(b === 'index') - +(a === 'index')
+					|| +(b === 'displayProperties') - +(a === 'displayProperties')
+				)
+
 			for (const [key, value] of entries) {
 				JSONContainer(key, value, [...path ?? [], key], hold, entries.length === 1)
 					.tweak(container => container.key.style('data-overlay-json-object-key'))
