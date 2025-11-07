@@ -45,6 +45,7 @@
 		&-punctuation:
 			%user-select-none
 			colour: $json-punctuation-colour
+			%white-space-pre
 
 		&-placeholder:
 			%user-select-none
