@@ -80,19 +80,26 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		////////////////////////////////////
 		//#region Copypaste
 
-		const JSONCopyPaste = Component('input', (component, value: string | number) => component.and(JSONComponent)
-			.replaceElement('input')
+		const JSONCopyPaste = Component((component, value: string | number) => component.and(JSONComponent)
 			.style('data-overlay-json-copypaste')
-			.attributes.set('readonly', 'true')
+			.attributes.set('contenteditable', 'true')
+			.attributes.set('aria-readonly', 'true')
 			.tweak(input => {
 				const string = `${value}`
-				input.element.value = string
+				input.element.textContent = string
 				input.style.setVariable('chars', string.length)
 			})
+			.event.subscribe('beforeinput', e => e.preventDefault())
 			.event.subscribe('mousedown', e => {
 				const input = e.host
 				if (document.activeElement !== input.element) {
-					void Task.yield().then(() => input.element.select())
+					void Task.yield().then(() => {
+						const range = document.createRange()
+						range.selectNodeContents(input.element)
+						const selection = window.getSelection()
+						selection?.removeAllRanges()
+						selection?.addRange(range)
+					})
 				}
 			})
 			.event.subscribe('blur', e => {
@@ -120,7 +127,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			let container: JSONContainer
 			const keyComponent = Component('a')
 				.setOwner(component)
-				.style('data-overlay-json-container-key')
+				.style('data-overlay-json-container-entry-key')
 				.attributes.set('href', `#${pathString}`)
 				.append(...typeof key === 'object' ? Arrays.resolve(key) : [])
 				.text.append(typeof key !== 'object' ? `${key}` : '')
@@ -160,7 +167,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						.style.toggle(!expandable, 'data-overlay-json-container-entry-summary--simple')
 						.style.bind(details.open, 'data-overlay-json-container-entry-summary--open')
 						.append(keyComponent)
-						.append(JSONPunctuation(':'))
+						.append(JSONPunctuation(':').style('data-overlay-json-container-entry-punctuation'))
 						.text.append(' ')
 						.append(expandable ? undefined : valueComponent)
 						.append(!expandable ? undefined : (expandable.is(JSONObject)
@@ -186,11 +193,11 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						if (!highlighted)
 							return
 
-						container.key.style('data-overlay-json-container-key--highlighted')
+						container.key.style('data-overlay-json-container-entry-key--highlighted')
 						container.open.value = true
 						const highlightedContainers = container.getAncestorComponents(JSONContainer).toArray()
 						for (const ancestorContainer of highlightedContainers) {
-							ancestorContainer.key.style('data-overlay-json-container-key--highlighted')
+							ancestorContainer.key.style('data-overlay-json-container-entry-key--highlighted')
 							ancestorContainer.open.value = true
 						}
 
@@ -202,7 +209,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 								continue
 
 							container.open.value = false
-							container.key.style.remove('data-overlay-json-container-key--highlighted')
+							container.key.style.remove('data-overlay-json-container-entry-key--highlighted')
 						}
 					})
 				})
@@ -317,8 +324,8 @@ export default Component((component, params: State<DataOverlayParams | undefined
 							.style('data-overlay-json-container-entry-summary')
 							.style.bind(details.open, 'data-overlay-json-container-entry-summary--open')
 							.append(Component()
-								.style('data-overlay-json-container-key')
-								.style.bind(highlighted, 'data-overlay-json-container-key--highlighted')
+								.style('data-overlay-json-container-entry-key')
+								.style.bind(highlighted, 'data-overlay-json-container-entry-key--highlighted')
 								.append(
 									JSONPunctuation('['),
 									JSONValue(start),
@@ -516,6 +523,12 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		const imageRegex = /^(?:\/|\.\/|https?:\/\/).*?\.(?:png|gif|jpg|jpeg)$/
 		const JSONImage = Component((component, url: string) => component.and(JSONComponent)
 			.style('data-overlay-json', 'data-overlay-json-image')
+			.event.subscribeCapture('mousedown', e => {
+				if (e.targetComponent === e.host) {
+					e.preventDefault()
+					e.stopImmediatePropagation()
+				}
+			})
 			.append(JSONString(url)
 				.style('data-overlay-json-image-link')
 			)

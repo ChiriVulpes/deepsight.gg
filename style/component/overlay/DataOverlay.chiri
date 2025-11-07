@@ -67,6 +67,7 @@
 					padding-left: calc($space-3 + $space-1 + $space-1 / 2)
 					%margin-0
 					%relative
+					%flex
 
 					@before:
 						%block
@@ -85,15 +86,20 @@
 					&--simple:
 						@before:
 							%hidden
-			&-key:
-				colour: $json-key-colour
-				%no-decoration
-				%cursor-default
-				&--highlighted:
-					colour: $json-highlight-colour
-					$json-punctuation-colour: $json-highlight-colour
-					$json-number-colour: $json-highlight-colour
-					%weight-bold
+
+				&-key:
+					colour: $json-key-colour
+					%no-decoration
+					%cursor-default
+					&--highlighted:
+						colour: $json-highlight-colour
+						$json-punctuation-colour: $json-highlight-colour
+						$json-number-colour: $json-highlight-colour
+						%weight-bold
+
+				&-punctuation:
+					@after:
+						%margin-right-2
 
 			&-value:
 			&-expandable:
@@ -117,8 +123,10 @@
 			&-expandable:
 
 		&-string:
+			%inline-block
 			&-value:
 				colour: $json-string-colour
+				%white-space-pre-wrap
 
 		&-number:
 			colour: $json-number-colour
