@@ -12,14 +12,14 @@ import type TextManipulator from 'kitsui/utility/TextManipulator'
 import { quilt } from 'utility/Text'
 
 // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
-interface FilterToken extends String {
+export interface FilterToken extends String {
 	readonly lowercase: string
 	readonly displayText: string
 	readonly start: number
 	readonly end: number
 }
 
-namespace FilterToken {
+export namespace FilterToken {
 	export function create (text: string, start = 0, end = text.length): FilterToken {
 		return Object.assign(String(text), {
 			lowercase: (text
@@ -73,6 +73,8 @@ namespace Filter {
 		readonly filters: Filter.Definition[]
 		readonly allowUppercase?: true
 		readonly debounceTime?: number
+		readonly plaintextFilterTweakChip?: FilterFunction['chip']
+		readonly plaintextFilterIsValid?: (token: FilterToken) => boolean
 	}
 
 	export interface Suggestions {
@@ -90,8 +92,12 @@ namespace Filter {
 	export interface Chip extends Component, FilterChipExtensions { }
 }
 
-const PLAINTEXT_FILTER_FUNCTION: FilterFunction['filter'] = (item, token) => item.displayProperties.name.toLowerCase().includes(token.lowercase)
-const PLAINTEXT_FILTER_TWEAK_CHIP: FilterFunction['chip'] = (chip, token) => chip.style('filter-display-text').style.toggle(token.lowercase.length < 3, 'filter-display-text--inactive')
+export const PLAINTEXT_FILTER_IS_VALID = (token: FilterToken) => token.lowercase.length >= 3
+const PLAINTEXT_FILTER_FUNCTION: NonNullable<FilterFunction['filter']> = (item, token) =>
+	item.displayProperties.name.toLowerCase().includes(token.lowercase)
+export const PLAINTEXT_FILTER_TWEAK_CHIP: NonNullable<FilterFunction['chip']> = (chip, token) => chip
+	.style('filter-display-text')
+	.style.toggle(!PLAINTEXT_FILTER_IS_VALID(token), 'filter-display-text--inactive')
 
 const EMOJI_ICON_PLACEHOLDER = '⬛'
 const EMOJI_REGEX = /(?!\p{N})[\p{Emoji}\p{Extended_Pictographic}]/gu
@@ -189,7 +195,7 @@ const Filter = Object.assign(
 					isPartial: true,
 					token,
 					filter: PLAINTEXT_FILTER_FUNCTION,
-					chip: PLAINTEXT_FILTER_TWEAK_CHIP,
+					chip: config?.plaintextFilterTweakChip ?? PLAINTEXT_FILTER_TWEAK_CHIP,
 				})
 			}
 
@@ -205,7 +211,7 @@ const Filter = Object.assign(
 			)
 		})
 
-		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || filter.token.lowercase.length >= 3))
+		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || (config.value?.plaintextFilterIsValid ?? PLAINTEXT_FILTER_IS_VALID)(filter.token)))
 		const appliedFilterText = appliedFilters.mapManual(filters => filters.map(filter => `"${config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase}"`).join(' '))
 
 		let noPartialFiltersOwner: State.Owner.Removable | undefined

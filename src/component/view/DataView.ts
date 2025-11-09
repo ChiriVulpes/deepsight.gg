@@ -4,6 +4,7 @@ import Link from 'component/core/Link'
 import Paginator from 'component/core/Paginator'
 import TabButton from 'component/core/TabButton'
 import View from 'component/core/View'
+import { FilterToken, PLAINTEXT_FILTER_TWEAK_CHIP } from 'component/display/Filter'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import type { DataOverlayParams } from 'component/overlay/DataOverlay'
@@ -37,6 +38,17 @@ const DATA_DISPLAY = DisplayBar.Config({
 		allowUppercase: true,
 		debounceTime: 500,
 		filters: [],
+		plaintextFilterTweakChip (chip, token) {
+			if (token.lowercase.startsWith('deep:'))
+				token = FilterToken.create(token.slice(5))
+
+			PLAINTEXT_FILTER_TWEAK_CHIP(chip, token)
+		},
+		plaintextFilterIsValid (token) {
+			if (token.lowercase.startsWith('deep:'))
+				token = FilterToken.create(token.slice(5))
+			return token.lowercase.length >= 3
+		},
 	},
 })
 
