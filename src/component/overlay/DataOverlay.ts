@@ -1,4 +1,5 @@
 import Details from 'component/core/Details'
+import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import Link from 'component/core/Link'
 import Paginator from 'component/core/Paginator'
@@ -661,6 +662,42 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			}
 		})
 		.appendTo(jsonTab.content)
+
+	////////////////////////////////////
+	//#region Variants
+
+	const variantsCount = params.map(component, params => params?.links?.variants?.length)
+
+	const variantsLink = params.map(component, (params): RoutePath => `/data/${params?.table ?? ''}/${params?.hash ?? ''}/variants`)
+	const variantsTab = dataTabs.Tab(variantsLink)
+		.text.bind(variantsCount.map(component, count => quilt => quilt['view/data/overlay/tab/variants'](count ?? 0)))
+	variantsTab.appendToWhen(variantsCount.truthy, dataTabs.tabsWrapper)
+
+	DisplaySlot()
+		.style('data-view-definition-list')
+		.use(dedupedParams, (slot, params) => {
+			if (!params?.links?.variants?.length)
+				return
+
+			for (const variant of params.links.variants) {
+				const definition = params.links.definitions?.DestinyInventoryItemDefinition?.[variant.hash]
+				if (!definition)
+					continue
+
+				DataProvider.SINGLE.prep('DestinyInventoryItemDefinition', variant.hash)
+				DataDefinitionButton()
+					.tweak(button => button.data.value = {
+						component: 'DestinyInventoryItemDefinition',
+						definition,
+						customSubtitle: variant.type,
+					})
+					.appendTo(slot)
+			}
+		})
+		.appendTo(variantsTab.content)
+
+	//#endregion
+	////////////////////////////////////
 
 	////////////////////////////////////
 	//#region References

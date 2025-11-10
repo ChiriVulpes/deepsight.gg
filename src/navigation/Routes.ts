@@ -15,6 +15,7 @@ const Routes = [
 	Route('/data', DataView),
 	Route('/data/$table/$hash', DataView),
 	Route('/data/$table/$hash/references', DataView),
+	Route('/data/$table/$hash/variants', DataView),
 	Route('/data/$table/$hash/$augmentation', DataView as View.Builder.WithParams<DataParamsWithAugmentation | undefined>),
 ]
 

@@ -6,3 +6,4 @@ load/fetching: Downloading table list...
 ## overlay
 tab/main: Definition
 tab/references: References ({1?...:{0}})
+tab/variants: Variants ({1?...:{0}})

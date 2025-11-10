@@ -16,6 +16,7 @@ export interface Tab extends Component, TabExtensions { }
 interface TabinatorExtensions {
 	readonly Tab: Component.Builder<[State.Or<RoutePath>?], Tab>
 	readonly header: Component
+	readonly tabsWrapper: Component
 	hideWhenSingleTab (): this
 	setDisplayMode (mode: 'horizontal' | 'vertical'): this
 }
@@ -135,6 +136,7 @@ const Tabinator = Component((component): Tabinator => {
 		.extend<TabinatorExtensions>(tabinator => ({
 			Tab,
 			header,
+			tabsWrapper,
 			hideWhenSingleTab () {
 				hideWhenSingleTab.value = true
 				return tabinator
@@ -156,7 +158,7 @@ const Tabinator = Component((component): Tabinator => {
 	function selectTab (newSelectedTab: Tab) {
 		let previousSelectedTabIndex = Infinity
 		let newSelectedTabIndex = -1
-		const tabs = [...tabsWrapper.getChildren(Tab)]
+		const tabs = [...tabsWrapper.getDescendants(Tab)]
 		for (let i = 0; i < tabs.length; i++) {
 			const tab = tabs[i]
 			if (tab === newSelectedTab) {

@@ -3,12 +3,14 @@ import Image from 'component/core/Image'
 import DataHelper from 'component/view/data/DataHelper'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
+import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import type { RoutePath } from 'navigation/RoutePath'
 
 interface DataDefinitionButtonData {
 	component: AllComponentNames
 	definition: object
 	singleDefComponent?: true
+	customSubtitle?: StringApplicatorSource
 }
 
 interface DataDefinitionButtonExtensions {
@@ -48,6 +50,9 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 				return DataHelper.getTitle(data?.component, data?.definition)
 		})
 		const subtitle = button.data.mapManual(data => {
+			if (data?.customSubtitle)
+				return data.customSubtitle
+
 			if (data?.singleDefComponent)
 				return DataHelper.getComponentProvider(data?.component)
 			else
