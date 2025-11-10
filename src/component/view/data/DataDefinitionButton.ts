@@ -33,9 +33,10 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 	.tweak(button => {
 		button.textWrapper.remove()
 
-		button.attributes.bind('href', button.data.mapManual(data => !data || !('hash' in data.definition)
-			? undefined
-			: `/data/${data.component}/${String(data.definition.hash)}`
+		button.attributes.bind('href', button.data.mapManual(data => !data ? undefined
+			: !('hash' in data.definition)
+				? `/data/${data.component}/full`
+				: `/data/${data.component}/${String(data.definition.hash)}`
 		))
 
 		const icon = button.data.mapManual(data => DataHelper.getIcon(data?.component, data?.definition))

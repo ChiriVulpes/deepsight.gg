@@ -26,10 +26,19 @@ const PRIORITY_COMPONENTS: AllComponentNames[] = [
 	'DestinyTraitDefinition',
 	'DestinyVendorDefinition',
 	'DeepsightMomentDefinition',
-	'DeepsightItemSourceListDefinition',
-	'DeepsightPlugCategorisation',
-	'ClarityDescriptions',
 ]
+
+const SINGLE_DEF_COMPONENTS: AllComponentNames[] = [
+	'DeepsightStats',
+	'DeepsightLinksDefinition',
+	'DeepsightVariantDefinition',
+]
+
+const isSingleDefComponent = (componentName: AllComponentNames) => {
+	return false
+		|| SINGLE_DEF_COMPONENTS.includes(componentName)
+		|| componentName.endsWith('ConstantsDefinition')
+}
 
 const DATA_DISPLAY = DisplayBar.Config({
 	id: 'data',
@@ -169,6 +178,17 @@ export default View<DataParams | undefined>(async view => {
 								}
 
 								paginator.setTotalPages(!data.totalPages ? 0 : Math.max(paginator.getTotalPages(), data.totalPages))
+								if (isSingleDefComponent(name)) {
+									const keys = Object.keys(data.definitions)
+									const singleDef = keys.length > 1 || typeof data.definitions[keys[0]] !== 'object' || !data.definitions[keys[0]]
+										? data.definitions
+										: data.definitions[keys[0]]
+									DataDefinitionButton()
+										.tweak(button => button.data.value = { component: name, definition: singleDef })
+										.appendTo(list)
+									return
+								}
+
 								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
 									DataProvider.SINGLE.prep(name, definition.hash)
 									DataDefinitionButton()
@@ -242,7 +262,33 @@ export default View<DataParams | undefined>(async view => {
 		if (!params)
 			return undefined
 
-		const result = DataProvider.SINGLE.get(params.table as AllComponentNames, params.hash)
+		const table = params.table as AllComponentNames
+		const result = params.hash !== 'full'
+			? DataProvider.SINGLE.get(table, params.hash)
+			////////////////////////////////////
+			//#region Full Table Data
+			: State.Async(State.Owner.fromSignal(signal), async (): Promise<{ definition: object, links?: undefined } | undefined> => {
+				const conduit = await Relic.connected
+				if (signal.aborted)
+					return undefined
+
+				const defs = await conduit.definitions.en[table].all()
+				if (signal.aborted)
+					return undefined
+
+				if (!isSingleDefComponent(table))
+					return { definition: defs }
+
+				const keys = Object.keys(defs)
+				const key = keys[0] as keyof typeof defs
+				const singleDef = keys.length > 1 || typeof defs[key] !== 'object' || !defs[key]
+					? defs
+					: defs[key]
+				return { definition: singleDef }
+			})
+		//#endregion
+		////////////////////////////////////
+
 		if (!result)
 			return undefined
 
@@ -251,7 +297,6 @@ export default View<DataParams | undefined>(async view => {
 		if (signal.aborted || !result.value)
 			return undefined
 
-		const table = params.table as AllComponentNames
 		const newBreadcrumb: Breadcrumb = {
 			path: `/data/${table}/${params.hash}`,
 			name: DataHelper.getTitle(table, result.value.definition),
