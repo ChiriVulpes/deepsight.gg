@@ -184,7 +184,7 @@ export default View<DataParams | undefined>(async view => {
 										? data.definitions
 										: data.definitions[keys[0]]
 									DataDefinitionButton()
-										.tweak(button => button.data.value = { component: name, definition: singleDef })
+										.tweak(button => button.data.value = { component: name, definition: singleDef, singleDefComponent: true })
 										.appendTo(list)
 									return
 								}
@@ -227,13 +227,19 @@ export default View<DataParams | undefined>(async view => {
 				for (const breadcrumb of crumbs) {
 					const componentName = breadcrumb.path.slice(6).split('/')[0] as AllComponentNames
 					const selected = navigatePath.equals(breadcrumb.path)
+
+					const isFullViewOrSingleDefComponent = breadcrumb.path.endsWith('/full') || isSingleDefComponent(componentName)
+					const [breadcrumbTitle, breadcrumbSubtitle] = isFullViewOrSingleDefComponent
+						? [DataHelper.getComponentName(componentName, true), DataHelper.getComponentProvider(componentName)]
+						: [breadcrumb.name, DataHelper.getComponentName(componentName, true)]
+
 					TabButton(selected)
 						.and(Link, breadcrumb.path)
 						.style('data-view-breadcrumbs-button')
-						.text.set(breadcrumb.name)
+						.text.set(breadcrumbTitle)
 						.append(Component()
 							.style('data-view-breadcrumbs-button-component')
-							.text.set(DataHelper.getComponentName(componentName, true))
+							.text.set(breadcrumbSubtitle)
 						)
 						.event.subscribe('auxclick', e => {
 							if (e.button !== 1)

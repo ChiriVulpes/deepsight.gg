@@ -1,7 +1,7 @@
+import type { DestinyDisplayPropertiesDefinition } from 'bungie-api-ts/destiny2'
 import DataHelperRegistry from 'component/view/data/DataHelperRegistry'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
-import type { DestinyDisplayPropertiesDefinition } from 'node_modules/bungie-api-ts/destiny2'
-import type { DeepsightDisplayPropertiesDefinition } from 'node_modules/deepsight.gg/Interfaces'
+import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { _ } from 'utility/Objects'
 
 namespace DataHelper {
@@ -60,6 +60,14 @@ namespace DataHelper {
 
 		console.warn(`Unable to resolve image path for URL "${url}" and component "${component}"`)
 		return undefined
+	}
+
+	export function getComponentProvider (component?: AllComponentNames): string | undefined {
+		return component
+			?.replace(/([A-Z])/g, ' $1')
+			.trimStart()
+			.split(' ')
+			.at(0)
 	}
 
 	export function getTitle (component?: AllComponentNames, definition?: object): string {

@@ -8,6 +8,7 @@ import type { RoutePath } from 'navigation/RoutePath'
 interface DataDefinitionButtonData {
 	component: AllComponentNames
 	definition: object
+	singleDefComponent?: true
 }
 
 interface DataDefinitionButtonExtensions {
@@ -40,8 +41,18 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 		))
 
 		const icon = button.data.mapManual(data => DataHelper.getIcon(data?.component, data?.definition))
-		const title = button.data.mapManual(data => DataHelper.getTitle(data?.component, data?.definition))
-		const subtitle = button.data.mapManual(data => DataHelper.getSubtitle(data?.component, data?.definition))
+		const title = button.data.mapManual(data => {
+			if (data?.singleDefComponent)
+				return DataHelper.getComponentName(data?.component, true)
+			else
+				return DataHelper.getTitle(data?.component, data?.definition)
+		})
+		const subtitle = button.data.mapManual(data => {
+			if (data?.singleDefComponent)
+				return DataHelper.getComponentProvider(data?.component)
+			else
+				return DataHelper.getSubtitle(data?.component, data?.definition)
+		})
 
 		Image(icon, DataHelper.FALLBACK_ICON)
 			.style('data-view-definition-button-icon')
