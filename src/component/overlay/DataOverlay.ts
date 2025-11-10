@@ -249,9 +249,18 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 			if ('displayProperties' in object || 'hash' in object)
 				entries.sort(([a], [b]) => 0
-					|| +(b === 'hash') - +(a === 'hash')
-					|| +(b === 'index') - +(a === 'index')
-					|| +(b === 'displayProperties') - +(a === 'displayProperties')
+					|| ([
+						'hash', 'index', 'displayProperties',
+						'itemTypeAndTierDisplayName', 'flavorText', 'screenshot',
+						'itemType', 'itemSubType', 'specialItemType',
+						'classType',
+						'defaultDamageType',
+						'itemCategoryHashes',
+					]
+						.map(key => +(b === key) - +(a === key))
+						.find(result => result !== 0)
+					)
+					|| 0
 				)
 
 			for (const [key, value] of entries) {
