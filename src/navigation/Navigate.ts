@@ -43,9 +43,13 @@ function Navigator (): Navigator {
 		const state = State<Record<string, string>>({})
 		state.subscribeManual(() => {
 			const pathname = location.pathname
-			const search = new URLSearchParams(state.value).toString()
+			let search = new URLSearchParams(state.value).toString()
+			search = search ? `?${search}` : ''
+			if (search === location.search)
+				return
+
 			const hash = location.hash
-			const url = `${pathname}${search ? `?${search}` : ''}${hash}`
+			const url = `${pathname}${search}${hash}`
 			history.pushState({}, '', `${location.origin}${url}`)
 		})
 		return Object.assign(

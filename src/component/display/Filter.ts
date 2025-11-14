@@ -317,6 +317,8 @@ const Filter = Object.assign(
 			)
 			.appendTo(filter)
 
+		input.element.value = filterText.value
+
 		function spliceInput (start: number, end: number, replacement: string, collapseLeft?: true) {
 			const inputElement: HTMLInputElement = input.element
 
