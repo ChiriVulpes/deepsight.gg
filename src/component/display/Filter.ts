@@ -212,7 +212,12 @@ const Filter = Object.assign(
 		})
 
 		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || (config.value?.plaintextFilterIsValid ?? PLAINTEXT_FILTER_IS_VALID)(filter.token)))
-		const appliedFilterText = appliedFilters.mapManual(filters => filters.map(filter => `"${config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase}"`).join(' '))
+		const appliedFilterText = appliedFilters.mapManual(filters => filters
+			.map(filter => `"${((config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase)
+				.replaceAll('"', '')
+			)}"`)
+			.join(' ')
+		)
 
 		let noPartialFiltersOwner: State.Owner.Removable | undefined
 		const noPartialFilters = filters.mapManual(filters => {
