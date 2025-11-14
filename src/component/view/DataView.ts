@@ -319,7 +319,14 @@ export default View<DataParams | undefined>(async view => {
 	})
 
 	const hasPendingOverlayDefinition = State.Every(view, view.params.truthy, overlayDefinition.settled.falsy)
-	Overlay(view).bind(State.Some(view, overlayDefinition.truthy, hasPendingOverlayDefinition)).and(DataOverlay, overlayDefinition)
+	const shouldShowOverlay = State.Some(view, overlayDefinition.truthy, hasPendingOverlayDefinition)
+	Overlay(view).bind(shouldShowOverlay).and(DataOverlay, overlayDefinition)
+
+	shouldShowOverlay.subscribeManual(show => {
+		if (!show) {
+			view.displayHandlers.value?.filter.reapplyFilterSearchParam()
+		}
+	})
 
 	//#endregion
 	////////////////////////////////////

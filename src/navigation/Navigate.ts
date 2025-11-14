@@ -15,9 +15,16 @@ export interface NavigatorEvents {
 	HashChange (newHash: string, oldHash: string | undefined): void
 }
 
+export interface NavigatorSearch extends State<Readonly<Record<string, string>>> {
+	get (key: string): string | undefined
+	set (key: string, value?: string | null): void
+	delete (key: string): void
+}
+
 interface Navigator {
 	readonly state: State<string>
 	readonly hash: State<string>
+	readonly search: NavigatorSearch
 	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
@@ -31,10 +38,49 @@ interface Navigator {
 function Navigator (): Navigator {
 	const state = State<string>(location.href)
 	const hash = State<string>(location.hash)
+
+	const search = (() => {
+		const state = State<Record<string, string>>({})
+		state.subscribeManual(() => {
+			const pathname = location.pathname
+			const search = new URLSearchParams(state.value).toString()
+			const hash = location.hash
+			const url = `${pathname}${search ? `?${search}` : ''}${hash}`
+			history.pushState({}, '', `${location.origin}${url}`)
+		})
+		return Object.assign(
+			state,
+			{
+				get (key: string) {
+					return state.value[key] ?? undefined
+				},
+				set (key: string, value?: string | null) {
+					if ((value === undefined || value === null) && state.value[key] !== undefined) {
+						delete state.value[key]
+						state.emit()
+					}
+					else if (value !== undefined && value !== null && state.value[key] !== value) {
+						state.value[key] = value
+						state.emit()
+					}
+				},
+				delete (key: string) {
+					if (state.value[key] !== undefined) {
+						delete state.value[key]
+						state.emit()
+					}
+				},
+			},
+		) as NavigatorSearch
+	})()
+	const refreshSearchState = () => search.asMutable?.setValue(Object.fromEntries(new URLSearchParams(location.search).entries()))
+	refreshSearchState()
+
 	let lastURL: URL | undefined
 	const navigate = {
 		state,
 		hash,
+		search,
 		event: undefined! as Navigator['event'],
 		isURL: (glob: string) => {
 			const pattern = glob
@@ -51,6 +97,7 @@ function Navigator (): Navigator {
 		setURL: (url: string, updateLast = true) => {
 			if (url !== location.pathname) {
 				history.pushState({}, '', `${location.origin}${url}`)
+				refreshSearchState()
 				if (updateLast)
 					lastURL = new URL(location.href)
 			}
@@ -58,6 +105,7 @@ function Navigator (): Navigator {
 		toRawURL: (url: string) => {
 			if (url.startsWith('http')) {
 				location.href = url
+				refreshSearchState()
 				return true
 			}
 

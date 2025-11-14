@@ -63,6 +63,7 @@ interface FilterExtensions {
 	readonly filterText: State<string>
 	readonly config: State.Mutable<Filter.Config | undefined>
 	filter (item: Item, showIrrelevant: boolean): boolean
+	reapplyFilterSearchParam (): void
 }
 
 interface Filter extends Component, FilterExtensions { }
@@ -164,8 +165,12 @@ const Filter = Object.assign(
 		const config = State<Filter.Config | undefined>(undefined)
 
 		let filtersOwner: State.Owner.Removable | undefined
-		const filterText = State('')
+		const filterFromParam = new URLSearchParams(window.location.search).get('filter')
+		const filterText = State(filterFromParam ?? '')
 		const caretPosition = State<number | undefined>(0)
+
+		const reapplyFilterSearchParam = () => navigate.search.set('filter', filterText.value || null)
+		filterText.use(filter, reapplyFilterSearchParam)
 
 		////////////////////////////////////
 		//#region Filter Parsing
@@ -570,6 +575,7 @@ const Filter = Object.assign(
 			input,
 			filterText: debouncedFilterText,
 			config,
+			reapplyFilterSearchParam,
 			filter: (item, showIrrelevant) => {
 				const parsedFilters = appliedFilters.value
 				if (!parsedFilters.length)
