@@ -168,15 +168,23 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						.style('data-overlay-json-container-entry-summary')
 						.style.toggle(!expandable, 'data-overlay-json-container-entry-summary--simple')
 						.style.bind(details.open, 'data-overlay-json-container-entry-summary--open')
-						.append(keyComponent)
-						.append(JSONPunctuation(':').style('data-overlay-json-container-entry-punctuation'))
-						.text.append(' ')
-						.append(expandable ? undefined : valueComponent)
-						.append(!expandable ? undefined : (expandable.is(JSONObject)
-							? JSONPlaceholder(`{} ${expandable.size} ${expandable.size === 1 ? 'entry' : 'entries'}`)
-							: JSONPlaceholder(`[] ${expandable.length} ${expandable.length === 1 ? 'item' : 'items'}`))
+						.append(!expandable && keyString && JSONLinks(keyString, path, '')
+							.style('data-overlay-json-container-entry-key-links', 'data-overlay-json-container-entry-key-links--pre')
 						)
-						.append(expandable && keyString && JSONLinks(keyString, path))
+						.append(Component()
+							.style('data-overlay-json-container-entry-inline')
+							.append(keyComponent)
+							.append(JSONPunctuation(':').style('data-overlay-json-container-entry-punctuation'))
+							.text.append(' ')
+							.append(expandable ? undefined : valueComponent)
+							.append(!expandable ? undefined : (expandable.is(JSONObject)
+								? JSONPlaceholder(`{} ${expandable.size} ${expandable.size === 1 ? 'entry' : 'entries'}`)
+								: JSONPlaceholder(`[] ${expandable.length} ${expandable.length === 1 ? 'item' : 'items'}`))
+							)
+							.append(expandable && keyString && JSONLinks(keyString, path)
+								.style('data-overlay-json-container-entry-key-links', 'data-overlay-json-container-entry-key-links--inline')
+							)
+						)
 						.event.subscribe('click', e => {
 							if (e.targetComponent?.is(JSONCopyPaste))
 								e.preventDefault()
@@ -498,7 +506,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 		////////////////////////////////////
 		//#region Links
 
-		const JSONLinks = Component((component, key: string | number, path?: (string | number)[]) => component.and(Slot).use(links, (slot, links) => {
+		const JSONLinks = Component((component, key: string | number, path?: (string | number)[], leadingSpace = ' ') => component.and(DisplaySlot).use(links, (slot, links) => {
 			if (!links)
 				return
 
@@ -596,7 +604,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			}
 
 			if (ref.element.childNodes.length)
-				slot.prepend(JSONPunctuation(' // '))
+				slot.prepend(JSONPunctuation(`${leadingSpace}// `))
 		}))
 		//#endregion
 		////////////////////////////////////

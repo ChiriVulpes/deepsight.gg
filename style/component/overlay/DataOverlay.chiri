@@ -68,7 +68,6 @@
 					padding-left: calc($space-3 + $space-1 + $space-1 / 2)
 					%margin-0
 					%relative
-					%flex
 
 					@before:
 						%block
@@ -88,6 +87,9 @@
 						@before:
 							%hidden
 
+				&-inline:
+					%flex
+
 				&-key:
 					colour: $json-key-colour
 					%no-decoration
@@ -97,6 +99,11 @@
 						$json-punctuation-colour: $json-highlight-colour
 						$json-number-colour: $json-highlight-colour
 						%weight-bold
+
+					&-links:
+						&--pre:
+							%block
+						&--inline:
 
 				&-punctuation:
 					@after:
