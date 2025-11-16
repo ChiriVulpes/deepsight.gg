@@ -2,6 +2,8 @@
 title: Data
 load/connecting=shared/load/connecting
 load/fetching: Downloading table list...
+versions/label: Data Versions
+versions/action/check: Check for updates {0?(Last checked {0})}
 
 ## overlay
 tab/main: Definition

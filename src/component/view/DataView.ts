@@ -1,3 +1,4 @@
+import Button from 'component/core/Button'
 import Details from 'component/core/Details'
 import DisplaySlot from 'component/core/DisplaySlot'
 import Link from 'component/core/Link'
@@ -14,9 +15,13 @@ import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
+import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
+import { Truthy } from 'kitsui/utility/Arrays'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
+import { sleep } from 'utility/Async'
+import Time from 'utility/Time'
 
 const PRIORITY_COMPONENTS: AllComponentNames[] = [
 	'DestinyInventoryItemDefinition',
@@ -82,6 +87,9 @@ export interface DataParamsWithAugmentation extends DataParams {
 	augmentation: string
 }
 
+const currentTime = State(Date.now())
+setInterval(() => currentTime.value = Date.now(), 100)
+
 export default View<DataParams | undefined>(async view => {
 	view.style('data-view')
 		.style.bind(view.loading.loaded, 'data-view--ready')
@@ -101,11 +109,101 @@ export default View<DataParams | undefined>(async view => {
 		return
 
 	setProgress(null, quilt => quilt['view/data/load/fetching']())
-	const componentNames = State(await conduit.getComponentNames())
+
+	const lastCheck = State<number | undefined>(undefined)
+
+	const state = State.Async(view, async () => {
+		lastCheck.value = undefined
+		const state = await conduit.checkUpdate()
+		lastCheck.value = Date.now()
+		return state
+	})
+
+	// give just a bit of time to make sure that check update is the first set of requests that goes out from conduit
+	await sleep(10)
+	if (signal.aborted)
+		return
+	const componentNames = State.Async(view, () => conduit.getComponentNames())
+
+	await Promise.all([state.promise, componentNames.promise])
+	if (signal.aborted)
+		return
+
+	state.useManual(state => {
+		if (state?.version.updated)
+			componentNames.refresh()
+	})
+	// when an update happened, list of components might be refreshing, so await it once more
+	await componentNames.promise
 	if (signal.aborted)
 		return
 
 	await view.loading.finish()
+	if (signal.aborted)
+		return
+
+	////////////////////////////////////
+	//#region Versions & Update
+	Loading()
+		.style('data-view-versions')
+		.setNormalTransitions()
+		.tweak(wrapper => wrapper.set(state, (slot, currentState) => {
+			const simplified = {
+				...currentState.version,
+				destiny: currentState.version.destiny.split('.').at(-1)!,
+				combined: undefined,
+				updated: undefined,
+			}
+			Component()
+				.style('data-view-versions-text')
+				.append(
+					Component().style('data-view-versions-text-provider').text.set(quilt => quilt['view/data/versions/label']()),
+					Component().style('data-view-versions-text-punctuation').text.set(': '),
+				)
+				.append(...Object.entries(simplified)
+					.filter(([, version]) => version)
+					.flatMap(([provider, version], i) => [
+						i && Component().style('data-view-versions-text-punctuation').text.set(' / '),
+						Component().style('data-view-versions-text-version').text.set(version),
+					])
+					.filter(Truthy)
+				)
+				.appendToWhen(wrapper.hoveredOrHasFocused.falsy, slot)
+
+			const full = {
+				...currentState.version,
+				combined: undefined,
+				updated: undefined,
+			}
+			Component()
+				.style('data-view-versions-text')
+				.append(...Object.entries(full)
+					.filter(([, version]) => version)
+					.flatMap(([provider, version], i) => [
+						i && Component().style('data-view-versions-text-punctuation').text.set(' / '),
+						Component().style('data-view-versions-text-provider').text.set(provider),
+						Component().style('data-view-versions-text-punctuation').text.set(': '),
+						Component().style('data-view-versions-text-version').text.set(version),
+					])
+					.filter(Truthy)
+				)
+				.appendToWhen(wrapper.hoveredOrHasFocused, slot)
+
+			Component()
+				.style('data-view-versions-action-list')
+				.append(Button()
+					.style('data-view-versions-action-button')
+					.tweak(button => button
+						.text.bind(State.Map(slot, [currentTime, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
+					)
+					.event.subscribe('click', () => state.refresh())
+				)
+				.appendTo(slot)
+		}))
+		.appendTo(view)
+
+	//#endregion
+	////////////////////////////////////
 
 	view.displayBarConfig.value = DATA_DISPLAY
 	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
@@ -114,6 +212,9 @@ export default View<DataParams | undefined>(async view => {
 
 	Slot()
 		.use({ componentNames, filterText }, (slot, { componentNames, filterText }) => {
+			if (!componentNames)
+				return
+
 			const indices = componentNames.toObject(name => [name, PRIORITY_COMPONENTS.indexOf(name) + 1 || Infinity])
 			componentNames.sort((a, b) => indices[a] - indices[b])
 

@@ -103,3 +103,35 @@
 		; 	%colour-8
 		; 	%untop-1
 		; 	%margin-inline-2
+
+	&-versions:
+		#after: .loading, .loading--loaded
+		%absolute
+		%top-2
+		%right-5
+		%flex
+		%flex-column
+		%align-items-end
+		%gap-1
+
+		&-text:
+			%font-0
+			%weight-normal
+			%colour-3
+			%user-select-text
+			%uppercase
+
+			&-punctuation:
+				%colour-5
+			&-provider:
+			&-version:
+				%weight-bold
+
+		&-action:
+			&-list:
+				%flex
+				%gap-1
+				%font-1
+			&-button:
+				#after: .button
+				%padding-1-2
