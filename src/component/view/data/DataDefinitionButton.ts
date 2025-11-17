@@ -25,8 +25,7 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 	.extend<DataDefinitionButtonExtensions>(component => ({
 		data: State(undefined),
 	}))
-	.event.subscribe('click', e => e.preventDefault())
-	.event.subscribe('contextmenu', e => {
+	.event.subscribe(['click', 'contextmenu'], e => {
 		e.preventDefault()
 		const url = e.host.attributes.get('href')?.value
 		if (url)
