@@ -188,6 +188,7 @@
 				%flex-column
 				&-image:
 					%max-height-7
+					%max-width-100
 				&-metadata:
 					%colour-4
 					%align-self-end
