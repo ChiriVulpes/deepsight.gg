@@ -18,25 +18,89 @@ import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import { Truthy } from 'kitsui/utility/Arrays'
+import Functions from 'kitsui/utility/Functions'
+import type { Quilt, Weave } from 'lang'
+import quilt from 'lang'
 import type { RoutePath } from 'navigation/RoutePath'
+import type { DeepsightLinksDefinition } from 'node_modules/deepsight.gg/Interfaces'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
+import { _ } from 'utility/Objects'
 import Time from 'utility/Time'
 
-const PRIORITY_COMPONENTS: AllComponentNames[] = [
+enum CategoryId {
+	Constants,
+}
+
+const PRIORITY_COMPONENTS: (AllComponentNames | CategoryId)[] = [
 	'DestinyInventoryItemDefinition',
-	'DestinyActivityDefinition',
 	'DestinySandboxPerkDefinition',
 	'DestinyStatDefinition',
 	'DestinyTraitDefinition',
-	'DestinyVendorDefinition',
 	'DeepsightMomentDefinition',
+	'DestinyVendorDefinition',
+	'DestinyActivityDefinition',
+	'DestinyActivityModifierDefinition',
+	'DestinyRecordDefinition',
+	'DestinyDestinationDefinition',
+	'DestinyPlaceDefinition',
+	CategoryId.Constants,
 ]
 
 const SINGLE_DEF_COMPONENTS: AllComponentNames[] = [
 	'DeepsightStats',
 	'DeepsightLinksDefinition',
 	'DeepsightVariantDefinition',
+]
+
+const HIDDEN_COMPONENTS: AllComponentNames[] = [
+	'DestinyRewardSourceDefinition', // unused, completely empty
+	'DestinyInventoryItemLiteDefinition' as AllComponentNames,
+	'DestinyBondDefinition' as AllComponentNames, // has defs, but completely unused
+	'DeepsightIconDefinition', // functionally augmentations, but links differently
+]
+
+interface ComponentCategory {
+	id?: CategoryId
+	name: string | Quilt.Handler
+	components?: AllComponentNames[]
+	componentFilter?(component: AllComponentNames, links: DeepsightLinksDefinition | undefined): boolean
+}
+const COMPONENT_CATEGORIES: ComponentCategory[] = [
+	{
+		id: CategoryId.Constants,
+		name: quilt => quilt['view/data/component/category/constants'](),
+		components: ['DeepsightStats'],
+		componentFilter: component => component.includes('Constants'),
+	},
+	{
+		name: quilt => quilt['view/data/component/category/fireteam-finder'](),
+		componentFilter: component => component.includes('FireteamFinder'),
+	},
+	{
+		name: quilt => quilt['view/data/component/category/activity-skulls'](),
+		componentFilter: component => component.includes('Activity') && component.includes('Skull'),
+	},
+	{
+		name: quilt => quilt['view/data/component/category/loadouts'](),
+		components: [
+			'DestinyLoadoutNameDefinition',
+			'DestinyLoadoutIconDefinition',
+			'DestinyLoadoutColorDefinition',
+		],
+	},
+	{
+		name: quilt => quilt['view/data/component/category/character-customisation'](),
+		components: [
+			'DestinyRaceDefinition',
+			'DestinyGenderDefinition',
+		],
+		componentFilter: component => component.includes('CharacterCustomization'),
+	},
+	{
+		name: quilt => quilt['view/data/component/category/augmentations'](),
+		componentFilter: (component, links) => Object.values(links?.components ?? {}).some(links => links.augmentations?.includes(component)),
+	},
 ]
 
 const isSingleDefComponent = (componentName: AllComponentNames) => {
@@ -68,12 +132,16 @@ const DATA_DISPLAY = DisplayBar.Config({
 
 interface Breadcrumb {
 	path: RoutePath
-	name: string
+	name: string | Quilt.Handler
 }
 
 namespace Breadcrumb {
 	export function equals (a?: Breadcrumb, b?: Breadcrumb) {
-		return a?.path === b?.path && a?.name === b?.name
+		return a?.path === b?.path && getBreadcrumbName(a) === getBreadcrumbName(b)
+	}
+
+	function getBreadcrumbName (breadcrumb?: Breadcrumb): string {
+		return Functions.resolve<[Quilt], string | Weave | undefined>(breadcrumb?.name, quilt)?.toString() ?? ''
 	}
 }
 
@@ -123,15 +191,21 @@ export default View<DataParams | undefined>(async view => {
 	await sleep(10)
 	if (signal.aborted)
 		return
-	const componentNames = State.Async(view, () => conduit.getComponentNames())
 
-	await Promise.all([state.promise, componentNames.promise])
+	const componentNames = State.Async(view, () => conduit.getComponentNames())
+	const links = State.Async(view, () => conduit.definitions.en.DeepsightLinksDefinition.all())
+
+	// wait for the ones required for rendering
+	await Promise.all([state.promise, componentNames.promise, links.promise])
 	if (signal.aborted)
 		return
 
 	state.useManual(state => {
-		if (state?.version.updated)
-			componentNames.refresh()
+		if (!state?.version.updated)
+			return
+
+		componentNames.refresh()
+		links.refresh()
 	})
 	// when an update happened, list of components might be refreshing, so await it once more
 	await componentNames.promise
@@ -211,17 +285,89 @@ export default View<DataParams | undefined>(async view => {
 	componentNames.useManual(componentNames => console.log('Component Names:', componentNames))
 
 	Slot()
-		.use({ componentNames, filterText }, (slot, { componentNames, filterText }) => {
+		.use({ componentNames, links, filterText }, (slot, { componentNames, links, filterText }) => {
 			if (!componentNames)
 				return
 
-			const indices = componentNames.toObject(name => [name, PRIORITY_COMPONENTS.indexOf(name) + 1 || Infinity])
+			componentNames = componentNames.filter(name => !HIDDEN_COMPONENTS.includes(name))
+
+			const componentNameGroups = componentNames
+				.groupBy((name, i) => {
+					for (const category of COMPONENT_CATEGORIES) {
+						const isInCategory = false
+							|| category.components?.includes(name)
+							|| category.componentFilter?.(name, links)
+
+						if (!isInCategory)
+							continue
+
+						return category
+					}
+				})
+				.filter((entry): entry is [ComponentCategory, AllComponentNames[]] => !!entry[0])
+
+			const indices = componentNames.toObject(name => [
+				name,
+				(_
+					|| PRIORITY_COMPONENTS.indexOf(name) + 1
+					// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+					|| PRIORITY_COMPONENTS.indexOf(componentNameGroups.find(([category, names]) => names.includes(name))?.[0].id!) + 1
+					|| Infinity
+				),
+			])
 			componentNames.sort((a, b) => indices[a] - indices[b])
 
 			const dataPageProvider = DataProvider.createPaged(filterText)
 
+			interface GroupWrapper {
+				readonly details: Details
+				readonly filteredIn: State.Mutable<boolean>
+				readonly filteredInStates: State<boolean>[]
+			}
+			const groupWrappers: Map<ComponentCategory, GroupWrapper> = new Map()
 			// if (!filterText) {
-			for (const name of componentNames) {
+			for (let i = 0; i < componentNames.length; i++) {
+				const name = componentNames[i]
+
+				const [category] = componentNameGroups.find(([category, names]) => names.includes(name)) ?? []
+				if (category && !groupWrappers.has(category)) {
+					const filteredIn = State(false)
+					groupWrappers.set(category, {
+						details: Details()
+							.style('collections-view-moment', 'data-view-component-category')
+							.style.toggle(!!filterText, 'data-view-component-category--flat')
+							.viewTransitionSwipe(`data-view-component-${name}-category`)
+							.tweak(details => details
+								.style.bind(details.open, 'details--open', 'collections-view-moment--open')
+								.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
+							)
+							.tweak(details => details.summary
+								.style('collections-view-moment-summary', 'data-view-component-category-summary')
+								.style.toggle(!!filterText, 'data-view-component-category--flat-summary')
+								.style.bind(details.open, 'collections-view-moment-summary--open', 'data-view-component-category-summary--open')
+								.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
+								.text.set(category.name)
+							)
+							.tweak(details => details.content
+								.style('data-view-component-category-content')
+								.style.toggle(!!filterText, 'data-view-component-category--flat-content')
+							)
+							.tweak(details => {
+								if (!filterText) {
+									details.appendTo(slot)
+									return
+								}
+
+								details.appendToWhen(filteredIn, slot)
+								details.open.value = true
+							}),
+						filteredIn,
+						filteredInStates: [],
+					})
+				}
+
+				const categoryWrapper = groupWrappers.get(category!)
+
 				const details = Details()
 					.style('collections-view-moment')
 					.tweak(details => details
@@ -231,16 +377,23 @@ export default View<DataParams | undefined>(async view => {
 					.viewTransitionSwipe(`data-view-component-${name}`)
 
 				const filteredIn = State(false)
+				categoryWrapper?.filteredInStates.push(filteredIn)
 				if (!filterText)
-					details.appendTo(slot)
+					details.appendTo(categoryWrapper?.details.content ?? slot)
 				else
-					details.appendToWhen(filteredIn, slot)
+					details.appendToWhen(filteredIn, categoryWrapper?.details.content ?? slot)
+
+				const augments = Object.values(links?.components ?? {}).find(links => links.augmentations?.includes(name))?.component
 
 				details.summary
-					.style('collections-view-moment-summary')
+					.style('collections-view-moment-summary', 'data-view-component-summary')
 					.style.bind(details.open, 'collections-view-moment-summary--open')
 					.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment-summary--hover')
 					.text.set(DataHelper.getComponentName(name))
+					.append(augments && Component()
+						.style('data-view-component-summary-augments')
+						.text.set(quilt => quilt['view/data/component/shared/augments'](DataHelper.getComponentName(augments)))
+					)
 
 				const openedOnce = State(!!filterText)
 				State.Some(details, openedOnce, details.open).useManual(opened => {
@@ -300,6 +453,12 @@ export default View<DataParams | undefined>(async view => {
 						})
 						.appendTo(details.content)
 				})
+			}
+
+			// bind all group wrappers to base their filteredIn on their children's filteredIn
+			for (const wrapper of groupWrappers.values()) {
+				const filteredIn = State.Map(wrapper.details, wrapper.filteredInStates, (...states) => states.some(v => v))
+				wrapper.filteredIn.bind(wrapper.details, filteredIn)
 			}
 
 			return

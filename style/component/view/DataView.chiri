@@ -13,6 +13,54 @@
 		%width-100
 		%align-self-start
 
+	&-component:
+
+		&-category:
+			&-summary:
+				@after:
+					%absolute
+					%right-100
+					margin-right: calc($space-3 + $space-2)
+					%top-2
+					%margin-top-1
+					%block
+					border-block: transparent $space-2 solid
+					border-left: currentcolor $space-3 solid
+					#transition: #{transition("rotate")}, #{transition("translate")}
+				&--open:
+					@after:
+						%rotate-90
+						; %translate-right-2
+
+			&-content:
+				#after: .details-content
+				%flex
+				%flex-column
+				%margin-top-2
+				%padding-top-3
+				%padding-inline-3
+				%gap-3
+
+			&--flat:
+				#after: .collections-view-moment
+				%contents
+				@before: %hidden
+				@details-content: %contents
+				&-summary: %hidden
+				&-content:
+					#after: .data-view-component-category-content
+					%contents
+
+		&-summary:
+			#after: .collections-view-moment-summary
+			%flex
+			%flex-column
+			&-augments:
+				%font-2
+				%colour-7
+				%letter-spacing-2
+				%unmargin-top-1
+
 	&-component-paginator:
 		%padding-block-3
 

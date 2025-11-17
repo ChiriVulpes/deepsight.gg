@@ -71,7 +71,7 @@ declare global {
 		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined
 
 		groupBy<GROUP> (grouper: (value: T, index: number, obj: T[]) => GROUP): [GROUP, T[]][]
-		groupBy<GROUP, RETURN> (grouper: (value: T, index: number, obj: T[]) => GROUP, mapper: (value: T, index: number, obj: T[]) => RETURN): [GROUP, RETURN[]][]
+		groupBy<GROUP, RETURN> (grouper: (value: T, index: number, obj: T[]) => GROUP, mapper: (array: T[]) => RETURN): [GROUP, RETURN][]
 	}
 }
 
@@ -172,12 +172,21 @@ namespace Arrays {
 			return undefined
 		})
 
-		Define(Array.prototype, 'groupBy', function (grouper, mapper) {
-			const result: Record<string, any[]> = {}
-			for (let i = 0; i < this.length; i++)
-				(result[String(grouper(this[i], i, this))] ??= []).push(!mapper ? this[i] : mapper(this[i], i, this))
+		Define(Array.prototype, 'groupBy', function <G, R> (this: any[], grouper: (item: any, index: number, array: any[]) => G, mapper?: (array: any[]) => R): [G, R][] {
+			const result = new Map<G, any[]>()
+			for (let i = 0; i < this.length; i++) {
+				const group = grouper(this[i], i, this)
+				let groupArray = result.get(group)
+				if (!groupArray)
+					result.set(group, groupArray = [])
 
-			return Object.entries(result)
+				groupArray.push(this[i])
+			}
+
+			if (!mapper)
+				return Array.from(result.entries()) as [G, R][]
+
+			return Array.from(result.entries()).map(([key, array]) => [key, mapper(array)])
 		})
 	}
 

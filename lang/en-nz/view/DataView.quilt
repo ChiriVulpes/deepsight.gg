@@ -5,6 +5,21 @@ load/fetching: Downloading table list...
 versions/label: Data Versions
 versions/action/check: Check for updates {0?(Last checked {0})}
 
+
+## component
+shared/multi: (Multi) {0}
+shared/augments: // Augments: {#B:{0}}
+item/pattern: {0} (Pattern)
+item/dummy: {0} (Dummy)
+
+### category
+constants: Destiny: Constants
+fireteam-finder: Destiny: Fireteam Finder
+loadouts: Destiny: Loadouts
+activity-skulls: Destiny: Activity Skulls
+augmentations: Augmentations
+character-customisation: Destiny: Character Customization
+
 ## overlay
 tab/main: Definition
 tab/references: References ({1?...:{0}})

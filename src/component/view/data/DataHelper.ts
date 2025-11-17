@@ -2,6 +2,7 @@ import type { DestinyDisplayPropertiesDefinition } from 'bungie-api-ts/destiny2'
 import DataHelperRegistry from 'component/view/data/DataHelperRegistry'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
+import type { Quilt } from 'lang'
 import { _ } from 'utility/Objects'
 
 namespace DataHelper {
@@ -70,14 +71,14 @@ namespace DataHelper {
 			.at(0)
 	}
 
-	export function getTitle (component?: AllComponentNames, definition?: object): string {
+	export function getTitle (component?: AllComponentNames, definition?: object): string | Quilt.Handler {
 		return _
 			|| get(component)?.getName?.(definition)
 			|| display(definition)?.name
 			|| 'No name'
 	}
 
-	export function getSubtitle (component?: AllComponentNames, definition?: object): string | undefined {
+	export function getSubtitle (component?: AllComponentNames, definition?: object): string | Quilt.Handler | undefined {
 		return _
 			|| get(component)?.getSubtitle?.(definition)
 			|| display(definition)?.subtitle

@@ -104,7 +104,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 				.flatMap(m => Object.entries(m.buckets))
 				.groupBy(
 					([bucketHash]) => +bucketHash as InventoryBucketHashes,
-					([, bucket]) => bucket,
+					bucketEntries => bucketEntries.map(([, bucket]) => bucket),
 				)
 				.toObject(([bucketHash, buckets]) => [bucketHash, {
 					items: (buckets
