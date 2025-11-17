@@ -28,6 +28,9 @@ import { sleep } from 'utility/Async'
 import { _ } from 'utility/Objects'
 import Time from 'utility/Time'
 
+////////////////////////////////////
+//#region Table Sort/Group Defs
+
 enum CategoryId {
 	Constants,
 }
@@ -109,6 +112,12 @@ const isSingleDefComponent = (componentName: AllComponentNames) => {
 		|| componentName.endsWith('ConstantsDefinition')
 }
 
+//#endregion
+////////////////////////////////////
+
+////////////////////////////////////
+//#region Filter UI Config
+
 const DATA_DISPLAY = DisplayBar.Config({
 	id: 'data',
 	filterConfig: {
@@ -130,6 +139,12 @@ const DATA_DISPLAY = DisplayBar.Config({
 	},
 })
 
+//#endregion
+////////////////////////////////////
+
+////////////////////////////////////
+//#region Tabs Interface
+
 interface Breadcrumb {
 	path: RoutePath
 	name: string | Quilt.Handler
@@ -144,6 +159,9 @@ namespace Breadcrumb {
 		return Functions.resolve<[Quilt], string | Weave | undefined>(breadcrumb?.name, quilt)?.toString() ?? ''
 	}
 }
+
+//#endregion
+////////////////////////////////////
 
 export interface DataParams {
 	table: string
@@ -169,6 +187,9 @@ export default View<DataParams | undefined>(async view => {
 		.appendTo(view)
 
 	view.loading.appendTo(view)
+
+	////////////////////////////////////
+	//#region Load
 
 	const { signal, setProgress } = await view.loading.start()
 	setProgress(null, quilt => quilt['view/data/load/connecting']())
@@ -211,6 +232,9 @@ export default View<DataParams | undefined>(async view => {
 	await componentNames.promise
 	if (signal.aborted)
 		return
+
+	//#endregion
+	////////////////////////////////////
 
 	await view.loading.finish()
 	if (signal.aborted)
@@ -289,6 +313,9 @@ export default View<DataParams | undefined>(async view => {
 			if (!componentNames)
 				return
 
+			////////////////////////////////////
+			//#region Group & Sort Tables
+
 			componentNames = componentNames.filter(name => !HIDDEN_COMPONENTS.includes(name))
 
 			const componentNameGroups = componentNames
@@ -317,6 +344,9 @@ export default View<DataParams | undefined>(async view => {
 			])
 			componentNames.sort((a, b) => indices[a] - indices[b])
 
+			//#endregion
+			////////////////////////////////////
+
 			const dataPageProvider = DataProvider.createPaged(filterText)
 
 			interface GroupWrapper {
@@ -325,9 +355,13 @@ export default View<DataParams | undefined>(async view => {
 				readonly filteredInStates: State<boolean>[]
 			}
 			const groupWrappers: Map<ComponentCategory, GroupWrapper> = new Map()
+
 			// if (!filterText) {
 			for (let i = 0; i < componentNames.length; i++) {
 				const name = componentNames[i]
+
+				////////////////////////////////////
+				//#region Category Wrapper
 
 				const [category] = componentNameGroups.find(([category, names]) => names.includes(name)) ?? []
 				if (category && !groupWrappers.has(category)) {
@@ -365,6 +399,12 @@ export default View<DataParams | undefined>(async view => {
 						filteredInStates: [],
 					})
 				}
+
+				//#endregion
+				////////////////////////////////////
+
+				////////////////////////////////////
+				//#region Component Wrapper
 
 				const categoryWrapper = groupWrappers.get(category!)
 
@@ -453,6 +493,9 @@ export default View<DataParams | undefined>(async view => {
 						})
 						.appendTo(details.content)
 				})
+
+				//#endregion
+				////////////////////////////////////
 			}
 
 			// bind all group wrappers to base their filteredIn on their children's filteredIn
@@ -476,6 +519,9 @@ export default View<DataParams | undefined>(async view => {
 	view.getNavbar()
 		?.overrideHomeLink(homeLinkURL, view)
 		.append(DisplaySlot()
+			////////////////////////////////////
+			//#region Tabs
+
 			.style('data-view-breadcrumbs-wrapper')
 			.setOwner(view)
 			.use(breadcrumbs, (slot, crumbs) => {
@@ -519,6 +565,9 @@ export default View<DataParams | undefined>(async view => {
 						.prependTo(wrapper)
 				}
 			})
+
+			//#endregion
+			////////////////////////////////////
 		)
 
 	////////////////////////////////////
