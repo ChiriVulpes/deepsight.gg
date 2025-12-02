@@ -246,12 +246,18 @@ export default View<DataParams | undefined>(async view => {
 		.style('data-view-versions')
 		.setNormalTransitions()
 		.tweak(wrapper => wrapper.set(state, (slot, currentState) => {
+			currentState.version.deepsight = currentState.version.deepsight.length < 10
+				? currentState.version.deepsight
+				// dev uses timestamps, compress it to base36 so it's easier to tell versions apart
+				: (+currentState.version.deepsight).toString(36)
+
 			const simplified = {
 				...currentState.version,
 				destiny: currentState.version.destiny.split('.').at(-1)!,
 				combined: undefined,
 				updated: undefined,
 			}
+
 			Component()
 				.style('data-view-versions-text')
 				.append(
