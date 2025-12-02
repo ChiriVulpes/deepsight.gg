@@ -51,13 +51,13 @@ const Item = Object.assign(
 
 		ItemTooltip.apply(component, item, collections)
 
-		component.event.subscribe('contextmenu', event => {
+		component.onRooted(() => component.event.subscribe('contextmenu', event => {
 			event.preventDefault()
 			if (!item.value.instanceId)
 				void navigate.toURL(`/collections/${item.value.refNames.moment}/${item.value.refNames.item}`)
 			else
 				throw new Error('Cannot navigate to an item instance view yet')
-		})
+		}))
 		return component.extend<ItemExtensions>(itemComponent => ({
 			item,
 		}))
