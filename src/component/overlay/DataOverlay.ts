@@ -259,11 +259,15 @@ export default Component((component, params: State<DataOverlayParams | undefined
 				entries.sort(([a], [b]) => 0
 					|| ([
 						'hash', 'index', 'displayProperties',
+						// inv items:
 						'itemTypeAndTierDisplayName', 'flavorText', 'screenshot',
 						'itemType', 'itemSubType', 'specialItemType',
 						'classType',
 						'defaultDamageType',
 						'itemCategoryHashes',
+						// vendors:
+						'itemList',
+						'displayCategories',
 					]
 						.map(key => +(b === key) - +(a === key))
 						.find(result => result !== 0)
