@@ -9,6 +9,7 @@ import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
+import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import Time from 'utility/Time'
 
@@ -81,6 +82,14 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 	await view.loading.finish()
 
 	collections.useManual(collections => console.log('Collections:', collections))
+
+	const homeLinkURL = navigate.state.map(view, url => {
+		const route = new URL(url).pathname as RoutePath
+		return route === '/collections' ? '/' : '/collections'
+	})
+
+	view.getNavbar()
+		?.overrideHomeLink(homeLinkURL, view)
 
 	////////////////////////////////////
 	//#region Collections

@@ -44,7 +44,7 @@ const Navbar = Component('nav', (component): Navbar => {
 			overrideHomeLink (route, owner) {
 				homeLinkState.bind(owner, State.get(route))
 				void owner.removed.await(navbar, true).then(() => {
-					if (homeLinkState.value === route)
+					if (homeLinkState.value === route || homeLinkState.value === '/')
 						homeLinkState.value = '/'
 				})
 				return navbar
