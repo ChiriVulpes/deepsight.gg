@@ -1,0 +1,4 @@
+sharedWorkspaceLockfile: false
+minimumReleaseAgeExclude:
+  - 'bungie-api-ts'
+  - 'deepsight.gg'

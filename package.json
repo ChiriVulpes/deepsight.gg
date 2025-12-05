@@ -7,14 +7,12 @@
 		"fantasticon": "3.0.0",
 		"tinyglobby": "0.2.14",
 		"ts-node": "10.9.2",
-		"typescript": "5.8.3",
-		"eslint": "9.30.1",
-		"eslint-plugin-only-warn": "1.1.0",
-		"typescript-eslint": "8.36.0",
-		"@stylistic/eslint-plugin": "5.1.0",
-		"weaving": "github:chirivulpes/weaving#package",
-		"lint": "github:fluff4me/lint",
-		"task": "github:chirivulpes/task#package",
-		"chiri": "github:fluff4me/chiri#package"
+		"typescript": "5.9.3"
+	},
+	"dependencies": {
+		"chiri": "github:fluff4me/chiri#d381ef046f789e561983f077e0242bce150b09da",
+		"lint": "github:fluff4me/lint#ca79ead3fa0806316fd6e864f911a7f2487a5d5a",
+		"task": "github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced",
+		"weaving": "github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a"
 	}
 }
