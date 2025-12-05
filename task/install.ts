@@ -5,7 +5,7 @@ export default Task('install', async task => {
 	await task.install(
 		{
 			path: '.',
-			dependencies: {
+			devDependencies: {
 				task: { repo: 'chirivulpes/task', branch: 'package' },
 				lint: { repo: 'fluff4me/lint' },
 				chiri: { repo: 'fluff4me/chiri', branch: 'package' },

@@ -4,15 +4,13 @@
 	"version": "1.0.0",
 	"devDependencies": {
 		"ansicolor": "2.0.3",
-		"fantasticon": "3.0.0",
-		"tinyglobby": "0.2.14",
-		"ts-node": "10.9.2",
-		"typescript": "5.9.3"
-	},
-	"dependencies": {
 		"chiri": "github:fluff4me/chiri#d381ef046f789e561983f077e0242bce150b09da",
+		"fantasticon": "3.0.0",
 		"lint": "github:fluff4me/lint#ca79ead3fa0806316fd6e864f911a7f2487a5d5a",
 		"task": "github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced",
+		"tinyglobby": "0.2.14",
+		"ts-node": "10.9.2",
+		"typescript": "5.9.3",
 		"weaving": "github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a"
 	}
 }

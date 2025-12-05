@@ -31,7 +31,11 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install
+          cd src
+          pnpm install
+          cd ..
 
       - name: Write .env file
         run: |
