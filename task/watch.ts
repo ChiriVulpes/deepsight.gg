@@ -9,11 +9,13 @@ import weaving, { weavewatch } from './weaving'
 
 export default Task('watch', async task => {
 	await task.run(task.parallel(
+		task.series(
+			icons,
+			_static,
+		),
 		vendor,
-		_static,
 		chiri,
 		weaving,
-		icons,
 	))
 
 	task.watch([
