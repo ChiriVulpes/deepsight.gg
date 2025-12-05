@@ -11,6 +11,7 @@ const noopViewTransition: ViewTransition = {
 }
 
 document.startViewTransition ??= cb => {
+	cb = typeof cb === 'function' ? cb : cb?.update ?? undefined
 	cb?.()
 	return noopViewTransition
 }
