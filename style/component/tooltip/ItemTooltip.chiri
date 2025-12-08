@@ -4,20 +4,20 @@
 .item-tooltip:
 
 	&--common:
-		$item-rarity-background-colour: #{colour-rarity-common-1}
-		$item-rarity-border-colour: #{colour-rarity-common-2}
+		$item-rarity-background-colour: $colour-rarity-common-1
+		$item-rarity-border-colour: $colour-rarity-common-2
 	&--uncommon:
-		$item-rarity-background-colour: #{colour-rarity-uncommon-1}
-		$item-rarity-border-colour: #{colour-rarity-uncommon-2}
+		$item-rarity-background-colour: $colour-rarity-uncommon-1
+		$item-rarity-border-colour: $colour-rarity-uncommon-2
 	&--rare:
-		$item-rarity-background-colour: #{colour-rarity-rare-1}
-		$item-rarity-border-colour: #{colour-rarity-rare-2}
+		$item-rarity-background-colour: $colour-rarity-rare-1
+		$item-rarity-border-colour: $colour-rarity-rare-2
 	&--legendary:
-		$item-rarity-background-colour: #{colour-rarity-legendary-1}
-		$item-rarity-border-colour: #{colour-rarity-legendary-2}
+		$item-rarity-background-colour: $colour-rarity-legendary-1
+		$item-rarity-border-colour: $colour-rarity-legendary-2
 	&--exotic:
-		$item-rarity-background-colour: #{colour-rarity-exotic-1}
-		$item-rarity-border-colour: #{colour-rarity-exotic-2}
+		$item-rarity-background-colour: $colour-rarity-exotic-1
+		$item-rarity-border-colour: $colour-rarity-exotic-2
 
 	&-header:
 		%relative
@@ -58,7 +58,7 @@
 				width: calc($space-3 + $space-2)
 				height: calc($space-3 + $space-2 + $space-1)
 				right: 0
-				background: #{colour-featured-1}
+				background: $colour-featured-1
 				clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%)
 
 		@after:

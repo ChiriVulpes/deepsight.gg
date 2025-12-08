@@ -1,23 +1,23 @@
-#string colour-rarity-common-1 = "#c2bcb4
-#string colour-rarity-common-2 = "#dddddd
-#string colour-rarity-common-3 = "#eeeeee
-#string colour-rarity-uncommon-1 = "#366f42
-#string colour-rarity-uncommon-2 = "#5fa16d
-#string colour-rarity-uncommon-3 = "#9ccaa6
-#string colour-rarity-rare-1 = "#5076a3
-#string colour-rarity-rare-2 = "#7eaadf
-#string colour-rarity-rare-3 = "#c0dafa
-#string colour-rarity-legendary-1 = "#522f65
-#string colour-rarity-legendary-2 = "#774493
-#string colour-rarity-legendary-3 = "#b791cc
-#string colour-rarity-exotic-1 = "#c4a73d
-#string colour-rarity-exotic-2 = "#f5dc56
-#string colour-rarity-exotic-3 = "#fff4b5
+$colour-rarity-common-1: #c2bcb4
+$colour-rarity-common-2: #dddddd
+$colour-rarity-common-3: #eeeeee
+$colour-rarity-uncommon-1: #366f42
+$colour-rarity-uncommon-2: #5fa16d
+$colour-rarity-uncommon-3: #9ccaa6
+$colour-rarity-rare-1: #5076a3
+$colour-rarity-rare-2: #7eaadf
+$colour-rarity-rare-3: #c0dafa
+$colour-rarity-legendary-1: #522f65
+$colour-rarity-legendary-2: #774493
+$colour-rarity-legendary-3: #b791cc
+$colour-rarity-exotic-1: #c4a73d
+$colour-rarity-exotic-2: #f5dc56
+$colour-rarity-exotic-3: #fff4b5
 
-#string colour-masterwork-1 = "#cbaf3c
-#string colour-masterwork-2 = "#ecca3e
+$colour-masterwork-1: #cbaf3c
+$colour-masterwork-2: #ecca3e
 
-#string colour-featured-1 = "#169191
+$colour-featured-1: #169191
 
 $colour-damage-kinetic: #ffffff
 $colour-damage-void: #b185df
