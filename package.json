@@ -7,7 +7,7 @@
 		"chiri": "github:fluff4me/chiri#d381ef046f789e561983f077e0242bce150b09da",
 		"fantasticon": "3.0.0",
 		"lint": "github:fluff4me/lint#ca79ead3fa0806316fd6e864f911a7f2487a5d5a",
-		"task": "github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced",
+		"task": "github:chirivulpes/task#ef1975228fec597c8112a51ec4786b5b210c83d9",
 		"tinyglobby": "0.2.14",
 		"ts-node": "10.9.2",
 		"typescript": "5.9.3",

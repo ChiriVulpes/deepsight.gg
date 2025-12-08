@@ -77,6 +77,9 @@
 				%color-dodge
 				box-shadow: inset 0 0 0 1px #444
 
+			&--weapon-type:
+				$filter-chip-colour: #333
+
 			&--element:
 				#dec lightness = .5
 				#dec chroma-modifier = .6
@@ -126,6 +129,14 @@
 				grid-auto-rows: 100%
 				%aspect-ratio-1
 
+				&--double-width:
+					#after: .filter-display-chip-icon-wrapper
+					aspect-ratio: auto
+					%height-lh
+					width: calc(2lh + .21em)
+					%justify-content-centre
+					%align-items-centre
+
 			&-icon-placeholder:
 				%stack-self
 				%transparent
@@ -142,6 +153,18 @@
 
 				&--element:
 					padding: .2em
+
+				&--weapon:
+					max-width: 3em
+					max-height: 2lh
+					margin-top: -.15em
+
+					&--bow:
+						rotate: -45deg
+						translate: -.1em .25em
+					&--glaive:
+						rotate: 45deg
+						translate: -.1em 0
 
 	&-popover:
 		#after: .popover

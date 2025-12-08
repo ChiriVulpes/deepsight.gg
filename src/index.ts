@@ -11,9 +11,11 @@ import Relic from 'Relic'
 import Arrays from 'utility/Arrays'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
+import Strings from 'utility/Strings'
 import Text from 'utility/Text'
 
 Arrays.applyPrototypes()
+Strings.applyPrototypes()
 
 export default async function () {
 	Component.allowBuilding()

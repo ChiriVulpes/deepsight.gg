@@ -42,6 +42,7 @@ interface FilterFunction {
 	filter (item: Item, token: FilterToken): true | false | 'irrelevant'
 	chip?(chip: Filter.Chip, token: FilterToken): unknown
 	icon?: true | ((icon: Component, token: FilterToken) => unknown)
+	doubleWidthIcon?: true
 }
 interface FilterMatch extends FilterFunction {
 	readonly id: string
@@ -111,6 +112,7 @@ const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
 const Chip = Component((component, match: FilterMatch): Filter.Chip => {
 	const iconWrapper = match.icon && Component()
 		.style('filter-display-chip-icon-wrapper')
+		.style.toggle(!!match.doubleWidthIcon, 'filter-display-chip-icon-wrapper--double-width')
 
 	const iconPlaceholder = iconWrapper && Component()
 		.style('filter-display-chip-icon-placeholder')
@@ -363,7 +365,8 @@ const Filter = Object.assign(
 				if (filter.icon) {
 					// insert a ⬛ emoji at the start of tokens with icon
 					const start = filter.token.start
-					spliceInput(start, start, EMOJI_ICON_PLACEHOLDER, true)
+					const iconPlaceholder = EMOJI_ICON_PLACEHOLDER.repeat(filter.doubleWidthIcon ? 2 : 1)
+					spliceInput(start, start, iconPlaceholder, true)
 				}
 			}
 
@@ -535,10 +538,16 @@ const Filter = Object.assign(
 								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
 								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
 								.event.subscribe('click', async e => {
+									let newText = suggestion.token.lowercase
+									if (newText.includes(' ')) {
+										const prefix = newText.slice(0, newText.indexOf(':') + 1)
+										newText = `${prefix}"${newText.slice(prefix.length)}"`
+									}
+
 									spliceInput(
 										selectedToken.value?.start ?? caretPosition.value ?? 0,
 										selectedToken.value?.end ?? caretPosition.value ?? 0,
-										`${suggestion.token.lowercase} `,
+										`${newText} `,
 									)
 									filterText.value = input.element.value
 									const selectionStart = input.element.selectionStart

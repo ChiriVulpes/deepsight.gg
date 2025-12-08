@@ -21,8 +21,8 @@ importers:
         specifier: github:fluff4me/lint#ca79ead3fa0806316fd6e864f911a7f2487a5d5a
         version: https://codeload.github.com/fluff4me/lint/tar.gz/ca79ead3fa0806316fd6e864f911a7f2487a5d5a(typescript@5.9.3)
       task:
-        specifier: github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced
-        version: https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced
+        specifier: github:chirivulpes/task#ef1975228fec597c8112a51ec4786b5b210c83d9
+        version: https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9
       tinyglobby:
         specifier: 0.2.14
         version: 0.2.14
@@ -1492,8 +1492,8 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced}
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9}
     version: 1.0.0
     hasBin: true
 
@@ -1830,7 +1830,7 @@ snapshots:
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 22.16.0
+      '@types/node': 24.10.1
 
   '@typescript-eslint/eslint-plugin@8.47.0(@typescript-eslint/parser@8.47.0(eslint@9.39.1)(typescript@5.9.3))(eslint@9.39.1)(typescript@5.9.3)':
     dependencies:
@@ -3280,7 +3280,7 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced:
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9:
     dependencies:
       '@types/node': 22.16.0
       '@types/ws': 8.5.13
