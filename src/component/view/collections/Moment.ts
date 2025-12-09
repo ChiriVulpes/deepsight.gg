@@ -99,7 +99,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 				(display, _) => display?.filter.filter(item, false) ?? true,
 			)
 
-			const itemFilterStates = new Map([...weapons, ...armour].map(item => [item, ItemFilterState(item)]))
+			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState(item)])
 			const hasAnyItemFilteredIn = State.Some(details, ...itemFilterStates.values())
 
 			State.Use(details, { filterText, hasAnyItemFilteredIn }, ({ filterText, hasAnyItemFilteredIn }) => {
@@ -156,40 +156,25 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 							continue
 
 						const shouldShowItem = State(false)
-						let timeUpdatedWasShowing = 0
-						let oldShouldShow = false
-						let wasShowing = false
 						let wasOpen = false
-						let timeUpdatedWasOpen = 0
-						let forceRecheckTimeout: number | undefined
-						State.Use(details, { filterState, filterText, hasAnyItemFilteredIn, open: details.open, transitioning: details.transitioning }, (state, old) => {
-							clearTimeout(forceRecheckTimeout)
+
+						const detailsStateMap = State.Map(details, [filterState, filterText, hasAnyItemFilteredIn, details.open, details.transitioning], (filterState, filterText, hasAnyItemFilteredIn, open, transitioning) => ({
+							filterState,
+							filterText,
+							hasAnyItemFilteredIn,
+							open,
+							transitioning,
+						})).delay(details, 10)
+
+						detailsStateMap.use(details, (state, old) => {
 							const newShouldShow = state.filterState && state.open
 
-							if (wasShowing || wasOpen) {
-								if (newShouldShow !== oldShouldShow)
-									timeUpdatedWasShowing = Date.now()
-								oldShouldShow = newShouldShow
-								if (state.open !== wasOpen)
-									timeUpdatedWasOpen = Date.now()
-								wasOpen = state.open
-							}
+							if (old?.open)
+								wasOpen = true
+							else if (!state.open && !state.transitioning)
+								wasOpen = false
 
-							if (Date.now() - timeUpdatedWasShowing < 10 || Date.now() - timeUpdatedWasOpen < 10) {
-								setTimeout(applyNewShouldShow, 10)
-								return
-							}
-
-							if (state.transitioning)
-								return
-
-							applyNewShouldShow()
-							function applyNewShouldShow () {
-								shouldShowItem.value = newShouldShow
-								oldShouldShow = newShouldShow
-								wasShowing = newShouldShow
-								wasOpen = state.open
-							}
+							shouldShowItem.value = newShouldShow || (state.filterState && wasOpen)
 						})
 
 						void shouldShowItem.await(bucket, true).then(() => {
