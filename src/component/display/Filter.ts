@@ -87,7 +87,7 @@ namespace Filter {
 	export interface Definition {
 		readonly id: string
 		readonly type: 'and' | 'or'
-		readonly suggestions: ((owner: State.Owner) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
+		readonly suggestions: ((owner: State.Owner, currentFilter: FilterMatch[]) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
 
@@ -514,9 +514,9 @@ const Filter = Object.assign(
 
 		DisplaySlot()
 			.style('filter-popover-suggestions-wrapper')
-			.use(config, (slot, config) => {
+			.use({ config, appliedFilters }, (slot, { config, appliedFilters }) => {
 				for (const filter of config?.filters ?? []) {
-					const suggestions = State.get(typeof filter.suggestions === 'function' ? filter.suggestions(slot) : filter.suggestions)
+					const suggestions = State.get(typeof filter.suggestions === 'function' ? filter.suggestions(slot, appliedFilters) : filter.suggestions)
 					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
 						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
 							.map((suggestion): FilterMatch | undefined => {

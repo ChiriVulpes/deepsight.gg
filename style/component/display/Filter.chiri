@@ -77,8 +77,8 @@
 				%color-dodge
 				box-shadow: inset 0 0 0 1px #444
 
-			&--weapon-type:
-				$filter-chip-colour: #333
+			&--weapon-type: $filter-chip-colour: #333
+			&--weapon-frame: $filter-chip-colour: $colour-frame
 
 			&--element:
 				#dec lightness = .5
@@ -163,7 +163,7 @@
 				&--element:
 					padding: .2em
 
-				&--weapon:
+				&--weapon-type:
 					max-width: 3em
 					max-height: 2lh
 					margin-top: -.15em
@@ -175,8 +175,8 @@
 						rotate: 45deg
 						translate: -.1em 0
 
-				&--rarity:
-					padding-block: .07em
+				&--rarity: padding-block: .07em
+				&--frame: padding-block: .03em .07em
 
 	&-popover:
 		#after: .popover

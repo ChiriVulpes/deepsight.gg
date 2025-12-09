@@ -3,6 +3,7 @@ import Filter from 'component/display/Filter'
 import FilterAmmo from 'component/display/filter/FilterAmmo'
 import FilterElement from 'component/display/filter/FilterElement'
 import FilterRarity from 'component/display/filter/FilterRarity'
+import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
@@ -80,7 +81,7 @@ const DisplayBar = Object.assign(
 		const filter = Filter()
 		filter.config.bind(filter, config.map(filter, config => ({
 			id: 'display-bar-default-filter',
-			filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType],
+			filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame],
 			...config?.filterConfig,
 		})))
 
