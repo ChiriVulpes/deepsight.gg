@@ -29,6 +29,7 @@ $colour-damage-prismatic: #d9648e
 
 $colour-perk: #559acf
 $colour-frame: #416785
+$colour-foundry: #53483e
 
 $colour-pve: #7da4ff
 $colour-pvp: #c94e52

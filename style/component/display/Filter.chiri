@@ -79,6 +79,7 @@
 
 			&--weapon-type: $filter-chip-colour: #333
 			&--weapon-frame: $filter-chip-colour: $colour-frame
+			&--weapon-foundry: $filter-chip-colour: $colour-foundry
 
 			&--element:
 				#dec lightness = .5
@@ -158,7 +159,7 @@
 				%align-items-centre
 				margin-top: .1em
 				$image-opacity-duration: 0s
-				filter: brightness(100)
+				filter: saturate(0) brightness(100)
 
 				&--element:
 					padding: .2em
@@ -177,6 +178,14 @@
 
 				&--rarity: padding-block: .07em
 				&--frame: padding-block: .03em .07em
+				&--foundry:
+					padding-block: .13em .2em
+					&--suros:
+						max-height: 170%
+						margin-left: -.4em
+					&--daito:
+						max-height: 130%
+						margin-left: -.15em
 
 	&-popover:
 		#after: .popover
