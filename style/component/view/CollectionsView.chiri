@@ -13,6 +13,12 @@
 		%width-100
 		%align-self-start
 
+	&-title:
+		#after: .view-title
+		%flex
+		%gap-4
+		&-loading:
+
 	&-year:
 		%flex
 		%flex-column

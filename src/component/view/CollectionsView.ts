@@ -3,14 +3,17 @@ import View from 'component/core/View'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
-import Moment from 'component/view/collections/Moment'
+import Moment, { FILTER_CHANGING_CLASS } from 'component/view/collections/Moment'
 import type { CollectionsMoment, Item } from 'conduit.deepsight.gg/Collections'
 import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
+import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
+import Task from 'kitsui/utility/Task'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
+import { sleep } from 'utility/Async'
 import Time from 'utility/Time'
 
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
@@ -60,10 +63,13 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 	view.style('collections-view')
 		.style.bind(view.loading.loaded, 'collections-view--ready')
 
+	const changingFilter = State(false)
+
 	Component()
-		.style('view-title')
+		.style('view-title', 'collections-view-title')
 		.viewTransitionSwipe('collections-view-title')
 		.text.set(quilt => quilt['view/collections/title']())
+		.appendWhen(changingFilter, Loading().showForever().style('collections-view-title-loading'))
 		.appendTo(view)
 
 	view.loading.appendTo(view)
@@ -96,12 +102,24 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	view.displayBarConfig.value = COLLECTIONS_DISPLAY
 
-	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+	const filterText = State<string | undefined>(undefined)
+	const filterTextSource = view.displayHandlers.map(view, display => display?.filter.filterText)
+	filterText.value = filterTextSource.value
+	filterTextSource.subscribe(view, async text => {
+		changingFilter.value = true
+		await Task.yield()
+		// await ViewTransition.perform("subview", 'collections-content', async () => {
+		filterText.value = text
+		while (view.element.getElementsByClassName(FILTER_CHANGING_CLASS).length)
+			await sleep(10)
+		// }).finished
+		changingFilter.value = false
+	})
 
 	let isFirstSeason = true
 	let isFirstExpac = true
 
-	Slot().appendTo(view).use({ collections, ActiveEvent }, (slot, { collections, ActiveEvent }) => {
+	Slot().subviewTransition('collections-content').appendTo(view).use({ collections, ActiveEvent }, (slot, { collections, ActiveEvent }) => {
 		////////////////////////////////////
 		//#region Active Event
 

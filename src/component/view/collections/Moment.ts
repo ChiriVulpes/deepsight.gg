@@ -38,13 +38,16 @@ const MomentBucket = Component((component): MomentBucket => {
 		.extendJIT('titleText', bucket => bucket.title.text.rehost(bucket))
 })
 
+export const FILTER_CHANGING_CLASS = 'collections-view-content--filter-changing'
+
 export default Component((component, { moment, buckets }: CollectionsMoment, collections: Collections, display: State.Or<DisplayHandlers | undefined>) => {
 	display = State.get(display)
-	const filterText = display.map(component, display => display?.filter.filterText)
+	const filterText = display.map(component, display => display?.filter.filterText).delay(component, 10)
 	return component.and(Details)
 		.tweak(details => {
 			details
 				.style('collections-view-moment')
+				.classes.bind(filterText.delayed, FILTER_CHANGING_CLASS)
 				.style.bind(details.open, 'details--open', 'collections-view-moment--open')
 				.style.bind(details.summary.hoveredOrHasFocused, 'collections-view-moment--hover')
 				.viewTransitionSwipe(`collections-view-moment-${moment.id}`)
@@ -95,12 +98,16 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			const armourTitan = armour.filter(item => item.class === DestinyClass.Titan)
 			const armourHunter = armour.filter(item => item.class === DestinyClass.Hunter)
 
-			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText],
-				(display, _) => display?.filter.filter(item, false) ?? true,
-			)
+			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.open, details.transitioning],
+				(display, _, open, transitioning) => ({
+					filterState: display?.filter.filter(item, false) ?? true,
+					open,
+					transitioning,
+				})
+			).delay(details, 10)
 
 			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState(item)])
-			const hasAnyItemFilteredIn = State.Some(details, ...itemFilterStates.values())
+			const hasAnyItemFilteredIn = State.Map(details, [...itemFilterStates.values()], (...states) => states.some(state => state.filterState))
 
 			State.Use(details, { filterText, hasAnyItemFilteredIn }, ({ filterText, hasAnyItemFilteredIn }) => {
 				if (!filterText) {
@@ -158,15 +165,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 						const shouldShowItem = State(false)
 						let wasOpen = false
 
-						const detailsStateMap = State.Map(details, [filterState, filterText, hasAnyItemFilteredIn, details.open, details.transitioning], (filterState, filterText, hasAnyItemFilteredIn, open, transitioning) => ({
-							filterState,
-							filterText,
-							hasAnyItemFilteredIn,
-							open,
-							transitioning,
-						})).delay(details, 10)
-
-						detailsStateMap.use(details, (state, old) => {
+						filterState.use(bucket, (state, old) => {
 							const newShouldShow = state.filterState && state.open
 
 							if (old?.open)
@@ -179,6 +178,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 
 						void shouldShowItem.await(bucket, true).then(() => {
 							const itemComponent = Item(item, collections)
+								.classes.bind(filterState.delayed, FILTER_CHANGING_CLASS)
 							Object.assign(itemComponent, { shouldShowItem, filterState })
 							filterText.use(itemComponent, () => {
 								itemComponent.rect.markDirty()
