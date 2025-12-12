@@ -186,8 +186,8 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 								Item.Tooltip?.anchor.markDirty()
 							})
 							const ownIndex = items.indexOf(item)
-							const itemComponentToPositionAfter = bucket.content.getChildren(Item).toArray().findLast(item => items.indexOf(item.item.value) < ownIndex)
-							itemComponent.insertToWhen(shouldShowItem, bucket.content, 'after', itemComponentToPositionAfter)
+							const itemComponentToPositionAfter = bucket.content.getDescendants(Item).toArray().findLast(item => items.indexOf(item.item.value) < ownIndex)
+							itemComponent.insertToWhen(shouldShowItem, bucket.content, 'after', itemComponentToPositionAfter?.parent)
 						})
 						filterStates.push(shouldShowItem)
 					}
