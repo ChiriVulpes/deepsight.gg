@@ -489,7 +489,8 @@ const Filter = Object.assign(
 
 		const mouseWithinPopover = State.Map(popover, [Mouse.state, popover.visible], (mouse, visible) => visible && popover.isMouseWithin())
 
-		State.Some(popover, input.hasFocused, popover.hasFocused, mouseWithinPopover).subscribe(popover, async focused => {
+		const hasFilters = config.map(popover, config => !!config?.filters.length)
+		State.Every(popover, hasFilters, State.Some(popover, input.hasFocused, popover.hasFocused, mouseWithinPopover)).subscribe(popover, async focused => {
 			if (!focused) {
 				if (InputBus.isDown('F4'))
 					return
