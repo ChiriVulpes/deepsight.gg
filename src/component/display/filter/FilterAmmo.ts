@@ -52,7 +52,6 @@ export default Filter.Definition({
 			fullText: ammoType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name.toLowerCase()}`),
 			isPartial: ammoType.falsy,
 			chip (chip, token) {
-				chip.style('filter-display-chip--ammo')
 				chip.style.bindFrom(ammoType.map(chip, def => def && `filter-display-chip--ammo--${def.displayProperties.name.toLowerCase()}` as 'filter-display-chip--ammo--primary'))
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)

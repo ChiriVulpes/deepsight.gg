@@ -15,6 +15,10 @@ const prefix = 'foundry:'
 export default Filter.Definition({
 	id: 'foundry',
 	type: 'or',
+	collapsed: {
+		hint: 'display-bar/filter/collapsed/foundry',
+		applies: prefix,
+	},
 	suggestions: DeepsightWeaponFoundryDefinition.mapManual(defs => {
 		return Object.values(defs ?? {})
 			.map(def => def?.displayProperties?.name)
@@ -36,14 +40,13 @@ export default Filter.Definition({
 			fullText: foundry.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name?.toLowerCase()}`),
 			isPartial: foundry.falsy,
 			chip (chip, token) {
-				chip.style('filter-display-chip--weapon-foundry')
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
 			icon (icon, token) {
 				Image(foundry.map(icon, def => def && DisplayProperties.icon(def.displayProperties.icon)))
-					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.SUROS), 'filter-display-chip-icon--foundry--suros')
-					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.Daito), 'filter-display-chip-icon--foundry--daito')
+					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.SUROS), 'filter-display-chip-icon-image--foundry--suros')
+					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.Daito), 'filter-display-chip-icon-image--foundry--daito')
 					.appendToWhen(foundry.truthy, icon)
 			},
 			filter (item, token) {

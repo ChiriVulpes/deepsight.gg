@@ -15,6 +15,10 @@ const prefix = 'frame:'
 export default Filter.Definition({
 	id: 'frame',
 	type: 'or',
+	collapsed: (owner, currentFilter) => !currentFilter.some(filter => filter.id === FilterWeaponType.id) ? undefined : {
+		hint: 'display-bar/filter/collapsed/frame',
+		applies: prefix,
+	},
 	suggestions: (owner, currentFilter) => DeepsightWeaponFrameDefinition.map(owner, defs => {
 		return Object.values(defs ?? {})
 			.filter(def => currentFilter
@@ -53,7 +57,6 @@ export default Filter.Definition({
 			fullText: weaponFrameName.map(owner, name => name ?? token.lowercase),
 			isPartial: noWeaponFrameMatches,
 			chip (chip, token) {
-				chip.style('filter-display-chip--weapon-frame')
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},

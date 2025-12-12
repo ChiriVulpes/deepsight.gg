@@ -19,7 +19,11 @@ import Time from 'utility/Time'
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	id: 'collections',
 	sortConfig: {},
-	// filterConfig: {},
+	// filterConfig: {
+	// 	id: 'collections',
+	// 	filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry],
+	// 	// debounceTime: 500,
+	// },
 })
 
 export interface CollectionsParamsItemHash {
@@ -160,6 +164,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 			const momentComponent = Moment(moment, collections, view.displayHandlers).appendTo(eventWrapper)
 			momentComponent.open.value = true
+			momentComponent.manualOpenState.value = true
 
 			if (ActiveEvent.endTime)
 				Component()
@@ -203,13 +208,17 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 			if (moment.moment.expansion && isFirstExpac) {
 				isFirstExpac = false
-				if (!filterText.value)
+				if (!filterText.value) {
 					momentComponent.open.value = true
+					momentComponent.manualOpenState.value = true
+				}
 			}
 			else if (moment.moment.season !== undefined && isFirstSeason) {
 				isFirstSeason = false
-				if (!filterText.value)
+				if (!filterText.value) {
 					momentComponent.open.value = true
+					momentComponent.manualOpenState.value = true
+				}
 			}
 
 			const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)

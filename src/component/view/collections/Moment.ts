@@ -98,11 +98,11 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			const armourTitan = armour.filter(item => item.class === DestinyClass.Titan)
 			const armourHunter = armour.filter(item => item.class === DestinyClass.Hunter)
 
-			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.open, details.transitioning],
+			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.manualOpenState, details.transitioning],
 				(display, filterText, open, transitioning) => ({
 					filterText,
 					filterState: display?.filter.filter(item, false) ?? true,
-					open,
+					open: filterText ? false : open,
 					transitioning,
 				})
 			).delay(details, 10)
@@ -110,13 +110,20 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState(item)])
 			const hasAnyItemFilteredIn = State.Map(details, [...itemFilterStates.values()], (...states) => states.some(state => state.filterState))
 
-			State.Use(details, { filterText, hasAnyItemFilteredIn }, ({ filterText, hasAnyItemFilteredIn }) => {
+			State.Use(details, {
+				filterText,
+				hasAnyItemFilteredIn,
+				delayed: State.Delayed(details, { filterText, hasAnyItemFilteredIn }, 100),
+			}).use(details, ({ filterText, hasAnyItemFilteredIn, delayed }) => {
 				if (!filterText) {
 					details.open.value = details.manualOpenState.value
 					return
 				}
 
-				details.open.value = hasAnyItemFilteredIn
+				if (delayed.filterText && delayed.hasAnyItemFilteredIn && hasAnyItemFilteredIn)
+					details.open.value = true
+				else if (!hasAnyItemFilteredIn)
+					details.open.value = false
 			})
 
 			void details.open.await(details, true).then(() => {
@@ -167,14 +174,14 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 						let wasOpen = false
 
 						filterState.use(bucket, (state, old) => {
-							const newShouldShow = state.filterState && state.open
+							const newShouldShow = state.filterText ? state.filterState : state.open
 
 							if (old?.open)
 								wasOpen = true
 							else if (!state.open && !state.transitioning)
 								wasOpen = false
 
-							shouldShowItem.value = newShouldShow || (state.filterState && wasOpen && shouldShowItem.value)
+							shouldShowItem.value = newShouldShow || (!state.filterText && wasOpen && shouldShowItem.value)
 						})
 
 						void shouldShowItem.await(bucket, true).then(() => {

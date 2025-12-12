@@ -7,8 +7,10 @@ import Slot from 'kitsui/component/Slot'
 import { NonNullish } from 'kitsui/utility/Arrays'
 import InputBus from 'kitsui/utility/InputBus'
 import Mouse from 'kitsui/utility/Mouse'
+import { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
+import { Quilt } from 'lang'
 import { quilt } from 'utility/Text'
 
 // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
@@ -84,9 +86,15 @@ namespace Filter {
 		filter?(suggestion: string, token: FilterToken | undefined, filters: { match: FilterMatch, fullText: string }[]): boolean
 	}
 
+	export interface CollapsedSuggestion {
+		hint: Quilt.SimpleKey
+		applies: string
+	}
+
 	export interface Definition {
 		readonly id: string
 		readonly type: 'and' | 'or'
+		readonly collapsed?: ((owner: State.Owner, currentFilter: FilterMatch[]) => State.Or<CollapsedSuggestion | undefined>) | State.Or<CollapsedSuggestion | undefined>
 		readonly suggestions: ((owner: State.Owner, currentFilter: FilterMatch[]) => State.Or<Suggestions | string[]>) | State.Or<Suggestions | string[]>
 		match (owner: State.Owner, token: FilterToken): FilterFunction | undefined
 	}
@@ -109,7 +117,17 @@ const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
 ////////////////////////////////////
 //#region Filter Display Chip
 
-const Chip = Component((component, match: FilterMatch): Filter.Chip => {
+interface FilterSuggestionCollapsed {
+	readonly isCollapsedSuggestion: true
+	readonly id: string
+	readonly definition: Filter.CollapsedSuggestion
+	readonly icon?: undefined
+	readonly token?: undefined
+	readonly chip?: undefined
+}
+
+const Chip = Component((component, match: FilterMatch | FilterSuggestionCollapsed): Filter.Chip => {
+	const collapsedSuggestion = 'isCollapsedSuggestion' in match ? match as FilterSuggestionCollapsed : undefined
 	const iconWrapper = match.icon && Component()
 		.style('filter-display-chip-icon-wrapper')
 		.style.toggle(!!match.doubleWidthIcon, 'filter-display-chip-icon-wrapper--double-width')
@@ -127,18 +145,25 @@ const Chip = Component((component, match: FilterMatch): Filter.Chip => {
 	const textWrapper = Component()
 		.style('filter-display-chip-text-wrapper')
 
+	const displayText: StringApplicatorSource | undefined = collapsedSuggestion
+		? quilt => quilt['display-bar/filter/collapsed'](quilt[collapsedSuggestion.definition.hint]())
+		: match.token?.displayText
+
 	Component()
 		.style('filter-display-chip-text-placeholder')
-		.text.set(match.token.displayText)
+		.text.set(displayText)
 		.appendTo(textWrapper)
 
 	const labelText = Component()
 		.style('filter-display-chip-text-label')
+		.style.toggle(!!collapsedSuggestion, 'filter-display-chip-text-label--collapsed')
+		.text.set(collapsedSuggestion?.definition.applies)
 		.appendTo(textWrapper)
 
 	const filterText = Component()
 		.style('filter-display-chip-text-main')
-		.text.set(match.token.displayText)
+		.style.toggle(!!collapsedSuggestion, 'filter-display-chip-text-main--collapsed')
+		.text.set(displayText)
 		.appendTo(textWrapper)
 
 	return component
@@ -231,7 +256,10 @@ const Filter = Object.assign(
 			)
 		})
 
-		const appliedFilters = filters.mapManual(filters => filters.filter(filter => filter.id !== 'plaintext' || (config.value?.plaintextFilterIsValid ?? PLAINTEXT_FILTER_IS_VALID)(filter.token)))
+		const appliedFilters = filters.mapManual(filters => filters.filter(filter => true
+			&& (filter.id !== 'plaintext' || (config.value?.plaintextFilterIsValid ?? PLAINTEXT_FILTER_IS_VALID)(filter.token))
+			&& !filter.token.endsWith(':')
+		))
 		const appliedFilterText = appliedFilters.mapManual(filters => filters
 			.map(filter => `"${((config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase)
 				.replaceAll('"', '')
@@ -520,8 +548,10 @@ const Filter = Object.assign(
 			.use({ config, appliedFilters }, (slot, { config, appliedFilters }) => {
 				for (const filter of config?.filters ?? []) {
 					const suggestions = State.get(typeof filter.suggestions === 'function' ? filter.suggestions(slot, appliedFilters) : filter.suggestions)
-					Slot().appendTo(slot).use(suggestions, (slot, suggestions) => {
+					const collapsed = State.get(typeof filter.collapsed === 'function' ? filter.collapsed(slot, appliedFilters) : filter.collapsed)
+					Slot().appendTo(slot).use({ suggestions, collapsed }, (slot, { suggestions, collapsed }) => {
 						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
+							.distinct()
 							.map((suggestion): FilterMatch | undefined => {
 								const token = FilterToken.create(suggestion)
 								const match = filter.match(slot, token)
@@ -532,6 +562,50 @@ const Filter = Object.assign(
 							})
 							.filter(NonNullish)
 
+						async function spliceSuggestion (newText: string) {
+							spliceInput(
+								selectedToken.value?.start ?? caretPosition.value ?? 0,
+								selectedToken.value?.end ?? caretPosition.value ?? 0,
+								newText,
+							)
+							filterText.value = input.element.value
+							const selectionStart = input.element.selectionStart
+							const selectionEnd = input.element.selectionEnd
+							const selectionDirection = input.element.selectionDirection
+							await Task.yield()
+							input.focus()
+							input.element.setSelectionRange(
+								selectionStart,
+								selectionEnd,
+								selectionDirection ?? undefined
+							)
+						}
+
+						if (collapsed)
+							Button()
+								.tweak(button => button.textWrapper.remove())
+								.and(Chip, { isCollapsedSuggestion: true, id: filter.id, definition: collapsed })
+								.style.remove('filter-display-chip')
+								.style('filter-popover-suggestion')
+								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
+								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
+								.event.subscribe('click', e => {
+									let newText = collapsed?.applies
+									if (!newText)
+										return
+
+									spliceSuggestion(newText)
+								})
+								.appendToWhen(
+									State.Map(slot, [selectedToken, filterFullTexts], (selectedToken, filters) => {
+										const lowercase = collapsed?.applies
+										return !!lowercase
+											// ensure the suggestion matches the current filter text
+											&& (!selectedToken || (lowercase.startsWith(selectedToken.lowercase) && lowercase.length > selectedToken.lowercase.length))
+									}),
+									slot
+								)
+
 						for (const suggestion of suggestionMatches)
 							Button()
 								.tweak(button => button.textWrapper.remove())
@@ -540,29 +614,14 @@ const Filter = Object.assign(
 								.style('filter-popover-suggestion')
 								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
 								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
-								.event.subscribe('click', async e => {
+								.event.subscribe('click', e => {
 									let newText = suggestion.token.lowercase
 									if (newText.includes(' ')) {
 										const prefix = newText.slice(0, newText.indexOf(':') + 1)
 										newText = `${prefix}"${newText.slice(prefix.length)}"`
 									}
 
-									spliceInput(
-										selectedToken.value?.start ?? caretPosition.value ?? 0,
-										selectedToken.value?.end ?? caretPosition.value ?? 0,
-										`${newText} `,
-									)
-									filterText.value = input.element.value
-									const selectionStart = input.element.selectionStart
-									const selectionEnd = input.element.selectionEnd
-									const selectionDirection = input.element.selectionDirection
-									await Task.yield()
-									input.focus()
-									input.element.setSelectionRange(
-										selectionStart,
-										selectionEnd,
-										selectionDirection ?? undefined
-									)
+									spliceSuggestion(`${newText} `)
 								})
 								.appendToWhen(
 									State.Map(slot, [selectedToken, filterFullTexts], (selectedToken, filters) => {
@@ -571,7 +630,10 @@ const Filter = Object.assign(
 											// this suggestion isn't already something we're filtering by
 											&& !filters.some(filter => filter.fullText === lowercase && filter.match.token !== selectedToken)
 											// ensure the suggestion matches the current filter text
-											&& (!selectedToken || lowercase.startsWith(selectedToken.lowercase))
+											&& (!selectedToken
+												? !collapsed
+												: lowercase.startsWith(selectedToken.lowercase) && (!collapsed || selectedToken.lowercase.startsWith(collapsed.applies))
+											)
 											// ensure the suggestion matches the filter provided
 											&& (Array.isArray(suggestions) ? true : suggestions.filter?.(lowercase, selectedToken, filters) ?? true)
 									}),

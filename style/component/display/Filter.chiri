@@ -77,9 +77,9 @@
 				%color-dodge
 				box-shadow: inset 0 0 0 1px #444
 
-			&--weapon-type: $filter-chip-colour: #333
-			&--weapon-frame: $filter-chip-colour: $colour-frame
-			&--weapon-foundry: $filter-chip-colour: $colour-foundry
+			&--type: $filter-chip-colour: #333
+			&--frame: $filter-chip-colour: $colour-frame
+			&--foundry: $filter-chip-colour: $colour-foundry
 
 			&--element:
 				#dec lightness = .5
@@ -128,9 +128,16 @@
 					:empty:
 						%hidden
 
+					&--collapsed:
+						padding-left: .2em
+
 				&-main:
 					%row-1
 					%column-2
+
+					&--collapsed:
+						%italic-2
+						%opacity-50
 
 			&-icon-wrapper:
 				%inline-grid
@@ -161,31 +168,32 @@
 				$image-opacity-duration: 0s
 				filter: saturate(0) brightness(100)
 
-				&--element:
-					padding: .2em
-
-				&--weapon-type:
-					max-width: 3em
-					max-height: 2lh
-					margin-top: -.15em
-
-					&--bow:
-						rotate: -45deg
-						translate: -.1em .25em
-					&--glaive:
-						rotate: 45deg
-						translate: -.1em 0
-
+				&--element: padding: .2em
 				&--rarity: padding-block: .07em
 				&--frame: padding-block: .03em .07em
-				&--foundry:
-					padding-block: .13em .2em
-					&--suros:
-						max-height: 170%
-						margin-left: -.4em
-					&--daito:
-						max-height: 130%
-						margin-left: -.15em
+				&--foundry: padding-block: .13em .2em
+
+				&-image:
+
+					&--foundry:
+						&--suros:
+							max-height: 170%
+							margin-left: -.4em
+						&--daito:
+							max-height: 130%
+							margin-left: -.15em
+
+					&--type:
+						max-width: 3em
+						max-height: 2lh
+						margin-top: -.15em
+
+						&--bow:
+							rotate: -45deg
+							translate: -.1em .25em
+						&--glaive:
+							rotate: 45deg
+							translate: -.1em 0
 
 	&-popover:
 		#after: .popover

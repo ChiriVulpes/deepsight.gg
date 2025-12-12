@@ -46,7 +46,6 @@ export default Filter.Definition({
 			fullText: damageType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name.toLowerCase()}`),
 			isPartial: damageType.falsy,
 			chip (chip, token) {
-				chip.style('filter-display-chip--element')
 				chip.style.bindFrom(damageType.map(chip, def => def && `filter-display-chip--element--${def.displayProperties.name.toLowerCase()}` as 'filter-display-chip--element--arc'))
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)

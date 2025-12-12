@@ -49,14 +49,12 @@ export default Filter.Definition({
 			fullText: tierType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name?.toLowerCase()}`),
 			isPartial: tierType.falsy,
 			chip (chip, token) {
-				chip.style('filter-display-chip--rarity')
 				chip.style.bindFrom(tierType.map(chip, def => def && `filter-display-chip--rarity--${def.displayProperties.name?.toLowerCase()}` as 'filter-display-chip--element--arc'))
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
 			icon (icon, token) {
 				Image(EngramIcon.map(icon, icon => icon))
-					.style('filter-display-chip-icon--rarity')
 					.appendToWhen(tierType.truthy, icon)
 			},
 			filter (item, token) {

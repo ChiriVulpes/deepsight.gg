@@ -18,8 +18,8 @@ importers:
         specifier: 1.0.1585
         version: 1.0.1585
       kitsui:
-        specifier: github:fluff4me/kitsui#885e70ca26eb780b2e3905134cbd59312c0f7ecc
-        version: https://codeload.github.com/fluff4me/kitsui/tar.gz/885e70ca26eb780b2e3905134cbd59312c0f7ecc
+        specifier: github:fluff4me/kitsui#27745c74c607359208d5e816e80bd1f456db2271
+        version: https://codeload.github.com/fluff4me/kitsui/tar.gz/27745c74c607359208d5e816e80bd1f456db2271
 
 packages:
 
@@ -37,8 +37,8 @@ packages:
   deepsight.gg@1.0.1585:
     resolution: {integrity: sha512-n+pk014vOCZf4IAhIUF99kryDZHg77rD1i2gVkl1ADMZDw/Qno30MTOUn9L9Cbm1lmF3swwdNtH6F+ohgO1VBQ==}
 
-  kitsui@https://codeload.github.com/fluff4me/kitsui/tar.gz/885e70ca26eb780b2e3905134cbd59312c0f7ecc:
-    resolution: {tarball: https://codeload.github.com/fluff4me/kitsui/tar.gz/885e70ca26eb780b2e3905134cbd59312c0f7ecc}
+  kitsui@https://codeload.github.com/fluff4me/kitsui/tar.gz/27745c74c607359208d5e816e80bd1f456db2271:
+    resolution: {tarball: https://codeload.github.com/fluff4me/kitsui/tar.gz/27745c74c607359208d5e816e80bd1f456db2271}
     version: 0.0.1
 
 snapshots:
@@ -58,4 +58,4 @@ snapshots:
     dependencies:
       bungie-api-ts: 5.10.0
 
-  kitsui@https://codeload.github.com/fluff4me/kitsui/tar.gz/885e70ca26eb780b2e3905134cbd59312c0f7ecc: {}
+  kitsui@https://codeload.github.com/fluff4me/kitsui/tar.gz/27745c74c607359208d5e816e80bd1f456db2271: {}

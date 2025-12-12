@@ -22,6 +22,10 @@ export default Object.assign(
 	Filter.Definition({
 		id: 'type',
 		type: 'or',
+		collapsed: {
+			hint: 'display-bar/filter/collapsed/type',
+			applies: prefix,
+		},
 		suggestions: DeepsightWeaponTypeDefinition.mapManual(defs => {
 			return Object.values(defs ?? {})
 				.map(def => def?.displayProperties?.name)
@@ -38,16 +42,15 @@ export default Object.assign(
 				fullText: weaponType.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name.toLowerCase()}`),
 				isPartial: weaponType.falsy,
 				chip (chip, token) {
-					chip.style('filter-display-chip--weapon-type')
 					chip.labelText.set(`${labelText}:`)
 					chip.text.set(filterText)
 				},
 				doubleWidthIcon: true,
 				icon (icon, token) {
 					Image(weaponType.map(icon, def => def && `https://www.bungie.net${def.displayProperties.icon}`))
-						.style('filter-display-chip-icon--weapon-type')
-						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Bows), 'filter-display-chip-icon--weapon-type--bow')
-						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Glaives), 'filter-display-chip-icon--weapon-type--glaive')
+						.style('filter-display-chip-icon-image--type')
+						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Bows), 'filter-display-chip-icon-image--type--bow')
+						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Glaives), 'filter-display-chip-icon-image--type--glaive')
 						.appendToWhen(weaponType.truthy, icon)
 				},
 				filter (item, token) {
