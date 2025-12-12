@@ -110,7 +110,7 @@ export const PLAINTEXT_FILTER_TWEAK_CHIP: NonNullable<FilterFunction['chip']> = 
 	.style.toggle(!PLAINTEXT_FILTER_IS_VALID(token), 'filter-display-text--inactive')
 
 const EMOJI_ICON_PLACEHOLDER = '⬛'
-const EMOJI_REGEX = /(?!\p{N})[\p{Emoji}\p{Extended_Pictographic}]/gu
+const EMOJI_REGEX = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu
 const EMOJI_SPACE_PLACEHOLDER = '–'
 const EMOJI_OR_WHITESPACE_REGEX = /[– ]+/gu
 
