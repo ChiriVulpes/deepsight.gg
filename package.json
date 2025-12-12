@@ -12,5 +12,10 @@
 		"ts-node": "10.9.2",
 		"typescript": "5.9.3",
 		"weaving": "github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a"
+	},
+	"pnpm": {
+		"overrides": {
+			"express": "-"
+		}
 	}
 }
