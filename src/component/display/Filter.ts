@@ -81,7 +81,7 @@ namespace Filter {
 
 	export interface Suggestions {
 		readonly all: string[]
-		filter?(suggestion: string, token: FilterToken | undefined, filters: string[]): boolean
+		filter?(suggestion: string, token: FilterToken | undefined, filters: { match: FilterMatch, fullText: string }[]): boolean
 	}
 
 	export interface Definition {
@@ -209,12 +209,25 @@ const Filter = Object.assign(
 			return filters
 		})
 
+		const selectedToken = State.MapManual([filters, caretPosition], (filters, caretPosition) => {
+			if (caretPosition === undefined)
+				return undefined
+
+			for (const filter of filters)
+				if (caretPosition >= filter.token.start && caretPosition <= filter.token.end)
+					return filter.token
+
+			return undefined
+		})
+
 		let filterFullTextsOwner: State.Owner.Removable | undefined
 		const filterFullTexts = filters.mapManual(filters => {
 			filterFullTextsOwner?.remove(); filterFullTextsOwner = State.Owner.create()
 			return State.Map(filterFullTextsOwner,
 				filters.map(filter => State.get(filter.fullText)),
-				(...texts) => texts,
+				(...texts) => (texts
+					.map((fullText, i) => ({ fullText, match: filters[i] }))
+				),
 			)
 		})
 
@@ -287,17 +300,6 @@ const Filter = Object.assign(
 
 			return tokens
 		}
-
-		const selectedToken = State.MapManual([filters, caretPosition], (filters, caretPosition) => {
-			if (caretPosition === undefined)
-				return undefined
-
-			for (const filter of filters)
-				if (caretPosition >= filter.token.start && caretPosition <= filter.token.end)
-					return filter.token
-
-			return undefined
-		})
 
 		//#endregion
 		////////////////////////////////////
@@ -566,7 +568,7 @@ const Filter = Object.assign(
 										const lowercase = suggestion.token.lowercase
 										return true
 											// this suggestion isn't already something we're filtering by
-											&& !filters.includes(lowercase)
+											&& !filters.some(filter => filter.fullText === lowercase && filter.match.token !== selectedToken)
 											// ensure the suggestion matches the current filter text
 											&& (!selectedToken || lowercase.startsWith(selectedToken.lowercase))
 											// ensure the suggestion matches the filter provided
