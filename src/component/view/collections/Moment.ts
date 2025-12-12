@@ -99,7 +99,8 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			const armourHunter = armour.filter(item => item.class === DestinyClass.Hunter)
 
 			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.open, details.transitioning],
-				(display, _, open, transitioning) => ({
+				(display, filterText, open, transitioning) => ({
+					filterText,
 					filterState: display?.filter.filter(item, false) ?? true,
 					open,
 					transitioning,
@@ -173,7 +174,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 							else if (!state.open && !state.transitioning)
 								wasOpen = false
 
-							shouldShowItem.value = newShouldShow || (state.filterState && wasOpen)
+							shouldShowItem.value = newShouldShow || (state.filterState && wasOpen && shouldShowItem.value)
 						})
 
 						void shouldShowItem.await(bucket, true).then(() => {
