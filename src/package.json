@@ -4,7 +4,7 @@
 	"dependencies": {
 		"bungie-api-ts": "5.10.0",
 		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#1a5f12f742029642ea861782d27c9dcd7131ed6d",
-		"deepsight.gg": "^1.0.1585",
-		"kitsui": "github:fluff4me/kitsui#06c0e48a2aa46eb57b72a05c2dd120db3e5c5047"
+		"deepsight.gg": "1.0.1585",
+		"kitsui": "github:fluff4me/kitsui#885e70ca26eb780b2e3905134cbd59312c0f7ecc"
 	}
 }
