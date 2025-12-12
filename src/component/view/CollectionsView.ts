@@ -70,6 +70,8 @@ const ActiveEvent = State.Async(async () => {
 })
 
 export default View<CollectionsParamsItemHash | CollectionsParamsItemName | undefined>(async view => {
+	view.displayBarConfig.value = COLLECTIONS_DISPLAY
+
 	view.style('collections-view')
 		.style.bind(view.loading.loaded, 'collections-view--ready')
 
@@ -109,8 +111,6 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	////////////////////////////////////
 	//#region Collections
-
-	view.displayBarConfig.value = COLLECTIONS_DISPLAY
 
 	const filterText = State<string | undefined>(undefined)
 	const filterTextSource = view.displayHandlers.map(view, display => display?.filter.filterText)
