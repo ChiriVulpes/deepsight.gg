@@ -203,11 +203,13 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 			if (moment.moment.expansion && isFirstExpac) {
 				isFirstExpac = false
-				momentComponent.open.value = true
+				if (!filterText.value)
+					momentComponent.open.value = true
 			}
 			else if (moment.moment.season !== undefined && isFirstSeason) {
 				isFirstSeason = false
-				momentComponent.open.value = true
+				if (!filterText.value)
+					momentComponent.open.value = true
 			}
 
 			const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)
