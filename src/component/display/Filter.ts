@@ -196,7 +196,7 @@ const Filter = Object.assign(
 		const filterText = State(filterFromParam ?? '')
 		const caretPosition = State<number | undefined>(0)
 
-		const reapplyFilterSearchParam = () => navigate.search.set('filter', filterText.value || null)
+		const reapplyFilterSearchParam = () => navigate.search.set('filter', filterText.value?.replace(EMOJI_REGEX, '') || null)
 		filterText.use(filter, reapplyFilterSearchParam)
 
 		////////////////////////////////////
