@@ -1,5 +1,11 @@
 import type { DestinyEventCardDefinition } from 'bungie-api-ts/destiny2'
 import View from 'component/core/View'
+import FilterAmmo from 'component/display/filter/FilterAmmo'
+import FilterElement from 'component/display/filter/FilterElement'
+import FilterRarity from 'component/display/filter/FilterRarity'
+import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
+import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
+import FilterWeaponType from 'component/display/filter/FilterWeaponType'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
@@ -19,11 +25,11 @@ import Time from 'utility/Time'
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	id: 'collections',
 	sortConfig: {},
-	// filterConfig: {
-	// 	id: 'collections',
-	// 	filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry],
-	// 	// debounceTime: 500,
-	// },
+	filterConfig: {
+		id: 'collections',
+		filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry],
+		debounceTime: 500,
+	},
 })
 
 export interface CollectionsParamsItemHash {
