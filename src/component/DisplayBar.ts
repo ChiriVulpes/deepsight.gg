@@ -88,7 +88,9 @@ const DisplayBar = Object.assign(
 					.style('display-bar-filter-button-title')
 					.style.bind(filter.filterText.truthy, 'display-bar-filter-button-title--has-filter')
 					.style.bind(button.hasFocused, 'display-bar-filter-button-title--has-focus')
-				button.subtitle.append(filter)
+				button.subtitle
+					.style('display-bar-filter-button-subtitle')
+					.append(filter)
 			})
 			.appendTo(component)
 

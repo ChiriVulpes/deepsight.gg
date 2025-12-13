@@ -89,6 +89,10 @@
 					%translate-up-1
 					%colour-2
 
+			&-subtitle:
+				%padding-1
+				%overflow-hidden
+
 	&-help:
 
 		&-button:
