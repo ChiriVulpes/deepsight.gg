@@ -27,7 +27,7 @@ const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	sortConfig: {},
 	filterConfig: {
 		id: 'collections',
-		filters: [FilterRarity, FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry],
+		filters: [FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry, FilterRarity],
 		debounceTime: 500,
 	},
 })
