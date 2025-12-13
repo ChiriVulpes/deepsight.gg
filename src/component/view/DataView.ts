@@ -180,13 +180,7 @@ export default View<DataParams | undefined>(async view => {
 	view.style('data-view')
 		.style.bind(view.loading.loaded, 'data-view--ready')
 
-	Component()
-		.style('view-title')
-		.viewTransitionSwipe('data-view-title')
-		.text.set(quilt => quilt['view/data/title']())
-		.appendTo(view)
-
-	view.loading.appendTo(view)
+	view.title.text.set(quilt => quilt['view/data/title']())
 
 	////////////////////////////////////
 	//#region Load

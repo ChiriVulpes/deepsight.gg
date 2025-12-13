@@ -6,6 +6,7 @@ import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
+import TextManipulator from 'kitsui/utility/TextManipulator'
 import ViewTransition from 'utility/ViewTransition'
 
 interface LoadingAPI {
@@ -19,6 +20,9 @@ interface ViewLoading extends Loading {
 }
 
 interface ViewExtensions<PARAMS extends object | undefined> {
+	readonly infoContainer: Component
+	readonly title: Component
+	readonly titleText: TextManipulator<this>
 	readonly loading: ViewLoading
 	readonly hasNavbar: State.Mutable<boolean>
 	readonly displayBarConfig: State.Mutable<DisplayBar.Config | undefined>
@@ -60,11 +64,15 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 	const hasNavbar = State(true)
 	const displayBarConfig = State<DisplayBar.Config | undefined>(undefined)
 	return Component((component, paramsIn) => {
+		const id = Math.random().toString(36).slice(2)
 		const params = State(paramsIn)
 		const view = component
 			.and(ViewExt)
 			.style('view')
 			.extend<ViewExtensions<PARAMS>>(view => ({
+				infoContainer: undefined!,
+				title: undefined!,
+				titleText: undefined!,
 				loading: undefined!,
 				hasNavbar,
 				displayBarConfig,
@@ -75,6 +83,16 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 					return navbar
 				},
 			}))
+			.extendJIT('infoContainer', view => Component()
+				.style('view-info-container')
+				.prependTo(view)
+			)
+			.extendJIT('title', view => Component()
+				.style('view-title')
+				.viewTransitionSwipe(`view-title-${id}`)
+				.prependTo(view.infoContainer)
+			)
+			.extendJIT('titleText', view => view.title.text.rehost(view))
 
 		let loading: ViewLoading | undefined
 		let setLoadingApi: ((api: LoadingAPI) => void) | undefined
@@ -82,7 +100,7 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 		let markLoadFinished: (() => void) | undefined
 		let markFinishResolved: (() => void) | undefined
 		const finishResolvedPromise = new Promise<void>(resolve => markFinishResolved = resolve)
-		view.extendJIT('loading', () => loading ??= Object.assign(Loading(), {
+		view.extendJIT('loading', () => loading ??= Object.assign(Loading().appendTo(view.infoContainer), {
 			start () {
 				return loadingApiPromise
 			},

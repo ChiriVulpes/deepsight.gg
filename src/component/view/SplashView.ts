@@ -25,6 +25,7 @@ export default View(async view => {
 		)
 
 	view.loading.appendTo(view)
+	view.infoContainer.remove()
 
 	const { signal, setProgress } = await view.loading.start()
 	setProgress(null, quilt => quilt['view/splash/load/connecting']())

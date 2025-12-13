@@ -77,14 +77,10 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	const changingFilter = State(false)
 
-	Component()
-		.style('view-title', 'collections-view-title')
-		.viewTransitionSwipe('collections-view-title')
+	view.title
+		.style('collections-view-title')
 		.text.set(quilt => quilt['view/collections/title']())
 		.appendWhen(changingFilter, Loading().showForever().style('collections-view-title-loading'))
-		.appendTo(view)
-
-	view.loading.appendTo(view)
 
 	const { signal, setProgress } = await view.loading.start()
 	setProgress(null, quilt => quilt['view/collections/load/connecting']())

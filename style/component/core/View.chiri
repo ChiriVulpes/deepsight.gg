@@ -17,6 +17,13 @@
 	%gap-3
 	%z-index-fg
 
+	&-info-container:
+		%flex
+		%flex-column
+		%align-items-centre
+		%width-fit
+	&-loading:
+
 	&-title:
 		%font-9
 		%weight-bold
