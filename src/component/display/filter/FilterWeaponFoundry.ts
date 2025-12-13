@@ -50,8 +50,8 @@ export default Filter.Definition({
 				),
 			},
 			filter (item, token) {
-				return !item.foundryImage ? 'irrelevant'
-					: item.foundryImage === foundry.value?.overlay
+				return !item.foundryHash ? 'irrelevant'
+					: item.foundryHash === foundry.value?.hash
 			},
 		}
 	},

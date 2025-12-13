@@ -51,8 +51,8 @@ export default Filter.Definition({
 			},
 			icon: damageType.map(owner, def => def && `https://www.bungie.net${def.displayProperties.icon}`),
 			filter (item, token) {
-				return !item.damageTypes?.length ? 'irrelevant'
-					: item.damageTypes.includes(damageType.value?.hash ?? NaN)
+				return !item.damageTypeHashes?.length ? 'irrelevant'
+					: item.damageTypeHashes.includes(damageType.value?.hash ?? NaN)
 			},
 		}
 	},

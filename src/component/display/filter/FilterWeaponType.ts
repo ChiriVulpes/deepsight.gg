@@ -1,4 +1,5 @@
-import Filter, { FilterToken } from 'component/display/Filter'
+import type { FilterToken } from 'component/display/Filter'
+import Filter from 'component/display/Filter'
 import { State } from 'kitsui'
 import { ItemCategoryHashes } from 'node_modules/deepsight.gg/Enums'
 import Relic from 'Relic'
@@ -53,8 +54,8 @@ export default Object.assign(
 					),
 				},
 				filter (item, token) {
-					return !item.categories?.length ? 'irrelevant'
-						: item.categories.includes(weaponType.value?.hash ?? NaN)
+					return !item.categoryHashes?.length ? 'irrelevant'
+						: item.categoryHashes.includes(weaponType.value?.hash ?? NaN)
 				},
 			}
 		},

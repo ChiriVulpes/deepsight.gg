@@ -2,9 +2,10 @@ import Button from 'component/core/Button'
 import Image from 'component/core/Image'
 import ItemTooltip from 'component/tooltip/ItemTooltip'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item as CollectionsItem } from 'conduit.deepsight.gg/Collections'
+import type { Item as CollectionsItem, CollectionsMoment } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
+import DisplayProperties from 'model/DisplayProperties'
 
 interface ItemExtensions {
 	readonly item: State<CollectionsItem>
@@ -18,7 +19,7 @@ const Item = Object.assign(
 		collections = State.get(collections)
 
 		const masterworked = item.map(component, item => false)
-		const featured = item.map(component, item => !!item.featuredWatermark)
+		const featured = item.map(component, item => item.featured)
 		const rarity = item.map(component, item => collections.value.rarities[item.rarity])
 
 		component.and(Button)
@@ -38,10 +39,11 @@ const Item = Object.assign(
 			)
 			.appendTo(component)
 
+		const moment = State.Map(component, [collections, item], (collections, item): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === item.momentHash))
 		Component()
 			.style('item-watermark')
 			.style.bind(featured, 'item-watermark--featured')
-			.style.bindVariable('item-watermark', item.map(component, item => `url(https://www.bungie.net${item.watermark})`))
+			.style.bindVariable('item-watermark', moment.map(component, moment => moment && `url(${DisplayProperties.icon(moment.moment.iconWatermark)}`))
 			.appendTo(component)
 
 		Component()

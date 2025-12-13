@@ -94,9 +94,9 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			const armour = ([InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor] as const)
 				.flatMap(hash => buckets[hash].items.map(hash => collections.items[hash]))
 
-			const armourWarlock = armour.filter(item => item.class === DestinyClass.Warlock)
-			const armourTitan = armour.filter(item => item.class === DestinyClass.Titan)
-			const armourHunter = armour.filter(item => item.class === DestinyClass.Hunter)
+			const armourWarlock = armour.filter(item => item.classType === DestinyClass.Warlock)
+			const armourTitan = armour.filter(item => item.classType === DestinyClass.Titan)
+			const armourHunter = armour.filter(item => item.classType === DestinyClass.Hunter)
 
 			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.manualOpenState, details.transitioning],
 				(display, filterText, open, transitioning) => ({

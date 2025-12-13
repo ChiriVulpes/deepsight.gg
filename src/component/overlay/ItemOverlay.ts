@@ -13,15 +13,11 @@ import Slot from 'kitsui/component/Slot'
 import InputBus from 'kitsui/utility/InputBus'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import ArmourSet from 'model/ArmourSet'
+import DisplayProperties from 'model/DisplayProperties'
 import type { DestinyDisplayPropertiesDefinition } from 'node_modules/bungie-api-ts/destiny2'
 import type { DeepsightPlugFullName } from 'node_modules/deepsight.gg/DeepsightPlugCategorisation'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
-
-const DestinySocketCategoryDefinition = State.Async(async () => {
-	const conduit = await Relic.connected
-	return await conduit.definitions.en.DestinySocketCategoryDefinition.all()
-})
 
 const PowerStatDefinition = State.Async(async () => {
 	const conduit = await Relic.connected
@@ -43,7 +39,8 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 		.style('item-overlay-image')
 		.appendTo(background)
 
-	Image(item.map(overlay, item => item?.foundryImage && `https://www.bungie.net${item.foundryImage}`))
+	const foundryImage = State.Map(overlay, [collections, item], (collections, item) => DisplayProperties.icon(collections.foundries[item?.foundryHash!]?.overlay))
+	Image(foundryImage)
 		.style('item-overlay-foundry')
 		.appendTo(background)
 
@@ -90,7 +87,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 		const def = typeof socket !== 'number'
 			? State.get(socket)
-			: DestinySocketCategoryDefinition.map(component, defs => defs?.[socket])
+			: collections.map(component, collections => collections.socketCategories?.[socket])
 
 		const header = Component()
 			.style('item-overlay-socket-group-header')
@@ -159,7 +156,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Weapon Perks
 
-	const isWeapon = item.map(component, item => !!item?.categories?.includes(ItemCategoryHashes.Weapon))
+	const isWeapon = item.map(component, item => !!item?.categoryHashes?.includes(ItemCategoryHashes.Weapon))
 	SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
 		.tweak(group => Slot().appendTo(group.content).use({ item, collections }, (slot, { item, collections }) => {
 			const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
@@ -277,8 +274,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Stats
 
-	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-	const ammo = State.Map(overlay, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item?.ammo!])
+	const ammo = State.Map(overlay, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item?.ammoType!])
 	const stats = Stats(item, collections, {
 		tweakStatLabel: (label, def) => (label
 			.style('item-overlay-stats-stat-label')
@@ -300,7 +296,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 					.style('item-overlay-stats-primary-power-label')
 					.text.bind(PowerStatDefinition.map(stats, def => def?.displayProperties.name))
 				)
-				.append(Power(State.Use(stats, { damageTypes: item.map(stats, item => item?.damageTypes) }), collections)
+				.append(Power(State.Use(stats, { damageTypes: item.map(stats, item => item?.damageTypeHashes) }), collections)
 					.style('item-overlay-stats-primary-power-display')
 				)
 			)

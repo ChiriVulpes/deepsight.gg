@@ -5,13 +5,14 @@ import Paragraph from 'component/core/Paragraph'
 import Power from 'component/item/Power'
 import Stats from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
+import type { CollectionsMoment, Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
 import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import ArmourSet from 'model/ArmourSet'
+import DisplayProperties from 'model/DisplayProperties'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
 import TooltipManager from 'utility/TooltipManager'
@@ -55,11 +56,12 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Watermark
 
-	const featured = item.map(tooltip, item => !!item.featuredWatermark)
+	const moment = State.Map(tooltip, [collections, item], (collections, item): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === item.momentHash))
+	const featured = item.map(tooltip, item => item.featured)
 	Component()
 		.style('item-tooltip-watermark')
 		.style.bind(featured, 'item-tooltip-watermark--featured')
-		.style.bindVariable('item-watermark', item.map(tooltip, item => `url(https://www.bungie.net${item.watermark})`))
+		.style.bindVariable('item-watermark', moment.map(tooltip, moment => moment && `url(${DisplayProperties.icon(moment.moment.iconWatermark)}`))
 		.appendTo(tooltip.header)
 
 	const tier = item.map(tooltip, item => item.tier)
@@ -95,7 +97,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Damage
 
-	Power(State.Use(primaryInfo, { damageTypes: item.map(primaryInfo, item => item.damageTypes) }), collections)
+	Power(State.Use(primaryInfo, { damageTypes: item.map(primaryInfo, item => item.damageTypeHashes) }), collections)
 		.style('item-tooltip-damage')
 		.appendTo(primaryInfo)
 
@@ -105,7 +107,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Secondary Type
 
-	const ammo = State.Map(tooltip, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item.ammo!])
+	const ammo = State.Map(tooltip, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item.ammoType!])
 	const archetype = State.Map(tooltip, [item, collections], (item, collections): ItemPlug | undefined => {
 		const socketPlugHash = item.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')?.defaultPlugHash
 		return collections.plugs[socketPlugHash!]
