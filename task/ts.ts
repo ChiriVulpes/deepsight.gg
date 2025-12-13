@@ -13,7 +13,7 @@ const ts = Task('ts', task => task.series(
 export default ts
 
 export const tsWatch = Task('ts (watch)', task => task.series(
-	ts,
+	() => task.try(ts),
 	task.parallel(
 		() => TypeScript.compile(task, 'src', '--watch', '--preserveWatchOutput', '--pretty', ...options),
 		// () => task.watch('out/client/index.js', copyClientToPlatform),
