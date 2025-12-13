@@ -1,4 +1,3 @@
-import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
 import { FoundryHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
@@ -43,11 +42,12 @@ export default Filter.Definition({
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
-			icon (icon, token) {
-				Image(foundry.map(icon, def => def && DisplayProperties.icon(def.displayProperties.icon)))
-					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.SUROS), 'filter-display-chip-icon-image--foundry--suros')
-					.style.bind(foundry.map(icon, def => def?.hash === FoundryHashes.Daito), 'filter-display-chip-icon-image--foundry--daito')
-					.appendToWhen(foundry.truthy, icon)
+			icon: {
+				image: foundry.map(owner, def => def && DisplayProperties.icon(def.displayProperties.icon)),
+				tweak: image => (image
+					.style.bind(foundry.map(image, def => def?.hash === FoundryHashes.SUROS), 'filter-display-chip-icon-image--foundry--suros')
+					.style.bind(foundry.map(image, def => def?.hash === FoundryHashes.Daito), 'filter-display-chip-icon-image--foundry--daito')
+				),
 			},
 			filter (item, token) {
 				return !item.foundryImage ? 'irrelevant'

@@ -1,5 +1,4 @@
 import { DestinyAmmunitionType } from 'bungie-api-ts/destiny2'
-import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
 import { PresentationNodeHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
@@ -56,10 +55,7 @@ export default Filter.Definition({
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
-			icon (icon, token) {
-				Image(ammoType.map(icon, def => def && `https://www.bungie.net${def.displayProperties.icon}`))
-					.appendToWhen(ammoType.truthy, icon)
-			},
+			icon: ammoType.map(owner, def => def && `https://www.bungie.net${def.displayProperties.icon}`),
 			filter (item, token) {
 				return !item.ammo ? 'irrelevant'
 					: item.ammo === ammoType.value?.hash

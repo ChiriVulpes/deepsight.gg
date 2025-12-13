@@ -1,4 +1,3 @@
-import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
 import { State } from 'kitsui'
@@ -60,10 +59,7 @@ export default Filter.Definition({
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
-			icon (icon, token) {
-				Image(weaponFrameIcon)
-					.appendToWhen(weaponFrameIcon.truthy, icon)
-			},
+			icon: weaponFrameIcon,
 			filter (item, token) {
 				const plugs = item.sockets?.flatMap(socket => socket.plugs) ?? []
 				return !plugs?.length ? 'irrelevant'

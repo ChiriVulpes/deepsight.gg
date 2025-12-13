@@ -148,9 +148,9 @@
 
 				&--double-width:
 					#after: .filter-display-chip-icon-wrapper
-					aspect-ratio: auto
-					%height-lh
-					width: calc(2lh + .21em)
+					aspect-ratio: 2 / 1
+					; %height-lh
+					; width: calc(2lh + .21em)
 					%justify-content-centre
 					%align-items-centre
 

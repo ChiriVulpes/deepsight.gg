@@ -1,5 +1,6 @@
 import Button from 'component/core/Button'
 import DisplaySlot from 'component/core/DisplaySlot'
+import Image from 'component/core/Image'
 import type { Item } from 'conduit.deepsight.gg/Collections'
 import { Component, State } from 'kitsui'
 import Popover from 'kitsui/component/Popover'
@@ -38,12 +39,42 @@ export namespace FilterToken {
 	}
 }
 
+interface FilterIconExtensions {
+	readonly visible: State<boolean>
+	setImage (image: State.Or<string | undefined>, tweak?: (image: Image) => unknown): this
+}
+
+interface FilterIcon extends Component, FilterIconExtensions { }
+
+const FilterIcon = Component((component, id: string): FilterIcon => {
+	const visible = State(true)
+	return component
+		.style('filter-display-chip-icon', `filter-display-chip-icon--${id}` as 'filter-display-chip-icon')
+		.extend<FilterIconExtensions>(icon => ({
+			visible,
+			setImage (image, tweak) {
+				image = State.get(image)
+				visible.bind(icon, image.truthy)
+				Image(image)
+					.style('filter-display-chip-icon-image', `filter-display-chip-icon-image--${id}` as 'filter-display-chip-icon-image')
+					.tweak(tweak)
+					.appendToWhen(image.truthy, icon)
+				return icon
+			},
+		}))
+})
+
+interface FilterIconDefinition {
+	image: State.Or<string | undefined>
+	tweak (icon: FilterIcon, token: FilterToken): unknown
+}
+
 interface FilterFunction {
 	readonly fullText: State.Or<string>
 	readonly isPartial: State.Or<boolean>
 	filter (item: Item, token: FilterToken): true | false | 'irrelevant'
 	chip?(chip: Filter.Chip, token: FilterToken): unknown
-	icon?: true | ((icon: Component, token: FilterToken) => unknown)
+	icon?: true | State<string | undefined> | FilterIconDefinition
 	doubleWidthIcon?: true
 }
 interface FilterMatch extends FilterFunction {
@@ -134,12 +165,15 @@ const Chip = Component((component, match: FilterMatch | FilterSuggestionCollapse
 
 	const iconPlaceholder = iconWrapper && Component()
 		.style('filter-display-chip-icon-placeholder')
-		.text.set(EMOJI_ICON_PLACEHOLDER)
+		.text.set(EMOJI_ICON_PLACEHOLDER.repeat(match.doubleWidthIcon ? 2 : 1))
 		.appendTo(iconWrapper)
 
-	const icon = iconWrapper && Component()
-		.style('filter-display-chip-icon', `filter-display-chip-icon--${match.id}` as 'filter-display-chip-icon')
-		.tweak(icon => typeof match.icon === 'function' && match.icon(icon, match.token))
+	const matchIconDefinition = !State.is(match.icon) && typeof match.icon === 'object' ? match.icon : undefined
+	const icon = iconWrapper && FilterIcon(match.id)
+		.tweak(icon => icon
+			.setImage(State.is(match.icon) ? match.icon : matchIconDefinition?.image)
+			.tweak(matchIconDefinition?.tweak, match.token)
+		)
 		.appendTo(iconWrapper)
 
 	const textWrapper = Component()
@@ -168,7 +202,8 @@ const Chip = Component((component, match: FilterMatch | FilterSuggestionCollapse
 
 	return component
 		.style('filter-display-chip', `filter-display-chip--${match.id}` as 'filter-display-chip')
-		.append(iconWrapper, textWrapper)
+		.tweak(c => icon && c.appendWhen(icon.visible, iconWrapper))
+		.append(textWrapper)
 		.extend<FilterChipExtensions>(chip => ({
 			iconWrapper,
 			iconPlaceholder,
@@ -392,7 +427,8 @@ const Filter = Object.assign(
 					spliceInput(start, end, '')
 				}
 
-				if (filter.icon) {
+				const icon = typeof filter.icon !== 'object' ? filter.icon : (State.is(filter.icon) ? filter.icon.value : State.is(filter.icon.image) ? filter.icon.image.value : filter.icon.image)
+				if (icon) {
 					// insert a ⬛ emoji at the start of tokens with icon
 					const start = filter.token.start
 					const iconPlaceholder = EMOJI_ICON_PLACEHOLDER.repeat(filter.doubleWidthIcon ? 2 : 1)

@@ -13,7 +13,7 @@ interface ImageExtensions {
 
 interface Image extends Component<HTMLImageElement>, ImageExtensions { }
 
-export default Component('img', (component, src: State.Or<string | undefined>, fallback?: string): Image => {
+const Image = Component('img', (component, src: State.Or<string | undefined>, fallback?: string): Image => {
 	src = State.get(src)
 	const state = State<string | undefined>(undefined)
 	const dimensions = State<ImageDimensions | undefined>(undefined)
@@ -63,3 +63,5 @@ export default Component('img', (component, src: State.Or<string | undefined>, f
 			dimensions,
 		}))
 })
+
+export default Image

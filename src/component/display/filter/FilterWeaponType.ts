@@ -1,4 +1,3 @@
-import Image from 'component/core/Image'
 import Filter, { FilterToken } from 'component/display/Filter'
 import { State } from 'kitsui'
 import { ItemCategoryHashes } from 'node_modules/deepsight.gg/Enums'
@@ -46,12 +45,12 @@ export default Object.assign(
 					chip.text.set(filterText)
 				},
 				doubleWidthIcon: true,
-				icon (icon, token) {
-					Image(weaponType.map(icon, def => def && `https://www.bungie.net${def.displayProperties.icon}`))
-						.style('filter-display-chip-icon-image--type')
-						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Bows), 'filter-display-chip-icon-image--type--bow')
-						.style.bind(weaponType.map(icon, def => def?.hash === ItemCategoryHashes.Glaives), 'filter-display-chip-icon-image--type--glaive')
-						.appendToWhen(weaponType.truthy, icon)
+				icon: {
+					image: weaponType.map(owner, def => def && `https://www.bungie.net${def.displayProperties.icon}`),
+					tweak: image => (image
+						.style.bind(weaponType.map(image, def => def?.hash === ItemCategoryHashes.Bows), 'filter-display-chip-icon-image--type--bow')
+						.style.bind(weaponType.map(image, def => def?.hash === ItemCategoryHashes.Glaives), 'filter-display-chip-icon-image--type--glaive')
+					),
 				},
 				filter (item, token) {
 					return !item.categories?.length ? 'irrelevant'

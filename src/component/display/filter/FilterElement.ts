@@ -1,4 +1,3 @@
-import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
 import { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
@@ -50,10 +49,7 @@ export default Filter.Definition({
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
-			icon (icon, token) {
-				Image(damageType.map(icon, def => def && `https://www.bungie.net${def.displayProperties.icon}`))
-					.appendToWhen(damageType.truthy, icon)
-			},
+			icon: damageType.map(owner, def => def && `https://www.bungie.net${def.displayProperties.icon}`),
 			filter (item, token) {
 				return !item.damageTypes?.length ? 'irrelevant'
 					: item.damageTypes.includes(damageType.value?.hash ?? NaN)

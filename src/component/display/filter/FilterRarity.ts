@@ -1,4 +1,3 @@
-import Image from 'component/core/Image'
 import Filter from 'component/display/Filter'
 import { ItemTierTypeHashes, PresentationNodeHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
@@ -53,10 +52,7 @@ export default Filter.Definition({
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
-			icon (icon, token) {
-				Image(EngramIcon.map(icon, icon => icon))
-					.appendToWhen(tierType.truthy, icon)
-			},
+			icon: EngramIcon,
 			filter (item, token) {
 				return item.rarity === tierType.value?.hash
 			},
