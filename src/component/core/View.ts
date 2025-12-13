@@ -149,6 +149,7 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 
 			navbar ??= Navbar()
 			displayBar ??= DisplayBar()
+			displayBarConfig.emit()
 			const newShowNavbar = view.hasNavbar.value
 			if (navbar.visible.value !== newShowNavbar) {
 				navbar.viewTransitionsEnabled.value = true
