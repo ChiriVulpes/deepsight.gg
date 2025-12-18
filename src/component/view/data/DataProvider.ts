@@ -5,6 +5,12 @@ import Relic from 'Relic'
 import Arrays from 'utility/Arrays'
 import { _ } from 'utility/Objects'
 
+declare module 'conduit.deepsight.gg/Definitions' {
+	export interface DefinitionsFilter<DEFINITION> {
+		componentNameContains?: string[]
+	}
+}
+
 type DataProviderParam = number | string | boolean
 interface DataProvider<PARAMS extends DataProviderParam[], T> {
 	prep (...params: PARAMS): void
@@ -116,6 +122,10 @@ namespace DataProvider {
 				if (signal.aborted)
 					return undefined
 
+				const lowercaseComponent = component.toLowerCase()
+				if (filtersObj?.componentNameContains?.length && !filtersObj.componentNameContains.some(namePart => lowercaseComponent.includes(namePart.toLowerCase())))
+					return undefined
+
 				const definitionsPage = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].page(pageSize, page, filtersObj as never)
 				if (signal.aborted)
 					return undefined
@@ -168,6 +178,11 @@ namespace DataProvider {
 
 		tokens = tokens.filter(token => token.length > 3)
 		for (const token of tokens) {
+			if (token.startsWith('table:')) {
+				Arrays.resolve(filter.componentNameContains ??= []).push(token.substring(6))
+				continue
+			}
+
 			if (token.startsWith('deep:')) {
 				Arrays.resolve(filter.deepContains ??= []).push(token.substring(5))
 				continue
