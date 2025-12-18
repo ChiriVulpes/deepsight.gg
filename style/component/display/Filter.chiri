@@ -43,7 +43,6 @@
 		%block
 		%stack-self
 		%no-pointer-events
-		%margin-left-1
 		%unmargin-top-1
 		%nowrap
 
