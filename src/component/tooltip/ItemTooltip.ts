@@ -4,8 +4,9 @@ import Lore from 'component/core/Lore'
 import Paragraph from 'component/core/Paragraph'
 import Power from 'component/item/Power'
 import Stats from 'component/item/Stats'
-import type Collections from 'conduit.deepsight.gg/Collections'
-import type { CollectionsMoment, Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/Collections'
+import type Collections from 'conduit.deepsight.gg/item/Collections'
+import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
+import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/item/Item'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
@@ -192,7 +193,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 						const socketed = noSocketed ? undefined : (_
 							?? collections.plugs[socket.defaultPlugHash!]
 							?? (!isCollectionsRoll ? plugs.at(0) : undefined)
-						) as ItemPlug | undefined
+						)
 						if (!socketed?.displayProperties.name && !isCollectionsRoll && !noSocketed)
 							return
 
@@ -372,6 +373,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 						?? (source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.EventReward ? quilt => quilt['item-tooltip/source/type/event-reward']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.EventVendor ? quilt => quilt['item-tooltip/source/type/event-vendor']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.SeasonPass ? quilt => quilt['item-tooltip/source/type/season-pass']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.Vendor
 							? quilt => quilt[source.rotates ? 'item-tooltip/source/type/vendor-rotation' : 'item-tooltip/source/type/vendor']()
 							: undefined
@@ -385,11 +387,20 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 						)
 					}
 
+					const hasLore = !!source.displayProperties.subtitle && (false
+						|| source.category === DeepsightItemSourceCategory.ExoticMission
+						|| source.category === DeepsightItemSourceCategory.Dungeon
+						|| source.category === DeepsightItemSourceCategory.Raid
+					)
+
 					const icon = displayProperties.icon
 					return {
 						name: displayProperties.name,
 						subtitle,
 						icon,
+						tweak: wrapper => (wrapper.subtitle
+							?.style.toggle(hasLore, 'item-tooltip-source-subtitle--lore')
+						),
 					}
 				}
 				case 'table': {

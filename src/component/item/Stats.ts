@@ -1,6 +1,6 @@
 import type { DestinyStatDefinition, DestinyStatGroupDefinition } from 'bungie-api-ts/destiny2'
-import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item, ItemPlug, ItemStat } from 'conduit.deepsight.gg/Collections'
+import type Collections from 'conduit.deepsight.gg/item/Collections'
+import type { Item, ItemPlug, ItemStat } from 'conduit.deepsight.gg/item/Item'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 
@@ -47,7 +47,6 @@ const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>,
 		const barStatsWrapper = () => _barStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).prependTo(component)
 		const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).appendTo(component)
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const statGroupDef = collections.statGroups[(item as Item)?.statGroupHash!] as DestinyStatGroupDefinition | undefined
 		const stats = !item?.stats ? [] : Object.values(item.stats)
 			.sort((a, b) => 0

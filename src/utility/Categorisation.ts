@@ -1,4 +1,4 @@
-import type { ItemPlug, ItemSocket } from 'conduit.deepsight.gg/Collections'
+import type { ItemPlug, ItemSocket } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightPlugCategoryName, DeepsightPlugFullName } from 'deepsight.gg/DeepsightPlugCategorisation'
 
 type PlugCategorisationExpression =

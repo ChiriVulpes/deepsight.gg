@@ -10,7 +10,8 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import Moment, { FILTER_CHANGING_CLASS } from 'component/view/collections/Moment'
-import type { CollectionsMoment, Item } from 'conduit.deepsight.gg/Collections'
+import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
+import type { Item } from 'conduit.deepsight.gg/item/Item'
 import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
@@ -50,7 +51,7 @@ export interface ItemRefNames {
 	item: string
 }
 
-declare module 'conduit.deepsight.gg/Collections' {
+declare module 'conduit.deepsight.gg/item/Item' {
 	export interface Item {
 		refNames: ItemRefNames
 	}

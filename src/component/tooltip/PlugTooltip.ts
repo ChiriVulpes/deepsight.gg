@@ -2,8 +2,8 @@ import DisplaySlot from 'component/core/DisplaySlot'
 import Icon from 'component/core/Icon'
 import Image from 'component/core/Image'
 import Stats from 'component/item/Stats'
-import type Collections from 'conduit.deepsight.gg/Collections'
-import type { ItemPlug } from 'conduit.deepsight.gg/Collections'
+import type Collections from 'conduit.deepsight.gg/item/Collections'
+import type { ItemPlug } from 'conduit.deepsight.gg/item/Item'
 import type { ClarityComponentAll, ClarityLabelledLineComponent } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Tooltip from 'kitsui/component/Tooltip'
@@ -88,7 +88,6 @@ const PlugTooltip = Component((component, plug: State<ItemPlug>, collections: St
 
 		const clarityComponents: { [KEY in ClarityComponentAll['type']]: (component: Component, data: ClarityComponentAll & { type: KEY }, context: ClarityContext) => Component | undefined } = {
 			icon: (component, data) => {
-				// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 				const iconKey = CLARITY_CLASS_ICON_MAP[data.classNames?.[0]!]
 				return !iconKey ? undefined : (component
 					.style('plug-tooltip-clarity-icon')

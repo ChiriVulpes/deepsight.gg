@@ -1,6 +1,6 @@
 import type { DestinySandboxPerkDefinition } from 'bungie-api-ts/destiny2'
-import type Collections from 'conduit.deepsight.gg/Collections'
-import type { Item } from 'conduit.deepsight.gg/Collections'
+import type Collections from 'conduit.deepsight.gg/item/Collections'
+import type { Item } from 'conduit.deepsight.gg/item/Item'
 import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
 

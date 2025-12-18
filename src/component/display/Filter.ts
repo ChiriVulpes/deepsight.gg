@@ -1,17 +1,17 @@
 import Button from 'component/core/Button'
 import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
-import type { Item } from 'conduit.deepsight.gg/Collections'
+import type { Item } from 'conduit.deepsight.gg/item/Item'
 import { Component, State } from 'kitsui'
 import Popover from 'kitsui/component/Popover'
 import Slot from 'kitsui/component/Slot'
 import { NonNullish } from 'kitsui/utility/Arrays'
 import InputBus from 'kitsui/utility/InputBus'
 import Mouse from 'kitsui/utility/Mouse'
-import { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
+import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
-import { Quilt } from 'lang'
+import type { Quilt } from 'lang'
 import { quilt } from 'utility/Text'
 
 // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
@@ -158,7 +158,7 @@ interface FilterSuggestionCollapsed {
 }
 
 const Chip = Component((component, match: FilterMatch | FilterSuggestionCollapsed): Filter.Chip => {
-	const collapsedSuggestion = 'isCollapsedSuggestion' in match ? match as FilterSuggestionCollapsed : undefined
+	const collapsedSuggestion = 'isCollapsedSuggestion' in match ? match : undefined
 	const iconWrapper = match.icon && Component()
 		.style('filter-display-chip-icon-wrapper')
 		.style.toggle(!!match.doubleWidthIcon, 'filter-display-chip-icon-wrapper--double-width')
@@ -626,7 +626,7 @@ const Filter = Object.assign(
 								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
 								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
 								.event.subscribe('click', e => {
-									let newText = collapsed?.applies
+									const newText = collapsed?.applies
 									if (!newText)
 										return
 

@@ -1,4 +1,4 @@
-import type Collections from 'conduit.deepsight.gg/Collections'
+import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Relic from 'Relic'
