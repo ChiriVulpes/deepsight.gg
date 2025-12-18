@@ -372,6 +372,7 @@ const Filter = Object.assign(
 
 		const input = Component('input')
 			.attributes.set('type', 'text')
+			.attributes.set('spellcheck', 'false')
 			.attributes.bind('placeholder', quilt.map(filter, quilt => quilt['display-bar/filter/placeholder']().toString()))
 			.style('filter-input')
 			.style.bind(component.hasFocused, 'filter-input--has-focus')
