@@ -6,7 +6,7 @@ settings:
 
 overrides:
   conduit.deepsight.gg>bungie-api-ts: 5.10.0
-  conduit.deepsight.gg>deepsight.gg: 1.0.1589
+  conduit.deepsight.gg>deepsight.gg: 1.0.1593
   deepsight.gg>bungie-api-ts: 5.10.0
 
 importers:
@@ -36,9 +36,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/d7761e5fa1f7f75a9a0eaf02ea0c2ce48b151d7f}
     version: 1.0.0
 
-  deepsight.gg@1.0.1589:
-    resolution: {integrity: sha512-uuEsfP9NtA1KQ1yUzPN/8T1Szh6+zHlIXKFBte6tOVqcYQ9/KWP/+BSjvCV6wbaf7t/L3YvcXHQRToCmS5aH5A==}
-
   deepsight.gg@1.0.1593:
     resolution: {integrity: sha512-uJj7w6lX/L823RFKsN6U3+CpRAVQpbx/5d6pvP85yPAWUgitKPDxNSWvfprzbUtYrWd8pAPy0+iPPyrfwd8ijQ==}
 
@@ -53,11 +50,7 @@ snapshots:
   conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/d7761e5fa1f7f75a9a0eaf02ea0c2ce48b151d7f:
     dependencies:
       bungie-api-ts: 5.10.0
-      deepsight.gg: 1.0.1589
-
-  deepsight.gg@1.0.1589:
-    dependencies:
-      bungie-api-ts: 5.10.0
+      deepsight.gg: 1.0.1593
 
   deepsight.gg@1.0.1593:
     dependencies:
