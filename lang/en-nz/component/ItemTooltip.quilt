@@ -1,8 +1,8 @@
 # item-tooltip
 source/subtitle: {0}{1? // {1}}
 source/type/activity-reward: Activity Reward
-source/type/event-reward: Event Reward
-source/type/event-vendor: Event Vendor
+source/type/event-reward: {0?Upcoming // }Event Reward
+source/type/event-vendor: {0?Upcoming // }Event Vendor
 source/type/vendor: Vendor
 source/type/vendor-rotation: Vendor Rotation
 source/type/bonus-focus: Bonus Focus!

@@ -369,10 +369,15 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 					if (!displayProperties?.name)
 						return undefined
 
+					if (sourceRef.eventState === 'unknown')
+						return undefined
+
+					const isUpcomingEvent = sourceRef.eventState === 'upcoming'
+
 					let subtitle: StringApplicatorSource | undefined = _
 						?? (source.category === DeepsightItemSourceCategory.ActivityReward ? quilt => quilt['item-tooltip/source/type/activity-reward']() : undefined)
-						?? (source.category === DeepsightItemSourceCategory.EventReward ? quilt => quilt['item-tooltip/source/type/event-reward']() : undefined)
-						?? (source.category === DeepsightItemSourceCategory.EventVendor ? quilt => quilt['item-tooltip/source/type/event-vendor']() : undefined)
+						?? (source.category === DeepsightItemSourceCategory.EventReward ? quilt => quilt['item-tooltip/source/type/event-reward'](isUpcomingEvent) : undefined)
+						?? (source.category === DeepsightItemSourceCategory.EventVendor ? quilt => quilt['item-tooltip/source/type/event-vendor'](isUpcomingEvent) : undefined)
 						?? (source.category === DeepsightItemSourceCategory.SeasonPass ? quilt => quilt['item-tooltip/source/type/season-pass']() : undefined)
 						?? (source.category === DeepsightItemSourceCategory.Vendor
 							? quilt => quilt[source.rotates ? 'item-tooltip/source/type/vendor-rotation' : 'item-tooltip/source/type/vendor']()
@@ -410,7 +415,11 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 
 					return {
 						name: table.displayProperties.name,
-						subtitle: table.type === 'bonus-focus' ? quilt => quilt['item-tooltip/source/type/bonus-focus']() : table.displayProperties.description,
+						subtitle: table.type === 'bonus-focus'
+							? quilt => table.typeDisplayProperties.name
+								? quilt['item-tooltip/source/subtitle'](table.typeDisplayProperties.name, quilt['item-tooltip/source/type/bonus-focus']())
+								: quilt['item-tooltip/source/type/bonus-focus']()
+							: table.displayProperties.description,
 						icon: table.displayProperties.icon,
 						tweak: wrapper => {
 							if (table.type === 'raid' || table.type === 'dungeon')
