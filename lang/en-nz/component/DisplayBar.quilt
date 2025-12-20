@@ -13,3 +13,4 @@ collapsed/foundry: weapon foundry name
 collapsed/type: weapon type name
 collapsed/frame: weapon frame name
 collapsed/moment: expansion, season, or event
+collapsed/source: item source

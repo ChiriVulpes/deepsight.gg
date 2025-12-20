@@ -81,6 +81,7 @@
 			&--type: $filter-chip-colour: #333
 			&--frame: $filter-chip-colour: $colour-frame
 			&--foundry: $filter-chip-colour: $colour-foundry
+			&--source: $filter-chip-colour: $colour-source
 
 			&--element:
 				#dec lightness = .5

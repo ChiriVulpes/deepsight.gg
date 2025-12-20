@@ -3,6 +3,7 @@ import View from 'component/core/View'
 import FilterAmmo from 'component/display/filter/FilterAmmo'
 import FilterElement from 'component/display/filter/FilterElement'
 import FilterRarity from 'component/display/filter/FilterRarity'
+import FilterSource from 'component/display/filter/FilterSource'
 import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
 import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
@@ -28,7 +29,7 @@ const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	sortConfig: {},
 	filterConfig: {
 		id: 'collections',
-		filters: [FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry, FilterRarity],
+		filters: [FilterElement, FilterAmmo, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry, FilterSource, FilterRarity],
 		debounceTime: 500,
 	},
 })
