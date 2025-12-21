@@ -293,7 +293,7 @@ const Filter = Object.assign(
 
 		const appliedFilters = filters.mapManual(filters => filters.filter(filter => true
 			&& (filter.id !== 'plaintext' || (config.value?.plaintextFilterIsValid ?? PLAINTEXT_FILTER_IS_VALID)(filter.token))
-			&& !filter.token.endsWith(':')
+			&& !(filter.token.endsWith(':') && State.value(filter.isPartial))
 		))
 		const appliedFilterText = appliedFilters.mapManual(filters => filters
 			.map(filter => `"${((config.value?.allowUppercase ? filter.token.slice() : filter.token.lowercase)

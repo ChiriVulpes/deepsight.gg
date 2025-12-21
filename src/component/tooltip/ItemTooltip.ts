@@ -326,7 +326,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 
 		const SourceWrapper = Component((component, display: SourceDisplay): SourceWrapper => {
 			const icon = !display.icon ? undefined
-				: Image(`https://www.bungie.net${display.icon}`).style('item-tooltip-source-icon')
+				: Image(DisplayProperties.icon(display.icon)).style('item-tooltip-source-icon')
 			const title = Component()
 				.style('item-tooltip-source-title')
 				.text.set(display.name)

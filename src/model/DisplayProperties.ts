@@ -5,6 +5,9 @@ namespace DisplayProperties {
 		if (path?.startsWith('http'))
 			return path
 
+		if (path?.startsWith('./'))
+			return `https://deepsight.gg${path.slice(1)}`
+
 		return path ? `https://www.bungie.net${path}` : undefined
 	}
 }

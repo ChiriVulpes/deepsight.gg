@@ -55,14 +55,16 @@ export default Filter.Definition({
 		const [labelText, filterText] = token.displayText.split(':')
 		return {
 			fullText: source.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name?.toLowerCase()}`),
-			isPartial: source.falsy,
+			// isPartial: source.falsy,
+			isPartial: false,
 			chip (chip, token) {
 				chip.labelText.set(`${labelText}:`)
 				chip.text.set(filterText)
 			},
 			icon: source.map(owner, def => def && DisplayProperties.icon(def.displayProperties.icon)),
 			filter (item, token) {
-				return !!item.sources?.some(itemSource => itemSource.type === 'defined' && itemSource.id === source.value?.hash)
+				return !item.sources?.some(source => source.type !== 'defined' || source.eventState !== 'unknown') ? 'irrelevant'
+					: !source.value || !!item.sources.some(itemSource => itemSource.type === 'defined' && itemSource.id === source.value?.hash)
 			},
 		}
 	},
