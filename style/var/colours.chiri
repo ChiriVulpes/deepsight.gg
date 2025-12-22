@@ -39,3 +39,4 @@ $colour-ammo-special: #7af48b
 $colour-ammo-heavy: #b286ff
 
 $colour-source: #41685c
+$colour-stun: #551f31

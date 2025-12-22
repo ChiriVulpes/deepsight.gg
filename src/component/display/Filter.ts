@@ -14,7 +14,6 @@ import type TextManipulator from 'kitsui/utility/TextManipulator'
 import type { Quilt } from 'lang'
 import { quilt } from 'utility/Text'
 
-// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 export interface FilterToken extends String {
 	readonly lowercase: string
 	readonly displayText: string
@@ -28,6 +27,7 @@ export namespace FilterToken {
 			lowercase: (text
 				.toLowerCase()
 				.replace(EMOJI_REGEX, '')
+				.replaceAll('"', '')
 			),
 			displayText: (text
 				.replaceAll(' ', '\xa0')

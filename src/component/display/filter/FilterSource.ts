@@ -55,7 +55,6 @@ export default Filter.Definition({
 		const [labelText, filterText] = token.displayText.split(':')
 		return {
 			fullText: source.map(owner, def => !def ? token.lowercase : `${prefix}${def.displayProperties.name?.toLowerCase()}`),
-			// isPartial: source.falsy,
 			isPartial: false,
 			chip (chip, token) {
 				chip.labelText.set(`${labelText}:`)

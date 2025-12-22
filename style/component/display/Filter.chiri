@@ -82,6 +82,7 @@
 			&--frame: $filter-chip-colour: $colour-frame
 			&--foundry: $filter-chip-colour: $colour-foundry
 			&--source: $filter-chip-colour: $colour-source
+			&--stun: $filter-chip-colour: $colour-stun
 
 			&--element:
 				#dec lightness = .5
@@ -169,11 +170,12 @@
 				margin-top: .1em
 				$image-opacity-duration: 0s
 				filter: saturate(0) brightness(100)
+				padding-block: .13em .2em
+				padding-left: .1em
 
-				&--element: padding: .2em
+				&--element: padding-block: .2em
 				&--rarity: padding-block: .07em
 				&--frame: padding-block: .03em .07em
-				&--foundry: padding-block: .13em .2em
 
 				&-image:
 
