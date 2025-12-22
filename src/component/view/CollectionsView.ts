@@ -12,7 +12,6 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import Moment, { FILTER_CHANGING_CLASS } from 'component/view/collections/Moment'
-import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
 import type { Item } from 'conduit.deepsight.gg/item/Item'
 import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
@@ -149,22 +148,30 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 					),
 				}])
 
-			const moment: CollectionsMoment = collections.moments.find(m => m.moment.event === ActiveEvent.hash)
-				?? {
-				buckets,
-				moment: {
-					hash: ActiveEvent.hash,
-					id: (ActiveEvent.displayProperties.name
-						.toLowerCase()
-						// .replace(/['"&:()-]/g, '')
-						.replace(/[^a-z]+/g, '')
-						.trim()
-					),
-					iconWatermark: '',
-					displayProperties: ActiveEvent.displayProperties as DeepsightDisplayPropertiesDefinition,
-					primaryImage: ActiveEvent.images.themeBackgroundImagePath,
-					images: !ActiveEvent.images.themeBackgroundImagePath ? undefined : [ActiveEvent.images.themeBackgroundImagePath],
-				},
+			let moment = collections.moments.find(m => m.moment.event === ActiveEvent.hash)
+			if (moment) {
+				for (const [bucketHash, bucket] of Object.entries(buckets)) {
+					const existingBucket = moment.buckets[+bucketHash as InventoryBucketHashes.KineticWeapons] ??= { items: [] }
+					existingBucket.items = existingBucket.items.concat(bucket.items).distinct()
+				}
+			}
+			else {
+				moment = {
+					buckets,
+					moment: {
+						hash: ActiveEvent.hash,
+						id: (ActiveEvent.displayProperties.name
+							.toLowerCase()
+							// .replace(/['"&:()-]/g, '')
+							.replace(/[^a-z]+/g, '')
+							.trim()
+						),
+						iconWatermark: '',
+						displayProperties: ActiveEvent.displayProperties as DeepsightDisplayPropertiesDefinition,
+						primaryImage: ActiveEvent.images.themeBackgroundImagePath,
+						images: !ActiveEvent.images.themeBackgroundImagePath ? undefined : [ActiveEvent.images.themeBackgroundImagePath],
+					},
+				}
 			}
 
 			const momentComponent = Moment(moment, collections, view.displayHandlers).appendTo(eventWrapper)
