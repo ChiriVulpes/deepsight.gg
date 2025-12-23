@@ -1,8 +1,10 @@
 import type { DestinyStatDefinition, DestinyStatGroupDefinition } from 'bungie-api-ts/destiny2'
+import type { PlugState } from 'component/tooltip/PlugTooltip'
 import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { Item, ItemPlug, ItemStat } from 'conduit.deepsight.gg/item/Item'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
+import type { ItemStateOptional } from 'model/Item'
 
 const STATS_FILTERED_OUT = new Set<StatHashes>([
 	StatHashes.Impact,
@@ -29,17 +31,46 @@ export interface StatsDisplayDefinition {
 	tweakStatValue?(value: Component, definition: DestinyStatDefinition, stat: ItemStat): unknown
 }
 
-const Stats = Component((component, item: State.Or<Item | ItemPlug | undefined>, collections: State.Or<Collections>, display?: StatsDisplayDefinition): Stats => {
-	item = State.get(item)
-	collections = State.get(collections)
+export interface StatsState {
+	item?: Item | ItemPlug
+	collections: Collections
+}
 
+export namespace StatsState {
+	export function fromItemState (state: ItemStateOptional): StatsState
+	export function fromItemState (state: State<ItemStateOptional>): State<StatsState>
+	export function fromItemState (state: State.Or<ItemStateOptional>): State.Or<StatsState>
+	export function fromItemState (state: State.Or<ItemStateOptional>): State.Or<StatsState> {
+		if (State.is(state))
+			return state.mapManual(fromItemState)
+
+		return {
+			item: state.definition,
+			collections: state.collections,
+		}
+	}
+	export function fromPlugState (state: PlugState): StatsState
+	export function fromPlugState (state: State<PlugState>): State<StatsState>
+	export function fromPlugState (state: State.Or<PlugState>): State.Or<StatsState>
+	export function fromPlugState (state: State.Or<PlugState>): State.Or<StatsState> {
+		if (State.is(state))
+			return state.mapManual(fromPlugState)
+
+		return {
+			item: state.plug,
+			collections: state.collections,
+		}
+	}
+}
+
+const Stats = Component((component, state: State<StatsState>, display?: StatsDisplayDefinition): Stats => {
 	component.style('stats')
 
 	const statsVisible = State(false)
 	const hasStats = State(false)
 	const isAbbreviated = State(false)
 
-	State.Use(component, { item, collections, isAbbreviated }, ({ item, collections, isAbbreviated }) => {
+	State.Use(component, { state, isAbbreviated }, ({ state: { item, collections }, isAbbreviated }) => {
 		component.removeContents()
 
 		let _barStatsWrapper: Component | undefined

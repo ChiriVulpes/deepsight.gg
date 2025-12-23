@@ -12,13 +12,14 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import Moment, { FILTER_CHANGING_CLASS } from 'component/view/collections/Moment'
-import type { Item } from 'conduit.deepsight.gg/item/Item'
 import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import Task from 'kitsui/utility/Task'
+import type { ItemReference, ItemStateOptional } from 'model/Item'
+import { ItemState } from 'model/Item'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
@@ -288,23 +289,25 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 		return { nameToHash, hashToName }
 	})
-	const overlayItem = State.Map(view, [view.params, collections, itemMap], (params, collections, itemMap): Item | undefined => {
+	const overlayState = State.Map(view, [view.params, collections, itemMap], (params, collections, itemMap): ItemStateOptional => {
 		if (!params)
-			return undefined
+			return ItemState.resolve(undefined, collections)
 
-		const result = 'itemHash' in params
-			? collections.items[+params.itemHash] ?? undefined
+		const result: ItemReference | undefined = 'itemHash' in params
+			? { is: 'item-reference', hash: +params.itemHash }
 			: 'itemName' in params
-				? collections.items[itemMap.nameToHash[params.moment]?.[params.itemName]] ?? undefined
+				? { is: 'item-reference', hash: itemMap.nameToHash[params.moment]?.[params.itemName] }
 				: undefined
 
 		if (result !== undefined) {
 			view.loading.skipViewTransition()
-			return result
+			return ItemState.resolve(result, collections)
 		}
+
+		return ItemState.resolve(undefined, collections)
 	})
 
-	Overlay(view).bind(overlayItem.truthy).and(ItemOverlay, overlayItem, collections)
+	Overlay(view).bind(overlayState.map(view, s => !!s.definition)).and(ItemOverlay, overlayState)
 
 	//#endregion
 	////////////////////////////////////

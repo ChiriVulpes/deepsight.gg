@@ -1,12 +1,10 @@
 import type { DestinySandboxPerkDefinition } from 'bungie-api-ts/destiny2'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
-import type { Item } from 'conduit.deepsight.gg/item/Item'
 import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
-import { State } from 'kitsui'
+import type { State } from 'kitsui'
+import type { ItemStateOptional } from 'model/Item'
 
-export default function ArmourSet (owner: State.Owner, item: State<Item | undefined>, collections: State.Or<Collections>) {
-	collections = State.get(collections)
-	return State.Map(owner, [item, collections], (item, collections) => {
+export default function ArmourSet (owner: State.Owner, state: State<ItemStateOptional>) {
+	return state.map(owner, ({ definition: item, collections }) => {
 		const definition = item && collections.itemSets[item.itemSetHash!]
 		interface Perk {
 			requiredSetCount: number
@@ -18,7 +16,7 @@ export default function ArmourSet (owner: State.Owner, item: State<Item | undefi
 			.filter((perk): perk is Perk => !!perk.definition)
 		return !definition ? undefined : {
 			definition,
-			perks: perks!,
+			perks: perks ?? [],
 		}
 	})
 }

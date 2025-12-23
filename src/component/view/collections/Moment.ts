@@ -186,7 +186,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 						})
 
 						void shouldShowItem.await(bucket, true).then(() => {
-							const itemComponent = Item(item, collections)
+							const itemComponent = Item({ definition: item, collections })
 								.classes.bind(filterState.delayed, FILTER_CHANGING_CLASS)
 							Object.assign(itemComponent, { shouldShowItem, filterState })
 							filterText.use(itemComponent, () => {
@@ -194,7 +194,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 								Item.Tooltip?.anchor.markDirty()
 							})
 							const ownIndex = items.indexOf(item)
-							const itemComponentToPositionAfter = bucket.content.getDescendants(Item).toArray().findLast(item => items.indexOf(item.item.value) < ownIndex)
+							const itemComponentToPositionAfter = bucket.content.getDescendants(Item).toArray().findLast(item => items.indexOf(item.state.value.definition) < ownIndex)
 							itemComponent.insertToWhen(shouldShowItem, bucket.content, 'after', itemComponentToPositionAfter?.parent)
 						})
 						filterStates.push(shouldShowItem)

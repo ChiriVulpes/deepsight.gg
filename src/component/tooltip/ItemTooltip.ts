@@ -3,10 +3,9 @@ import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
 import Paragraph from 'component/core/Paragraph'
 import Power from 'component/item/Power'
-import Stats from 'component/item/Stats'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
+import Stats, { StatsState } from 'component/item/Stats'
 import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
-import type { Item, ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/item/Item'
+import type { ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/item/Item'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
@@ -14,6 +13,7 @@ import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import ArmourSet from 'model/ArmourSet'
 import DisplayProperties from 'model/DisplayProperties'
+import type { ItemState } from 'model/Item'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
 import TooltipManager from 'utility/TooltipManager'
@@ -21,14 +21,14 @@ import TooltipManager from 'utility/TooltipManager'
 const PLUG_ARCHETYPE_ICON_SEQUENCE = 0
 const PLUG_ARCHETYPE_ICON_SEQUENCE_FRAME = 1
 
-const ItemTooltip = Component((component, item: State<Item>, collections: State<Collections>) => {
+const ItemTooltip = Component((component, state: State<ItemState>) => {
 	const tooltip = component.as(Tooltip)!
 		.anchor.reset()
 		.anchor.add('off right', 'sticky centre')
 		.anchor.add('off left', 'sticky centre')
 
-	const rarity = item.map(tooltip, item => collections.value.rarities[item.rarity])
-	const isCollections = item.map(tooltip, item => !item.instanceId)
+	const rarity = state.map(tooltip, ({ collections, definition }) => collections.rarities[definition.rarity])
+	const isCollections = state.map(tooltip, ({ instance }) => !instance?.id)
 
 	tooltip.style.bindFrom(rarity.map(tooltip, rarity => `item-tooltip--${rarity.displayProperties.name!.toLowerCase()}` as 'item-tooltip--common'))
 
@@ -39,14 +39,14 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 
 	Component()
 		.style('item-tooltip-title')
-		.text.bind(item.map(tooltip, item => item.displayProperties.name))
+		.text.bind(state.map(tooltip, ({ definition }) => definition.displayProperties.name))
 		.appendTo(tooltip.header)
 
 	Component()
 		.style('item-tooltip-subtitle')
 		.append(Component()
 			.style('item-tooltip-subtitle-type')
-			.text.bind(item.map(tooltip, item => item.type))
+			.text.bind(state.map(tooltip, ({ definition }) => definition.type))
 		)
 		.append(Component()
 			.style('item-tooltip-subtitle-rarity')
@@ -57,15 +57,15 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Watermark
 
-	const moment = State.Map(tooltip, [collections, item], (collections, item): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === item.momentHash))
-	const featured = item.map(tooltip, item => item.featured)
+	const moment = state.map(tooltip, ({ collections, definition }): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === definition.momentHash))
+	const featured = state.map(tooltip, ({ definition }) => definition.featured)
 	Component()
 		.style('item-tooltip-watermark')
 		.style.bind(featured, 'item-tooltip-watermark--featured')
 		.style.bindVariable('item-watermark', moment.map(tooltip, moment => moment && `url(${DisplayProperties.icon(moment.moment.iconWatermark)}`))
 		.appendTo(tooltip.header)
 
-	const tier = item.map(tooltip, item => item.tier)
+	const tier = state.map(tooltip, ({ instance }) => instance?.tier)
 	Component()
 		.style('item-tooltip-watermark-tier')
 		.style.bindFrom(tier.map(tooltip, tier => `item-tooltip-watermark-tier--${tier}` as 'item-tooltip-watermark-tier--4'))
@@ -98,7 +98,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Damage
 
-	Power(State.Use(primaryInfo, { damageTypes: item.map(primaryInfo, item => item.damageTypeHashes) }), collections)
+	Power(state.map(primaryInfo, ({ definition, collections }) => ({ damageTypes: definition.damageTypeHashes, collections })))
 		.style('item-tooltip-damage')
 		.appendTo(primaryInfo)
 
@@ -108,9 +108,9 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Secondary Type
 
-	const ammo = State.Map(tooltip, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item.ammoType!])
-	const archetype = State.Map(tooltip, [item, collections], (item, collections): ItemPlug | undefined => {
-		const socketPlugHash = item.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')?.defaultPlugHash
+	const ammo = state.map(tooltip, ({ definition, collections }): ItemAmmo | undefined => collections.ammoTypes[definition.ammoType!])
+	const archetype = state.map(tooltip, ({ definition, collections }): ItemPlug | undefined => {
+		const socketPlugHash = definition.sockets.find(socket => socket.type === 'Intrinsic/ArmorArchetype')?.defaultPlugHash
 		return collections.plugs[socketPlugHash!]
 	})
 
@@ -150,7 +150,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 
 	Component()
 		.style('item-tooltip-stats')
-		.and(Stats, item, collections, { isAbbreviated: true })
+		.and(Stats, StatsState.fromItemState(state), { isAbbreviated: true })
 		.tweak(stats => {
 			stats.style.bind(stats.anyVisible.falsy, 'item-tooltip-stats--no-visible-stats')
 			stats.appendToWhen(stats.hasStats, tooltip.body)
@@ -162,14 +162,14 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	////////////////////////////////////
 	//#region Perks
 
-	const perks = item.map(tooltip, item => item.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
-	const itemSet = ArmourSet(tooltip, item, collections)
+	const perks = state.map(tooltip, ({ definition }) => definition.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
+	const itemSet = ArmourSet(tooltip, state)
 	Component()
 		.style('item-tooltip-perks')
 		.tweak(wrapper => {
 			Slot().appendTo(wrapper).use(
-				State.Use(wrapper, { sockets: perks, itemSet, isCollections, collections }),
-				(slot, { sockets, itemSet, isCollections, collections }) => {
+				State.Use(wrapper, { sockets: perks, itemSet, isCollections, state }),
+				(slot, { sockets, itemSet, isCollections, state: { collections } }) => {
 					////////////////////////////////////
 					//#region Socket component
 
@@ -299,7 +299,7 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	//#endregion
 	////////////////////////////////////
 
-	const flavourText = item.map(tooltip, item => item.flavorText)
+	const flavourText = state.map(tooltip, ({ definition }) => definition.flavorText)
 	Component()
 		.style('item-tooltip-flavour-text-wrapper')
 		.append(Lore().style('item-tooltip-flavour-text').text.bind(flavourText))
@@ -311,8 +311,8 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	const sourceList = DisplaySlot()
 		.style('item-tooltip-source-list')
 		.appendTo(tooltip.extra)
-	sourceList.use({ item, collections }, (slot, { item, collections }) => {
-		const sources = item.sources
+	sourceList.use(state, (slot, { definition, collections }) => {
+		const sources = definition.sources
 		if (!sources?.length)
 			return
 
@@ -425,10 +425,10 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 							if (table.type === 'raid' || table.type === 'dungeon')
 								wrapper.subtitle?.style('item-tooltip-source-subtitle--lore')
 
-							const mainDropTableEntry = table.dropTable?.[item.hash as never]
+							const mainDropTableEntry = table.dropTable?.[definition.hash as never]
 							const realEncounters = (table.encounters ?? []).filter(encounter => !encounter.traversal)
 							const encountersDroppingItem = realEncounters
-								.filter(encounter => mainDropTableEntry || encounter.dropTable?.[item.hash as never])
+								.filter(encounter => mainDropTableEntry || encounter.dropTable?.[definition.hash as never])
 
 							let displayIndex = 0
 							for (const encounter of encountersDroppingItem) {
@@ -518,29 +518,24 @@ const ItemTooltip = Component((component, item: State<Item>, collections: State<
 	//#endregion
 	////////////////////////////////////
 
-	State.Use(tooltip, { item, collections }, () => tooltip.rect.markDirty())
+	state.use(tooltip, () => tooltip.rect.markDirty())
 	return tooltip
 })
 
 export default TooltipManager(ItemTooltip, {
 	states: {
-		item: undefined as State.Mutable<Item> | undefined,
-		collections: undefined as State.Mutable<Collections> | undefined,
+		state: undefined as State.Mutable<ItemState> | undefined,
 	},
-	update (states, plug: State.Or<Item>, collections: State.Or<Collections>) {
-		states.updateItem(plug)
-		states.updateCollections(collections)
+	update (states, state: State.Or<ItemState>) {
+		states.updateState(state)
 	},
-	build (states, tooltip, item: State.Or<Item>, collections: State.Or<Collections>) {
-		item = State.get(item)
-		collections = State.get(collections)
+	build (states, tooltip, state: State.Or<ItemState>) {
 		return tooltip.and(ItemTooltip,
-			states.item ??= State.Mutable(tooltip, item),
-			states.collections ??= State.Mutable(tooltip, collections),
+			states.state ??= State.Mutable(tooltip, state),
 		)
 	},
-	onHover (states, item: State.Or<Item>, collections: State.Or<Collections>) {
-		item = State.value(item)
-		console.log(item.displayProperties.name, item)
+	onHover (states, state: State.Or<ItemState>) {
+		const { definition } = State.value(state)
+		console.log(definition.displayProperties.name, state)
 	},
 })

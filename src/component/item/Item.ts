@@ -1,31 +1,30 @@
 import Button from 'component/core/Button'
 import Image from 'component/core/Image'
 import ItemTooltip from 'component/tooltip/ItemTooltip'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
-import type { Item as CollectionsItem } from 'conduit.deepsight.gg/item/Item'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
 import DisplayProperties from 'model/DisplayProperties'
+import type { ItemState } from 'model/Item'
+import type { DeepsightTierTypeDefinition } from 'node_modules/deepsight.gg/Interfaces'
 
 interface ItemExtensions {
-	readonly item: State<CollectionsItem>
+	readonly state: State<ItemState>
 }
 
 interface Item extends Component, ItemExtensions { }
 
 const Item = Object.assign(
-	Component((component, item: State.Or<CollectionsItem>, collections: State.Or<Collections>): Item => {
-		item = State.get(item)
-		collections = State.get(collections)
+	Component((component, state: State.Or<ItemState>): Item => {
+		state = State.get(state)
 
-		const masterworked = item.map(component, item => false)
-		const featured = item.map(component, item => item.featured)
-		const rarity = item.map(component, item => collections.value.rarities[item.rarity])
+		const masterworked = state.map(component, item => false)
+		const featured = state.map(component, item => item.definition.featured)
+		const rarity = state.map(component, ({ collections, definition }): DeepsightTierTypeDefinition | undefined => collections.rarities[definition.rarity])
 
 		component.and(Button)
 		component.style('item')
-		component.style.bindFrom(rarity.map(component, rarity => `item--${rarity.displayProperties.name!.toLowerCase()}` as 'item--common'))
+		component.style.bindFrom(rarity.map(component, rarity => rarity && `item--${rarity.displayProperties.name!.toLowerCase()}` as 'item--common'))
 		component.style.bind(masterworked, 'item--masterworked')
 
 		Component()
@@ -35,12 +34,12 @@ const Item = Object.assign(
 
 		Component()
 			.style('item-image-background')
-			.append(Image(item.map(component, item => `https://www.bungie.net${item.displayProperties.icon}`))
+			.append(Image(state.map(component, ({ definition }) => `https://www.bungie.net${definition.displayProperties.icon}`))
 				.style('item-image')
 			)
 			.appendTo(component)
 
-		const moment = State.Map(component, [collections, item], (collections, item): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === item.momentHash))
+		const moment = state.map(component, ({ collections, definition }): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === definition.momentHash))
 		Component()
 			.style('item-watermark')
 			.style.bind(featured, 'item-watermark--featured')
@@ -52,17 +51,17 @@ const Item = Object.assign(
 			.style.bind(masterworked, 'item-border-glow--masterworked')
 			.appendTo(component)
 
-		ItemTooltip.apply(component, item, collections)
+		ItemTooltip.apply(component, state)
 
 		component.onRooted(() => component.event.subscribe('contextmenu', event => {
 			event.preventDefault()
-			if (!item.value.instanceId)
-				void navigate.toURL(`/collections/${item.value.refNames.moment}/${item.value.refNames.item}`)
+			if (!state.value.instance?.id)
+				void navigate.toURL(`/collections/${state.value.definition.refNames.moment}/${state.value.definition.refNames.item}`)
 			else
 				throw new Error('Cannot navigate to an item instance view yet')
 		}))
 		return component.extend<ItemExtensions>(itemComponent => ({
-			item,
+			state,
 		}))
 	}),
 	{

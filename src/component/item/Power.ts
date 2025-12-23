@@ -1,6 +1,7 @@
 import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
+import type { ItemStateOptional } from 'model/Item'
 import Relic from 'Relic'
 
 const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgress) => {
@@ -9,21 +10,34 @@ const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgre
 	return loadoutIcon?.iconImagePath
 })
 
-interface PowerState {
+export interface PowerState {
 	power?: number
 	damageTypes?: DamageTypeHashes[]
+	collections: Collections
 }
 
-export default Component((component, power: State<PowerState | undefined>, collections: State.Or<Collections>) => {
-	collections = State.get(collections)
+export namespace PowerState {
+	export function fromItemState (state: ItemStateOptional): PowerState
+	export function fromItemState (state: State<ItemStateOptional>): State<PowerState>
+	export function fromItemState (state: State.Or<ItemStateOptional>): State.Or<PowerState>
+	export function fromItemState (state: State.Or<ItemStateOptional>): State.Or<PowerState> {
+		if (State.is(state))
+			return state.mapManual(fromItemState)
 
+		return {
+			damageTypes: state.definition?.damageTypeHashes,
+			collections: state.collections,
+		}
+	}
+}
+
+export default Component((component, state: State<PowerState>) => {
 	component.style('power')
 
-	// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-	const primaryDamageType = State.Map(component, [power, collections], (power, collections) => collections.damageTypes[power?.damageTypes?.[0]!])
-	const damageTypes = power.map(component, power => power?.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
+	const primaryDamageType = state.map(component, state => state.collections.damageTypes[state.damageTypes?.[0]!])
+	const damageTypes = state.map(component, state => state.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
 	function getDamageTypeName (damageType: DamageTypeHashes | undefined): string | undefined {
-		const def = damageType === undefined ? undefined : (collections as State<Collections>).value.damageTypes[damageType]
+		const def = damageType === undefined ? undefined : state.value.collections.damageTypes[damageType]
 		return def?.displayProperties.name.toLowerCase()
 	}
 
@@ -55,7 +69,7 @@ export default Component((component, power: State<PowerState | undefined>, colle
 
 				wrapper.style(`power-damage-icon--${damageTypes?.length ?? 1}` as 'power-damage-icon--1')
 				for (const damageType of damageTypes ?? []) {
-					const def = collections.value.damageTypes[damageType]
+					const def = state.value.collections.damageTypes[damageType]
 					const damageTypeName = def.displayProperties.name.toLowerCase()
 					Component()
 						.style('power-damage-icon-image', `power-damage-icon-image--${damageTypeName as 'prismatic'}`)
@@ -74,7 +88,7 @@ export default Component((component, power: State<PowerState | undefined>, colle
 				wrapper.style.toggle(single, 'power-power--colour')
 				wrapper.style.toggle(!single, 'power-power--gradient')
 				const damageTypeColourVars = damageTypes
-					.map(type => collections.value.damageTypes[type]?.displayProperties.name.toLowerCase())
+					.map(type => state.value.collections.damageTypes[type]?.displayProperties.name.toLowerCase())
 					.map(name => `var(--colour-damage-${name ?? 'kinetic'})`)
 				wrapper.style.setVariable('power-damage-colour', damageTypes.length === 5 ? 'var(--colour-damage-prismatic)' : damageTypeColourVars[0])
 				const gradient = damageTypes.length === 1 ? damageTypeColourVars[0]

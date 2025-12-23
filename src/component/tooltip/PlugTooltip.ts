@@ -1,7 +1,7 @@
 import DisplaySlot from 'component/core/DisplaySlot'
 import Icon from 'component/core/Icon'
 import Image from 'component/core/Image'
-import Stats from 'component/item/Stats'
+import Stats, { StatsState } from 'component/item/Stats'
 import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { ItemPlug } from 'conduit.deepsight.gg/item/Item'
 import type { ClarityComponentAll, ClarityLabelledLineComponent } from 'deepsight.gg/Interfaces'
@@ -25,7 +25,22 @@ const CLARITY_CLASS_ICON_MAP: Record<string, IconsKey> = {
 	power: 'Power',
 }
 
-const PlugTooltip = Component((component, plug: State<ItemPlug>, collections: State<Collections>) => {
+export interface PlugState {
+	readonly plug: ItemPlug
+	readonly collections: Collections
+}
+
+export function PlugState (owner: State.Owner, plug: State.Or<ItemPlug>, collections: State.Or<Collections>): State<PlugState> {
+	return State.Map(owner, [State.get(plug), State.get(collections)], (plug, collections) => ({ plug, collections }))
+}
+
+export namespace PlugState {
+	export function resolve (plug: ItemPlug, collections: Collections): PlugState {
+		return { plug, collections }
+	}
+}
+
+const PlugTooltip = Component((component, state: State<PlugState>) => {
 	const tooltip = component.as(Tooltip)!
 		.anchor.reset()
 		.anchor.add('off right', 'sticky centre')
@@ -38,14 +53,14 @@ const PlugTooltip = Component((component, plug: State<ItemPlug>, collections: St
 
 	Component()
 		.style('item-tooltip-title')
-		.text.bind(plug.map(tooltip, plug => plug.displayProperties.name))
+		.text.bind(state.map(tooltip, ({ plug }) => plug.displayProperties.name))
 		.appendTo(tooltip.header)
 
 	Component()
 		.style('item-tooltip-subtitle')
 		.append(Component()
 			.style('item-tooltip-subtitle-type')
-			.text.bind(plug.map(tooltip, plug => plug.type))
+			.text.bind(state.map(tooltip, ({ plug }) => plug.type))
 		)
 		// .append(Component()
 		// 	.style('item-tooltip-subtitle-rarity')
@@ -62,19 +77,19 @@ const PlugTooltip = Component((component, plug: State<ItemPlug>, collections: St
 		.style('plug-tooltip-description')
 		.append(Component()
 			.style('plug-tooltip-description-content')
-			.text.bind(plug.map(tooltip, plug => plug.displayProperties.description))
+			.text.bind(state.map(tooltip, ({ plug }) => plug.displayProperties.description))
 		)
 		.appendTo(tooltip.body)
 
 	Component()
 		.style('item-tooltip-stats', 'plug-tooltip-stats')
-		.and(Stats, plug, collections)
+		.and(Stats, StatsState.fromPlugState(state))
 		.tweak(stats => {
 			stats.style.bind(stats.anyVisible.falsy, 'item-tooltip-stats--no-visible-stats')
 			stats.appendToWhen(stats.hasStats, tooltip.body)
 		})
 
-	const clarity = plug.map(component, plug => plug.clarity)
+	const clarity = state.map(component, ({ plug }) => plug.clarity)
 	DisplaySlot().style('plug-tooltip-clarity').appendToWhen(clarity.truthy, tooltip.body).use(clarity, (slot, clarity) => {
 		if (!clarity?.descriptions.length)
 			return
@@ -236,23 +251,19 @@ const PlugTooltip = Component((component, plug: State<ItemPlug>, collections: St
 
 export default TooltipManager(PlugTooltip, {
 	states: {
-		plug: undefined as State.Mutable<ItemPlug> | undefined,
-		collections: undefined as State.Mutable<Collections> | undefined,
+		state: undefined as State.Mutable<PlugState> | undefined,
 	},
-	update (states, plug: State.Or<ItemPlug>, collections: State.Or<Collections>) {
-		states.updatePlug(plug)
-		states.updateCollections(collections)
+	update (states, plug: State.Or<PlugState>) {
+		states.updateState(plug)
 	},
-	build (states, tooltip, plug: State.Or<ItemPlug>, collections: State.Or<Collections>) {
-		plug = State.get(plug)
-		collections = State.get(collections)
+	build (states, tooltip, state: State.Or<PlugState>) {
+		state = State.get(state)
 		return tooltip.and(PlugTooltip,
-			states.plug ??= State.Mutable(tooltip, plug),
-			states.collections ??= State.Mutable(tooltip, collections),
+			states.state ??= State.Mutable(tooltip, state),
 		)
 	},
-	onHover (states, plug: State.Or<ItemPlug>, collections: State.Or<Collections>) {
-		plug = State.value(plug)
+	onHover (states, state: State.Or<PlugState>) {
+		const { plug } = State.value(state)
 		console.log(plug.displayProperties.name, plug)
 	},
 })

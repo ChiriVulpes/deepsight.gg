@@ -2,12 +2,12 @@ import type { DestinyDisplayPropertiesDefinition } from 'bungie-api-ts/destiny2'
 import Image from 'component/core/Image'
 import Lore from 'component/core/Lore'
 import Item from 'component/item/Item'
-import Power from 'component/item/Power'
-import Stats from 'component/item/Stats'
+import Power, { PowerState } from 'component/item/Power'
+import Stats, { StatsState } from 'component/item/Stats'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
-import PlugTooltip from 'component/tooltip/PlugTooltip'
+import PlugTooltip, { PlugState } from 'component/tooltip/PlugTooltip'
 import type Collections from 'conduit.deepsight.gg/item/Collections'
-import type { Item as CollectionsItem, ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/item/Item'
+import type { ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightPlugFullName } from 'deepsight.gg/DeepsightPlugCategorisation'
 import { ItemCategoryHashes, SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
@@ -16,6 +16,7 @@ import InputBus from 'kitsui/utility/InputBus'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import ArmourSet from 'model/ArmourSet'
 import DisplayProperties from 'model/DisplayProperties'
+import type { ItemState, ItemStateOptional } from 'model/Item'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 
@@ -24,22 +25,25 @@ const PowerStatDefinition = State.Async(async () => {
 	return await conduit.definitions.en.DestinyStatDefinition.get(StatHashes.Power)
 })
 
-export default Component((component, intendedItem: State.Or<CollectionsItem | undefined>, collections: State.Or<Collections>) => {
+export default Component((component, intendedState: State<ItemStateOptional>) => {
 	// preserve all the ui for the last item when the "intended" item is set to undefined
-	const item = State<CollectionsItem | undefined>(undefined)
-	State.get(intendedItem).use(component, intendedItem => item.value = intendedItem ?? item.value)
+	const state = State<ItemStateOptional>({ collections: intendedState.value.collections })
+	intendedState.use(component, intendedState => state.value = {
+		...intendedState,
+		definition: state.value.definition ?? intendedState?.definition,
+	})
 
-	collections = State.get(collections)
+	const collections = intendedState.map(component, state => state.collections)
 
 	const overlay = component.style('item-overlay')
 
 	const background = Component().style('item-overlay-background').appendTo(overlay)
 
-	Image(item.map(overlay, item => item?.previewImage && `https://www.bungie.net${item.previewImage}`))
+	Image(state.map(overlay, state => state?.definition?.previewImage && `https://www.bungie.net${state.definition.previewImage}`))
 		.style('item-overlay-image')
 		.appendTo(background)
 
-	const foundryImage = State.Map(overlay, [collections, item], (collections, item) => DisplayProperties.icon(collections.foundries[item?.foundryHash!]?.overlay))
+	const foundryImage = state.map(overlay, state => DisplayProperties.icon(state?.collections?.foundries[state.definition?.foundryHash!]?.overlay))
 	Image(foundryImage)
 		.style('item-overlay-foundry')
 		.appendTo(background)
@@ -56,14 +60,14 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 	Component()
 		.style('item-overlay-header')
-		.append(Slot().use(item, (_, item) => item
-			&& Item(item, collections).style('item-overlay-icon')
+		.append(Slot().use(state, (_, state) => state?.definition
+			&& Item(state as ItemState).style('item-overlay-icon')
 		))
-		.append(Component().style('item-overlay-title').text.bind(item.map(overlay, item => item?.displayProperties.name)))
-		.append(Component().style('item-overlay-subtitle').text.bind(item.map(overlay, item => item?.type)))
+		.append(Component().style('item-overlay-title').text.bind(state.map(overlay, state => state?.definition?.displayProperties.name)))
+		.append(Component().style('item-overlay-subtitle').text.bind(state.map(overlay, state => state?.definition?.type)))
 		.appendTo(mainColumn)
 
-	const flavourText = item.map(overlay, item => item?.flavorText)
+	const flavourText = state.map(overlay, state => state?.definition?.flavorText)
 	Lore()
 		.style('item-overlay-lore')
 		.text.bind(flavourText)
@@ -87,7 +91,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 		const def = typeof socket !== 'number'
 			? State.get(socket)
-			: collections.map(component, collections => collections.socketCategories?.[socket])
+			: state.map(component, state => state?.collections?.socketCategories?.[socket])
 
 		const header = Component()
 			.style('item-overlay-socket-group-header')
@@ -138,7 +142,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 			.style('item-overlay-plug-icon')
 			.appendTo(component)
 
-		PlugTooltip.apply(component, plug, collections)
+		PlugTooltip.apply(component, collections.map(component, collections => PlugState.resolve(plug, collections)))
 		return component
 	})
 	const Socket = Component((component, socket: ItemSocket, collections: Collections) => {
@@ -156,11 +160,11 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Weapon Perks
 
-	const isWeapon = item.map(component, item => !!item?.categoryHashes?.includes(ItemCategoryHashes.Weapon))
+	const isWeapon = state.map(component, state => !!state?.definition?.categoryHashes?.includes(ItemCategoryHashes.Weapon))
 	SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
-		.tweak(group => Slot().appendTo(group.content).use({ item, collections }, (slot, { item, collections }) => {
-			const sockets = item?.sockets.filter(Categorisation.IsPerk) ?? []
-			if (!item?.instanceId)
+		.tweak(group => Slot().appendTo(group.content).use(state, (slot, { definition, instance, collections }) => {
+			const sockets = definition?.sockets.filter(Categorisation.IsPerk) ?? []
+			if (!instance?.id)
 				for (let i = 0; i < sockets.length; i++) {
 					if (i)
 						Component().style('item-overlay-socket-group-gap').appendTo(slot)
@@ -177,14 +181,16 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Intrinsic Traits
 
-	Slot().appendTo(mainColumn).use({ item, collections }, (slot, { item, collections }) => {
-		const sockets = item?.sockets.filter(Categorisation.IsIntrinsic) ?? []
-		if (!sockets.length)
+	Slot().appendTo(mainColumn).use(state, (slot, state) => {
+		const sockets = state?.definition?.sockets.filter(Categorisation.IsIntrinsic) ?? []
+		if (!state || !sockets.length)
 			return
+
+		const collections = state.collections
 
 		SocketGroup(SocketCategoryHashes.IntrinsicTraits)
 			.tweak(group => {
-				if (!item?.instanceId) {
+				if (!state.instance?.id) {
 					for (let i = 0; i < sockets.length; i++) {
 						if (i)
 							Component().style('item-overlay-socket-group-gap').appendTo(slot)
@@ -216,7 +222,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Armour Set
 
-	const itemSet = ArmourSet(component, item, collections)
+	const itemSet = ArmourSet(component, state)
 	Slot().appendTo(mainColumn).use(itemSet, (slot, itemSet) => {
 		if (!itemSet)
 			return
@@ -274,8 +280,8 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 	////////////////////////////////////
 	//#region Stats
 
-	const ammo = State.Map(overlay, [item, collections], (item, collections): ItemAmmo | undefined => collections.ammoTypes[item?.ammoType!])
-	const stats = Stats(item, collections, {
+	const ammo = state.map(overlay, ({ definition, collections }): ItemAmmo | undefined => collections.ammoTypes[definition?.ammoType!])
+	const stats = Stats(StatsState.fromItemState(state), {
 		tweakStatLabel: (label, def) => (label
 			.style('item-overlay-stats-stat-label')
 			.tweak(GenericTooltip.apply, tooltip => tooltip
@@ -296,7 +302,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 					.style('item-overlay-stats-primary-power-label')
 					.text.bind(PowerStatDefinition.map(stats, def => def?.displayProperties.name))
 				)
-				.append(Power(State.Use(stats, { damageTypes: item.map(stats, item => item?.damageTypeHashes) }), collections)
+				.append(Power(PowerState.fromItemState(state))
 					.style('item-overlay-stats-primary-power-display')
 				)
 			)
@@ -321,7 +327,7 @@ export default Component((component, intendedItem: State.Or<CollectionsItem | un
 
 	InputBus.event.until(overlay, event => event.subscribe('Down', (_, event) => {
 		if (event.use('Escape')) {
-			if (!item?.value?.instanceId)
+			if (!state.value.instance?.id)
 				void navigate.toURL('/collections')
 			else
 				throw new Error('Cannot navigate out of an item instance view yet')
