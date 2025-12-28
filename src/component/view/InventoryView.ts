@@ -383,12 +383,14 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
 								.appendTo(bucketWrapper)
 							let i = 0
+							const hashAppearances: Record<number, number> = {}
 							for (const item of character.items) {
 								if (item.bucketHash !== bucketHash)
 									continue
 
 								i++
-								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
+								hashAppearances[item.itemHash] ??= 0
+								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
 									.appendTo(itemList)
 							}
 
