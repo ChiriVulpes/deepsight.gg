@@ -122,7 +122,7 @@
 	&-quantity:
 		%block
 		%absolute
-		$tiny-padding: calc($space-1 / 2)
+		$tiny-padding: calc(.15em * (${item-size: $item-size-base} / $item-size-base))
 		bottom: 2px ; border and quantity box shadow
 		right: 2px
 		%z-index-fg
@@ -135,12 +135,16 @@
 		box-shadow: 0 0 0 1px $quantity-background
 		%border-1
 		border-colour: transparent
-		%font-1
+		$font-size: round(calc($font-size-1-base / $font-scale-factor) * (${item-size: $item-size-base} / $item-size-base), 1px)
+		$font-scaling: #{font-sizes[1]}
+		font-size: $font-size
 		%weight-semibold
 
 		&--capped:
+			#after: .item-quantity
 			colour: $colour-quantity-cap
 			border-colour: $colour-quantity-cap
+			%weight-bold
 
 		&-text:
 			; %font-vertical-align
