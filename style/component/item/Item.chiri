@@ -118,3 +118,32 @@
 						color-mix(in lch, rgb(255 255 255 / .7), 40% rgba(from $colour-masterwork-2 r g b / .7)) 10%, 
 						transparent 30%
 					)
+
+	&-quantity:
+		%block
+		%absolute
+		$tiny-padding: calc($space-1 / 2)
+		bottom: 2px ; border and quantity box shadow
+		right: 2px
+		%z-index-fg
+		%flex
+		%align-items-centre
+		padding: $tiny-padding
+		$quantity-background: #222a
+		background: $quantity-background
+		; line-height: calc(1cap - ${font-vertical-align: 0em})
+		box-shadow: 0 0 0 1px $quantity-background
+		%border-1
+		border-colour: transparent
+		%font-1
+		%weight-semibold
+
+		&--capped:
+			colour: $colour-quantity-cap
+			border-colour: $colour-quantity-cap
+
+		&-text:
+			; %font-vertical-align
+			line-height: calc(1cap - ${font-vertical-align: 0em})
+
+			@before: content: "x"

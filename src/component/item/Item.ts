@@ -52,6 +52,17 @@ const Item = Object.assign(
 			.style.bind(masterworked, 'item-border-glow--masterworked')
 			.appendTo(component)
 
+		const quantity = state.map(component, item => (item.instance?.quantity ?? 0) > 1 ? item.instance!.quantity : undefined)
+		const quantityCapped = state.map(component, item => (item.instance?.quantity ?? 0) >= (item.definition.maxStackSize ?? 0))
+		Component()
+			.style('item-quantity')
+			.style.bind(quantityCapped, 'item-quantity--capped')
+			.append(Component()
+				.style('item-quantity-text')
+				.text.bind(quantity.stringified)
+			)
+			.appendToWhen(quantity.truthy, component)
+
 		ItemTooltip.apply(component, state)
 
 		component.onRooted(() => component.event.subscribe('contextmenu', event => {
