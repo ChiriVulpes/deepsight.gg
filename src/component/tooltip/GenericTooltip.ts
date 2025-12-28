@@ -13,7 +13,10 @@ interface GenericTooltipExtensions {
 interface GenericTooltip extends Tooltip, GenericTooltipExtensions { }
 
 const GenericTooltipBuilder = Component((component): GenericTooltip => {
-	const tooltip = component.style('generic-tooltip').as(Tooltip)!.anchor.reset()
+	const tooltip = component.style('generic-tooltip').as(Tooltip)!
+		.anchor.reset()
+		.anchor.add('off right', 'sticky centre')
+		.anchor.add('off left', 'sticky centre')
 
 	tooltip.header.style('generic-tooltip-header')
 

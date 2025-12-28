@@ -1,0 +1,4 @@
+# inventory
+title: Inventory
+load/connecting=shared/load/connecting
+load/fetching: Downloading inventory...

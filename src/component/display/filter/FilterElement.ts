@@ -1,12 +1,6 @@
 import Filter from 'component/display/Filter'
 import { DamageTypeHashes } from 'deepsight.gg/Enums'
-import { State } from 'kitsui'
-import Relic from 'Relic'
-
-const DestinyDamageTypeDefinition = State.Async(State.Owner.create(), async (signal, setProgress) => {
-	const conduit = await Relic.connected
-	return await conduit.definitions.en.DestinyDamageTypeDefinition.all()
-})
+import Definitions from 'model/Definitions'
 
 const prefix = 'element:'
 
@@ -22,7 +16,7 @@ const defaultOrder = [
 export default Filter.Definition({
 	id: 'element',
 	type: 'or',
-	suggestions: DestinyDamageTypeDefinition.mapManual(defs => {
+	suggestions: Definitions.DestinyDamageTypeDefinition.mapManual(defs => {
 		return Object.values(defs ?? {})
 			.filter(def => def.hash as DamageTypeHashes !== DamageTypeHashes.Raid)
 			.sort((a, b) => defaultOrder.indexOf(a.hash) - defaultOrder.indexOf(b.hash))
@@ -35,7 +29,7 @@ export default Filter.Definition({
 			return undefined
 
 		const element = token.lowercase.slice(prefix.length).trim()
-		const damageType = DestinyDamageTypeDefinition.map(owner, defs => {
+		const damageType = Definitions.DestinyDamageTypeDefinition.map(owner, defs => {
 			const matches = Object.values(defs ?? {})
 				.filter(def => def?.displayProperties?.name.toLowerCase().startsWith(element))
 			return matches.length === 1 ? matches[0] : undefined

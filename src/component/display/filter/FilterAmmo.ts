@@ -1,28 +1,6 @@
-import { DestinyAmmunitionType } from 'bungie-api-ts/destiny2'
 import Filter from 'component/display/Filter'
-import { PresentationNodeHashes } from 'deepsight.gg/Enums'
-import { State } from 'kitsui'
 import { NonNullish } from 'kitsui/utility/Arrays'
-import Relic from 'Relic'
-
-const DestinyAmmoDefinition = State.Async(State.Owner.create(), async (signal, setProgress) => {
-	const conduit = await Relic.connected
-
-	const ammoTypes = [
-		[DestinyAmmunitionType.Primary, PresentationNodeHashes.Primary_ObjectiveHashUndefined],
-		[DestinyAmmunitionType.Special, PresentationNodeHashes.Special_Scope0],
-		[DestinyAmmunitionType.Heavy, PresentationNodeHashes.Heavy_ObjectiveHashUndefined],
-	]
-
-	const nodes = await Promise.all(ammoTypes
-		.map(([, nodeHash]) => conduit.definitions.en.DestinyPresentationNodeDefinition.get(nodeHash))
-	)
-
-	return nodes.map(node => node && {
-		displayProperties: node?.displayProperties,
-		hash: ammoTypes.find(([, nodeHash]) => nodeHash === node.hash)?.[0] ?? DestinyAmmunitionType.None,
-	})
-})
+import DestinyAmmoDefinition from 'model/DestinyAmmoDefinition'
 
 const prefix = 'ammo:'
 

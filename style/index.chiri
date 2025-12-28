@@ -3,6 +3,7 @@
 #import:
 	var/font
 	var/colours
+	var/items
 
 #import: root
 
@@ -38,6 +39,7 @@
 
 #import:
 	component/WordmarkLogo
+	component/profile/CharacterButton
 	component/profile/ProfileButton
 	component/Navbar
 	component/item/Item
@@ -53,5 +55,6 @@
 	component/view/SplashView
 	component/view/CollectionsView
 	component/view/DataView
+	component/view/InventoryView
 	component/overlay/ItemOverlay
 	component/overlay/DataOverlay

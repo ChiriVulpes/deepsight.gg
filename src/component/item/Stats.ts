@@ -1,7 +1,6 @@
 import type { DestinyStatDefinition, DestinyStatGroupDefinition } from 'bungie-api-ts/destiny2'
 import type { PlugState } from 'component/tooltip/PlugTooltip'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
-import type { Item, ItemPlug, ItemStat } from 'conduit.deepsight.gg/item/Item'
+import type { Item, ItemPlug, ItemProvider, ItemStat } from 'conduit.deepsight.gg/item/Item'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import type { ItemStateOptional } from 'model/Item'
@@ -33,7 +32,7 @@ export interface StatsDisplayDefinition {
 
 export interface StatsState {
 	item?: Item | ItemPlug
-	collections: Collections
+	provider: ItemProvider
 }
 
 export namespace StatsState {
@@ -46,7 +45,7 @@ export namespace StatsState {
 
 		return {
 			item: state.definition,
-			collections: state.collections,
+			provider: state.provider,
 		}
 	}
 	export function fromPlugState (state: PlugState): StatsState
@@ -58,7 +57,7 @@ export namespace StatsState {
 
 		return {
 			item: state.plug,
-			collections: state.collections,
+			provider: state.provider,
 		}
 	}
 }
@@ -70,7 +69,7 @@ const Stats = Component((component, state: State<StatsState>, display?: StatsDis
 	const hasStats = State(false)
 	const isAbbreviated = State(false)
 
-	State.Use(component, { state, isAbbreviated }, ({ state: { item, collections }, isAbbreviated }) => {
+	State.Use(component, { state, isAbbreviated }, ({ state: { item, provider }, isAbbreviated }) => {
 		component.removeContents()
 
 		let _barStatsWrapper: Component | undefined
@@ -78,19 +77,19 @@ const Stats = Component((component, state: State<StatsState>, display?: StatsDis
 		const barStatsWrapper = () => _barStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).prependTo(component)
 		const numericStatsWrapper = () => _numericStatsWrapper ??= Component().style('stats-section').tweak(display?.tweakStatSection).appendTo(component)
 
-		const statGroupDef = collections.statGroups[(item as Item)?.statGroupHash!] as DestinyStatGroupDefinition | undefined
+		const statGroupDef = provider.statGroups[(item as Item)?.statGroupHash!] as DestinyStatGroupDefinition | undefined
 		const stats = !item?.stats ? [] : Object.values(item.stats)
 			.sort((a, b) => 0
 				|| +(a.displayAsNumeric ?? false) - +(b.displayAsNumeric ?? false)
 				|| (statGroupDef && ((statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === a.hash) ?? 0) - (statGroupDef.scaledStats.findIndex(stat => stat.statHash as StatHashes === b.hash) ?? 0)))
-				|| (collections.stats[a.hash]?.index ?? 0) - (collections.stats[b.hash]?.index ?? 0)
+				|| (provider.stats[a.hash]?.index ?? 0) - (provider.stats[b.hash]?.index ?? 0)
 			)
 
 		hasStats.value = statGroupDef ? !!statGroupDef.scaledStats.length : !!stats.length
 
 		let hasVisibleStat = false
 		for (const stat of stats) {
-			const def = collections.stats[stat.hash]
+			const def = provider.stats[stat.hash]
 			const overrideDisplayProperties = statGroupDef?.overrides?.[stat.hash]?.displayProperties
 			const statName = (overrideDisplayProperties ?? def?.displayProperties)?.name ?? ''
 			if (!statName || (item!.is === 'item' && isAbbreviated && STATS_FILTERED_OUT.has(stat.hash)))

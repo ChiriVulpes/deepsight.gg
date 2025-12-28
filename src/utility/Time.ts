@@ -3,8 +3,8 @@ import type { Quilt } from 'lang'
 
 namespace Time {
 
-	export const state = State(Date.now() / 1000)
-	setInterval(() => state.value = Date.now() / 1000, 100)
+	export const state = State(Math.floor(Date.now() / 1000))
+	setInterval(() => state.value = Math.floor(Date.now() / 1000), 100)
 
 	export function translateComponent (component: 'week' | 'day' | 'hour' | 'minute', value: number): Quilt.Handler {
 		return quilt => quilt[`shared/time/x-${component}${value === 1 ? '' : 's'}`](value)

@@ -15,6 +15,7 @@
 	%padding-0
 	%borderless
 	%box-shadow-none
+	%top-auto
 
 	#phone-mode:
 		$item-size-base: calc($space-5)

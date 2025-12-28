@@ -32,7 +32,7 @@
 		$text-shadow-em: $font-size-5-base
 		width: fit-content
 		height: fit-content
-		%margin-bottom-2
+		margin-top: calc(0px - $space-2 - $space-1)
 
 		#phone-mode:
 			%font-6

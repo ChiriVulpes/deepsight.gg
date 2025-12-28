@@ -1,11 +1,11 @@
 import Button from 'component/core/Button'
 import Image from 'component/core/Image'
 import ItemTooltip from 'component/tooltip/ItemTooltip'
-import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
 import DisplayProperties from 'model/DisplayProperties'
 import type { ItemState } from 'model/Item'
+import Moment from 'model/Moment'
 import type { DeepsightTierTypeDefinition } from 'node_modules/deepsight.gg/Interfaces'
 
 interface ItemExtensions {
@@ -20,7 +20,7 @@ const Item = Object.assign(
 
 		const masterworked = state.map(component, item => false)
 		const featured = state.map(component, item => item.definition.featured)
-		const rarity = state.map(component, ({ collections, definition }): DeepsightTierTypeDefinition | undefined => collections.rarities[definition.rarity])
+		const rarity = state.map(component, ({ provider: collections, definition }): DeepsightTierTypeDefinition | undefined => collections.rarities[definition.rarity])
 
 		component.and(Button)
 		component.style('item')
@@ -39,12 +39,13 @@ const Item = Object.assign(
 			)
 			.appendTo(component)
 
-		const moment = state.map(component, ({ collections, definition }): CollectionsMoment | undefined => collections.moments.find(moment => moment.moment.hash === definition.momentHash))
+		const moment = Moment.fromItemState(component, state)
+		const momentIcon = moment.map(component, moment => moment && `url(${DisplayProperties.icon(moment.iconWatermark)}`)
 		Component()
 			.style('item-watermark')
 			.style.bind(featured, 'item-watermark--featured')
-			.style.bindVariable('item-watermark', moment.map(component, moment => moment && `url(${DisplayProperties.icon(moment.moment.iconWatermark)}`))
-			.appendTo(component)
+			.style.bindVariable('item-watermark', momentIcon)
+			.appendToWhen(momentIcon.truthy, component)
 
 		Component()
 			.style('item-border-glow')

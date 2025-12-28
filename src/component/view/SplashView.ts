@@ -67,6 +67,7 @@ export default View(async view => {
 		.use(profiles, (slot, profiles) => {
 			for (const profile of profiles)
 				ProfileButton(profile)
+					.and(Link, '/inventory')
 					.tweak(button => button.mode.setValue(profile.authed ? 'expanded' : 'collapsed'))
 					.appendTo(slot)
 		})

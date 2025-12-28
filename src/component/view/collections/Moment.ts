@@ -41,7 +41,7 @@ const MomentBucket = Component((component): MomentBucket => {
 
 export const FILTER_CHANGING_CLASS = 'collections-view-content--filter-changing'
 
-export default Component((component, { moment, buckets }: CollectionsMoment, collections: Collections, display: State.Or<DisplayHandlers | undefined>) => {
+export default Component((component, { moment, buckets }: CollectionsMoment, provider: Collections, display: State.Or<DisplayHandlers | undefined>) => {
 	display = State.get(display)
 	const filterText = display.map(component, display => display?.filter.filterText).delay(component, 10)
 	return component.and(Details)
@@ -90,10 +90,10 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 			details.content.style('collections-view-moment-content')
 
 			const weapons = ([InventoryBucketHashes.KineticWeapons, InventoryBucketHashes.EnergyWeapons, InventoryBucketHashes.PowerWeapons] as const)
-				.flatMap(hash => buckets[hash].items.map(hash => collections.items[hash]))
+				.flatMap(hash => buckets[hash].items.map(hash => provider.items[hash]))
 
 			const armour = ([InventoryBucketHashes.Helmet, InventoryBucketHashes.Gauntlets, InventoryBucketHashes.ChestArmor, InventoryBucketHashes.LegArmor, InventoryBucketHashes.ClassArmor] as const)
-				.flatMap(hash => buckets[hash].items.map(hash => collections.items[hash]))
+				.flatMap(hash => buckets[hash].items.map(hash => provider.items[hash]))
 
 			const armourWarlock = armour.filter(item => item.classType === DestinyClass.Warlock)
 			const armourTitan = armour.filter(item => item.classType === DestinyClass.Titan)
@@ -144,7 +144,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 							item.rarity,
 							(item.sources
 								?.map(sourceRef => {
-									const def = sourceRef.type === 'table' ? collections.dropTables[sourceRef.id] : collections.sources[sourceRef.id]
+									const def = sourceRef.type === 'table' ? provider.dropTables[sourceRef.id] : provider.sources[sourceRef.id]
 									return { ...sourceRef, def } as ItemSourceDropTable & { def: DeepsightDropTableDefinition } | ItemSourceDefined & { def: DeepsightItemSourceDefinition }
 								})
 								.filter(source => source.type !== 'table' || source.def.type === 'raid' || source.def.type === 'dungeon' || source.def.type === 'exotic-mission')
@@ -186,7 +186,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, col
 						})
 
 						void shouldShowItem.await(bucket, true).then(() => {
-							const itemComponent = Item({ definition: item, collections })
+							const itemComponent = Item({ definition: item, provider })
 								.classes.bind(filterState.delayed, FILTER_CHANGING_CLASS)
 							Object.assign(itemComponent, { shouldShowItem, filterState })
 							filterText.use(itemComponent, () => {

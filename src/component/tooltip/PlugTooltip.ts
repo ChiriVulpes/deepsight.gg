@@ -2,8 +2,7 @@ import DisplaySlot from 'component/core/DisplaySlot'
 import Icon from 'component/core/Icon'
 import Image from 'component/core/Image'
 import Stats, { StatsState } from 'component/item/Stats'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
-import type { ItemPlug } from 'conduit.deepsight.gg/item/Item'
+import type { ItemPlug, ItemProvider } from 'conduit.deepsight.gg/item/Item'
 import type { ClarityComponentAll, ClarityLabelledLineComponent } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import Tooltip from 'kitsui/component/Tooltip'
@@ -27,16 +26,16 @@ const CLARITY_CLASS_ICON_MAP: Record<string, IconsKey> = {
 
 export interface PlugState {
 	readonly plug: ItemPlug
-	readonly collections: Collections
+	readonly provider: ItemProvider
 }
 
-export function PlugState (owner: State.Owner, plug: State.Or<ItemPlug>, collections: State.Or<Collections>): State<PlugState> {
-	return State.Map(owner, [State.get(plug), State.get(collections)], (plug, collections) => ({ plug, collections }))
+export function PlugState (owner: State.Owner, plug: State.Or<ItemPlug>, provider: State.Or<ItemProvider>): State<PlugState> {
+	return State.Map(owner, [State.get(plug), State.get(provider)], (plug, provider) => ({ plug, provider }))
 }
 
 export namespace PlugState {
-	export function resolve (plug: ItemPlug, collections: Collections): PlugState {
-		return { plug, collections }
+	export function resolve (plug: ItemPlug, provider: ItemProvider): PlugState {
+		return { plug, provider }
 	}
 }
 

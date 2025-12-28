@@ -1,24 +1,11 @@
 import Filter from 'component/display/Filter'
 import { State } from 'kitsui'
 import { NonNullish } from 'kitsui/utility/Arrays'
-import Relic from 'Relic'
+import Definitions from 'model/Definitions'
 
-const defs = State.Async(State.Owner.create(), async (signal, setProgress) => {
-	const conduit = await Relic.connected
-	const [
-		DestinyBreakerTypeDefinition,
-		// DeepsightBreakerSourceDefinition,
-		DeepsightBreakerTypeDefinition,
-	] = await Promise.all([
-		conduit.definitions.en.DestinyBreakerTypeDefinition.all(),
-		// conduit.definitions.en.DeepsightBreakerSourceDefinition.all(),
-		conduit.definitions.en.DeepsightBreakerTypeDefinition.all(),
-	])
-	return {
-		DestinyBreakerTypeDefinition,
-		// DeepsightBreakerSourceDefinition,
-		DeepsightBreakerTypeDefinition,
-	}
+const defs = State.UseManual({
+	DestinyBreakerTypeDefinition: Definitions.DestinyBreakerTypeDefinition,
+	DeepsightBreakerTypeDefinition: Definitions.DeepsightBreakerTypeDefinition,
 })
 
 const prefix = 'stun:'

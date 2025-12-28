@@ -6,8 +6,7 @@ import Power, { PowerState } from 'component/item/Power'
 import Stats, { StatsState } from 'component/item/Stats'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
 import PlugTooltip, { PlugState } from 'component/tooltip/PlugTooltip'
-import type Collections from 'conduit.deepsight.gg/item/Collections'
-import type { ItemAmmo, ItemPlug, ItemSocket } from 'conduit.deepsight.gg/item/Item'
+import type { ItemAmmo, ItemPlug, ItemProvider, ItemSocket } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightPlugFullName } from 'deepsight.gg/DeepsightPlugCategorisation'
 import { ItemCategoryHashes, SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
@@ -27,13 +26,13 @@ const PowerStatDefinition = State.Async(async () => {
 
 export default Component((component, intendedState: State<ItemStateOptional>) => {
 	// preserve all the ui for the last item when the "intended" item is set to undefined
-	const state = State<ItemStateOptional>({ collections: intendedState.value.collections })
+	const state = State<ItemStateOptional>({ provider: intendedState.value.provider })
 	intendedState.use(component, intendedState => state.value = {
 		...intendedState,
 		definition: state.value.definition ?? intendedState?.definition,
 	})
 
-	const collections = intendedState.map(component, state => state.collections)
+	const provider = intendedState.map(component, state => state.provider)
 
 	const overlay = component.style('item-overlay')
 
@@ -43,7 +42,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 		.style('item-overlay-image')
 		.appendTo(background)
 
-	const foundryImage = state.map(overlay, state => DisplayProperties.icon(state?.collections?.foundries[state.definition?.foundryHash!]?.overlay))
+	const foundryImage = state.map(overlay, state => DisplayProperties.icon(state?.provider?.foundries[state.definition?.foundryHash!]?.overlay))
 	Image(foundryImage)
 		.style('item-overlay-foundry')
 		.appendTo(background)
@@ -91,7 +90,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 
 		const def = typeof socket !== 'number'
 			? State.get(socket)
-			: state.map(component, state => state?.collections?.socketCategories?.[socket])
+			: state.map(component, state => state?.provider?.socketCategories?.[socket])
 
 		const header = Component()
 			.style('item-overlay-socket-group-header')
@@ -142,13 +141,13 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 			.style('item-overlay-plug-icon')
 			.appendTo(component)
 
-		PlugTooltip.apply(component, collections.map(component, collections => PlugState.resolve(plug, collections)))
+		PlugTooltip.apply(component, provider.map(component, provider => PlugState.resolve(plug, provider)))
 		return component
 	})
-	const Socket = Component((component, socket: ItemSocket, collections: Collections) => {
+	const Socket = Component((component, socket: ItemSocket, provider: ItemProvider) => {
 		component.style('item-overlay-socket')
 		for (const hash of socket.plugs) {
-			const plug = collections.plugs[hash]
+			const plug = provider.plugs[hash]
 			if (Categorisation.IsEnhanced(plug))
 				continue
 
@@ -162,7 +161,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 
 	const isWeapon = state.map(component, state => !!state?.definition?.categoryHashes?.includes(ItemCategoryHashes.Weapon))
 	SocketGroup(SocketCategoryHashes.WeaponPerks_CategoryStyle1)
-		.tweak(group => Slot().appendTo(group.content).use(state, (slot, { definition, instance, collections }) => {
+		.tweak(group => Slot().appendTo(group.content).use(state, (slot, { definition, instance, provider: collections }) => {
 			const sockets = definition?.sockets.filter(Categorisation.IsPerk) ?? []
 			if (!instance?.id)
 				for (let i = 0; i < sockets.length; i++) {
@@ -186,7 +185,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 		if (!state || !sockets.length)
 			return
 
-		const collections = state.collections
+		const provider = state.provider
 
 		SocketGroup(SocketCategoryHashes.IntrinsicTraits)
 			.tweak(group => {
@@ -195,8 +194,8 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 						if (i)
 							Component().style('item-overlay-socket-group-gap').appendTo(slot)
 
-						const plug = collections.plugs[sockets[i].defaultPlugHash ?? sockets[i].plugs[0]]
-						Socket(sockets[i], collections)
+						const plug = provider.plugs[sockets[i].defaultPlugHash ?? sockets[i].plugs[0]]
+						Socket(sockets[i], provider)
 							.style('item-overlay-socket--intrinsic')
 							.append(!Categorisation.IsFrame(sockets[i]) || !plug ? undefined : Component()
 								.style('item-overlay-socket-display')
@@ -280,7 +279,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 	////////////////////////////////////
 	//#region Stats
 
-	const ammo = state.map(overlay, ({ definition, collections }): ItemAmmo | undefined => collections.ammoTypes[definition?.ammoType!])
+	const ammo = state.map(overlay, ({ definition, provider: collections }): ItemAmmo | undefined => collections.ammoTypes[definition?.ammoType!])
 	const stats = Stats(StatsState.fromItemState(state), {
 		tweakStatLabel: (label, def) => (label
 			.style('item-overlay-stats-stat-label')

@@ -173,9 +173,6 @@ export interface DataParamsWithAugmentation extends DataParams {
 	augmentation: string
 }
 
-const currentTime = State(Date.now())
-setInterval(() => currentTime.value = Date.now(), 100)
-
 export default View<DataParams | undefined>(async view => {
 	view.style('data-view')
 		.style.bind(view.loading.loaded, 'data-view--ready')
@@ -292,7 +289,7 @@ export default View<DataParams | undefined>(async view => {
 				.append(Button()
 					.style('data-view-versions-action-button')
 					.tweak(button => button
-						.text.bind(State.Map(slot, [currentTime, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
+						.text.bind(State.Map(slot, [Time.state, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
 					)
 					.event.subscribe('click', () => state.refresh())
 				)
@@ -337,7 +334,7 @@ export default View<DataParams | undefined>(async view => {
 				name,
 				(_
 					|| PRIORITY_COMPONENTS.indexOf(name) + 1
-					// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+
 					|| PRIORITY_COMPONENTS.indexOf(componentNameGroups.find(([category, names]) => names.includes(name))?.[0].id!) + 1
 					|| Infinity
 				),

@@ -1,4 +1,4 @@
-import type Collections from 'conduit.deepsight.gg/item/Collections'
+import type { ItemProvider } from 'conduit.deepsight.gg/item/Item'
 import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import type { ItemStateOptional } from 'model/Item'
@@ -13,7 +13,7 @@ const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgre
 export interface PowerState {
 	power?: number
 	damageTypes?: DamageTypeHashes[]
-	collections: Collections
+	provider: ItemProvider
 }
 
 export namespace PowerState {
@@ -26,7 +26,7 @@ export namespace PowerState {
 
 		return {
 			damageTypes: state.definition?.damageTypeHashes,
-			collections: state.collections,
+			provider: state.provider,
 		}
 	}
 }
@@ -34,10 +34,10 @@ export namespace PowerState {
 export default Component((component, state: State<PowerState>) => {
 	component.style('power')
 
-	const primaryDamageType = state.map(component, state => state.collections.damageTypes[state.damageTypes?.[0]!])
+	const primaryDamageType = state.map(component, state => state.provider.damageTypes[state.damageTypes?.[0]!])
 	const damageTypes = state.map(component, state => state.damageTypes, (a, b) => a?.toSorted().join(',') === b?.toSorted().join(','))
 	function getDamageTypeName (damageType: DamageTypeHashes | undefined): string | undefined {
-		const def = damageType === undefined ? undefined : state.value.collections.damageTypes[damageType]
+		const def = damageType === undefined ? undefined : state.value.provider.damageTypes[damageType]
 		return def?.displayProperties.name.toLowerCase()
 	}
 
@@ -69,7 +69,7 @@ export default Component((component, state: State<PowerState>) => {
 
 				wrapper.style(`power-damage-icon--${damageTypes?.length ?? 1}` as 'power-damage-icon--1')
 				for (const damageType of damageTypes ?? []) {
-					const def = state.value.collections.damageTypes[damageType]
+					const def = state.value.provider.damageTypes[damageType]
 					const damageTypeName = def.displayProperties.name.toLowerCase()
 					Component()
 						.style('power-damage-icon-image', `power-damage-icon-image--${damageTypeName as 'prismatic'}`)
@@ -88,7 +88,7 @@ export default Component((component, state: State<PowerState>) => {
 				wrapper.style.toggle(single, 'power-power--colour')
 				wrapper.style.toggle(!single, 'power-power--gradient')
 				const damageTypeColourVars = damageTypes
-					.map(type => state.value.collections.damageTypes[type]?.displayProperties.name.toLowerCase())
+					.map(type => state.value.provider.damageTypes[type]?.displayProperties.name.toLowerCase())
 					.map(name => `var(--colour-damage-${name ?? 'kinetic'})`)
 				wrapper.style.setVariable('power-damage-colour', damageTypes.length === 5 ? 'var(--colour-damage-prismatic)' : damageTypeColourVars[0])
 				const gradient = damageTypes.length === 1 ? damageTypeColourVars[0]

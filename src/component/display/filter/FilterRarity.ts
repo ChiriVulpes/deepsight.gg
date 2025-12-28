@@ -1,12 +1,8 @@
 import Filter from 'component/display/Filter'
 import { ItemTierTypeHashes, PresentationNodeHashes } from 'deepsight.gg/Enums'
 import { State } from 'kitsui'
+import Definitions from 'model/Definitions'
 import Relic from 'Relic'
-
-const DeepsightTierTypeDefinition = State.Async(State.Owner.create(), async (signal, setProgress) => {
-	const conduit = await Relic.connected
-	return await conduit.definitions.en.DeepsightTierTypeDefinition.all()
-})
 
 const EngramIcon = State.Async(State.Owner.create(), async (signal, setProgress) => {
 	const conduit = await Relic.connected
@@ -25,9 +21,9 @@ const excludedTierTypes = [
 export default Filter.Definition({
 	id: 'rarity',
 	type: 'or',
-	suggestions: DeepsightTierTypeDefinition.mapManual(defs => {
+	suggestions: Definitions.DeepsightTierTypeDefinition.mapManual(defs => {
 		return Object.values(defs ?? {})
-			.filter(def => !excludedTierTypes.includes(def.hash as ItemTierTypeHashes))
+			.filter(def => !excludedTierTypes.includes(def.hash))
 			.sort((a, b) => a.tierType - b.tierType)
 			.map(def => def?.displayProperties?.name)
 			.filter(name => !!name)
@@ -38,7 +34,7 @@ export default Filter.Definition({
 			return undefined
 
 		const element = token.lowercase.slice(prefix.length).trim()
-		const tierType = DeepsightTierTypeDefinition.map(owner, defs => {
+		const tierType = Definitions.DeepsightTierTypeDefinition.map(owner, defs => {
 			const matches = Object.values(defs ?? {})
 				.filter(def => def?.displayProperties?.name?.toLowerCase().startsWith(element))
 			return matches.length === 1 ? matches[0] : undefined
