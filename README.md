@@ -9,5 +9,5 @@ Definitions to augment the Bungie-provided definitions, generated automatically 
 ### [conduit.deepsight.gg](https://github.com/ChiriVulpes/conduit.deepsight.gg)
 A global service worker that provides Destiny data without hogging memory on the page of a Destiny app, supporting shared data between any third-party Destiny app on any domain.
 
-### [verity.deepsight.gg](https://github.com/ChiriVulpes/verity.deepsight.gg)
+### [verity.deepsight.gg](https://github.com/ChiriVulpes/verity)
 A verity solver by deepsight.gg.
