@@ -13,6 +13,7 @@
 	size: #{item-size}
 	$item-inset: 1px
 	%padding-0
+	%background-none
 	%borderless
 	%box-shadow-none
 	%top-auto
@@ -37,6 +38,10 @@
 		$item-rarity-border-colour: $colour-rarity-exotic-2
 
 	&--masterworked: $item-inset: 2px
+
+	&--engram:
+		$item-rarity-background-colour: transparent
+		$item-rarity-border-colour: transparent
 
 	&-border:
 		%block
