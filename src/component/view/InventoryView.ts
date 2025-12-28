@@ -17,6 +17,7 @@ import ItemOverlay from 'component/overlay/ItemOverlay'
 import CharacterButton from 'component/profile/CharacterButton'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
 import type Inventory from 'conduit.deepsight.gg/item/Inventory'
+import type { ItemInstance } from 'conduit.deepsight.gg/item/Item'
 import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
 import Breakdown from 'kitsui/component/Breakdown'
@@ -27,6 +28,7 @@ import DisplayProperties from 'model/DisplayProperties'
 import type { ItemReference, ItemStateOptional } from 'model/Item'
 import { ItemState } from 'model/Item'
 import type { RoutePath } from 'navigation/RoutePath'
+import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
 import Relic from 'Relic'
 import type { IconsKey } from 'style/icons'
 import Time from 'utility/Time'
@@ -202,6 +204,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		)
 		.appendTo(view)
 
+	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+
 	Slot().appendTo(view)
 		.if(inventoryOrUndefined.falsy, slot => {
 			Component().appendTo(slot).text.set('No inventory data available')
@@ -236,15 +240,67 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				.style.bind(scrollTopState.map(slot, scrollTop => scrollTop > 50), 'inventory-view-header--stuck')
 				.appendTo(bucketList)
 
-			const BucketWrapper = Component(component => {
-				return component.style('inventory-view-bucket')
-			})
+			let bucketItemsVisibleCount = 0
+			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
+				const BucketRow = (bucketHash: InventoryBucketHashes) => {
+					bucketItemsVisibleCount = 0
+					const bucketDef = inventory.buckets[bucketHash]
+					return Part(`bucket:${bucketHash}/row`, part => part
+						.style('inventory-view-bucket-row')
+						.style.toggle(bucketDef.location !== ItemLocation.Inventory && bucketDef.location !== ItemLocation.Postmaster, 'inventory-view-bucket-row--profile')
+						.append(Component()
+							.style('inventory-view-bucket-title')
+							.text.set(inventory.buckets[bucketHash].displayProperties.name)
+						)
+					)
+				}
 
-			const ItemList = Component(component => {
-				return component.style('inventory-view-bucket-item-list')
-			})
+				const BucketWrapper = (id: string) => Part(id, part => part
+					.style('inventory-view-bucket')
+				)
 
-			Breakdown(slot, State.Use(slot, { inventory, bucketIcons }), ({ inventory, bucketIcons }, Part) => {
+				const ItemList = (id: string) => Part(id, part => part
+					.style('inventory-view-bucket-item-list')
+				)
+
+				const InventoryItem = (id: string, item: ItemInstance, handler?: (item: Item) => unknown) => {
+					const itemState = {
+						instance: item,
+						definition: inventory.items[item.itemHash],
+						provider: inventory,
+					}
+					return Part(id, itemState, (part, item) => {
+						const itemComponent = part.and(Item, item)
+						handler?.(itemComponent)
+						const baseAppendTo = itemComponent.appendTo
+						const basePrependTo = itemComponent.prependTo
+						const baseInsertTo = itemComponent.insertTo
+						Object.assign(
+							part,
+							{
+								appendTo (destination: Component) {
+									const shouldShow = display?.filter.filter(itemState, false) ?? true
+									if (shouldShow)
+										bucketItemsVisibleCount++
+									return baseAppendTo(shouldShow ? destination : Store)
+								},
+								prependTo (destination: Component) {
+									const shouldShow = display?.filter.filter(itemState, false) ?? true
+									if (shouldShow)
+										bucketItemsVisibleCount++
+									return basePrependTo(shouldShow ? destination : Store)
+								},
+								insertTo (destination: Component, direction: 'before' | 'after', sibling: Component) {
+									const shouldShow = display?.filter.filter(itemState, false) ?? true
+									if (shouldShow)
+										bucketItemsVisibleCount++
+									return baseInsertTo(shouldShow ? destination : Store, direction, sibling)
+								},
+							}
+						)
+					}) as Item
+				}
+
 				const characters = Object.values(inventory.characters).sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
 
 				for (const character of characters) {
@@ -267,16 +323,10 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					if (!bucketIcon)
 						continue
 
-					const bucketRow = Part(`bucket:${bucketHash}/row`, part => part
-						.style('inventory-view-bucket-row')
-						.append(Component()
-							.style('inventory-view-bucket-title')
-							.text.set(inventory.buckets[bucketHash].displayProperties.name)
-						)
-					).appendTo(bucketList)
+					const bucketRow = BucketRow(bucketHash)
 
 					const bucketDef = inventory.buckets[bucketHash]
-					if (bucketDef.displayProperties.name)
+					const bucketButton = !bucketDef.displayProperties.name ? undefined :
 						Part(`bucket:${bucketHash}/button`, part => part
 							.and(Button)
 							.style('inventory-view-nav-button', 'item')
@@ -305,77 +355,101 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 										.style('inventory-view-nav-button-icon', 'inventory-view-nav-button-icon--font')
 										.appendTo(button)
 							})
-						).appendTo(bucketNavButtonList)
+						)
 
-					for (const character of characters) {
-						const bucketWrapper = BucketWrapper()
-							.style('inventory-view-bucket-wrapper--character')
-							.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
-							.appendTo(bucketRow)
+					////////////////////////////////////
+					//#region Bucket content
 
-						const equippedItemList = ItemList()
-							.style('inventory-view-bucket-item-list--equipped')
-							.appendTo(bucketWrapper)
-						for (const item of character.equippedItems) {
-							if (item.bucketHash !== bucketHash)
-								continue
+					if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
+						for (const character of characters) {
+							const bucketWrapper = BucketWrapper(`character:${character.id}/bucket:${bucketHash}`)
+								.style('inventory-view-bucket-wrapper--character')
+								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
+								.appendTo(bucketRow)
 
-							Part(`character:${character.id}/item:${item.id ?? `hash:${item.itemHash}`}`, item, (part, item) => part
-								.and(Item, item.map(slot, item => ({
-									instance: item,
-									definition: inventory.items[item.itemHash],
-									provider: inventory,
-								})))
-							).appendTo(equippedItemList)
+							const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`)
+								.style('inventory-view-bucket-item-list--equipped')
+								.appendTo(bucketWrapper)
+							for (const item of character.equippedItems) {
+								if (item.bucketHash !== bucketHash)
+									continue
+
+								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
+									.appendTo(equippedItemList)
+							}
+
+							const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`)
+								.style('inventory-view-bucket-item-list--inventory')
+								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+								.appendTo(bucketWrapper)
+							let i = 0
+							for (const item of character.items) {
+								if (item.bucketHash !== bucketHash)
+									continue
+
+								i++
+								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
+									.appendTo(itemList)
+							}
+
+							const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
+							const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount - hasEquippedItem
+							for (; i < bucketInventorySlots; i++) {
+								Part(`character:${character.id}/bucket:${bucketHash}/empty:${i}`)
+									.style('item', 'inventory-view-bucket-item-list-empty-slot')
+									.appendTo(itemList)
+							}
 						}
+					else {
+						const profileBucketWrapper = BucketWrapper(`profile/bucket:${bucketHash}`)
+							.style('inventory-view-bucket-wrapper--profile')
+							.appendTo(bucketRow)
+						const itemList = ItemList(`profile/bucket:${bucketHash}/items`)
+							.style('inventory-view-bucket-item-list--profile')
+							.appendTo(profileBucketWrapper)
 
-						const itemList = ItemList()
-							.style('inventory-view-bucket-item-list--inventory')
-							.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
-							.appendTo(bucketWrapper)
 						let i = 0
-						for (const item of character.items) {
-							if (item.bucketHash !== bucketHash)
+						const hashAppearances: Record<number, number> = {}
+						for (const item of inventory.profileItems) {
+							if (item.bucketHash === InventoryBucketHashes.General || inventory.items[item.itemHash].bucketHash !== bucketHash)
 								continue
 
 							i++
-							Part(`character:${character.id}/item:${item.id ?? `hash:${item.itemHash}`}`, item, (part, item) => part
-								.and(Item, item.map(part, item => ({
-									instance: item,
-									definition: inventory.items[item.itemHash],
-									provider: inventory,
-								})))
-							).appendTo(itemList)
-						}
-
-						const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
-						const bucketInventorySlots = bucketDef.itemCount - hasEquippedItem
-						for (; i < bucketInventorySlots; i++) {
-							Part(`character:${character.id}/bucket:${bucketHash}/empty:${i}`)
-								.style('item', 'inventory-view-bucket-item-list-empty-slot')
+							hashAppearances[item.itemHash] ??= 0
+							InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
 								.appendTo(itemList)
 						}
+
+						const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount
+						for (; i < bucketInventorySlots; i++)
+							Part(`profile/bucket:${bucketHash}/empty:${i}`)
+								.style('item', 'inventory-view-bucket-item-list-empty-slot')
+								.appendTo(itemList)
 					}
 
-					const vaultBucketWrapper = BucketWrapper()
+					const vaultBucketWrapper = BucketWrapper(`vault/bucket:${bucketHash}`)
 						.style('inventory-view-bucket-wrapper--vault')
+						.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
 						.appendTo(bucketRow)
-					const itemList = ItemList()
+					const itemList = ItemList(`vault/bucket:${bucketHash}/items`)
 						.appendTo(vaultBucketWrapper)
 
+					const hashAppearances: Record<number, number> = {}
 					for (const item of inventory.profileItems) {
 						const definition = inventory.items[item.itemHash]
-						if (definition.bucketHash !== bucketHash)
+						if (item.bucketHash !== InventoryBucketHashes.General || definition.bucketHash !== bucketHash)
 							continue
 
-						Part(`vault/item:${item.id ?? `hash:${item.itemHash}`}`, item, (part, item) => part
-							.and(Item, item.map(part, item => ({
-								instance: item,
-								definition,
-								provider: inventory,
-							})))
-						).appendTo(itemList)
+						hashAppearances[item.itemHash] ??= 0
+						InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
+							.appendTo(itemList)
 					}
+
+					//#endregion
+					////////////////////////////////////
+
+					bucketRow.appendTo(bucketItemsVisibleCount || !filterText ? bucketList : Store)
+					bucketButton?.appendTo(bucketItemsVisibleCount || !filterText ? bucketNavButtonList : Store)
 				}
 			})
 

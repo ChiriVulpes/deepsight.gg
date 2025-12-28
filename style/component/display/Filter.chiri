@@ -177,6 +177,10 @@
 				&--rarity: padding-block: .07em
 				&--frame: padding-block: .03em .07em
 
+				&--ammo:
+					margin: -.2em
+					margin-top: -.1em
+
 				&-image:
 
 					&--foundry:

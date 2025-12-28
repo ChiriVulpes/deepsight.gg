@@ -71,6 +71,7 @@
 		%unmargin-top-6
 		%padding-left-3
 		%unmargin-left-3
+		%align-content-start
 		; mask-image: linear-gradient(to bottom, transparent, transparent calc(100vh + $space-6), black calc(100vh + $space-6 + $space-5))
 		; mask-position: 0 calc($mask-position - 100vh - $space-5)
 		; #transition: #{transition("mask-position")}
@@ -126,6 +127,11 @@
 			%column-1-4
 			scroll-margin-top: $space-5
 
+			&--profile:
+				#after: .inventory-view-bucket-row
+				grid-template-columns: auto 1fr
+				%column-gap-4
+
 		&-title:
 			%column-1-4
 			%padding-bottom-2
@@ -148,9 +154,14 @@
 				$item-size: calc($space-3 + $space-2 + $space-1)
 
 			&--vault:
+
 				#vertical-monitor-mode:
 					%column-1-4
 					%margin-block-4
+
+				&--profile:
+
+			&--profile:
 
 		&-item-list:
 			%flex
@@ -185,6 +196,12 @@
 				%grid
 				grid-template-columns: repeat(7, 1fr)
 				%gap-1
+
+			&--profile:
+				#after: .inventory-view-bucket-item-list
+				%grid
+				grid-template-columns: repeat(10, auto)
+				%width-fit
 
 			&-empty-slot:
 				@before:

@@ -43,8 +43,8 @@ export default Filter.Definition({
 			filter (item, token) {
 				const { DeepsightBreakerTypeDefinition } = defs.value ?? {}
 				const types = [
-					...DeepsightBreakerTypeDefinition?.[item.hash]?.types ?? [],
-					...item.sockets.flatMap(s => s.plugs.flatMap(plugHash => DeepsightBreakerTypeDefinition?.[plugHash]?.types ?? [])),
+					...DeepsightBreakerTypeDefinition?.[item.definition.hash]?.types ?? [],
+					...item.definition.sockets.flatMap(s => s.plugs.flatMap(plugHash => DeepsightBreakerTypeDefinition?.[plugHash]?.types ?? [])),
 				].distinct()
 				return !types.length ? 'irrelevant'
 					: !breakerType.value || types.includes(breakerType.value.hash)

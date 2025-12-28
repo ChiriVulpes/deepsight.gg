@@ -35,8 +35,8 @@ export default Filter.Definition({
 			},
 			icon: ammoType.map(owner, def => def && `https://www.bungie.net${def.displayProperties.icon}`),
 			filter (item, token) {
-				return !item.ammoType ? 'irrelevant'
-					: item.ammoType === ammoType.value?.hash
+				return !item.definition.ammoType ? 'irrelevant'
+					: item.definition.ammoType === ammoType.value?.hash
 			},
 		}
 	},

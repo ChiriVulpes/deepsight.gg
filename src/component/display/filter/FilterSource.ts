@@ -62,8 +62,8 @@ export default Filter.Definition({
 			},
 			icon: source.map(owner, def => def && DisplayProperties.icon(def.displayProperties.icon)),
 			filter (item, token) {
-				return !item.sources?.some(source => source.type !== 'defined' || source.eventState !== 'unknown') ? 'irrelevant'
-					: !source.value || !!item.sources.some(itemSource => itemSource.type === 'defined' && itemSource.id === source.value?.hash)
+				return !item.definition.sources?.some(source => source.type !== 'defined' || source.eventState !== 'unknown') ? 'irrelevant'
+					: !source.value || !!item.definition.sources.some(itemSource => itemSource.type === 'defined' && itemSource.id === source.value?.hash)
 			},
 		}
 	},

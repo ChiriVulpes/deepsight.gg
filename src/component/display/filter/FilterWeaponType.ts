@@ -54,8 +54,8 @@ export default Object.assign(
 					),
 				},
 				filter (item, token) {
-					return !item.categoryHashes?.length ? 'irrelevant'
-						: item.categoryHashes.includes(weaponType.value?.hash ?? NaN)
+					return !item.definition.categoryHashes?.length ? 'irrelevant'
+						: item.definition.categoryHashes.includes(weaponType.value?.hash ?? NaN)
 				},
 			}
 		},

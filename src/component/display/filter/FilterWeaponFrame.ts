@@ -61,7 +61,7 @@ export default Filter.Definition({
 			},
 			icon: weaponFrameIcon,
 			filter (item, token) {
-				const plugs = item.sockets?.flatMap(socket => socket.plugs) ?? []
+				const plugs = item.definition.sockets?.flatMap(socket => socket.plugs) ?? []
 				return !plugs?.length ? 'irrelevant'
 					: weaponFrameMatches.value.some(match => plugs.includes(match.hash))
 			},

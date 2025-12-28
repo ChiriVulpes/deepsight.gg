@@ -1,7 +1,6 @@
 import Button from 'component/core/Button'
 import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
-import type { Item } from 'conduit.deepsight.gg/item/Item'
 import { Component, State } from 'kitsui'
 import Popover from 'kitsui/component/Popover'
 import Slot from 'kitsui/component/Slot'
@@ -12,6 +11,7 @@ import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import type { Quilt } from 'lang'
+import type { ItemState } from 'model/Item'
 import { quilt } from 'utility/Text'
 
 export interface FilterToken extends String {
@@ -72,7 +72,7 @@ interface FilterIconDefinition {
 interface FilterFunction {
 	readonly fullText: State.Or<string>
 	readonly isPartial: State.Or<boolean>
-	filter (item: Item, token: FilterToken): true | false | 'irrelevant'
+	filter (item: ItemState, token: FilterToken): true | false | 'irrelevant'
 	chip?(chip: Filter.Chip, token: FilterToken): unknown
 	icon?: true | State<string | undefined> | FilterIconDefinition
 	doubleWidthIcon?: true
@@ -96,7 +96,7 @@ interface FilterExtensions {
 	readonly input: Component<HTMLInputElement>
 	readonly filterText: State<string>
 	readonly config: State.Mutable<Filter.Config | undefined>
-	filter (item: Item, showIrrelevant: boolean): boolean
+	filter (item: ItemState, showIrrelevant: boolean): boolean
 	reapplyFilterSearchParam (): void
 }
 
@@ -135,7 +135,7 @@ namespace Filter {
 
 export const PLAINTEXT_FILTER_IS_VALID = (token: FilterToken) => token.lowercase.length >= 3
 const PLAINTEXT_FILTER_FUNCTION: NonNullable<FilterFunction['filter']> = (item, token) =>
-	item.displayProperties.name.toLowerCase().includes(token.lowercase)
+	item.definition.displayProperties.name.toLowerCase().includes(token.lowercase)
 export const PLAINTEXT_FILTER_TWEAK_CHIP: NonNullable<FilterFunction['chip']> = (chip, token) => chip
 	.style('filter-display-text')
 	.style.toggle(!PLAINTEXT_FILTER_IS_VALID(token), 'filter-display-text--inactive')

@@ -50,7 +50,7 @@ export default Filter.Definition({
 			},
 			icon: EngramIcon,
 			filter (item, token) {
-				return item.rarity === tierType.value?.hash
+				return item.definition.rarity === tierType.value?.hash
 			},
 		}
 	},

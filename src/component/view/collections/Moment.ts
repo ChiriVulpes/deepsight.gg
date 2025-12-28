@@ -11,6 +11,7 @@ import { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
+import type { ItemState } from 'model/Item'
 
 interface MomentBucketExtensions {
 	readonly title: Component
@@ -99,7 +100,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 			const armourTitan = armour.filter(item => item.classType === DestinyClass.Titan)
 			const armourHunter = armour.filter(item => item.classType === DestinyClass.Hunter)
 
-			const ItemFilterState = (item: CollectionsItem) => State.Map(details, [display, filterText, details.manualOpenState, details.transitioning],
+			const ItemFilterState = (item: ItemState) => State.Map(details, [display, filterText, details.manualOpenState, details.transitioning],
 				(display, filterText, open, transitioning) => ({
 					filterText,
 					filterState: display?.filter.filter(item, false) ?? true,
@@ -108,7 +109,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 				})
 			).delay(details, 10)
 
-			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState(item)])
+			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState({ definition: item, provider })])
 			const hasAnyItemFilteredIn = State.Map(details, [...itemFilterStates.values()], (...states) => states.some(state => state.filterState))
 
 			State.Use(details, {
