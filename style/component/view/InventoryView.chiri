@@ -49,6 +49,7 @@
 		&-button:
 			#after: .item
 			$item-size-base: calc($space-4 + $space-3)
+			%background-4
 
 			&-icon:
 				&--font:
