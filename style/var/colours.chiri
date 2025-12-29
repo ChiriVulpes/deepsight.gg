@@ -46,3 +46,6 @@ $colour-power-seasonal: #58ccff
 
 $colour-title: #bb80d9
 $colour-quantity-cap: #e7b16b
+
+$colour-overfill-warning-background: #a82d2d
+$colour-overfill-warning-foreground: #ff5b5b

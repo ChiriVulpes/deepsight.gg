@@ -51,6 +51,10 @@
 			$item-size-base: calc($space-4 + $space-3)
 			%background-4
 
+			&--warning:
+				background: $colour-overfill-warning-background
+				box-shadow: inset 0 0 0 1px $colour-overfill-warning-foreground
+
 			&-icon:
 				&--font:
 					%align-self-centre
@@ -121,6 +125,7 @@
 			%pointer-events-all
 
 	&-bucket:
+		; not a real component
 
 		&-row:
 			%grid
@@ -133,19 +138,30 @@
 				grid-template-columns: auto 1fr
 				%column-gap-4
 
+			&--warning:
+				$bucket-title-colour: $colour-0
+
 		&-title:
 			%column-1-4
 			%padding-bottom-2
 			%uppercase
 			%letter-spacing-2
-			%opacity-50
 			%weight-bold
 			%font-1
 			%unmargin-top-2
+			%z-index-fg
+			colour: ${bucket-title-colour: $colour-7}
 
 			@before: content: "// "
 
 		&-wrapper:
+			%relative
+			%overflow-hidden
+			%padding-3
+			%unmargin-3
+			%padding-top-4
+			%unmargin-top-4
+
 			&--character:
 				%flex
 				%flex-column
@@ -163,6 +179,18 @@
 				&--profile:
 
 			&--profile:
+
+			&--warning:
+				$warning-colour: color-mix(in lch, $colour-overfill-warning-background, transparent 60%)
+				background: linear-gradient(120deg, transparent, transparent, $warning-colour, transparent, transparent)
+				background-size: 300% 300%
+				background-repeat: no-repeat
+				; $position: -150%
+				; background-position: $position $position
+
+				#animate 2s linear infinite:
+					from: background-position: -33% -33%
+					to: background-position: 133% 133%
 
 		&-item-list:
 			%flex

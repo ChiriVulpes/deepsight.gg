@@ -256,7 +256,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				}
 
 				const BucketWrapper = (id: string) => Part(id, part => part
-					.style('inventory-view-bucket')
+					.style('inventory-view-bucket-wrapper')
 				)
 
 				const ItemList = (id: string) => Part(id, part => part
@@ -360,6 +360,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					////////////////////////////////////
 					//#region Bucket content
 
+					let hadOverfilledCharacter = false
 					if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
 						for (const character of characters) {
 							const bucketWrapper = BucketWrapper(`character:${character.id}/bucket:${bucketHash}`)
@@ -393,6 +394,10 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
 									.appendTo(itemList)
 							}
+
+							const isOverfilled = bucketHash === InventoryBucketHashes.LostItems && i / bucketDef.itemCount > 2 / 3
+							hadOverfilledCharacter ||= isOverfilled
+							bucketWrapper.style.toggle(isOverfilled, 'inventory-view-bucket-wrapper--warning')
 
 							const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
 							const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount - hasEquippedItem
@@ -428,6 +433,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.style('item', 'inventory-view-bucket-item-list-empty-slot')
 								.appendTo(itemList)
 					}
+
+					bucketRow.style.toggle(hadOverfilledCharacter, 'inventory-view-bucket-row--warning')
+					bucketButton?.style.toggle(hadOverfilledCharacter, 'inventory-view-nav-button--warning')
 
 					const vaultBucketWrapper = BucketWrapper(`vault/bucket:${bucketHash}`)
 						.style('inventory-view-bucket-wrapper--vault')
