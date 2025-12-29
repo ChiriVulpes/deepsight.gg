@@ -28,6 +28,7 @@
 	&--anchored-left:
 		#after: .popover
 		%translate-left-4
+		flex-direction: row-reverse
 
 		:popover:
 			%translate-left-2
