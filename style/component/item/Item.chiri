@@ -36,6 +36,8 @@
 	&--exotic:
 		$item-rarity-background-colour: $colour-rarity-exotic-1
 		$item-rarity-border-colour: $colour-rarity-exotic-2
+		$masterwork-glow-spread-multiplier: 1
+		$masterwork-glow-intensity-multiplier: 2.5
 
 	&--masterworked: $item-inset: 2px
 
@@ -49,6 +51,7 @@
 		%inset-0
 		background: $item-rarity-border-colour
 		%overflow-hidden
+		%pointer-events-none
 
 		&--masterworked:
 			background: $colour-masterwork-1
@@ -81,19 +84,20 @@
 			border-left: calc(#{item-size} * 0.47) solid #0009
 
 		&--featured:
+			%z-index-fg
 			@before:
 				%borderless
 				width: 31%
 				height: 36%
-				left: calc($item-inset - 1px)
+				; left: calc($item-inset - 1px)
 				background: $colour-featured-1
 				clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%)
 
 		@after:
 			%absolute
 			%inset-0
-			top: calc(2% - ($item-inset * -1 + 2px))
-			left: calc(2% - ($item-inset * -1 + 2px))
+			%top-0
+			%left-0
 			width: 105%
 			height: 105%
 			background-color: white
@@ -120,7 +124,7 @@
 				background-position: center
 				background-image:
 					radial-gradient(ellipse at bottom center, 
-						color-mix(in lch, rgb(255 255 255 / .7), 40% rgba(from $colour-masterwork-2 r g b / .7)) 10%, 
+						color-mix(in lch, rgb(255 255 255 / .7), 40% rgba(from $colour-masterwork-2 r g b / calc(.3 * ${masterwork-glow-intensity-multiplier: 1}))) calc(10% * ${masterwork-glow-spread-multiplier: 0}), 
 						transparent 30%
 					)
 

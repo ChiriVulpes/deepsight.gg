@@ -1,5 +1,5 @@
 import { State } from 'kitsui'
-import type { ItemStateOptional } from 'model/Item'
+import type { ItemStateOptional } from 'model/Items'
 import type { MomentHashes } from 'node_modules/deepsight.gg/Enums'
 import { DeepsightMomentDefinition } from 'node_modules/deepsight.gg/Interfaces'
 

@@ -1,5 +1,6 @@
-import type { ItemPlug, ItemSocket } from 'conduit.deepsight.gg/item/Item'
+import type { ItemPlug, ItemSocketDefinition } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightPlugCategoryName, DeepsightPlugFullName } from 'deepsight.gg/DeepsightPlugCategorisation'
+import type { InventoryItemSocketTypes } from 'model/Items'
 
 type PlugCategorisationExpression =
 	| DeepsightPlugFullName
@@ -37,7 +38,8 @@ namespace Categorisation {
 	export const IsEnhanced = matcher('*Enhanced')
 	export const IsEmpty = matcher('*Empty*')
 	export const IsDefault = matcher('*Default')
-	export const IsShaderOrnament = matcher('Cosmetic/Shader', 'Cosmetic/Ornament')
+	export const IsOrnament = matcher('Cosmetic/Ornament*')
+	export const IsShaderOrnament = matcher('Cosmetic/Shader', 'Cosmetic/Ornament*')
 	export const IsEmptyOrIncompleteCatalyst = matcher('Masterwork/ExoticCatalyst*', '!Masterwork/ExoticCatalyst')
 	export const IsExoticCatalyst = matcher('Masterwork/ExoticCatalyst*')
 	export const IsFrame = matcher('Intrinsic/Frame*')
@@ -47,7 +49,10 @@ namespace Categorisation {
 		const positiveExpressions = expressions.filter(expr => expr[0] !== '!') as PlugCategorisationExpression[]
 		const negativeExpressions = expressions.filter(expr => expr[0] === '!').map(expr => expr.slice(1) as PlugCategorisationExpression)
 
-		return function (categorised?: ItemPlug | ItemSocket | DeepsightPlugFullName): boolean {
+		return function (categorised?: ItemPlug | ItemSocketDefinition | InventoryItemSocketTypes | DeepsightPlugFullName): boolean {
+			if (typeof categorised === 'object' && 'definition' in categorised)
+				categorised = categorised.definition
+
 			const categorisation = typeof categorised === 'string' ? categorised : categorised?.type
 			if (!categorisation)
 				return false

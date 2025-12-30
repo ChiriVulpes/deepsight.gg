@@ -16,6 +16,7 @@ $colour-rarity-exotic-3: #fff4b5
 
 $colour-masterwork-1: #cbaf3c
 $colour-masterwork-2: #ecca3e
+$colour-enhanced-background: #ffbb00ff
 
 $colour-featured-1: #169191
 

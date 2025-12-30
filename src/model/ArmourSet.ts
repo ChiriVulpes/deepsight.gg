@@ -1,7 +1,7 @@
 import type { DestinySandboxPerkDefinition } from 'bungie-api-ts/destiny2'
 import type { SandboxPerkHashes } from 'deepsight.gg/Enums'
 import type { State } from 'kitsui'
-import type { ItemStateOptional } from 'model/Item'
+import type { ItemStateOptional } from 'model/Items'
 
 export default function ArmourSet (owner: State.Owner, state: State<ItemStateOptional>) {
 	return state.map(owner, ({ definition: item, provider }) => {

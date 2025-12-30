@@ -6,7 +6,7 @@ import Power, { PowerState } from 'component/item/Power'
 import Stats, { StatsState } from 'component/item/Stats'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
 import PlugTooltip, { PlugState } from 'component/tooltip/PlugTooltip'
-import type { ItemAmmo, ItemPlug, ItemProvider, ItemSocket } from 'conduit.deepsight.gg/item/Item'
+import type { ItemAmmo, ItemPlug, ItemProvider, ItemSocketDefinition } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightPlugFullName } from 'deepsight.gg/DeepsightPlugCategorisation'
 import { ItemCategoryHashes, SocketCategoryHashes, StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
@@ -15,7 +15,7 @@ import InputBus from 'kitsui/utility/InputBus'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import ArmourSet from 'model/ArmourSet'
 import DisplayProperties from 'model/DisplayProperties'
-import type { ItemState, ItemStateOptional } from 'model/Item'
+import type { ItemState, ItemStateOptional } from 'model/Items'
 import Relic from 'Relic'
 import Categorisation from 'utility/Categorisation'
 
@@ -144,7 +144,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 		PlugTooltip.apply(component, provider.map(component, provider => PlugState.resolve(plug, provider)))
 		return component
 	})
-	const Socket = Component((component, socket: ItemSocket, provider: ItemProvider) => {
+	const Socket = Component((component, socket: ItemSocketDefinition, provider: ItemProvider) => {
 		component.style('item-overlay-socket')
 		for (const hash of socket.plugs) {
 			const plug = provider.plugs[hash]
@@ -241,6 +241,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 							type: ArmorSetPlugType,
 							displayProperties: perk.definition.displayProperties,
 							enhanced: false,
+							categoryHash: undefined!,
 						}))
 						.append(Component()
 							.style('item-overlay-socket-display')

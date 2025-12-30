@@ -3,7 +3,7 @@ import type { PlugState } from 'component/tooltip/PlugTooltip'
 import type { Item, ItemPlug, ItemProvider, ItemStat } from 'conduit.deepsight.gg/item/Item'
 import { StatHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
-import type { ItemStateOptional } from 'model/Item'
+import type { ItemStateOptional } from 'model/Items'
 
 const STATS_FILTERED_OUT = new Set<StatHashes>([
 	StatHashes.Impact,

@@ -6,8 +6,11 @@ import type { DeepsightTierTypeDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
 import DisplayProperties from 'model/DisplayProperties'
-import type { ItemState } from 'model/Item'
+import type { ItemState } from 'model/Items'
 import Moment from 'model/Moment'
+import { ItemState as InventoryItemState } from 'node_modules/bungie-api-ts/destiny2'
+import Categorisation from 'utility/Categorisation'
+import { _ } from 'utility/Objects'
 
 interface ItemExtensions {
 	readonly state: State<ItemState>
@@ -19,7 +22,7 @@ const Item = Object.assign(
 	Component((component, state: State.Or<ItemState>): Item => {
 		state = State.get(state)
 
-		const masterworked = state.map(component, item => false)
+		const masterworked = state.map(component, item => !!((item.instance?.state ?? InventoryItemState.None) & InventoryItemState.Masterwork))
 		const featured = state.map(component, item => item.definition.featured)
 		const isEngram = state.map(component, item => !!item.definition.categoryHashes?.includes(ItemCategoryHashes.Engrams))
 		const rarity = state.map(component, ({ provider: collections, definition }): DeepsightTierTypeDefinition | undefined => collections.rarities[definition.rarity])
@@ -35,11 +38,16 @@ const Item = Object.assign(
 			.style.bind(masterworked, 'item-border--masterworked')
 			.appendTo(component)
 
+		const background = state.map(component, item => {
+			const ornamentSocket = item.definition.sockets.findIndex(Categorisation.IsOrnament)
+			const displayItem = _
+				?? item.provider.items[item.instance?.sockets?.[ornamentSocket]?.plugHash!]
+				?? item.definition
+			return DisplayProperties.icon(displayItem.displayProperties.icon)
+		})
 		Component()
 			.style('item-image-background')
-			.append(Image(state.map(component, ({ definition }) => `https://www.bungie.net${definition.displayProperties.icon}`))
-				.style('item-image')
-			)
+			.append(Image(background).style('item-image'))
 			.appendTo(component)
 
 		const moment = Moment.fromItemState(component, state)

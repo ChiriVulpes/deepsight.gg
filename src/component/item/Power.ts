@@ -1,7 +1,7 @@
 import type { ItemProvider } from 'conduit.deepsight.gg/item/Item'
 import type { DamageTypeHashes } from 'deepsight.gg/Enums'
 import { Component, State } from 'kitsui'
-import type { ItemStateOptional } from 'model/Item'
+import type { ItemStateOptional } from 'model/Items'
 import Relic from 'Relic'
 
 const prismaticIcon = State.Async(State.Owner.create(), async (signal, setProgress) => {

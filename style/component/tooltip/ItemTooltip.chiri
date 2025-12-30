@@ -78,10 +78,10 @@
 			%top-0
 			%right-0
 			%border-box
-			padding-top: calc($space-3 + $space-2 + $space-1)
+			padding-top: calc($space-3 + $space-2 + $space-1 / 2)
 			width: calc($space-3 + $space-2)
 			%height-100
-			padding-right: calc($space-2 + $space-1 / 3 * 2)
+			padding-left: calc(($space-3 + $space-2) / 2)
 			%flex
 			%flex-column
 			%gap-1
@@ -157,6 +157,7 @@
 		font-size: calc(($font-size-2-base + $font-size-3-base) / 2)
 
 		&-perk:
+			%relative
 			%flex
 			%padding-1-3
 			%align-items-centre
@@ -176,6 +177,25 @@
 				&--set-bonus:
 					%uppercase
 					%weight-semibold
+
+			&--enhanced:
+				box-shadow: inset $space-1 0 0 0 $colour-enhanced-background
+				@before:
+					%block
+					%absolute
+					%inset-0
+					background: linear-gradient(-60deg, transparent 30%, rgba(from $colour-enhanced-background r g b / .1) 45%, transparent 75%)
+					$background-size: 500%
+					background-size: $background-size 100%
+					background-repeat: no-repeat
+					#animate 5s linear infinite calc(.1s * ${socket-index: 0}):
+						from: background-position: $background-size 0%
+						to: background-position: 0% 0%
+				@after:
+					%block
+					%absolute
+					%inset-0
+					background: linear-gradient(to right, rgba(from $colour-enhanced-background r g b / .2), transparent 50%)
 
 	&-flavour-text:
 		#after: .paragraph

@@ -4,7 +4,8 @@ import Lore from 'component/core/Lore'
 import Paragraph from 'component/core/Paragraph'
 import Power from 'component/item/Power'
 import Stats, { StatsState } from 'component/item/Stats'
-import type { ItemAmmo, ItemPlug, ItemSocket, ItemSource } from 'conduit.deepsight.gg/item/Item'
+import type Inventory from 'conduit.deepsight.gg/item/Inventory'
+import type { ItemAmmo, ItemPlug, ItemSource } from 'conduit.deepsight.gg/item/Item'
 import type { DeepsightTierTypeDefinition } from 'deepsight.gg/Interfaces'
 import { DeepsightItemSourceCategory } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
@@ -13,7 +14,8 @@ import Tooltip from 'kitsui/component/Tooltip'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import ArmourSet from 'model/ArmourSet'
 import DisplayProperties from 'model/DisplayProperties'
-import type { ItemState } from 'model/Item'
+import type { InventoryItemSocketTypes, ItemState } from 'model/Items'
+import Items from 'model/Items'
 import Moment from 'model/Moment'
 import Categorisation from 'utility/Categorisation'
 import { _ } from 'utility/Objects'
@@ -164,23 +166,39 @@ const ItemTooltip = Component((component, state: State<ItemState>) => {
 	////////////////////////////////////
 	//#region Perks
 
-	const perks = state.map(tooltip, ({ definition }) => definition.sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket)))
+	const perks = state.map(tooltip, ({ definition, instance, characterId, provider }) => definition.sockets
+		.map((socketDef, i): InventoryItemSocketTypes => instance?.sockets?.[i]
+			? ({
+				definition: socketDef,
+				instance: instance.sockets[i],
+				characterId: characterId!,
+				provider: provider as Inventory,
+			})
+			: ({
+				definition: socketDef,
+				provider,
+			})
+		)
+		.filter(socket => Categorisation.IsIntrinsicPerk(socket) || Categorisation.IsPerk(socket))
+	)
 	const itemSet = ArmourSet(tooltip, state)
 	Component()
 		.style('item-tooltip-perks')
 		.tweak(wrapper => {
 			Slot().appendTo(wrapper).use(
 				State.Use(wrapper, { sockets: perks, itemSet, isCollections, state }),
-				(slot, { sockets, itemSet, isCollections, state: { provider: collections } }) => {
+				(slot, { sockets, itemSet, isCollections, state: { characterId, instance, provider } }) => {
 					////////////////////////////////////
 					//#region Socket component
 
-					const Plugs = (socket: ItemSocket) => socket.plugs
-						.map(plugHash => collections.plugs[plugHash])
+					const Plugs = (socket: InventoryItemSocketTypes) => (Items.getPlugHashes(socket) ?? socket.definition.plugs.map(plugHash => ({ plugItemHash: plugHash })))
+						.map(plug => provider.plugs[plug.plugItemHash])
 						.filter(plug => !!plug)
 
-					const Socket = Component((wrapper, socket: ItemSocket, plugs?: ItemPlug[], noSocketed?: boolean) => {
+					let index = 0
+					const Socket = Component((wrapper, socket: InventoryItemSocketTypes, plugs?: ItemPlug[], noSocketed?: boolean) => {
 						wrapper.style('item-tooltip-perks-perk')
+							.style.setVariable('socket-index', index++)
 
 						plugs ??= Plugs(socket)
 						plugs = plugs
@@ -193,7 +211,7 @@ const ItemTooltip = Component((component, state: State<ItemState>) => {
 						const isCollectionsRoll = isCollections && plugs.length >= 4
 						noSocketed = isCollectionsRoll ? noSocketed : false
 						const socketed = noSocketed ? undefined : (_
-							?? collections.plugs[socket.defaultPlugHash!]
+							?? provider.plugs[socket.instance?.plugHash ?? socket.definition.defaultPlugHash!]
 							?? (!isCollectionsRoll ? plugs.at(0) : undefined)
 						)
 						if (!socketed?.displayProperties.name && !isCollectionsRoll && !noSocketed)
@@ -211,6 +229,7 @@ const ItemTooltip = Component((component, state: State<ItemState>) => {
 						}
 
 						const isSocketedEnhanced = Categorisation.IsEnhanced(socketed)
+						wrapper.style.toggle(isSocketedEnhanced, 'item-tooltip-perks-perk--enhanced')
 						const additionalPlugs = plugs.filter(plug => true
 							&& plug.hash !== socketed?.hash
 							&& (isSocketedEnhanced || !Categorisation.IsEnhanced(plug))
@@ -231,7 +250,7 @@ const ItemTooltip = Component((component, state: State<ItemState>) => {
 					//#region Intrinsics
 					// frame, origin, artifice, armour set perk (pre set bonuses, think iron banner perks)
 
-					const intrinsics = sockets.filter(socket => !Categorisation.IsPerk(socket) && !Categorisation.IsExoticCatalyst(socket))
+					const intrinsics = sockets.filter(socket => Categorisation.IsIntrinsicPerk(socket))
 					for (const socket of intrinsics)
 						Socket(socket)
 							?.style('item-tooltip-perks-perk--intrinsic')
@@ -245,8 +264,8 @@ const ItemTooltip = Component((component, state: State<ItemState>) => {
 
 					const exoticCatalyst = sockets.find(Categorisation.IsExoticCatalyst)
 					if (exoticCatalyst && (isCollections || false)) {
-						const realCatalystPlug = exoticCatalyst.plugs.map(plugHash => collections.plugs[plugHash]).find(plug => plug.type === 'Masterwork/ExoticCatalyst')
-						const perks = (realCatalystPlug?.perks ?? []).map(perkHash => collections.perks[perkHash]).filter(perk => !!perk)
+						const realCatalystPlug = exoticCatalyst.definition.plugs.map(plugHash => provider.plugs[plugHash]).find(plug => plug.type === 'Masterwork/ExoticCatalyst')
+						const perks = (realCatalystPlug?.perks ?? []).map(perkHash => provider.perks[perkHash]).filter(perk => !!perk)
 						for (const perk of perks) {
 							Component()
 								.style('item-tooltip-perks-perk', 'item-tooltip-perks-perk--intrinsic')

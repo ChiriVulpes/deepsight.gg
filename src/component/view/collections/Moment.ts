@@ -11,7 +11,7 @@ import { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
-import type { ItemState } from 'model/Item'
+import type { ItemState } from 'model/Items'
 
 interface MomentBucketExtensions {
 	readonly title: Component

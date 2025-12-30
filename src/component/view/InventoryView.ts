@@ -25,8 +25,8 @@ import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import { NonNullish } from 'kitsui/utility/Arrays'
 import DisplayProperties from 'model/DisplayProperties'
-import type { ItemReference, ItemStateOptional } from 'model/Item'
-import { ItemState } from 'model/Item'
+import type { ItemReference, ItemStateOptional } from 'model/Items'
+import { ItemState } from 'model/Items'
 import type { RoutePath } from 'navigation/RoutePath'
 import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
 import Relic from 'Relic'
@@ -264,11 +264,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				)
 
 				const InventoryItem = (id: string, item: ItemInstance, handler?: (item: Item) => unknown) => {
-					const itemState = {
-						instance: item,
-						definition: inventory.items[item.itemHash],
-						provider: inventory,
-					}
+					const itemState = ItemState.resolve(item, inventory)
 					return Part(id, itemState, (part, item) => {
 						const itemComponent = part.and(Item, item)
 						handler?.(itemComponent)

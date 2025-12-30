@@ -48,7 +48,9 @@ function TooltipManager<TOOLTIP extends Tooltip, PARAMS extends any[], STATES ex
 		apply (component, ...params) {
 			const componentWithPopover = instance
 				? component.setTooltip(instance)
-				: component.setTooltip(tooltip => instance ??= definition.build(states, tooltip as TOOLTIP, ...params))
+				: component.setTooltip(tooltip => instance ??= definition.build(states, tooltip as TOOLTIP, ...params)
+					.notHoverable()
+				)
 
 			definition.apply?.(states, componentWithPopover, ...params)
 

@@ -11,7 +11,7 @@ import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import type { Quilt } from 'lang'
-import type { ItemState } from 'model/Item'
+import type { ItemState } from 'model/Items'
 import { quilt } from 'utility/Text'
 
 export interface FilterToken extends String {

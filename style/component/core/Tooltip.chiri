@@ -21,6 +21,7 @@
 		%relative
 		%height-fit
 		%width-100
+		%pointer-events-none
 
 		@before:
 			%block
