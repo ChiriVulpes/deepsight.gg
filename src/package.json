@@ -5,7 +5,7 @@
 		"bungie-api-ts": "5.10.0",
 		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#7d774a9487aa0fdcb555efd443cefb0bdbee35a8",
 		"deepsight.gg": "1.0.1617",
-		"kitsui": "github:fluff4me/kitsui#1d4b5bad3011509dedc3afe4d54b78880b8a2880"
+		"kitsui": "github:fluff4me/kitsui#d069f20a8969ff1e96e3492cb59af9f8b4a15f20"
 	},
 	"pnpm": {
 		"overrides": {
