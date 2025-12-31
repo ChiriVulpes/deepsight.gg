@@ -1,0 +1,53 @@
+.toast-stream:
+	%fixed
+	%flex
+	%flex-column
+	%right-4
+	%bottom-4
+	%z-index-fg-3
+	%gap-3
+
+.toast-wrapper:
+	%flex
+	%align-items-end
+	%interpolate-size
+	#transition: #{transition("height")}, #{transition("margin-top")}
+	; transition-duration: 10s
+	; %height-0
+	; %unmargin-bottom-3
+
+	&--removing:
+		#after: .toast-wrapper
+		%height-0
+		%unmargin-bottom-3
+
+.toast:
+	%padding-2-3
+	background: #333a
+	border: 2px solid #666
+	%backdrop-blur
+	%grid
+	%gap-3
+	%font-1
+	%min-width-7
+	#transition: #{transition("translate")}, #{transition("opacity")}
+	; transition-duration: 10s
+
+	:start:
+		%translate-up-3
+		%transparent
+
+	&--loading:
+		grid-template-columns: auto 1fr
+
+	&-loader:
+		#after: .loading
+		%margin-0
+		%block
+
+	&-content:
+
+	&--removing:
+		#after: .toast
+		%translate-down-2
+		%transparent

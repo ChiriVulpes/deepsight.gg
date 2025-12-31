@@ -9,6 +9,7 @@ import Profile from 'model/Profile'
 import Navigator from 'navigation/Navigate'
 import Relic from 'Relic'
 import Arrays from 'utility/Arrays'
+import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Strings from 'utility/Strings'
@@ -39,6 +40,8 @@ export default async function () {
 	Component.getWindow().monitorScrollEvents()
 
 	styleKit()
+
+	void ConduitBroadcastHandler.listen()
 
 	await Navigator().fromURL()
 }

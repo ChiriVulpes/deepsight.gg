@@ -31,6 +31,7 @@ import type { RoutePath } from 'navigation/RoutePath'
 import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
 import Relic from 'Relic'
 import type { IconsKey } from 'style/icons'
+import { sleep } from 'utility/Async'
 import Time from 'utility/Time'
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
@@ -180,6 +181,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		return
 
 	await view.loading.finish()
+
+	// allow transitions to finish
+	await sleep(500)
 
 	const inventoryOrUndefined = state.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
 

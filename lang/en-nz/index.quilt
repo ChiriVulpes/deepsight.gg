@@ -4,6 +4,7 @@
 ~component/ItemTooltip
 ~component/ItemOverlay
 ~component/PlugTooltip
+~component/ConduitOperations
 
 # view
 ~view/SplashView

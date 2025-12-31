@@ -36,6 +36,7 @@
 	component/core/Paginator
 	component/core/TabButton
 	component/core/Tabinator
+	component/core/Toast
 
 #import:
 	component/WordmarkLogo
@@ -50,6 +51,7 @@
 	component/tooltip/PlugTooltip
 	component/DisplayBar
 	component/display/Filter
+	component/toast/ConduitOperations
 
 #import:
 	component/view/SplashView

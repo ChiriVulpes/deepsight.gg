@@ -162,6 +162,7 @@
 			%padding-1-3
 			%align-items-centre
 			%item-tooltip-background-dark
+			%z-index-fg
 
 			&--intrinsic:
 				#after: .item-tooltip-perks-perk
@@ -195,6 +196,7 @@
 					%block
 					%absolute
 					%inset-0
+					%z-index-bg
 					background: linear-gradient(to right, rgba(from $colour-enhanced-background r g b / .2), transparent 50%)
 
 	&-flavour-text:
