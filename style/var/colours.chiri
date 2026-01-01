@@ -48,5 +48,8 @@ $colour-power-seasonal: #58ccff
 $colour-title: #bb80d9
 $colour-quantity-cap: #e7b16b
 
+$colour-warning-background: #612412
+$colour-warning-foreground: #ff5226
+
 $colour-overfill-warning-background: #a82d2d
 $colour-overfill-warning-foreground: #ff5b5b

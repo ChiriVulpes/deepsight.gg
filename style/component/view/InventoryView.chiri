@@ -141,6 +141,8 @@
 			&--warning:
 				$bucket-title-colour: $colour-0
 
+			&--scrolled:
+
 		&-title:
 			%column-1-4
 			%padding-bottom-2

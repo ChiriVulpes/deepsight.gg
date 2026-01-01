@@ -37,7 +37,7 @@
 		%translate-up-3
 		%transparent
 
-	&--loading:
+	&--has-icon:
 		grid-template-columns: auto 1fr
 
 	&-loader:
@@ -51,3 +51,8 @@
 		#after: .toast
 		%translate-down-2
 		%transparent
+
+	&--warning:
+		#after: .toast
+		background: rgba(from $colour-warning-background r g b / .8)
+		border-colour: $colour-warning-foreground

@@ -23,6 +23,7 @@ import { ItemState } from 'model/Items'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
+import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
 import Time from 'utility/Time'
 
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
@@ -98,7 +99,10 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	await view.loading.finish()
 
-	collections.useManual(collections => console.log('Collections:', collections))
+	collections.useManual(collections => {
+		ConduitBroadcastHandler.provider.value = collections
+		console.log('Collections:', collections)
+	})
 
 	const homeLinkURL = navigate.state.map(view, url => {
 		const route = new URL(url).pathname as RoutePath

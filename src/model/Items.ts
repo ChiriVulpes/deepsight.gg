@@ -23,23 +23,23 @@ export interface ItemStateOptional {
 	readonly provider: ItemProvider
 }
 
-export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance>, provider: State.Or<ItemProvider>): State<ItemState>
-export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance | undefined>, provider: State.Or<ItemProvider>): State<ItemStateOptional>
-export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance | undefined>, provider: State.Or<ItemProvider>): State<ItemStateOptional> {
+export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance | Item>, provider: State.Or<ItemProvider>): State<ItemState>
+export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance | Item | undefined>, provider: State.Or<ItemProvider>): State<ItemStateOptional>
+export function ItemState (owner: State.Owner, item: State.Or<ItemReference | ItemInstance | Item | undefined>, provider: State.Or<ItemProvider>): State<ItemStateOptional> {
 	return State.Map(owner, [State.get(item), State.get(provider)], (item, provider) => ItemState.resolve(item, provider))
 }
 
 export namespace ItemState {
-	export function resolve (item: ItemReference | ItemInstance, provider: ItemProvider): ItemState
-	export function resolve (item: ItemReference | ItemInstance | undefined, provider: ItemProvider): ItemStateOptional
-	export function resolve (item: ItemReference | ItemInstance | undefined, provider: ItemProvider): ItemStateOptional {
+	export function resolve (item: ItemReference | ItemInstance | Item, provider: ItemProvider): ItemState
+	export function resolve (item: ItemReference | ItemInstance | Item | undefined, provider: ItemProvider): ItemStateOptional
+	export function resolve (item: ItemReference | ItemInstance | Item | undefined, provider: ItemProvider): ItemStateOptional {
 		const characterId = item?.is === 'item-instance'
 			? Object.values((provider as Inventory).characters ?? {})
 				.find(character => [...character.items, ...character.equippedItems].some(i => i.id === item.id))
 				?.id
 			: undefined
 		return {
-			definition: item && provider.items[item.is === 'item-instance' ? item.itemHash : item.hash],
+			definition: item?.is === 'item' ? item : item && provider.items[item.is === 'item-instance' ? item.itemHash : item.hash],
 			instance: item?.is === 'item-instance' ? item : undefined,
 			characterId: characterId,
 			provider: provider,

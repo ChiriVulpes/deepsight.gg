@@ -18,7 +18,7 @@ const Toast = Component((component): Toast => {
 		.style('toast-content')
 	return component
 		.style('toast')
-		.style.bind(loading, 'toast--loading')
+		.style.bind(loading, 'toast--has-icon')
 		.style.bind(removing, 'toast--removing')
 		.appendWhen(loading, Loading()
 			.style('toast-loader')

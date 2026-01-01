@@ -24,6 +24,7 @@ import Breakdown from 'kitsui/component/Breakdown'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import { NonNullish } from 'kitsui/utility/Arrays'
+import Task from 'kitsui/utility/Task'
 import DisplayProperties from 'model/DisplayProperties'
 import type { ItemReference, ItemStateOptional } from 'model/Items'
 import { ItemState } from 'model/Items'
@@ -32,6 +33,7 @@ import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
 import Relic from 'Relic'
 import type { IconsKey } from 'style/icons'
 import { sleep } from 'utility/Async'
+import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
 import Time from 'utility/Time'
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
@@ -182,9 +184,6 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 	await view.loading.finish()
 
-	// allow transitions to finish
-	await sleep(500)
-
 	const inventoryOrUndefined = state.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
 
 	const homeLinkURL = navigate.state.map(view, url => {
@@ -216,7 +215,10 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		})
 		.else(slot => {
 			const inventory = inventoryOrUndefined as State<Inventory>
-			inventory.useManual(inventory => console.log('Inventory:', inventory))
+			inventory.useManual(inventory => {
+				ConduitBroadcastHandler.provider.value = inventory
+				console.log('Inventory:', inventory)
+			})
 
 			const scrollTopState = State(document.documentElement.scrollTop)
 			Component.getWindow().event.until(slot, event => event
@@ -245,7 +247,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				.appendTo(bucketList)
 
 			let bucketItemsVisibleCount = 0
-			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
+			let bucketRenderIndex = 0
+			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), async ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
 				const BucketRow = (bucketHash: InventoryBucketHashes) => {
 					bucketItemsVisibleCount = 0
 					const bucketDef = inventory.buckets[bucketHash]
@@ -318,12 +321,19 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					.concat(inventory.profileItems.map(item => inventory.items[item.itemHash].bucketHash).filter(NonNullish))
 					.distinct()
 					.sort((a, b) => (bucketOrder.indexOf(a) + 1 || Infinity) - (bucketOrder.indexOf(b) + 1 || Infinity))
+
 				for (const bucketHash of buckets) {
 					const bucketIcon = bucketIcons?.get(bucketHash)
 					if (!bucketIcon)
 						continue
 
 					const bucketRow = BucketRow(bucketHash)
+
+					// const inView = scrollTopState.map(bucketRow, scrollTop => scrollTop > bucketRow.element.offsetTop - 100)
+					// await inView.await(bucketRow, true)
+
+					////////////////////////////////////
+					//#region Init bucket row
 
 					const bucketDef = inventory.buckets[bucketHash]
 					const bucketButton = !bucketDef.displayProperties.name ? undefined :
@@ -460,7 +470,21 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 					bucketRow.appendTo(bucketItemsVisibleCount || !filterText ? bucketList : Store)
 					bucketButton?.appendTo(bucketItemsVisibleCount || !filterText ? bucketNavButtonList : Store)
+
+					//#endregion
+					////////////////////////////////////
+
+					bucketRenderIndex++
+					if (bucketRenderIndex < 2)
+						continue
+					else if (bucketRenderIndex === 2)
+						await sleep(300)
+					else
+						await Task.yield()
 				}
+
+				// never pause again for updates
+				bucketRenderIndex = -Infinity
 			})
 
 			const overlayState = State.Map(view, [view.params, inventory], (params, inventory): ItemStateOptional => {
