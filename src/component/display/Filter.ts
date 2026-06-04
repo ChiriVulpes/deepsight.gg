@@ -378,17 +378,19 @@ const Filter = Object.assign(
 			.style.bind(component.hasFocused, 'filter-input--has-focus')
 			.style.bind(filterText.truthy, 'filter-input--has-content')
 			.event.subscribe('input', e =>
-				filterText.value = e.host.element.value
+				filterText.value = e.host.element?.value ?? filterText.value
 			)
 			.event.subscribe('selectionchange', e =>
-				caretPosition.value = e.host.element.selectionStart === e.host.element.selectionEnd ? e.host.element.selectionStart ?? undefined : undefined
+				caretPosition.value = e.host.element?.selectionStart === e.host.element?.selectionEnd ? e.host.element?.selectionStart ?? undefined : undefined
 			)
 			.appendTo(filter)
 
-		input.element.value = filterText.value
+		input.onRealise(() => input.element!.value = filterText.value)
 
 		function spliceInput (start: number, end: number, replacement: string, collapseLeft?: true) {
-			const inputElement: HTMLInputElement = input.element
+			const inputElement = input.element
+			if (!inputElement)
+				return
 
 			const originalValue = inputElement.value
 			let caretStart = inputElement.selectionStart
@@ -410,6 +412,9 @@ const Filter = Object.assign(
 		//#region Hidden Emoji Spacing
 
 		filters.use(input, filters => {
+			if (!input.element)
+				return
+
 			for (let i = filters.length - 1; i >= 0; i--) {
 				const filter = filters[i]
 				const lastStart = filters[i + 1]?.token.start ?? input.element.value.length
@@ -564,7 +569,7 @@ const Filter = Object.assign(
 				return
 			}
 
-			popover.style.setProperty('width', `${input.element.offsetWidth}px`)
+			popover.style.setProperty('width', `${input.element?.offsetWidth ?? 0}px`)
 			popover.style.setProperty('visibility', 'hidden')
 			popover.show()
 			popover.focus()
@@ -600,18 +605,22 @@ const Filter = Object.assign(
 							.filter(NonNullish)
 
 						async function spliceSuggestion (newText: string) {
+							const element = input.element
+							if (!element)
+								return
+
 							spliceInput(
 								selectedToken.value?.start ?? caretPosition.value ?? 0,
 								selectedToken.value?.end ?? caretPosition.value ?? 0,
 								newText,
 							)
-							filterText.value = input.element.value
-							const selectionStart = input.element.selectionStart
-							const selectionEnd = input.element.selectionEnd
-							const selectionDirection = input.element.selectionDirection
+							filterText.value = element.value
+							const selectionStart = element.selectionStart
+							const selectionEnd = element.selectionEnd
+							const selectionDirection = element.selectionDirection
 							await Task.yield()
 							input.focus()
-							input.element.setSelectionRange(
+							input.element?.setSelectionRange(
 								selectionStart,
 								selectionEnd,
 								selectionDirection ?? undefined

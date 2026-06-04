@@ -32,8 +32,8 @@ import type { RoutePath } from 'navigation/RoutePath'
 import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
 import Relic from 'Relic'
 import type { IconsKey } from 'style/icons'
-import { sleep } from 'utility/Async'
 import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
+import Diagnostic from 'utility/Diagnostic'
 import Time from 'utility/Time'
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
@@ -45,6 +45,15 @@ const INVENTORY_DISPLAY = DisplayBar.Config({
 		debounceTime: 500,
 	},
 })
+
+const INVENTORY_DIAGNOSTIC = Diagnostic.scope<
+	| 'data-ready'
+	| 'loading-finish-requested'
+	| 'loading-finished'
+	| 'render-start'
+	| 'first-bucket-rendered'
+	| 'render-complete'
+>('inventory-view')
 
 // interface BucketIconDisplayProperties {
 // 	type: 'display-properties'
@@ -179,10 +188,13 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	})
 
 	await state.promise
+	INVENTORY_DIAGNOSTIC.mark('data-ready')
 	if (signal.aborted)
 		return
 
+	INVENTORY_DIAGNOSTIC.mark('loading-finish-requested')
 	await view.loading.finish()
+	INVENTORY_DIAGNOSTIC.mark('loading-finished')
 
 	const inventoryOrUndefined = state.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
 
@@ -217,7 +229,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 			const inventory = inventoryOrUndefined as State<Inventory>
 			inventory.useManual(inventory => {
 				ConduitBroadcastHandler.provider.value = inventory
-				console.log('Inventory:', inventory)
+				Diagnostic.add({ inventory })
 			})
 
 			const scrollTopState = State(document.documentElement.scrollTop)
@@ -247,8 +259,14 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				.appendTo(bucketList)
 
 			let bucketItemsVisibleCount = 0
-			let bucketRenderIndex = 0
 			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), async ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
+				INVENTORY_DIAGNOSTIC.mark('render-start')
+				const renderTask = new Task()
+				let renderedFirstBucket = false
+				const yieldRender = async () => {
+					await renderTask.yield()
+				}
+
 				const BucketRow = (bucketHash: InventoryBucketHashes) => {
 					bucketItemsVisibleCount = 0
 					const bucketDef = inventory.buckets[bucketHash]
@@ -275,34 +293,83 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					return Part(id, itemState, (part, item) => {
 						const itemComponent = part.and(Item, item)
 						handler?.(itemComponent)
-						const baseAppendTo = itemComponent.appendTo
-						const basePrependTo = itemComponent.prependTo
-						const baseInsertTo = itemComponent.insertTo
-						Object.assign(
-							part,
-							{
-								appendTo (destination: Component) {
-									const shouldShow = display?.filter.filter(itemState, false) ?? true
-									if (shouldShow)
-										bucketItemsVisibleCount++
-									return baseAppendTo(shouldShow ? destination : Store)
-								},
-								prependTo (destination: Component) {
-									const shouldShow = display?.filter.filter(itemState, false) ?? true
-									if (shouldShow)
-										bucketItemsVisibleCount++
-									return basePrependTo(shouldShow ? destination : Store)
-								},
-								insertTo (destination: Component, direction: 'before' | 'after', sibling: Component) {
-									const shouldShow = display?.filter.filter(itemState, false) ?? true
-									if (shouldShow)
-										bucketItemsVisibleCount++
-									return baseInsertTo(shouldShow ? destination : Store, direction, sibling)
-								},
-							}
-						)
 					}) as Item
 				}
+
+				const ItemListFilteredDestination = (destination: Component) => ({
+					isInsertionDestination: true as const,
+					append (...contents: Parameters<Component['append']>) {
+						for (const content of contents) {
+							if (!content)
+								continue
+
+							const item = Component.get(content)?.as(Item)
+							if (!item) {
+								destination.append(content)
+								continue
+							}
+
+							if (display?.filter.filter(item.state.value, false) === false) {
+								Store.append(content)
+								continue
+							}
+
+							bucketItemsVisibleCount++
+							destination.append(content)
+						}
+
+						return this
+					},
+					prepend (...contents: Parameters<Component['append']>) {
+						for (const content of [...contents].reverse()) {
+							if (!content)
+								continue
+
+							const item = Component.get(content)?.as(Item)
+							if (!item) {
+								destination.prepend(content)
+								continue
+							}
+
+							if (display?.filter.filter(item.state.value, false) === false) {
+								Store.append(content)
+								continue
+							}
+
+							bucketItemsVisibleCount++
+							destination.prepend(content)
+						}
+
+						return this
+					},
+					insert (direction: 'before' | 'after', sibling: Component | Element | undefined, ...contents: Parameters<Component['append']>) {
+						let cursor = sibling
+						for (const content of contents) {
+							if (!content)
+								continue
+
+							const item = Component.get(content)?.as(Item)
+							if (!item) {
+								destination.insert(direction, cursor, content)
+								if (direction === 'after')
+									cursor = Component.is(content) ? content : content instanceof Element ? content : cursor
+								continue
+							}
+
+							if (display?.filter.filter(item.state.value, false) === false) {
+								Store.append(content)
+								continue
+							}
+
+							bucketItemsVisibleCount++
+							destination.insert(direction, cursor, content)
+							if (direction === 'after')
+								cursor = item
+						}
+
+						return this
+					},
+				})
 
 				const characters = Object.values(inventory.characters).sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
 
@@ -345,7 +412,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.descriptionText.set(bucketDef.displayProperties.description)
 							)
 							.event.subscribe('click', () => {
-								bucketRow.element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+								bucketRow.element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 							})
 							.tweak(button => {
 								// if (bucketIcon?.type === 'display-properties')
@@ -381,18 +448,21 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`)
 								.style('inventory-view-bucket-item-list--equipped')
 								.appendTo(bucketWrapper)
+							const equippedItemListFiltered = ItemListFilteredDestination(equippedItemList)
 							for (const item of character.equippedItems) {
 								if (item.bucketHash !== bucketHash)
 									continue
 
 								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
-									.appendTo(equippedItemList)
+									.appendTo(equippedItemListFiltered)
+								await yieldRender()
 							}
 
 							const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`)
 								.style('inventory-view-bucket-item-list--inventory')
 								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
 								.appendTo(bucketWrapper)
+							const itemListFiltered = ItemListFilteredDestination(itemList)
 							let i = 0
 							const hashAppearances: Record<number, number> = {}
 							for (const item of character.items) {
@@ -402,7 +472,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								i++
 								hashAppearances[item.itemHash] ??= 0
 								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
-									.appendTo(itemList)
+									.appendTo(itemListFiltered)
+								await yieldRender()
 							}
 
 							const isOverfilled = bucketHash === InventoryBucketHashes.LostItems && i / bucketDef.itemCount > 2 / 3
@@ -415,6 +486,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								Part(`character:${character.id}/bucket:${bucketHash}/empty:${i}`)
 									.style('item', 'inventory-view-bucket-item-list-empty-slot')
 									.appendTo(itemList)
+								await yieldRender()
 							}
 						}
 					else {
@@ -424,6 +496,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						const itemList = ItemList(`profile/bucket:${bucketHash}/items`)
 							.style('inventory-view-bucket-item-list--profile')
 							.appendTo(profileBucketWrapper)
+						const itemListFiltered = ItemListFilteredDestination(itemList)
 
 						let i = 0
 						const hashAppearances: Record<number, number> = {}
@@ -434,14 +507,17 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							i++
 							hashAppearances[item.itemHash] ??= 0
 							InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
-								.appendTo(itemList)
+								.appendTo(itemListFiltered)
+							await yieldRender()
 						}
 
 						const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount
-						for (; i < bucketInventorySlots; i++)
+						for (; i < bucketInventorySlots; i++) {
 							Part(`profile/bucket:${bucketHash}/empty:${i}`)
 								.style('item', 'inventory-view-bucket-item-list-empty-slot')
 								.appendTo(itemList)
+							await yieldRender()
+						}
 					}
 
 					bucketRow.style.toggle(hadOverfilledCharacter, 'inventory-view-bucket-row--warning')
@@ -453,6 +529,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						.appendTo(bucketRow)
 					const itemList = ItemList(`vault/bucket:${bucketHash}/items`)
 						.appendTo(vaultBucketWrapper)
+					const itemListFiltered = ItemListFilteredDestination(itemList)
 
 					const hashAppearances: Record<number, number> = {}
 					for (const item of inventory.profileItems) {
@@ -462,7 +539,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 						hashAppearances[item.itemHash] ??= 0
 						InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
-							.appendTo(itemList)
+							.appendTo(itemListFiltered)
+						await yieldRender()
 					}
 
 					//#endregion
@@ -474,17 +552,18 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					//#endregion
 					////////////////////////////////////
 
-					bucketRenderIndex++
-					if (bucketRenderIndex < 2)
-						continue
-					else if (bucketRenderIndex === 2)
-						await sleep(300)
-					else
-						await Task.yield()
+					if (!renderedFirstBucket) {
+						renderedFirstBucket = true
+						INVENTORY_DIAGNOSTIC.mark('first-bucket-rendered')
+						INVENTORY_DIAGNOSTIC.measure('data-to-first-bucket', 'data-ready', 'first-bucket-rendered')
+					}
+
+					await yieldRender()
 				}
 
-				// never pause again for updates
-				bucketRenderIndex = -Infinity
+				INVENTORY_DIAGNOSTIC.mark('render-complete')
+				INVENTORY_DIAGNOSTIC.measure('data-to-render-complete', 'data-ready', 'render-complete')
+				INVENTORY_DIAGNOSTIC.measure('render-duration', 'render-start', 'render-complete')
 			})
 
 			const overlayState = State.Map(view, [view.params, inventory], (params, inventory): ItemStateOptional => {
@@ -503,6 +582,6 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				return ItemState.resolve(undefined, inventory)
 			})
 
-			Overlay(view).bind(overlayState.map(view, s => !!s.definition)).and(ItemOverlay, overlayState)
+			Overlay(view).and(ItemOverlay, overlayState).bind(overlayState.map(view, s => !!s.definition))
 		})
 })

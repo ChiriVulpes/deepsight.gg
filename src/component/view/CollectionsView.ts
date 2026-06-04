@@ -24,6 +24,7 @@ import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
 import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
+import Diagnostic from 'utility/Diagnostic'
 import Time from 'utility/Time'
 
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
@@ -101,7 +102,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 
 	collections.useManual(collections => {
 		ConduitBroadcastHandler.provider.value = collections
-		console.log('Collections:', collections)
+		Diagnostic.add({ collections })
 	})
 
 	const homeLinkURL = navigate.state.map(view, url => {
@@ -123,7 +124,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 		await Task.yield()
 		// await ViewTransition.perform("subview", 'collections-content', async () => {
 		filterText.value = text
-		while (view.element.getElementsByClassName(FILTER_CHANGING_CLASS).length)
+		while (view.element?.getElementsByClassName(FILTER_CHANGING_CLASS).length)
 			await sleep(10)
 		// }).finished
 		changingFilter.value = false
@@ -311,7 +312,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 		return ItemState.resolve(undefined, collections)
 	})
 
-	Overlay(view).bind(overlayState.map(view, s => !!s.definition)).and(ItemOverlay, overlayState)
+	Overlay(view).and(ItemOverlay, overlayState).bind(overlayState.map(view, s => !!s.definition))
 
 	//#endregion
 	////////////////////////////////////

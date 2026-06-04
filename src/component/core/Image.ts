@@ -43,13 +43,17 @@ const Image = Component('img', (component, src: State.Or<string | undefined>, fa
 			})
 
 			image.event.subscribe('load', () => {
-				image.style('image--loaded')
-				state.value = image.element.src
+				const element = image.element
+				if (!element)
+					return
 
-				if (image.element.src !== fallback)
+				image.style('image--loaded')
+				state.value = element.src
+
+				if (element.src !== fallback)
 					dimensions.value = {
-						width: image.element.naturalWidth,
-						height: image.element.naturalHeight,
+						width: element.naturalWidth,
+						height: element.naturalHeight,
 					}
 			})
 			image.event.subscribe('error', () => {

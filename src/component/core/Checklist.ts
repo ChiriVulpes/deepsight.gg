@@ -7,13 +7,15 @@ interface ChecklistExtensions {
 interface Checklist extends Component, ChecklistExtensions { }
 
 const Checklist = Component('ol', (component): Checklist => {
+	let count = 0
 	return component.style('checklist')
 		.extend<ChecklistExtensions>(checklist => ({
 			add (initialiser) {
+				const index = ++count
 				ChecklistItem()
 					.tweak(initialiser)
 					.appendTo(checklist)
-					.tweak(item => item.marker.text.set(`${checklist.element.children.length}.`))
+					.tweak(item => item.marker.text.set(`${index}.`))
 				return checklist
 			},
 		}))

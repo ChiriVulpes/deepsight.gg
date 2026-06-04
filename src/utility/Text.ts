@@ -1,5 +1,6 @@
 import { Component, State } from 'kitsui'
 import { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
+import type { ComponentName } from 'kitsui/utility/StyleManipulator'
 import type { Quilt, Weave, Weft } from 'lang'
 import quiltBase, { WeavingArg } from 'lang'
 
@@ -52,8 +53,9 @@ namespace Text {
 				else
 					element.append(renderWeft(weft.content))
 			}
-			else if (Component.is(weft.content))
-				element.append(weft.content.element)
+			else if (Component.is(weft.content)) {
+				element.append(Component.realise(weft.content))
+			}
 			else if (weft.content instanceof Node)
 				element.append(weft.content)
 			else
@@ -64,7 +66,7 @@ namespace Text {
 			const texts = value.split('\n')
 			for (let i = 0; i < texts.length; i++) {
 				if (i > 0)
-					element.append(Component('br').element, Component().style('break').element)
+					element.append(document.createElement('br'), createStyledElement('span', 'break'))
 
 				element.append(document.createTextNode(texts[i]))
 			}
@@ -92,9 +94,9 @@ namespace Text {
 			if (!href.startsWith('/') && !href.startsWith('.'))
 				href = `https://${href}`
 
-			return Component('a')
-				.attributes.set('href', href)
-				.element
+			const element = document.createElement('a')
+			element.setAttribute('href', href)
+			return element
 		}
 
 		// if (tag.startsWith('.')) {
@@ -118,12 +120,16 @@ namespace Text {
 			case 'i': return document.createElement('em')
 			case 'u': return document.createElement('u')
 			case 's': return document.createElement('s')
-			case 'code': return Component('code').style('code').element
+			case 'code': return createStyledElement('code', 'code')
 
 			// case 'sm': return Component('small')
 			// 	.style('small')
 			// 	.element
 		}
+	}
+
+	function createStyledElement (tag: keyof HTMLElementTagNameMap, componentName: ComponentName): HTMLElement {
+		return Component.realise<HTMLElement>(Component(tag).style(componentName))
 	}
 }
 

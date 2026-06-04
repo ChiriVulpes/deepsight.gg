@@ -18,6 +18,7 @@ import type { InventoryItemSocketTypes, ItemState } from 'model/Items'
 import Items from 'model/Items'
 import Moment from 'model/Moment'
 import Categorisation from 'utility/Categorisation'
+import Diagnostic from 'utility/Diagnostic'
 import { _ } from 'utility/Objects'
 import TooltipManager from 'utility/TooltipManager'
 
@@ -557,6 +558,6 @@ export default TooltipManager(ItemTooltip, {
 	},
 	onHover (states, state: State.Or<ItemState>) {
 		state = State.value(state)
-		console.log(state.definition.displayProperties.name, state)
+		Diagnostic.add({ itemTooltipState: state })
 	},
 })

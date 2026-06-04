@@ -170,7 +170,10 @@ namespace ViewTransition {
 	}
 
 	function isInView (component: Component): boolean {
-		const rect = component.element.getBoundingClientRect()
+		const rect = component.element?.getBoundingClientRect()
+		if (!rect)
+			return false
+
 		return true
 			&& rect.bottom > -PADDING && rect.top < window.innerHeight + PADDING
 			&& rect.right > -PADDING && rect.left < window.innerWidth + PADDING

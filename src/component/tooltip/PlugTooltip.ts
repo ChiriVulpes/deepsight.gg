@@ -8,6 +8,7 @@ import { Component, State } from 'kitsui'
 import Tooltip from 'kitsui/component/Tooltip'
 import type { Styles } from 'kitsui/utility/StyleManipulator'
 import { Icons, type IconsKey } from 'style/icons'
+import Diagnostic from 'utility/Diagnostic'
 import TooltipManager from 'utility/TooltipManager'
 
 const CLARITY_CLASS_ICON_MAP: Record<string, IconsKey> = {
@@ -263,6 +264,6 @@ export default TooltipManager(PlugTooltip, {
 	},
 	onHover (states, state: State.Or<PlugState>) {
 		const { plug } = State.value(state)
-		console.log(plug.displayProperties.name, plug)
+		Diagnostic.add({ plugTooltip: plug })
 	},
 })

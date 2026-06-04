@@ -50,15 +50,24 @@ const Details = Component('details', (component): Details => {
 			}
 
 			isManualToggle = true
-			manualOpenState.value = open.value = event.host.element.open
+			manualOpenState.value = open.value = event.host.element?.open ?? open.value
 		})
 		.tweak(details => {
+			details.onRealise(syncElementOpen)
 			open.subscribe(details, () => {
-				if (!isManualToggle)
-					isAutoToggle = true
-				details.element.open = open.value
+				syncElementOpen()
 				isManualToggle = false
 			})
+
+			function syncElementOpen () {
+				if (!details.element || details.element.open === open.value)
+					return
+
+				if (!isManualToggle)
+					isAutoToggle = true
+
+				details.element.open = open.value
+			}
 		})
 })
 

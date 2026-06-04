@@ -87,14 +87,20 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			.attributes.set('aria-readonly', 'true')
 			.tweak(input => {
 				const string = `${value}`
-				input.element.textContent = string
+				if (input.element)
+					input.element.textContent = string
+				else
+					input.onRealise(() => input.element!.textContent = string)
 				input.style.setVariable('chars', string.length)
 			})
 			.event.subscribe('beforeinput', e => e.preventDefault())
 			.event.subscribe('mousedown', e => {
 				const input = e.host
-				if (document.activeElement !== input.element) {
+				if (input.element && document.activeElement !== input.element) {
 					void Task.yield().then(() => {
+						if (!input.element)
+							return
+
 						const range = document.createRange()
 						range.selectNodeContents(input.element)
 						const selection = window.getSelection()
@@ -607,7 +613,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 				////////////////////////////////////
 			}
 
-			if (ref.element.childNodes.length)
+			if (ref.childCount)
 				slot.prepend(JSONPunctuation(`${leadingSpace}// `))
 		}))
 		//#endregion

@@ -626,7 +626,7 @@ export default View<DataParams | undefined>(async view => {
 
 	const hasPendingOverlayDefinition = State.Every(view, view.params.truthy, overlayDefinition.settled.falsy)
 	const shouldShowOverlay = State.Some(view, overlayDefinition.truthy, hasPendingOverlayDefinition)
-	Overlay(view).bind(shouldShowOverlay).and(DataOverlay, overlayDefinition)
+	Overlay(view).and(DataOverlay, overlayDefinition).bind(shouldShowOverlay)
 
 	shouldShowOverlay.subscribeManual(show => {
 		if (!show) {

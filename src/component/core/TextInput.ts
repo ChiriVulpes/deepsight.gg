@@ -18,25 +18,33 @@ const TextInput = Component('input', (component): TextInput => {
 		.attributes.set('type', 'text')
 		.style('text-input')
 
-	input.event.subscribe('input', () => state.value = input.element.value)
+	input.onRealise(() => input.element!.value = state.value)
+	input.event.subscribe('input', () => state.value = input.element?.value ?? state.value)
 
 	return input.extend<TextInputExtensions>(input => ({
 		state,
 		setValue (value) {
-			state.value = input.element.value = value ?? ''
+			state.value = value ?? ''
+			if (input.element)
+				input.element.value = state.value
 			return input
 		},
 		default: Applicator(input, (newDefaultValue = '') => {
 			if (newDefaultValue === defaultValue)
 				return
 
-			if (input.element.value === defaultValue)
-				state.value = input.element.value = newDefaultValue
+			if (!input.element || input.element.value === defaultValue) {
+				state.value = newDefaultValue
+				if (input.element)
+					input.element.value = newDefaultValue
+			}
 
 			defaultValue = newDefaultValue
 		}),
 		reset () {
-			state.value = input.element.value = defaultValue
+			state.value = defaultValue
+			if (input.element)
+				input.element.value = defaultValue
 			return input
 		},
 	}))

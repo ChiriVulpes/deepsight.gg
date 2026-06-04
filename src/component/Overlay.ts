@@ -14,10 +14,11 @@ const Overlay = Object.assign(
 		let unsubscribe: State.Unsubscribe | undefined
 		return component
 			.setOwner(owner)
-			.appendTo(document.body)
 			.style('overlay')
 			.extend<OverlayExtensions>(overlay => ({
 				bind (state) {
+					if (!overlay.element?.parentElement)
+						overlay.appendTo(document.body)
 					unsubscribe?.()
 					overlay.style.bind(state, 'overlay--visible')
 					unsubscribe = state.use(overlay, visible => {
