@@ -3,8 +3,8 @@
 	"private": true,
 	"dependencies": {
 		"bungie-api-ts": "5.10.0",
-		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#670058b3f8dc909b775bbf27960c6c00231e64c3",
-		"deepsight.gg": "1.0.1845",
+		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#dd651147be934829e72e2c95f9ba654f0d781cdd",
+		"deepsight.gg": "1.0.1848",
 		"kitsui": "github:fluff4me/kitsui#57743f6ef882624654572ef4f2b64b2a41750f01"
 	},
 	"pnpm": {
