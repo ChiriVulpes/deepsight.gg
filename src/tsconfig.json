@@ -25,6 +25,8 @@
 			"style": ["./style/index.d.ts"],
 			"kitsui": ["./node_modules/kitsui/index.d.ts"],
 			"kitsui/*": ["./node_modules/kitsui/*"],
+			"deepsight.gg": ["./node_modules/deepsight.gg/Interfaces.d.ts"],
+			"deepsight.gg/*": ["./node_modules/deepsight.gg/*"],
 			"conduit.deepsight.gg": ["./node_modules/conduit.deepsight.gg/index.d.ts"],
 			"conduit.deepsight.gg/*": ["./node_modules/conduit.deepsight.gg/index.d.ts"],
 		}
