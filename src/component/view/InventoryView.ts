@@ -80,6 +80,8 @@ type BucketIcon =
 	| BucketIconBungiePath
 	| BucketIconFont
 
+type InventoryLoadMode = 'cached' | 'fresh'
+
 const bucketIcons = State.Async(State.Owner.create(), async (): Promise<Map<InventoryBucketHashes, BucketIcon | undefined>> => {
 	const conduit = await Relic.connected
 	const [
@@ -179,12 +181,29 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	setProgress(null, quilt => quilt['view/inventory/load/fetching']())
 
 	const lastCheck = State<number | undefined>(undefined)
-	const state = State.Async(view, async () => {
+	const inventoryLoadRequest = State<{ mode: InventoryLoadMode, nonce: number }>({ mode: 'cached', nonce: 0 })
+	const requestInventoryLoad = (mode: InventoryLoadMode) => {
+		inventoryLoadRequest.value = {
+			mode,
+			nonce: inventoryLoadRequest.value.nonce + 1,
+		}
+	}
+
+	let currentProfileId: string | undefined
+	const state = State.Async(view, inventoryLoadRequest, async ({ mode }) => {
 		lastCheck.value = undefined
 		const [profile] = await conduit.getProfiles()
+		currentProfileId = profile?.id
 		lastCheck.value = Date.now()
-		return profile && await conduit.getInventory(profile.name, profile.code ?? 0)
+		return profile && await (mode === 'fresh' ? conduit.getInventory : conduit.getInventoryCached)(profile.name, profile.code ?? 0)
 	})
+	const unsubscribeInventoryUpdated = conduit.on.inventoryUpdated(({ profile }) => {
+		if (profile.id !== currentProfileId)
+			return
+
+		requestInventoryLoad('cached')
+	})
+	view.onRemoveManual(unsubscribeInventoryUpdated)
 
 	await Promise.all([state.promise, bucketIcons.promise])
 	INVENTORY_DIAGNOSTIC.mark('data-ready')
@@ -630,7 +649,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				.tweak(button => button
 					.text.bind(State.Map(view, [Time.state, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
 				)
-				.event.subscribe('click', () => state.refresh())
+				.event.subscribe('click', () => requestInventoryLoad('fresh'))
 				.appendTo(slot)
 			)
 			.appendTo(view)
