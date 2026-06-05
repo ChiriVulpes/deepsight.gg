@@ -1,9 +1,8 @@
 import Button from 'component/core/Button'
-import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import { Component, State } from 'kitsui'
+import Breakdown from 'kitsui/component/Breakdown'
 import Popover from 'kitsui/component/Popover'
-import Slot from 'kitsui/component/Slot'
 import { NonNullish } from 'kitsui/utility/Arrays'
 import InputBus from 'kitsui/utility/InputBus'
 import Mouse from 'kitsui/utility/Mouse'
@@ -12,6 +11,7 @@ import Task from 'kitsui/utility/Task'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import type { Quilt } from 'lang'
 import type { ItemState } from 'model/Items'
+import Diagnostic from 'utility/Diagnostic'
 import { quilt } from 'utility/Text'
 
 export interface FilterToken extends String {
@@ -139,6 +139,14 @@ const PLAINTEXT_FILTER_FUNCTION: NonNullable<FilterFunction['filter']> = (item, 
 export const PLAINTEXT_FILTER_TWEAK_CHIP: NonNullable<FilterFunction['chip']> = (chip, token) => chip
 	.style('filter-display-text')
 	.style.toggle(!PLAINTEXT_FILTER_IS_VALID(token), 'filter-display-text--inactive')
+
+const FILTER_DIAGNOSTIC = Diagnostic.scope<
+	| 'suggestions-wrapper-start'
+	| 'suggestions-wrapper-rendered'
+	| 'suggestions-filter-start'
+	| 'suggestions-filter-matched'
+	| 'suggestions-filter-rendered'
+>('filter')
 
 const EMOJI_ICON_PLACEHOLDER = '⬛'
 const EMOJI_REGEX = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu
@@ -585,83 +593,145 @@ const Filter = Object.assign(
 			.text.set(quilt => quilt['display-bar/filter/suggestions/title']())
 			.appendTo(popover)
 
-		DisplaySlot()
+		Component()
 			.style('filter-popover-suggestions-wrapper')
-			.use({ config, appliedFilters }, (slot, { config, appliedFilters }) => {
-				for (const filter of config?.filters ?? []) {
-					const suggestions = State.get(typeof filter.suggestions === 'function' ? filter.suggestions(slot, appliedFilters) : filter.suggestions)
-					const collapsed = State.get(typeof filter.collapsed === 'function' ? filter.collapsed(slot, appliedFilters) : filter.collapsed)
-					Slot().appendTo(slot).use({ suggestions, collapsed }, (slot, { suggestions, collapsed }) => {
-						const suggestionMatches = (Array.isArray(suggestions) ? suggestions : suggestions.all)
-							.distinct()
-							.map((suggestion): FilterMatch | undefined => {
-								const token = FilterToken.create(suggestion)
-								const match = filter.match(slot, token)
-								if (!match)
-									return undefined
+			.tweak(wrapper => {
+				interface FilterSuggestionEntryCollapsed {
+					readonly type: 'collapsed'
+					readonly key: string
+					readonly id: string
+					readonly definition: Filter.CollapsedSuggestion
+				}
 
-								return Object.assign(match, { token, id: filter.id })
-							})
-							.filter(NonNullish)
+				interface FilterSuggestionEntryMatch {
+					readonly type: 'suggestion'
+					readonly key: string
+					readonly match: FilterMatch
+					readonly suggestions: Filter.Suggestions | string[]
+					readonly collapsed?: Filter.CollapsedSuggestion
+				}
 
-						async function spliceSuggestion (newText: string) {
-							const element = input.element
-							if (!element)
-								return
+				type FilterSuggestionEntry = FilterSuggestionEntryCollapsed | FilterSuggestionEntryMatch
 
-							spliceInput(
-								selectedToken.value?.start ?? caretPosition.value ?? 0,
-								selectedToken.value?.end ?? caretPosition.value ?? 0,
-								newText,
-							)
-							filterText.value = element.value
-							const selectionStart = element.selectionStart
-							const selectionEnd = element.selectionEnd
-							const selectionDirection = element.selectionDirection
-							await Task.yield()
-							input.focus()
-							input.element?.setSelectionRange(
-								selectionStart,
-								selectionEnd,
-								selectionDirection ?? undefined
-							)
+				async function spliceSuggestion (newText: string) {
+					const element = input.element
+					if (!element)
+						return
+
+					spliceInput(
+						selectedToken.value?.start ?? caretPosition.value ?? 0,
+						selectedToken.value?.end ?? caretPosition.value ?? 0,
+						newText,
+					)
+					filterText.value = element.value
+					const selectionStart = element.selectionStart
+					const selectionEnd = element.selectionEnd
+					const selectionDirection = element.selectionDirection
+					await Task.yield()
+					input.focus()
+					input.element?.setSelectionRange(
+						selectionStart,
+						selectionEnd,
+						selectionDirection ?? undefined
+					)
+				}
+
+				const entries = State<FilterSuggestionEntry[]>([])
+				let suggestionsOwner: State.Owner.Removable | undefined
+				State.Use(wrapper, { config, appliedFilters }, ({ config, appliedFilters }) => {
+					suggestionsOwner?.remove()
+					suggestionsOwner = State.Owner.create()
+
+					const sources = (config?.filters ?? []).map(filter => ({
+						filter,
+						suggestions: State.get(typeof filter.suggestions === 'function' ? filter.suggestions(suggestionsOwner!, appliedFilters) : filter.suggestions),
+						collapsed: State.get(typeof filter.collapsed === 'function' ? filter.collapsed(suggestionsOwner!, appliedFilters) : filter.collapsed),
+					}))
+					const sourceStates = sources.flatMap(source => [source.suggestions, source.collapsed])
+					State.Map(suggestionsOwner, sourceStates, (...values) => {
+						const entries: FilterSuggestionEntry[] = []
+						for (let i = 0; i < sources.length; i++) {
+							const { filter } = sources[i]
+							const suggestions = (values[i * 2] ?? []) as Filter.Suggestions | string[]
+							const collapsed = values[i * 2 + 1] as Filter.CollapsedSuggestion | undefined
+							const suggestionsList = Array.isArray(suggestions) ? suggestions : suggestions.all
+
+							FILTER_DIAGNOSTIC.mark('suggestions-filter-start')
+							const suggestionMatches = suggestionsList
+								.distinct()
+								.map((suggestion): FilterMatch | undefined => {
+									const token = FilterToken.create(suggestion)
+									const match = filter.match(suggestionsOwner!, token)
+									if (!match)
+										return undefined
+
+									return Object.assign(match, { token, id: filter.id })
+								})
+								.filter(NonNullish)
+
+							FILTER_DIAGNOSTIC.mark('suggestions-filter-matched')
+							FILTER_DIAGNOSTIC.measure('suggestions-filter-match', 'suggestions-filter-start', 'suggestions-filter-matched')
+
+							if (collapsed)
+								entries.push({
+									type: 'collapsed',
+									key: `collapsed:${filter.id}:${collapsed.applies}`,
+									id: filter.id,
+									definition: collapsed,
+								})
+
+							entries.push(...suggestionMatches.map(match => ({
+								type: 'suggestion',
+								key: `suggestion:${filter.id}:${match.token.lowercase}`,
+								match,
+								suggestions,
+								collapsed,
+							} satisfies FilterSuggestionEntryMatch)))
 						}
 
-						if (collapsed)
-							Button()
+						return entries
+					}).use(suggestionsOwner, value => entries.value = value)
+				})
+				wrapper.removed.matchManual(true, () => suggestionsOwner?.remove())
+
+				Breakdown(wrapper, State.Use(wrapper, { entries, selectedToken, filterFullTexts }), ({ entries, selectedToken, filterFullTexts }, Part, Store) => {
+					FILTER_DIAGNOSTIC.mark('suggestions-wrapper-start')
+					for (const entry of entries) {
+						const entryPart = Part(entry.key, entry, (entryPart, entryState) => {
+							const initialEntry = entryState.value
+							if (initialEntry.type === 'collapsed') {
+								entryPart
+									.and(Button)
+									.tweak(button => button.textWrapper.remove())
+									.and(Chip, { isCollapsedSuggestion: true, id: initialEntry.id, definition: initialEntry.definition })
+									.style.remove('filter-display-chip')
+									.style('filter-popover-suggestion')
+									.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
+									.append(Component().style('filter-popover-suggestion-colour-wrapper'))
+									.event.subscribe('click', e => {
+										const entry = entryState.value
+										if (entry.type !== 'collapsed')
+											return
+
+										spliceSuggestion(entry.definition.applies)
+									})
+								return
+							}
+
+							entryPart
+								.and(Button)
 								.tweak(button => button.textWrapper.remove())
-								.and(Chip, { isCollapsedSuggestion: true, id: filter.id, definition: collapsed })
+								.and(Chip, initialEntry.match)
 								.style.remove('filter-display-chip')
 								.style('filter-popover-suggestion')
 								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
 								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
 								.event.subscribe('click', e => {
-									const newText = collapsed?.applies
-									if (!newText)
+									const entry = entryState.value
+									if (entry.type !== 'suggestion')
 										return
 
-									spliceSuggestion(newText)
-								})
-								.appendToWhen(
-									State.Map(slot, [selectedToken, filterFullTexts], (selectedToken, filters) => {
-										const lowercase = collapsed?.applies
-										return !!lowercase
-											// ensure the suggestion matches the current filter text
-											&& (!selectedToken || (lowercase.startsWith(selectedToken.lowercase) && lowercase.length > selectedToken.lowercase.length))
-									}),
-									slot
-								)
-
-						for (const suggestion of suggestionMatches)
-							Button()
-								.tweak(button => button.textWrapper.remove())
-								.and(Chip, suggestion)
-								.style.remove('filter-display-chip')
-								.style('filter-popover-suggestion')
-								.tweak(chip => chip.textWrapper.style('filter-popover-suggestion-text-wrapper'))
-								.append(Component().style('filter-popover-suggestion-colour-wrapper'))
-								.event.subscribe('click', e => {
-									let newText = suggestion.token.lowercase
+									let newText = entry.match.token.lowercase
 									if (newText.includes(' ')) {
 										const prefix = newText.slice(0, newText.indexOf(':') + 1)
 										newText = `${prefix}"${newText.slice(prefix.length)}"`
@@ -669,23 +739,40 @@ const Filter = Object.assign(
 
 									spliceSuggestion(`${newText} `)
 								})
-								.appendToWhen(
-									State.Map(slot, [selectedToken, filterFullTexts], (selectedToken, filters) => {
-										const lowercase = suggestion.token.lowercase
-										return true
-											// this suggestion isn't already something we're filtering by
-											&& !filters.some(filter => filter.fullText === lowercase && filter.match.token !== selectedToken)
-											// ensure the suggestion matches the current filter text
-											&& (!selectedToken
-												? !collapsed
-												: lowercase.startsWith(selectedToken.lowercase) && (!collapsed || selectedToken.lowercase.startsWith(collapsed.applies))
-											)
-											// ensure the suggestion matches the filter provided
-											&& (Array.isArray(suggestions) ? true : suggestions.filter?.(lowercase, selectedToken, filters) ?? true)
-									}),
-									slot
+						})
+
+						entryPart.appendTo(shouldShowSuggestionEntry(entry, selectedToken, filterFullTexts) ? wrapper : Store)
+					}
+
+					FILTER_DIAGNOSTIC.mark('suggestions-filter-rendered')
+					FILTER_DIAGNOSTIC.measure('suggestions-filter-render', 'suggestions-filter-matched', 'suggestions-filter-rendered')
+					FILTER_DIAGNOSTIC.measure('suggestions-filter-total', 'suggestions-filter-start', 'suggestions-filter-rendered')
+					FILTER_DIAGNOSTIC.mark('suggestions-wrapper-rendered')
+					FILTER_DIAGNOSTIC.measure('suggestions-wrapper-total', 'suggestions-wrapper-start', 'suggestions-wrapper-rendered')
+				})
+
+				function shouldShowSuggestionEntry (entry: FilterSuggestionEntry, selectedToken: FilterToken | undefined, filters: { match: FilterMatch, fullText: string }[]) {
+					switch (entry.type) {
+						case 'collapsed': {
+							const lowercase = entry.definition.applies
+							return !!lowercase
+								// ensure the suggestion matches the current filter text
+								&& (!selectedToken || (lowercase.startsWith(selectedToken.lowercase) && lowercase.length > selectedToken.lowercase.length))
+						}
+						case 'suggestion': {
+							const lowercase = entry.match.token.lowercase
+							return true
+								// this suggestion isn't already something we're filtering by
+								&& !filters.some(filter => filter.fullText === lowercase && filter.match.token !== selectedToken)
+								// ensure the suggestion matches the current filter text
+								&& (!selectedToken
+									? !entry.collapsed
+									: lowercase.startsWith(selectedToken.lowercase) && (!entry.collapsed || selectedToken.lowercase.startsWith(entry.collapsed.applies))
 								)
-					})
+								// ensure the suggestion matches the filter provided
+								&& (Array.isArray(entry.suggestions) ? true : entry.suggestions.filter?.(lowercase, selectedToken, filters) ?? true)
+						}
+					}
 				}
 			})
 			.appendTo(popover)
