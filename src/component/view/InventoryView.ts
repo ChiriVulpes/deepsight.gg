@@ -23,7 +23,6 @@ import { Component, State } from 'kitsui'
 import Breakdown from 'kitsui/component/Breakdown'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
-import { NonNullish } from 'kitsui/utility/Arrays'
 import Task from 'kitsui/utility/Task'
 import DisplayProperties from 'model/DisplayProperties'
 import type { ItemReference, ItemStateOptional } from 'model/Items'
@@ -187,14 +186,10 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		return profile && await conduit.getInventory(profile.name, profile.code ?? 0)
 	})
 
-	await state.promise
+	await Promise.all([state.promise, bucketIcons.promise])
 	INVENTORY_DIAGNOSTIC.mark('data-ready')
 	if (signal.aborted)
 		return
-
-	INVENTORY_DIAGNOSTIC.mark('loading-finish-requested')
-	await view.loading.finish()
-	INVENTORY_DIAGNOSTIC.mark('loading-finished')
 
 	const inventoryOrUndefined = state.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
 
@@ -206,24 +201,20 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	view.getNavbar()
 		?.overrideHomeLink(homeLinkURL, view)
 
-	Loading()
-		.style('inventory-view-refresh-wrapper')
-		.setNormalTransitions()
-		.set(state, slot => Button()
-			.style('inventory-view-refresh-button')
-			.tweak(button => button
-				.text.bind(State.Map(view, [Time.state, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
-			)
-			.event.subscribe('click', () => state.refresh())
-			.appendTo(slot)
-		)
-		.appendTo(view)
-
 	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+	let completeInitialContentRender!: () => void
+	const initialContentRendered = new Promise<void>(resolve => completeInitialContentRender = resolve)
+	let isInitialContentRender = true
+	let initialContent: Component | undefined
+	let initialContentHost: Component | undefined
+	let initialScrollTopState: State.Mutable<number> | undefined
+
+	setProgress(null, quilt => quilt['view/inventory/load/rendering']())
 
 	Slot().appendTo(view)
 		.if(inventoryOrUndefined.falsy, slot => {
 			Component().appendTo(slot).text.set('No inventory data available')
+			completeInitialContentRender()
 		})
 		.else(slot => {
 			const inventory = inventoryOrUndefined as State<Inventory>
@@ -233,13 +224,21 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 			})
 
 			const scrollTopState = State(document.documentElement.scrollTop)
+			initialScrollTopState = scrollTopState
 			Component.getWindow().event.until(slot, event => event
 				.subscribe('scroll', () => scrollTopState.value = document.documentElement.scrollTop)
 			)
 
-			const content = Component()
-				.style('inventory-view-content')
+			const contentHost = Component()
 				.appendTo(slot)
+			initialContentHost = contentHost
+
+			const content = Component()
+				.setOwner(slot)
+				.style('inventory-view-content')
+				.viewTransitionSwipe('inventory-view-content')
+			initialContent = content
+			Component.getDomController(content).realiseForInsertion()
 
 			const bucketNav = Component()
 				.style('inventory-view-nav')
@@ -263,6 +262,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				INVENTORY_DIAGNOSTIC.mark('render-start')
 				const renderTask = new Task()
 				let renderedFirstBucket = false
+				const shouldFilterItems = !!filterText && !!display
 				const yieldRender = async () => {
 					await renderTask.yield()
 				}
@@ -309,7 +309,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								continue
 							}
 
-							if (display?.filter.filter(item.state.value, false) === false) {
+							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
 								Store.append(content)
 								continue
 							}
@@ -331,7 +331,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								continue
 							}
 
-							if (display?.filter.filter(item.state.value, false) === false) {
+							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
 								Store.append(content)
 								continue
 							}
@@ -356,7 +356,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								continue
 							}
 
-							if (display?.filter.filter(item.state.value, false) === false) {
+							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
 								Store.append(content)
 								continue
 							}
@@ -372,6 +372,43 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				})
 
 				const characters = Object.values(inventory.characters).sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
+				const equippedItemsByCharacterBucket = new Map<string, Map<InventoryBucketHashes, ItemInstance[]>>()
+				const inventoryItemsByCharacterBucket = new Map<string, Map<InventoryBucketHashes, ItemInstance[]>>()
+				const profileItemsByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
+				const vaultItemsByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
+				const bucketHashes = new Set<InventoryBucketHashes>()
+
+				const addBucketItem = (map: Map<InventoryBucketHashes, ItemInstance[]>, bucketHash: InventoryBucketHashes, item: ItemInstance) => {
+					bucketHashes.add(bucketHash)
+					const items = map.get(bucketHash) ?? []
+					items.push(item)
+					map.set(bucketHash, items)
+				}
+
+				for (const character of characters) {
+					const equippedByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
+					const inventoryByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
+					equippedItemsByCharacterBucket.set(character.id, equippedByBucket)
+					inventoryItemsByCharacterBucket.set(character.id, inventoryByBucket)
+
+					for (const item of character.equippedItems)
+						addBucketItem(equippedByBucket, item.bucketHash, item)
+
+					for (const item of character.items)
+						addBucketItem(inventoryByBucket, item.bucketHash, item)
+				}
+
+				for (const item of inventory.profileItems) {
+					const definitionBucketHash = inventory.items[item.itemHash].bucketHash
+					if (!definitionBucketHash)
+						continue
+
+					addBucketItem(
+						item.bucketHash === InventoryBucketHashes.General ? vaultItemsByBucket : profileItemsByBucket,
+						definitionBucketHash,
+						item,
+					)
+				}
 
 				for (const character of characters) {
 					Part(`character:${character.id}/header`, character, (part, character) => part
@@ -383,9 +420,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 				const bucketOrder = [...bucketIcons?.keys() ?? []]
 				const buckets = ([] as InventoryBucketHashes[])
-					.concat(characters.flatMap(character => character.equippedItems.map(item => item.bucketHash)))
-					.concat(characters.flatMap(character => character.items.map(item => item.bucketHash)))
-					.concat(inventory.profileItems.map(item => inventory.items[item.itemHash].bucketHash).filter(NonNullish))
+					.concat([...bucketHashes])
 					.distinct()
 					.sort((a, b) => (bucketOrder.indexOf(a) + 1 || Infinity) - (bucketOrder.indexOf(b) + 1 || Infinity))
 
@@ -449,10 +484,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.style('inventory-view-bucket-item-list--equipped')
 								.appendTo(bucketWrapper)
 							const equippedItemListFiltered = ItemListFilteredDestination(equippedItemList)
-							for (const item of character.equippedItems) {
-								if (item.bucketHash !== bucketHash)
-									continue
-
+							for (const item of equippedItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
 								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
 									.appendTo(equippedItemListFiltered)
 								await yieldRender()
@@ -465,10 +497,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							const itemListFiltered = ItemListFilteredDestination(itemList)
 							let i = 0
 							const hashAppearances: Record<number, number> = {}
-							for (const item of character.items) {
-								if (item.bucketHash !== bucketHash)
-									continue
-
+							for (const item of inventoryItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
 								i++
 								hashAppearances[item.itemHash] ??= 0
 								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
@@ -500,10 +529,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 						let i = 0
 						const hashAppearances: Record<number, number> = {}
-						for (const item of inventory.profileItems) {
-							if (item.bucketHash === InventoryBucketHashes.General || inventory.items[item.itemHash].bucketHash !== bucketHash)
-								continue
-
+						for (const item of profileItemsByBucket.get(bucketHash) ?? []) {
 							i++
 							hashAppearances[item.itemHash] ??= 0
 							InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
@@ -532,11 +558,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					const itemListFiltered = ItemListFilteredDestination(itemList)
 
 					const hashAppearances: Record<number, number> = {}
-					for (const item of inventory.profileItems) {
-						const definition = inventory.items[item.itemHash]
-						if (item.bucketHash !== InventoryBucketHashes.General || definition.bucketHash !== bucketHash)
-							continue
-
+					for (const item of vaultItemsByBucket.get(bucketHash) ?? []) {
 						hashAppearances[item.itemHash] ??= 0
 						InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
 							.appendTo(itemListFiltered)
@@ -564,6 +586,11 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				INVENTORY_DIAGNOSTIC.mark('render-complete')
 				INVENTORY_DIAGNOSTIC.measure('data-to-render-complete', 'data-ready', 'render-complete')
 				INVENTORY_DIAGNOSTIC.measure('render-duration', 'render-start', 'render-complete')
+
+				if (isInitialContentRender) {
+					isInitialContentRender = false
+					completeInitialContentRender()
+				}
 			})
 
 			const overlayState = State.Map(view, [view.params, inventory], (params, inventory): ItemStateOptional => {
@@ -584,4 +611,34 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 			Overlay(view).and(ItemOverlay, overlayState).bind(overlayState.map(view, s => !!s.definition))
 		})
+
+	await initialContentRendered
+	if (signal.aborted)
+		return
+
+	view.loading.onLoad((loading, display) => {
+		document.documentElement.scrollTop = 0
+		initialScrollTopState && (initialScrollTopState.value = 0)
+		if (initialContent && initialContentHost)
+			initialContent.appendTo(initialContentHost)
+
+		Loading()
+			.style('inventory-view-refresh-wrapper')
+			.viewTransitionSwipe('inventory-view-refresh-wrapper')
+			.set(state, slot => Button()
+				.style('inventory-view-refresh-button')
+				.tweak(button => button
+					.text.bind(State.Map(view, [Time.state, lastCheck, button.hoveredOrHasFocused], (elapsed, last, hovered) => quilt => quilt['view/data/versions/action/check'](!last || !hovered ? undefined : Time.relative(last, { components: 1 }))))
+				)
+				.event.subscribe('click', () => state.refresh())
+				.appendTo(slot)
+			)
+			.appendTo(view)
+
+		display()
+	})
+
+	INVENTORY_DIAGNOSTIC.mark('loading-finish-requested')
+	await view.loading.finish()
+	INVENTORY_DIAGNOSTIC.mark('loading-finished')
 })
