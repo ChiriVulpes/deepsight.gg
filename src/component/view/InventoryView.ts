@@ -244,8 +244,17 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 			const scrollTopState = State(document.documentElement.scrollTop)
 			initialScrollTopState = scrollTopState
+			let bucketRenderEpoch = 0
+			const bucketHydratedStates = new Map<InventoryBucketHashes, State.Mutable<boolean>>()
+			const bucketHydrating = new Set<InventoryBucketHashes>()
+			const bucketContentHosts = new Map<InventoryBucketHashes, Component>()
+			const bucketHydrators = new Map<InventoryBucketHashes, () => void>()
 			Component.getWindow().event.until(slot, event => event
-				.subscribe('scroll', () => scrollTopState.value = document.documentElement.scrollTop)
+				.subscribe('scroll', () => {
+					scrollTopState.value = document.documentElement.scrollTop
+					for (const hydrate of bucketHydrators.values())
+						hydrate()
+				})
 			)
 
 			const contentHost = Component()
@@ -278,6 +287,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 			let bucketItemsVisibleCount = 0
 			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), async ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
+				const renderEpoch = ++bucketRenderEpoch
 				INVENTORY_DIAGNOSTIC.mark('render-start')
 				const renderTask = new Task()
 				let renderedFirstBucket = false
@@ -285,6 +295,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				const yieldRender = async () => {
 					await renderTask.yield()
 				}
+				const shouldCancelRender = () => slot.removed.value || renderEpoch !== bucketRenderEpoch
 
 				const BucketRow = (bucketHash: InventoryBucketHashes) => {
 					bucketItemsVisibleCount = 0
@@ -292,12 +303,17 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					return Part(`bucket:${bucketHash}/row`, part => part
 						.style('inventory-view-bucket-row')
 						.style.toggle(bucketDef.location !== ItemLocation.Inventory && bucketDef.location !== ItemLocation.Postmaster, 'inventory-view-bucket-row--profile')
+						.append(BucketTitle(bucketHash))
 						.append(Component()
-							.style('inventory-view-bucket-title')
-							.text.set(inventory.buckets[bucketHash].displayProperties.name)
+							.style.setProperty('display', 'contents')
+							.tweak(content => bucketContentHosts.set(bucketHash, content))
 						)
 					)
 				}
+
+				const BucketTitle = (bucketHash: InventoryBucketHashes) => Component()
+					.style('inventory-view-bucket-title')
+					.text.set(inventory.buckets[bucketHash].displayProperties.name)
 
 				const BucketWrapper = (id: string) => Part(id, part => part
 					.style('inventory-view-bucket-wrapper')
@@ -307,12 +323,22 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					.style('inventory-view-bucket-item-list')
 				)
 
+				const PlaceholderItem = (id: string) => Part(id, part => part
+					.style('item', 'inventory-view-bucket-item-list-empty-slot', 'inventory-view-bucket-item-list-placeholder-slot')
+				)
+
 				const InventoryItem = (id: string, item: ItemInstance, handler?: (item: Item) => unknown) => {
 					const itemState = ItemState.resolve(item, inventory)
 					return Part(id, itemState, (part, item) => {
 						const itemComponent = part.and(Item, item)
 						handler?.(itemComponent)
 					}) as Item
+				}
+
+				const appendPlaceholders = (list: Component, prefix: string, count: number) => {
+					for (let i = 0; i < count; i++)
+						PlaceholderItem(`${prefix}/placeholder:${i}`)
+							.appendTo(list)
 				}
 
 				const ItemListFilteredDestination = (destination: Component) => ({
@@ -449,6 +475,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						continue
 
 					const bucketRow = BucketRow(bucketHash)
+					const bucketContent = bucketContentHosts.get(bucketHash)
+					if (!bucketContent)
+						continue
 
 					// const inView = scrollTopState.map(bucketRow, scrollTop => scrollTop > bucketRow.element.offsetTop - 100)
 					// await inView.await(bucketRow, true)
@@ -457,6 +486,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					//#region Init bucket row
 
 					const bucketDef = inventory.buckets[bucketHash]
+					let hydrateBucketForClick: (() => void) | undefined
 					const bucketButton = !bucketDef.displayProperties.name ? undefined :
 						Part(`bucket:${bucketHash}/button`, part => part
 							.and(Button)
@@ -466,6 +496,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.descriptionText.set(bucketDef.displayProperties.description)
 							)
 							.event.subscribe('click', () => {
+								hydrateBucketForClick?.()
 								bucketRow.element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 							})
 							.tweak(button => {
@@ -491,101 +522,235 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					////////////////////////////////////
 					//#region Bucket content
 
-					let hadOverfilledCharacter = false
-					if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
-						for (const character of characters) {
-							const bucketWrapper = BucketWrapper(`character:${character.id}/bucket:${bucketHash}`)
-								.style('inventory-view-bucket-wrapper--character')
-								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
-								.appendTo(bucketRow)
+					const renderBucketContents = async (destination: Parameters<Component['appendTo']>[0], cooperative = true) => {
+						let hadOverfilledCharacter = false
+						if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
+							for (const character of characters) {
+								if (shouldCancelRender())
+									return
 
-							const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`)
-								.style('inventory-view-bucket-item-list--equipped')
-								.appendTo(bucketWrapper)
-							const equippedItemListFiltered = ItemListFilteredDestination(equippedItemList)
-							for (const item of equippedItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
-								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
-									.appendTo(equippedItemListFiltered)
-								await yieldRender()
+								const bucketWrapper = BucketWrapper(`character:${character.id}/bucket:${bucketHash}`)
+									.style('inventory-view-bucket-wrapper--character')
+									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
+									.appendTo(destination)
+
+								const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`)
+									.style('inventory-view-bucket-item-list--equipped')
+									.appendTo(bucketWrapper)
+								const equippedItemListFiltered = ItemListFilteredDestination(equippedItemList)
+								for (const item of equippedItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
+									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
+										.appendTo(equippedItemListFiltered)
+									if (cooperative)
+										await yieldRender()
+									if (shouldCancelRender())
+										return
+								}
+
+								const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`)
+									.style('inventory-view-bucket-item-list--inventory')
+									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+									.appendTo(bucketWrapper)
+								const itemListFiltered = ItemListFilteredDestination(itemList)
+								let i = 0
+								const hashAppearances: Record<number, number> = {}
+								for (const item of inventoryItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
+									i++
+									hashAppearances[item.itemHash] ??= 0
+									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
+										.appendTo(itemListFiltered)
+									if (cooperative)
+										await yieldRender()
+									if (shouldCancelRender())
+										return
+								}
+
+								const isOverfilled = bucketHash === InventoryBucketHashes.LostItems && i / bucketDef.itemCount > 2 / 3
+								hadOverfilledCharacter ||= isOverfilled
+								bucketWrapper.style.toggle(isOverfilled, 'inventory-view-bucket-wrapper--warning')
+
+								const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
+								const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount - hasEquippedItem
+								for (; i < bucketInventorySlots; i++) {
+									Part(`character:${character.id}/bucket:${bucketHash}/empty:${i}`)
+										.style('item', 'inventory-view-bucket-item-list-empty-slot')
+										.appendTo(itemList)
+									if (cooperative)
+										await yieldRender()
+									if (shouldCancelRender())
+										return
+								}
 							}
-
-							const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`)
-								.style('inventory-view-bucket-item-list--inventory')
-								.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
-								.appendTo(bucketWrapper)
+						else {
+							const profileBucketWrapper = BucketWrapper(`profile/bucket:${bucketHash}`)
+								.style('inventory-view-bucket-wrapper--profile')
+								.appendTo(destination)
+							const itemList = ItemList(`profile/bucket:${bucketHash}/items`)
+								.style('inventory-view-bucket-item-list--profile')
+								.appendTo(profileBucketWrapper)
 							const itemListFiltered = ItemListFilteredDestination(itemList)
+
 							let i = 0
 							const hashAppearances: Record<number, number> = {}
-							for (const item of inventoryItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
+							for (const item of profileItemsByBucket.get(bucketHash) ?? []) {
 								i++
 								hashAppearances[item.itemHash] ??= 0
-								InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
+								InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
 									.appendTo(itemListFiltered)
-								await yieldRender()
+								if (cooperative)
+									await yieldRender()
+								if (shouldCancelRender())
+									return
 							}
 
-							const isOverfilled = bucketHash === InventoryBucketHashes.LostItems && i / bucketDef.itemCount > 2 / 3
-							hadOverfilledCharacter ||= isOverfilled
-							bucketWrapper.style.toggle(isOverfilled, 'inventory-view-bucket-wrapper--warning')
-
-							const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
-							const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount - hasEquippedItem
+							const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount
 							for (; i < bucketInventorySlots; i++) {
-								Part(`character:${character.id}/bucket:${bucketHash}/empty:${i}`)
+								Part(`profile/bucket:${bucketHash}/empty:${i}`)
 									.style('item', 'inventory-view-bucket-item-list-empty-slot')
 									.appendTo(itemList)
-								await yieldRender()
+								if (cooperative)
+									await yieldRender()
+								if (shouldCancelRender())
+									return
 							}
 						}
-					else {
-						const profileBucketWrapper = BucketWrapper(`profile/bucket:${bucketHash}`)
-							.style('inventory-view-bucket-wrapper--profile')
-							.appendTo(bucketRow)
-						const itemList = ItemList(`profile/bucket:${bucketHash}/items`)
-							.style('inventory-view-bucket-item-list--profile')
-							.appendTo(profileBucketWrapper)
+
+						bucketRow.style.toggle(hadOverfilledCharacter, 'inventory-view-bucket-row--warning')
+						bucketButton?.style.toggle(hadOverfilledCharacter, 'inventory-view-nav-button--warning')
+
+						const vaultBucketWrapper = BucketWrapper(`vault/bucket:${bucketHash}`)
+							.style('inventory-view-bucket-wrapper--vault')
+							.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
+							.appendTo(destination)
+						const itemList = ItemList(`vault/bucket:${bucketHash}/items`)
+							.appendTo(vaultBucketWrapper)
 						const itemListFiltered = ItemListFilteredDestination(itemList)
 
-						let i = 0
 						const hashAppearances: Record<number, number> = {}
-						for (const item of profileItemsByBucket.get(bucketHash) ?? []) {
-							i++
+						for (const item of vaultItemsByBucket.get(bucketHash) ?? []) {
 							hashAppearances[item.itemHash] ??= 0
-							InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
+							InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
 								.appendTo(itemListFiltered)
-							await yieldRender()
-						}
-
-						const bucketInventorySlots = filterText ? 0 : bucketDef.itemCount
-						for (; i < bucketInventorySlots; i++) {
-							Part(`profile/bucket:${bucketHash}/empty:${i}`)
-								.style('item', 'inventory-view-bucket-item-list-empty-slot')
-								.appendTo(itemList)
-							await yieldRender()
+							if (cooperative)
+								await yieldRender()
+							if (shouldCancelRender())
+								return
 						}
 					}
 
-					bucketRow.style.toggle(hadOverfilledCharacter, 'inventory-view-bucket-row--warning')
-					bucketButton?.style.toggle(hadOverfilledCharacter, 'inventory-view-nav-button--warning')
+					const renderBucketPlaceholders = (destination: Parameters<Component['appendTo']>[0]) => {
+						let hadOverfilledCharacter = false
+						if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
+							for (const character of characters) {
+								const bucketWrapper = Component()
+									.style('inventory-view-bucket-wrapper', 'inventory-view-bucket-wrapper--character')
+									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
+									.appendTo(destination)
 
-					const vaultBucketWrapper = BucketWrapper(`vault/bucket:${bucketHash}`)
-						.style('inventory-view-bucket-wrapper--vault')
-						.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
-						.appendTo(bucketRow)
-					const itemList = ItemList(`vault/bucket:${bucketHash}/items`)
-						.appendTo(vaultBucketWrapper)
-					const itemListFiltered = ItemListFilteredDestination(itemList)
+								const equippedItems = equippedItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []
+								const equippedItemList = Component()
+									.style('inventory-view-bucket-item-list', 'inventory-view-bucket-item-list--equipped')
+									.appendTo(bucketWrapper)
+								appendPlaceholders(equippedItemList, `character:${character.id}/bucket:${bucketHash}/equipped`, equippedItems.length)
 
-					const hashAppearances: Record<number, number> = {}
-					for (const item of vaultItemsByBucket.get(bucketHash) ?? []) {
-						hashAppearances[item.itemHash] ??= 0
-						InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
-							.appendTo(itemListFiltered)
-						await yieldRender()
+								const itemList = Component()
+									.style('inventory-view-bucket-item-list', 'inventory-view-bucket-item-list--inventory')
+									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+									.appendTo(bucketWrapper)
+								const bucketItems = inventoryItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []
+								const hasEquippedItem = +character.equippedItems.some(item => item.bucketHash === bucketHash)
+								const bucketInventorySlots = bucketDef.itemCount - hasEquippedItem
+								appendPlaceholders(itemList, `character:${character.id}/bucket:${bucketHash}/items`, Math.max(bucketItems.length, bucketInventorySlots))
+
+								const isOverfilled = bucketHash === InventoryBucketHashes.LostItems && bucketItems.length / bucketDef.itemCount > 2 / 3
+								hadOverfilledCharacter ||= isOverfilled
+								bucketWrapper.style.toggle(isOverfilled, 'inventory-view-bucket-wrapper--warning')
+							}
+						else {
+							const profileBucketWrapper = Component()
+								.style('inventory-view-bucket-wrapper', 'inventory-view-bucket-wrapper--profile')
+								.appendTo(destination)
+							const itemList = Component()
+								.style('inventory-view-bucket-item-list', 'inventory-view-bucket-item-list--profile')
+								.appendTo(profileBucketWrapper)
+							appendPlaceholders(itemList, `profile/bucket:${bucketHash}/items`, bucketDef.itemCount)
+						}
+
+						bucketRow.style.toggle(hadOverfilledCharacter, 'inventory-view-bucket-row--warning')
+						bucketButton?.style.toggle(hadOverfilledCharacter, 'inventory-view-nav-button--warning')
+
+						const vaultBucketWrapper = Component()
+							.style('inventory-view-bucket-wrapper', 'inventory-view-bucket-wrapper--vault')
+							.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
+							.appendTo(destination)
+						const itemList = Component()
+							.style('inventory-view-bucket-item-list')
+							.appendTo(vaultBucketWrapper)
+						appendPlaceholders(itemList, `vault/bucket:${bucketHash}/items`, vaultItemsByBucket.get(bucketHash)?.length ?? 0)
+					}
+
+					const isBucketNearViewport = () => {
+						const rect = bucketRow.element?.getBoundingClientRect()
+						if (!rect)
+							return false
+
+						const margin = 200
+						return rect.bottom > -margin && rect.top < window.innerHeight + margin
+					}
+
+					const hydrateBucket = async (bucketHydrated: State.Mutable<boolean>) => {
+						if (shouldCancelRender() || bucketHydrated.value || bucketHydrating.has(bucketHash))
+							return
+
+						bucketHydrating.add(bucketHash)
+						const stagedContent = Component()
+							.style.setProperty('display', 'contents')
+						try {
+							await renderBucketContents(stagedContent)
+							if (shouldCancelRender())
+								return
+
+							bucketHydrated.value = true
+							bucketRow
+								.style.remove('inventory-view-bucket-row--placeholder')
+								.style('inventory-view-bucket-row--hydrated')
+							bucketContent.removeContents()
+							bucketContent.append(...Component.getDomController(stagedContent).takeChildren())
+							bucketHydrators.delete(bucketHash)
+						}
+						finally {
+							stagedContent.remove()
+							bucketHydrating.delete(bucketHash)
+						}
 					}
 
 					//#endregion
 					////////////////////////////////////
+
+					const bucketHydrated = bucketHydratedStates.get(bucketHash) ?? State(false)
+					bucketHydratedStates.set(bucketHash, bucketHydrated)
+					hydrateBucketForClick = () => void hydrateBucket(bucketHydrated)
+					if (shouldFilterItems || buckets.indexOf(bucketHash) === 0)
+						bucketHydrated.value = true
+
+					if (bucketHydrated.value) {
+						bucketRow
+							.style.remove('inventory-view-bucket-row--placeholder')
+							.style('inventory-view-bucket-row--hydrated')
+						bucketHydrators.delete(bucketHash)
+						await renderBucketContents(bucketContent, false)
+					}
+					else {
+						bucketContent.removeContents()
+						bucketRow
+							.style.remove('inventory-view-bucket-row--hydrated')
+							.style('inventory-view-bucket-row--placeholder')
+						renderBucketPlaceholders(bucketContent)
+						bucketHydrators.set(bucketHash, () => {
+							if (!bucketHydrated.value && isBucketNearViewport())
+								void hydrateBucket(bucketHydrated)
+						})
+					}
 
 					bucketRow.appendTo(bucketItemsVisibleCount || !filterText ? bucketList : Store)
 					bucketButton?.appendTo(bucketItemsVisibleCount || !filterText ? bucketNavButtonList : Store)
@@ -599,7 +764,6 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						INVENTORY_DIAGNOSTIC.measure('data-to-first-bucket', 'data-ready', 'first-bucket-rendered')
 					}
 
-					await yieldRender()
 				}
 
 				INVENTORY_DIAGNOSTIC.mark('render-complete')

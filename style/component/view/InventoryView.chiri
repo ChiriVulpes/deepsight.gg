@@ -141,6 +141,18 @@
 			&--warning:
 				$bucket-title-colour: $colour-0
 
+			&--placeholder:
+				#after: .inventory-view-bucket-row
+
+			&--hydrating:
+				#after: .inventory-view-bucket-row
+
+			&--hydrated:
+				#after: .inventory-view-bucket-row
+				#animate .18s ease-out both:
+					from:
+						opacity: .35
+
 			&--scrolled:
 
 		&-title:
@@ -240,3 +252,20 @@
 					%inset-1
 					box-shadow: inset 0 0 0 1px $colour-0
 					%opacity-10
+
+			&-placeholder-slot:
+				#after: .inventory-view-bucket-item-list-empty-slot
+
+				@before:
+					%absolute
+					%inset-1
+					%opacity-30
+					background-color: color-mix(in lch, $colour-0, transparent 92%)
+					background-image: linear-gradient(120deg, color-mix(in lch, $colour-0, transparent 90%) 0%, color-mix(in lch, $colour-0, transparent 90%) 36%, color-mix(in lch, $colour-0, transparent 70%) 50%, color-mix(in lch, $colour-0, transparent 90%) 64%, color-mix(in lch, $colour-0, transparent 90%) 100%)
+					background-size: 300% 100%
+					background-position: 150% 0
+					%box-shadow-none
+
+					#animate 2.8s linear infinite:
+						from: background-position: 150% 0
+						to: background-position: -150% 0
