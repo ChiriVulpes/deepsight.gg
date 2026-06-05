@@ -643,6 +643,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 		Loading()
 			.style('inventory-view-refresh-wrapper')
+			.setNormalTransitions()
 			.viewTransitionSwipe('inventory-view-refresh-wrapper')
 			.set(state, slot => Button()
 				.style('inventory-view-refresh-button')
