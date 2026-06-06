@@ -16,7 +16,7 @@ $$button-z-index-hover-2!int: 0
 	z-index: calc($button-z-index-hover-1 + $button-z-index-hover-2)
 	#transition:
 		$$button-z-index-hover-1 0s linear $transition-blur,
-		#{transition("background")}, #{transition("border")}, #{transition("box-shadow")}
+		#{transition("background")}, #{transition("border")}, #{transition("box-shadow")}, #{transition("translate")}
 	%transition-discrete
 	$button-effects-inset-block: 0px
 
@@ -44,6 +44,13 @@ $$button-z-index-hover-2!int: 0
 		$button-z-index-hover-1: 1
 		$button-z-index-hover-2: 1
 		transition: none
+		translate: 0 -2px
+
+		:active:
+			translate: 0 2px
+
+			@after:
+				background-colour: #2226
 
 		@before:
 			inset-inline: -5px
