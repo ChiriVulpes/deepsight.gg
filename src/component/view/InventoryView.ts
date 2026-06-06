@@ -16,6 +16,9 @@ import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import CharacterButton from 'component/profile/CharacterButton'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
+import { Inventory as ConduitInventory } from 'conduit.deepsight.gg'
+import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry'
+import type { InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory'
 import type Inventory from 'conduit.deepsight.gg/item/Inventory'
 import type { ItemInstance } from 'conduit.deepsight.gg/item/Item'
 import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums'
@@ -81,6 +84,12 @@ type BucketIcon =
 	| BucketIconFont
 
 type InventoryLoadMode = 'cached' | 'fresh'
+type InventoryTransferDisplay = 'pending' | 'failure' | undefined
+
+const EMPTY_TRANSFER_DISPLAY_STATE: InventoryTransferDisplayState = {
+	pending: [],
+	failures: [],
+}
 
 const bucketIcons = State.Async(State.Owner.create(), async (): Promise<Map<InventoryBucketHashes, BucketIcon | undefined>> => {
 	const conduit = await Relic.connected
@@ -155,6 +164,37 @@ const bucketIcons = State.Async(State.Owner.create(), async (): Promise<Map<Inve
 	])
 })
 
+function getTransferDisplay (transfers: InventoryTransferDisplayState, item: ItemStateOptional): InventoryTransferDisplay {
+	if (!item.instance)
+		return undefined
+
+	if (transfers.failures.some(transfer => matchesTransferItem(transfer, item)))
+		return 'failure'
+
+	if (transfers.pending.some(transfer => matchesTransferItem(transfer, item)))
+		return 'pending'
+
+	return undefined
+}
+
+function matchesTransferItem (transfer: InventoryTransferOperationState, item: ItemStateOptional) {
+	return transfer.affectedItems.some(reference => matchesTransferReference(reference, item))
+}
+
+function matchesTransferReference (reference: ItemTransferReference, item: ItemStateOptional) {
+	const instance = item.instance
+	if (!instance)
+		return false
+
+	if (reference.instanceId)
+		return instance.id === reference.instanceId
+
+	return instance.id === undefined &&
+		instance.itemHash === reference.itemHash &&
+		instance.quantity === reference.stackSize &&
+		item.characterId === reference.characterId
+}
+
 export interface InventoryParamsItemInstanceId {
 	itemInstanceId: string
 }
@@ -190,27 +230,40 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	}
 
 	let currentProfileId: string | undefined
+	const inventoryDisplayState = State<Inventory | undefined>(undefined)
+	const transferDisplayState = State<InventoryTransferDisplayState>(EMPTY_TRANSFER_DISPLAY_STATE)
 	const state = State.Async(view, inventoryLoadRequest, async ({ mode }) => {
 		lastCheck.value = undefined
 		const [profile] = await conduit.getProfiles()
 		currentProfileId = profile?.id
 		lastCheck.value = Date.now()
-		return profile && await (mode === 'fresh' ? conduit.getInventory : conduit.getInventoryCached)(profile.name, profile.code ?? 0)
+		const inventory = profile && await (mode === 'fresh' ? conduit.getInventory : conduit.getInventoryCached)(profile.name, profile.code ?? 0)
+		inventoryDisplayState.value = inventory
+		return inventory
 	})
-	const unsubscribeInventoryUpdated = conduit.on.inventoryUpdated(({ profile }) => {
+	const unsubscribeInventoryUpdated = conduit.on.inventoryUpdated(({ profile, inventory }) => {
 		if (profile.id !== currentProfileId)
 			return
 
-		requestInventoryLoad('cached')
+		inventoryDisplayState.value = inventory
 	})
+	const inventoryTransfers = ConduitInventory.transfers(conduit, {
+		getInventory: () => inventoryDisplayState.value,
+		setInventory: inventory => inventoryDisplayState.value = inventory,
+		refreshInventory: () => requestInventoryLoad('cached'),
+		getCurrentProfileId: () => currentProfileId,
+		onTransferStateChange: state => transferDisplayState.value = state,
+	})
+	Diagnostic.add({ inventoryTransferDisplayState: transferDisplayState })
 	view.onRemoveManual(unsubscribeInventoryUpdated)
+	view.onRemoveManual(() => inventoryTransfers.unsubscribe())
 
 	await Promise.all([state.promise, bucketIcons.promise])
 	INVENTORY_DIAGNOSTIC.mark('data-ready')
 	if (signal.aborted)
 		return
 
-	const inventoryOrUndefined = state.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
+	const inventoryOrUndefined = inventoryDisplayState.map(view, (inventory, lastInventory) => inventory ?? lastInventory)
 
 	const homeLinkURL = navigate.state.map(view, url => {
 		const route = new URL(url).pathname as RoutePath
@@ -327,11 +380,16 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					.style('item', 'inventory-view-bucket-item-list-empty-slot', 'inventory-view-bucket-item-list-placeholder-slot')
 				)
 
-				const InventoryItem = (id: string, item: ItemInstance, handler?: (item: Item) => unknown) => {
+				const InventoryItem = (id: string, item: ItemInstance) => {
 					const itemState = ItemState.resolve(item, inventory)
 					return Part(id, itemState, (part, item) => {
+						const transferDisplay = transferDisplayState.map(part, (transfers: InventoryTransferDisplayState) => getTransferDisplay(transfers, item.value))
 						const itemComponent = part.and(Item, item)
-						handler?.(itemComponent)
+						transferDisplay.use(itemComponent, (display: InventoryTransferDisplay) => {
+							itemComponent.moving.value = display === 'pending'
+							itemComponent.transferFailed.value = display === 'failure'
+						})
+						itemComponent.event.subscribe('click', event => transferItemOnClick(itemComponent, event))
 					}) as Item
 				}
 
@@ -452,6 +510,18 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						item.bucketHash === InventoryBucketHashes.General ? vaultItemsByBucket : profileItemsByBucket,
 						definitionBucketHash,
 						item,
+					)
+				}
+
+				const transferItemOnClick = (itemComponent: Item, event: Event) => {
+					if (!(event instanceof MouseEvent) || itemComponent.moving.value)
+						return
+
+					event.preventDefault()
+					event.stopPropagation()
+					void (event.ctrlKey
+						? inventoryTransfers.vaultItem(itemComponent.state.value)
+						: inventoryTransfers.equipItem(itemComponent.state.value)
 					)
 				}
 

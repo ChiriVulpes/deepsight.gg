@@ -14,6 +14,8 @@ import { _ } from 'utility/Objects'
 
 interface ItemExtensions {
 	readonly state: State<ItemState>
+	readonly moving: State.Mutable<boolean>
+	readonly transferFailed: State.Mutable<boolean>
 }
 
 interface Item extends Component, ItemExtensions { }
@@ -26,12 +28,19 @@ const Item = Object.assign(
 		const featured = state.map(component, item => item.definition.featured)
 		const isEngram = state.map(component, item => !!item.definition.categoryHashes?.includes(ItemCategoryHashes.Engrams))
 		const rarity = state.map(component, ({ provider: collections, definition }): DeepsightTierTypeDefinition | undefined => collections.rarities[definition.rarity])
+		const moving = State(false)
+		const transferFailed = State(false)
 
 		component.and(Button)
 		component.style('item')
 		component.style.bindFrom(rarity.map(component, rarity => rarity && `item--${rarity.displayProperties.name!.toLowerCase()}` as 'item--common'))
 		component.style.bind(masterworked, 'item--masterworked')
 		component.style.bind(isEngram, 'item--engram')
+		component.style.bind(transferFailed, 'item--transfer-failed')
+
+		Component()
+			.style('item-moving-indicator')
+			.appendToWhen(moving, component)
 
 		Component()
 			.style('item-border')
@@ -85,6 +94,8 @@ const Item = Object.assign(
 		}))
 		return component.extend<ItemExtensions>(itemComponent => ({
 			state,
+			moving,
+			transferFailed,
 		}))
 	}),
 	{

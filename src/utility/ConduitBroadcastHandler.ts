@@ -2,11 +2,13 @@ import DisplaySlot from 'component/core/DisplaySlot'
 import type Toast from 'component/core/Toast'
 import { ToastStream } from 'component/core/Toast'
 import Item from 'component/item/Item'
-import type { ConduitOperation } from 'conduit.deepsight.gg/ConduitMessageRegistry'
+import CharacterButton from 'component/profile/CharacterButton'
+import type { ConduitOperation, RelatedItem } from 'conduit.deepsight.gg/ConduitMessageRegistry'
+import type Inventory from 'conduit.deepsight.gg/item/Inventory'
 import type { ItemProvider } from 'conduit.deepsight.gg/item/Item'
 import { Component, State } from 'kitsui'
 import Slot from 'kitsui/component/Slot'
-import { ItemState } from 'model/Items'
+import { ItemState, type ItemReference } from 'model/Items'
 import Relic from 'Relic'
 import Env from 'utility/Env'
 
@@ -42,7 +44,10 @@ namespace ConduitBroadcastHandler {
 							const operation = operations[0]
 							Component()
 								.style('conduit-operations-operation')
-								.text.set(quilt => quilt['conduit-operations/operation'](operation.type, operations.length > 1 ? operations.length : undefined))
+								.tweak(component => appendRelatedItems(component, operation.related))
+								.append(Component()
+									.text.set(quilt => quilt['conduit-operations/operation'](operation.type, operations.length > 1 ? operations.length : undefined))
+								)
 								.appendTo(slot)
 						}
 					})
@@ -74,12 +79,17 @@ namespace ConduitBroadcastHandler {
 
 			const owner = State.Owner.create()
 			let singleItemState: State<ItemState | undefined> | undefined
+			let singleCharacterState: State<Inventory['characters'][string] | undefined> | undefined
 			const shouldShow = State(true)
 			if (warning.related?.length === 1) {
-				const item = warning.related[0]
-				if (item.is === 'item' || item.is === 'item-instance') {
-					singleItemState = provider.map(owner, provider => provider && ItemState.resolve(item, provider))
+				const related = warning.related[0]
+				if (related.is === 'item-reference') {
+					singleItemState = provider.map(owner, provider => provider && ItemState.resolve(toItemReference(related), provider))
 					shouldShow.bind(owner, singleItemState.truthy)
+				}
+				else {
+					singleCharacterState = provider.map(owner, provider => getCharacter(provider, related.characterId))
+					shouldShow.bind(owner, singleCharacterState.truthy)
 				}
 			}
 
@@ -93,11 +103,51 @@ namespace ConduitBroadcastHandler {
 						.prependWhen(singleItemState.truthy, Slot().use(singleItemState, (slot, itemState) =>
 							itemState && Item(itemState)
 						))
+					else if (singleCharacterState) toast
+						.style.bind(singleCharacterState.truthy, 'toast--has-icon')
+						.prependWhen(singleCharacterState.truthy, Slot().use(singleCharacterState, (slot, character) =>
+							character && CharacterButton(character).tweak(button => button.mode.value = 'simple')
+						))
 
 					return toast
 				})
 			})
 		})
+	}
+
+	function appendRelatedItems (component: Component, relatedItems?: RelatedItem[]) {
+		for (const related of relatedItems ?? [])
+			appendRelatedItem(component, related)
+	}
+
+	function appendRelatedItem (component: Component, related: RelatedItem) {
+		if (related.is === 'item-reference') {
+			const itemState = provider.map(component, provider => provider && ItemState.resolve(toItemReference(related), provider))
+			Slot()
+				.use(itemState, (slot, itemState) => itemState && Item(itemState))
+				.appendTo(component)
+			return
+		}
+
+		const character = provider.map(component, provider => getCharacter(provider, related.characterId))
+		Slot()
+			.use(character, (slot, character) => character && CharacterButton(character).tweak(button => button.mode.value = 'simple'))
+			.appendTo(component)
+	}
+
+	function toItemReference (related: Extract<RelatedItem, { is: 'item-reference' }>): ItemReference {
+		return {
+			is: 'item-reference',
+			hash: related.itemHash,
+		}
+	}
+
+	function getCharacter (provider: ItemProvider | undefined, characterId: string): Inventory['characters'][string] | undefined {
+		return isInventoryProvider(provider) ? provider.characters[characterId] : undefined
+	}
+
+	function isInventoryProvider (provider: ItemProvider | undefined): provider is Inventory {
+		return !!provider && 'characters' in provider
 	}
 }
 

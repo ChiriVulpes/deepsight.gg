@@ -17,6 +17,7 @@
 	%borderless
 	%box-shadow-none
 	%top-auto
+	isolation: isolate
 
 	#phone-mode:
 		$item-size-base: calc($space-5)
@@ -44,6 +45,26 @@
 	&--engram:
 		$item-rarity-background-colour: transparent
 		$item-rarity-border-colour: transparent
+
+	&--transfer-failed:
+		box-shadow: 0 0 0 2px $colour-warning-foreground
+
+	&-moving-indicator:
+		%block
+		%absolute
+		%overflow-hidden
+		inset: -2px
+		z-index: -1
+
+		@before:
+			%absolute
+			%block
+			inset: -20%
+			background: conic-gradient(transparent, white 120deg, transparent 120deg, white 240deg, transparent 240deg, white)
+			%no-pointer-events
+
+			#animate 1.8s linear infinite:
+				to: rotate: z 360deg
 
 	&-border:
 		%block
