@@ -1,3 +1,28 @@
 # conduit-operations
 operation: {0}...{1? (x{1})}
 no-operations: Done.
+
+## operation
+searching-destiny-players: Searching Destiny players{0? for {0}}
+updating-player-profiles: Updating player profiles{0? for {0}}
+updating-your-player-profile: Updating your player profile{0? for {0}}
+validating-bungie-net-access-token: Validating Bungie.net access token{0? for {0}}
+fetching-destiny-profile: Fetching Destiny profile{0? for {0}}
+resolving-inventory: Resolving inventory{0? for {0}}
+resolving-collections: Resolving collections{0? for {0}}
+checking-for-new-definitions: Checking for new definitions{0? for {0}}
+downloading-definitions: Downloading definitions{0? for {0}}
+vaulting-item: Vaulting item{0? from {0}}
+moving-item-to-character: Moving item to {0?{0}:character}
+pulling-item-from-postmaster: Pulling item from postmaster{0? for {0}}
+transferring-item-to-vault: Transferring item to vault{0? from {0}}
+transferring-item-to-character: Transferring item to {0?{0}:character}
+equipping-item: Equipping item{0? on {0}}
+
+## warning
+item-has-watermark-but-no-moment: Item has watermark but no moment{0? ({0})}
+unable-to-transfer-item-not-authenticated: Unable to transfer item: Not authenticated{0? ({0})}
+unable-to-transfer-item-character-required: Unable to transfer item: Character required{0? ({0})}
+unable-to-equip-item-instance-required: Unable to equip item: Instance required{0? ({0})}
+unable-to-equip-item-planner-support-required: Unable to equip item: Planner support required{0? ({0})}
+unable-to-pull-item-from-postmaster-unknown-item: Unable to pull item from postmaster: Unknown item{0? ({0})}

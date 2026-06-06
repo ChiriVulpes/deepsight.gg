@@ -3,7 +3,53 @@
 	%flex-column
 	%gap-1
 
-	&-operation:
+	&-indicator:
 		%flex
 		%align-items-centre
-		%gap-2
+		%justify-content-centre
+
+	&-operation:
+		%flex
+		%flex-column
+		%align-items-start
+		%gap-1
+
+		&-text:
+			%font-vertical-align
+
+	&-related:
+		&-items:
+			%flex
+			%align-items-centre
+			%gap-1
+			%flex-wrap
+			$item-size: calc($space-4 + $space-1)
+
+		&-item:
+			%top-auto
+
+	&-character:
+		&-references:
+			%inline-flex
+			%align-items-centre
+			%gap-1
+			vertical-align: middle
+
+		&-reference:
+			%inline-flex
+			%align-items-centre
+			%gap-1
+			%font-vertical-align
+			vertical-align: middle
+
+			&-emblem:
+				%inline-block
+				size: 1.3em
+				background: $conduit-operations-character-colour
+				background-image: $conduit-operations-character-emblem
+				background-size: cover
+				background-position: center
+				box-shadow: inset 0 0 0 1px #fff4
+
+			&-name:
+				%font-vertical-align
