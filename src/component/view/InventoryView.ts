@@ -18,7 +18,7 @@ import CharacterButton from 'component/profile/CharacterButton'
 import GenericTooltip from 'component/tooltip/GenericTooltip'
 import { Inventory as ConduitInventory } from 'conduit.deepsight.gg'
 import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry'
-import type { InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory'
+import type { InventoryTransferController, InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory'
 import type Inventory from 'conduit.deepsight.gg/item/Inventory'
 import type { ItemInstance } from 'conduit.deepsight.gg/item/Item'
 import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums'
@@ -222,6 +222,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 	const lastCheck = State<number | undefined>(undefined)
 	const inventoryLoadRequest = State<{ mode: InventoryLoadMode, nonce: number }>({ mode: 'cached', nonce: 0 })
+	let inventoryTransfers: InventoryTransferController | undefined
 	const requestInventoryLoad = (mode: InventoryLoadMode) => {
 		inventoryLoadRequest.value = {
 			mode,
@@ -238,16 +239,19 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		currentProfileId = profile?.id
 		lastCheck.value = Date.now()
 		const inventory = profile && await (mode === 'fresh' ? conduit.getInventory : conduit.getInventoryCached)(profile.name, profile.code ?? 0)
-		inventoryDisplayState.value = inventory
+		if (inventoryTransfers)
+			inventoryTransfers.setBaseInventory(inventory)
+		else
+			inventoryDisplayState.value = inventory
 		return inventory
 	})
 	const unsubscribeInventoryUpdated = conduit.on.inventoryUpdated(({ profile, inventory }) => {
 		if (profile.id !== currentProfileId)
 			return
 
-		inventoryDisplayState.value = inventory
+		inventoryTransfers?.setBaseInventory(inventory)
 	})
-	const inventoryTransfers = ConduitInventory.transfers(conduit, {
+	inventoryTransfers = ConduitInventory.transfers(conduit, {
 		getInventory: () => inventoryDisplayState.value,
 		setInventory: inventory => inventoryDisplayState.value = inventory,
 		refreshInventory: () => requestInventoryLoad('cached'),
@@ -399,6 +403,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 				const ItemListFilteredDestination = (destination: Component) => ({
 					isInsertionDestination: true as const,
+					////////////////////////////////////
+					//#region filtered dest append
 					append (...contents: Parameters<Component['append']>) {
 						for (const content of contents) {
 							if (!content)
@@ -470,6 +476,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 						return this
 					},
+					//#endregion
+					////////////////////////////////////
 				})
 
 				const characters = Object.values(inventory.characters).sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
