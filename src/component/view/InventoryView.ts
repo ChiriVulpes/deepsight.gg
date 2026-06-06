@@ -300,7 +300,6 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 			let bucketRenderEpoch = 0
 			const bucketHydratedStates = new Map<InventoryBucketHashes, State.Mutable<boolean>>()
 			const bucketHydrating = new Set<InventoryBucketHashes>()
-			const bucketContentHosts = new Map<InventoryBucketHashes, Component>()
 			const bucketHydrators = new Map<InventoryBucketHashes, () => void>()
 			Component.getWindow().event.until(slot, event => event
 				.subscribe('scroll', () => {
@@ -357,10 +356,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						.style('inventory-view-bucket-row')
 						.style.toggle(bucketDef.location !== ItemLocation.Inventory && bucketDef.location !== ItemLocation.Postmaster, 'inventory-view-bucket-row--profile')
 						.append(BucketTitle(bucketHash))
-						.append(Component()
+						.append(Part(`bucket:${bucketHash}/content`, content => content
 							.style.setProperty('display', 'contents')
-							.tweak(content => bucketContentHosts.set(bucketHash, content))
-						)
+						))
 					)
 				}
 
@@ -545,7 +543,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						continue
 
 					const bucketRow = BucketRow(bucketHash)
-					const bucketContent = bucketContentHosts.get(bucketHash)
+					const bucketContent = Part(`bucket:${bucketHash}/content`)
 					if (!bucketContent)
 						continue
 
