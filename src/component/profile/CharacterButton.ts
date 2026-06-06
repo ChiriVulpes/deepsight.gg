@@ -54,12 +54,22 @@ const CharacterButton = Component((component, character?: State.Or<Character | u
 		))
 		.appendTo(button)
 
+	const titleCharacter = State.Map(button, [character, displayMode], (character, mode) =>
+		mode === 'expanded' ? character : undefined
+	)
+
 	const titleWrapper = Component()
 		.style('character-button-title')
-		.text.bind(State.Async(button, character, async character => {
+		.text.bind(State.Async(button, titleCharacter, async character => {
+			if (!character)
+				return undefined
+
+			if (character.title !== undefined)
+				return character.title
+
 			const conduit = await Relic.connected
-			const titleRecord = await conduit.definitions.en.DestinyRecordDefinition.get(character?.metadata.titleRecordHash)
-			return titleRecord?.titleInfo.titlesByGenderHash[character?.metadata.genderHash!]
+			const titleRecord = await conduit.definitions.en.DestinyRecordDefinition.get(character.metadata.titleRecordHash)
+			return titleRecord?.titleInfo.titlesByGenderHash[character.metadata.genderHash]
 		}))
 		.appendToWhen(displayMode.equals('expanded'), button)
 
