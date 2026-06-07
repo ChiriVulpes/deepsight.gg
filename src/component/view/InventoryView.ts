@@ -233,6 +233,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	let currentProfileId: string | undefined
 	const inventoryDisplayState = State<Inventory | undefined>(undefined)
 	const transferDisplayState = State<InventoryTransferDisplayState>(EMPTY_TRANSFER_DISPLAY_STATE)
+	const getDefaultTransferCharacterId = () => Object.values(inventoryDisplayState.value?.characters ?? {})
+		.sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
+		[0]?.id
 	const state = State.Async(view, inventoryLoadRequest, async ({ mode }) => {
 		lastCheck.value = undefined
 		const [profile] = await conduit.getProfiles()
@@ -256,6 +259,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		setInventory: inventory => inventoryDisplayState.value = inventory,
 		refreshInventory: () => requestInventoryLoad('cached'),
 		getCurrentProfileId: () => currentProfileId,
+		getDefaultCharacterId: getDefaultTransferCharacterId,
 		onTransferStateChange: state => transferDisplayState.value = state,
 	})
 	Diagnostic.add({ inventoryTransferDisplayState: transferDisplayState })
