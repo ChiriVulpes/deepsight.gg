@@ -766,10 +766,11 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						.appendTo(slot)
 
 					for (const [component, defs] of Object.entries(data.references)) {
-						for (const definition of Object.values(defs)) {
-							DataProvider.SINGLE.prep(component as AllComponentNames, definition.hash)
+						const componentName = component as AllComponentNames
+						for (const definition of Object.values(defs) as { hash: number | string }[]) {
+							DataProvider.SINGLE.prep(componentName, definition.hash)
 							DataDefinitionButton()
-								.tweak(button => button.data.value = { component: component as AllComponentNames, definition })
+								.tweak(button => button.data.value = { component: componentName, definition })
 								.appendTo(list)
 						}
 					}

@@ -54,7 +54,7 @@ interface DisplayBar extends Component, DisplayBarExtensions { }
 namespace DisplayBar {
 	export interface Config {
 		readonly id: string
-		readonly sortConfig?: {}
+		readonly sortConfig?: object
 		readonly filterConfig?: Filter.Config
 	}
 }

@@ -140,7 +140,7 @@ namespace ConduitBroadcastHandler {
 			}
 		})
 
-		conduit.on.warning(async warning => {
+		conduit.on.warning(warning => {
 			if (warning.category === 'conduit' && Env.ENVIRONMENT !== 'dev')
 				return
 

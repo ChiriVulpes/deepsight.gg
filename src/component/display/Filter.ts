@@ -713,7 +713,7 @@ const Filter = Object.assign(
 										if (entry.type !== 'collapsed')
 											return
 
-										spliceSuggestion(entry.definition.applies)
+										void spliceSuggestion(entry.definition.applies)
 									})
 								return
 							}
@@ -737,7 +737,7 @@ const Filter = Object.assign(
 										newText = `${prefix}"${newText.slice(prefix.length)}"`
 									}
 
-									spliceSuggestion(`${newText} `)
+									void spliceSuggestion(`${newText} `)
 								})
 						})
 

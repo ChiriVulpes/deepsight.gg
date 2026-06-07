@@ -3,9 +3,9 @@
 	"private": true,
 	"dependencies": {
 		"bungie-api-ts": "5.10.0",
-		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#12685d49bac04d4c6132db166b341cdca56dfcd2",
-		"deepsight.gg": "1.0.1854",
-		"kitsui": "github:fluff4me/kitsui#e737f7113059cbbb4cd7feb30219097be351087a"
+		"conduit.deepsight.gg": "github:chirivulpes/conduit.deepsight.gg#97df1d5e8e08df32bf1347e25ce6fea0169ff555",
+		"deepsight.gg": "1.0.1857",
+		"kitsui": "github:fluff4me/kitsui#b47ca19628a3994d5850ef4257f40f20bf1a23f0"
 	},
 	"pnpm": {
 		"overrides": {

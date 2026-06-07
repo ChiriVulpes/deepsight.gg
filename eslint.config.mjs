@@ -1,4 +1,6 @@
 import lint from 'lint'
 
 export { lint }
-export default lint(import.meta.dirname)
+export default lint(import.meta.dirname, {
+	allowDefaultProject: ['*.js'],
+})

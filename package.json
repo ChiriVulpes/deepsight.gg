@@ -3,15 +3,15 @@
 	"name": "deepsight.gg-tasks",
 	"version": "1.0.0",
 	"devDependencies": {
+		"@types/node": "22.16.0",
 		"ansicolor": "2.0.3",
-		"chiri": "github:fluff4me/chiri#4404e36d0f999f3ec38bec9bb05fdcfed8ec6d07",
+		"chiri": "github:fluff4me/chiri#56e097a4050d29fc993f3a3eb4d54eb6d5b198d2",
 		"fantasticon": "3.0.0",
-		"lint": "github:fluff4me/lint#59de9b26041d6b98921a8a158ea5c29fdc699297",
+		"lint": "github:fluff4me/lint#67c325cac44e46be0d8cad6ea5935a7ad9c6638d",
 		"task": "github:chirivulpes/task#4743b1177d35a1fa751de5fed6362e5d4e36ce0e",
 		"tinyglobby": "0.2.14",
-		"ts-node": "10.9.2",
 		"typescript": "5.9.3",
-		"weaving": "github:chirivulpes/weaving#a0e911b8e0a1c0ca5ae9a220154aec29025d67e7"
+		"weaving": "github:chirivulpes/weaving#105ed29c4bdbae5570ca486298024426575c26af"
 	},
 	"pnpm": {
 		"overrides": {

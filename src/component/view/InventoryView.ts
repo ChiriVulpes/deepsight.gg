@@ -248,6 +248,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 	const lastCheck = State<number | undefined>(undefined)
 	const inventoryLoadRequest = State<{ mode: InventoryLoadMode, nonce: number }>({ mode: 'cached', nonce: 0 })
+	// eslint-disable-next-line prefer-const
 	let inventoryTransfers: InventoryTransferController | undefined
 	const requestInventoryLoad = (mode: InventoryLoadMode) => {
 		inventoryLoadRequest.value = {
@@ -273,7 +274,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	}
 	const getDefaultTransferCharacterId = () => Object.values(inventoryDisplayState.value?.characters ?? {})
 		.sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
-		[0]?.id
+		.at(0)?.id
 	const state = State.Async(view, inventoryLoadRequest, async ({ mode }) => {
 		lastCheck.value = undefined
 		const [profile] = await conduit.getProfiles()
@@ -692,6 +693,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					//#region Init bucket row
 
 					const bucketDef = inventory.buckets[bucketHash]
+					// eslint-disable-next-line prefer-const
 					let hydrateBucketForClick: (() => void) | undefined
 					const bucketButton = !bucketDef.displayProperties.name ? undefined :
 						Part(`bucket:${bucketHash}/button`, part => part
@@ -1044,7 +1046,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 	view.loading.onLoad((loading, display) => {
 		document.documentElement.scrollTop = 0
-		initialScrollTopState && (initialScrollTopState.value = 0)
+		if (initialScrollTopState)
+			initialScrollTopState.value = 0
 		if (initialContent && initialContentHost)
 			initialContent.appendTo(initialContentHost)
 

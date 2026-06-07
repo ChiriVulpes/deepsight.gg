@@ -27,14 +27,14 @@ export default function styleKit () {
 
 		const dots = ([1, 2, 3, 4] as const).map(i => Component().style('loading-spinner-dot', `loading-spinner-dot-${i}`))
 		loading.spinner.append(...dots)
-		 
-		const interval = setInterval(async () => {
+
+		const interval = setInterval(() => void (async () => {
 			for (const dot of dots)
 				dot.style('loading-spinner-dot--no-animate')
 			await new Promise(resolve => setTimeout(resolve, 10))
 			for (const dot of dots)
 				dot.style.remove('loading-spinner-dot--no-animate')
-		}, 2000)
+		})(), 2000)
 
 		loading.onSet((loading, owner, state) => {
 			loading.errorText.text.bind(state.error.map(owner, error => error?.message ?? (quilt => quilt['shared/errored']())))
