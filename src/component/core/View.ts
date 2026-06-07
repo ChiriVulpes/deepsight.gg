@@ -6,7 +6,7 @@ import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import Task from 'kitsui/utility/Task'
-import TextManipulator from 'kitsui/utility/TextManipulator'
+import type TextManipulator from 'kitsui/utility/TextManipulator'
 import ViewTransition from 'utility/ViewTransition'
 
 interface LoadingAPI {

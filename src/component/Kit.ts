@@ -27,7 +27,7 @@ export default function styleKit () {
 
 		const dots = ([1, 2, 3, 4] as const).map(i => Component().style('loading-spinner-dot', `loading-spinner-dot-${i}`))
 		loading.spinner.append(...dots)
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		 
 		const interval = setInterval(async () => {
 			for (const dot of dots)
 				dot.style('loading-spinner-dot--no-animate')

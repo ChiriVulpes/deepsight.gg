@@ -1,43 +1,43 @@
-import Button from 'component/core/Button';
-import Icon from 'component/core/Icon';
-import Image from 'component/core/Image';
-import View from 'component/core/View';
-import FilterAmmo from 'component/display/filter/FilterAmmo';
-import FilterBreakerType from 'component/display/filter/FilterBreakerType';
-import FilterElement from 'component/display/filter/FilterElement';
-import FilterRarity from 'component/display/filter/FilterRarity';
-import FilterSource from 'component/display/filter/FilterSource';
-import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry';
-import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame';
-import FilterWeaponType from 'component/display/filter/FilterWeaponType';
-import DisplayBar from 'component/DisplayBar';
-import Item from 'component/item/Item';
-import Overlay from 'component/Overlay';
-import ItemOverlay from 'component/overlay/ItemOverlay';
-import CharacterButton from 'component/profile/CharacterButton';
-import GenericTooltip from 'component/tooltip/GenericTooltip';
-import { Inventory as ConduitInventory } from 'conduit.deepsight.gg';
-import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry';
-import type { InventoryTransferController, InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory';
-import type Inventory from 'conduit.deepsight.gg/item/Inventory';
-import type { ItemInstance } from 'conduit.deepsight.gg/item/Item';
-import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums';
-import { Component, Kit, State } from 'kitsui';
-import Breakdown from 'kitsui/component/Breakdown';
-import Loading from 'kitsui/component/Loading';
-import type { PopoverComponentRegisteredExtensions } from 'kitsui/component/Popover';
-import Slot from 'kitsui/component/Slot';
-import Task from 'kitsui/utility/Task';
-import DisplayProperties from 'model/DisplayProperties';
-import type { ItemReference, ItemStateOptional, ItemState as ItemStateValue } from 'model/Items';
-import { ItemState } from 'model/Items';
-import type { RoutePath } from 'navigation/RoutePath';
-import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2';
-import Relic from 'Relic';
-import type { IconsKey } from 'style/icons';
-import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler';
-import Diagnostic from 'utility/Diagnostic';
-import Time from 'utility/Time';
+import Button from 'component/core/Button'
+import Icon from 'component/core/Icon'
+import Image from 'component/core/Image'
+import View from 'component/core/View'
+import FilterAmmo from 'component/display/filter/FilterAmmo'
+import FilterBreakerType from 'component/display/filter/FilterBreakerType'
+import FilterElement from 'component/display/filter/FilterElement'
+import FilterRarity from 'component/display/filter/FilterRarity'
+import FilterSource from 'component/display/filter/FilterSource'
+import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
+import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
+import FilterWeaponType from 'component/display/filter/FilterWeaponType'
+import DisplayBar from 'component/DisplayBar'
+import Item from 'component/item/Item'
+import Overlay from 'component/Overlay'
+import ItemOverlay from 'component/overlay/ItemOverlay'
+import CharacterButton from 'component/profile/CharacterButton'
+import GenericTooltip from 'component/tooltip/GenericTooltip'
+import { Inventory as ConduitInventory } from 'conduit.deepsight.gg'
+import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry'
+import type { InventoryTransferController, InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory'
+import type Inventory from 'conduit.deepsight.gg/item/Inventory'
+import type { ItemInstance } from 'conduit.deepsight.gg/item/Item'
+import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums'
+import { Component, Kit, State } from 'kitsui'
+import Breakdown from 'kitsui/component/Breakdown'
+import Loading from 'kitsui/component/Loading'
+import type { PopoverComponentRegisteredExtensions } from 'kitsui/component/Popover'
+import Slot from 'kitsui/component/Slot'
+import Task from 'kitsui/utility/Task'
+import DisplayProperties from 'model/DisplayProperties'
+import type { ItemReference, ItemStateOptional, ItemState as ItemStateValue } from 'model/Items'
+import { ItemState } from 'model/Items'
+import type { RoutePath } from 'navigation/RoutePath'
+import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
+import Relic from 'Relic'
+import type { IconsKey } from 'style/icons'
+import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
+import Diagnostic from 'utility/Diagnostic'
+import Time from 'utility/Time'
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
 	id: 'inventory',

@@ -1,4 +1,4 @@
-import Define from "utility/Define"
+import Define from 'utility/Define'
 
 declare global {
 	interface String {

@@ -33,7 +33,7 @@ type KebabWord<T extends string> = TrimHyphen<Lowercase<
 			':',
 			''
 		>,
-		"'",
+		'\'',
 		''
 	>
 >>
