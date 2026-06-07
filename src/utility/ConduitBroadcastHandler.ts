@@ -69,12 +69,14 @@ namespace ConduitBroadcastHandler {
 						const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
 						if (provider && relatedItems.length === 1) {
 							Component()
+								.setOwner(toast)
 								.tweak(component => appendRelatedItem(component, relatedItems[0], { moving: true }))
 								.appendTo(slot)
 							return
 						}
 
 						Loading()
+							.setOwner(toast)
 							.style('toast-loader')
 							.showForever()
 							.appendTo(slot)
@@ -98,15 +100,16 @@ namespace ConduitBroadcastHandler {
 							const operation = operations[0]
 							const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
 							Component()
+								.setOwner(toast)
 								.style('conduit-operations-operation')
 								.append(Component()
 									.style('conduit-operations-operation-text')
-									.text.set(quilt => quilt['conduit-operations/operation'](
+									.tweak(c => c.text.set(quilt => quilt['conduit-operations/operation'](
 										quilt[getOperationTextKey(operation.type)](
-											getRelatedCharactersArg(provider, getRelatedCharacterReferences(operations)),
+											getRelatedCharactersArg(c, provider, getRelatedCharacterReferences(operations)),
 										),
 										operations.length > 1 ? operations.length : undefined,
-									))
+									)))
 								)
 								.tweak(component => {
 									if (allRelatedItems.length > 1)
@@ -163,15 +166,18 @@ namespace ConduitBroadcastHandler {
 					toast.style('toast--warning')
 					toast.content.text.bind(provider.map(toast, provider =>
 						quilt => quilt[getWarningTextKey(warning.type)](
-							getRelatedCharactersArg(provider, relatedCharacters),
+							getRelatedCharactersArg(toast.content, provider, relatedCharacters),
 						)
 					))
 
 					if (singleItemState) toast
 						.style.bind(singleItemState.truthy, 'toast--has-icon')
-						.prependWhen(singleItemState.truthy, Slot().use(singleItemState, (slot, itemState) =>
-							itemState && Item(itemState)
-						))
+						.prependWhen(singleItemState.truthy, Slot()
+							.setOwner(toast)
+							.use(singleItemState, (slot, itemState) =>
+								itemState && Item(itemState)
+							)
+						)
 
 					return toast
 				})
@@ -265,12 +271,13 @@ namespace ConduitBroadcastHandler {
 			})
 	}
 
-	function getRelatedCharactersArg (provider: ItemProvider | undefined, relatedCharacters: RelatedCharacterReference[]): WeavingArg | undefined {
+	function getRelatedCharactersArg (owner: State.Owner, provider: ItemProvider | undefined, relatedCharacters: RelatedCharacterReference[]): WeavingArg | undefined {
 		const characters = uniqueRelatedCharacters(provider, relatedCharacters)
 		if (!characters.length || !isInventoryProvider(provider))
 			return undefined
 
 		const component = Component()
+			.setOwner(owner)
 			.style('conduit-operations-character-references')
 			.append(...characters.map(character => getCharacterReferenceComponent(provider, character)))
 		return WeavingArg.setRenderable(component, () => characters.map(character => getCharacterName(provider, character)).join(', '))
