@@ -34,6 +34,7 @@ export namespace ItemState {
 	export function resolve (item: ItemReference | ItemInstance | Item | undefined, provider: ItemProvider): ItemStateOptional
 	export function resolve (item: ItemReference | ItemInstance | Item | undefined, provider: ItemProvider): ItemStateOptional {
 		const characterId = item?.is === 'item-instance'
+			&& item.id
 			? Object.values((provider as Inventory).characters ?? {})
 				.find(character => [...character.items, ...character.equippedItems].some(i => i.id === item.id))
 				?.id

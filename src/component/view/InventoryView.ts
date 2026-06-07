@@ -1,42 +1,43 @@
-import Button from 'component/core/Button'
-import Icon from 'component/core/Icon'
-import Image from 'component/core/Image'
-import View from 'component/core/View'
-import FilterAmmo from 'component/display/filter/FilterAmmo'
-import FilterBreakerType from 'component/display/filter/FilterBreakerType'
-import FilterElement from 'component/display/filter/FilterElement'
-import FilterRarity from 'component/display/filter/FilterRarity'
-import FilterSource from 'component/display/filter/FilterSource'
-import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
-import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
-import FilterWeaponType from 'component/display/filter/FilterWeaponType'
-import DisplayBar from 'component/DisplayBar'
-import Item from 'component/item/Item'
-import Overlay from 'component/Overlay'
-import ItemOverlay from 'component/overlay/ItemOverlay'
-import CharacterButton from 'component/profile/CharacterButton'
-import GenericTooltip from 'component/tooltip/GenericTooltip'
-import { Inventory as ConduitInventory } from 'conduit.deepsight.gg'
-import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry'
-import type { InventoryTransferController, InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory'
-import type Inventory from 'conduit.deepsight.gg/item/Inventory'
-import type { ItemInstance } from 'conduit.deepsight.gg/item/Item'
-import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums'
-import { Component, State } from 'kitsui'
-import Breakdown from 'kitsui/component/Breakdown'
-import Loading from 'kitsui/component/Loading'
-import Slot from 'kitsui/component/Slot'
-import Task from 'kitsui/utility/Task'
-import DisplayProperties from 'model/DisplayProperties'
-import type { ItemReference, ItemStateOptional } from 'model/Items'
-import { ItemState } from 'model/Items'
-import type { RoutePath } from 'navigation/RoutePath'
-import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2'
-import Relic from 'Relic'
-import type { IconsKey } from 'style/icons'
-import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler'
-import Diagnostic from 'utility/Diagnostic'
-import Time from 'utility/Time'
+import Button from 'component/core/Button';
+import Icon from 'component/core/Icon';
+import Image from 'component/core/Image';
+import View from 'component/core/View';
+import FilterAmmo from 'component/display/filter/FilterAmmo';
+import FilterBreakerType from 'component/display/filter/FilterBreakerType';
+import FilterElement from 'component/display/filter/FilterElement';
+import FilterRarity from 'component/display/filter/FilterRarity';
+import FilterSource from 'component/display/filter/FilterSource';
+import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry';
+import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame';
+import FilterWeaponType from 'component/display/filter/FilterWeaponType';
+import DisplayBar from 'component/DisplayBar';
+import Item from 'component/item/Item';
+import Overlay from 'component/Overlay';
+import ItemOverlay from 'component/overlay/ItemOverlay';
+import CharacterButton from 'component/profile/CharacterButton';
+import GenericTooltip from 'component/tooltip/GenericTooltip';
+import { Inventory as ConduitInventory } from 'conduit.deepsight.gg';
+import type { ItemTransferReference } from 'conduit.deepsight.gg/ConduitMessageRegistry';
+import type { InventoryTransferController, InventoryTransferDisplayState, InventoryTransferOperationState } from 'conduit.deepsight.gg/Inventory';
+import type Inventory from 'conduit.deepsight.gg/item/Inventory';
+import type { ItemInstance } from 'conduit.deepsight.gg/item/Item';
+import { InventoryBucketHashes, InventoryItemHashes, PresentationNodeHashes, VendorHashes } from 'deepsight.gg/Enums';
+import { Component, Kit, State } from 'kitsui';
+import Breakdown from 'kitsui/component/Breakdown';
+import Loading from 'kitsui/component/Loading';
+import type { PopoverComponentRegisteredExtensions } from 'kitsui/component/Popover';
+import Slot from 'kitsui/component/Slot';
+import Task from 'kitsui/utility/Task';
+import DisplayProperties from 'model/DisplayProperties';
+import type { ItemReference, ItemStateOptional, ItemState as ItemStateValue } from 'model/Items';
+import { ItemState } from 'model/Items';
+import type { RoutePath } from 'navigation/RoutePath';
+import { ItemLocation } from 'node_modules/bungie-api-ts/destiny2';
+import Relic from 'Relic';
+import type { IconsKey } from 'style/icons';
+import ConduitBroadcastHandler from 'utility/ConduitBroadcastHandler';
+import Diagnostic from 'utility/Diagnostic';
+import Time from 'utility/Time';
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
 	id: 'inventory',
@@ -85,11 +86,28 @@ type BucketIcon =
 
 type InventoryLoadMode = 'cached' | 'fresh'
 type InventoryTransferDisplay = 'pending' | 'failure' | undefined
+type InventoryDragSource = 'character-inventory' | 'character-equipment' | 'profile' | 'vault'
+
+interface InventoryDragPayload {
+	item: ItemInstance
+	source: InventoryDragSource
+	sourceKey: string
+	characterId?: string
+	bucketHash: InventoryBucketHashes
+	sourceBucketHash: InventoryBucketHashes
+}
+
+interface InventoryItemPartState {
+	item: ItemStateValue
+	dragSource?: Pick<InventoryDragPayload, 'source' | 'characterId'>
+}
 
 const EMPTY_TRANSFER_DISPLAY_STATE: InventoryTransferDisplayState = {
 	pending: [],
 	failures: [],
 }
+
+const InventoryItemDrag = Kit.DragDrop<InventoryDragPayload>('inventory-item')
 
 const bucketIcons = State.Async(State.Owner.create(), async (): Promise<Map<InventoryBucketHashes, BucketIcon | undefined>> => {
 	const conduit = await Relic.connected
@@ -189,10 +207,18 @@ function matchesTransferReference (reference: ItemTransferReference, item: ItemS
 	if (reference.instanceId)
 		return instance.id === reference.instanceId
 
-	return instance.id === undefined &&
-		instance.itemHash === reference.itemHash &&
-		instance.quantity === reference.stackSize &&
-		item.characterId === reference.characterId
+	if (reference.bucketHash !== undefined && instance.bucketHash !== reference.bucketHash)
+		return false
+
+	if (reference.characterId !== undefined && item.characterId !== undefined && item.characterId !== reference.characterId)
+		return false
+
+	if (!reference.instanceId && reference.bucketHash !== undefined)
+		return false
+
+	return instance.id === undefined
+		&& instance.itemHash === reference.itemHash
+		&& instance.quantity === reference.stackSize
 }
 
 export interface InventoryParamsItemInstanceId {
@@ -233,6 +259,18 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 	let currentProfileId: string | undefined
 	const inventoryDisplayState = State<Inventory | undefined>(undefined)
 	const transferDisplayState = State<InventoryTransferDisplayState>(EMPTY_TRANSFER_DISPLAY_STATE)
+	const localPendingTransferKeys = State<ReadonlySet<string>>(new Set())
+	const withLocalPendingTransfer = async (sourceKey: string, action: () => Promise<unknown>) => {
+		localPendingTransferKeys.value = new Set([...localPendingTransferKeys.value, sourceKey])
+		try {
+			await action()
+		}
+		finally {
+			const next = new Set(localPendingTransferKeys.value)
+			next.delete(sourceKey)
+			localPendingTransferKeys.value = next
+		}
+	}
 	const getDefaultTransferCharacterId = () => Object.values(inventoryDisplayState.value?.characters ?? {})
 		.sort((a, b) => new Date(b.metadata.dateLastPlayed).getTime() - new Date(a.metadata.dateLastPlayed).getTime())
 		[0]?.id
@@ -356,13 +394,17 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					await renderTask.yield()
 				}
 				const shouldCancelRender = () => slot.removed.value || renderEpoch !== bucketRenderEpoch
+				const bucketUsesCharacterLayout = (bucketDef: Inventory['buckets'][InventoryBucketHashes]) =>
+					bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster
+				const bucketHasProfileTransferTargets = (bucketDef: Inventory['buckets'][InventoryBucketHashes]) =>
+					!bucketUsesCharacterLayout(bucketDef) && bucketDef.hasTransferDestination
 
 				const BucketRow = (bucketHash: InventoryBucketHashes) => {
 					bucketItemsVisibleCount = 0
 					const bucketDef = inventory.buckets[bucketHash]
 					return Part(`bucket:${bucketHash}/row`, part => part
 						.style('inventory-view-bucket-row')
-						.style.toggle(bucketDef.location !== ItemLocation.Inventory && bucketDef.location !== ItemLocation.Postmaster, 'inventory-view-bucket-row--profile')
+						.style.toggle(!bucketUsesCharacterLayout(bucketDef), 'inventory-view-bucket-row--profile')
 						.append(BucketTitle(bucketHash))
 						.append(Part(`bucket:${bucketHash}/content`, content => content
 							.style.setProperty('display', 'contents')
@@ -378,26 +420,56 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					.style('inventory-view-bucket-wrapper')
 				)
 
-				const ItemList = (id: string) => Part(id, part => part
+				const ItemList = (id: string, initialiser?: (part: Component) => unknown) => Part(id, part => part
 					.style('inventory-view-bucket-item-list')
+					.tweak(initialiser)
 				)
 
 				const PlaceholderItem = (id: string) => Part(id, part => part
 					.style('item', 'inventory-view-bucket-item-list-empty-slot', 'inventory-view-bucket-item-list-placeholder-slot')
 				)
 
-				const InventoryItem = (id: string, item: ItemInstance) => {
-					const itemState = ItemState.resolve(item, inventory)
-					return Part(id, itemState, (part, item) => {
-						const transferDisplay = transferDisplayState.map(part, (transfers: InventoryTransferDisplayState) => getTransferDisplay(transfers, item.value))
+				const InventoryItem = (id: string, item: ItemInstance, dragSource?: Pick<InventoryDragPayload, 'source' | 'characterId'>) =>
+					Part<InventoryItemPartState>(id, {
+						item: ItemState.resolve(item, inventory),
+						dragSource,
+					}, (part, state) => {
+						const item = state.map(part, state => state.item)
+						const transferDisplay = State.Map(part, [transferDisplayState, localPendingTransferKeys], (transfers, localPending): InventoryTransferDisplay =>
+							localPending.has(id) ? 'pending' : getTransferDisplay(transfers, item.value)
+						)
 						const itemComponent = part.and(Item, item)
 						transferDisplay.use(itemComponent, (display: InventoryTransferDisplay) => {
 							itemComponent.moving.value = display === 'pending'
 							itemComponent.transferFailed.value = display === 'failure'
 						})
-						itemComponent.event.subscribe('click', event => transferItemOnClick(itemComponent, event))
+						{
+							const dragPayload = state.map(part, ({ item, dragSource }): InventoryDragPayload | undefined => {
+								if (!dragSource || !item.instance || (dragSource.source === 'profile' && !dragSource.characterId))
+									return undefined
+
+								return {
+									item: item.instance,
+									source: dragSource.source,
+									sourceKey: id,
+									characterId: dragSource.characterId,
+									bucketHash: item.definition?.bucketHash ?? item.instance.bucketHash,
+									sourceBucketHash: item.instance.bucketHash,
+								}
+							})
+							const draggableItem = itemComponent.and(InventoryItemDrag.Draggable, drag => drag
+								.payload(dragPayload)
+								.disabledWhen(itemComponent.moving)
+								.threshold(6)
+								.onStart(() => (itemComponent as Item & Partial<PopoverComponentRegisteredExtensions>).popover?.hide())
+								.preview((_session, payload) => Item(State(ItemState.resolve(payload.item, inventory)))
+									.style('inventory-view-drag-preview')
+								)
+							)
+							draggableItem.style.bind(draggableItem.dragging, 'item--dragging')
+						}
+						itemComponent.event.subscribe('click', event => transferItemOnClick(itemComponent, event, id))
 					}) as Item
-				}
 
 				const appendPlaceholders = (list: Component, prefix: string, count: number) => {
 					for (let i = 0; i < count; i++)
@@ -523,16 +595,70 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					)
 				}
 
-				const transferItemOnClick = (itemComponent: Item, event: Event) => {
+				const transferItemOnClick = (itemComponent: Item, event: Event, sourceKey: string) => {
 					if (!(event instanceof MouseEvent) || itemComponent.moving.value)
 						return
 
 					event.preventDefault()
 					event.stopPropagation()
-					void (event.ctrlKey
+					void withLocalPendingTransfer(sourceKey, () => event.ctrlKey
 						? inventoryTransfers.vaultItem(itemComponent.state.value)
 						: inventoryTransfers.equipItem(itemComponent.state.value)
 					)
+				}
+
+				const transferReferenceFromPayload = (payload: InventoryDragPayload): ItemTransferReference => ({
+					instanceId: payload.item.id,
+					itemHash: payload.item.itemHash,
+					characterId: payload.source === 'vault' ? undefined : payload.characterId,
+					stackSize: payload.item.quantity,
+					bucketHash: payload.sourceBucketHash,
+					isLostItem: payload.item.bucketHash === InventoryBucketHashes.LostItems ? true : undefined,
+				})
+
+				const bindDropTargetStyles = (
+					target: Component & {
+						dragDropShown: State<boolean>
+						dragDropActive: State<boolean>
+					},
+					kind: 'vault' | 'character' | 'equipped',
+				) => target
+					.style.bind(target.dragDropShown, 'inventory-view-bucket-item-list--drop-target-available', `inventory-view-bucket-item-list--drop-target-${kind}` as never)
+					.style.bind(target.dragDropActive, 'inventory-view-bucket-item-list--drop-target-current', `inventory-view-bucket-item-list--drop-target-${kind}-current` as never)
+
+				const dropToVault = async (payload: InventoryDragPayload) => {
+					await withLocalPendingTransfer(payload.sourceKey, async () => {
+						if (payload.source === 'character-inventory')
+							await inventoryTransfers.vaultItem(payload.item)
+						else
+							await conduit.vaultItem(transferReferenceFromPayload(payload))
+					})
+				}
+
+				const dropToCharacterInventory = async (characterId: string, payload: InventoryDragPayload) => {
+					await withLocalPendingTransfer(payload.sourceKey, async () => {
+						if (payload.source === 'vault')
+							await inventoryTransfers.moveItemToCharacter(payload.item, characterId)
+						else if (payload.source === 'character-inventory' && payload.characterId !== characterId)
+							await conduit.moveItemToCharacter(characterId, transferReferenceFromPayload(payload))
+						else if (payload.source === 'character-equipment')
+							await conduit.moveItemToCharacter(characterId, transferReferenceFromPayload(payload))
+					})
+				}
+
+				const dropToProfileInventory = async (payload: InventoryDragPayload) => {
+					const characterId = getDefaultTransferCharacterId()
+					if (characterId)
+						await withLocalPendingTransfer(payload.sourceKey, async () => await conduit.moveItemToCharacter(characterId, transferReferenceFromPayload(payload)))
+				}
+
+				const dropToEquipped = async (characterId: string, payload: InventoryDragPayload) => {
+					await withLocalPendingTransfer(payload.sourceKey, async () => {
+						if (payload.source === 'character-inventory' && payload.characterId === characterId)
+							await inventoryTransfers.equipItem(payload.item)
+						else
+							await conduit.equipItemOnCharacter(characterId, transferReferenceFromPayload(payload))
+					})
 				}
 
 				for (const character of characters) {
@@ -604,7 +730,9 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 					const renderBucketContents = async (destination: Parameters<Component['appendTo']>[0], cooperative = true) => {
 						let hadOverfilledCharacter = false
-						if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
+						const usesCharacterLayout = bucketUsesCharacterLayout(bucketDef)
+						const hasProfileTransferTargets = bucketHasProfileTransferTargets(bucketDef)
+						if (usesCharacterLayout)
 							for (const character of characters) {
 								if (shouldCancelRender())
 									return
@@ -614,12 +742,22 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-wrapper--lost-items')
 									.appendTo(destination)
 
-								const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`)
+								const equippedItemList = ItemList(`character:${character.id}/bucket:${bucketHash}/equipped`, part => part
 									.style('inventory-view-bucket-item-list--equipped')
+									.append(Component().style('inventory-view-bucket-item-list--equipped-flair'))
+									.and(InventoryItemDrag.DropTarget, target => target
+										.accepts(payload => payload.bucketHash === bucketHash && (
+											payload.source !== 'character-equipment' || payload.characterId !== character.id
+										))
+										.drop(payload => dropToEquipped(character.id, payload))
+										.priority(20)
+									)
+									.tweak(bindDropTargetStyles, 'equipped')
+								)
 									.appendTo(bucketWrapper)
 								const equippedItemListFiltered = ItemListFilteredDestination(equippedItemList)
 								for (const item of equippedItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
-									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item)
+									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}`}`, item, { source: 'character-equipment', characterId: character.id })
 										.appendTo(equippedItemListFiltered)
 									if (cooperative)
 										await yieldRender()
@@ -627,9 +765,20 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 										return
 								}
 
-								const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`)
-									.style('inventory-view-bucket-item-list--inventory')
-									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+								const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`, part => part
+										.style('inventory-view-bucket-item-list--inventory')
+										.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+										.and(InventoryItemDrag.DropTarget, target => target
+											.accepts(payload => payload.bucketHash === bucketHash && (
+												payload.source === 'vault'
+												|| (payload.source === 'character-inventory' && payload.characterId !== character.id)
+												|| payload.source === 'character-equipment'
+											))
+											.drop(payload => dropToCharacterInventory(character.id, payload))
+											.priority(10)
+										)
+										.tweak(bindDropTargetStyles, 'character')
+								)
 									.appendTo(bucketWrapper)
 								const itemListFiltered = ItemListFilteredDestination(itemList)
 								let i = 0
@@ -637,7 +786,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								for (const item of inventoryItemsByCharacterBucket.get(character.id)?.get(bucketHash) ?? []) {
 									i++
 									hashAppearances[item.itemHash] ??= 0
-									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item)
+									InventoryItem(`item:${item.id ?? `hash:${item.itemHash}/character:${character.id}/stack:${hashAppearances[item.itemHash]++}`}`, item, { source: 'character-inventory', characterId: character.id })
 										.appendTo(itemListFiltered)
 									if (cooperative)
 										await yieldRender()
@@ -665,7 +814,14 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							const profileBucketWrapper = BucketWrapper(`profile/bucket:${bucketHash}`)
 								.style('inventory-view-bucket-wrapper--profile')
 								.appendTo(destination)
-							const itemList = ItemList(`profile/bucket:${bucketHash}/items`)
+							const itemList = ItemList(`profile/bucket:${bucketHash}/items`, !hasProfileTransferTargets ? undefined : part => part
+									.and(InventoryItemDrag.DropTarget, target => target
+										.accepts(payload => payload.source === 'vault' && payload.bucketHash === bucketHash)
+										.drop(dropToProfileInventory)
+										.priority(10)
+									)
+									.tweak(bindDropTargetStyles, 'character')
+							)
 								.style('inventory-view-bucket-item-list--profile')
 								.appendTo(profileBucketWrapper)
 							const itemListFiltered = ItemListFilteredDestination(itemList)
@@ -675,7 +831,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							for (const item of profileItemsByBucket.get(bucketHash) ?? []) {
 								i++
 								hashAppearances[item.itemHash] ??= 0
-								InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
+								InventoryItem(`profile/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item, { source: 'profile', characterId: getDefaultTransferCharacterId() })
 									.appendTo(itemListFiltered)
 								if (cooperative)
 									await yieldRender()
@@ -700,16 +856,23 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 						const vaultBucketWrapper = BucketWrapper(`vault/bucket:${bucketHash}`)
 							.style('inventory-view-bucket-wrapper--vault')
-							.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
+							.style.toggle(!usesCharacterLayout, 'inventory-view-bucket-wrapper--vault--profile')
 							.appendTo(destination)
-						const itemList = ItemList(`vault/bucket:${bucketHash}/items`)
+						const itemList = ItemList(`vault/bucket:${bucketHash}/items`, part => part
+								.and(InventoryItemDrag.DropTarget, target => target
+									.accepts(payload => payload.source !== 'vault' && payload.bucketHash !== InventoryBucketHashes.LostItems && (payload.source !== 'profile' || payload.bucketHash === bucketHash))
+									.drop(dropToVault)
+									.priority(5)
+								)
+								.tweak(bindDropTargetStyles, 'vault')
+						)
 							.appendTo(vaultBucketWrapper)
 						const itemListFiltered = ItemListFilteredDestination(itemList)
 
 						const hashAppearances: Record<number, number> = {}
 						for (const item of vaultItemsByBucket.get(bucketHash) ?? []) {
 							hashAppearances[item.itemHash] ??= 0
-							InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item)
+							InventoryItem(`vault/item:${item.id ?? `hash:${item.itemHash}`}/stack:${hashAppearances[item.itemHash]++}`, item, { source: 'vault' })
 								.appendTo(itemListFiltered)
 							if (cooperative)
 								await yieldRender()
@@ -720,7 +883,8 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 					const renderBucketPlaceholders = (destination: Parameters<Component['appendTo']>[0]) => {
 						let hadOverfilledCharacter = false
-						if (bucketDef.location === ItemLocation.Inventory || bucketDef.location === ItemLocation.Postmaster)
+						const usesCharacterLayout = bucketUsesCharacterLayout(bucketDef)
+						if (usesCharacterLayout)
 							for (const character of characters) {
 								const bucketWrapper = Component()
 									.style('inventory-view-bucket-wrapper', 'inventory-view-bucket-wrapper--character')
@@ -761,7 +925,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 
 						const vaultBucketWrapper = Component()
 							.style('inventory-view-bucket-wrapper', 'inventory-view-bucket-wrapper--vault')
-							.style.toggle(bucketDef.location !== ItemLocation.Inventory, 'inventory-view-bucket-wrapper--vault--profile')
+							.style.toggle(!usesCharacterLayout, 'inventory-view-bucket-wrapper--vault--profile')
 							.appendTo(destination)
 						const itemList = Component()
 							.style('inventory-view-bucket-item-list')
@@ -843,7 +1007,6 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						INVENTORY_DIAGNOSTIC.mark('first-bucket-rendered')
 						INVENTORY_DIAGNOSTIC.measure('data-to-first-bucket', 'data-ready', 'first-bucket-rendered')
 					}
-
 				}
 
 				INVENTORY_DIAGNOSTIC.mark('render-complete')

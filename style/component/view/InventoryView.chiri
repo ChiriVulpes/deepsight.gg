@@ -28,6 +28,12 @@
 		grid-template-columns: auto 1fr
 		%gap-4
 
+	&-drag-preview:
+		#after: .item
+		%no-pointer-events
+		%opacity-90
+		filter: drop-shadow(0 0 $space-2 color-mix(in lch, $colour-0, transparent 35%))
+
 	&-nav:
 		%overflow-y-auto
 		%scrollbar-none
@@ -210,25 +216,60 @@
 			%flex
 			%flex-wrap
 			%item-gap
+			%border-1
+			%relative
+			%border-radius-1
+			border-colour: transparent
+			background-repeat: no-repeat
+			background-origin: border-box
+			#transition: #{transition("box-shadow")}, #{transition("background-color")}, #{transition("border-color")}
+
+			&--drop-target:
+
+				&-available:
+					@after:
+						%no-pointer-events
+						%absolute
+						%uninset-1
+						background-color: color-mix(in lch, $drop-target-colour, transparent 94%)
+						$drop-target-colour: $colour-0
+
+				&-current:
+					#after: .inventory-view-bucket-item-list--drop-target-available
+					@after:
+						background-image: linear-gradient(120deg, color-mix(in lch, $drop-target-colour, transparent 92%) 0%, color-mix(in lch, $drop-target-colour, transparent 92%) 36%, color-mix(in lch, $drop-target-colour, transparent 62%) 50%, color-mix(in lch, $drop-target-colour, transparent 92%) 64%, color-mix(in lch, $drop-target-colour, transparent 92%) 100%)
+						background-size: 300% 100%
+						background-position: 150% 0
+						box-shadow:
+							inset 0 0 0 1px color-mix(in lch, $drop-target-colour, transparent 35%),
+							0 0 $space-2 color-mix(in lch, $drop-target-colour, transparent 65%)
+
+						#animate 2.8s linear infinite:
+							from: background-position: 130% 0
+							to: background-position: -170% 0
 
 			&--equipped:
 				:empty:
 					%hidden
 
-				@before:
-					order: 2
-					%block
-					border-left: calc($space-1 / 2) solid $colour-0
-					%opacity-20
-					%margin-top-auto
-					%height-3
-					%unmargin-left-1
+				&-flair:
+					%contents
 
-				@after:
-					%block
-					border-left: $space-1 solid $colour-0
-					%opacity-20
-					%margin-top-3
+					@before:
+						order: 2
+						%block
+						border-left: $space-1 solid $colour-0
+						%opacity-20
+						%margin-top-3
+
+					@after:
+						order: 2
+						%block
+						border-left: calc($space-1 / 2) solid $colour-0
+						%opacity-20
+						%margin-top-auto
+						%height-3
+						%unmargin-left-1
 
 			&--inventory:
 				%grid

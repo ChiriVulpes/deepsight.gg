@@ -49,6 +49,9 @@
 	&--transfer-failed:
 		box-shadow: 0 0 0 2px $colour-warning-foreground
 
+	&--dragging:
+		%opacity-40
+
 	&-moving-indicator:
 		%block
 		%absolute
