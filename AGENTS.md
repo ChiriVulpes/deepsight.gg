@@ -12,4 +12,7 @@ Validation commands must be non-emitting unless the user explicitly approves an 
 Use this non-emitting check for deepsight.gg:
 - `pnpm exec tsc -p src\tsconfig.json --noEmit --incremental false`
 
+Run lint in parallel with the TypeScript validation command:
+- `pnpm exec lint`
+
 Do not use task wrappers such as `npx task ts`, `pnpm task ts`, or build/watch/generation commands as validation unless the user has explicitly approved files being emitted or regenerated.
