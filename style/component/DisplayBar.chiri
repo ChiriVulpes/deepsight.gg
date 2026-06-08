@@ -58,8 +58,114 @@ scroll-padding-bottom: calc($display-bar-height + $space-4)
 			; %transition-active
 
 		&-icon:
+			$display-bar-button-icon-border-width: calc($space-1 / 2)
+			$display-bar-button-icon-spark-start: calc(0px - $space-1)
+			$display-bar-button-icon-spark-end: calc(100% + $space-1 / 2)
 			%column-1
 			%row-1-2
+			%relative
+			%align-self-centre
+			%justify-self-centre
+			width: 1.5em
+			height: 1.5em
+			%border-radius-100
+			border: $display-bar-button-icon-border-width solid currentcolor
+			%grid
+			%align-items-centre
+			%justify-content-centre
+			%colour-6
+			%background-4
+			#transition: #{transition("background")}, #{transition("color")}, #{transition("scale")}
+
+			&--hover:
+				#after: .display-bar-button-icon
+				%colour-0
+				%background-7
+				scale: 1.25
+				%transition-focus
+
+			&--active:
+				#after: .display-bar-button-icon--hover
+				%background-6
+				%transition-active
+
+			&-glyph:
+				%absolute
+				%inset-0
+
+				@before:
+					%block
+					%absolute
+					inset: .2em
+					%background-currentcolour
+					mask-image: $display-bar-button-icon
+					mask-size: contain
+					mask-position: center
+					mask-repeat: no-repeat
+
+			&-spark:
+				%absolute
+				%inset-0
+				scale: .5
+				%transparent
+				#transition: #{transition("opacity")}, #{transition("scale")}
+
+				&--hover:
+					#after: .display-bar-button-icon-spark
+					scale: 1
+					%opaque
+					%transition-focus
+
+				@before, @after:
+					%block
+					%absolute
+					width: .2em
+					height: .2em
+					border-radius: .2em
+					%background-currentcolour
+
+				&-1:
+					@before:
+						top: $display-bar-button-icon-spark-start
+						left: $display-bar-button-icon-spark-start
+						#animate .2s linear:
+							to:
+								top: $display-bar-button-icon-spark-end
+								left: $display-bar-button-icon-spark-end
+					@after:
+						top: $display-bar-button-icon-spark-start
+						right: $display-bar-button-icon-spark-start
+						#animate .2s linear:
+							50%:
+								top: $display-bar-button-icon-spark-end
+								right: $display-bar-button-icon-spark-start
+							100%:
+								top: $display-bar-button-icon-spark-end
+								right: $display-bar-button-icon-spark-end
+
+				&-2:
+					@before:
+						bottom: $display-bar-button-icon-spark-start
+						right: $display-bar-button-icon-spark-start
+						#animate .2s linear:
+							to:
+								bottom: $display-bar-button-icon-spark-end
+								right: $display-bar-button-icon-spark-end
+					@after:
+						bottom: $display-bar-button-icon-spark-start
+						left: $display-bar-button-icon-spark-start
+						#animate .2s linear:
+							50%:
+								bottom: $display-bar-button-icon-spark-end
+								left: $display-bar-button-icon-spark-start
+							100%:
+								bottom: $display-bar-button-icon-spark-end
+								left: $display-bar-button-icon-spark-end
+
+				&--active:
+					#after: .display-bar-button-icon-spark--hover
+					@before, @after: animation: none
+
 		&-title:
 			%uppercase
 			font-size: calc(($font-size-0-base + $font-size-1-base) / 2)

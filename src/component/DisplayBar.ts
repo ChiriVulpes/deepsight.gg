@@ -12,16 +12,29 @@ interface DisplayBarButtonExtensions {
 
 interface DisplayBarButton extends Button, DisplayBarButtonExtensions { }
 
-const DisplayBarButton = Component((component): DisplayBarButton => {
+const DisplayBarButton = Component((component, icon: string): DisplayBarButton => {
 	const button = component.and(Button)
 		.style.remove('button')
 		.tweak(button => button.textWrapper.remove())
 		.style('display-bar-button')
 		.style.bind(component.hoveredOrHasFocused, 'display-bar-button--hover')
 		.style.bind(component.active, 'display-bar-button--active')
+		.style.setVariable('display-bar-button-icon', `url(${icon})`)
 
 	Component()
 		.style('display-bar-button-icon')
+		.style.bind(component.hoveredOrHasFocused, 'display-bar-button-icon--hover')
+		.style.bind(component.active, 'display-bar-button-icon--active')
+		.append(Component()
+			.style('display-bar-button-icon-glyph')
+			.append(Component()
+				.style('display-bar-button-icon-spark', 'display-bar-button-icon-spark-1')
+				.style.bind(component.hoveredOrHasFocused, 'display-bar-button-icon-spark--hover')
+				.style.bind(component.active, 'display-bar-button-icon-spark--active'))
+			.append(Component()
+				.style('display-bar-button-icon-spark', 'display-bar-button-icon-spark-2')
+				.style.bind(component.hoveredOrHasFocused, 'display-bar-button-icon-spark--hover')
+				.style.bind(component.active, 'display-bar-button-icon-spark--active')))
 		.appendTo(button)
 
 	const title = Component()
@@ -66,7 +79,7 @@ const DisplayBar = Object.assign(
 		const config = State<DisplayBar.Config | undefined>(undefined)
 
 		const noSort = config.mapManual(config => !config?.sortConfig)
-		DisplayBarButton()
+		DisplayBarButton('/static/svg/sort.svg')
 			.style('display-bar-sort-button')
 			.style.bind(noSort, 'display-bar-button--disabled')
 			.attributes.bind(noSort, 'inert')
@@ -80,7 +93,7 @@ const DisplayBar = Object.assign(
 			...config?.filterConfig,
 		})))
 
-		DisplayBarButton()
+		DisplayBarButton('/static/svg/filter.svg')
 			.style('display-bar-filter-button')
 			.titleText.set(quilt => quilt['display-bar/filter/title']())
 			.tweak(button => {
@@ -94,7 +107,7 @@ const DisplayBar = Object.assign(
 			})
 			.appendTo(component)
 
-		DisplayBarButton()
+		DisplayBarButton('/static/svg/help.svg')
 			.style('display-bar-help-button')
 			.titleText.set(quilt => quilt['display-bar/help/title']())
 			.subtitleText.set(quilt => quilt['display-bar/help/subtitle']())
