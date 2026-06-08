@@ -28,6 +28,7 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
 import Moment, { FILTER_CHANGING_CLASS } from 'component/view/collections/Moment'
+import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
 import type { InventoryBucketHashes } from 'deepsight.gg/Enums'
 import type { DeepsightDisplayPropertiesDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
@@ -36,6 +37,8 @@ import Slot from 'kitsui/component/Slot'
 import Task from 'kitsui/utility/Task'
 import type { ItemReference, ItemStateOptional } from 'model/Items'
 import { ItemState } from 'model/Items'
+import type { ItemRefNames as ItemRefNamesValue } from 'model/ItemRefNames'
+import ItemRefNames from 'model/ItemRefNames'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
@@ -88,18 +91,7 @@ export interface CollectionsParamsItemName {
 
 export interface ItemNameMaps {
 	nameToHash: Record<string, Record<string, number>>
-	hashToName: Record<number, ItemRefNames>
-}
-
-export interface ItemRefNames {
-	moment: string
-	item: string
-}
-
-declare module 'conduit.deepsight.gg/item/Item' {
-	export interface Item {
-		refNames: ItemRefNames
-	}
+	hashToName: Record<number, ItemRefNamesValue>
 }
 
 const ActiveEvent = State.Async(async () => {
@@ -182,7 +174,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 			const eventWrapper = Component()
 				.style('collections-view-year', 'collections-view-year--event')
 
-			const buckets = collections.moments
+			const eventBuckets = collections.moments
 				.flatMap(m => Object.entries(m.buckets))
 				.groupBy(
 					([bucketHash]) => +bucketHash as InventoryBucketHashes,
@@ -195,16 +187,25 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 					),
 				}])
 
-			let moment = collections.moments.find(m => m.moment.event === ActiveEvent.hash)
-			if (moment) {
-				for (const [bucketHash, bucket] of Object.entries(buckets)) {
-					const existingBucket = moment.buckets[+bucketHash as InventoryBucketHashes.KineticWeapons] ??= { items: [] }
-					existingBucket.items = existingBucket.items.concat(bucket.items).distinct()
+			const existingMoment = collections.moments.find(m => m.moment.event === ActiveEvent.hash)
+			const moment: CollectionsMoment = existingMoment
+				? {
+					...existingMoment,
+					buckets: {
+						...existingMoment.buckets,
+						...Object.fromEntries(Object.entries(eventBuckets).map(([bucketHash, bucket]) => [
+							bucketHash,
+							{
+								items: [
+									...(existingMoment.buckets[+bucketHash as InventoryBucketHashes.KineticWeapons]?.items ?? []),
+									...bucket.items,
+								].distinct(),
+							},
+						])),
+					},
 				}
-			}
-			else {
-				moment = {
-					buckets,
+				: {
+					buckets: eventBuckets as CollectionsMoment['buckets'],
 					moment: {
 						hash: ActiveEvent.hash,
 						id: (ActiveEvent.displayProperties.name
@@ -219,7 +220,6 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 						images: !ActiveEvent.images.themeBackgroundImagePath ? undefined : [ActiveEvent.images.themeBackgroundImagePath],
 					},
 				}
-			}
 
 			const momentComponent = Moment(moment, collections, view.displayHandlers).appendTo(eventWrapper)
 			momentComponent.open.value = true
@@ -317,7 +317,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 					.replace(/[^a-z0-9]+/g, ' ')
 					.trim()
 					.replaceAll(' ', '-')
-				item.refNames = { moment: moment.moment.id, item: itemRefName }
+				ItemRefNames.set(item, { moment: moment.moment.id, item: itemRefName })
 				return [itemRefName, item.hash]
 			})
 		),

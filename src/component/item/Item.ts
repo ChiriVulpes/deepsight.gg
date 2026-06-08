@@ -6,6 +6,7 @@ import type { DeepsightTierTypeDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
 import type Tooltip from 'kitsui/component/Tooltip'
 import DisplayProperties from 'model/DisplayProperties'
+import ItemRefNames from 'model/ItemRefNames'
 import type { ItemState } from 'model/Items'
 import Moment from 'model/Moment'
 import { ItemState as InventoryItemState } from 'node_modules/bungie-api-ts/destiny2'
@@ -87,8 +88,13 @@ const Item = Object.assign(
 
 		component.onRooted(() => component.event.subscribe('contextmenu', event => {
 			event.preventDefault()
-			if (!state.value.instance?.id)
-				void navigate.toURL(`/collections/${state.value.definition.refNames.moment}/${state.value.definition.refNames.item}`)
+			if (!state.value.instance?.id) {
+				const refNames = ItemRefNames.get(state.value.definition)
+				void navigate.toURL(refNames
+					? `/collections/${refNames.moment}/${refNames.item}`
+					: `/collections/${state.value.definition.hash}`
+				)
+			}
 			else
 				throw new Error('Cannot navigate to an item instance view yet')
 		}))
