@@ -8,6 +8,22 @@ import FilterSource from 'component/display/filter/FilterSource'
 import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
 import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
+import SortAmmo from 'component/display/sort/definition/SortAmmo'
+import SortDamage from 'component/display/sort/definition/SortDamage'
+import SortExotic from 'component/display/sort/definition/SortExotic'
+import SortFeatured from 'component/display/sort/definition/SortFeatured'
+import SortFoundry from 'component/display/sort/definition/SortFoundry'
+import SortLocked from 'component/display/sort/definition/SortLocked'
+import SortMasterwork from 'component/display/sort/definition/SortMasterwork'
+import SortMoment from 'component/display/sort/definition/SortMoment'
+import SortName from 'component/display/sort/definition/SortName'
+import SortPower from 'component/display/sort/definition/SortPower'
+import SortQuantity from 'component/display/sort/definition/SortQuantity'
+import SortRarity from 'component/display/sort/definition/SortRarity'
+import SortSource from 'component/display/sort/definition/SortSource'
+import SortStatTotal from 'component/display/sort/definition/SortStatTotal'
+import SortStun from 'component/display/sort/definition/SortStun'
+import SortWeaponType from 'component/display/sort/definition/SortWeaponType'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import ItemOverlay from 'component/overlay/ItemOverlay'
@@ -29,7 +45,32 @@ import Time from 'utility/Time'
 
 const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	id: 'collections',
-	sortConfig: {},
+	sortConfig: {
+		definitions: [
+			SortName,
+			SortMoment,
+			SortPower,
+			SortRarity,
+			SortExotic,
+			SortFeatured,
+			SortWeaponType,
+			SortAmmo,
+			SortDamage,
+			SortStun,
+			SortQuantity,
+			SortStatTotal,
+			SortMasterwork,
+			SortLocked,
+			SortFoundry,
+			SortSource,
+		],
+		default: [
+			{ id: 'exotic' },
+			{ id: 'rarity' },
+			{ id: 'moment' },
+			{ id: 'name' },
+		],
+	},
 	filterConfig: {
 		id: 'collections',
 		filters: [FilterElement, FilterAmmo, FilterBreakerType, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry, FilterSource, FilterRarity],

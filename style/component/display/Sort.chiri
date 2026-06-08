@@ -1,0 +1,432 @@
+.sort:
+	&-display:
+		%block
+		%overflow-hidden
+		text-overflow: ellipsis
+		%max-width-100
+		display: -webkit-box
+		-webkit-line-clamp: 2
+		-webkit-box-orient: vertical
+		line-height: 1.05
+
+	&-popover:
+		#after: .popover
+		%translate-x-0
+		%translate-up-4
+		margin-top: 1px !important
+		padding: 4px 6px
+		%border-box
+		width: $display-bar-button-width
+		%flex
+		%flex-column
+		%gap-0
+		%max-height-50
+		%overflow-hidden
+
+		@before, @after:
+			%block
+			%absolute
+			%inset-0
+			%no-pointer-events
+
+		@before:
+			%z-index-bg
+			%backdrop-blur
+			background: #181818aa
+
+		@after:
+			box-shadow: inset 0 0 0 1px #5559
+			%z-index-bg
+
+		:popover:
+			%translate-x-0
+			%translate-up-2
+
+			:start:
+				%translate-up-2
+
+	&-row:
+		%grid
+		%align-items-centre
+		grid-template-columns: auto auto 1fr auto
+		%padding-inline-3
+		%padding-block-1
+		%gap-2
+		margin: 1px 0
+		%border-box
+		%width-100
+		border-left: 4px solid transparent
+		%colour-0
+		%background-none
+		cursor: grab
+		touch-action: none
+		#transition: #{transition("opacity")}, #{transition("color")}
+
+		&--inactive:
+			#after: .sort-row
+			%opacity-50
+			%cursor-pointer
+
+		&--hover:
+			#after: .sort-row--inactive
+			%opacity-1
+			%colour-0
+			%transition-focus
+
+		&--focus:
+			box-shadow: 0 0 0 1px #aaa8
+			border-left-color: #aaa8
+
+		&-list:
+			%relative
+			display: block
+			overflow-x: hidden
+			overflow-y: auto
+			max-height: calc(50vh - 2lh)
+
+			&-heading:
+				%uppercase
+				font-size: .7em
+				margin: 2px 0 1px
+				padding: 2px 3px
+				%colour-6
+				%weight-bold
+				%no-pointer-events
+
+		&-divider:
+			%uppercase
+			font-size: .7em
+			margin: 2px 0 1px
+			padding: 2px 3px
+			%colour-6
+			%weight-bold
+			%no-pointer-events
+
+		&-grip:
+			%relative
+			width: calc($space-3 + $space-2)
+			%height-1
+			%margin-right-2
+			%opacity-80
+			border: 1px solid currentcolor
+			border-left: none
+			border-right: none
+			#transition: #{transition("opacity")}, #{transition("translate")}
+
+			&--hover:
+				#after: .sort-row-grip
+				%opacity-1
+				translate: .3em 0
+				%transition-focus
+
+		&-icon:
+			%grid
+			%align-items-centre
+			%justify-content-centre
+			width: 1.15em
+			height: 1.1em
+			%relative
+
+			&-glyph:
+				%block
+				%relative
+				width: 1em
+				height: 1em
+				%flex
+				%justify-content-centre
+				%align-items-centre
+
+				@before, @after:
+					%block
+					%absolute
+					content: ""
+
+				&--name:
+					%relative
+					height: 100%
+					%weight-bold
+					font-size: 1.05em
+					@before:
+						content: "T"
+						top: -.15em
+						left: .2em
+					@after:
+						content: "t"
+						top: .15em
+						left: .8em
+						font-size: .8em
+
+				&--moment:
+					@before:
+						width: 0
+						height: 0
+						border-top: .8em solid currentcolor
+						border-right: .8em solid transparent
+
+				&--rarity:
+					@before:
+						%inset-0
+						%background-currentcolour
+						mask-image: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/engram.svg")
+						mask-size: contain
+						mask-position: center
+						mask-repeat: no-repeat
+
+				&--exotic:
+					@before:
+						%inset-0
+						%background-currentcolour
+						mask-image: url("https://raw.githubusercontent.com/justrealmilk/destiny-icons/master/general/engram.svg")
+						mask-size: contain
+						mask-position: center
+						mask-repeat: no-repeat
+
+				&--featured:
+					@before:
+						height: 1em
+						width: .8em
+						%background-currentcolour
+						clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)
+
+				&--type:
+					@before:
+						inset: -.05em
+						%background-currentcolour
+						mask-image: var(--sort-row-icon-image, url("/static/svg/sort.svg"))
+						mask-size: contain
+						mask-position: center
+						mask-repeat: no-repeat
+					@after:
+						display: none
+
+				&--ammo:
+					@before:
+						inset: -.08em
+						background-image: var(--sort-row-icon-image)
+						background-size: contain
+						background-position: center
+						background-repeat: no-repeat
+						filter: saturate(0) brightness(2)
+
+				&--damage:
+					@before:
+						%inset-0
+						background-image: var(--sort-row-icon-image)
+						background-size: contain
+						background-position: center
+						background-repeat: no-repeat
+						filter: saturate(0) brightness(2)
+
+				&--stun:
+					@before:
+						%inset-0
+						background-image: var(--sort-row-icon-image)
+						background-size: contain
+						background-position: center
+						background-repeat: no-repeat
+						filter: saturate(0) brightness(2)
+					@after:
+						display: none
+
+				&--quantity:
+					%relative
+					height: 100%
+					%weight-bold
+					font-size: 1.05em
+					text-align: center
+					@before:
+						content: "x"
+						position: relative
+						top: -.2em
+
+				&--stat-total:
+					@before:
+						left: .2em
+						top: .1em
+						width: .9em
+						height: .3em
+						%background-currentcolour
+						box-shadow: 0 1px 1px #000a
+					@after:
+						left: .2em
+						bottom: .1em
+						width: .7em
+						height: .3em
+						%background-currentcolour
+						box-shadow: 0 1px 1px #000a
+
+				&--power:
+					@before:
+						content: "\f112"
+						%relative
+						inset: auto
+						font-size: .8em
+						line-height: 1
+						font-weight: normal
+
+				&--masterwork:
+					@before:
+						%inset-0
+						%background-currentcolour
+						mask-image: url("/static/svg/masterwork.svg")
+						mask-size: contain
+						mask-position: center
+						mask-repeat: no-repeat
+					@after:
+						display: none
+
+				&--locked:
+					@before:
+						%inset-0
+						%background-currentcolour
+						mask-image: url("/static/svg/lock.svg")
+						mask-size: contain
+						mask-position: center
+						mask-repeat: no-repeat
+					@after:
+						display: none
+
+				&--foundry:
+					@before:
+						left: .18em
+						top: .18em
+						width: .72em
+						height: .72em
+						border: .12em solid currentcolor
+					@after:
+						left: .36em
+						top: .36em
+						width: .36em
+						height: .36em
+						%background-currentcolour
+
+				&--source:
+					@before:
+						left: .18em
+						top: .12em
+						width: .7em
+						height: .9em
+						%background-currentcolour
+						clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)
+
+		&-label:
+			%overflow-hidden
+			text-overflow: ellipsis
+			white-space: nowrap
+			font-size: .9em
+			%weight-semibold
+
+		&-button:
+			%relative
+			size: 1.5em
+			%padding-0
+			%grid
+			grid-template-columns: 1fr 1fr
+			gap: .2em
+			%align-items-centre
+			%justify-content-end
+			%background-none
+			%border-none
+			%colour-5
+			%opacity-0
+			%no-pointer-events
+			$padding: .1em
+			%cursor-pointer
+
+			&--visible:
+				#after: .sort-row-button
+				%opacity-1
+				pointer-events: auto
+
+			&--hover:
+				#after: .sort-row-button, .sort-row-button--visible
+				%colour-0
+				%background-none
+
+			&-order:
+				%grid
+				gap: .2em
+				%align-items-centre
+				%justify-content-centre
+				grid-template-rows: 1fr 1fr
+				font-size: .64em
+				line-height: 1
+				%weight-bolder
+
+			&-arrow:
+				%relative
+				%block
+				%size-100
+
+				@before, @after:
+					%block
+					%absolute
+
+				@before:
+					left: 0
+					top: $padding
+					width: .15em
+					height: calc(60% - $padding)
+					%background-currentcolour
+
+				@after:
+					bottom: $padding
+					width: 0
+					height: 0
+					border-top: .55em solid currentcolor
+					border-right: .46em solid transparent
+
+				&--active:
+					#after: .sort-row-button-arrow
+					@before:
+						top: auto
+						bottom: .14em
+					@after:
+						top: .06em
+						bottom: auto
+						border-top: none
+						border-bottom: .55em solid currentcolor
+						border-right: .46em solid transparent
+
+.sortable:
+	%relative
+
+.sortable-row:
+	%block
+	%outline-none
+
+	&--target:
+		%opaque
+
+	&--source:
+		%opaque
+
+	&--dragging:
+		%opaque
+
+	&--moving:
+		%absolute
+		%z-index-fg-2
+		background: #181818ee
+		box-shadow: 0 0 0 1px #aaa8
+		border-left-color: #aaa8
+		cursor: grabbing
+
+.sortable-row-child--moving:
+	#after: .sort-row--inactive
+	%opacity-1
+	%colour-0
+
+.sortable-slot:
+	%block
+	padding: 2px 0
+	margin: 1px 0
+	%border-box
+	%width-100
+	%user-select-none
+	pointer-events: none
+
+	@before:
+		%block
+		content: ""
+		%opacity-0

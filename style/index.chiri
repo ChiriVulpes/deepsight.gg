@@ -51,6 +51,7 @@
 	component/tooltip/PlugTooltip
 	component/DisplayBar
 	component/display/Filter
+	component/display/Sort
 	component/toast/ConduitOperations
 
 #import:

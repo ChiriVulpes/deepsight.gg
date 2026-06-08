@@ -1,4 +1,5 @@
 $display-bar-height: $space-5
+$display-bar-button-width: min(18rem, 42vw)
 scroll-padding-bottom: calc($display-bar-height + $space-4)
 
 .display-bar:
@@ -36,12 +37,14 @@ scroll-padding-bottom: calc($display-bar-height + $space-4)
 		%height-100
 		%border-box
 		min-width: calc($space-7 + $space-5)
-		%padding-2-3
+		max-width: $display-bar-button-width
+		%padding-inline-3
+		%padding-block-0
 		%cursor-pointer
 		%grid
-		grid-template-columns: $space-5 1fr
+		grid-template-columns: $space-5 minmax(0, 1fr)
 		%column-gap-2
-		grid-template-rows: 1fr 1fr
+		grid-template-rows: 1fr auto auto 1fr
 		#transition: #{transition("background")}
 
 		&--disabled:
@@ -62,7 +65,7 @@ scroll-padding-bottom: calc($display-bar-height + $space-4)
 			$display-bar-button-icon-spark-start: calc(0px - $space-1)
 			$display-bar-button-icon-spark-end: calc(100% + $space-1 / 2)
 			%column-1
-			%row-1-2
+			grid-row: 2 / 4
 			%relative
 			%align-self-centre
 			%justify-self-centre
@@ -172,24 +175,34 @@ scroll-padding-bottom: calc($display-bar-height + $space-4)
 			%weight-semibold
 			%letter-spacing-2
 			%column-2
-			%row-1
+			%row-2
 			%colour-6
-			%align-self-end
+			%align-self-start
+			%min-width-0
+			%overflow-hidden
+			text-overflow: ellipsis
 		&-subtitle:
 			font-size: calc(($font-size-1-base + $font-size-2-base) / 2)
 			%column-2
-			%row-2
+			%row-3
 			%align-self-start
-			%unmargin-top-1
+			%min-width-0
 
 	&-sort:
 
 		&-button:
+			%overflow-hidden
+
+			&-subtitle:
+				%min-width-0
+				%width-100
+				%overflow-hidden
 
 	&-filter:
 
 		&-button:
 			%flex-grow
+			%max-width-none
 
 			&-title:
 				#transition: #{transition("translate")}

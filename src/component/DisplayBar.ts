@@ -1,5 +1,6 @@
 import Button from 'component/core/Button'
 import Filter from 'component/display/Filter'
+import Sort from 'component/display/Sort'
 import { Component, State } from 'kitsui'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 
@@ -54,6 +55,7 @@ const DisplayBarButton = Component((component, icon: string): DisplayBarButton =
 })
 
 export interface DisplayHandlers {
+	readonly sort: Sort
 	readonly filter: Filter
 }
 
@@ -67,7 +69,7 @@ interface DisplayBar extends Component, DisplayBarExtensions { }
 namespace DisplayBar {
 	export interface Config {
 		readonly id: string
-		readonly sortConfig?: object
+		readonly sortConfig?: Partial<Omit<Sort.Config, 'id'>> & { readonly id?: string }
 		readonly filterConfig?: Filter.Config
 	}
 }
@@ -78,12 +80,24 @@ const DisplayBar = Object.assign(
 
 		const config = State<DisplayBar.Config | undefined>(undefined)
 
+		const sort = Sort()
+		sort.config.bind(sort, config.map(sort, config => !config?.sortConfig ? undefined : ({
+			id: config.sortConfig.id ?? config.id,
+			...config.sortConfig,
+		})))
+
 		const noSort = config.mapManual(config => !config?.sortConfig)
 		DisplayBarButton('/static/svg/sort.svg')
 			.style('display-bar-sort-button')
 			.style.bind(noSort, 'display-bar-button--disabled')
 			.attributes.bind(noSort, 'inert')
 			.titleText.set(quilt => quilt['display-bar/sort/title']())
+			.tweak(button => {
+				sort.bindButton(button)
+				button.subtitle
+					.style('display-bar-sort-button-subtitle')
+					.append(sort)
+			})
 			.appendTo(component)
 
 		const filter = Filter()
@@ -117,6 +131,7 @@ const DisplayBar = Object.assign(
 			.extend<DisplayBarExtensions>(displayBar => ({
 				config,
 				handlers: {
+					sort,
 					filter,
 				},
 			}))

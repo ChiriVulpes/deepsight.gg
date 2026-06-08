@@ -10,6 +10,22 @@ import FilterSource from 'component/display/filter/FilterSource'
 import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
 import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
+import SortAmmo from 'component/display/sort/definition/SortAmmo'
+import SortDamage from 'component/display/sort/definition/SortDamage'
+import SortExotic from 'component/display/sort/definition/SortExotic'
+import SortFeatured from 'component/display/sort/definition/SortFeatured'
+import SortFoundry from 'component/display/sort/definition/SortFoundry'
+import SortLocked from 'component/display/sort/definition/SortLocked'
+import SortMasterwork from 'component/display/sort/definition/SortMasterwork'
+import SortMoment from 'component/display/sort/definition/SortMoment'
+import SortName from 'component/display/sort/definition/SortName'
+import SortPower from 'component/display/sort/definition/SortPower'
+import SortQuantity from 'component/display/sort/definition/SortQuantity'
+import SortRarity from 'component/display/sort/definition/SortRarity'
+import SortSource from 'component/display/sort/definition/SortSource'
+import SortStatTotal from 'component/display/sort/definition/SortStatTotal'
+import SortStun from 'component/display/sort/definition/SortStun'
+import SortWeaponType from 'component/display/sort/definition/SortWeaponType'
 import DisplayBar from 'component/DisplayBar'
 import Item from 'component/item/Item'
 import Overlay from 'component/Overlay'
@@ -41,7 +57,37 @@ import Time from 'utility/Time'
 
 const INVENTORY_DISPLAY = DisplayBar.Config({
 	id: 'inventory',
-	sortConfig: {},
+	sortConfig: {
+		definitions: [
+			SortName,
+			SortMoment,
+			SortPower,
+			SortRarity,
+			SortExotic,
+			SortFeatured,
+			SortWeaponType,
+			SortAmmo,
+			SortDamage,
+			SortStun,
+			SortQuantity,
+			SortStatTotal,
+			SortMasterwork,
+			SortLocked,
+			SortFoundry,
+			SortSource,
+		],
+		default: [
+			{ id: 'moment' },
+			{ id: 'rarity' },
+			{ id: 'name' },
+			{ id: 'power' },
+			{ id: 'damage' },
+			{ id: 'ammo' },
+			{ id: 'masterwork' },
+			{ id: 'locked' },
+			{ id: 'quantity' },
+		],
+	},
 	filterConfig: {
 		id: 'inventory',
 		filters: [FilterElement, FilterAmmo, FilterBreakerType, FilterWeaponType, FilterWeaponFrame, FilterWeaponFoundry, FilterSource, FilterRarity],
@@ -321,6 +367,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 		?.overrideHomeLink(homeLinkURL, view)
 
 	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+	const sortStateHash = view.displayHandlers.map(view, display => display?.sort.stateHash)
 	let completeInitialContentRender!: () => void
 	const initialContentRendered = new Promise<void>(resolve => completeInitialContentRender = resolve)
 	let isInitialContentRender = true
@@ -385,7 +432,7 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				.appendTo(bucketList)
 
 			let bucketItemsVisibleCount = 0
-			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText }), async ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
+			Breakdown(slot, State.Use(slot, { inventory, bucketIcons, display: view.displayHandlers, filterText, sortStateHash }), async ({ inventory, bucketIcons, display, filterText }, Part, Store) => {
 				const renderEpoch = ++bucketRenderEpoch
 				INVENTORY_DIAGNOSTIC.mark('render-start')
 				const renderTask = new Task()
@@ -563,9 +610,26 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 				const profileItemsByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
 				const vaultItemsByBucket = new Map<InventoryBucketHashes, ItemInstance[]>()
 				const bucketHashes = new Set<InventoryBucketHashes>()
+				const itemStateByInstance = new WeakMap<ItemInstance, ItemStateValue>()
 
-				const addBucketItem = (map: Map<InventoryBucketHashes, ItemInstance[]>, bucketHash: InventoryBucketHashes, item: ItemInstance) => {
+				const resolveGroupedItem = (item: ItemInstance, characterId?: string): ItemStateValue => {
+					const existing = itemStateByInstance.get(item)
+					if (existing)
+						return existing
+
+					const state = {
+						definition: inventory.items[item.itemHash],
+						instance: item,
+						characterId,
+						provider: inventory,
+					}
+					itemStateByInstance.set(item, state)
+					return state
+				}
+
+				const addBucketItem = (map: Map<InventoryBucketHashes, ItemInstance[]>, bucketHash: InventoryBucketHashes, item: ItemInstance, characterId?: string) => {
 					bucketHashes.add(bucketHash)
+					resolveGroupedItem(item, characterId)
 					const items = map.get(bucketHash) ?? []
 					items.push(item)
 					map.set(bucketHash, items)
@@ -578,10 +642,10 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					inventoryItemsByCharacterBucket.set(character.id, inventoryByBucket)
 
 					for (const item of character.equippedItems)
-						addBucketItem(equippedByBucket, item.bucketHash, item)
+						addBucketItem(equippedByBucket, item.bucketHash, item, character.id)
 
 					for (const item of character.items)
-						addBucketItem(inventoryByBucket, item.bucketHash, item)
+						addBucketItem(inventoryByBucket, item.bucketHash, item, character.id)
 				}
 
 				for (const item of inventory.profileItems) {
@@ -595,6 +659,20 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 						item,
 					)
 				}
+
+				const sortItems = (items: ItemInstance[]) => !display
+					? items
+					: items.toSorted((a, b) => display.sort.compare(itemStateByInstance.get(a)!, itemStateByInstance.get(b)!))
+				const sortBucketMap = (map: Map<InventoryBucketHashes, ItemInstance[]>) => {
+					for (const [bucketHash, items] of map)
+						map.set(bucketHash, sortItems(items))
+				}
+				for (const buckets of equippedItemsByCharacterBucket.values())
+					sortBucketMap(buckets)
+				for (const buckets of inventoryItemsByCharacterBucket.values())
+					sortBucketMap(buckets)
+				sortBucketMap(profileItemsByBucket)
+				sortBucketMap(vaultItemsByBucket)
 
 				const transferItemOnClick = (itemComponent: Item, event: Event, sourceKey: string) => {
 					if (!(event instanceof MouseEvent) || itemComponent.moving.value)
