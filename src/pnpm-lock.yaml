@@ -6,7 +6,7 @@ settings:
 
 overrides:
   conduit.deepsight.gg>bungie-api-ts: 5.10.0
-  conduit.deepsight.gg>deepsight.gg: 1.0.1857
+  conduit.deepsight.gg>deepsight.gg: 1.0.1861
   deepsight.gg>bungie-api-ts: 5.10.0
 
 importers:
@@ -17,8 +17,8 @@ importers:
         specifier: 5.10.0
         version: 5.10.0
       conduit.deepsight.gg:
-        specifier: github:chirivulpes/conduit.deepsight.gg#97df1d5e8e08df32bf1347e25ce6fea0169ff555
-        version: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/97df1d5e8e08df32bf1347e25ce6fea0169ff555
+        specifier: github:chirivulpes/conduit.deepsight.gg#73087659b624becafb0350d38254202796aaca1a
+        version: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a
       deepsight.gg:
         specifier: 1.0.1861
         version: 1.0.1861
@@ -32,12 +32,9 @@ packages:
     resolution: {integrity: sha512-3UJCuMJVRrfqUA23mpE/DJ79TWQqhRKuY3hLxUZpcTHQ9wOBWSk6Nyxugx231cIqfPsENnGT0OkBOvIB0s6C5g==}
     engines: {node: '>=13.2.0'}
 
-  conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/97df1d5e8e08df32bf1347e25ce6fea0169ff555:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/97df1d5e8e08df32bf1347e25ce6fea0169ff555}
+  conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a}
     version: 1.0.0
-
-  deepsight.gg@1.0.1857:
-    resolution: {integrity: sha512-v5Ac6z4vcCig0gLetO0YILKR/DcEeH8VzSEe8Tskrdna2y5MsB9AKCUxEpYW2H42FWzdjNtCo3hKCNSDUg+TWw==}
 
   deepsight.gg@1.0.1861:
     resolution: {integrity: sha512-RY3p0RLWSZOIG+JPNTdsb8qndh7GX3u1NUzhaSjGxBAQiFfIW4lMlFjZ+MtZLfkZOgQ0lEErAaC6hlJxD4G9fQ==}
@@ -50,14 +47,10 @@ snapshots:
 
   bungie-api-ts@5.10.0: {}
 
-  conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/97df1d5e8e08df32bf1347e25ce6fea0169ff555:
+  conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a:
     dependencies:
       bungie-api-ts: 5.10.0
-      deepsight.gg: 1.0.1857
-
-  deepsight.gg@1.0.1857:
-    dependencies:
-      bungie-api-ts: 5.10.0
+      deepsight.gg: 1.0.1861
 
   deepsight.gg@1.0.1861:
     dependencies:
