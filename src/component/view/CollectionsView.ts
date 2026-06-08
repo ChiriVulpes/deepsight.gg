@@ -70,6 +70,7 @@ const COLLECTIONS_DISPLAY = DisplayBar.Config({
 		default: [
 			{ id: 'exotic' },
 			{ id: 'rarity' },
+			{ id: 'source' },
 			{ id: 'moment' },
 			{ id: 'name' },
 		],
@@ -234,7 +235,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 					}))
 					.appendTo(momentComponent.summary)
 
-			const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)
+			const shouldShow = State.Map(momentComponent, [filterText, momentComponent.hasAnyItemFilteredIn], (filterText, hasAnyItemFilteredIn) => !filterText || hasAnyItemFilteredIn)
 			eventWrapper.appendToWhen(shouldShow, slot)
 		}
 
@@ -280,7 +281,7 @@ export default View<CollectionsParamsItemHash | CollectionsParamsItemName | unde
 				}
 			}
 
-			const shouldShow = State.Map(momentComponent, [momentComponent.open, filterText], (open, filterText) => open || !filterText)
+			const shouldShow = State.Map(momentComponent, [filterText, momentComponent.hasAnyItemFilteredIn], (filterText, hasAnyItemFilteredIn) => !filterText || hasAnyItemFilteredIn)
 			yearMomentVisibilityStates.push(shouldShow)
 			momentComponent.appendToWhen(shouldShow, yearWrapper ?? slot)
 		}

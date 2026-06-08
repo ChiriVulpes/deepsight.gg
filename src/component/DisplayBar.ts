@@ -62,6 +62,7 @@ export interface DisplayHandlers {
 interface DisplayBarExtensions {
 	readonly config: State.Mutable<DisplayBar.Config | undefined>
 	readonly handlers: DisplayHandlers
+	bindHandlers (owner: State.Owner, config: State<DisplayBar.Config | undefined>): State.Unsubscribe
 }
 
 interface DisplayBar extends Component, DisplayBarExtensions { }
@@ -79,14 +80,15 @@ const DisplayBar = Object.assign(
 		component.style('display-bar')
 
 		const config = State<DisplayBar.Config | undefined>(undefined)
+		const handlerConfig = State<DisplayBar.Config | undefined>(undefined)
 
 		const sort = Sort()
-		sort.config.bind(sort, config.map(sort, config => !config?.sortConfig ? undefined : ({
+		sort.config.bind(sort, handlerConfig.map(sort, config => !config?.sortConfig ? undefined : ({
 			id: config.sortConfig.id ?? config.id,
 			...config.sortConfig,
 		})))
 
-		const noSort = config.mapManual(config => !config?.sortConfig)
+		const noSort = handlerConfig.mapManual(config => !config?.sortConfig)
 		DisplayBarButton('/static/svg/sort.svg')
 			.style('display-bar-sort-button')
 			.style.bind(noSort, 'display-bar-button--disabled')
@@ -101,7 +103,7 @@ const DisplayBar = Object.assign(
 			.appendTo(component)
 
 		const filter = Filter()
-		filter.config.bind(filter, config.map(filter, config => ({
+		filter.config.bind(filter, handlerConfig.map(filter, config => ({
 			id: 'display-bar-default-filter',
 			filters: [],
 			...config?.filterConfig,
@@ -127,9 +129,12 @@ const DisplayBar = Object.assign(
 			.subtitleText.set(quilt => quilt['display-bar/help/subtitle']())
 			.appendTo(component)
 
+		config.use(component, config => handlerConfig.value = config)
+
 		return component
 			.extend<DisplayBarExtensions>(displayBar => ({
 				config,
+				bindHandlers: (owner, config) => handlerConfig.bind(owner, config),
 				handlers: {
 					sort,
 					filter,

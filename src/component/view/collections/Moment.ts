@@ -6,10 +6,10 @@ import type { DisplayHandlers } from 'component/DisplayBar'
 import Item from 'component/item/Item'
 import type Collections from 'conduit.deepsight.gg/item/Collections'
 import type { CollectionsMoment } from 'conduit.deepsight.gg/item/Collections'
-import type { Item as CollectionsItem, ItemSourceDefined, ItemSourceDropTable } from 'conduit.deepsight.gg/item/Item'
+import type { Item as CollectionsItem } from 'conduit.deepsight.gg/item/Item'
 import { InventoryBucketHashes } from 'deepsight.gg/Enums'
-import type { DeepsightDropTableDefinition, DeepsightItemSourceDefinition } from 'deepsight.gg/Interfaces'
 import { Component, State } from 'kitsui'
+import Breakdown from 'kitsui/component/Breakdown'
 import type TextManipulator from 'kitsui/utility/TextManipulator'
 import type { ItemState } from 'model/Items'
 
@@ -46,7 +46,11 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 	display = State.get(display)
 	const filterText = display.map(component, display => display?.filter.filterText).delay(component, 10)
 	const sortStateHash = display.map(component, display => display?.sort.stateHash).delay(component, 10)
+	const hasAnyItemFilteredIn = State(false)
 	return component.and(Details)
+		.extend<{ readonly hasAnyItemFilteredIn: State<boolean> }>(() => ({
+			hasAnyItemFilteredIn,
+		}))
 		.tweak(details => {
 			details
 				.style('collections-view-moment')
@@ -122,7 +126,7 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 			).delay(details, 10)
 
 			const itemFilterStates = [...weapons, ...armour].toMap(item => [item, ItemFilterState({ definition: item, provider })])
-			const hasAnyItemFilteredIn = State.Map(details, [...itemFilterStates.values()], (...states) => states.some(state => state.filterState))
+			hasAnyItemFilteredIn.bind(details, State.Map(details, [...itemFilterStates.values()], (...states) => states.some(state => state.filterState)))
 
 			State.Use(details, {
 				filterText,
@@ -150,67 +154,24 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 					.style('collections-view-moment-buckets')
 					.appendTo(details.content)
 
-				const createCollectionsFallbackCompare = (items: CollectionsItem[]) => {
-					const sortValues = Object.fromEntries(items.map(item => [
-						item.hash,
-						[
-							item.rarity,
-							(item.sources
-								?.map(sourceRef => {
-									const def = sourceRef.type === 'table' ? provider.dropTables[sourceRef.id] : provider.sources[sourceRef.id]
-									return { ...sourceRef, def } as ItemSourceDropTable & { def: DeepsightDropTableDefinition } | ItemSourceDefined & { def: DeepsightItemSourceDefinition }
-								})
-								.filter(source => source.type !== 'table' || source.def.type === 'raid' || source.def.type === 'dungeon' || source.def.type === 'exotic-mission')
-								.map(source => `${source.type}:${source.id}`)
-								.join(',')
-								|| ''),
-							item.itemSetHash,
-						].map(v => v ?? 0),
-					])) as Record<number, (string | number)[]>
-					return (a: CollectionsItem, b: CollectionsItem) => {
-						const aValues = sortValues[a.hash]
-						const bValues = sortValues[b.hash]
-						for (let i = 0; i < aValues.length; i++)
-							if (aValues[i] !== bValues[i])
-								return typeof aValues[i] === 'number'
-									? (aValues[i] as number) - (bValues[i] as number)
-									: +(aValues[i] === '') - +(bValues[i] === '') || (aValues[i] as string).localeCompare(bValues[i] as string)
-						return 0
-					}
-				}
-
-				const applyDisplaySort = (items: CollectionsItem[]) => {
-					const fallbackCompare = createCollectionsFallbackCompare(items)
-					return items.toSorted((a, b) =>
-						display.value?.sort.compare(getCollectionItemState(a), getCollectionItemState(b))
-						|| fallbackCompare(a, b)
-					)
-				}
+				const applyDisplaySort = (items: CollectionsItem[]) => !display.value
+					? items
+					: items.toSorted((a, b) => display.value?.sort.compare(getCollectionItemState(a), getCollectionItemState(b)) ?? 0)
 
 				const addFilteredItems = (bucket: MomentBucket, items: CollectionsItem[]) => {
 					const orderedItems = sortStateHash.map(bucket, () => applyDisplaySort(items))
-					const itemComponents = new WeakMap<CollectionsItem, Item>()
+					const shouldShowItems = new WeakMap<CollectionsItem, State.Mutable<boolean>>()
+					const getShouldShowItem = (item: CollectionsItem) => {
+						let shouldShowItem = shouldShowItems.get(item)
+						if (shouldShowItem)
+							return shouldShowItem
 
-					const repositionRenderedItems = () => {
-						let previous: Item | undefined
-						for (const item of orderedItems.value) {
-							const itemComponent = itemComponents.get(item)
-							if (!itemComponent?.parent || itemComponent.parent !== bucket.content || !(itemComponent as Item & { shouldShowItem?: State<boolean> }).shouldShowItem?.value)
-								continue
-
-							itemComponent.insertTo(bucket.content, 'after', previous?.parent)
-							previous = itemComponent
-						}
-					}
-					orderedItems.subscribe(bucket, repositionRenderedItems)
-
-					const filterStates: State<boolean>[] = []
-					for (const item of orderedItems.value) {
 						const filterState = itemFilterStates.get(item)
+						shouldShowItem = State(false)
+						shouldShowItems.set(item, shouldShowItem)
 						if (!filterState)
-							continue
+							return shouldShowItem
 
-						const shouldShowItem = State(false)
 						let wasOpen = false
 
 						filterState.use(bucket, (state, old) => {
@@ -223,25 +184,30 @@ export default Component((component, { moment, buckets }: CollectionsMoment, pro
 
 							shouldShowItem.value = newShouldShow || (!state.filterText && wasOpen && shouldShowItem.value)
 						})
-
-						void shouldShowItem.await(bucket, true).then(() => {
-							const itemComponent = Item({ definition: item, provider })
-								.classes.bind(filterState.delayed, FILTER_CHANGING_CLASS)
-							Object.assign(itemComponent, { shouldShowItem, filterState })
-							itemComponents.set(item, itemComponent)
-							filterText.use(itemComponent, () => {
-								itemComponent.rect.markDirty()
-								Item.Tooltip?.anchor.markDirty()
-							})
-							const ownIndex = orderedItems.value.indexOf(item)
-							const itemComponentToPositionAfter = bucket.content.getDescendants(Item).toArray().findLast(item => orderedItems.value.indexOf(item.state.value.definition) < ownIndex)
-							itemComponent.insertToWhen(shouldShowItem, bucket.content, 'after', itemComponentToPositionAfter?.parent)
-							repositionRenderedItems()
-						})
-						filterStates.push(shouldShowItem)
+						return shouldShowItem
 					}
 
-					const shouldShowBucket = State.Some(details, ...filterStates)
+					const itemVisibility = State.Map(bucket, items.map(getShouldShowItem), (...visible) => visible)
+					Breakdown(bucket, State.Use(bucket, { orderedItems, itemVisibility }), ({ orderedItems }, Part, Store) => {
+						for (const item of orderedItems) {
+							const shouldShowItem = getShouldShowItem(item)
+							const filterState = itemFilterStates.get(item)
+							if (!filterState)
+								continue
+
+							Part(`item:${item.hash}`, part => {
+								const itemComponent = part.and(Item, { definition: item, provider })
+								.classes.bind(filterState.delayed, FILTER_CHANGING_CLASS)
+								filterText.use(itemComponent, () => {
+									itemComponent.rect.markDirty()
+									Item.Tooltip?.anchor.markDirty()
+								})
+							})
+								.appendTo(shouldShowItem.value ? bucket.content : Store)
+						}
+					})
+
+					const shouldShowBucket = State.Some(details, ...items.map(getShouldShowItem))
 					bucket.appendToWhen(shouldShowBucket, bucketsWrapper)
 				}
 
