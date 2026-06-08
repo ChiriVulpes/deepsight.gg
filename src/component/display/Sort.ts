@@ -132,18 +132,24 @@ function SortDisplayListRow (row: State<SortDisplayRow>, manager: SortManager) {
 		)
 		.append(Component()
 			.style('sort-row-icon')
-			.append(Component()
-				.style('sort-row-icon-glyph', sortIconClass(sortRow.value.id))
-				.tweak(icon => {
-					const iconImage = State.get(sortRow.value.definition.icon?.image)
-					icon.style.bindVariable('sort-row-icon-image', iconImage.map(icon, image => image && `url(${image})`))
-				}))
+			.append(SortRowIcon(sortRow))
 		)
 		.append(Component()
 			.style('sort-row-label')
 			.text.bind(sortRow.map(rowComponent, row => row.definition.label))
 		)
 		.append(SortDirectionButton(sortRow, manager))
+}
+
+function SortRowIcon (row: State<SortRow>) {
+	const initial = row.value.definition.icon
+	const icon = initial?.component?.() ?? Component()
+	return icon
+		.style('sort-row-icon-glyph', sortIconClass(row.value.id))
+		.tweak(icon => {
+			const iconImage = State.get(initial?.image)
+			icon.style.bindVariable('sort-row-icon-image', iconImage.map(icon, image => image && `url(${image})`))
+		})
 }
 
 function SortDirectionButton (row: State<SortRow>, manager: SortManager) {

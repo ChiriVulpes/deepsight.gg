@@ -1,5 +1,5 @@
 import type { ComponentName, ComponentNameType } from 'kitsui/utility/StyleManipulator'
-import { State } from 'kitsui'
+import type { Component, State } from 'kitsui'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import type { ItemStateOptional } from 'model/Items'
 
@@ -13,6 +13,7 @@ export type SortIconClass<ID extends SortDefinitionId = SortDefinitionId> = Extr
 
 export interface SortIconDefinition {
 	readonly image?: State.Or<string | undefined>
+	readonly component?: () => Component
 }
 
 export interface SortDefinition<ID extends SortDefinitionId = SortDefinitionId> {

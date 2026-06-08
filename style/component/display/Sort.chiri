@@ -256,13 +256,11 @@
 						box-shadow: 0 1px 1px #000a
 
 				&--power:
-					@before:
-						content: "\f112"
-						%relative
-						inset: auto
-						font-size: .8em
-						line-height: 1
-						font-weight: normal
+					font-size: .8em
+					line-height: 1
+					top: auto
+					margin-right: 0
+					%weight-normal
 
 				&--masterwork:
 					@before:
