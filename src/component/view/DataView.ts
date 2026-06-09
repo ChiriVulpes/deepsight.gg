@@ -173,6 +173,10 @@ export interface DataParamsWithAugmentation extends DataParams {
 	augmentation: string
 }
 
+export interface DataParamsWithAugmentationHash extends DataParamsWithAugmentation {
+	augmentationHash: string
+}
+
 export default View<DataParams | undefined>(async view => {
 	view.style('data-view')
 		.style.bind(view.loading.loaded, 'data-view--ready')

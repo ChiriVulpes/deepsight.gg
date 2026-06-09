@@ -23,6 +23,10 @@ export interface DataOverlayParams {
 	links?: DefinitionLinks
 }
 
+type DefinitionWithHash = object & {
+	hash: number | string
+}
+
 export default Component((component, params: State<DataOverlayParams | undefined>) => {
 	component.style('data-overlay')
 
@@ -681,10 +685,24 @@ export default Component((component, params: State<DataOverlayParams | undefined
 			JSONRender(params.definition, links).appendTo(mainTab.content)
 
 			for (const [augTable, augDef] of Object.entries(params.links?.augmentations ?? {}) as [AllComponentNames, object][]) {
+				const augDefs = getDefinitionRecordEntries(augDef)
+				if (augDefs) {
+					for (const [, augDef] of augDefs) {
+						const augHash = String(augDef.hash)
+						const augTab = defsTabs.Tab(`/data/${params.table}/${params.hash}/${augTable}/${encodeURIComponent(augHash)}` as RoutePath)
+							.text.set(DataHelper.getComponentName(augTable))
+
+						const augLinks = DataProvider.SINGLE.get(augTable, augHash).map(augTab, data => resolveLinks(data?.links))
+						JSONRender(augDef, augLinks).appendTo(augTab.content)
+					}
+					continue
+				}
+
 				const augTab = defsTabs.Tab(`/data/${params.table}/${params.hash}/${augTable}`)
 					.text.set(DataHelper.getComponentName(augTable))
 
-				const augLinks = DataProvider.SINGLE.get(augTable, params.hash).map(augTab, data => resolveLinks(data?.links))
+				const augHash = getDefinitionHash(augDef) ?? params.hash
+				const augLinks = DataProvider.SINGLE.get(augTable, augHash).map(augTab, data => resolveLinks(data?.links))
 				JSONRender(augDef, augLinks).appendTo(augTab.content)
 			}
 		})
@@ -790,3 +808,31 @@ export default Component((component, params: State<DataOverlayParams | undefined
 
 	return component
 })
+
+function getDefinitionHash (definition: object): number | string | undefined {
+	if (!('hash' in definition))
+		return undefined
+
+	const hash = definition.hash
+	return typeof hash === 'number' || typeof hash === 'string' ? hash : undefined
+}
+
+function getDefinitionRecordEntries (definition: object): [string, DefinitionWithHash][] | undefined {
+	const entries = Object.entries(definition) as [string, unknown][]
+	if (!entries.length)
+		return undefined
+
+	const result: [string, DefinitionWithHash][] = []
+	for (const [key, value] of entries) {
+		if (!value || typeof value !== 'object')
+			return undefined
+
+		const hash = getDefinitionHash(value)
+		if (hash === undefined || `${hash}` !== key)
+			return undefined
+
+		result.push([key, value as DefinitionWithHash])
+	}
+
+	return result
+}
