@@ -529,24 +529,22 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 					isInsertionDestination: true as const,
 					////////////////////////////////////
 					//#region filtered dest append
+					updateFilteredItem (item: Item | undefined) {
+						const filteredOut = !!item && shouldFilterItems && display.filter.filter(item.state.value, false) === false
+						item?.style.toggle(filteredOut, 'item--filtered-out')
+						return filteredOut
+					},
 					append (...contents: Parameters<Component['append']>) {
 						for (const content of contents) {
 							if (!content)
 								continue
 
+							destination.append(content)
 							const item = Component.get(content)?.as(Item)
-							if (!item) {
-								destination.append(content)
+							if (!item || this.updateFilteredItem(item))
 								continue
-							}
-
-							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
-								Store.append(content)
-								continue
-							}
 
 							bucketItemsVisibleCount++
-							destination.append(content)
 						}
 
 						return this
@@ -556,19 +554,13 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							if (!content)
 								continue
 
-							const item = Component.get(content)?.as(Item)
-							if (!item) {
-								destination.prepend(content)
-								continue
-							}
+							destination.prepend(content)
 
-							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
-								Store.append(content)
+							const item = Component.get(content)?.as(Item)
+							if (!item || this.updateFilteredItem(item))
 								continue
-							}
 
 							bucketItemsVisibleCount++
-							destination.prepend(content)
 						}
 
 						return this
@@ -579,23 +571,18 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							if (!content)
 								continue
 
-							const item = Component.get(content)?.as(Item)
-							if (!item) {
-								destination.insert(direction, cursor, content)
-								if (direction === 'after')
-									cursor = Component.is(content) ? content : content instanceof Element ? content : cursor
-								continue
-							}
+							destination.insert(direction, cursor, content)
 
-							if (shouldFilterItems && display.filter.filter(item.state.value, false) === false) {
-								Store.append(content)
+							const item = Component.get(content)?.as(Item)
+							const filteredOut = this.updateFilteredItem(item)
+
+							if (direction === 'after')
+								cursor = item ?? (Component.is(content) ? content : content instanceof Element ? content : cursor)
+
+							if (!item || filteredOut)
 								continue
-							}
 
 							bucketItemsVisibleCount++
-							destination.insert(direction, cursor, content)
-							if (direction === 'after')
-								cursor = item
 						}
 
 						return this
@@ -846,18 +833,18 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								}
 
 								const itemList = ItemList(`character:${character.id}/bucket:${bucketHash}/items`, part => part
-										.style('inventory-view-bucket-item-list--inventory')
-										.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
-										.and(InventoryItemDrag.DropTarget, target => target
-											.accepts(payload => payload.bucketHash === bucketHash && (
-												payload.source === 'vault'
-												|| (payload.source === 'character-inventory' && payload.characterId !== character.id)
-												|| payload.source === 'character-equipment'
-											))
-											.drop(payload => dropToCharacterInventory(character.id, payload))
-											.priority(10)
-										)
-										.tweak(bindDropTargetStyles, 'character')
+									.style('inventory-view-bucket-item-list--inventory')
+									.style.toggle(bucketHash === InventoryBucketHashes.LostItems, 'inventory-view-bucket-item-list--lost-items')
+									.and(InventoryItemDrag.DropTarget, target => target
+										.accepts(payload => payload.bucketHash === bucketHash && (
+											payload.source === 'vault'
+											|| (payload.source === 'character-inventory' && payload.characterId !== character.id)
+											|| payload.source === 'character-equipment'
+										))
+										.drop(payload => dropToCharacterInventory(character.id, payload))
+										.priority(10)
+									)
+									.tweak(bindDropTargetStyles, 'character')
 								)
 									.appendTo(bucketWrapper)
 								const itemListFiltered = ItemListFilteredDestination(itemList)
@@ -895,12 +882,12 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 								.style('inventory-view-bucket-wrapper--profile')
 								.appendTo(destination)
 							const itemList = ItemList(`profile/bucket:${bucketHash}/items`, !hasProfileTransferTargets ? undefined : part => part
-									.and(InventoryItemDrag.DropTarget, target => target
-										.accepts(payload => payload.source === 'vault' && payload.bucketHash === bucketHash)
-										.drop(dropToProfileInventory)
-										.priority(10)
-									)
-									.tweak(bindDropTargetStyles, 'character')
+								.and(InventoryItemDrag.DropTarget, target => target
+									.accepts(payload => payload.source === 'vault' && payload.bucketHash === bucketHash)
+									.drop(dropToProfileInventory)
+									.priority(10)
+								)
+								.tweak(bindDropTargetStyles, 'character')
 							)
 								.style('inventory-view-bucket-item-list--profile')
 								.appendTo(profileBucketWrapper)
@@ -939,12 +926,12 @@ export default View<InventoryParamsItemInstanceId | undefined>(async view => {
 							.style.toggle(!usesCharacterLayout, 'inventory-view-bucket-wrapper--vault--profile')
 							.appendTo(destination)
 						const itemList = ItemList(`vault/bucket:${bucketHash}/items`, part => part
-								.and(InventoryItemDrag.DropTarget, target => target
-									.accepts(payload => payload.source !== 'vault' && payload.bucketHash !== InventoryBucketHashes.LostItems && (payload.source !== 'profile' || payload.bucketHash === bucketHash))
-									.drop(dropToVault)
-									.priority(5)
-								)
-								.tweak(bindDropTargetStyles, 'vault')
+							.and(InventoryItemDrag.DropTarget, target => target
+								.accepts(payload => payload.source !== 'vault' && payload.bucketHash !== InventoryBucketHashes.LostItems && (payload.source !== 'profile' || payload.bucketHash === bucketHash))
+								.drop(dropToVault)
+								.priority(5)
+							)
+							.tweak(bindDropTargetStyles, 'vault')
 						)
 							.appendTo(vaultBucketWrapper)
 						const itemListFiltered = ItemListFilteredDestination(itemList)
