@@ -1,13 +1,14 @@
 import Button from 'component/core/Button'
+import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import DataHelper from 'component/view/data/DataHelper'
-import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import type { RoutePath } from 'navigation/RoutePath'
+import type { DataTableName } from './DataTable'
 
 interface DataDefinitionButtonData {
-	component: AllComponentNames
+	component: DataTableName
 	definition: object
 	singleDefComponent?: true
 	customSubtitle?: StringApplicatorSource
@@ -64,12 +65,14 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 
 		Component()
 			.style('data-view-definition-button-title')
-			.text.bind(title)
+			.and(DisplaySlot)
+			.use(title, (slot, title) => DataHelper.renderContent(slot, title))
 			.appendTo(button)
 
 		Component()
 			.style('data-view-definition-button-subtitle')
-			.text.bind(subtitle)
+			.and(DisplaySlot)
+			.use(subtitle, (slot, subtitle) => DataHelper.renderContent(slot, subtitle))
 			.appendTo(button)
 	})
 )

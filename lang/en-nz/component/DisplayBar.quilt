@@ -1,46 +1,50 @@
 # display-bar
-sort/title: Sort
-sort/none: Not sorting
-sort/active/title: Sort By
-sort/inactive/title: Don't Sort By
-sort/action/reverse: Reverse
-sort/action/remove: Remove
-sort/action/add: Add
-sort/name/title: Name
-sort/name/short: Name
-sort/moment/title: Moment
-sort/moment/short: Moment
-sort/power/title: Power
-sort/power/short: Power
-sort/rarity/title: Rarity
-sort/rarity/short: Rarity
-sort/exotic/title: Exotic
-sort/exotic/short: Exotic
-sort/featured/title: Featured
-sort/featured/short: Featured
-sort/weapon-type/title: Weapon Type
-sort/weapon-type/short: Type
-sort/ammo/title: Ammo
-sort/ammo/short: Ammo
-sort/damage/title: Damage
-sort/damage/short: Damage
-sort/stun/title: Stun
-sort/stun/short: Stun
-sort/quantity/title: Quantity
-sort/quantity/short: Quantity
-sort/stat-total/title: Stat Total
-sort/stat-total/short: Stats
-sort/masterwork/title: Masterwork
-sort/masterwork/short: Masterwork
-sort/locked/title: Locked
-sort/locked/short: Locked
-sort/foundry/title: Foundry
-sort/foundry/short: Foundry
-sort/source/title: Source
-sort/source/short: Source
 
 help/title: Help
 help/subtitle: Keybindings & more
+
+## sort
+title: Sort
+none: Not sorting
+active/title: Sort By
+inactive/title: Don't Sort By
+action/reverse: Reverse
+action/remove: Remove
+action/add: Add
+name/title: Name
+name/short: Name
+moment/title: Moment
+moment/short: Moment
+power/title: Power
+power/short: Power
+rarity/title: Rarity
+rarity/short: Rarity
+exotic/title: Exotic
+exotic/short: Exotic
+weapon-type/title: Weapon Type
+weapon-type/short: Type
+ammo/title: Ammo
+ammo/short: Ammo
+damage/title: Damage
+damage/short: Damage
+stun/title: Stun
+stun/short: Stun
+quantity/title: Quantity
+quantity/short: Quantity
+stat-total/title: Stat Total
+stat-total/short: Stats
+masterwork/title: Masterwork
+masterwork/short: Masterwork
+locked/title: Locked
+locked/short: Locked
+foundry/title: Foundry
+foundry/short: Foundry
+source/title: Source
+source/short: Source
+setbonus/title: Armor Set Bonus
+setbonus/short: Set
+bucket/title: Slot
+bucket/short: Slot
 
 ## filter
 title: Filter

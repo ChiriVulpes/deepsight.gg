@@ -7,6 +7,7 @@ import Tabinator from 'component/core/Tabinator'
 import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
 import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
+import type { DataTableName } from 'component/view/data/DataTable'
 import type { AllComponentNames, DefinitionLinks } from 'conduit.deepsight.gg/DefinitionComponents'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
@@ -17,7 +18,7 @@ import type { RoutePath } from 'navigation/RoutePath'
 import Arrays from 'utility/Arrays'
 
 export interface DataOverlayParams {
-	table: AllComponentNames
+	table: DataTableName
 	hash: number | string
 	definition: object | undefined
 	links?: DefinitionLinks
@@ -608,7 +609,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						.text.append(' "')
 						.append(Component()
 							.style('data-overlay-json-reference-definition-link-title')
-							.text.set(DataHelper.getTitle(link.component, linkedDef))
+							.text.set(DataHelper.getTitleText(link.component, linkedDef))
 						)
 						.text.append('"')
 					)

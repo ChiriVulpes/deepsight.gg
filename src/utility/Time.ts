@@ -29,6 +29,21 @@ namespace Time {
 		return quilt => quilt['shared/spaced'](...components.map(h => h(quilt)))
 	}
 
+	export function compactDuration (secondsIn: number): string {
+		const seconds = Math.max(0, Math.floor(secondsIn))
+		const hours = Math.floor(seconds / 60 / 60)
+		const minutes = Math.floor((seconds % (60 * 60)) / 60)
+		const remainingSeconds = seconds % 60
+
+		if (hours)
+			return `${hours}h${minutes ? ` ${minutes}m` : ''}`
+
+		if (minutes)
+			return `${minutes}m`
+
+		return `${remainingSeconds}s`
+	}
+
 	export type ISO = `${bigint}-${bigint}-${bigint}T${bigint}:${bigint}:${number}Z`
 
 	export function floor (interval: number) {

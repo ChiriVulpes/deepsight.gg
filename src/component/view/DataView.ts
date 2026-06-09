@@ -10,10 +10,14 @@ import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import type { DataOverlayParams } from 'component/overlay/DataOverlay'
 import DataOverlay from 'component/overlay/DataOverlay'
+import ProfileButton from 'component/profile/ProfileButton'
 import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
 import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
+import type { DataTableName } from 'component/view/data/DataTable'
+import { isComponentTableName, VIRTUAL_TABLE_NAMES } from 'component/view/data/DataTable'
 import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { Profile } from 'conduit.deepsight.gg/Profile'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
@@ -106,9 +110,9 @@ const COMPONENT_CATEGORIES: ComponentCategory[] = [
 	},
 ]
 
-const isSingleDefComponent = (componentName: AllComponentNames) => {
+const isSingleDefComponent = (componentName: DataTableName) => {
 	return false
-		|| SINGLE_DEF_COMPONENTS.includes(componentName)
+		|| (isComponentTableName(componentName) && SINGLE_DEF_COMPONENTS.includes(componentName))
 		|| componentName.endsWith('ConstantsDefinition')
 }
 
@@ -318,8 +322,10 @@ export default View<DataParams | undefined>(async view => {
 			//#region Group & Sort Tables
 
 			componentNames = componentNames.filter(name => !HIDDEN_COMPONENTS.includes(name))
+			const tableNames: DataTableName[] = [...VIRTUAL_TABLE_NAMES, ...componentNames]
+			const realComponentNames = tableNames.filter(isComponentTableName)
 
-			const componentNameGroups = componentNames
+			const componentNameGroups = realComponentNames
 				.groupBy((name, i) => {
 					for (const category of COMPONENT_CATEGORIES) {
 						const isInCategory = false
@@ -334,16 +340,28 @@ export default View<DataParams | undefined>(async view => {
 				})
 				.filter((entry): entry is [ComponentCategory, AllComponentNames[]] => !!entry[0])
 
-			const indices = componentNames.toObject(name => [
+			const indices = tableNames.toObject(name => [
 				name,
-				(_
-					|| PRIORITY_COMPONENTS.indexOf(name) + 1
-
-					|| PRIORITY_COMPONENTS.indexOf(componentNameGroups.find(([category, names]) => names.includes(name))?.[0].id!) + 1
-					|| Infinity
-				),
+				getTableIndex(name),
 			])
-			componentNames.sort((a, b) => indices[a] - indices[b])
+			tableNames.sort((a, b) => indices[a] - indices[b])
+
+			function getTableIndex (name: DataTableName) {
+				const virtualIndex = VIRTUAL_TABLE_NAMES.indexOf(name as never)
+				if (virtualIndex !== -1)
+					return virtualIndex
+
+				const priorityIndex = PRIORITY_COMPONENTS.indexOf(name as AllComponentNames)
+				if (priorityIndex !== -1)
+					return VIRTUAL_TABLE_NAMES.length + priorityIndex
+
+				const categoryId = componentNameGroups.find(([category, names]) => names.includes(name as AllComponentNames))?.[0].id
+				const categoryPriorityIndex = PRIORITY_COMPONENTS.indexOf(categoryId!)
+				if (categoryPriorityIndex !== -1)
+					return VIRTUAL_TABLE_NAMES.length + categoryPriorityIndex
+
+				return Infinity
+			}
 
 			//#endregion
 			////////////////////////////////////
@@ -358,13 +376,13 @@ export default View<DataParams | undefined>(async view => {
 			const groupWrappers: Map<ComponentCategory, GroupWrapper> = new Map()
 
 			// if (!filterText) {
-			for (let i = 0; i < componentNames.length; i++) {
-				const name = componentNames[i]
+			for (let i = 0; i < tableNames.length; i++) {
+				const name = tableNames[i]
 
 				////////////////////////////////////
 				//#region Category Wrapper
 
-				const [category] = componentNameGroups.find(([category, names]) => names.includes(name)) ?? []
+				const [category] = isComponentTableName(name) ? componentNameGroups.find(([category, names]) => names.includes(name)) ?? [] : []
 				if (category && !groupWrappers.has(category)) {
 					const filteredIn = State(false)
 					groupWrappers.set(category, {
@@ -424,7 +442,9 @@ export default View<DataParams | undefined>(async view => {
 				else
 					details.appendToWhen(filteredIn, categoryWrapper?.details.content ?? slot)
 
-				const augments = Object.values(links?.components ?? {}).find(links => links.augmentations?.includes(name))?.component
+				const augments = isComponentTableName(name)
+					? Object.values(links?.components ?? {}).find(links => links.augmentations?.includes(name))?.component
+					: undefined
 
 				details.summary
 					.style('collections-view-moment-summary', 'data-view-component-summary')
@@ -484,8 +504,16 @@ export default View<DataParams | undefined>(async view => {
 									return
 								}
 
-								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number }][]) {
+								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number | string }][]) {
 									DataProvider.SINGLE.prep(name, definition.hash)
+									if (name === 'profiles' && isProfileDefinition(definition)) {
+										ProfileButton(definition)
+											.and(Link, `/data/${name}/${String(definition.hash)}` as RoutePath)
+											.tweak(button => button.mode.setValue(definition.authed ? 'expanded' : 'collapsed'))
+											.appendTo(list)
+										continue
+									}
+
 									DataDefinitionButton()
 										.tweak(button => button.data.value = { component: name, definition })
 										.appendTo(list)
@@ -532,7 +560,7 @@ export default View<DataParams | undefined>(async view => {
 
 				const navigatePath = navigate.state.map(slot, url => new URL(url).pathname as RoutePath)
 				for (const breadcrumb of crumbs) {
-					const componentName = breadcrumb.path.slice(6).split('/')[0] as AllComponentNames
+					const componentName = breadcrumb.path.slice(6).split('/')[0] as DataTableName
 					const selected = navigatePath.equals(breadcrumb.path)
 
 					const isFullViewOrSingleDefComponent = breadcrumb.path.endsWith('/full') || isSingleDefComponent(componentName)
@@ -578,30 +606,12 @@ export default View<DataParams | undefined>(async view => {
 		if (!params)
 			return undefined
 
-		const table = params.table as AllComponentNames
+		const table = params.table as DataTableName
 		const result = params.hash !== 'full'
 			? DataProvider.SINGLE.get(table, params.hash)
 			////////////////////////////////////
 			//#region Full Table Data
-			: State.Async(State.Owner.fromSignal(signal), async (): Promise<{ definition: object, links?: undefined } | undefined> => {
-				const conduit = await Relic.connected
-				if (signal.aborted)
-					return undefined
-
-				const defs = await conduit.definitions.en[table].all()
-				if (signal.aborted)
-					return undefined
-
-				if (!isSingleDefComponent(table))
-					return { definition: defs }
-
-				const keys = Object.keys(defs)
-				const key = keys[0] as keyof typeof defs
-				const singleDef = keys.length > 1 || typeof defs[key] !== 'object' || !defs[key]
-					? defs
-					: defs[key]
-				return { definition: singleDef }
-			})
+			: DataProvider.FULL.get(table, '', isSingleDefComponent(table))
 		//#endregion
 		////////////////////////////////////
 
@@ -615,7 +625,7 @@ export default View<DataParams | undefined>(async view => {
 
 		const newBreadcrumb: Breadcrumb = {
 			path: `/data/${table}/${params.hash}`,
-			name: DataHelper.getTitle(table, result.value.definition),
+			name: DataHelper.getTitleText(table, result.value.definition),
 		}
 		if (!breadcrumbs.value.some(bc => Breadcrumb.equals(bc, newBreadcrumb)))
 			breadcrumbs.value = [...breadcrumbs.value, newBreadcrumb]
@@ -641,3 +651,15 @@ export default View<DataParams | undefined>(async view => {
 	//#endregion
 	////////////////////////////////////
 })
+
+function isProfileDefinition (definition: object): definition is Profile & { hash: string } {
+	return true
+		&& 'hash' in definition
+		&& typeof definition.hash === 'string'
+		&& 'id' in definition
+		&& typeof definition.id === 'string'
+		&& 'name' in definition
+		&& typeof definition.name === 'string'
+		&& 'characters' in definition
+		&& Array.isArray(definition.characters)
+}

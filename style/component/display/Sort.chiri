@@ -160,8 +160,8 @@
 					@before:
 						width: 0
 						height: 0
-						border-top: .8em solid currentcolor
-						border-right: .8em solid transparent
+						border-top: .7em solid currentcolor
+						border-right: .7em solid transparent
 
 				&--rarity:
 					@before:
@@ -180,13 +180,6 @@
 						mask-size: contain
 						mask-position: center
 						mask-repeat: no-repeat
-
-				&--featured:
-					@before:
-						height: 1em
-						width: .8em
-						%background-currentcolour
-						clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)
 
 				&--type:
 					@before:
@@ -241,14 +234,14 @@
 
 				&--stat-total:
 					@before:
-						left: .2em
+						left: .05em
 						top: .1em
 						width: .9em
 						height: .3em
 						%background-currentcolour
 						box-shadow: 0 1px 1px #000a
 					@after:
-						left: .2em
+						left: .05em
 						bottom: .1em
 						width: .7em
 						height: .3em
@@ -286,14 +279,11 @@
 
 				&--foundry:
 					@before:
-						left: .18em
-						top: .18em
-						width: .72em
-						height: .72em
-						border: .12em solid currentcolor
+						inset: .05em
+						border: .15em solid currentcolor
 					@after:
-						left: .36em
-						top: .36em
+						left: .25em
+						top: .25em
 						width: .36em
 						height: .36em
 						%background-currentcolour
@@ -306,6 +296,21 @@
 						height: .9em
 						%background-currentcolour
 						clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)
+
+				&--setbonus:
+					@before:
+						inset: .05em
+						border-block: .15em solid
+
+					@after:
+						inset-inline: .1em
+						inset-block: .3em
+						border-inline: .35em solid
+
+				&--bucket:
+					@before:
+						inset: .05em
+						border: .15em solid
 
 		&-label:
 			%overflow-hidden

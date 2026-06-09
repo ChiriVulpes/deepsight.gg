@@ -9,17 +9,17 @@ import FilterWeaponFoundry from 'component/display/filter/FilterWeaponFoundry'
 import FilterWeaponFrame from 'component/display/filter/FilterWeaponFrame'
 import FilterWeaponType from 'component/display/filter/FilterWeaponType'
 import SortAmmo from 'component/display/sort/definition/SortAmmo'
+import SortBucket from 'component/display/sort/definition/SortBucket'
 import SortDamage from 'component/display/sort/definition/SortDamage'
 import SortExotic from 'component/display/sort/definition/SortExotic'
-import SortFeatured from 'component/display/sort/definition/SortFeatured'
 import SortFoundry from 'component/display/sort/definition/SortFoundry'
 import SortLocked from 'component/display/sort/definition/SortLocked'
 import SortMasterwork from 'component/display/sort/definition/SortMasterwork'
-import SortMoment from 'component/display/sort/definition/SortMoment'
 import SortName from 'component/display/sort/definition/SortName'
 import SortPower from 'component/display/sort/definition/SortPower'
 import SortQuantity from 'component/display/sort/definition/SortQuantity'
 import SortRarity from 'component/display/sort/definition/SortRarity'
+import SortSetBonus from 'component/display/sort/definition/SortSetBonus'
 import SortSource from 'component/display/sort/definition/SortSource'
 import SortStatTotal from 'component/display/sort/definition/SortStatTotal'
 import SortStun from 'component/display/sort/definition/SortStun'
@@ -35,10 +35,10 @@ import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
 import Slot from 'kitsui/component/Slot'
 import Task from 'kitsui/utility/Task'
-import type { ItemReference, ItemStateOptional } from 'model/Items'
-import { ItemState } from 'model/Items'
 import type { ItemRefNames as ItemRefNamesValue } from 'model/ItemRefNames'
 import ItemRefNames from 'model/ItemRefNames'
+import type { ItemReference, ItemStateOptional } from 'model/Items'
+import { ItemState } from 'model/Items'
 import type { RoutePath } from 'navigation/RoutePath'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
@@ -51,11 +51,9 @@ const COLLECTIONS_DISPLAY = DisplayBar.Config({
 	sortConfig: {
 		definitions: [
 			SortName,
-			SortMoment,
 			SortPower,
 			SortRarity,
 			SortExotic,
-			SortFeatured,
 			SortWeaponType,
 			SortAmmo,
 			SortDamage,
@@ -66,12 +64,16 @@ const COLLECTIONS_DISPLAY = DisplayBar.Config({
 			SortLocked,
 			SortFoundry,
 			SortSource,
+			SortSetBonus,
+			SortBucket,
 		],
 		default: [
-			{ id: 'exotic' },
 			{ id: 'rarity' },
+			{ id: 'setbonus' },
 			{ id: 'source' },
-			{ id: 'moment' },
+			{ id: 'bucket' },
+			{ id: 'ammo' },
+			{ id: 'type' },
 			{ id: 'name' },
 		],
 	},

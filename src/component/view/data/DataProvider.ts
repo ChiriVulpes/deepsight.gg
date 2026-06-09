@@ -4,6 +4,9 @@ import { State } from 'kitsui'
 import Relic from 'Relic'
 import Arrays from 'utility/Arrays'
 import { _ } from 'utility/Objects'
+import type { DataTableName } from './DataTable'
+import { isVirtualTableName } from './DataTable'
+import DataVirtualTables from './DataVirtualTables'
 
 declare module 'conduit.deepsight.gg/Definitions' {
 	export interface DefinitionsFilter<DEFINITION> {
@@ -95,8 +98,11 @@ function DataProvider<PARAMS extends DataProviderParam[], T> (definition: DataPr
 
 namespace DataProvider {
 
-	export const SINGLE = DataProvider<[component: AllComponentNames, hash: number | string], DefinitionWithLinks<object>>({
+	export const SINGLE = DataProvider<[component: DataTableName, hash: number | string], DefinitionWithLinks<object>>({
 		provider: async ([component, hash], signal, setProgress) => {
+			if (isVirtualTableName(component))
+				return await DataVirtualTables.getWithLinks(component, hash)
+
 			const conduit = await Relic.connected
 			if (signal.aborted)
 				return undefined
@@ -114,9 +120,34 @@ namespace DataProvider {
 		},
 	})
 
+	export const FULL = DataProvider<[component: DataTableName, filtersKey: string, singleDefComponent: boolean], DefinitionWithLinks<object>>({
+		provider: async ([component, filtersKey, singleDefComponent], signal, setProgress) => {
+			const filters = !filtersKey ? undefined : JSON.parse(filtersKey) as DefinitionsFilter<object>
+			if (isVirtualTableName(component))
+				return await DataVirtualTables.full(component, filters)
+
+			const conduit = await Relic.connected
+			if (signal.aborted)
+				return undefined
+
+			const defs = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].all(filters as never)
+			if (signal.aborted)
+				return undefined
+
+			const keys = Object.keys(defs)
+			const key = keys[0] as keyof typeof defs
+			const definition = !singleDefComponent || keys.length > 1 || typeof defs[key] !== 'object' || !defs[key]
+				? defs
+				: defs[key] as object
+			return { definition }
+		},
+		cacheSize: 5,
+		prepCacheSize: 5,
+	})
+
 	export const createPaged = (filters?: DefinitionsFilter<object> | string) => {
 		const filtersObj = typeof filters === 'string' ? createDefinitionsFilter(filters) : filters
-		return DataProvider<[component: AllComponentNames, pageSize: number, page: number], DefinitionsPage<object>>({
+		return DataProvider<[component: DataTableName, pageSize: number, page: number], DefinitionsPage<object>>({
 			provider: async ([component, pageSize, page], signal, setProgress) => {
 				const conduit = await Relic.connected
 				if (signal.aborted)
@@ -125,6 +156,9 @@ namespace DataProvider {
 				const lowercaseComponent = component.toLowerCase()
 				if (filtersObj?.componentNameContains?.length && !filtersObj.componentNameContains.some(namePart => lowercaseComponent.includes(namePart.toLowerCase())))
 					return undefined
+
+				if (isVirtualTableName(component))
+					return await DataVirtualTables.page(component, pageSize, page, filtersObj)
 
 				const definitionsPage = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].page(pageSize, page, filtersObj as never)
 				if (signal.aborted)
@@ -137,9 +171,12 @@ namespace DataProvider {
 		})
 	}
 
-	export const createReferencesPaged = (component: AllComponentNames, hash: number | string) => {
+	export const createReferencesPaged = (component: DataTableName, hash: number | string) => {
 		return DataProvider<[pageSize: number, page: number], DefinitionReferencesPage>({
 			provider: async ([pageSize, page], signal, setProgress) => {
+				if (isVirtualTableName(component))
+					return await DataVirtualTables.getReferencesPage(pageSize, page) as DefinitionReferencesPage
+
 				const conduit = await Relic.connected
 				if (signal.aborted)
 					return undefined

@@ -6,7 +6,7 @@ settings:
 
 overrides:
   conduit.deepsight.gg>bungie-api-ts: 5.10.0
-  conduit.deepsight.gg>deepsight.gg: 1.0.1861
+  conduit.deepsight.gg>deepsight.gg: 1.0.1862
   deepsight.gg>bungie-api-ts: 5.10.0
 
 importers:
@@ -20,8 +20,8 @@ importers:
         specifier: github:chirivulpes/conduit.deepsight.gg#73087659b624becafb0350d38254202796aaca1a
         version: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a
       deepsight.gg:
-        specifier: 1.0.1861
-        version: 1.0.1861
+        specifier: 1.0.1862
+        version: 1.0.1862
       kitsui:
         specifier: github:fluff4me/kitsui#c426d908064707d9650c6100dc49cb4972dc85d5
         version: https://codeload.github.com/fluff4me/kitsui/tar.gz/c426d908064707d9650c6100dc49cb4972dc85d5
@@ -36,8 +36,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a}
     version: 1.0.0
 
-  deepsight.gg@1.0.1861:
-    resolution: {integrity: sha512-RY3p0RLWSZOIG+JPNTdsb8qndh7GX3u1NUzhaSjGxBAQiFfIW4lMlFjZ+MtZLfkZOgQ0lEErAaC6hlJxD4G9fQ==}
+  deepsight.gg@1.0.1862:
+    resolution: {integrity: sha512-3bmARp9quiUVVQGVUg5qYSa8B3pchnLQ2SDz/a12SVMDY/6KsfbcLyeGEjpsAjzWfkSerJggItzaVC0I+YXmJQ==}
 
   kitsui@https://codeload.github.com/fluff4me/kitsui/tar.gz/c426d908064707d9650c6100dc49cb4972dc85d5:
     resolution: {tarball: https://codeload.github.com/fluff4me/kitsui/tar.gz/c426d908064707d9650c6100dc49cb4972dc85d5}
@@ -50,9 +50,9 @@ snapshots:
   conduit.deepsight.gg@https://codeload.github.com/chirivulpes/conduit.deepsight.gg/tar.gz/73087659b624becafb0350d38254202796aaca1a:
     dependencies:
       bungie-api-ts: 5.10.0
-      deepsight.gg: 1.0.1861
+      deepsight.gg: 1.0.1862
 
-  deepsight.gg@1.0.1861:
+  deepsight.gg@1.0.1862:
     dependencies:
       bungie-api-ts: 5.10.0
 
