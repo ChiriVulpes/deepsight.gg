@@ -6,6 +6,12 @@ Use the local frontend systems:
 - Chiri for styles
 - Weaving quilt files for user-facing text
 
+## Kitsui Component Events In App Code
+
+When adding custom events to a Kitsui component in deepsight.gg, follow the current kitsui `Component.WithEvents` pattern. Prefer a typed component-local event over callback state when the parent component should own the behavior.
+
+For non-generic component builders whose output type is not inferred, set the output type on the `Component<Params, Output>(...)` call. Do not introduce a public builder namespace unless the component has a generic public call signature.
+
 ## Command Hygiene
 Validation commands must be non-emitting unless the user explicitly approves an emitting build or generation step.
 

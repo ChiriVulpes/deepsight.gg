@@ -3,24 +3,29 @@ import DisplaySlot from 'component/core/DisplaySlot'
 import Image from 'component/core/Image'
 import DataHelper from 'component/view/data/DataHelper'
 import { Component, State } from 'kitsui'
+import type { ComponentEvents } from 'kitsui/Component'
 import type { StringApplicatorSource } from 'kitsui/utility/StringApplicator'
 import type { RoutePath } from 'navigation/RoutePath'
 import type { DataTableName } from './DataTable'
 
-interface DataDefinitionButtonData {
+export interface DataDefinitionButtonData {
 	component: DataTableName
 	definition: object
 	singleDefComponent?: true
 	customSubtitle?: StringApplicatorSource
 }
 
+interface DataDefinitionButtonEvents extends ComponentEvents {
+	BackgroundOpen (path: RoutePath, data: DataDefinitionButtonData): unknown
+}
+
 interface DataDefinitionButtonExtensions {
 	readonly data: State.Mutable<DataDefinitionButtonData | undefined>
 }
 
-interface DataDefinitionButton extends Component, DataDefinitionButtonExtensions { }
+interface DataDefinitionButton extends Component.WithEvents<DataDefinitionButtonEvents>, DataDefinitionButtonExtensions { }
 
-const DataDefinitionButton = Component('a', (component): DataDefinitionButton => component
+const DataDefinitionButton = Component<[], DataDefinitionButton>('a', (component) => component
 	.and(Button)
 	.style('data-view-definition-button')
 	.extend<DataDefinitionButtonExtensions>(component => ({
@@ -32,6 +37,21 @@ const DataDefinitionButton = Component('a', (component): DataDefinitionButton =>
 		if (url)
 			void navigate.toURL(url as RoutePath)
 		return false
+	})
+	.event.subscribe('auxclick', e => {
+		if (e.button !== 1 || e.ctrlKey || e.metaKey)
+			return
+
+		const url = e.host.attributes.get('href')?.value
+		const data = e.host.data.value
+		if (!url || !data)
+			return
+
+		const result = (e.host as DataDefinitionButton).event.emit('BackgroundOpen', url as RoutePath, data)
+		if (result.defaultPrevented) {
+			e.preventDefault()
+			return false
+		}
 	})
 	.tweak(button => {
 		button.textWrapper.remove()

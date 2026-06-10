@@ -29,7 +29,7 @@ export default Component((component, intendedState: State<ItemStateOptional>) =>
 	const state = State<ItemStateOptional>({ provider: intendedState.value.provider })
 	intendedState.use(component, intendedState => state.value = {
 		...intendedState,
-		definition: state.value.definition ?? intendedState?.definition,
+		definition: intendedState?.definition ?? state.value.definition,
 	})
 
 	const provider = intendedState.map(component, state => state.provider)

@@ -33,7 +33,7 @@ const Sort = Object.assign(
 			inputFilter: event => !(event.target instanceof HTMLElement) || !event.target.closest('button'),
 		})
 		sortRows.style('sort-row-list')
-		sortRows.event.subscribe('commit', (_event, commit) => manager.applyRows(commit.rows))
+		sortRows.event.subscribe('Commit', (_event, commit) => manager.applyRows(commit.rows))
 
 		config.use(component, config => manager.configure(config))
 

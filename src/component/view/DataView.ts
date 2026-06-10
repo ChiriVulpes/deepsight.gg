@@ -11,7 +11,7 @@ import Overlay from 'component/Overlay'
 import type { DataOverlayParams } from 'component/overlay/DataOverlay'
 import DataOverlay from 'component/overlay/DataOverlay'
 import ProfileButton from 'component/profile/ProfileButton'
-import DataDefinitionButton from 'component/view/data/DataDefinitionButton'
+import DataDefinitionButton, { type DataDefinitionButtonData } from 'component/view/data/DataDefinitionButton'
 import DataHelper from 'component/view/data/DataHelper'
 import DataProvider from 'component/view/data/DataProvider'
 import type { DataTableName } from 'component/view/data/DataTable'
@@ -29,7 +29,6 @@ import type { RoutePath } from 'navigation/RoutePath'
 import type { DeepsightLinksDefinition } from 'node_modules/deepsight.gg/Interfaces'
 import Relic from 'Relic'
 import { sleep } from 'utility/Async'
-import { _ } from 'utility/Objects'
 import Time from 'utility/Time'
 
 ////////////////////////////////////
@@ -41,10 +40,11 @@ enum CategoryId {
 
 const PRIORITY_COMPONENTS: (AllComponentNames | CategoryId)[] = [
 	'DestinyInventoryItemDefinition',
+	'DeepsightItemSourceDefinition',
+	'DeepsightMomentDefinition',
 	'DestinySandboxPerkDefinition',
 	'DestinyStatDefinition',
 	'DestinyTraitDefinition',
-	'DeepsightMomentDefinition',
 	'DestinyVendorDefinition',
 	'DestinyActivityDefinition',
 	'DestinyActivityModifierDefinition',
@@ -498,9 +498,13 @@ export default View<DataParams | undefined>(async view => {
 									const singleDef = keys.length > 1 || typeof data.definitions[keys[0]] !== 'object' || !data.definitions[keys[0]]
 										? data.definitions
 										: data.definitions[keys[0]]
-									DataDefinitionButton()
-										.tweak(button => button.data.value = { component: name, definition: singleDef, singleDefComponent: true })
-										.appendTo(list)
+									const button = DataDefinitionButton()
+									button.data.value = { component: name, definition: singleDef, singleDefComponent: true }
+									button.event.subscribe('BackgroundOpen', (event, path, data) => {
+										event.preventDefault()
+										addBackgroundBreadcrumb(path, data)
+									})
+									button.appendTo(list)
 									return
 								}
 
@@ -514,9 +518,13 @@ export default View<DataParams | undefined>(async view => {
 										continue
 									}
 
-									DataDefinitionButton()
-										.tweak(button => button.data.value = { component: name, definition })
-										.appendTo(list)
+									const button = DataDefinitionButton()
+									button.data.value = { component: name, definition }
+									button.event.subscribe('BackgroundOpen', (event, path, data) => {
+										event.preventDefault()
+										addBackgroundBreadcrumb(path, data)
+									})
+									button.appendTo(list)
 								}
 							},
 						})
@@ -539,6 +547,16 @@ export default View<DataParams | undefined>(async view => {
 		.appendTo(view)
 
 	const breadcrumbs = State<Breadcrumb[]>([])
+
+	function addBackgroundBreadcrumb (path: RoutePath, data: DataDefinitionButtonData) {
+		const breadcrumb = {
+			path,
+			name: DataHelper.getTitleText(data.component, data.definition),
+		} satisfies Breadcrumb
+
+		if (!breadcrumbs.value.some(existing => Breadcrumb.equals(existing, breadcrumb)))
+			breadcrumbs.value = [...breadcrumbs.value, breadcrumb]
+	}
 
 	const homeLinkURL = navigate.state.map(view, url => {
 		const route = new URL(url).pathname as RoutePath

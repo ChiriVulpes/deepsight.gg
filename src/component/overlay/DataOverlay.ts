@@ -731,13 +731,13 @@ export default Component((component, params: State<DataOverlayParams | undefined
 					continue
 
 				DataProvider.SINGLE.prep('DestinyInventoryItemDefinition', variant.hash)
-				DataDefinitionButton()
-					.tweak(button => button.data.value = {
-						component: 'DestinyInventoryItemDefinition',
-						definition,
-						customSubtitle: variant.type,
-					})
-					.appendTo(slot)
+				const button = DataDefinitionButton()
+				button.data.value = {
+					component: 'DestinyInventoryItemDefinition',
+					definition,
+					customSubtitle: variant.type,
+				}
+				button.appendTo(slot)
 			}
 		})
 		.appendTo(variantsTab.content)
@@ -788,9 +788,9 @@ export default Component((component, params: State<DataOverlayParams | undefined
 						const componentName = component as AllComponentNames
 						for (const definition of Object.values(defs) as { hash: number | string }[]) {
 							DataProvider.SINGLE.prep(componentName, definition.hash)
-							DataDefinitionButton()
-								.tweak(button => button.data.value = { component: componentName, definition })
-								.appendTo(list)
+							const button = DataDefinitionButton()
+							button.data.value = { component: componentName, definition }
+							button.appendTo(list)
 						}
 					}
 				},
