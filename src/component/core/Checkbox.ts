@@ -4,16 +4,24 @@ interface CheckboxExtensions {
 	readonly checked: State<boolean>
 	readonly label: Component
 	setChecked (value: boolean): this
+	setInputName (value: string | undefined): this
+	setInputType (value: 'checkbox' | 'radio'): this
+	setInputValue (value: string | undefined): this
 }
 
 interface Checkbox extends Component, CheckboxExtensions { }
 
-const Checkbox = Component('label', (component): Checkbox => {
+const Checkbox = Component<[], Checkbox>('label', (component): Checkbox => {
 	const label = Component().style('checkbox-label')
 	const checked = State(false)
+	const name = State<string | undefined>(undefined)
+	const type = State<'checkbox' | 'radio'>('checkbox')
+	const value = State<string | undefined>(undefined)
 	const input = Component('input')
 		.style('checkbox-input')
-		.attributes.set('type', 'checkbox')
+		.attributes.bind('name', name)
+		.attributes.bind('type', type)
+		.attributes.bind('value', value)
 		.event.subscribe('change', event => checked.value = event.host.element?.checked ?? checked.value)
 		.tweak(input => {
 			input.onRealise(syncChecked)
@@ -48,6 +56,18 @@ const Checkbox = Component('label', (component): Checkbox => {
 			label,
 			setChecked (value) {
 				checked.value = value
+				return checkbox
+			},
+			setInputName (newName) {
+				name.value = newName
+				return checkbox
+			},
+			setInputType (newType) {
+				type.value = newType
+				return checkbox
+			},
+			setInputValue (newValue) {
+				value.value = newValue
 				return checkbox
 			},
 		}))

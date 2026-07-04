@@ -5,7 +5,7 @@ export const VIRTUAL_TABLE_NAMES = ['profiles', 'pgcrs'] as const
 export type VirtualTableName = typeof VIRTUAL_TABLE_NAMES[number]
 export type DataTableName = AllComponentNames | VirtualTableName
 
-export function isVirtualTableName (table: DataTableName | string): table is VirtualTableName {
+export function isVirtualTableName (table: string): table is VirtualTableName {
 	return (VIRTUAL_TABLE_NAMES as readonly string[]).includes(table)
 }
 

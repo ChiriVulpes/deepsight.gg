@@ -32,6 +32,7 @@ export interface SortDividerRow {
 export type SortDisplayRow = SortRow | SortDividerRow
 
 class SortManager {
+
 	readonly entries = State<readonly SortEntry[]>([])
 	readonly activeRows = State<readonly SortRow[]>([])
 	readonly inactiveRows = State<readonly SortRow[]>([])
@@ -210,6 +211,7 @@ class SortManager {
 		this.rowOrder = nextOrder
 		return this.rowOrder
 	}
+
 }
 
 function fallbackCompare (a: ItemStateOptional, b: ItemStateOptional) {

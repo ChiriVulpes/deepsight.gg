@@ -15,7 +15,11 @@ For non-generic component builders whose output type is not inferred, set the ou
 ## Command Hygiene
 Validation commands must be non-emitting unless the user explicitly approves an emitting build or generation step.
 
-Use this non-emitting check for deepsight.gg:
+Before TypeScript validation, run these dry source-generation checks in parallel:
+- From `style`: `pnpm exec chiri index.chiri --dry`
+- From `lang/en-nz`: `pnpm exec weaving index.quilt --dry`
+
+After the dry checks pass, use this non-emitting TypeScript check for deepsight.gg:
 - `pnpm exec tsc -p src\tsconfig.json --noEmit --incremental false`
 
 Run lint in parallel with the TypeScript validation command:

@@ -78,7 +78,8 @@ namespace DataHelper {
 						: undefined
 
 		if (!component || component?.startsWith('Deepsight'))
-			return url.startsWith('/') ? `https://www.bungie.net${url}`
+			return url.startsWith('/image/') || url.startsWith('/static/') ? `https://deepsight.gg${url}`
+				: url.startsWith('/') ? `https://www.bungie.net${url}`
 				: url.startsWith('./') ? `https://deepsight.gg${url.slice(1)}`
 					: url.startsWith('http') ? url
 						: undefined

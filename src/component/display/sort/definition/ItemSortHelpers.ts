@@ -1,4 +1,4 @@
-import { InventoryItemHashes } from 'deepsight.gg/Enums'
+import type { InventoryItemHashes } from 'deepsight.gg/Enums'
 import { ItemState as InventoryItemState } from 'bungie-api-ts/destiny2'
 import Definitions from 'model/Definitions'
 import type { ItemStateOptional } from 'model/Items'

@@ -5,18 +5,20 @@ import Link from 'component/core/Link'
 import Paginator from 'component/core/Paginator'
 import TabButton from 'component/core/TabButton'
 import View from 'component/core/View'
-import { FilterToken, PLAINTEXT_FILTER_TWEAK_CHIP } from 'component/display/Filter'
+import Filter, { FilterToken, PLAINTEXT_FILTER_TWEAK_CHIP } from 'component/display/Filter'
 import DisplayBar from 'component/DisplayBar'
 import Overlay from 'component/Overlay'
 import type { DataOverlayParams } from 'component/overlay/DataOverlay'
 import DataOverlay from 'component/overlay/DataOverlay'
+import type { LightboxOverlayParams } from 'component/overlay/LightboxOverlay'
+import LightboxOverlay from 'component/overlay/LightboxOverlay'
 import ProfileButton from 'component/profile/ProfileButton'
 import DataDefinitionButton, { type DataDefinitionButtonData } from 'component/view/data/DataDefinitionButton'
 import DataHelper from 'component/view/data/DataHelper'
-import DataProvider from 'component/view/data/DataProvider'
+import DataProvider, { DeepsightImageCategories } from 'component/view/data/DataProvider'
 import type { DataTableName } from 'component/view/data/DataTable'
 import { isComponentTableName, VIRTUAL_TABLE_NAMES } from 'component/view/data/DataTable'
-import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { AllComponentNames, DefinitionsImagePage, DefinitionsPage } from 'conduit.deepsight.gg/DefinitionComponents'
 import type { Profile } from 'conduit.deepsight.gg/Profile'
 import { Component, State } from 'kitsui'
 import Loading from 'kitsui/component/Loading'
@@ -128,7 +130,7 @@ const DATA_DISPLAY = DisplayBar.Config({
 		id: 'data-filter',
 		allowUppercase: true,
 		debounceTime: 500,
-		filters: [],
+		filters: [ImageCategoryFilter()],
 		plaintextFilterTweakChip (chip, token) {
 			if (token.lowercase.startsWith('deep:'))
 				token = FilterToken.create(token.slice(5))
@@ -142,6 +144,37 @@ const DATA_DISPLAY = DisplayBar.Config({
 		},
 	},
 })
+
+function isDefinitionsImagePage (page: DefinitionsPage<object> | DefinitionsImagePage<object>): page is DefinitionsImagePage<object> {
+	return 'images' in page && 'layout' in page
+}
+
+function ImageCategoryFilter () {
+	const prefix = 'image:'
+	return Filter.Definition({
+		id: 'image',
+		type: 'and',
+		suggestions: DeepsightImageCategories.aliases.map(alias => `${prefix}${alias}`),
+		match (_owner, token) {
+			if (!token.lowercase.startsWith(prefix))
+				return undefined
+
+			const category = DeepsightImageCategories.fromAlias(token.lowercase.slice(prefix.length))
+			const [labelText, filterText] = token.displayText.split(':')
+			return {
+				fullText: token.lowercase,
+				isPartial: token.lowercase !== prefix && category === undefined,
+				chip (chip) {
+					chip.labelText.set(`${labelText}:`)
+					chip.text.set(filterText)
+				},
+				filter () {
+					return true
+				},
+			}
+		},
+	})
+}
 
 //#endregion
 ////////////////////////////////////
@@ -310,6 +343,7 @@ export default View<DataParams | undefined>(async view => {
 
 	view.displayBarConfig.value = DATA_DISPLAY
 	const filterText = view.displayHandlers.map(view, display => display?.filter.filterText)
+	const lightboxImage = State<LightboxOverlayParams | undefined>(undefined)
 
 	componentNames.useManual(componentNames => console.log('Component Names:', componentNames))
 
@@ -366,7 +400,10 @@ export default View<DataParams | undefined>(async view => {
 			//#endregion
 			////////////////////////////////////
 
-			const dataPageProvider = DataProvider.createPaged(filterText)
+			const isImagesMode = DataProvider.hasImageFilter(filterText)
+			const dataPageProvider = isImagesMode
+				? DataProvider.createImagePaged(filterText)
+				: DataProvider.createPaged(filterText)
 
 			interface GroupWrapper {
 				readonly details: Details
@@ -463,7 +500,7 @@ export default View<DataParams | undefined>(async view => {
 
 					openedOnce.value = true
 
-					const pageSize = 50
+					const pageSize = isImagesMode ? 20 : 50
 					const isInitialInit = true
 					Paginator()
 						.style('data-view-component-paginator')
@@ -476,12 +513,14 @@ export default View<DataParams | undefined>(async view => {
 							init (paginator, slot, page, data) {
 								const list = Component()
 									.style('data-view-definition-list')
+									.style.toggle(isImagesMode, 'data-view-definition-list--images')
 									.appendTo(slot)
 
 								if (!data) {
 									console.error('Failed to load definitions page')
 									return
 								}
+								const imagePage = isImagesMode && isDefinitionsImagePage(data) ? data : undefined
 
 								for (let i = -5; i <= 5; i++)
 									if (page + i >= 0 && page + i < data.totalPages)
@@ -498,17 +537,31 @@ export default View<DataParams | undefined>(async view => {
 									const singleDef = keys.length > 1 || typeof data.definitions[keys[0]] !== 'object' || !data.definitions[keys[0]]
 										? data.definitions
 										: data.definitions[keys[0]]
+									const imageKey = keys.length === 1 ? keys[0] : undefined
 									const button = DataDefinitionButton()
-									button.data.value = { component: name, definition: singleDef, singleDefComponent: true }
+									button.data.value = {
+										component: name,
+										definition: singleDef,
+										singleDefComponent: true,
+										images: imageKey === undefined ? undefined : imagePage?.images[imageKey],
+										imageLayout: imagePage?.layout,
+									}
 									button.event.subscribe('BackgroundOpen', (event, path, data) => {
 										event.preventDefault()
 										addBackgroundBreadcrumb(path, data)
+									})
+									button.event.subscribe('ImageOpen', (event, image, data) => {
+										event.preventDefault()
+										lightboxImage.value = {
+											url: image.url,
+											title: getLightboxTitle(data),
+										}
 									})
 									button.appendTo(list)
 									return
 								}
 
-								for (const [, definition] of Object.entries(data.definitions) as [string, { hash: number | string }][]) {
+								for (const [key, definition] of Object.entries(data.definitions) as [string, { hash: number | string }][]) {
 									DataProvider.SINGLE.prep(name, definition.hash)
 									if (name === 'profiles' && isProfileDefinition(definition)) {
 										ProfileButton(definition)
@@ -519,10 +572,22 @@ export default View<DataParams | undefined>(async view => {
 									}
 
 									const button = DataDefinitionButton()
-									button.data.value = { component: name, definition }
+									button.data.value = {
+										component: name,
+										definition,
+										images: imagePage?.images[key],
+										imageLayout: imagePage?.layout,
+									}
 									button.event.subscribe('BackgroundOpen', (event, path, data) => {
 										event.preventDefault()
 										addBackgroundBreadcrumb(path, data)
+									})
+									button.event.subscribe('ImageOpen', (event, image, data) => {
+										event.preventDefault()
+										lightboxImage.value = {
+											url: image.url,
+											title: getLightboxTitle(data),
+										}
 									})
 									button.appendTo(list)
 								}
@@ -556,6 +621,10 @@ export default View<DataParams | undefined>(async view => {
 
 		if (!breadcrumbs.value.some(existing => Breadcrumb.equals(existing, breadcrumb)))
 			breadcrumbs.value = [...breadcrumbs.value, breadcrumb]
+	}
+
+	function getLightboxTitle (data: DataDefinitionButtonData) {
+		return Functions.resolve<[Quilt], string | Weave | undefined>(DataHelper.getTitleText(data.component, data.definition), quilt)?.toString()
 	}
 
 	const homeLinkURL = navigate.state.map(view, url => {
@@ -659,6 +728,7 @@ export default View<DataParams | undefined>(async view => {
 	const hasPendingOverlayDefinition = State.Every(view, view.params.truthy, overlayDefinition.settled.falsy)
 	const shouldShowOverlay = State.Some(view, overlayDefinition.truthy, hasPendingOverlayDefinition)
 	Overlay(view).and(DataOverlay, overlayDefinition).bind(shouldShowOverlay)
+	Overlay(view).and(LightboxOverlay, lightboxImage).bind(lightboxImage.truthy)
 
 	shouldShowOverlay.subscribeManual(show => {
 		if (!show) {

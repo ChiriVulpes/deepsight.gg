@@ -69,6 +69,9 @@
 		%flex-wrap
 		%gap-2
 
+		&--images:
+			%gap-3
+
 	&-definition-button:
 		#after: .button
 
@@ -79,6 +82,7 @@
 			"icon title"
 			"icon subtitle"
 			"icon ."
+			"images images"
 		grid-auto-rows: min-content
 		width: calc((100% - $space-2 * 4) / 5)
 		%min-width-7
@@ -88,9 +92,23 @@
 		box-shadow: inset 0 0 $space-3 #fff1
 		background: #222a
 		%border-colour-6
-		%padding-left-1
+		%padding-inline-1
 		%padding-block-1
 		%border-box
+
+		&--images:
+			#after: .data-view-definition-button
+			; width: calc((100% - $space-3 * 3) / 4)
+
+		&--image-hover:
+			#after: .data-view-definition-button, .button--hover
+			translate: 0 0
+			@before:
+				inset-inline: -10px
+				inset-block: -10px
+				%transparent
+			@after:
+				%transparent
 
 		&-icon:
 			grid-area: icon
@@ -113,6 +131,53 @@
 			%weight-semibold
 			%clamp-1
 			%font-vertical-align
+		&-images:
+			grid-area: images
+			%grid
+			grid-template-columns: repeat(4, minmax(0, 1fr))
+			aspect-ratio: 2
+			%gap-1
+			%margin-top-1
+			%overflow-hidden
+			&--slots-1:
+				grid-template-columns: minmax(0, 1fr)
+			&--slots-2:
+				grid-template-columns: repeat(2, minmax(0, 1fr))
+			&--slots-3:
+				grid-template-columns: repeat(3, minmax(0, 1fr))
+			&--slots-4:
+				grid-template-columns: repeat(4, minmax(0, 1fr))
+			&--slots-5, &--slots-6:
+				grid-template-columns: repeat(3, minmax(0, 1fr))
+			&--slots-7, &--slots-8:
+				grid-template-columns: repeat(4, minmax(0, 1fr))
+		&-image-target:
+			%relative
+			%inline-flex
+			%align-self-centre
+			%justify-self-centre
+			%isolate
+			%cursor-pointer
+			%min-height-0
+			height: 100%
+			max-height: fit-content
+			@before, @after:
+				%block
+				%absolute
+				%inset-0
+				%pointer-events-none
+			@before:
+				box-shadow: inset 0 0 0 1px #fff2
+			@after:
+				box-shadow: inset 0 0 0 1px #333
+				%colour-dodge
+		&-image:
+			width: 100%
+			height: 100%
+			max-width: min(100%, ${data-view-definition-button-image-natural-width: 100%})
+			max-height: min(100%, ${data-view-definition-button-image-natural-height: 100%})
+			object-fit: ${data-view-definition-button-image-fit: cover}
+			object-position: center
 
 	&-breadcrumbs:
 

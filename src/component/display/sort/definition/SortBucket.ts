@@ -1,5 +1,5 @@
 import { Sort } from 'component/display/sort/SortDefinition'
-import { InventoryBucketHashes } from "deepsight.gg/Enums"
+import { InventoryBucketHashes } from 'deepsight.gg/Enums'
 
 const logicalOrder = [
 	InventoryBucketHashes.KineticWeapons,
@@ -10,7 +10,7 @@ const logicalOrder = [
 	InventoryBucketHashes.ChestArmor,
 	InventoryBucketHashes.LegArmor,
 	InventoryBucketHashes.ClassArmor,
-	InventoryBucketHashes.SeasonalArtifact,
+	InventoryBucketHashes.Artifacts,
 	InventoryBucketHashes.Ghost,
 	InventoryBucketHashes.Vehicle,
 	InventoryBucketHashes.Ships,

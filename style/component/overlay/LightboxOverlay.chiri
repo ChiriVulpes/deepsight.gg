@@ -1,0 +1,31 @@
+.lightbox-overlay:
+	#after: .overlay
+	%flex
+	%align-items-centre
+	%justify-content-centre
+	%padding-5
+
+	&-content:
+		%contents
+
+	&-image-anchor:
+		%relative
+		%inline-flex
+		%isolate
+		%max-width-100
+		max-height: calc(100vh - $space-7)
+		@before, @after:
+			%block
+			%absolute
+			%inset-0
+			%pointer-events-none
+		@before:
+			box-shadow: inset 0 0 0 1px #fff2
+		@after:
+			box-shadow: inset 0 0 0 1px #333
+			%colour-dodge
+
+	&-image:
+		%max-width-100
+		max-height: calc(100vh - $space-7)
+		object-fit: contain

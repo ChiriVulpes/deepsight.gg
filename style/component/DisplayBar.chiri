@@ -218,3 +218,13 @@ scroll-padding-bottom: calc($display-bar-height + $space-4)
 	&-help:
 
 		&-button:
+			%transparent
+
+	&-mode:
+
+		&-button:
+
+			&-subtitle:
+				%min-width-0
+				%width-100
+				%overflow-hidden

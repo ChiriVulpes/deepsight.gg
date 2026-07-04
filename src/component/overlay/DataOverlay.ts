@@ -591,7 +591,7 @@ export default Component((component, params: State<DataOverlayParams | undefined
 					////////////////////////////////////
 				}
 			}
-			else {
+			else if (link.component !== 'profiles' && link.component !== 'pgcrs') {
 				////////////////////////////////////
 				//#region Reference Def
 

@@ -1,16 +1,39 @@
-import type { AllComponentNames, DefinitionReferencesPage, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { DataTableName } from 'component/view/data/DataTable'
+import { isVirtualTableName } from 'component/view/data/DataTable'
+import DataVirtualTables from 'component/view/data/DataVirtualTables'
+import type { AllComponentNames, DefinitionReferencesPage, DefinitionsImagePage, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
 import type { DefinitionsFilter } from 'conduit.deepsight.gg/Definitions'
+import { DeepsightImageCategory } from 'deepsight.gg/Interfaces'
 import { State } from 'kitsui'
 import Relic from 'Relic'
 import Arrays from 'utility/Arrays'
 import { _ } from 'utility/Objects'
-import type { DataTableName } from './DataTable'
-import { isVirtualTableName } from './DataTable'
-import DataVirtualTables from './DataVirtualTables'
+
+export namespace DeepsightImageCategories {
+
+	export const map: Record<DeepsightImageCategory, string> = {
+		[DeepsightImageCategory.PgcrImage]: 'pgcrimage',
+		[DeepsightImageCategory.Iconography]: 'iconography',
+		[DeepsightImageCategory.Icon]: 'icon',
+		[DeepsightImageCategory.Screenshot]: 'screenshot',
+		[DeepsightImageCategory.Watermark]: 'watermark',
+		[DeepsightImageCategory.Placeholder]: 'placeholder',
+	}
+
+	export const aliases: string[] = [] // Object.values(map)
+	export const categories = /* Object.keys(map).map(Number)*/[] as DeepsightImageCategory[]
+
+	export function fromAlias (alias: string): DeepsightImageCategory | undefined {
+		alias = alias.toLowerCase()
+		return +Object.entries(map).find(([_, value]) => value === alias)?.at(0)!
+			|| undefined
+	}
+}
 
 declare module 'conduit.deepsight.gg/Definitions' {
 	export interface DefinitionsFilter<DEFINITION> {
 		componentNameContains?: string[]
+		imageCategories?: DeepsightImageCategory[]
 	}
 }
 
@@ -145,8 +168,8 @@ namespace DataProvider {
 		prepCacheSize: 5,
 	})
 
-	export const createPaged = (filters?: DefinitionsFilter<object> | string) => {
-		const filtersObj = typeof filters === 'string' ? createDefinitionsFilter(filters) : filters
+	export const createPaged = (filters?: DefinitionsFilter<object> | string, includeImageFilters = false) => {
+		const filtersObj = typeof filters === 'string' ? createDefinitionsFilter(filters, includeImageFilters) : filters
 		return DataProvider<[component: DataTableName, pageSize: number, page: number], DefinitionsPage<object>>({
 			provider: async ([component, pageSize, page], signal, setProgress) => {
 				const conduit = await Relic.connected
@@ -171,11 +194,37 @@ namespace DataProvider {
 		})
 	}
 
+	export const createImagePaged = (filters?: DefinitionsFilter<object> | string) => {
+		const filtersObj = typeof filters === 'string' ? createDefinitionsFilter(filters, true) : filters
+		return DataProvider<[component: DataTableName, pageSize: number, page: number], DefinitionsImagePage<object>>({
+			provider: async ([component, pageSize, page], signal, setProgress) => {
+				const conduit = await Relic.connected
+				if (signal.aborted)
+					return undefined
+
+				const lowercaseComponent = component.toLowerCase()
+				if (filtersObj?.componentNameContains?.length && !filtersObj.componentNameContains.some(namePart => lowercaseComponent.includes(namePart.toLowerCase())))
+					return undefined
+
+				if (isVirtualTableName(component))
+					return undefined
+
+				const definitionsPage = await conduit.definitions.en[component as Exclude<AllComponentNames, 'DeepsightStats'>].imagePage(pageSize, page, filtersObj as never)
+				if (signal.aborted)
+					return undefined
+
+				return definitionsPage
+			},
+			cacheSize: 5,
+			prepCacheSize: 5,
+		})
+	}
+
 	export const createReferencesPaged = (component: DataTableName, hash: number | string) => {
 		return DataProvider<[pageSize: number, page: number], DefinitionReferencesPage>({
 			provider: async ([pageSize, page], signal, setProgress) => {
 				if (isVirtualTableName(component))
-					return await DataVirtualTables.getReferencesPage(pageSize, page) as DefinitionReferencesPage
+					return DataVirtualTables.getReferencesPage(pageSize, page) as DefinitionReferencesPage
 
 				const conduit = await Relic.connected
 				if (signal.aborted)
@@ -188,14 +237,58 @@ namespace DataProvider {
 		})
 	}
 
-	export function createDefinitionsFilter (filterText?: string): DefinitionsFilter<object> | undefined {
+	export function createDefinitionsFilter (filterText?: string, includeImageFilters = false): DefinitionsFilter<object> | undefined {
 		if (!filterText)
 			return undefined
+
+		const filter: DefinitionsFilter<object> = {}
+
+		const tokens = tokeniseFilterText(filterText).filter(token => token.length > 3)
+		for (const token of tokens) {
+			const lowercaseToken = token.toLowerCase()
+			if (lowercaseToken.startsWith('table:')) {
+				Arrays.resolve(filter.componentNameContains ??= []).push(token.substring(6))
+				continue
+			}
+
+			if (lowercaseToken.startsWith('image:')) {
+				if (includeImageFilters) {
+					const category = DeepsightImageCategories.fromAlias(lowercaseToken.substring(6))
+					if (category !== undefined)
+						Arrays.resolve(filter.imageCategories ??= []).push(category)
+				}
+				continue
+			}
+
+			if (lowercaseToken.startsWith('deep:')) {
+				Arrays.resolve(filter.deepContains ??= []).push(token.substring(5))
+				continue
+			}
+
+			if (token.startsWith('$')) {
+				Arrays.resolve(filter.jsonPathExpression ??= []).push(token)
+				continue
+			}
+
+			Arrays.resolve(filter.nameContainsOrHashIs ??= []).push(token)
+		}
+
+		return filter
+	}
+
+	export function hasImageFilter (filterText?: string): boolean {
+		return tokeniseFilterText(filterText)
+			.some(token => token.toLowerCase().startsWith('image:'))
+	}
+
+	function tokeniseFilterText (filterText?: string): string[] {
+		if (!filterText)
+			return []
 
 		filterText = filterText.replace(/\s+/g, ' ').trim()
 
 		let inQuotes = false
-		let tokens: string[] = ['']
+		const tokens: string[] = ['']
 		for (let i = 0; i < filterText.length; i++) {
 			const char = filterText[i]
 			if (char === '"') {
@@ -211,29 +304,7 @@ namespace DataProvider {
 			tokens[tokens.length - 1] += char
 		}
 
-		const filter: DefinitionsFilter<object> = {}
-
-		tokens = tokens.filter(token => token.length > 3)
-		for (const token of tokens) {
-			if (token.startsWith('table:')) {
-				Arrays.resolve(filter.componentNameContains ??= []).push(token.substring(6))
-				continue
-			}
-
-			if (token.startsWith('deep:')) {
-				Arrays.resolve(filter.deepContains ??= []).push(token.substring(5))
-				continue
-			}
-
-			if (token.startsWith('$')) {
-				Arrays.resolve(filter.jsonPathExpression ??= []).push(token)
-				continue
-			}
-
-			Arrays.resolve(filter.nameContainsOrHashIs ??= []).push(token)
-		}
-
-		return filter
+		return tokens
 	}
 }
 

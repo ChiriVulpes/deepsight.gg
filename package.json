@@ -5,17 +5,12 @@
 	"devDependencies": {
 		"@types/node": "22.16.0",
 		"ansicolor": "2.0.3",
-		"chiri": "github:fluff4me/chiri#56e097a4050d29fc993f3a3eb4d54eb6d5b198d2",
+		"chiri": "github:fluff4me/chiri#5564e0e6728ad1a384f1fc89ae2d703b9360d708",
 		"fantasticon": "3.0.0",
 		"lint": "github:fluff4me/lint#67c325cac44e46be0d8cad6ea5935a7ad9c6638d",
-		"task": "github:chirivulpes/task#4743b1177d35a1fa751de5fed6362e5d4e36ce0e",
+		"task": "github:chirivulpes/task#286a31e479712e3e79725cbe45acd0496de7bcc4",
 		"tinyglobby": "0.2.14",
 		"typescript": "5.9.3",
-		"weaving": "github:chirivulpes/weaving#105ed29c4bdbae5570ca486298024426575c26af"
-	},
-	"pnpm": {
-		"overrides": {
-			"express": "-"
-		}
+		"weaving": "github:chirivulpes/weaving#56af36742e4b7b9672cd9e6c75d1e82da4d4111d"
 	}
 }

@@ -2,3 +2,8 @@ sharedWorkspaceLockfile: false
 minimumReleaseAgeExclude:
   - 'bungie-api-ts'
   - 'deepsight.gg'
+
+overrides:
+  "conduit.deepsight.gg>bungie-api-ts": "$bungie-api-ts"
+  "conduit.deepsight.gg>deepsight.gg": "$deepsight.gg"
+  "deepsight.gg>bungie-api-ts": "$bungie-api-ts"

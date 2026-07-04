@@ -1,6 +1,5 @@
 import type { PgcrsPageEntry, PgcrStatus } from 'conduit.deepsight.gg/ConduitMessageRegistry'
-import type { AllComponentNames } from 'conduit.deepsight.gg/DefinitionComponents'
-import type { DefinitionLinks, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
+import type { AllComponentNames, DefinitionLinks, DefinitionsPage, DefinitionWithLinks } from 'conduit.deepsight.gg/DefinitionComponents'
 import type { DefinitionsFilter } from 'conduit.deepsight.gg/Definitions'
 import type { Profile } from 'conduit.deepsight.gg/Profile'
 import ProfileModel from 'model/Profile'
@@ -60,7 +59,7 @@ namespace DataVirtualTables {
 		return singleCache.get(cacheKey)
 	}
 
-	export async function getReferencesPage (pageSize: number, page: number) {
+	export function getReferencesPage (pageSize: number, page: number) {
 		return {
 			page,
 			pageSize,
@@ -177,6 +176,9 @@ namespace DataVirtualTables {
 				continue
 			}
 
+			if (link.component === 'profiles' || link.component === 'pgcrs')
+				continue
+
 			const hashes = followLinkPath(definition, link.path.split('.'))
 			if (!hashes.length)
 				continue
@@ -249,14 +251,14 @@ namespace DataVirtualTables {
 		return !value ? [] : Array.isArray(value) ? value : [value]
 	}
 
-	function followLinkPath (obj: any, path: (string | number)[]): (number | string)[] {
+	function followLinkPath (obj: unknown, path: readonly string[]): (number | string)[] {
 		if (!path.length && (typeof obj === 'number' || typeof obj === 'string'))
 			return [obj]
 
 		if (!obj || typeof obj !== 'object')
 			return []
 
-		const key = path.shift()
+		const [key, ...nextPath] = path
 		if (!key)
 			return []
 
@@ -267,17 +269,17 @@ namespace DataVirtualTables {
 			if (!path.length)
 				return obj.filter(item => typeof item === 'number' || typeof item === 'string')
 
-			return obj.flatMap((item: any) => followLinkPath(item, path.slice()))
+			return obj.flatMap(item => followLinkPath(item, nextPath))
 		}
 
 		if (key === '{}') {
 			if (!path.length)
 				return Object.keys(obj)
 
-			return Object.values(obj).flatMap(value => followLinkPath(value, path.slice()))
+			return Object.values(obj).flatMap(value => followLinkPath(value, nextPath))
 		}
 
-		return followLinkPath(obj[key], path)
+		return followLinkPath((obj as Record<string, unknown>)[key], nextPath)
 	}
 }
 
