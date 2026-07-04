@@ -35,6 +35,7 @@ interface ViewExtensions<PARAMS extends object | undefined> {
 interface View<PARAMS extends object | undefined> extends Component, ViewExtensions<PARAMS> { }
 
 const SYMBOL_VIEW_PARAMS = Symbol('VIEW_PARAMS')
+const visibleLoadingViewIds = State(new Set<string>(), false)
 
 namespace View {
 	export type Builder<PARAMS extends object | undefined> = (PARAMS extends undefined
@@ -100,6 +101,11 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 		let markLoadFinished: (() => void) | undefined
 		let markFinishResolved: (() => void) | undefined
 		const finishResolvedPromise = new Promise<void>(resolve => markFinishResolved = resolve)
+		let releaseVisibleLoading: (() => void) | undefined
+		view.onRemoveManual(() => {
+			releaseVisibleLoading?.()
+			releaseVisibleLoading = undefined
+		})
 		view.extendJIT('loading', () => loading ??= Object.assign(Loading().appendTo(view.infoContainer), {
 			start () {
 				return loadingApiPromise
@@ -173,12 +179,36 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 			const loadFinishedPromise = new Promise<void>(resolve => markLoadFinished = resolve)
 			loading.set(
 				async (signal, setProgress) => {
-					setLoadingApi!({
-						signal,
-						setProgress,
+					releaseVisibleLoading?.()
+					let released = false
+					const releaseThisVisibleLoading = () => {
+						if (released)
+							return
+
+						released = true
+						visibleLoadingViewIds.updateValue(ids => {
+							ids.delete(id)
+							return ids
+						})
+					}
+					releaseVisibleLoading = releaseThisVisibleLoading
+					visibleLoadingViewIds.updateValue(ids => {
+						ids.add(id)
+						return ids
 					})
-					await loadFinishedPromise
-					return {}
+					try {
+						setLoadingApi!({
+							signal,
+							setProgress,
+						})
+						await loadFinishedPromise
+						return {}
+					}
+					finally {
+						releaseThisVisibleLoading()
+						if (releaseVisibleLoading === releaseThisVisibleLoading)
+							releaseVisibleLoading = undefined
+					}
 				},
 				async () => {
 					markFinishResolved!()
@@ -192,6 +222,10 @@ function View<PARAMS extends object | undefined> (builder: (view: View<PARAMS>) 
 
 		return view
 	}) as View.Builder<PARAMS>
+}
+
+namespace View {
+	export const loadingVisible = visibleLoadingViewIds.mapManual(ids => !!ids.size)
 }
 
 export default View

@@ -24,7 +24,7 @@ export default async function () {
 
 	Component.getBody().style('body')
 
-	await Env['init']()
+	await Env.init()
 	void Relic.init()
 	void Profile.init()
 

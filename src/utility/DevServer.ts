@@ -3,7 +3,7 @@ import Style from 'utility/Style'
 
 namespace DevServer {
 	export function listen () {
-		if (Env.ENVIRONMENT !== 'dev')
+		if (Env.value.ENVIRONMENT !== 'dev')
 			return
 
 		const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:'

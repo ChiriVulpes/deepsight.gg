@@ -10,7 +10,7 @@ export default Object.assign(
 		connected,
 		async init (this: State<Conduit | undefined>) {
 			const conduit = await Conduit({
-				service: Env.CONDUIT_ORIGIN,
+				service: Env.value.CONDUIT_ORIGIN,
 			})
 			this.asMutable?.setValue(conduit)
 			Object.assign(window, { conduit })

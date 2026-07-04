@@ -1,6 +1,7 @@
 import DisplaySlot from 'component/core/DisplaySlot'
 import type Toast from 'component/core/Toast'
 import { ToastStream } from 'component/core/Toast'
+import View from 'component/core/View'
 import Item from 'component/item/Item'
 import type { ConduitOperation, ConduitOperationType, ConduitWarningMessageType, RelatedItem } from 'conduit.deepsight.gg/ConduitMessageRegistry'
 import type Inventory from 'conduit.deepsight.gg/item/Inventory'
@@ -45,6 +46,18 @@ type ConduitOperationTextKey<T extends ConduitOperationType = ConduitOperationTy
 type ConduitWarningTextKey<T extends ConduitWarningMessageType = ConduitWarningMessageType> =
 	Extract<Quilt.Key, `conduit-operations/warning/${KebabCase<T>}`>
 
+const LOADING_OPERATION_TYPES = new Set<ConduitOperationType>([
+	'Searching Destiny players',
+	'Updating player profiles',
+	'Updating your player profile',
+	'Validating Bungie.net access token',
+	'Fetching Destiny profile',
+	'Resolving inventory',
+	'Resolving collections',
+	'Checking for new definitions',
+	'Downloading definitions',
+])
+
 namespace ConduitBroadcastHandler {
 
 	export const provider = State<ItemProvider | undefined>(undefined)
@@ -54,94 +67,117 @@ namespace ConduitBroadcastHandler {
 		const conduit = await Relic.connected
 
 		let currentOperationsToast: Toast | undefined
-		const activeOperations = State<ConduitOperation[]>([])
-		conduit.on.startOperation(operation => {
-			activeOperations.value.push(operation)
-			activeOperations.emit()
-			if (!currentOperationsToast) stream.add(toast => currentOperationsToast = toast
-				.style.bind(State.Map(toast, [activeOperations, toast.removing], (operations, removing) => !!operations.length && !removing), 'toast--has-icon')
-				.prepend(DisplaySlot()
-					.style('conduit-operations-indicator')
-					.use({ activeOperations, removing: toast.removing, provider }, (slot, { activeOperations: operations, removing, provider }) => {
-						if (removing || !operations.length)
-							return
-
-						const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
-						if (provider && relatedItems.length === 1) {
-							Component()
-								.setOwner(toast)
-								.tweak(component => appendRelatedItem(component, relatedItems[0], { moving: true }))
-								.appendTo(slot)
-							return
-						}
-
-						Loading()
-							.setOwner(toast)
-							.style('toast-loader')
-							.showForever()
-							.appendTo(slot)
-					})
-				)
-				.tweak(toast => DisplaySlot()
-					.style('conduit-operations')
-					.use({ activeOperations, removing: toast.removing, provider }, (slot, { activeOperations: operations, removing, provider }) => {
-						if (!operations.length)
-							Component()
-								.style('conduit-operations-operation')
-								.text.set(quilt => quilt['conduit-operations/no-operations']())
-								.appendTo(slot)
-
-						if (removing)
-							return
-
-						const grouped = operations.groupBy(op => op.type)
-						const allRelatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
-						for (const [, operations] of grouped) {
-							const operation = operations[0]
-							const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
-							Component()
-								.setOwner(toast)
-								.style('conduit-operations-operation')
-								.append(Component()
-									.style('conduit-operations-operation-text')
-									.tweak(c => c.text.set(quilt => quilt['conduit-operations/operation'](
-										quilt[getOperationTextKey(operation.type)](
-											getRelatedCharactersArg(c, provider, getRelatedCharacterReferences(operations)),
-										),
-										operations.length > 1 ? operations.length : undefined,
-									)))
-								)
-								.tweak(component => {
-									if (allRelatedItems.length > 1)
-										appendRelatedItemList(component, relatedItems)
-								})
-								.appendTo(slot)
-						}
-					})
-					.appendTo(toast.content)
-				)
+		let removeOperationsToastTimeout: ReturnType<typeof setTimeout> | undefined
+		const activeOperations = State<ConduitOperation[]>([], false)
+		const toastOperations = State.Map(stream, [activeOperations, View.loadingVisible, Env], (operations, viewLoadingVisible, env) =>
+			operations.filter(operation =>
+				env.ENVIRONMENT === 'dev'
+				|| viewLoadingVisible
+				|| !LOADING_OPERATION_TYPES.has(operation.type)
 			)
+		)
+		toastOperations.subscribe(stream, operations => {
+			if (operations.length) {
+				clearTimeout(removeOperationsToastTimeout)
+				removeOperationsToastTimeout = undefined
+
+				if (!currentOperationsToast) stream.add(toast => currentOperationsToast = toast
+					.style.bind(State.Map(toast, [toastOperations, toast.removing], (operations, removing) => !!operations.length && !removing), 'toast--has-icon')
+					.prepend(DisplaySlot()
+						.style('conduit-operations-indicator')
+						.use({ activeOperations: toastOperations, removing: toast.removing, provider }, (slot, { activeOperations: operations, removing, provider }) => {
+							if (removing || !operations.length)
+								return
+
+							const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
+							if (provider && relatedItems.length === 1) {
+								Component()
+									.setOwner(toast)
+									.tweak(component => appendRelatedItem(component, relatedItems[0], { moving: true }))
+									.appendTo(slot)
+								return
+							}
+
+							Loading()
+								.setOwner(toast)
+								.style('toast-loader')
+								.showForever()
+								.appendTo(slot)
+						})
+					)
+					.tweak(toast => DisplaySlot()
+						.style('conduit-operations')
+						.use({ activeOperations: toastOperations, removing: toast.removing, provider }, (slot, { activeOperations: operations, removing, provider }) => {
+							if (!operations.length)
+								Component()
+									.style('conduit-operations-operation')
+									.text.set(quilt => quilt['conduit-operations/no-operations']())
+									.appendTo(slot)
+
+							if (removing)
+								return
+
+							const grouped = operations.groupBy(op => op.type)
+							const allRelatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
+							for (const [, operations] of grouped) {
+								const operation = operations[0]
+								const relatedItems = uniqueRelatedItemReferences(getRelatedItemReferences(operations))
+								Component()
+									.setOwner(toast)
+									.style('conduit-operations-operation')
+									.append(Component()
+										.style('conduit-operations-operation-text')
+										.tweak(c => c.text.set(quilt => quilt['conduit-operations/operation'](
+											quilt[getOperationTextKey(operation.type)](
+												getRelatedCharactersArg(c, provider, getRelatedCharacterReferences(operations)),
+											),
+											operations.length > 1 ? operations.length : undefined,
+										)))
+									)
+									.tweak(component => {
+										if (allRelatedItems.length > 1)
+											appendRelatedItemList(component, relatedItems)
+									})
+									.appendTo(slot)
+							}
+						})
+						.appendTo(toast.content)
+					)
+				)
+
+				return
+			}
+
+			if (!currentOperationsToast || removeOperationsToastTimeout !== undefined)
+				return
+
+			removeOperationsToastTimeout = setTimeout(() => {
+				removeOperationsToastTimeout = undefined
+				if (toastOperations.value.length)
+					return
+
+				currentOperationsToast?.queueRemove()
+				currentOperationsToast = undefined
+			}, 400)
+		})
+		conduit.on.startOperation(operation => {
+			activeOperations.updateValue(operations => {
+				operations.push(operation)
+				return operations
+			})
 		})
 		conduit.on.endOperation(operationId => {
-			const index = activeOperations.value.findIndex(op => op.id === operationId)
-			if (index !== -1) {
-				activeOperations.value.splice(index, 1)
-				activeOperations.emit()
-			}
+			activeOperations.updateValue(operations => {
+				const index = operations.findIndex(op => op.id === operationId)
+				if (index !== -1)
+					operations.splice(index, 1)
 
-			if (!activeOperations.value.length) {
-				setTimeout(() => {
-					if (activeOperations.value.length)
-						return
-
-					currentOperationsToast?.queueRemove()
-					currentOperationsToast = undefined
-				}, 400)
-			}
+				return operations
+			})
 		})
 
 		conduit.on.warning(warning => {
-			if (warning.category === 'conduit' && Env.ENVIRONMENT !== 'dev')
+			if (warning.category === 'conduit' && Env.value.ENVIRONMENT !== 'dev')
 				return
 
 			const owner = State.Owner.create()
