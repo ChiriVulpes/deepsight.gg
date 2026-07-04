@@ -1454,7 +1454,7 @@ packages:
     deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   task@https://codeload.github.com/chirivulpes/task/tar.gz/286a31e479712e3e79725cbe45acd0496de7bcc4:
-    resolution: {gitHosted: true, integrity: sha512-Et4ERpRLMbAjNWvWggkztPBE8XA5LfSyuJkACrcUTRtHumvKdr4+MMU0Akf+nn9a2iut8u3lCx1inAG2I8Xe8A==, tarball: https://codeload.github.com/chirivulpes/task/tar.gz/286a31e479712e3e79725cbe45acd0496de7bcc4}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/chirivulpes/task/tar.gz/286a31e479712e3e79725cbe45acd0496de7bcc4}
     version: 1.0.0
     hasBin: true
 
